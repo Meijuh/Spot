@@ -39,11 +39,11 @@ namespace spot
   /// for_me.  See bdd_dict::unregister_all_my_variables().
   /// @{
   SPOT_API bdd
-  formula_to_bdd(ltl::formula f, const bdd_dict_ptr& d, void* for_me);
+  formula_to_bdd(formula f, const bdd_dict_ptr& d, void* for_me);
 
   template<typename T>
   SPOT_API bdd
-  formula_to_bdd(ltl::formula f, const bdd_dict_ptr& d,
+  formula_to_bdd(formula f, const bdd_dict_ptr& d,
 		 const std::shared_ptr<T>& for_me)
   {
     return formula_to_bdd(f, d, for_me.get());
@@ -57,7 +57,7 @@ namespace spot
   /// into their atomic propositions.  This works only for Boolean
   /// formulas, and all the BDD variables used in \a f should have
   /// been registered in \a d.  Although the result has type
-  /// ltl::formula, it obviously does not use any temporal operator.
+  /// formula, it obviously does not use any temporal operator.
   SPOT_API
-  ltl::formula bdd_to_formula(bdd f, const bdd_dict_ptr d);
+  formula bdd_to_formula(bdd f, const bdd_dict_ptr d);
 }

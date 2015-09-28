@@ -27,9 +27,9 @@ namespace spot
 {
   class SPOT_API remove_ap
   {
-    std::set<ltl::formula> props_exist;
-    std::set<ltl::formula> props_pos;
-    std::set<ltl::formula> props_neg;
+    std::set<formula> props_exist;
+    std::set<formula> props_pos;
+    std::set<formula> props_neg;
   public:
     void add_ap(const char* ap_csv);
 

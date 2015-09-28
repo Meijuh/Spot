@@ -55,7 +55,7 @@ main(int argc, char** argv)
   constexpr unsigned n = 10;
 
   // random ap set
-  auto ap = spot::ltl::create_atomic_prop_set(props_n);
+  auto ap = spot::create_atomic_prop_set(props_n);
   // ap set as bdd
   bdd apdict = bddtrue;
   for (auto& i: ap)

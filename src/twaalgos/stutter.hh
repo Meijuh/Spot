@@ -51,7 +51,7 @@ namespace spot
   /// \ingroup ltl_misc
   /// \brief Check if a formula has the stutter invariance property.
   SPOT_API bool
-  is_stutter_invariant(ltl::formula f);
+  is_stutter_invariant(formula f);
 
   SPOT_API bool
   is_stutter_invariant(twa_graph_ptr&& aut_f,
@@ -65,5 +65,5 @@ namespace spot
   /// of the automaton is updated and also returned.
   SPOT_API bool
   check_stutter_invariance(const twa_graph_ptr& aut,
-			   ltl::formula f = nullptr);
+			   formula f = nullptr);
 }

@@ -592,7 +592,7 @@ namespace spot
 
   twa_graph_ptr
   minimize_obligation(const const_twa_graph_ptr& aut_f,
-		      ltl::formula f,
+		      formula f,
 		      const_twa_graph_ptr aut_neg_f,
 		      bool reject_bigger)
   {
@@ -628,7 +628,7 @@ namespace spot
 	  {
 	    // If we know the formula, simply build the automaton for
 	    // its negation.
-	    aut_neg_f = ltl_to_tgba_fm(ltl::formula::Not(f), aut_f->get_dict());
+	    aut_neg_f = ltl_to_tgba_fm(formula::Not(f), aut_f->get_dict());
 	    // Remove useless SCCs.
 	    aut_neg_f = scc_filter(aut_neg_f, true);
 	  }

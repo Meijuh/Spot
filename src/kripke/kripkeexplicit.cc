@@ -260,7 +260,7 @@ namespace spot
   }
 
 
-  void kripke_explicit::add_condition(ltl::formula f, std::string on_me)
+  void kripke_explicit::add_condition(formula f, std::string on_me)
   {
     add_conditions(formula_to_bdd(f, get_dict(), this), on_me);
   }

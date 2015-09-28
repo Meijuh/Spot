@@ -137,9 +137,9 @@ never claim is done via the =print_never_claim= function.
   int main()
   {
     std::string input = "[]<>p0 || <>[]p1";
-    spot::ltl::parse_error_list pel;
-    spot::ltl::formula f = spot::ltl::parse_infix_psl(input, pel);
-    if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+    spot::parse_error_list pel;
+    spot::formula f = spot::parse_infix_psl(input, pel);
+    if (spot::format_parse_errors(std::cerr, input, pel))
       return 1;
     spot::translator trans;
     trans.set_type(spot::postprocessor::BA);

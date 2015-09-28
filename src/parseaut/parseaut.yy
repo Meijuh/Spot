@@ -44,7 +44,7 @@
     typedef std::map<int, bdd> map_t;
 
     /* Cache parsed formulae.  Labels on arcs are frequently identical
-       and it would be a waste of time to parse them to ltl::formula
+       and it would be a waste of time to parse them to formula
        over and over, and to register all their atomic_propositions in
        the bdd_dict.  Keep the bdd result around so we can reuse
        it.  */
@@ -71,7 +71,7 @@
 	spot::location used_loc;
       };
       spot::parsed_aut_ptr h;
-      spot::ltl::environment* env;
+      spot::environment* env;
       formula_cache fcache;
       named_tgba_t* namer = nullptr;
       spot::acc_mapper_int* acc_mapper = nullptr;
@@ -1403,8 +1403,8 @@ nc-formula: nc-formula-or-ident
        auto i = res.fcache.find(*$1);
        if (i == res.fcache.end())
 	 {
-	   spot::ltl::parse_error_list pel;
-	   auto f = spot::ltl::parse_infix_boolean(*$1, pel, *res.env,
+	   spot::parse_error_list pel;
+	   auto f = spot::parse_infix_boolean(*$1, pel, *res.env,
 						   debug_level(), true);
 	   for (auto& j: pel)
 	     {
@@ -1578,8 +1578,8 @@ lbtt-acc:               { $$ = 0U; }
 	}
 lbtt-guard: STRING
           {
-	    spot::ltl::parse_error_list pel;
-	    auto f = spot::ltl::parse_prefix_ltl(*$1, pel, *res.env);
+	    spot::parse_error_list pel;
+	    auto f = spot::parse_prefix_ltl(*$1, pel, *res.env);
 	    if (!f || !pel.empty())
 	      {
 		std::string s = "failed to parse guard: ";
@@ -1884,7 +1884,7 @@ namespace spot
   parsed_aut_ptr
   automaton_stream_parser::parse(parse_aut_error_list& error_list,
 				 const bdd_dict_ptr& dict,
-				 ltl::environment& env,
+				 environment& env,
 				 bool debug)
   {
   restart:
@@ -1927,7 +1927,7 @@ namespace spot
 
   twa_graph_ptr
   automaton_stream_parser::parse_strict(const bdd_dict_ptr& dict,
-					ltl::environment& env,
+					environment& env,
 					bool debug)
   {
     parse_aut_error_list pel;

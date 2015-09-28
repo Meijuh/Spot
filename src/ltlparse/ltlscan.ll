@@ -99,7 +99,7 @@ eol2        (\n\r)+|(\r\n)+
   <<EOF>>		{
                            BEGIN(orig_cond);
                            error_list.push_back(
-			     spot::ltl::one_parse_error(*yylloc,
+			     spot::one_parse_error(*yylloc,
 			       "unclosed comment"));
 			   return 0;
                         }
@@ -141,7 +141,7 @@ eol2        (\n\r)+|(\r\n)+
 				  unput(')');
 				  if (!missing_parent)
                                     error_list.push_back(
-				      spot::ltl::one_parse_error(*yylloc,
+				      spot::one_parse_error(*yylloc,
  					"missing closing parenthese"));
 				  missing_parent = true;
 				}
@@ -195,7 +195,7 @@ eol2        (\n\r)+|(\r\n)+
 				  unput(')');
 				  if (!missing_parent)
                                     error_list.push_back(
-				      spot::ltl::one_parse_error(*yylloc,
+				      spot::one_parse_error(*yylloc,
  					"missing closing brace"));
 				  missing_parent = true;
 				}
@@ -238,7 +238,7 @@ eol2        (\n\r)+|(\r\n)+
 				  if (errno || yylval->num != n)
 				    {
                                       error_list.push_back(
-				        spot::ltl::one_parse_error(*yylloc,
+				        spot::one_parse_error(*yylloc,
 					  "value too large ignored"));
 				      // Skip this number and read next token
                                       yylloc->step();
@@ -347,7 +347,7 @@ eol2        (\n\r)+|(\r\n)+
   [^\\\"\n\r]+		s.append(yytext, yyleng);
   <<EOF>>		{
                            error_list.push_back(
-			     spot::ltl::one_parse_error(*yylloc,
+			     spot::one_parse_error(*yylloc,
 			       "unclosed string"));
                            BEGIN(orig_cond);
 			   yylval->str = new std::string(s);

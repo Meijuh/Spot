@@ -41,15 +41,15 @@ namespace spot
   kripke_parse(const std::string& name,
                kripke_parse_error_list& error_list,
                const bdd_dict_ptr& dict,
-               ltl::environment& env
-               = ltl::default_environment::instance(),
+               environment& env
+               = default_environment::instance(),
                bool debug = false);
 
 
   /// \brief Format diagnostics produced by spot::kripke_parse.
   /// \param os Where diagnostics should be output.
   /// \param filename The filename that should appear in the diagnostics.
-  /// \param error_list The error list filled by spot::ltl::parse while
+  /// \param error_list The error list filled by spot::parse while
   ///        parsing \a ltl_string.
   /// \return \c true if any diagnostic was output.
   SPOT_API

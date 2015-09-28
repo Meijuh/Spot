@@ -25,30 +25,27 @@
 
 namespace spot
 {
-  namespace ltl
-  {
-    enum relabeling_style { Abc, Pnn };
+  enum relabeling_style { Abc, Pnn };
 
-    typedef std::map<formula, formula> relabeling_map;
+  typedef std::map<formula, formula> relabeling_map;
 
-    /// \ingroup ltl_rewriting
-    /// \brief Relabel the atomic propositions in a formula.
-    ///
-    /// If \a m is non-null, it is filled with correspondence
-    /// between the new names (keys) and the old names (values).
-    SPOT_API
-    formula relabel(formula f, relabeling_style style,
-		    relabeling_map* m = nullptr);
+  /// \ingroup ltl_rewriting
+  /// \brief Relabel the atomic propositions in a formula.
+  ///
+  /// If \a m is non-null, it is filled with correspondence
+  /// between the new names (keys) and the old names (values).
+  SPOT_API
+  formula relabel(formula f, relabeling_style style,
+		  relabeling_map* m = nullptr);
 
 
-    /// \ingroup ltl_rewriting
-    /// \brief Relabel Boolean subexpressions in a formula using
-    /// atomic propositions.
-    ///
-    /// If \a m is non-null, it is filled with correspondence
-    /// between the new names (keys) and the old names (values).
-    SPOT_API
-    formula relabel_bse(formula f, relabeling_style style,
-			relabeling_map* m = nullptr);
-  }
+  /// \ingroup ltl_rewriting
+  /// \brief Relabel Boolean subexpressions in a formula using
+  /// atomic propositions.
+  ///
+  /// If \a m is non-null, it is filled with correspondence
+  /// between the new names (keys) and the old names (values).
+  SPOT_API
+  formula relabel_bse(formula f, relabeling_style style,
+		      relabeling_map* m = nullptr);
 }

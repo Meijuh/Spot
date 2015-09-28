@@ -49,7 +49,7 @@ namespace spot
       const state_set* dst;
     };
 
-    void add_condition(transition* t, ltl::formula f);
+    void add_condition(transition* t, formula f);
 
     /// TGBA interface.
     virtual ~taa_tgba();
@@ -66,7 +66,7 @@ namespace spot
     taa_tgba::state_set* init_;
     ss_vec state_set_vec_;
 
-    std::map<ltl::formula, acc_cond::mark_t> acc_map_;
+    std::map<formula, acc_cond::mark_t> acc_map_;
 
   private:
     // Disallow copy.
@@ -192,7 +192,7 @@ namespace spot
       return create_transition(s, vec);
     }
 
-    void add_acceptance_condition(transition* t, ltl::formula f)
+    void add_acceptance_condition(transition* t, formula f)
     {
       auto p = acc_map_.emplace(f, 0);
       if (p.second)
@@ -326,14 +326,14 @@ namespace spot
 
   class SPOT_API taa_tgba_formula final:
 #ifndef SWIG
-    public taa_tgba_labelled<ltl::formula>
+    public taa_tgba_labelled<formula>
 #else
     public taa_tgba
 #endif
   {
   public:
     taa_tgba_formula(const bdd_dict_ptr& dict) :
-      taa_tgba_labelled<ltl::formula>(dict) {}
+      taa_tgba_labelled<formula>(dict) {}
     ~taa_tgba_formula()
       {}
   protected:

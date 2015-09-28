@@ -34,8 +34,8 @@ namespace spot
 {
   namespace
   {
-    typedef std::map<ltl::formula, bdd> formula_bdd_map;
-    typedef std::vector<ltl::formula> vec;
+    typedef std::map<formula, bdd> formula_bdd_map;
+    typedef std::vector<formula> vec;
 
     // Rewrite the suspendable subformulae "s" of an LTL formula in
     // the form Gg where "g" is an atomic proposition representing
@@ -44,19 +44,19 @@ namespace spot
     class ltl_suspender_visitor final
     {
     public:
-      typedef std::map<ltl::formula, ltl::formula> fmap_t;
+      typedef std::map<formula, formula> fmap_t;
       ltl_suspender_visitor(fmap_t& g2s, fmap_t& a2o, bool oblig)
 	: g2s_(g2s), a2o_(a2o), oblig_(oblig)
       {
       }
 
-      ltl::formula
-      visit(ltl::formula f)
+      formula
+      visit(formula f)
       {
-	switch (ltl::op op = f.kind())
+	switch (op o = f.kind())
 	  {
-	  case ltl::op::Or:
-	  case ltl::op::And:
+	  case op::Or:
+	  case op::And:
 	    {
 	      vec res;
 	      vec oblig;
@@ -64,7 +64,7 @@ namespace spot
 	      unsigned mos = f.size();
 	      for (unsigned i = 0; i < mos; ++i)
 		{
-		  ltl::formula c = f[i];
+		  formula c = f[i];
 		  if (c.is_boolean())
 		    res.push_back(c);
 		  else if (oblig_ && c.is_syntactic_obligation())
@@ -76,40 +76,40 @@ namespace spot
 		}
 	      if (!oblig.empty())
 		{
-		  res.push_back(recurse(ltl::formula::multop(op, oblig)));
+		  res.push_back(recurse(formula::multop(o, oblig)));
 		}
 	      if (!susp.empty())
 		{
-		  ltl::formula o = ltl::formula::multop(op, susp);
-		  // Rewrite 'o' as 'G"o"'
-		  ltl::formula g = recurse(o);
-		  if (op == ltl::op::And)
+		  formula x = formula::multop(o, susp);
+		  // Rewrite 'x' as 'G"x"'
+		  formula g = recurse(x);
+		  if (o == op::And)
 		    {
 		      res.push_back(g);
 		    }
 		  else
 		    {
 		      // res || susp -> (res && G![susp]) || G[susp])
-		      auto r = ltl::formula::multop(op, res);
-		      auto gn = ltl::formula::G(ltl::formula::Not(g[0]));
-		      return ltl::formula::Or({ltl::formula::And({r, gn}), g});
+		      auto r = formula::multop(o, res);
+		      auto gn = formula::G(formula::Not(g[0]));
+		      return formula::Or({formula::And({r, gn}), g});
 		    }
 		}
-	      return ltl::formula::multop(op, res);
+	      return formula::multop(o, res);
 	    }
 	    break;
 	  default:
-	    return f.map([this](ltl::formula f)
+	    return f.map([this](formula f)
 			 {
 			   return this->recurse(f);
 			 });
 	  }
       }
 
-      ltl::formula
-      recurse(ltl::formula f)
+      formula
+      recurse(formula f)
       {
-	ltl::formula res;
+	formula res;
 	if (f.is_boolean())
 	  return f;
 	if (oblig_ && f.is_syntactic_obligation())
@@ -120,7 +120,7 @@ namespace spot
 
 	    std::ostringstream s;
 	    print_psl(s << "〈", f) << "〉";
-	    res = ltl::formula::ap(s.str());
+	    res = formula::ap(s.str());
 	    a2o_[res] = f;
 	    assoc_[f] = res;
 	    return res;
@@ -129,14 +129,14 @@ namespace spot
 	  {
 	    fmap_t::const_iterator i = assoc_.find(f);
 	    if (i != assoc_.end())
-	      return ltl::formula::G(i->second);
+	      return formula::G(i->second);
 
 	    std::ostringstream s;
 	    print_psl(s << '[', f) << "]$";
-	    res = ltl::formula::ap(s.str());
+	    res = formula::ap(s.str());
 	    g2s_[res] = f;
 	    assoc_[f] = res;
-	    return ltl::formula::G(res);
+	    return formula::G(res);
 	  }
 	return visit(f);
       }
@@ -156,7 +156,7 @@ namespace spot
 
     static
     twa_graph_ptr
-    susp_prod(const const_twa_ptr& left, ltl::formula f, bdd v)
+    susp_prod(const const_twa_ptr& left, formula f, bdd v)
     {
       bdd_dict_ptr dict = left->get_dict();
       auto right =
@@ -266,7 +266,7 @@ namespace spot
 
 
   twa_graph_ptr
-  compsusp(ltl::formula f, const bdd_dict_ptr& dict,
+  compsusp(formula f, const bdd_dict_ptr& dict,
 	   bool no_wdba, bool no_simulation,
 	   bool early_susp, bool no_susp_product, bool wdba_smaller,
 	   bool oblig)
@@ -274,7 +274,7 @@ namespace spot
     ltl_suspender_visitor::fmap_t g2s;
     ltl_suspender_visitor::fmap_t a2o;
     ltl_suspender_visitor v(g2s, a2o, oblig);
-    ltl::formula g = v.recurse(f);
+    formula g = v.recurse(f);
 
     // Translate the patched formula, and remove useless SCCs.
     twa_graph_ptr res =

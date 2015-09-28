@@ -24,25 +24,22 @@
 
 namespace spot
 {
-  namespace ltl
-  {
-    enum mut_opts
-      {
-	Mut_Ap2Const = 1U<<0,
-	Mut_Simplify_Bounds = 1U<<1,
-	Mut_Remove_Multop_Operands = 1U<<2,
-	Mut_Remove_Ops = 1U<<3,
-	Mut_Split_Ops = 1U<<4,
-	Mut_Rewrite_Ops = 1U<<5,
-	Mut_Remove_One_Ap = 1U<<6,
-	Mut_All = -1U
-      };
+  enum mut_opts
+    {
+      Mut_Ap2Const = 1U<<0,
+      Mut_Simplify_Bounds = 1U<<1,
+      Mut_Remove_Multop_Operands = 1U<<2,
+      Mut_Remove_Ops = 1U<<3,
+      Mut_Split_Ops = 1U<<4,
+      Mut_Rewrite_Ops = 1U<<5,
+      Mut_Remove_One_Ap = 1U<<6,
+      Mut_All = -1U
+    };
 
-    SPOT_API
-    std::vector<formula> mutate(formula f,
-				unsigned opts = Mut_All,
-				unsigned max_output = -1U,
-				unsigned mutation_count = 1,
-				bool sort = true);
-  }
+  SPOT_API
+  std::vector<formula> mutate(formula f,
+			      unsigned opts = Mut_All,
+			      unsigned max_output = -1U,
+			      unsigned mutation_count = 1,
+			      bool sort = true);
 }

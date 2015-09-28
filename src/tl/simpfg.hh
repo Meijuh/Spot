@@ -26,19 +26,16 @@
 
 namespace spot
 {
-  namespace ltl
-  {
-    /// \ingroup ltl_rewriting
-    /// \brief Replace <code>true U f</code> and <code>false R g</code> by
-    /// <code>F f</code> and <code>G g</code>.
-    ///
-    /// Perform the following rewriting (from left to right):
-    ///
-    /// - true U a = F a
-    /// - a M true = F a
-    /// - false R a = G a
-    /// - a W false = G a
-    ///
-    SPOT_API formula simplify_f_g(formula f);
-  }
+  /// \ingroup ltl_rewriting
+  /// \brief Replace <code>true U f</code> and <code>false R g</code> by
+  /// <code>F f</code> and <code>G g</code>.
+  ///
+  /// Perform the following rewriting (from left to right):
+  ///
+  /// - true U a = F a
+  /// - a M true = F a
+  /// - false R a = G a
+  /// - a W false = G a
+  ///
+  SPOT_API formula simplify_f_g(formula f);
 }

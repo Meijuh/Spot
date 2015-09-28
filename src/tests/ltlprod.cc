@@ -44,18 +44,18 @@ main(int argc, char** argv)
     syntax(argv[0]);
 
   {
-    spot::ltl::environment& env(spot::ltl::default_environment::instance());
+    spot::environment& env(spot::default_environment::instance());
 
-    spot::ltl::parse_error_list pel1;
-    auto f1 = spot::ltl::parse_infix_psl(argv[1], pel1, env);
+    spot::parse_error_list pel1;
+    auto f1 = spot::parse_infix_psl(argv[1], pel1, env);
 
-    if (spot::ltl::format_parse_errors(std::cerr, argv[1], pel1))
+    if (spot::format_parse_errors(std::cerr, argv[1], pel1))
       return 2;
 
-    spot::ltl::parse_error_list pel2;
-    auto f2 = spot::ltl::parse_infix_psl(argv[2], pel2, env);
+    spot::parse_error_list pel2;
+    auto f2 = spot::parse_infix_psl(argv[2], pel2, env);
 
-    if (spot::ltl::format_parse_errors(std::cerr, argv[2], pel2))
+    if (spot::format_parse_errors(std::cerr, argv[2], pel2))
       return 2;
 
     auto dict = spot::make_bdd_dict();
@@ -65,6 +65,6 @@ main(int argc, char** argv)
       spot::print_dot(std::cout, product(a1, a2));
     }
   }
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return exit_code;
 }

@@ -28,8 +28,8 @@ int
 main()
 {
   {
-    spot::ltl::default_environment& e =
-      spot::ltl::default_environment::instance();
+    spot::default_environment& e =
+      spot::default_environment::instance();
     auto a = spot::make_taa_tgba_string(spot::make_bdd_dict());
 
     typedef spot::taa_tgba::transition trans;
@@ -48,6 +48,6 @@ main()
     spot::print_dot(std::cout, a);
   }
 
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return 0;
 }

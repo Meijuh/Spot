@@ -139,16 +139,16 @@ namespace
     }
 
     int
-    process_formula(spot::ltl::formula f,
+    process_formula(spot::formula f,
 		    const char* filename = nullptr, int linenum = 0)
     {
       // This should not happen, because the parser we use can only
-      // read PSL/LTL formula, but since our ltl::formula type can
+      // read PSL/LTL formula, but since our formula type can
       // represent more than PSL formula, let's make this
       // future-proof.
       if (!f.is_psl_formula())
 	{
-	  std::string s = spot::ltl::str_psl(f);
+	  std::string s = spot::str_psl(f);
 	  error_at_line(2, 0, filename, linenum,
 			"formula '%s' is not an LTL or PSL formula",
 			s.c_str());

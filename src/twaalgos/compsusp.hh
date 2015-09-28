@@ -49,7 +49,7 @@ namespace spot
   /// long-term stability should better use the services of the
   /// spot::translator class instead.
   SPOT_API twa_graph_ptr
-  compsusp(ltl::formula f, const bdd_dict_ptr& dict,
+  compsusp(formula f, const bdd_dict_ptr& dict,
 	   bool no_wdba = false, bool no_simulation = false,
 	   bool early_susp = false, bool no_susp_product = false,
 	   bool wdba_smaller = false, bool oblig = false);

@@ -40,7 +40,7 @@ typedef std::map<std::string, bdd> formula_cache;
 }
 
 %parse-param {spot::kripke_parse_error_list& error_list}
-%parse-param {spot::ltl::environment& parse_environment}
+%parse-param {spot::environment& parse_environment}
 %parse-param {spot::kripke_explicit_ptr& result}
 %parse-param {formula_cache& fcache}
 
@@ -62,9 +62,9 @@ typedef std::map<std::string, bdd> formula_cache;
    before parsedecl.hh uses it. */
 #include "parsedecl.hh"
 
-using namespace spot::ltl;
+using namespace spot;
 #include <iostream>
-  //typedef std::pair<bool, spot::ltl::formula*> pair;
+  //typedef std::pair<bool, spot::formula*> pair;
 }
 
 %token <str> STRING UNTERMINATED_STRING IDENT
@@ -109,7 +109,7 @@ strident "," condition "," follow_list ";"
     if (i == fcache.end())
     {
       parse_error_list pel;
-      formula f = spot::ltl::parse_infix_boolean(*$3, pel,
+      formula f = spot::parse_infix_boolean(*$3, pel,
 						 parse_environment);
       for (parse_error_list::iterator i = pel.begin();
            i != pel.end(); ++i)
@@ -207,7 +207,7 @@ namespace spot
       error_list.push_back
         (kripke_parse_error(spot::location(),
 			    std::string("Cannot open file ") + name));
-      return 0;
+      return nullptr;
     }
     formula_cache fcache;
     auto result = make_kripke_explicit(dict);

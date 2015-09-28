@@ -42,6 +42,6 @@ int main(int argc, char** argv)
       kripke_save_reachable(std::cout, k);
   }
 
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return return_value;
 }

@@ -29,38 +29,35 @@
 
 namespace spot
 {
-  namespace ltl
-  {
-    /// \addtogroup ltl_misc
-    /// @{
+  /// \addtogroup ltl_misc
+  /// @{
 
-    /// Set of atomic propositions.
-    typedef std::set<formula> atomic_prop_set;
+  /// Set of atomic propositions.
+  typedef std::set<formula> atomic_prop_set;
 
-    /// \brief construct an atomic_prop_set with n propositions
-    SPOT_API
-    atomic_prop_set create_atomic_prop_set(unsigned n);
+  /// \brief construct an atomic_prop_set with n propositions
+  SPOT_API
+  atomic_prop_set create_atomic_prop_set(unsigned n);
 
-    /// \brief Return the set of atomic propositions occurring in a formula.
-    ///
-    /// \param f the formula to inspect
-    /// \param s an existing set to fill with atomic_propositions discovered,
-    ///        or 0 if the set should be allocated by the function.
-    /// \return A pointer to the supplied set, \c s, augmented with
-    ///        atomic propositions occurring in \c f; or a newly allocated
-    ///        set containing all these atomic propositions if \c s is 0.
-    SPOT_API atomic_prop_set*
-    atomic_prop_collect(formula f, atomic_prop_set* s = nullptr);
+  /// \brief Return the set of atomic propositions occurring in a formula.
+  ///
+  /// \param f the formula to inspect
+  /// \param s an existing set to fill with atomic_propositions discovered,
+  ///        or 0 if the set should be allocated by the function.
+  /// \return A pointer to the supplied set, \c s, augmented with
+  ///        atomic propositions occurring in \c f; or a newly allocated
+  ///        set containing all these atomic propositions if \c s is 0.
+  SPOT_API atomic_prop_set*
+  atomic_prop_collect(formula f, atomic_prop_set* s = nullptr);
 
-    /// \brief Return the set of atomic propositions occurring in a
-    /// formula, as a BDD.
-    ///
-    /// \param f the formula to inspect
-    /// \param a that automaton that should register the BDD variables used.
-    /// \return A conjunction the atomic propositions.
-    SPOT_API bdd
-    atomic_prop_collect_as_bdd(formula f, const twa_ptr& a);
+  /// \brief Return the set of atomic propositions occurring in a
+  /// formula, as a BDD.
+  ///
+  /// \param f the formula to inspect
+  /// \param a that automaton that should register the BDD variables used.
+  /// \return A conjunction the atomic propositions.
+  SPOT_API bdd
+  atomic_prop_collect_as_bdd(formula f, const twa_ptr& a);
 
-    /// @}
-  }
+  /// @}
 }

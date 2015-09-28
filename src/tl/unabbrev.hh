@@ -24,49 +24,45 @@
 
 namespace spot
 {
-  namespace ltl
+  constexpr const char* default_unabbrev_string = "eFGiMW^";
+
+  /// \ingroup ltl_rewriting
+  /// \brief Clone and rewrite a formula to remove specified operators
+  /// logical operators.
+  class SPOT_API unabbreviator final
   {
-    constexpr const char* default_unabbrev_string = "eFGiMW^";
-
-    /// \ingroup ltl_rewriting
-    /// \brief Clone and rewrite a formula to remove specified operators
-    /// logical operators.
-    class SPOT_API unabbreviator final
-    {
-    private:
-      // What to rewrite?
-      bool re_e_ = false;
-      bool re_f_ = false;
-      bool re_g_ = false;
-      bool re_i_ = false;
-      bool re_m_ = false;
-      bool re_r_ = false;
-      bool re_w_ = false;
-      bool re_xor_ = false;
-      bool re_some_bool_ = false;	// rewrite xor, i, or e
-      bool re_some_f_g_ = false;	// rewrite F or G
-      bool re_some_other_ = false;	// rewrite W, M, or R
-      // Cache of rewritten subformulas
-      std::unordered_map<formula, formula> cache_;
-    public:
-      /// \brief Constructor
-      ///
-      /// The set of operators to remove should be passed as a string
-      /// which in which each letter denote an operator (using LBT's
-      /// convention).
-      unabbreviator(const char* opt = default_unabbrev_string);
-      formula run(formula in);
-    };
-
-    /// \ingroup ltl_rewriting
-    /// \brief Clone and rewrite a formula to remove specified operators
-    /// logical operators.
+  private:
+    // What to rewrite?
+    bool re_e_ = false;
+    bool re_f_ = false;
+    bool re_g_ = false;
+    bool re_i_ = false;
+    bool re_m_ = false;
+    bool re_r_ = false;
+    bool re_w_ = false;
+    bool re_xor_ = false;
+    bool re_some_bool_ = false;	// rewrite xor, i, or e
+    bool re_some_f_g_ = false;	// rewrite F or G
+    bool re_some_other_ = false;	// rewrite W, M, or R
+    // Cache of rewritten subformulas
+    std::unordered_map<formula, formula> cache_;
+  public:
+    /// \brief Constructor
     ///
     /// The set of operators to remove should be passed as a string
     /// which in which each letter denote an operator (using LBT's
     /// convention).
-    SPOT_API formula
-    unabbreviate(formula in, const char* opt= default_unabbrev_string);
-  }
+    unabbreviator(const char* opt = default_unabbrev_string);
+    formula run(formula in);
+  };
 
+  /// \ingroup ltl_rewriting
+  /// \brief Clone and rewrite a formula to remove specified operators
+  /// logical operators.
+  ///
+  /// The set of operators to remove should be passed as a string
+  /// which in which each letter denote an operator (using LBT's
+  /// convention).
+  SPOT_API formula
+  unabbreviate(formula in, const char* opt= default_unabbrev_string);
 }

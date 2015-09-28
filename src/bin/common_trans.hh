@@ -94,7 +94,7 @@ public:
 		    bool no_output_allowed = false);
   void string_to_tmp(std::string& str, unsigned n, std::string& tmpname);
   const std::string& formula() const;
-  void round_formula(spot::ltl::formula f, unsigned serial);
+  void round_formula(spot::formula f, unsigned serial);
 };
 
 

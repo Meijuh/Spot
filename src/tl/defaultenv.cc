@@ -24,36 +24,31 @@
 
 namespace spot
 {
-  namespace ltl
+  default_environment::~default_environment()
   {
+  }
 
-    default_environment::~default_environment()
-    {
-    }
+  formula
+  default_environment::require(const std::string& s)
+  {
+    return formula::ap(s);
+  }
 
-    formula
-    default_environment::require(const std::string& s)
-    {
-      return formula::ap(s);
-    }
+  const std::string&
+  default_environment::name() const
+  {
+    static std::string name("default environment");
+    return name;
+  }
 
-    const std::string&
-    default_environment::name() const
-    {
-      static std::string name("default environment");
-      return name;
-    }
+  default_environment::default_environment()
+  {
+  }
 
-    default_environment::default_environment()
-    {
-    }
-
-    default_environment&
-    default_environment::instance()
-    {
-      static default_environment* singleton = new default_environment();
-      return *singleton;
-    }
-
+  default_environment&
+  default_environment::instance()
+  {
+    static default_environment* singleton = new default_environment();
+    return *singleton;
   }
 }

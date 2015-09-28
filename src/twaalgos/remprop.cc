@@ -54,7 +54,7 @@ namespace spot
 	  break;
 	if (*start == ',' || *start == '=')
 	  unexpected_char(arg, start);
-	ltl::formula the_ap = nullptr;
+	formula the_ap = nullptr;
 
 	if (*start == '"')
 	  {
@@ -72,7 +72,7 @@ namespace spot
 		throw std::invalid_argument(s);
 	      }
 	    std::string ap(start, end - start);
-	    the_ap = ltl::formula::ap(ap);
+	    the_ap = formula::ap(ap);
 	    do
 	      ++end;
 	    while (*end == ' ' || *end == '\t');
@@ -87,7 +87,7 @@ namespace spot
 	    while (rend > start && (rend[-1] == ' ' || rend[-1] == '\t'))
 	      --rend;
 	    std::string ap(start, rend - start);
-	    the_ap = ltl::formula::ap(ap);
+	    the_ap = formula::ap(ap);
 	    start = end;
 	  }
 	if (*start)

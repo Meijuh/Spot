@@ -27,34 +27,30 @@
 
 namespace spot
 {
-  namespace ltl
+  /// \ingroup ltl_essential
+  /// \brief An environment that describes atomic propositions.
+  class environment
   {
-    /// \ingroup ltl_essential
-    /// \brief An environment that describes atomic propositions.
-    class environment
+  public:
+    /// \brief Obtain the formula associated to \a prop_str
+    ///
+    /// Usually \a prop_str, is the name of an atomic proposition,
+    /// and spot::require simply returns the associated
+    /// spot::formula.
+    ///
+    /// Note this is not a \c const method.  Some environments will
+    /// "create" the atomic proposition when requested.
+    ///
+    /// \return 0 iff \a prop_str is not part of the environment,
+    ///   or the associated spot::formula otherwise.
+    virtual formula require(const std::string& prop_str) = 0;
+
+    /// Get the name of the environment.
+    virtual const std::string& name() const = 0;
+
+    virtual
+    ~environment()
     {
-    public:
-      /// \brief Obtain the formula associated to \a prop_str
-      ///
-      /// Usually \a prop_str, is the name of an atomic proposition,
-      /// and spot::ltl::require simply returns the associated
-      /// spot::ltl::formula.
-      ///
-      /// Note this is not a \c const method.  Some environments will
-      /// "create" the atomic proposition when requested.
-      ///
-      /// \return 0 iff \a prop_str is not part of the environment,
-      ///   or the associated spot::ltl::formula otherwise.
-      virtual formula require(const std::string& prop_str) = 0;
-
-      /// Get the name of the environment.
-      virtual const std::string& name() const = 0;
-
-      virtual
-      ~environment()
-      {
-      }
-    };
-
-  }
+    }
+  };
 }

@@ -47,7 +47,7 @@ namespace spot
   class SPOT_API translator: protected postprocessor
   {
   public:
-    translator(ltl::ltl_simplifier* simpl, const option_map* opt = nullptr)
+    translator(ltl_simplifier* simpl, const option_map* opt = nullptr)
       : postprocessor(opt), simpl_(simpl), simpl_owned_(nullptr)
     {
       assert(simpl);
@@ -101,21 +101,21 @@ namespace spot
     /// \brief Convert \a f into an automaton.
     ///
     /// The formula \a f is simplified internally.
-    twa_graph_ptr run(ltl::formula f);
+    twa_graph_ptr run(formula f);
 
     /// \brief Convert \a f into an automaton, and update f.
     ///
     /// The formula <code>*f</code> is replaced
     /// by the simplified version.
-    twa_graph_ptr run(ltl::formula* f);
+    twa_graph_ptr run(formula* f);
 
   protected:
     void setup_opt(const option_map* opt);
     void build_simplifier(const bdd_dict_ptr& dict);
 
   private:
-    ltl::ltl_simplifier* simpl_;
-    ltl::ltl_simplifier* simpl_owned_;
+    ltl_simplifier* simpl_;
+    ltl_simplifier* simpl_owned_;
     int comp_susp_;
     int early_susp_;
     int skel_wdba_;

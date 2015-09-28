@@ -27,10 +27,10 @@ namespace spot
 {
   namespace
   {
-    static const std::vector<ltl::formula>
+    static const std::vector<formula>
     split_aps(const char* arg)
     {
-      std::vector<ltl::formula> group;
+      std::vector<formula> group;
       auto start = arg;
       while (*start)
 	{
@@ -61,7 +61,7 @@ namespace spot
 		  throw std::invalid_argument(s);
 		}
 	      std::string ap(start, end - start);
-	      group.emplace_back(ltl::formula::ap(ap));
+	      group.emplace_back(formula::ap(ap));
 	      do
 		++end;
 	      while (*end == ' ' || *end == '\t');
@@ -86,7 +86,7 @@ namespace spot
 	      while (rend > start && (rend[-1] == ' ' || rend[-1] == '\t'))
 		--rend;
 	      std::string ap(start, rend - start);
-	      group.emplace_back(ltl::formula::ap(ap));
+	      group.emplace_back(formula::ap(ap));
 	      if (*end == ',')
 		start = end + 1;
 	      else
@@ -102,27 +102,27 @@ namespace spot
     add_group(split_aps(ap_csv));
   }
 
-  void exclusive_ap::add_group(std::vector<ltl::formula> ap)
+  void exclusive_ap::add_group(std::vector<formula> ap)
   {
     groups.push_back(ap);
   }
 
   namespace
   {
-    ltl::formula
-    nand(ltl::formula lhs, ltl::formula rhs)
+    formula
+    nand(formula lhs, formula rhs)
     {
-      return ltl::formula::Not(ltl::formula::And({lhs, rhs}));
+      return formula::Not(formula::And({lhs, rhs}));
     }
   }
 
-  ltl::formula
-  exclusive_ap::constrain(ltl::formula f) const
+  formula
+  exclusive_ap::constrain(formula f) const
   {
     auto* s = atomic_prop_collect(f);
 
-    std::vector<ltl::formula> group;
-    std::vector<ltl::formula> v;
+    std::vector<formula> group;
+    std::vector<formula> v;
 
     for (auto& g: groups)
       {
@@ -139,7 +139,7 @@ namespace spot
       };
 
     delete s;
-    return ltl::formula::And({f, ltl::formula::G(ltl::formula::And(v))});
+    return formula::And({f, formula::G(formula::And(v))});
   }
 
   twa_graph_ptr exclusive_ap::constrain(const_twa_graph_ptr aut,

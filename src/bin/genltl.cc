@@ -90,7 +90,6 @@
 #include "tl/relabel.hh"
 
 using namespace spot;
-using namespace spot::ltl;
 
 const char argp_program_doc[] ="\
 Generate temporal logic formulas from predefined scalable patterns.";

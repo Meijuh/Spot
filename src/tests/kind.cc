@@ -58,13 +58,13 @@ main(int argc, char **argv)
       std::getline(ss, form, ',');
       std::getline(ss, expected);
 
-      spot::ltl::parse_error_list p1;
-      auto f1 = spot::ltl::parse_infix_psl(form, p1);
-      if (spot::ltl::format_parse_errors(std::cerr, form, p1))
+      spot::parse_error_list p1;
+      auto f1 = spot::parse_infix_psl(form, p1);
+      if (spot::format_parse_errors(std::cerr, form, p1))
 	return 2;
 
       std::ostringstream so;
-      spot::ltl::print_formula_props(so, f1, true);
+      spot::print_formula_props(so, f1, true);
       auto sost = so.str();
       std::cout << form << ',' << sost << '\n';
       if (sost != expected)
@@ -74,6 +74,6 @@ main(int argc, char **argv)
 	  return 2;
 	}
     }
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return 0;
 }

@@ -46,7 +46,7 @@ namespace spot
   }
 
   void
-  taa_tgba::add_condition(transition* t, ltl::formula f)
+  taa_tgba::add_condition(transition* t, formula f)
   {
     t->condition &= formula_to_bdd(f, get_dict(), this);
   }
@@ -324,6 +324,6 @@ namespace spot
   std::string
   taa_tgba_formula::label_to_string(const label_t& label) const
   {
-    return ltl::str_psl(label);
+    return str_psl(label);
   }
 }

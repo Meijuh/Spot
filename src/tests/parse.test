@@ -22,7 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Check that spot::ltl::parse succeed on valid input, and that
+# Check that spot::parse succeed on valid input, and that
 # dump and dotty will work with the resulting trees.  Note that
 # this doesn't check that the tree is correct w.r.t. the formula.
 

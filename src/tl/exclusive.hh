@@ -27,10 +27,10 @@ namespace spot
 {
   class SPOT_API exclusive_ap final
   {
-    std::vector<std::vector<ltl::formula>> groups;
+    std::vector<std::vector<formula>> groups;
   public:
 #ifndef SWIG
-    void add_group(std::vector<ltl::formula> ap);
+    void add_group(std::vector<formula> ap);
 #endif
     void add_group(const char* ap_csv);
 
@@ -39,7 +39,7 @@ namespace spot
       return groups.empty();
     }
 
-    ltl::formula constrain(ltl::formula f) const;
+    formula constrain(formula f) const;
     twa_graph_ptr constrain(const_twa_graph_ptr aut,
 			       bool simplify_guards = false) const;
   };

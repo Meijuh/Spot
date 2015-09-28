@@ -45,18 +45,18 @@ main(int argc, char **argv)
     }
 
   {
-    spot::ltl::parse_error_list p1;
-    auto f1 = spot::ltl::parse_infix_psl(argv[1], p1);
+    spot::parse_error_list p1;
+    auto f1 = spot::parse_infix_psl(argv[1], p1);
 
-    if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
+    if (spot::format_parse_errors(std::cerr, argv[1], p1))
       return 2;
 
     if (boolone)
-      std::cout << spot::ltl::length_boolone(f1) << std::endl;
+      std::cout << spot::length_boolone(f1) << std::endl;
     else
-      std::cout << spot::ltl::length(f1) << std::endl;
+      std::cout << spot::length(f1) << std::endl;
   }
 
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return 0;
 }

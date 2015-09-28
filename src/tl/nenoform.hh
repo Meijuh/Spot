@@ -26,24 +26,21 @@
 
 namespace spot
 {
-  namespace ltl
-  {
-    /// \ingroup ltl_rewriting
-    /// \brief Build the negative normal form of \a f.
-    ///
-    /// All negations of the formula are pushed in front of the
-    /// atomic propositions.
-    ///
-    /// \param f The formula to normalize.
-    /// \param negated If \c true, return the negative normal form of
-    ///        \c !f
-    ///
-    /// Note that this will not remove abbreviated operators.  If you
-    /// want to remove abbreviations, call spot::ltl::unabbreviate
-    /// first.  (Calling this function after
-    /// spot::ltl::negative_normal_form would likely produce a formula
-    /// which is not in negative normal form.)
-    SPOT_API formula
-    negative_normal_form(formula f, bool negated = false);
-  }
+  /// \ingroup ltl_rewriting
+  /// \brief Build the negative normal form of \a f.
+  ///
+  /// All negations of the formula are pushed in front of the
+  /// atomic propositions.
+  ///
+  /// \param f The formula to normalize.
+  /// \param negated If \c true, return the negative normal form of
+  ///        \c !f
+  ///
+  /// Note that this will not remove abbreviated operators.  If you
+  /// want to remove abbreviations, call spot::unabbreviate
+  /// first.  (Calling this function after
+  /// spot::negative_normal_form would likely produce a formula
+  /// which is not in negative normal form.)
+  SPOT_API formula
+  negative_normal_form(formula f, bool negated = false);
 }

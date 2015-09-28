@@ -77,14 +77,14 @@ parse_opt_finput(int key, char* arg, struct argp_state*)
   return 0;
 }
 
-spot::ltl::formula
-parse_formula(const std::string& s, spot::ltl::parse_error_list& pel)
+spot::formula
+parse_formula(const std::string& s, spot::parse_error_list& pel)
 {
   if (lbt_input)
-    return spot::ltl::parse_prefix_ltl(s, pel);
+    return spot::parse_prefix_ltl(s, pel);
   else
-    return spot::ltl::parse_infix_psl
-      (s, pel, spot::ltl::default_environment::instance(), false, lenient);
+    return spot::parse_infix_psl
+      (s, pel, spot::default_environment::instance(), false, lenient);
 }
 
 job_processor::job_processor()
@@ -109,14 +109,14 @@ job_processor::process_string(const std::string& input,
 			      const char* filename,
 			      int linenum)
 {
-  spot::ltl::parse_error_list pel;
+  spot::parse_error_list pel;
   auto f = parse_formula(input, pel);
 
   if (!f || !pel.empty())
     {
       if (filename)
 	error_at_line(0, 0, filename, linenum, "parse error:");
-      spot::ltl::format_parse_errors(std::cerr, input, pel);
+      spot::format_parse_errors(std::cerr, input, pel);
       return 1;
     }
   return process_formula(f, filename, linenum);

@@ -107,7 +107,7 @@ public:
   std::ostream&
   print(const spot::const_parsed_aut_ptr& haut,
 	const spot::const_twa_graph_ptr& aut,
-	spot::ltl::formula f,
+	spot::formula f,
 	const char* filename, int loc, double run_time)
   {
     filename_ = filename ? filename : "";
@@ -225,7 +225,7 @@ public:
 
   void
   print(const spot::twa_graph_ptr& aut,
-	spot::ltl::formula f = nullptr,
+	spot::formula f = nullptr,
 	// Input location for errors and statistics.
 	const char* filename = nullptr,
 	int loc = -1,

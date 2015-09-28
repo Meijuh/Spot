@@ -66,9 +66,9 @@ namespace spot
     ~bdd_dict();
 
     /// Formula-to-BDD-variable maps.
-    typedef std::map<ltl::formula, int> fv_map;
+    typedef std::map<formula, int> fv_map;
     /// BDD-variable-to-formula maps.
-    typedef std::map<int, ltl::formula> vf_map;
+    typedef std::map<int, formula> vf_map;
 
     fv_map var_map;		///< Maps atomic propositions to BDD variables
     fv_map acc_map;		///< Maps acceptance conditions to BDD variables
@@ -80,7 +80,7 @@ namespace spot
     struct bdd_info {
       bdd_info() : type(anon) {}
       var_type type;
-      ltl::formula f;	// Used unless t==anon.
+      formula f;	// Used unless t==anon.
       ref_set refs;
       int clone_counts;
     };
@@ -99,10 +99,10 @@ namespace spot
     /// \return The variable number.  Use bdd_ithvar() or bdd_nithvar()
     ///   to convert this to a BDD.
     /// @{
-    int register_proposition(ltl::formula f, const void* for_me);
+    int register_proposition(formula f, const void* for_me);
 
     template <typename T>
-    int register_proposition(ltl::formula f, std::shared_ptr<T> for_me)
+    int register_proposition(formula f, std::shared_ptr<T> for_me)
     {
       return register_proposition(f, for_me.get());
     }
@@ -114,10 +114,10 @@ namespace spot
     /// a non-negative value that is the BDD variable number.
     /// Otherwise this returns -1.
     /// @{
-    int has_registered_proposition(ltl::formula f, const void* me);
+    int has_registered_proposition(formula f, const void* me);
 
     template <typename T>
-    int has_registered_proposition(ltl::formula f, std::shared_ptr<T> for_me)
+    int has_registered_proposition(formula f, std::shared_ptr<T> for_me)
     {
       return has_registered_proposition(f, for_me.get());
     }
@@ -134,10 +134,10 @@ namespace spot
     /// \return The variable number.  Use bdd_ithvar() or bdd_nithvar()
     ///   to convert this to a BDD.
     /// @{
-    int register_acceptance_variable(ltl::formula f, const void* for_me);
+    int register_acceptance_variable(formula f, const void* for_me);
 
     template <typename T>
-    int register_acceptance_variable(ltl::formula f, std::shared_ptr<T> for_me)
+    int register_acceptance_variable(formula f, std::shared_ptr<T> for_me)
     {
       return register_acceptance_variable(f, for_me.get());
     }
@@ -169,7 +169,7 @@ namespace spot
     ///
     /// The returned formula is not cloned, and is valid until the BDD
     /// variable used in \a oneacc are unregistered.
-    ltl::formula oneacc_to_formula(bdd oneacc) const;
+    formula oneacc_to_formula(bdd oneacc) const;
 
     /// \brief Convert one acceptance condition into the associated
     /// formula.
@@ -179,7 +179,7 @@ namespace spot
     ///
     /// The returned formula is not cloned, and is valid until the BDD
     /// variable \a var is unregistered.
-    ltl::formula oneacc_to_formula(int var) const;
+    formula oneacc_to_formula(int var) const;
 
     /// \brief Register anonymous BDD variables.
     ///

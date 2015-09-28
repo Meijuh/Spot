@@ -99,7 +99,7 @@ namespace spot
     ///
     /// The returned automaton might be a new automaton,
     /// or an in-place modification of the \a input automaton.
-    twa_graph_ptr run(twa_graph_ptr input, ltl::formula f);
+    twa_graph_ptr run(twa_graph_ptr input, formula f);
 
   protected:
     twa_graph_ptr do_simul(const twa_graph_ptr& input, int opt);

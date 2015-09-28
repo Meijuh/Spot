@@ -133,7 +133,7 @@ namespace spot
   tba_determinize_check(const twa_graph_ptr& aut,
 			unsigned threshold_states = 0,
 			unsigned threshold_cycles = 0,
-			ltl::formula f = nullptr,
+			formula f = nullptr,
 			const_twa_graph_ptr neg_aut = nullptr);
 
 }

@@ -26,8 +26,6 @@
 
 namespace spot
 {
-  using namespace ltl;
-
   namespace
   {
     // Convert a BDD which is known to be a conjonction into a formula.
@@ -111,16 +109,16 @@ namespace spot
       case op::And:
       case op::Or:
 	{
-	  int op = bddop_and;
+	  int o = bddop_and;
 	  bdd res = bddtrue;
-	  if (f.is(ltl::op::Or))
+	  if (f.is(op::Or))
 	    {
-	      op = bddop_or;
+	      o = bddop_or;
 	      res = bddfalse;
 	    }
 	  unsigned s = f.size();
 	  for (unsigned n = 0; n < s; ++n)
-	    res = bdd_apply(res, recurse(f[n]), op);
+	    res = bdd_apply(res, recurse(f[n]), o);
 	  return res;
 	}
       }

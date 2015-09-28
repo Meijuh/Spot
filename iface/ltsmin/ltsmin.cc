@@ -323,10 +323,10 @@ namespace spot
 
 
     int
-    convert_aps(const ltl::atomic_prop_set* aps,
+    convert_aps(const atomic_prop_set* aps,
 		const spins_interface* d,
 		bdd_dict_ptr dict,
-		ltl::formula dead,
+		formula dead,
 		prop_set& out)
     {
       int errors = 0;
@@ -353,7 +353,7 @@ namespace spot
 	    enum_map[i].emplace(d->get_type_value_name(i, j), j);
 	}
 
-      for (ltl::atomic_prop_set::const_iterator ap = aps->begin();
+      for (atomic_prop_set::const_iterator ap = aps->begin();
 	   ap != aps->end(); ++ap)
 	{
 	  if (*ap == dead)
@@ -602,7 +602,7 @@ namespace spot
     public:
 
       spins_kripke(const spins_interface* d, const bdd_dict_ptr& dict,
-		   const spot::prop_set* ps, ltl::formula dead,
+		   const spot::prop_set* ps, formula dead,
 		   int compress)
 	: kripke(dict),
 	  d_(d),
@@ -1016,8 +1016,8 @@ namespace spot
 
   kripke_ptr
   load_ltsmin(const std::string& file_arg, const bdd_dict_ptr& dict,
-	      const ltl::atomic_prop_set* to_observe,
-	      const ltl::formula dead, int compress, bool verbose)
+	      const atomic_prop_set* to_observe,
+	      const formula dead, int compress, bool verbose)
   {
     std::string file;
     if (file_arg.find_first_of("/\\") != std::string::npos)

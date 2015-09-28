@@ -45,25 +45,25 @@ main(int argc, char** argv)
   int exit_return = 0;
 
   {
-    spot::ltl::parse_error_list p1;
-    auto ftmp1 = spot::ltl::parse_infix_psl(argv[2], p1);
+    spot::parse_error_list p1;
+    auto ftmp1 = spot::parse_infix_psl(argv[2], p1);
 
-    if (spot::ltl::format_parse_errors(std::cerr, argv[2], p1))
+    if (spot::format_parse_errors(std::cerr, argv[2], p1))
       return 2;
 
-    spot::ltl::parse_error_list p2;
-    auto ftmp2 = spot::ltl::parse_infix_psl(argv[3], p2);
+    spot::parse_error_list p2;
+    auto ftmp2 = spot::parse_infix_psl(argv[3], p2);
 
-    if (spot::ltl::format_parse_errors(std::cerr, argv[3], p2))
+    if (spot::format_parse_errors(std::cerr, argv[3], p2))
       return 2;
 
-    spot::ltl::formula f1 = spot::ltl::negative_normal_form(ftmp1);
-    spot::ltl::formula f2 = spot::ltl::negative_normal_form(ftmp2);
+    spot::formula f1 = spot::negative_normal_form(ftmp1);
+    spot::formula f2 = spot::negative_normal_form(ftmp2);
 
-    std::string f1s = spot::ltl::str_psl(f1);
-    std::string f2s = spot::ltl::str_psl(f2);
+    std::string f1s = spot::str_psl(f1);
+    std::string f2s = spot::str_psl(f2);
 
-    spot::ltl::ltl_simplifier* c = new spot::ltl::ltl_simplifier;
+    spot::ltl_simplifier* c = new spot::ltl_simplifier;
 
     switch (opt)
       {
@@ -102,6 +102,6 @@ main(int argc, char** argv)
 
     delete c;
   }
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return exit_return;
 }

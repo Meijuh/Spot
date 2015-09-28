@@ -540,7 +540,7 @@ namespace spot
   }
 
   bool
-  is_stutter_invariant(ltl::formula f)
+  is_stutter_invariant(formula f)
   {
     if (f.is_ltl_formula() && f.is_syntactic_stutter_invariant())
       return true;
@@ -554,16 +554,16 @@ namespace spot
 	  throw std::runtime_error("Cannot use the syntactic "
 				   "stutter-invariance check "
 				   "for non-LTL formulas");
-	ltl::formula g = remove_x(f);
+	formula g = remove_x(f);
 	bool res;
 	if (algo == 0)		// Equivalence check
 	  {
-	    ltl::ltl_simplifier ls;
+	    ltl_simplifier ls;
 	    res = ls.are_equivalent(f, g);
 	  }
 	else
 	  {
-	    ltl::formula h = ltl::formula::Xor(f, g);
+	    formula h = formula::Xor(f, g);
 	    res = ltl_to_tgba_fm(h, make_bdd_dict())->is_empty();
 	  }
 	return res;
@@ -572,7 +572,7 @@ namespace spot
     // Prepare for an automata-based check.
     translator trans;
     auto aut_f = trans.run(f);
-    auto aut_nf = trans.run(ltl::formula::Not(f));
+    auto aut_nf = trans.run(formula::Not(f));
     bdd aps = atomic_prop_collect_as_bdd(f, aut_f);
     return is_stutter_invariant(std::move(aut_f), std::move(aut_nf), aps, algo);
   }
@@ -618,7 +618,7 @@ namespace spot
   }
 
   bool
-  check_stutter_invariance(const twa_graph_ptr& aut, ltl::formula f)
+  check_stutter_invariance(const twa_graph_ptr& aut, formula f)
   {
     bool is_stut = aut->is_stutter_invariant();
     if (is_stut)
@@ -627,7 +627,7 @@ namespace spot
     twa_graph_ptr neg = nullptr;
     if (f)
       {
-	neg = translator(aut->get_dict()).run(ltl::formula::Not(f));
+	neg = translator(aut->get_dict()).run(formula::Not(f));
       }
     else
       {

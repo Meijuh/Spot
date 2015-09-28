@@ -144,7 +144,7 @@ namespace spot
 #define SBACC_ (pref_ & SBAcc)
 
   twa_graph_ptr
-  postprocessor::run(twa_graph_ptr a, ltl::formula f)
+  postprocessor::run(twa_graph_ptr a, formula f)
   {
     if (type_ != Generic && !a->acc().is_generalized_buchi())
       a = to_generalized_buchi(a);

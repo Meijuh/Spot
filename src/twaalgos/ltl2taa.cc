@@ -28,8 +28,6 @@ namespace spot
 {
   namespace
   {
-    using namespace ltl;
-
     /// \brief Recursively translate a formula into a TAA.
     class ltl2taa_visitor
     {
@@ -385,11 +383,11 @@ namespace spot
   } // anonymous
 
   taa_tgba_formula_ptr
-  ltl_to_taa(ltl::formula f,
+  ltl_to_taa(formula f,
 	     const bdd_dict_ptr& dict, bool refined_rules)
   {
     // TODO: implement translation of F and G
-    auto f2 = ltl::negative_normal_form(ltl::unabbreviate(f, "^ieFG"));
+    auto f2 = negative_normal_form(unabbreviate(f, "^ieFG"));
     auto res = make_taa_tgba_formula(dict);
     language_containment_checker* lcc =
       new language_containment_checker(make_bdd_dict(),

@@ -44,8 +44,8 @@ extern const struct argp finput_argp;
 
 int parse_opt_finput(int key, char* arg, struct argp_state* state);
 
-spot::ltl::formula
-parse_formula(const std::string& s, spot::ltl::parse_error_list& error_list);
+spot::formula
+parse_formula(const std::string& s, spot::parse_error_list& error_list);
 
 
 class job_processor
@@ -58,7 +58,7 @@ public:
   virtual ~job_processor();
 
   virtual int
-  process_formula(spot::ltl::formula f,
+  process_formula(spot::formula f,
 		  const char* filename = nullptr, int linenum = 0) = 0;
 
   virtual int

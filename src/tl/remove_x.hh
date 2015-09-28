@@ -23,27 +23,24 @@
 
 namespace spot
 {
-  namespace ltl
-  {
-    /// \brief Rewrite a stutter-insensitive formula \a f without
-    /// using the X operator.
-    ///
-    /// This function may also be applied to stutter-sensitive formulas,
-    /// but in that case the resulting formula is not equivalent.
-    ///
-    /** \verbatim
-        @Article{         etessami.00.ipl,
-          author        = {Kousha Etessami},
-          title         = {A note on a question of {P}eled and {W}ilke regarding
-                          stutter-invariant {LTL}},
-          journal       = {Information Processing Letters},
-          volume        = {75},
-          number        = {6},
-          year          = {2000},
-          pages         = {261--263}
-        }
-        \endverbatim */
-    SPOT_API
-    formula remove_x(formula f);
-  }
+  /// \brief Rewrite a stutter-insensitive formula \a f without
+  /// using the X operator.
+  ///
+  /// This function may also be applied to stutter-sensitive formulas,
+  /// but in that case the resulting formula is not equivalent.
+  ///
+  /** \verbatim
+      @Article{         etessami.00.ipl,
+      author        = {Kousha Etessami},
+      title         = {A note on a question of {P}eled and {W}ilke regarding
+      stutter-invariant {LTL}},
+      journal       = {Information Processing Letters},
+      volume        = {75},
+      number        = {6},
+      year          = {2000},
+      pages         = {261--263}
+      }
+      \endverbatim */
+  SPOT_API
+  formula remove_x(formula f);
 }

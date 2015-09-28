@@ -39,8 +39,6 @@
 
 namespace spot
 {
-  using namespace ltl;
-
   namespace
   {
     typedef std::vector<formula> vec;
@@ -264,7 +262,7 @@ namespace spot
 	if (single_acc)
 	  {
 	    int num = dict->register_acceptance_variable
-	      (ltl::formula::tt(), this);
+	      (formula::tt(), this);
 	    a_set &= bdd_ithvar(num);
 
 	    auto p = bm.emplace(num, 0U);

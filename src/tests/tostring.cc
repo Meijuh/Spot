@@ -40,21 +40,21 @@ main(int argc, char **argv)
     syntax(argv[0]);
 
   {
-    spot::ltl::parse_error_list p1;
-    auto f1 = spot::ltl::parse_infix_psl(argv[1], p1);
+    spot::parse_error_list p1;
+    auto f1 = spot::parse_infix_psl(argv[1], p1);
 
-    if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
+    if (spot::format_parse_errors(std::cerr, argv[1], p1))
       return 2;
 
     // The string generated from an abstract tree should be parsable
     // again.
 
-    std::string f1s = spot::ltl::str_psl(f1);
+    std::string f1s = spot::str_psl(f1);
     std::cout << f1s << '\n';
 
-    auto f2 = spot::ltl::parse_infix_psl(f1s, p1);
+    auto f2 = spot::parse_infix_psl(f1s, p1);
 
-    if (spot::ltl::format_parse_errors(std::cerr, f1s, p1))
+    if (spot::format_parse_errors(std::cerr, f1s, p1))
       return 2;
 
     // This second abstract tree should be equal to the first.
@@ -64,13 +64,13 @@ main(int argc, char **argv)
 
     // It should also map to the same string.
 
-    std::string f2s = spot::ltl::str_psl(f2);
+    std::string f2s = spot::str_psl(f2);
     std::cout << f2s << '\n';
 
     if (f2s != f1s)
       return 1;
   }
 
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return 0;
 }

@@ -26,43 +26,40 @@
 
 namespace spot
 {
-  namespace ltl
+  atomic_prop_set create_atomic_prop_set(unsigned n)
   {
-    atomic_prop_set create_atomic_prop_set(unsigned n)
-    {
-      atomic_prop_set res;
-      for (unsigned i = 0; i < n; ++i)
-	{
-	  std::ostringstream p;
-	  p << 'p' << i;
-	  res.insert(formula::ap(p.str()));
-	}
-      return res;
-    }
+    atomic_prop_set res;
+    for (unsigned i = 0; i < n; ++i)
+      {
+	std::ostringstream p;
+	p << 'p' << i;
+	res.insert(formula::ap(p.str()));
+      }
+    return res;
+  }
 
-    atomic_prop_set*
-    atomic_prop_collect(formula f, atomic_prop_set* s)
-    {
-      if (!s)
-	s = new atomic_prop_set;
-      f.traverse([&](const formula& f)
-		 {
-		   if (f.is(op::ap))
-		     s->insert(f);
-		   return false;
-		 });
-      return s;
-    }
+  atomic_prop_set*
+  atomic_prop_collect(formula f, atomic_prop_set* s)
+  {
+    if (!s)
+      s = new atomic_prop_set;
+    f.traverse([&](const formula& f)
+	       {
+		 if (f.is(op::ap))
+		   s->insert(f);
+		 return false;
+	       });
+    return s;
+  }
 
-    bdd
-    atomic_prop_collect_as_bdd(formula f, const twa_ptr& a)
-    {
-      spot::ltl::atomic_prop_set aps;
-      atomic_prop_collect(f, &aps);
-      bdd res = bddtrue;
-      for (auto f: aps)
-	res &= bdd_ithvar(a->register_ap(f));
-      return res;
-    }
+  bdd
+  atomic_prop_collect_as_bdd(formula f, const twa_ptr& a)
+  {
+    spot::atomic_prop_set aps;
+    atomic_prop_collect(f, &aps);
+    bdd res = bddtrue;
+    for (auto f: aps)
+      res &= bdd_ithvar(a->register_ap(f));
+    return res;
   }
 }

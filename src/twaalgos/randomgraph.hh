@@ -81,7 +81,7 @@ namespace spot
   /// successors one by one.)
   SPOT_API twa_graph_ptr
   random_graph(int n, float d,
-	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
+	       const atomic_prop_set* ap, const bdd_dict_ptr& dict,
 	       unsigned n_accs = 0, float a = 0.1, float t = 0.5,
 	       bool deterministic = false, bool state_acc = false,
 	       bool colored = false);

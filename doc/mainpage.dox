@@ -19,12 +19,12 @@
 ///
 /// \section pointers Handy starting points
 ///
-/// \li spot::ltl::formula    Base class for an LTL or PSL formula.
-/// \li spot::ltl::parse_infix_psl Parsing a text string into a
-///                           spot::ltl::formula.
+/// \li spot::formula    Base class for an LTL or PSL formula.
+/// \li spot::parse_infix_psl Parsing a text string into a
+///                           spot::formula.
 /// \li spot::twa             Base class for Transition-based
 ///                           ω-Automata.
-/// \li spot::translator      Convert a spot::ltl::formula into a
+/// \li spot::translator      Convert a spot::formula into a
 ///                           spot::tgba.
 /// \li spot::kripke          Base class for Kripke structures.
 /// \li spot::twa_product     On-the-fly product of two spot::twa.

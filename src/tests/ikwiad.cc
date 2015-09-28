@@ -342,7 +342,7 @@ checked_main(int argc, char** argv)
   bool nra2nba = false;
   bool scc_filter = false;
   bool simpltl = false;
-  spot::ltl::ltl_simplifier_options redopt(false, false, false, false,
+  spot::ltl_simplifier_options redopt(false, false, false, false,
 					   false, false, false);
   bool simpcache_stats = false;
   bool scc_filter_all = false;
@@ -363,8 +363,8 @@ checked_main(int argc, char** argv)
   bool opt_stutterize = false;
   const char* opt_never = nullptr;
   const char* hoa_opt = nullptr;
-  auto& env = spot::ltl::default_environment::instance();
-  spot::ltl::atomic_prop_set* unobservables = nullptr;
+  auto& env = spot::default_environment::instance();
+  spot::atomic_prop_set* unobservables = nullptr;
   spot::twa_ptr system_aut = nullptr;
   auto dict = spot::make_bdd_dict();
   spot::timer_map tm;
@@ -790,7 +790,7 @@ checked_main(int argc, char** argv)
 	}
       else if (!strncmp(argv[formula_index], "-U", 2))
 	{
-	  unobservables = new spot::ltl::atomic_prop_set;
+	  unobservables = new spot::atomic_prop_set;
 	  translation = TransFM;
 	  // Parse -U's argument.
 	  const char* tok = strtok(argv[formula_index] + 2, ", \t;");
@@ -923,7 +923,7 @@ checked_main(int argc, char** argv)
       input = argv[formula_index];
     }
 
-  spot::ltl::formula f = nullptr;
+  spot::formula f = nullptr;
   if (!from_file) // Reading a formula, not reading an automaton from a file.
     {
       switch (translation)
@@ -932,11 +932,11 @@ checked_main(int argc, char** argv)
 	case TransTAA:
 	case TransCompo:
 	  {
-	    spot::ltl::parse_error_list pel;
+	    spot::parse_error_list pel;
 	    tm.start("parsing formula");
-	    f = spot::ltl::parse_infix_psl(input, pel, env, debug_opt);
+	    f = spot::parse_infix_psl(input, pel, env, debug_opt);
 	    tm.stop("parsing formula");
-	    exit_code = spot::ltl::format_parse_errors(std::cerr, input, pel);
+	    exit_code = spot::format_parse_errors(std::cerr, input, pel);
 	  }
 	  break;
 	}
@@ -964,14 +964,14 @@ checked_main(int argc, char** argv)
 	}
       else
 	{
-	  spot::ltl::ltl_simplifier* simp = nullptr;
+	  spot::ltl_simplifier* simp = nullptr;
 	  if (simpltl)
-	    simp = new spot::ltl::ltl_simplifier(redopt, dict);
+	    simp = new spot::ltl_simplifier(redopt, dict);
 
 	  if (simp)
 	    {
 	      tm.start("reducing formula");
-	      spot::ltl::formula t = simp->simplify(f);
+	      spot::formula t = simp->simplify(f);
 	      tm.stop("reducing formula");
 	      f = t;
 	      if (display_reduced_form)
@@ -1659,6 +1659,6 @@ int
 main(int argc, char** argv)
 {
   int exit_code = checked_main(argc, argv);
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return exit_code;
 }

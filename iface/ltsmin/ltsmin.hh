@@ -57,7 +57,7 @@ namespace spot
   // \a verbose whether to output verbose messages
   SPOT_API kripke_ptr
   load_ltsmin(const std::string& file, const bdd_dict_ptr& dict,
-	      const ltl::atomic_prop_set* to_observe,
-	      ltl::formula dead = ltl::formula::tt(),
+	      const atomic_prop_set* to_observe,
+	      formula dead = formula::tt(),
 	      int compress = 0, bool verbose = true);
 }

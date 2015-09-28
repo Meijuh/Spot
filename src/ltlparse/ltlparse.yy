@@ -27,7 +27,7 @@
 %debug
 %error-verbose
 %expect 0
-%lex-param { spot::ltl::parse_error_list& error_list }
+%lex-param { spot::parse_error_list& error_list }
 %define api.location.type "spot::location"
 
 %code requires
@@ -41,13 +41,13 @@
   struct minmax_t { unsigned min, max; };
 }
 
-%parse-param {spot::ltl::parse_error_list &error_list}
-%parse-param {spot::ltl::environment &parse_environment}
-%parse-param {spot::ltl::formula &result}
+%parse-param {spot::parse_error_list &error_list}
+%parse-param {spot::environment &parse_environment}
+%parse-param {spot::formula &result}
 %union
 {
   std::string* str;
-  const spot::ltl::fnode* ltl;
+  const spot::fnode* ltl;
   unsigned num;
   minmax_t minmax;
 }
@@ -57,7 +57,7 @@
    We mut ensure that YYSTYPE is declared (by the above %union)
    before parsedecl.hh uses it. */
 #include "parsedecl.hh"
-using namespace spot::ltl;
+using namespace spot;
 
 #define missing_right_op_msg(op, str)		\
   error_list.emplace_back(op,			\
@@ -94,10 +94,10 @@ using namespace spot::ltl;
   static formula
   try_recursive_parse(const std::string& str,
 		      const spot::location& location,
-		      spot::ltl::environment& env,
+		      spot::environment& env,
 		      bool debug,
 		      parser_type type,
-		      spot::ltl::parse_error_list& error_list)
+		      spot::parse_error_list& error_list)
     {
       // We want to parse a U (b U c) as two until operators applied
       // to the atomic propositions a, b, and c.  We also want to
@@ -120,18 +120,18 @@ using namespace spot::ltl;
 	  return nullptr;
 	}
 
-      spot::ltl::parse_error_list suberror;
+      spot::parse_error_list suberror;
       formula f;
       switch (type)
 	{
 	case parser_sere:
-	  f = spot::ltl::parse_infix_sere(str, suberror, env, debug, true);
+	  f = spot::parse_infix_sere(str, suberror, env, debug, true);
 	  break;
 	case parser_bool:
-	  f = spot::ltl::parse_infix_boolean(str, suberror, env, debug, true);
+	  f = spot::parse_infix_boolean(str, suberror, env, debug, true);
 	  break;
 	case parser_ltl:
-	  f = spot::ltl::parse_infix_psl(str, suberror, env, debug, true);
+	  f = spot::parse_infix_psl(str, suberror, env, debug, true);
 	  break;
 	}
 
@@ -237,8 +237,8 @@ using namespace spot::ltl;
 %destructor { $$->destroy(); } <ltl>
 
 %printer { debug_stream() << *$$; } <str>
-%printer { spot::ltl::print_psl(debug_stream(), formula($$)); } <ltl>
-%printer { spot::ltl::print_sere(debug_stream(), formula($$)); } sere bracedsere
+%printer { print_psl(debug_stream(), formula($$)); } <ltl>
+%printer { print_sere(debug_stream(), formula($$)); } sere bracedsere
 %printer { debug_stream() << $$; } <num>
 %printer { debug_stream() << $$.min << ".." << $$.max; } <minmax>
 
@@ -993,95 +993,91 @@ ltlyy::parser::error(const location_type& location, const std::string& message)
 
 namespace spot
 {
-  namespace ltl
+  formula
+  parse_infix_psl(const std::string& ltl_string,
+		  parse_error_list& error_list,
+		  environment& env,
+		  bool debug, bool lenient)
   {
-    formula
-    parse_infix_psl(const std::string& ltl_string,
-		    parse_error_list& error_list,
-		    environment& env,
-		    bool debug, bool lenient)
-    {
-      formula result = nullptr;
-      flex_set_buffer(ltl_string,
-		      ltlyy::parser::token::START_LTL,
-		      lenient);
-      ltlyy::parser parser(error_list, env, result);
-      parser.set_debug_level(debug);
-      parser.parse();
-      flex_unset_buffer();
-      return result;
-    }
+    formula result = nullptr;
+    flex_set_buffer(ltl_string,
+		    ltlyy::parser::token::START_LTL,
+		    lenient);
+    ltlyy::parser parser(error_list, env, result);
+    parser.set_debug_level(debug);
+    parser.parse();
+    flex_unset_buffer();
+    return result;
+  }
 
-    formula
-    parse_infix_boolean(const std::string& ltl_string,
-			parse_error_list& error_list,
-			environment& env,
-			bool debug, bool lenient)
-    {
-      formula result = nullptr;
-      flex_set_buffer(ltl_string,
-		      ltlyy::parser::token::START_BOOL,
-		      lenient);
-      ltlyy::parser parser(error_list, env, result);
-      parser.set_debug_level(debug);
-      parser.parse();
-      flex_unset_buffer();
-      return result;
-    }
+  formula
+  parse_infix_boolean(const std::string& ltl_string,
+		      parse_error_list& error_list,
+		      environment& env,
+		      bool debug, bool lenient)
+  {
+    formula result = nullptr;
+    flex_set_buffer(ltl_string,
+		    ltlyy::parser::token::START_BOOL,
+		    lenient);
+    ltlyy::parser parser(error_list, env, result);
+    parser.set_debug_level(debug);
+    parser.parse();
+    flex_unset_buffer();
+    return result;
+  }
 
-    formula
-    parse_prefix_ltl(const std::string& ltl_string,
-	  parse_error_list& error_list,
-	  environment& env,
-	  bool debug)
-    {
-      formula result = nullptr;
-      flex_set_buffer(ltl_string,
-		      ltlyy::parser::token::START_LBT,
-		      false);
-      ltlyy::parser parser(error_list, env, result);
-      parser.set_debug_level(debug);
-      parser.parse();
-      flex_unset_buffer();
-      return result;
-    }
+  formula
+  parse_prefix_ltl(const std::string& ltl_string,
+		   parse_error_list& error_list,
+		   environment& env,
+		   bool debug)
+  {
+    formula result = nullptr;
+    flex_set_buffer(ltl_string,
+		    ltlyy::parser::token::START_LBT,
+		    false);
+    ltlyy::parser parser(error_list, env, result);
+    parser.set_debug_level(debug);
+    parser.parse();
+    flex_unset_buffer();
+    return result;
+  }
 
-    formula
-    parse_infix_sere(const std::string& sere_string,
-		     parse_error_list& error_list,
-		     environment& env,
-		     bool debug,
-		     bool lenient)
-    {
-      formula result = nullptr;
-      flex_set_buffer(sere_string,
-		      ltlyy::parser::token::START_SERE,
-		      lenient);
-      ltlyy::parser parser(error_list, env, result);
-      parser.set_debug_level(debug);
-      parser.parse();
-      flex_unset_buffer();
-      return result;
-    }
+  formula
+  parse_infix_sere(const std::string& sere_string,
+		   parse_error_list& error_list,
+		   environment& env,
+		   bool debug,
+		   bool lenient)
+  {
+    formula result = nullptr;
+    flex_set_buffer(sere_string,
+		    ltlyy::parser::token::START_SERE,
+		    lenient);
+    ltlyy::parser parser(error_list, env, result);
+    parser.set_debug_level(debug);
+    parser.parse();
+    flex_unset_buffer();
+    return result;
+  }
 
-    formula
-    parse_formula(const std::string& ltl_string, environment& env)
-    {
-      parse_error_list pel;
-      formula f = parse_infix_psl(ltl_string, pel, env);
-      std::ostringstream s;
-      if (format_parse_errors(s, ltl_string, pel))
-	{
-	  parse_error_list pel2;
-	  formula g = parse_prefix_ltl(ltl_string, pel2, env);
-	  if (pel2.empty())
-	    return g;
-	  else
-	    throw parse_error(s.str());
-	}
-      return f;
-    }
-
+  formula
+  parse_formula(const std::string& ltl_string, environment& env)
+  {
+    parse_error_list pel;
+    formula f = parse_infix_psl(ltl_string, pel, env);
+    std::ostringstream s;
+    if (format_parse_errors(s, ltl_string, pel))
+      {
+	parse_error_list pel2;
+	formula g = parse_prefix_ltl(ltl_string, pel2, env);
+	if (pel2.empty())
+	  return g;
+	else
+	  throw parse_error(s.str());
+      }
+    return f;
   }
 }
 

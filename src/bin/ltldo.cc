@@ -237,14 +237,14 @@ namespace
 		   const char* filename,
 		   int linenum)
     {
-      spot::ltl::parse_error_list pel;
-      spot::ltl::formula f = parse_formula(input, pel);
+      spot::parse_error_list pel;
+      spot::formula f = parse_formula(input, pel);
 
       if (!f || !pel.empty())
 	{
 	  if (filename)
 	    error_at_line(0, 0, filename, linenum, "parse error:");
-	  spot::ltl::format_parse_errors(std::cerr, input, pel);
+	  spot::format_parse_errors(std::cerr, input, pel);
 	  return 1;
 	}
 
@@ -255,10 +255,10 @@ namespace
 
 
     int
-    process_formula(spot::ltl::formula f,
+    process_formula(spot::formula f,
 		    const char* filename = nullptr, int linenum = 0)
     {
-      std::unique_ptr<spot::ltl::relabeling_map> relmap;
+      std::unique_ptr<spot::relabeling_map> relmap;
 
       // If atomic propositions are incompatible with one of the
       // output, relabel the formula.
@@ -267,8 +267,8 @@ namespace
 	  || (!f.has_spin_atomic_props() &&
 	      (runner.has('s') || runner.has('S'))))
 	{
-	  relmap.reset(new spot::ltl::relabeling_map);
-	  f = spot::ltl::relabel(f, spot::ltl::Pnn, relmap.get());
+	  relmap.reset(new spot::relabeling_map);
+	  f = spot::relabel(f, spot::Pnn, relmap.get());
 	}
 
       static unsigned round = 1;

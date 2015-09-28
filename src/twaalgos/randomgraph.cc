@@ -122,7 +122,7 @@ namespace spot
 
   twa_graph_ptr
   random_graph(int n, float d,
-	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
+	       const atomic_prop_set* ap, const bdd_dict_ptr& dict,
 	       unsigned n_accs, float a, float t,
 	       bool deterministic, bool state_acc, bool colored)
   {

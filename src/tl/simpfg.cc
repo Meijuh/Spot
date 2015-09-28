@@ -24,24 +24,20 @@
 
 namespace spot
 {
-  namespace ltl
+  formula simplify_f_g(formula p)
   {
-    formula simplify_f_g(formula p)
-    {
-      // 1 U p = Fp
-      if (p.is(op::U) && p[0].is_tt())
-	return formula::F(p[1]);
-      // 0 R p = Gp
-      if (p.is(op::R) && p[0].is_ff())
-	return formula::G(p[1]);
-      // p W 0 = Gp
-      if (p.is(op::W) && p[1].is_ff())
-	return formula::G(p[0]);
-      // p M 1 = Fp
-      if (p.is(op::M) && p[1].is_tt())
-	return formula::F(p[0]);
-      return p.map(simplify_f_g);
-    }
-
+    // 1 U p = Fp
+    if (p.is(op::U) && p[0].is_tt())
+      return formula::F(p[1]);
+    // 0 R p = Gp
+    if (p.is(op::R) && p[0].is_ff())
+      return formula::G(p[1]);
+    // p W 0 = Gp
+    if (p.is(op::W) && p[1].is_ff())
+      return formula::G(p[0]);
+    // p M 1 = Fp
+    if (p.is(op::M) && p[1].is_tt())
+      return formula::F(p[0]);
+    return p.map(simplify_f_g);
   }
 }

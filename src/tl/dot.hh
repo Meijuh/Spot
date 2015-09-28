@@ -26,16 +26,13 @@
 
 namespace spot
 {
-  namespace ltl
-  {
-    /// \ingroup ltl_io
-    /// \brief Write a formula tree using dot's syntax.
-    /// \param os The stream where it should be output.
-    /// \param f The formula to translate.
-    ///
-    /// \c dot is part of the GraphViz package
-    /// http://www.graphviz.org/
-    SPOT_API
-    std::ostream& print_dot_psl(std::ostream& os, formula f);
-  }
+  /// \ingroup ltl_io
+  /// \brief Write a formula tree using dot's syntax.
+  /// \param os The stream where it should be output.
+  /// \param f The formula to translate.
+  ///
+  /// \c dot is part of the GraphViz package
+  /// http://www.graphviz.org/
+  SPOT_API
+  std::ostream& print_dot_psl(std::ostream& os, formula f);
 }

@@ -404,7 +404,7 @@ namespace spot
   tba_determinize_check(const twa_graph_ptr& aut,
 			unsigned threshold_states,
 			unsigned threshold_cycles,
-			ltl::formula f,
+			formula f,
 			const_twa_graph_ptr neg_aut)
   {
     if (f == nullptr && neg_aut == nullptr)
@@ -419,7 +419,7 @@ namespace spot
 
     if (neg_aut == nullptr)
       {
-	neg_aut = ltl_to_tgba_fm(ltl::formula::Not(f), aut->get_dict());
+	neg_aut = ltl_to_tgba_fm(formula::Not(f), aut->get_dict());
 	// Remove useless SCCs.
 	neg_aut = scc_filter(neg_aut, true);
       }

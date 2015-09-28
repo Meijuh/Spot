@@ -29,36 +29,32 @@
 
 namespace spot
 {
-  namespace ltl
+  /// \ingroup ltl_environment
+  /// \brief A declarative environment.
+  ///
+  /// This environment recognizes all atomic propositions
+  /// that have been previously declared.  It will reject other.
+  class SPOT_API declarative_environment : public environment
   {
+  public:
+    declarative_environment();
+    ~declarative_environment() = default;
 
-    /// \ingroup ltl_environment
-    /// \brief A declarative environment.
-    ///
-    /// This environment recognizes all atomic propositions
-    /// that have been previously declared.  It will reject other.
-    class SPOT_API declarative_environment : public environment
-    {
-    public:
-      declarative_environment();
-      ~declarative_environment() = default;
+    /// Declare an atomic proposition.  Return false iff the
+    /// proposition was already declared.
+    bool declare(const std::string& prop_str);
 
-      /// Declare an atomic proposition.  Return false iff the
-      /// proposition was already declared.
-      bool declare(const std::string& prop_str);
+    virtual formula require(const std::string& prop_str);
 
-      virtual formula require(const std::string& prop_str);
+    /// Get the name of the environment.
+    virtual const std::string& name() const;
 
-      /// Get the name of the environment.
-      virtual const std::string& name() const;
+    typedef std::map<const std::string, formula> prop_map;
 
-      typedef std::map<const std::string, formula> prop_map;
+    /// Get the map of atomic proposition known to this environment.
+    const prop_map& get_prop_map() const;
 
-      /// Get the map of atomic proposition known to this environment.
-      const prop_map& get_prop_map() const;
-
-    private:
-      prop_map props_;
-    };
-  }
+  private:
+    prop_map props_;
+  };
 }

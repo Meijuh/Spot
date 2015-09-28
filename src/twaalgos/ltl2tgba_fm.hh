@@ -101,7 +101,7 @@ namespace spot
   /// representing each state of the automaton will be simplified
   /// before computing the successor.  \a simpl should be configured
   /// for the type of reduction you want, see
-  /// spot::ltl::ltl_simplifier.  This idea is taken from the
+  /// spot::ltl_simplifier.  This idea is taken from the
   /// following paper.
   /** \verbatim
       @InProceedings{	  thirioux.02.fmics,
@@ -140,11 +140,11 @@ namespace spot
   ///
   /// \return A spot::twa_graph that recognizes the language of \a f.
   SPOT_API twa_graph_ptr
-  ltl_to_tgba_fm(ltl::formula f, const bdd_dict_ptr& dict,
+  ltl_to_tgba_fm(formula f, const bdd_dict_ptr& dict,
 		 bool exprop = false, bool symb_merge = true,
 		 bool branching_postponement = false,
 		 bool fair_loop_approx = false,
-		 const ltl::atomic_prop_set* unobs = nullptr,
-		 ltl::ltl_simplifier* simplifier = nullptr,
+		 const atomic_prop_set* unobs = nullptr,
+		 ltl_simplifier* simplifier = nullptr,
 		 bool unambiguous = false);
 }

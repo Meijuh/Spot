@@ -62,12 +62,12 @@ namespace
     }
 
     int
-    process_formula(spot::ltl::formula f, const char*, int)
+    process_formula(spot::formula f, const char*, int)
     {
       spot::twa_graph_ptr a = trans.run(f);
-      spot::twa_graph_ptr na = trans.run(spot::ltl::formula::Not(f));
-      spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
-      bdd apdict = spot::ltl::atomic_prop_collect_as_bdd(f, a);
+      spot::twa_graph_ptr na = trans.run(spot::formula::Not(f));
+      spot::atomic_prop_set* ap = spot::atomic_prop_collect(f);
+      bdd apdict = spot::atomic_prop_collect_as_bdd(f, a);
 
       std::cout << formula << ',' << ap->size() << ',';
       stats.print(a);

@@ -595,7 +595,7 @@ namespace spot
     /// \brief Register an atomic proposition designated by formula \a ap.
     ///
     /// \return The BDD variable number.
-    int register_ap(ltl::formula ap)
+    int register_ap(formula ap)
     {
       aps_.push_back(ap);
       int res = dict_->register_proposition(ap, this);
@@ -608,12 +608,12 @@ namespace spot
     /// \return The BDD variable number.
     int register_ap(std::string name)
     {
-      return register_ap(ltl::formula::ap(name));
+      return register_ap(formula::ap(name));
     }
 
     /// \brief Get the vector of atomic propositions used by this
     /// automaton.
-    const std::vector<ltl::formula>&  ap() const
+    const std::vector<formula>&  ap() const
     {
       return aps_;
     }
@@ -745,7 +745,7 @@ namespace spot
     mutable const state* last_support_conditions_input_;
   private:
     mutable bdd last_support_conditions_output_;
-    std::vector<ltl::formula> aps_;
+    std::vector<formula> aps_;
     bdd bddaps_;
 
   protected:

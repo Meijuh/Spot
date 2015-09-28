@@ -25,17 +25,13 @@
 
 namespace spot
 {
-  namespace ltl
+  formula
+  negative_normal_form(formula f, bool negated)
   {
-    formula
-    negative_normal_form(formula f, bool negated)
-    {
-      if (!negated && f.is_in_nenoform())
-	return f;
+    if (!negated && f.is_in_nenoform())
+      return f;
 
-      ltl_simplifier s;
-      return s.negative_normal_form(f, negated);
-    }
-
+    ltl_simplifier s;
+    return s.negative_normal_form(f, negated);
   }
 }

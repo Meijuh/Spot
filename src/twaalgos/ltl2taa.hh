@@ -48,6 +48,6 @@ namespace spot
   /// \param refined_rules If this parameter is set, refined rules are used.
   /// \return A spot::taa that recognizes the language of \a f.
   SPOT_API taa_tgba_formula_ptr
-  ltl_to_taa(ltl::formula f, const bdd_dict_ptr& dict,
+  ltl_to_taa(formula f, const bdd_dict_ptr& dict,
 	     bool refined_rules = false);
 }

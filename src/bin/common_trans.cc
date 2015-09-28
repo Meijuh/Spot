@@ -290,16 +290,16 @@ translator_runner::formula() const
 }
 
 void
-translator_runner::round_formula(spot::ltl::formula f, unsigned serial)
+translator_runner::round_formula(spot::formula f, unsigned serial)
 {
   if (has('f') || has('F'))
-    string_ltl_spot = spot::ltl::str_psl(f, true);
+    string_ltl_spot = spot::str_psl(f, true);
   if (has('s') || has('S'))
-    string_ltl_spin = spot::ltl::str_spin_ltl(f, true);
+    string_ltl_spin = spot::str_spin_ltl(f, true);
   if (has('l') || has('L'))
-    string_ltl_lbt = spot::ltl::str_lbt_ltl(f);
+    string_ltl_lbt = spot::str_lbt_ltl(f);
   if (has('w') || has('W'))
-    string_ltl_wring = spot::ltl::str_wring_ltl(f);
+    string_ltl_wring = spot::str_wring_ltl(f);
   if (has('F'))
     string_to_tmp(string_ltl_spot, serial, filename_ltl_spot);
   if (has('S'))

@@ -137,7 +137,7 @@ namespace spot
 
   void printable_formula::print(std::ostream& os, const char*) const
   {
-    ltl::print_psl(os, val_);
+    print_psl(os, val_);
   };
 
   stat_printer::stat_printer(std::ostream& os, const char* format)
@@ -162,7 +162,7 @@ namespace spot
 
   std::ostream&
   stat_printer::print(const const_twa_graph_ptr& aut,
-		      ltl::formula f, double run_time)
+		      formula f, double run_time)
   {
     form_ = f;
     run_time_ = run_time;

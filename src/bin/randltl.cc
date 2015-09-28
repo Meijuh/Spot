@@ -130,7 +130,7 @@ const struct argp_child children[] =
     { nullptr, 0, nullptr, 0 }
   };
 
-spot::ltl::atomic_prop_set aprops;
+spot::atomic_prop_set aprops;
 static int output = OUTPUTLTL;
 static char* opt_pL = nullptr;
 static char* opt_pS = nullptr;
@@ -209,11 +209,11 @@ parse_opt(int key, char* arg, struct argp_state* as)
 	  if (!*endptr && res >= 0) // arg is a number
 	    {
 	      ap_count_given = true;
-	      aprops = spot::ltl::create_atomic_prop_set(res);
+	      aprops = spot::create_atomic_prop_set(res);
 	      break;
 	    }
 	}
-      aprops.insert(spot::ltl::default_environment::instance().require(arg));
+      aprops.insert(spot::default_environment::instance().require(arg));
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -241,7 +241,7 @@ main(int argc, char** argv)
   spot::srand(opt_seed);
   try
     {
-      spot::ltl::randltlgenerator rg
+      spot::randltlgenerator rg
 	(aprops,
 	 [&] (){
 	  spot::option_map opts;
@@ -292,7 +292,7 @@ main(int argc, char** argv)
       while (opt_formulas < 0 || opt_formulas--)
 	{
 	  static int count = 0;
-	  spot::ltl::formula f = rg.next();
+	  spot::formula f = rg.next();
 	  if (!f)
 	    {
 	      error(2, 0, "failed to generate a new unique formula after %d " \

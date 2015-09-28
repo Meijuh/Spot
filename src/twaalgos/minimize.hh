@@ -151,7 +151,7 @@ namespace spot
   /// that the minimized WDBA is correct.
   SPOT_API twa_graph_ptr
   minimize_obligation(const const_twa_graph_ptr& aut_f,
-		      ltl::formula f = nullptr,
+		      formula f = nullptr,
 		      const_twa_graph_ptr aut_neg_f = nullptr,
 		      bool reject_bigger = false);
   /// @}

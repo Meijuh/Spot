@@ -79,13 +79,13 @@ namespace spot
     ~automaton_stream_parser();
     parsed_aut_ptr parse(parse_aut_error_list& error_list,
 			 const bdd_dict_ptr& dict,
-			 ltl::environment& env =
-			 ltl::default_environment::instance(),
+			 environment& env =
+			 default_environment::instance(),
 			 bool debug = false);
     // Raises a parse_error on any syntax error
     twa_graph_ptr parse_strict(const bdd_dict_ptr& dict,
-			       ltl::environment& env =
-			       ltl::default_environment::instance(),
+			       environment& env =
+			       default_environment::instance(),
 			       bool debug = false);
   };
 
@@ -120,7 +120,7 @@ namespace spot
   parse_aut(const std::string& filename,
 	    parse_aut_error_list& error_list,
 	    const bdd_dict_ptr& dict,
-	    ltl::environment& env = ltl::default_environment::instance(),
+	    environment& env = default_environment::instance(),
 	    bool debug = false)
   {
     try
@@ -138,7 +138,7 @@ namespace spot
   /// \brief Format diagnostics produced by spot::parse_aut.
   /// \param os Where diagnostics should be output.
   /// \param filename The filename that should appear in the diagnostics.
-  /// \param error_list The error list filled by spot::ltl::parse while
+  /// \param error_list The error list filled by spot::parse while
   ///        parsing \a ltl_string.
   /// \return \c true iff any diagnostic was output.
   SPOT_API bool

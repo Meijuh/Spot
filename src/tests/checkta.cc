@@ -83,10 +83,10 @@ main(int argc, char** argv)
       if (s.empty() || s[0] == '#') // Skip comments
 	continue;
 
-      spot::ltl::parse_error_list pe;
-      auto f = spot::ltl::parse_infix_psl(s, pe);
+      spot::parse_error_list pe;
+      auto f = spot::parse_infix_psl(s, pe);
 
-      if (spot::ltl::format_parse_errors(std::cerr, s, pe))
+      if (spot::format_parse_errors(std::cerr, s, pe))
 	return 2;
 
 
@@ -220,6 +220,6 @@ main(int argc, char** argv)
       }
     }
 
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return 0;
 }

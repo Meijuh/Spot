@@ -44,4 +44,4 @@
 extern int simplification_level;
 
 void parse_r(const char* arg);
-spot::ltl::ltl_simplifier_options simplifier_options();
+spot::ltl_simplifier_options simplifier_options();

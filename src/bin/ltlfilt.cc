@@ -251,7 +251,7 @@ static int bsize_min = -1;
 static int bsize_max = -1;
 enum relabeling_mode { NoRelabeling = 0, ApRelabeling, BseRelabeling };
 static relabeling_mode relabeling = NoRelabeling;
-static spot::ltl::relabeling_style style = spot::ltl::Abc;
+static spot::relabeling_style style = spot::Abc;
 static bool remove_x = false;
 static bool stutter_insensitive = false;
 static bool ap = false;
@@ -262,16 +262,16 @@ static spot::exclusive_ap excl_ap;
 static std::unique_ptr<output_file> output_define = nullptr;
 static std::string unabbreviate;
 
-static spot::ltl::formula implied_by = nullptr;
-static spot::ltl::formula imply = nullptr;
-static spot::ltl::formula equivalent_to = nullptr;
+static spot::formula implied_by = nullptr;
+static spot::formula imply = nullptr;
+static spot::formula equivalent_to = nullptr;
 
-static spot::ltl::formula
+static spot::formula
 parse_formula_arg(const std::string& input)
 {
-  spot::ltl::parse_error_list pel;
-  spot::ltl::formula f = parse_formula(input, pel);
-  if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+  spot::parse_error_list pel;
+  spot::formula f = parse_formula(input, pel);
+  if (spot::format_parse_errors(std::cerr, input, pel))
     error(2, 0, "parse error when parsing an argument");
   return f;
 }
@@ -343,16 +343,16 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_IMPLIED_BY:
       {
-	spot::ltl::formula i = parse_formula_arg(arg);
+	spot::formula i = parse_formula_arg(arg);
 	// a→c∧b→c ≡ (a∨b)→c
-	implied_by = spot::ltl::formula::Or({implied_by, i});
+	implied_by = spot::formula::Or({implied_by, i});
 	break;
       }
     case OPT_IMPLY:
       {
 	// a→b∧a→c ≡ a→(b∧c)
-	spot::ltl::formula i = parse_formula_arg(arg);
-	imply = spot::ltl::formula::And({imply, i});
+	spot::formula i = parse_formula_arg(arg);
+	imply = spot::formula::And({imply, i});
 	break;
       }
     case OPT_LTL:
@@ -371,9 +371,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_RELABEL_BOOL:
       relabeling = (key == OPT_RELABEL_BOOL ? BseRelabeling : ApRelabeling);
       if (!arg || !strncasecmp(arg, "abc", 6))
-	style = spot::ltl::Abc;
+	style = spot::Abc;
       else if (!strncasecmp(arg, "pnn", 4))
-	style = spot::ltl::Pnn;
+	style = spot::Pnn;
       else
 	error(2, 0, "invalid argument for --relabel%s: '%s'",
 	      (key == OPT_RELABEL_BOOL ? "-bool" : ""),
@@ -404,7 +404,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (arg)
 	unabbreviate += arg;
       else
-	unabbreviate += spot::ltl::default_unabbrev_string;
+	unabbreviate += spot::default_unabbrev_string;
       break;
     case OPT_AP_N:
       ap = true;
@@ -438,18 +438,18 @@ parse_opt(int key, char* arg, struct argp_state*)
 }
 
 typedef
-std::unordered_set<spot::ltl::formula> fset_t;
+std::unordered_set<spot::formula> fset_t;
 
 namespace
 {
   class ltl_processor: public job_processor
   {
   public:
-    spot::ltl::ltl_simplifier& simpl;
+    spot::ltl_simplifier& simpl;
     fset_t unique_set;
-    spot::ltl::relabeling_map relmap;
+    spot::relabeling_map relmap;
 
-    ltl_processor(spot::ltl::ltl_simplifier& simpl)
+    ltl_processor(spot::ltl_simplifier& simpl)
       : simpl(simpl)
     {
     }
@@ -458,8 +458,8 @@ namespace
     process_string(const std::string& input,
 		    const char* filename = nullptr, int linenum = 0)
     {
-      spot::ltl::parse_error_list pel;
-      spot::ltl::formula f = parse_formula(input, pel);
+      spot::parse_error_list pel;
+      spot::formula f = parse_formula(input, pel);
 
       if (!f || pel.size() > 0)
 	  {
@@ -467,7 +467,7 @@ namespace
 	      {
 		if (filename)
 		  error_at_line(0, 0, filename, linenum, "parse error:");
-		spot::ltl::format_parse_errors(std::cerr, input, pel);
+		spot::format_parse_errors(std::cerr, input, pel);
 	      }
 
 	    if (error_style == skip_errors)
@@ -489,7 +489,7 @@ namespace
     }
 
     int
-    process_formula(spot::ltl::formula f,
+    process_formula(spot::formula f,
 		    const char* filename = nullptr, int linenum = 0)
     {
       if (opt_max_count >= 0 && match_count >= opt_max_count)
@@ -499,14 +499,14 @@ namespace
 	}
 
       if (negate)
-	f = spot::ltl::formula::Not(f);
+	f = spot::formula::Not(f);
 
       if (remove_x)
 	{
 	  // If simplification are enabled, we do them before and after.
 	  if (simplification_level)
 	    f = simpl.simplify(f);
-	  f = spot::ltl::remove_x(f);
+	  f = spot::remove_x(f);
 	}
 
       if (simplification_level || boolean_to_isop)
@@ -520,13 +520,13 @@ namespace
 	case ApRelabeling:
 	  {
 	    relmap.clear();
-	    f = spot::ltl::relabel(f, style, &relmap);
+	    f = spot::relabel(f, style, &relmap);
 	    break;
 	  }
 	case BseRelabeling:
 	  {
 	    relmap.clear();
-	    f = spot::ltl::relabel_bse(f, style, &relmap);
+	    f = spot::relabel_bse(f, style, &relmap);
 	    break;
 	  }
 	case NoRelabeling:
@@ -534,7 +534,7 @@ namespace
 	}
 
       if (!unabbreviate.empty())
-	f = spot::ltl::unabbreviate(f, unabbreviate.c_str());
+	f = spot::unabbreviate(f, unabbreviate.c_str());
 
       if (!excl_ap.empty())
 	f = excl_ap.constrain(f);
@@ -556,14 +556,14 @@ namespace
 
       if (matched && (size_min > 0 || size_max >= 0))
 	{
-	  int l = spot::ltl::length(f);
+	  int l = spot::length(f);
 	  matched &= (size_min <= 0) || (l >= size_min);
 	  matched &= (size_max < 0) || (l <= size_max);
 	}
 
       if (matched && (bsize_min > 0 || bsize_max >= 0))
 	{
-	  int l = spot::ltl::length_boolone(f);
+	  int l = spot::length_boolone(f);
 	  matched &= (bsize_min <= 0) || (l >= bsize_min);
 	  matched &= (bsize_max < 0) || (l <= bsize_max);
 	}
@@ -606,7 +606,7 @@ namespace
 	      && output_format != quiet_output)
 	    {
 	      // Sort the formulas alphabetically.
-	      std::map<std::string, spot::ltl::formula> m;
+	      std::map<std::string, spot::formula> m;
 	      for (auto& p: relmap)
 		m.emplace(str_psl(p.first), p.second);
 	      for (auto& p: m)
@@ -641,9 +641,9 @@ main(int argc, char** argv)
 
       if (boolean_to_isop && simplification_level == 0)
 	simplification_level = 1;
-      spot::ltl::ltl_simplifier_options opt(simplification_level);
+      spot::ltl_simplifier_options opt(simplification_level);
       opt.boolean_to_isop = boolean_to_isop;
-      spot::ltl::ltl_simplifier simpl(opt);
+      spot::ltl_simplifier simpl(opt);
 
       ltl_processor processor(simpl);
       if (processor.run())

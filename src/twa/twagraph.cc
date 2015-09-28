@@ -23,7 +23,7 @@
 namespace spot
 {
   void
-  twa_graph::release_formula_namer(namer<ltl::formula>* namer,
+  twa_graph::release_formula_namer(namer<formula>* namer,
 				   bool keep_names)
   {
     if (keep_names)

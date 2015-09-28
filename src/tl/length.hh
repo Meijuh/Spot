@@ -26,28 +26,25 @@
 
 namespace spot
 {
-  namespace ltl
-  {
-    /// \ingroup ltl_misc
-    /// \brief Compute the length of a formula.
-    ///
-    /// The length of a formula is the number of atomic propositions,
-    /// constants, and operators (logical and temporal) occurring in
-    /// the formula.  n-ary operators count for n-1; for instance
-    /// <code>a | b | c</code> has length 5, even if there is only as
-    /// single <code>|</code> node internally.
-    ///
-    /// If squash_boolean is set, all Boolean formulae are assumed
-    /// to have length one.
-    SPOT_API
-    int length(formula f);
+  /// \ingroup ltl_misc
+  /// \brief Compute the length of a formula.
+  ///
+  /// The length of a formula is the number of atomic propositions,
+  /// constants, and operators (logical and temporal) occurring in
+  /// the formula.  n-ary operators count for n-1; for instance
+  /// <code>a | b | c</code> has length 5, even if there is only as
+  /// single <code>|</code> node internally.
+  ///
+  /// If squash_boolean is set, all Boolean formulae are assumed
+  /// to have length one.
+  SPOT_API
+  int length(formula f);
 
-    /// \ingroup ltl_misc
-    /// \brief Compute the length of a formula, squashing Boolean formulae
-    ///
-    /// This is similar to spot::ltl::length(), except all Boolean
-    /// formulae are assumed to have length one.
-    SPOT_API
-    int length_boolone(formula f);
-  }
+  /// \ingroup ltl_misc
+  /// \brief Compute the length of a formula, squashing Boolean formulae
+  ///
+  /// This is similar to spot::length(), except all Boolean
+  /// formulae are assumed to have length one.
+  SPOT_API
+  int length_boolone(formula f);
 }

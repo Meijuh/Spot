@@ -58,9 +58,9 @@ main(int argc, char **argv)
       std::getline(ss, form, ',');
       ss >> expected;
 
-      spot::ltl::parse_error_list p1;
-      auto f1 = spot::ltl::parse_infix_sere(form, p1);
-      if (spot::ltl::format_parse_errors(std::cerr, form, p1))
+      spot::parse_error_list p1;
+      auto f1 = spot::parse_infix_sere(form, p1);
+      if (spot::format_parse_errors(std::cerr, form, p1))
 	return 2;
 
       bool b = f1.accepts_eword();
@@ -73,6 +73,6 @@ main(int argc, char **argv)
 	}
     }
 
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return 0;
 }

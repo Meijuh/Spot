@@ -43,7 +43,7 @@ namespace spot
 
   void translator::build_simplifier(const bdd_dict_ptr& dict)
   {
-    ltl::ltl_simplifier_options options(false, false, false);
+    ltl_simplifier_options options(false, false, false);
     switch (level_)
       {
       case High:
@@ -58,10 +58,10 @@ namespace spot
 	options.event_univ = true;
 	// fall through
       }
-    simpl_owned_ = simpl_ = new ltl::ltl_simplifier(options, dict);
+    simpl_owned_ = simpl_ = new ltl_simplifier(options, dict);
   }
 
-  twa_graph_ptr translator::run(ltl::formula* f)
+  twa_graph_ptr translator::run(formula* f)
   {
     bool unambiguous = (pref_ & postprocessor::Unambiguous);
     if (unambiguous && type_ == postprocessor::Monitor)
@@ -72,7 +72,7 @@ namespace spot
 	set_pref(pref_ | postprocessor::Deterministic);
       }
 
-    ltl::formula r = simpl_->simplify(*f);
+    formula r = simpl_->simplify(*f);
     *f = r;
 
     // This helps ltl_to_tgba_fm() to order BDD variables in a more
@@ -102,7 +102,7 @@ namespace spot
     return aut;
   }
 
-  twa_graph_ptr translator::run(ltl::formula f)
+  twa_graph_ptr translator::run(formula f)
   {
     return run(&f);
   }

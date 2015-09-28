@@ -43,7 +43,7 @@ enum {
 static unsigned mutation_nb = 1;
 static unsigned max_output = -1U;
 
-static unsigned opt_all = spot::ltl::Mut_All;
+static unsigned opt_all = spot::Mut_All;
 static unsigned mut_opts = 0;
 static bool opt_sort = false;
 
@@ -96,11 +96,11 @@ namespace
   {
   public:
     int
-    process_formula(spot::ltl::formula f, const char* filename = nullptr,
+    process_formula(spot::formula f, const char* filename = nullptr,
 		    int linenum = 0)
     {
       auto mutations =
-	spot::ltl::mutate(f, mut_opts, max_output, mutation_nb, opt_sort);
+	spot::mutate(f, mut_opts, max_output, mutation_nb, opt_sort);
       for (auto g: mutations)
 	output_formula_checked(g, filename, linenum);
       return 0;
@@ -121,31 +121,31 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_AP2CONST:
       opt_all = 0;
-      mut_opts |= spot::ltl::Mut_Ap2Const;
+      mut_opts |= spot::Mut_Ap2Const;
       break;
     case OPT_REMOVE_ONE_AP:
       opt_all = 0;
-      mut_opts |= spot::ltl::Mut_Remove_One_Ap;
+      mut_opts |= spot::Mut_Remove_One_Ap;
       break;
     case OPT_REMOVE_MULTOP_OPERANDS:
       opt_all = 0;
-      mut_opts |= spot::ltl::Mut_Remove_Multop_Operands;
+      mut_opts |= spot::Mut_Remove_Multop_Operands;
       break;
     case OPT_REMOVE_OPS:
       opt_all = 0;
-      mut_opts |= spot::ltl::Mut_Remove_Ops;
+      mut_opts |= spot::Mut_Remove_Ops;
       break;
     case OPT_SPLIT_OPS:
       opt_all = 0;
-      mut_opts |= spot::ltl::Mut_Split_Ops;
+      mut_opts |= spot::Mut_Split_Ops;
       break;
     case OPT_REWRITE_OPS:
       opt_all = 0;
-      mut_opts |= spot::ltl::Mut_Rewrite_Ops;
+      mut_opts |= spot::Mut_Rewrite_Ops;
       break;
     case OPT_SIMPLIFY_BOUNDS:
       opt_all = 0;
-      mut_opts |= spot::ltl::Mut_Simplify_Bounds;
+      mut_opts |= spot::Mut_Simplify_Bounds;
       break;
     case OPT_SORT:
       opt_sort = true;

@@ -135,7 +135,7 @@ static const struct argp_child children[] =
 static const char* opt_acceptance = nullptr;
 typedef spot::twa_graph::graph_t::edge_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
-static spot::ltl::atomic_prop_set aprops;
+static spot::atomic_prop_set aprops;
 static range ap_count_given = {-1, -2}; // Must be two different negative val
 static int opt_seed = 0;
 static const char* opt_seed_str = "0";
@@ -249,10 +249,10 @@ parse_opt(int key, char* arg, struct argp_state* as)
 	  ap_count_given = parse_range(arg);
 	  // Create the set once if the count is fixed.
 	  if (ap_count_given.min == ap_count_given.max)
-	    aprops = spot::ltl::create_atomic_prop_set(ap_count_given.min);
+	    aprops = spot::create_atomic_prop_set(ap_count_given.min);
 	  break;
 	}
-      aprops.insert(spot::ltl::formula::ap(arg));
+      aprops.insert(spot::formula::ap(arg));
       break;
 
     default:
@@ -329,7 +329,7 @@ main(int argc, char** argv)
 	      && ap_count_given.min != ap_count_given.max)
 	    {
 	      int c = spot::rrand(ap_count_given.min, ap_count_given.max);
-	      aprops = spot::ltl::create_atomic_prop_set(c);
+	      aprops = spot::create_atomic_prop_set(c);
 	    }
 
 	  int size = opt_states.min;

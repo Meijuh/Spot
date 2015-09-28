@@ -28,9 +28,9 @@ New in spot 1.99.3a (not yet released)
   * The class hierarchy for temporal formulas has been entirely
     rewritten.  This change is actually quite massive (~13200 lines
     removed, ~8200 lines added), and brings some nice benefits:
-    - LTL/PSL formulas are now represented by lightweight ltl::formula
-      objects (instead of ltl::formula* pointers) that perform
-      reference counting automatically.
+    - LTL/PSL formulas are now represented by lightweight formula
+      objects (instead of pointers to children of an abstract formula
+      class) that perform reference counting automatically.
     - There is no hierachy anymore: all operators are represented by a
       single type of node in the syntax tree, and an enumerator is
       used to distinguish between operators.
@@ -41,10 +41,13 @@ New in spot 1.99.3a (not yet released)
       more friendly, and several algorithms that spanned a few pages
       have been reduced to a few lines.
 
-  * The source directories ltlast/, ltlenv/, and ltlvisit/, have been
-    merged into a single tl/ directory (for temporal logic).  This is
-    motivated by the fact that these formulas are not restricted to
-    LTL, and by the fact that we no longuer use the "visitor" pattern.
+  * Directories ltlast/, ltlenv/, and ltlvisit/, have been merged into
+    a single tl/ directory (for temporal logic).  This is motivated by
+    the fact that these formulas are not restricted to LTL, and by the
+    fact that we no longuer use the "visitor" pattern.
+
+  * For similar reasons, the spot::ltl namespace has been merged
+    with the spot namespace.
 
 New in spot 1.99.3 (2015-08-26)
 

@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
   auto dict = spot::make_bdd_dict();
   if (print_automaton || print_safra)
   {
-    spot::ltl::environment& env(spot::ltl::default_environment::instance());
+    spot::environment& env(spot::default_environment::instance());
     spot::parse_aut_error_list pel;
     auto h = spot::parse_aut(file, pel, dict, env);
     if (spot::format_parse_aut_errors(std::cerr, file, pel))
@@ -147,10 +147,10 @@ int main(int argc, char* argv[])
   }
   else if (print_formula)
   {
-    spot::ltl::parse_error_list p1;
-    auto f1 = spot::ltl::parse_infix_psl(file, p1);
+    spot::parse_error_list p1;
+    auto f1 = spot::parse_infix_psl(file, p1);
 
-    if (spot::ltl::format_parse_errors(std::cerr, file, p1))
+    if (spot::format_parse_errors(std::cerr, file, p1))
       return 2;
 
     auto a = spot::ltl_to_tgba_fm(f1, dict);
@@ -162,14 +162,14 @@ int main(int argc, char* argv[])
   else if (stats)
   {
     spot::twa_graph_ptr a;
-    spot::ltl::formula f1 = nullptr;
+    spot::formula f1 = nullptr;
 
     if (formula)
     {
-      spot::ltl::parse_error_list p1;
-      f1 = spot::ltl::parse_infix_psl(file, p1);
+      spot::parse_error_list p1;
+      f1 = spot::parse_infix_psl(file, p1);
 
-      if (spot::ltl::format_parse_errors(std::cerr, file, p1))
+      if (spot::format_parse_errors(std::cerr, file, p1))
         return 2;
 
       a = spot::ltl_to_tgba_fm(f1, dict);
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
     else
     {
       spot::parse_aut_error_list pel;
-      spot::ltl::environment& env(spot::ltl::default_environment::instance());
+      spot::environment& env(spot::default_environment::instance());
       auto h = spot::parse_aut(file, pel, dict, env);
       if (spot::format_parse_aut_errors(std::cerr, file, pel))
         return 2;
@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
 
     if (formula)
     {
-      auto a2 = spot::ltl_to_tgba_fm(spot::ltl::formula::Not(f1), dict);
+      auto a2 = spot::ltl_to_tgba_fm(spot::formula::Not(f1), dict);
       spot::tgba_statistics a_size = spot::stats_reachable(a2);
       std::cout << "Not Formula: "
                 << a_size.states << ", "
@@ -220,14 +220,14 @@ int main(int argc, char* argv[])
   }
   else
   {
-    spot::ltl::parse_error_list p1;
-    auto f1 = spot::ltl::parse_infix_psl(file, p1);
+    spot::parse_error_list p1;
+    auto f1 = spot::parse_infix_psl(file, p1);
 
-    if (spot::ltl::format_parse_errors(std::cerr, file, p1))
+    if (spot::format_parse_errors(std::cerr, file, p1))
       return 2;
 
     auto Af = spot::ltl_to_tgba_fm(f1, dict);
-    auto nf1 = spot::ltl::formula::Not(f1);
+    auto nf1 = spot::formula::Not(f1);
     auto Anf = spot::ltl_to_tgba_fm(nf1, dict);
     auto nAf = spot::make_safra_complement(Af);
     auto nAnf = spot::make_safra_complement(Anf);

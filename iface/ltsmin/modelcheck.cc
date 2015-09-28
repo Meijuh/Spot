@@ -150,11 +150,11 @@ checked_main(int argc, char **argv)
   if (argc != 3)
     syntax(argv[0]);
 
-  spot::ltl::default_environment& env =
-    spot::ltl::default_environment::instance();
+  spot::default_environment& env =
+    spot::default_environment::instance();
 
 
-  spot::ltl::atomic_prop_set ap;
+  spot::atomic_prop_set ap;
   auto dict = spot::make_bdd_dict();
   spot::const_kripke_ptr model = nullptr;
   spot::const_twa_ptr prop = nullptr;
@@ -162,16 +162,16 @@ checked_main(int argc, char **argv)
   spot::emptiness_check_instantiator_ptr echeck_inst = nullptr;
   int exit_code = 0;
   spot::postprocessor post;
-  spot::ltl::formula deadf = nullptr;
-  spot::ltl::formula f = nullptr;
+  spot::formula deadf = nullptr;
+  spot::formula f = nullptr;
 
   if (!dead || !strcasecmp(dead, "true"))
     {
-      deadf = spot::ltl::formula::tt();
+      deadf = spot::formula::tt();
     }
   else if (!strcasecmp(dead, "false"))
     {
-      deadf = spot::ltl::formula::ff();
+      deadf = spot::formula::ff();
     }
   else
     {
@@ -193,9 +193,9 @@ checked_main(int argc, char **argv)
 
   tm.start("parsing formula");
   {
-    spot::ltl::parse_error_list pel;
-    f = spot::ltl::parse_infix_psl(argv[2], pel, env, false);
-    exit_code = spot::ltl::format_parse_errors(std::cerr, argv[2], pel);
+    spot::parse_error_list pel;
+    f = spot::parse_infix_psl(argv[2], pel, env, false);
+    exit_code = spot::format_parse_errors(std::cerr, argv[2], pel);
   }
   tm.stop("parsing formula");
 
@@ -366,6 +366,6 @@ main(int argc, char **argv)
   auto exit_code = checked_main(argc, argv);
 
   // Additional checks to debug reference counts in formulas.
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   exit(exit_code);
 }

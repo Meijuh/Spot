@@ -145,7 +145,6 @@
 #include "taalgos/stats.hh"
 #include "taalgos/minimize.hh"
 
-using namespace spot::ltl;
 using namespace spot;
 %}
 
@@ -209,15 +208,15 @@ using namespace spot;
 %include "misc/optionmap.hh"
 %include "misc/random.hh"
 
-%implicitconv std::vector<spot::ltl::formula>;
+%implicitconv std::vector<spot::formula>;
 
 %include "tl/formula.hh"
 
 namespace std {
   %template(liststr) list<std::string>;
-  %template(vectorformula) vector<spot::ltl::formula>;
-  %template(atomic_prop_set) set<spot::ltl::formula>;
-  %template(relabeling_map) map<spot::ltl::formula, spot::ltl::formula>;
+  %template(vectorformula) vector<spot::formula>;
+  %template(atomic_prop_set) set<spot::formula>;
+  %template(relabeling_map) map<spot::formula, spot::formula>;
 }
 
 %include "tl/environment.hh"
@@ -246,8 +245,6 @@ namespace std {
 %include "tl/remove_x.hh"
 %include "tl/relabel.hh"
 
-// Help SWIG with namespace lookups.
-#define ltl spot::ltl
 %include "twa/taatgba.hh"
 %include "twa/twaproduct.hh"
 %include "twa/twagraph.hh"
@@ -295,7 +292,7 @@ namespace std {
 
 #undef ltl
 
-%exception spot::ltl::formula::__getitem__ {
+%exception spot::formula::__getitem__ {
   try {
     $action
   }
@@ -305,19 +302,19 @@ namespace std {
   }
 }
 
-%extend spot::ltl::formula {
+%extend spot::formula {
   // __cmp__ is for Python 2.0
-  int __cmp__(spot::ltl::formula b) { return self->id() - b.id(); }
+  int __cmp__(spot::formula b) { return self->id() - b.id(); }
   size_t __hash__() { return self->id(); }
   unsigned __len__() { return self->size(); }
   formula __getitem__(unsigned pos) { return (*self)[pos]; }
 
-  std::string __repr__() { return spot::ltl::str_psl(*self); }
+  std::string __repr__() { return spot::str_psl(*self); }
   std::string _repr_latex_()
   {
-    return std::string("$") + spot::ltl::str_sclatex_psl(*self) + '$';
+    return std::string("$") + spot::str_sclatex_psl(*self) + '$';
   }
-  std::string __str__() { return spot::ltl::str_psl(*self); }
+  std::string __str__() { return spot::str_psl(*self); }
 }
 
 %extend spot::acc_cond::acc_code {
@@ -357,10 +354,10 @@ namespace std {
 %inline %{
 bool fnode_instances_check()
 {
-  return spot::ltl::fnode::instances_check();
+  return spot::fnode::instances_check();
 }
 
-spot::ltl::parse_error_list
+spot::parse_error_list
 empty_parse_error_list()
 {
   parse_error_list l;
@@ -424,7 +421,7 @@ unblock_signal(int signum)
 
 %}
 
-%extend spot::ltl::parse_error_list {
+%extend spot::parse_error_list {
 
 bool
 __nonzero__()

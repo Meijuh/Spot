@@ -151,7 +151,7 @@ namespace spot
     ///
     /// \param f the formula to add.
     /// \param on_me the state where to add.
-    void add_condition(ltl::formula f, std::string on_me);
+    void add_condition(formula f, std::string on_me);
 
     /// \brief Return map between states and their names.
     const std::map<const state_kripke*, std::string>&

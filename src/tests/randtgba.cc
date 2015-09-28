@@ -486,9 +486,9 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
   std::cout << std::setiosflags(old);
 }
 
-spot::ltl::formula
-generate_formula(const spot::ltl::random_ltl& rl,
-		 spot::ltl::ltl_simplifier& simp,
+spot::formula
+generate_formula(const spot::random_ltl& rl,
+		 spot::ltl_simplifier& simp,
 		 int opt_f, int opt_s,
                  int opt_l = 0, bool opt_u = false)
 {
@@ -498,7 +498,7 @@ generate_formula(const spot::ltl::random_ltl& rl,
   while (max_tries_u--)
     {
       spot::srand(opt_s++);
-      spot::ltl::formula f;
+      spot::formula f;
       int max_tries_l = 1000;
       while (max_tries_l--)
         {
@@ -506,12 +506,12 @@ generate_formula(const spot::ltl::random_ltl& rl,
           if (opt_l)
             {
               f = simp.simplify(f);
-              if (spot::ltl::length(f) < opt_l)
+              if (spot::length(f) < opt_l)
 		continue;
             }
           else
             {
-              assert(spot::ltl::length(f) <= opt_f);
+              assert(spot::length(f) <= opt_f);
             }
           break;
         }
@@ -522,7 +522,7 @@ generate_formula(const spot::ltl::random_ltl& rl,
                     << "of size " << opt_l << " or more." << std::endl;
           return nullptr;
         }
-      std::string txt = spot::ltl::str_psl(f);
+      std::string txt = spot::str_psl(f);
       if (!opt_u || unique.insert(txt).second)
 	return f;
     }
@@ -576,12 +576,12 @@ main(int argc, char** argv)
 
   spot::option_map options;
 
-  auto& env = spot::ltl::default_environment::instance();
-  spot::ltl::atomic_prop_set* ap = new spot::ltl::atomic_prop_set;
+  auto& env = spot::default_environment::instance();
+  spot::atomic_prop_set* ap = new spot::atomic_prop_set;
   auto dict = spot::make_bdd_dict();
 
-  spot::ltl::ltl_simplifier_options simpopt(true, true, true, true, true);
-  spot::ltl::ltl_simplifier simp(simpopt);
+  spot::ltl_simplifier_options simpopt(true, true, true, true, true);
+  spot::ltl_simplifier simp(simpopt);
 
   if (argc <= 1)
     syntax(argv[0]);
@@ -788,7 +788,7 @@ main(int argc, char** argv)
 	}
     }
 
-  spot::ltl::random_ltl rl(ap);
+  spot::random_ltl rl(ap);
   const char* tok = rl.parse_options(opt_p);
   if (tok)
     {
@@ -824,7 +824,7 @@ main(int argc, char** argv)
   spot::timer_map tm_ar;
   std::set<int> failed_seeds;
   int init_opt_ec = opt_ec;
-  spot::ltl::atomic_prop_set* apf = new spot::ltl::atomic_prop_set;
+  spot::atomic_prop_set* apf = new spot::atomic_prop_set;
 
   if (opt_ec)
     {
@@ -847,7 +847,7 @@ main(int argc, char** argv)
     {
       if (opt_F)
         {
-          spot::ltl::formula f =
+          spot::formula f =
 	    generate_formula(rl, simp, opt_f, opt_ec_seed, opt_l, opt_u);
           if (!f)
             exit(1);
@@ -862,15 +862,15 @@ main(int argc, char** argv)
 		break;
 	      else if (input == "")
 		break;
-              spot::ltl::parse_error_list pel;
-              auto f = spot::ltl::parse_infix_psl(input, pel, env);
-              if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+              spot::parse_error_list pel;
+              auto f = spot::parse_infix_psl(input, pel, env);
+              if (spot::format_parse_errors(std::cerr, input, pel))
 		{
 		  exit_code = 1;
 		  break;
 		}
               formula = spot::ltl_to_tgba_fm(f, dict, true);
-              auto* tmp = spot::ltl::atomic_prop_collect(f);
+              auto* tmp = spot::atomic_prop_collect(f);
               for (auto i: *tmp)
 		apf->insert(i);
               delete tmp;

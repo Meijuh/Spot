@@ -24,35 +24,31 @@
 
 namespace spot
 {
-  namespace ltl
-  {
+  typedef std::unordered_map<formula, formula> snf_cache;
 
-    typedef std::unordered_map<formula, formula> snf_cache;
+  /// Helper to rewrite a sere in Star Normal Form.
+  ///
+  /// This should only be called on children of a Star operator.  It
+  /// corresponds to the E° operation defined in the following
+  /// paper.
+  ///
+  /** \verbatim
+      @Article{	  bruggeman.96.tcs,
+      author	= {Anne Br{\"u}ggemann-Klein},
+      title		= {Regular Expressions into Finite Automata},
+      journal	= {Theoretical Computer Science},
+      year		= {1996},
+      volume	= {120},
+      pages		= {87--98}
+      }
+      \endverbatim */
+  ///
+  /// \param sere the SERE to rewrite
+  /// \param cache an optional cache
+  SPOT_API formula
+  star_normal_form(formula sere, snf_cache* cache = nullptr);
 
-    /// Helper to rewrite a sere in Star Normal Form.
-    ///
-    /// This should only be called on children of a Star operator.  It
-    /// corresponds to the E° operation defined in the following
-    /// paper.
-    ///
-    /** \verbatim
-        @Article{	  bruggeman.96.tcs,
-          author	= {Anne Br{\"u}ggemann-Klein},
-          title		= {Regular Expressions into Finite Automata},
-          journal	= {Theoretical Computer Science},
-          year		= {1996},
-          volume	= {120},
-          pages		= {87--98}
-        }
-        \endverbatim */
-    ///
-    /// \param sere the SERE to rewrite
-    /// \param cache an optional cache
-    SPOT_API formula
-    star_normal_form(formula sere, snf_cache* cache = nullptr);
-
-    /// A variant of star_normal_form() for r[*0..j] where j < ω.
-    SPOT_API formula
-    star_normal_form_bounded(formula sere, snf_cache* cache = nullptr);
-  }
+  /// A variant of star_normal_form() for r[*0..j] where j < ω.
+  SPOT_API formula
+  star_normal_form_bounded(formula sere, snf_cache* cache = nullptr);
 }

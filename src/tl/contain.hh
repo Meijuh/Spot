@@ -29,54 +29,51 @@
 
 namespace spot
 {
-  namespace ltl
+  /// Check containment between LTL formulae.
+  class SPOT_API language_containment_checker
   {
-    /// Check containment between LTL formulae.
-    class SPOT_API language_containment_checker
+    struct record_
     {
-      struct record_
-      {
-	const_twa_graph_ptr translation;
-	typedef std::map<const record_*, bool> incomp_map;
-	incomp_map incompatible;
-      };
-      typedef std::unordered_map<formula, record_> trans_map;
-    public:
-      /// This class uses spot::ltl_to_tgba_fm to translate LTL
-      /// formulae.  See that function for the meaning of these options.
-      language_containment_checker(const bdd_dict_ptr& dict, bool exprop,
-				   bool symb_merge,
-				   bool branching_postponement,
-				   bool fair_loop_approx);
-
-      ~language_containment_checker();
-
-      /// Clear the cache.
-      void clear();
-
-      /// Check whether L(l) is a subset of L(g).
-      bool contained(formula l, formula g);
-      /// Check whether L(!l) is a subset of L(g).
-      bool neg_contained(formula l, formula g);
-      /// Check whether L(l) is a subset of L(!g).
-      bool contained_neg(formula l, formula g);
-
-      /// Check whether L(l) = L(g).
-      bool equal(formula l, formula g);
-
-    protected:
-      bool incompatible_(record_* l, record_* g);
-
-      record_* register_formula_(formula f);
-
-      /* Translation options */
-      bdd_dict_ptr dict_;
-      bool exprop_;
-      bool symb_merge_;
-      bool branching_postponement_;
-      bool fair_loop_approx_;
-      /* Translation Maps */
-      trans_map translated_;
+      const_twa_graph_ptr translation;
+      typedef std::map<const record_*, bool> incomp_map;
+      incomp_map incompatible;
     };
-  }
+    typedef std::unordered_map<formula, record_> trans_map;
+  public:
+    /// This class uses spot::ltl_to_tgba_fm to translate LTL
+    /// formulae.  See that function for the meaning of these options.
+    language_containment_checker(const bdd_dict_ptr& dict, bool exprop,
+				 bool symb_merge,
+				 bool branching_postponement,
+				 bool fair_loop_approx);
+
+    ~language_containment_checker();
+
+    /// Clear the cache.
+    void clear();
+
+    /// Check whether L(l) is a subset of L(g).
+    bool contained(formula l, formula g);
+    /// Check whether L(!l) is a subset of L(g).
+    bool neg_contained(formula l, formula g);
+    /// Check whether L(l) is a subset of L(!g).
+    bool contained_neg(formula l, formula g);
+
+    /// Check whether L(l) = L(g).
+    bool equal(formula l, formula g);
+
+  protected:
+    bool incompatible_(record_* l, record_* g);
+
+    record_* register_formula_(formula f);
+
+    /* Translation options */
+    bdd_dict_ptr dict_;
+    bool exprop_;
+    bool symb_merge_;
+    bool branching_postponement_;
+    bool fair_loop_approx_;
+    /* Translation Maps */
+    trans_map translated_;
+  };
 }

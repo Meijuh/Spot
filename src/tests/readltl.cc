@@ -54,18 +54,18 @@ main(int argc, char** argv)
     }
 
   {
-    spot::ltl::environment& env(spot::ltl::default_environment::instance());
-    spot::ltl::parse_error_list pel;
-    auto f = spot::ltl::parse_infix_psl(argv[formula_index], pel, env, debug);
+    spot::environment& env(spot::default_environment::instance());
+    spot::parse_error_list pel;
+    auto f = spot::parse_infix_psl(argv[formula_index], pel, env, debug);
 
     exit_code =
-      spot::ltl::format_parse_errors(std::cerr, argv[formula_index], pel);
+      spot::format_parse_errors(std::cerr, argv[formula_index], pel);
 
 
     if (f)
       {
 #ifdef DOTTY
-	spot::ltl::print_dot_psl(std::cout, f);
+	spot::print_dot_psl(std::cout, f);
 #else
 	f.dump(std::cout) << std::endl;
 #endif
@@ -76,6 +76,6 @@ main(int argc, char** argv)
       }
 
   }
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return exit_code;
 }

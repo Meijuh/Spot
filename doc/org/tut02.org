@@ -74,7 +74,7 @@ print(g.to_str('spin', True))
 
 * C++
 
-The =spot::ltl::relabeling_map= is just a =std::map= with a custom
+The =spot::relabeling_map= is just a =std::map= with a custom
 destructor.
 
 #+BEGIN_SRC C++ :results verbatim :exports both
@@ -87,12 +87,12 @@ destructor.
   int main()
   {
     std::string input = "\"Proc@Here\" U (\"var > 10\" | \"var < 4\")";
-    spot::ltl::parse_error_list pel;
-    spot::ltl::formula f = spot::ltl::parse_infix_psl(input, pel);
-    if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+    spot::parse_error_list pel;
+    spot::formula f = spot::parse_infix_psl(input, pel);
+    if (spot::format_parse_errors(std::cerr, input, pel))
       return 1;
-    spot::ltl::relabeling_map m;
-    f = spot::ltl::relabel(f, spot::ltl::Pnn, &m);
+    spot::relabeling_map m;
+    f = spot::relabel(f, spot::Pnn, &m);
     for (auto& i: m)
       {
         std::cout << "#define ";
@@ -115,8 +115,8 @@ destructor.
 
 ** Two ways to name atomic propositions
 
-   Instead of =--relabel=pnn= (or =spot.Pnn=, or =spot::ltl::Pnn=), you can
-   actually use =--relabel=abc= (or =spot.Abc=, or =spot::ltl::Abc=) to have
+   Instead of =--relabel=pnn= (or =spot.Pnn=, or =spot::Pnn=), you can
+   actually use =--relabel=abc= (or =spot.Abc=, or =spot::Abc=) to have
    the atomic propositions named =a=, =b=, =c=, etc.
 
 ** Relabeling Boolean sub-expressions

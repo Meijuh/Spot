@@ -95,7 +95,7 @@ namespace spot
   }
 
   int
-  bdd_dict::register_proposition(ltl::formula f, const void* for_me)
+  bdd_dict::register_proposition(formula f, const void* for_me)
   {
     int num;
     // Do not build a variable that already exists.
@@ -117,7 +117,7 @@ namespace spot
   }
 
   int
-  bdd_dict::has_registered_proposition(ltl::formula f,
+  bdd_dict::has_registered_proposition(formula f,
 				       const void* me)
   {
     auto ssi = var_map.find(f);
@@ -131,7 +131,7 @@ namespace spot
   }
 
   int
-  bdd_dict::register_acceptance_variable(ltl::formula f,
+  bdd_dict::register_acceptance_variable(formula f,
 					 const void* for_me)
   {
     int num;
@@ -171,7 +171,7 @@ namespace spot
     register_acceptance_variables(bdd_low(f), for_me);
   }
 
-  ltl::formula
+  formula
   bdd_dict::oneacc_to_formula(int var) const
   {
     assert(unsigned(var) < bdd_map.size());
@@ -180,7 +180,7 @@ namespace spot
     return i.f;
   }
 
-  ltl::formula
+  formula
   bdd_dict::oneacc_to_formula(bdd oneacc) const
   {
     assert(oneacc != bddfalse);
@@ -274,7 +274,7 @@ namespace spot
     // Let's free it.  First, we need to find
     // if this is a Var or an Acc variable.
     int n = 1;
-    ltl::formula f = nullptr;
+    formula f = nullptr;
     switch (bdd_map[v].type)
       {
       case var:

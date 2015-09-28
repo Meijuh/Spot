@@ -24,24 +24,20 @@
 
 namespace spot
 {
-  namespace ltl
+  class mark_tools final
   {
-    class mark_tools final
-    {
-    public:
-      /// \ingroup ltl_rewriting
-      /// \brief Mark operators NegClosure and EConcat.
-      ///
-      /// \param f The formula to rewrite.
-      formula mark_concat_ops(formula f);
+  public:
+    /// \ingroup ltl_rewriting
+    /// \brief Mark operators NegClosure and EConcat.
+    ///
+    /// \param f The formula to rewrite.
+    formula mark_concat_ops(formula f);
 
-      formula simplify_mark(formula f);
+    formula simplify_mark(formula f);
 
-    private:
-      typedef std::unordered_map<formula, formula> f2f_map;
-      f2f_map simpmark_;
-      f2f_map markops_;
-    };
-
-  }
+  private:
+    typedef std::unordered_map<formula, formula> f2f_map;
+    f2f_map simpmark_;
+    f2f_map markops_;
+  };
 }

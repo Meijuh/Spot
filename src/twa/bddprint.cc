@@ -40,12 +40,12 @@ namespace spot
   static bool utf8;
 
   static
-  std::ostream& print_(std::ostream& o, ltl::formula f)
+  std::ostream& print_(std::ostream& o, formula f)
   {
     if (utf8)
-      ltl::print_utf8_psl(o, f);
+      print_utf8_psl(o, f);
     else
-      ltl::print_psl(o, f);
+      print_psl(o, f);
     return o;
   }
 

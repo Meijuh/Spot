@@ -24,42 +24,38 @@
 
 namespace spot
 {
-  namespace ltl
+  declarative_environment::declarative_environment()
   {
+  }
 
-    declarative_environment::declarative_environment()
-    {
-    }
+  bool
+  declarative_environment::declare(const std::string& prop_str)
+  {
+    if (props_.find(prop_str) != props_.end())
+      return false;
+    props_[prop_str] = formula::ap(prop_str);
+    return true;
+  }
 
-    bool
-    declarative_environment::declare(const std::string& prop_str)
-    {
-      if (props_.find(prop_str) != props_.end())
-	return false;
-      props_[prop_str] = formula::ap(prop_str);
-      return true;
-    }
+  formula
+  declarative_environment::require(const std::string& prop_str)
+  {
+    prop_map::iterator i = props_.find(prop_str);
+    if (i == props_.end())
+      return nullptr;
+    return i->second;
+  }
 
-    formula
-    declarative_environment::require(const std::string& prop_str)
-    {
-      prop_map::iterator i = props_.find(prop_str);
-      if (i == props_.end())
-	return nullptr;
-      return i->second;
-    }
+  const std::string&
+  declarative_environment::name() const
+  {
+    static std::string name("declarative environment");
+    return name;
+  }
 
-    const std::string&
-    declarative_environment::name() const
-    {
-      static std::string name("declarative environment");
-      return name;
-    }
-
-    const declarative_environment::prop_map&
-    declarative_environment::get_prop_map() const
-    {
-      return props_;
-    }
+  const declarative_environment::prop_map&
+  declarative_environment::get_prop_map() const
+  {
+    return props_;
   }
 }

@@ -45,7 +45,7 @@ main(int argc, char** argv)
   bool hidereduc = false;
   unsigned long sum_before = 0;
   unsigned long sum_after = 0;
-  spot::ltl::ltl_simplifier_options o(false, false, false, false, false);
+  spot::ltl_simplifier_options o(false, false, false, false, false);
 
   if (argc < 3)
     syntax(argv[0]);
@@ -147,12 +147,12 @@ main(int argc, char** argv)
   int exit_code = 0;
 
   {
-    spot::ltl::ltl_simplifier* simp = new spot::ltl::ltl_simplifier(o);
+    spot::ltl_simplifier* simp = new spot::ltl_simplifier(o);
     o.reduce_size_strictly = true;
-    spot::ltl::ltl_simplifier* simp_size = new spot::ltl::ltl_simplifier(o);
+    spot::ltl_simplifier* simp_size = new spot::ltl_simplifier(o);
 
-    spot::ltl::formula f1 = nullptr;
-    spot::ltl::formula f2 = nullptr;
+    spot::formula f1 = nullptr;
+    spot::formula f2 = nullptr;
 
     std::ifstream* fin = nullptr;
 
@@ -178,16 +178,16 @@ main(int argc, char** argv)
 	  }
 	while (input == "");
 
-	spot::ltl::parse_error_list p1;
-	f1 = spot::ltl::parse_infix_psl(input, p1);
-	if (spot::ltl::format_parse_errors(std::cerr, input, p1))
+	spot::parse_error_list p1;
+	f1 = spot::parse_infix_psl(input, p1);
+	if (spot::format_parse_errors(std::cerr, input, p1))
 	  return 2;
       }
     else
       {
-	spot::ltl::parse_error_list p1;
-	f1 = spot::ltl::parse_infix_psl(argv[2], p1);
-	if (spot::ltl::format_parse_errors(std::cerr, argv[2], p1))
+	spot::parse_error_list p1;
+	f1 = spot::parse_infix_psl(argv[2], p1);
+	if (spot::format_parse_errors(std::cerr, argv[2], p1))
 	  return 2;
       }
 
@@ -199,23 +199,23 @@ main(int argc, char** argv)
 	    exit(2);
 	  }
 
-	spot::ltl::parse_error_list p2;
-	f2 = spot::ltl::parse_infix_psl(argv[3], p2);
-	if (spot::ltl::format_parse_errors(std::cerr, argv[3], p2))
+	spot::parse_error_list p2;
+	f2 = spot::parse_infix_psl(argv[3], p2);
+	if (spot::format_parse_errors(std::cerr, argv[3], p2))
 	  return 2;
       }
 
     {
-      spot::ltl::formula ftmp1;
+      spot::formula ftmp1;
 
       ftmp1 = f1;
       f1 = simp_size->negative_normal_form(f1, false);
 
-      int length_f1_before = spot::ltl::length(f1);
-      std::string f1s_before = spot::ltl::str_psl(f1);
+      int length_f1_before = spot::length(f1);
+      std::string f1s_before = spot::str_psl(f1);
       std::string f1l;
 
-      spot::ltl::formula input_f = f1;
+      spot::formula input_f = f1;
       f1 = simp_size->simplify(input_f);
       if (!simp_size->are_equivalent(input_f, f1))
 	{
@@ -226,8 +226,8 @@ main(int argc, char** argv)
 	}
       else
 	{
-	  spot::ltl::formula maybe_larger = simp->simplify(input_f);
-	  f1l = spot::ltl::str_psl(maybe_larger);
+	  spot::formula maybe_larger = simp->simplify(input_f);
+	  f1l = spot::str_psl(maybe_larger);
 	  if (!simp->are_equivalent(input_f, maybe_larger))
 	    {
 	      std::cerr << "Incorrect reduction (reduce_size_strictly=0) from `"
@@ -236,15 +236,15 @@ main(int argc, char** argv)
 	    }
 	}
 
-      int length_f1_after = spot::ltl::length(f1);
-      std::string f1s_after = spot::ltl::str_psl(f1);
+      int length_f1_after = spot::length(f1);
+      std::string f1s_after = spot::str_psl(f1);
 
       std::string f2s = "";
       if (f2)
 	{
 	  ftmp1 = f2;
 	  f2 = simp_size->negative_normal_form(f2, false);
-	  f2s = spot::ltl::str_psl(f2);
+	  f2s = spot::str_psl(f2);
 	}
 
       sum_before += length_f1_before;
@@ -308,6 +308,6 @@ main(int argc, char** argv)
       }
   }
 
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return exit_code;
 }

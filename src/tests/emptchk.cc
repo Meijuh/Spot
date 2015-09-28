@@ -89,9 +89,9 @@ main(int argc, char** argv)
 
       int runs = atoi(tokens[0].c_str());
 
-      spot::ltl::parse_error_list pe;
-      auto f = spot::ltl::parse_infix_psl(tokens[1], pe);
-      if (spot::ltl::format_parse_errors(std::cerr, tokens[1], pe))
+      spot::parse_error_list pe;
+      auto f = spot::parse_infix_psl(tokens[1], pe);
+      if (spot::format_parse_errors(std::cerr, tokens[1], pe))
 	return 2;
 
       auto d = spot::make_bdd_dict();
@@ -199,6 +199,6 @@ main(int argc, char** argv)
 	}
     }
 
-  assert(spot::ltl::fnode::instances_check());
+  assert(spot::fnode::instances_check());
   return 0;
 }

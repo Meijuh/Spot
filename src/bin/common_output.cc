@@ -70,10 +70,10 @@ const struct argp output_argp = { options, parse_opt_output,
 
 static
 void
-report_not_ltl(spot::ltl::formula f,
+report_not_ltl(spot::formula f,
 	       const char* filename, int linenum, const char* syn)
 {
-  std::string s = spot::ltl::str_psl(f);
+  std::string s = spot::str_psl(f);
   static const char msg[] =
     "formula '%s' cannot be written %s's syntax because it is not LTL";
   if (filename)
@@ -84,36 +84,36 @@ report_not_ltl(spot::ltl::formula f,
 
 std::ostream&
 stream_formula(std::ostream& out,
-	       spot::ltl::formula f, const char* filename, int linenum)
+	       spot::formula f, const char* filename, int linenum)
 {
   switch (output_format)
     {
     case lbt_output:
       if (f.is_ltl_formula())
-	spot::ltl::print_lbt_ltl(out, f);
+	spot::print_lbt_ltl(out, f);
       else
 	report_not_ltl(f, filename, linenum, "LBT");
       break;
     case spot_output:
-      spot::ltl::print_psl(out, f, full_parenth);
+      spot::print_psl(out, f, full_parenth);
       break;
     case spin_output:
       if (f.is_ltl_formula())
-	spot::ltl::print_spin_ltl(out, f, full_parenth);
+	spot::print_spin_ltl(out, f, full_parenth);
       else
 	report_not_ltl(f, filename, linenum, "Spin");
       break;
     case wring_output:
       if (f.is_ltl_formula())
-	spot::ltl::print_wring_ltl(out, f);
+	spot::print_wring_ltl(out, f);
       else
 	report_not_ltl(f, filename, linenum, "Wring");
       break;
     case utf8_output:
-      spot::ltl::print_utf8_psl(out, f, full_parenth);
+      spot::print_utf8_psl(out, f, full_parenth);
       break;
     case latex_output:
-      spot::ltl::print_latex_psl(out, f, full_parenth);
+      spot::print_latex_psl(out, f, full_parenth);
       break;
     case count_output:
     case quiet_output:
@@ -124,7 +124,7 @@ stream_formula(std::ostream& out,
 
 static void
 stream_escapable_formula(std::ostream& os,
-			 spot::ltl::formula f,
+			 spot::formula f,
 			 const char* filename, int linenum)
 {
   if (escape_csv)
@@ -146,7 +146,7 @@ namespace
 {
   struct formula_with_location
   {
-    spot::ltl::formula f;
+    spot::formula f;
     const char* filename;
     int line;
     const char* prefix;
@@ -260,7 +260,7 @@ parse_opt_output(int key, char* arg, struct argp_state*)
 
 static void
 output_formula(std::ostream& out,
-	       spot::ltl::formula f,
+	       spot::formula f,
 	       const char* filename = nullptr, int linenum = 0,
 	       const char* prefix = nullptr, const char* suffix = nullptr)
 {
@@ -286,7 +286,7 @@ void
 }
 
 void
-output_formula_checked(spot::ltl::formula f,
+output_formula_checked(spot::formula f,
 		       const char* filename, int linenum,
 		       const char* prefix, const char* suffix)
 {

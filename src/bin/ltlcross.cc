@@ -819,7 +819,7 @@ namespace
   }
 
   typedef
-  std::unordered_set<spot::ltl::formula> fset_t;
+  std::unordered_set<spot::formula> fset_t;
 
 
   class processor: public job_processor
@@ -838,14 +838,14 @@ namespace
 		   const char* filename,
 		   int linenum)
     {
-      spot::ltl::parse_error_list pel;
-      spot::ltl::formula f = parse_formula(input, pel);
+      spot::parse_error_list pel;
+      spot::formula f = parse_formula(input, pel);
 
       if (!f || !pel.empty())
 	{
 	  if (filename)
 	    error_at_line(0, 0, filename, linenum, "parse error:");
-	  spot::ltl::format_parse_errors(std::cerr, input, pel);
+	  spot::format_parse_errors(std::cerr, input, pel);
 	  return 1;
 	}
 
@@ -856,7 +856,7 @@ namespace
       if (res && grind_output)
 	{
 	  std::string bogus = input;
-	  std::vector<spot::ltl::formula> mutations;
+	  std::vector<spot::formula> mutations;
 	  unsigned mutation_count;
 	  unsigned mutation_max;
 	  while	(res)
@@ -886,9 +886,9 @@ namespace
 	      if (res)
 		{
 		  if (lbt_input)
-		    bogus = spot::ltl::str_lbt_ltl(f);
+		    bogus = spot::str_lbt_ltl(f);
 		  else
-		    bogus = spot::ltl::str_psl(f);
+		    bogus = spot::str_psl(f);
 		  if (bogus_output)
 		    bogus_output->ostream() << bogus << std::endl;
 		}
@@ -938,7 +938,7 @@ namespace
     }
 
     int
-    process_formula(spot::ltl::formula f,
+    process_formula(spot::formula f,
 		    const char* filename = nullptr, int linenum = 0)
     {
       static unsigned round = 0;
@@ -947,7 +947,7 @@ namespace
       // output, relabel the formula.
       if (!f.has_lbt_atomic_props() &&
 	  (runner.has('l') || runner.has('L') || runner.has('T')))
-	f = spot::ltl::relabel(f, spot::ltl::Pnn);
+	f = spot::relabel(f, spot::Pnn);
 
       // ---------- Positive Formula ----------
 
@@ -1028,7 +1028,7 @@ namespace
 	  nstats = &vstats[n + 1];
 	  nstats->resize(m);
 
-	  spot::ltl::formula nf = spot::ltl::formula::Not(f);
+	  spot::formula nf = spot::formula::Not(f);
 
 	  if (!allow_dups)
 	    {
@@ -1143,7 +1143,7 @@ namespace
 	  std::cerr << "Gathering statistics..." << std::endl;
 	}
 
-      spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
+      spot::atomic_prop_set* ap = spot::atomic_prop_collect(f);
 
       if (want_stats)
 	for (size_t i = 0; i < m; ++i)

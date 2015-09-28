@@ -287,7 +287,7 @@ automaton_printer::automaton_printer(stat_style input)
 
 void
 automaton_printer::print(const spot::twa_graph_ptr& aut,
-			 spot::ltl::formula f,
+			 spot::formula f,
 			 // Input location for errors and statistics.
 			 const char* filename,
 			 int loc,
