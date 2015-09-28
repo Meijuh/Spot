@@ -77,9 +77,9 @@ assert str([x for x in spot.formula('a &b & c')]) == '[a, b, c]'
 
 
 def switch_g_f(x):
-    if x._is(spot.G):
+    if x._is(spot.op_G):
         return spot.formula.F(switch_g_f(x[0]))
-    if x._is(spot.F):
+    if x._is(spot.op_F):
         return spot.formula.G(switch_g_f(x[0]))
     return x.map(switch_g_f)
 
@@ -89,7 +89,7 @@ assert str(switch_g_f(f)) == 'FGa & XGFb & Gc & F(a | b | Gd)'
 x = 0
 def count_g(f):
     global x
-    if f._is(spot.G):
+    if f._is(spot.op_G):
         x += 1
 f.traverse(count_g)
 assert x == 3

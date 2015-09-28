@@ -51,6 +51,21 @@ def setup(**kwargs):
     d = 'rf({})'.format(kwargs.get('font', 'Lato')) + bullets
     os.environ['SPOT_DOTDEFAULT'] = d
 
+# In version 3.0.2, Swig puts strongly typed enum in the main
+# namespace without prefixing them.  Latter versions fix this.  So we
+# can remove for following hack once 3.0.2 is no longer used in our
+# build farm.
+if not 'op_ff' in globals():
+    for i in ('ff', 'tt', 'eword', 'ap', 'Not', 'X', 'F', 'G',
+              'Closure', 'NegClosure', 'NegClosureMarked',
+              'Xor', 'Implies', 'Equiv', 'U', 'R', 'W', 'M',
+              'EConcat', 'EConcatMarked', 'UConcat', 'Or',
+              'OrRat', 'And', 'AndRat', 'AndNLM', 'Concat',
+              'Fusion', 'Star', 'FStar'):
+        globals()['op_' + i] = globals()[i];
+        del globals()[i]
+
+
 # Global BDD dict so that we do not have to create one in user code.
 _bdd_dict = make_bdd_dict()
 
@@ -124,16 +139,18 @@ def _formula_traverse(self, func):
 
 def _formula_map(self, func):
     k = self.kind()
-    if k in (ff, tt, eword, ap):
+    if k in (op_ff, op_tt, op_eword, op_ap):
         return self;
-    if k in (Not, X, F, G, Closure, NegClosure, NegClosureMarked):
+    if k in (op_Not, op_X, op_F, op_G, op_Closure,
+             op_NegClosure, op_NegClosureMarked):
         return formula.unop(k, func(self[0]))
-    if k in (Xor, Implies, Equiv, U, R, W, M, EConcat,
-             EConcatMarked, UConcat):
+    if k in (op_Xor, op_Implies, op_Equiv, op_U, op_R, op_W,
+             op_M, op_EConcat, op_EConcatMarked, op_UConcat):
         return formula.binop(k, func(self[0]), func(self[1]))
-    if k in (Or, OrRat, And, AndRat, AndNLM, Concat, Fusion):
+    if k in (op_Or, op_OrRat, op_And, op_AndRat, op_AndNLM,
+             op_Concat, op_Fusion):
         return formula.multop(k, [func(x) for x in self])
-    if k in (Star, FStar):
+    if k in (op_Star, op_FStar):
         return formula.bunop(k, func(self[0]), self.min(), self.max())
     raise ValueError("unknown type of formula")
 
