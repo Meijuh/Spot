@@ -31,7 +31,7 @@
 namespace spot
 {
   /// Global dictionary used by print_handler() to lookup variables.
-  static bdd_dict_ptr dict;
+  static bdd_dict* dict;
 
   /// Global flag to enable Acc[x] output (instead of `x').
   static bool want_acc;
@@ -100,7 +100,7 @@ namespace spot
   std::ostream&
   bdd_print_sat(std::ostream& os, const bdd_dict_ptr& d, bdd b)
   {
-    dict = d;
+    dict = d.get();
     where = &os;
     want_acc = false;
     assert(bdd_satone(b) == b);
@@ -124,7 +124,7 @@ namespace spot
   std::ostream&
   bdd_print_accset(std::ostream& os, const bdd_dict_ptr& d, bdd b)
   {
-    dict = d;
+    dict = d.get();
     where = &os;
     want_acc = true;
     first_done = false;
@@ -153,7 +153,7 @@ namespace spot
   std::ostream&
   bdd_print_set(std::ostream& os, const bdd_dict_ptr& d, bdd b)
   {
-    dict = d;
+    dict = d.get();
     want_acc = true;
     bdd_strm_hook(print_handler);
     os << bddset << b;
@@ -192,7 +192,7 @@ namespace spot
   std::ostream&
   bdd_print_isop(std::ostream& os, const bdd_dict_ptr& d, bdd b)
   {
-    dict = d;
+    dict = d.get();
     want_acc = true;
     minato_isop isop(b);
 
@@ -201,7 +201,6 @@ namespace spot
       {
         os << bdd_format_set(d, p);
       }
-
     return os;
   }
 
