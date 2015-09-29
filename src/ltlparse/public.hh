@@ -32,7 +32,7 @@
 
 namespace spot
 {
-  /// \addtogroup ltl_io
+  /// \addtogroup tl_io
   /// @{
 
 #ifndef SWIG

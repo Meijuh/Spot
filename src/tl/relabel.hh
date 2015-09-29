@@ -29,7 +29,7 @@ namespace spot
 
   typedef std::map<formula, formula> relabeling_map;
 
-  /// \ingroup ltl_rewriting
+  /// \ingroup tl_rewriting
   /// \brief Relabel the atomic propositions in a formula.
   ///
   /// If \a m is non-null, it is filled with correspondence
@@ -39,7 +39,7 @@ namespace spot
 		  relabeling_map* m = nullptr);
 
 
-  /// \ingroup ltl_rewriting
+  /// \ingroup tl_rewriting
   /// \brief Relabel Boolean subexpressions in a formula using
   /// atomic propositions.
   ///

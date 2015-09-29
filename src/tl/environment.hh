@@ -27,7 +27,7 @@
 
 namespace spot
 {
-  /// \ingroup ltl_essential
+  /// \ingroup tl_environment
   /// \brief An environment that describes atomic propositions.
   class environment
   {

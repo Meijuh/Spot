@@ -26,7 +26,7 @@
 
 namespace spot
 {
-  /// \ingroup ltl_rewriting
+  /// \ingroup tl_rewriting
   /// \brief Build the negative normal form of \a f.
   ///
   /// All negations of the formula are pushed in front of the

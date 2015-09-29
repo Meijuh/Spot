@@ -26,7 +26,7 @@
 
 namespace spot
 {
-  /// \ingroup ltl_rewriting
+  /// \ingroup tl_rewriting
   /// \brief Replace <code>true U f</code> and <code>false R g</code> by
   /// <code>F f</code> and <code>G g</code>.
   ///

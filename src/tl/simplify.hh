@@ -92,7 +92,7 @@ namespace spot
   // fwd declaration to hide technical details.
   class ltl_simplifier_cache;
 
-  /// \ingroup ltl_rewriting
+  /// \ingroup tl_rewriting
   /// \brief Rewrite or simplify \a f in various ways.
   class SPOT_API ltl_simplifier
   {

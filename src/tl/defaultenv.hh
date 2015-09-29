@@ -27,7 +27,7 @@
 
 namespace spot
 {
-  /// \ingroup ltl_environment
+  /// \ingroup tl_environment
   /// \brief A laxist environment.
   ///
   /// This environment recognizes all atomic propositions.

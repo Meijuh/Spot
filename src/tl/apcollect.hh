@@ -29,7 +29,7 @@
 
 namespace spot
 {
-  /// \addtogroup ltl_misc
+  /// \addtogroup tl_misc
   /// @{
 
   /// Set of atomic propositions.

@@ -26,7 +26,7 @@
 
 namespace spot
 {
-  /// \ingroup ltl_io
+  /// \ingroup tl_io
   /// \brief Write a formula tree using dot's syntax.
   /// \param os The stream where it should be output.
   /// \param f The formula to translate.

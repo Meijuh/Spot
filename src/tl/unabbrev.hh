@@ -26,7 +26,7 @@ namespace spot
 {
   constexpr const char* default_unabbrev_string = "eFGiMW^";
 
-  /// \ingroup ltl_rewriting
+  /// \ingroup tl_rewriting
   /// \brief Clone and rewrite a formula to remove specified operators
   /// logical operators.
   class SPOT_API unabbreviator final
@@ -56,7 +56,7 @@ namespace spot
     formula run(formula in);
   };
 
-  /// \ingroup ltl_rewriting
+  /// \ingroup tl_rewriting
   /// \brief Clone and rewrite a formula to remove specified operators
   /// logical operators.
   ///

@@ -38,7 +38,7 @@
 
 namespace spot
 {
-  /// \ingroup ltl_io
+  /// \ingroup tl_io
   /// \brief Base class for random formula generators
   class SPOT_API random_formula
   {
@@ -105,7 +105,7 @@ namespace spot
   };
 
 
-  /// \ingroup ltl_io
+  /// \ingroup tl_io
   /// \brief Generate random LTL formulae.
   ///
   /// This class recursively constructs LTL formulae of a given
@@ -158,7 +158,7 @@ namespace spot
     random_ltl(int size, const atomic_prop_set* ap);
   };
 
-  /// \ingroup ltl_io
+  /// \ingroup tl_io
   /// \brief Generate random Boolean formulae.
   ///
   /// This class recursively constructs Boolean formulae of a given size.
@@ -198,7 +198,7 @@ namespace spot
     random_boolean(const atomic_prop_set* ap);
   };
 
-  /// \ingroup ltl_io
+  /// \ingroup tl_io
   /// \brief Generate random SERE.
   ///
   /// This class recursively constructs SERE of a given size.
@@ -241,7 +241,7 @@ namespace spot
     random_boolean rb;
   };
 
-  /// \ingroup ltl_io
+  /// \ingroup tl_io
   /// \brief Generate random PSL formulae.
   ///
   /// This class recursively constructs PSL formulae of a given size.

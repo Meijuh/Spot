@@ -29,7 +29,7 @@
 
 namespace spot
 {
-  /// \ingroup ltl_environment
+  /// \ingroup tl_environment
   /// \brief A declarative environment.
   ///
   /// This environment recognizes all atomic propositions

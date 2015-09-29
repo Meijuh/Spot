@@ -26,7 +26,7 @@
 
 namespace spot
 {
-  /// \ingroup ltl_misc
+  /// \ingroup tl_misc
   /// \brief Compute the length of a formula.
   ///
   /// The length of a formula is the number of atomic propositions,
@@ -40,7 +40,7 @@ namespace spot
   SPOT_API
   int length(formula f);
 
-  /// \ingroup ltl_misc
+  /// \ingroup tl_misc
   /// \brief Compute the length of a formula, squashing Boolean formulae
   ///
   /// This is similar to spot::length(), except all Boolean

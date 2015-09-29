@@ -27,7 +27,7 @@ namespace spot
   class mark_tools final
   {
   public:
-    /// \ingroup ltl_rewriting
+    /// \ingroup tl_rewriting
     /// \brief Mark operators NegClosure and EConcat.
     ///
     /// \param f The formula to rewrite.

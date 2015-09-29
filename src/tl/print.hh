@@ -27,7 +27,7 @@
 
 namespace spot
 {
-  /// \addtogroup ltl_io
+  /// \addtogroup tl_io
   /// @{
 
   /// \brief Output a PSL formula as a string which is parsable.
