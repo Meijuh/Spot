@@ -3,14 +3,14 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 
-This page explains how to build formula and iterate over their tree.
+This page explains how to build formulas and how to iterate over their
+syntax trees.
 
-On this page, we'll first describe how to build a formula from
-scratch, by using the constructor functions associated to each
-operators, and explain how to inspect a formula using some basic
-methods.  We will do that for C++ first, and then Python.  Once these
-basics are covered, we will show examples for traversing and
-transforming formulas (again in C++ then Python).
+We'll first describe how to build a formula from scratch, by using the
+constructor functions associated to each operators, and show that
+basic accessor methods for formulas.  We will do that for C++ first,
+and then Python.  Once these basics are covered, we will show examples
+for traversing and transforming formulas (again in C++ then Python).
 
 * Constructing formulas
 
@@ -74,7 +74,7 @@ true and false constants, impotence (=F(F(e))=F(e)=), involutions
 (=And({And({e1,e2},e3})=And({e1,e2,e3})=).  See [[https://spot.lrde.epita.fr/tl.pdf][tl.pdf]] for a list of
 these /trivial identities/.
 
-In addition the arguments of commutative operators
+In addition, the arguments of commutative operators
 (e.g. =Xor(e1,e2)=Xor(e2,e1)=) are always reordered.  The order used
 always put the Boolean subformulas before the temporal subformulas,
 sorts the atomic propositions in alphabetic order, and otherwise order
@@ -192,9 +192,10 @@ children of a formula are explored only if =fun= returns =false=.  If
 
 In the following we use a lambda function to count the number of =G=
 in the formula.  We also print each subformula to show the recursion,
-and stop the recursion as soon as we encounter a Boolean formula (the
-=is_boolean()= method is a constant-time operation, so we actually
-save time by not exploring further).
+and stop the recursion as soon as we encounter a subformula without
+sugar (the =is_sugar_free_ltl()= method is a constant-time operation,
+that tells whether a formulas contains a =F= or =G= operator) to save
+time time by not exploring further.
 
 
 #+BEGIN_SRC C++ :results verbatim :exports both
@@ -213,7 +214,7 @@ save time by not exploring further).
                  std::cout << f << '\n';
                  if (f.is(spot::op::G))
                    ++gcount;
-                 return f.is_boolean();
+                 return f.is_sugar_free_ltl();
                });
     std::cout << "=== " << gcount << " G seen ===\n";
     return 0;
@@ -258,7 +259,7 @@ in a formula:
      if (in.is(spot::op::G))
        return spot::formula::F(xchg_fg(in[0]));
      // No need to transform Boolean subformulas
-     if (in.is_boolean())
+     if (in.is_sugar_free_ltl())
        return in;
      // Apply xchg_fg recursively on any other operator's children
      return in.map(xchg_fg);
@@ -280,9 +281,9 @@ in a formula:
 
 ** Python
 
-The Python version of the above to example use a very similar syntax.
-Python only supports a very limited form of lambda expressions, so we
-declare a complete function instead:
+The Python version of the above two examples uses a very similar
+syntax.  Python only supports a very limited form of lambda
+expressions, so we have to write a standard function instead:
 
 #+BEGIN_SRC python :results output :exports both
   import spot
@@ -293,7 +294,7 @@ declare a complete function instead:
       print(f)
       if f._is(spot.op_G):
           gcount += 1
-      return f.is_boolean()
+      return f.is_sugar_free_ltl()
 
   f = spot.formula("FGa -> (GFb & GF(c & b & d))")
   f.traverse(countg)
@@ -327,7 +328,7 @@ Here is the =F= and =G= exchange:
      if i._is(spot.op_G):
         return spot.formula.F(xchg_fg(i[0]));
      # No need to transform Boolean subformulas
-     if i.is_boolean():
+     if i.is_sugar_free_ltl():
         return i;
      # Apply xchg_fg recursively on any other operator's children
      return i.map(xchg_fg);
