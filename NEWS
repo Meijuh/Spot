@@ -1,5 +1,7 @@
 New in spot 1.99.3a (not yet released)
 
+  New features:
+
   * autfilt's --sat-minimize now takes a "colored" option to constrain
     all transitions (or states) in the output automaton to belong to
     exactly one acceptance sets.  This is useful when targeting parity
@@ -25,35 +27,45 @@ New in spot 1.99.3a (not yet released)
       (But dstar2tgba does not offer all the filtering and
       transformations options of autfilt.)
 
+  Major code changes and reorganization:
+
   * The class hierarchy for temporal formulas has been entirely
     rewritten.  This change is actually quite massive (~13200 lines
     removed, ~8200 lines added), and brings some nice benefits:
     - LTL/PSL formulas are now represented by lightweight formula
-      objects (instead of pointers to children of an abstract formula
-      class) that perform reference counting automatically.
-    - There is no hierachy anymore: all operators are represented by a
-      single type of node in the syntax tree, and an enumerator is
+      objects (instead of pointers to children of an abstract
+      formula class) that perform reference counting automatically.
+    - There is no hierachy anymore: all operators are represented by
+      a single type of node in the syntax tree, and an enumerator is
       used to distinguish between operators.
-    - Visitors have been replaced by member functions such as map() or
-      traverse(), that take a function (usually written as a lambda
-      function) and apply it to the nodes of the tree.
-    - As a consequence, writing algorithms that manipulate formula is
-      more friendly, and several algorithms that spanned a few pages
-      have been reduced to a few lines.
+    - Visitors have been replaced by member functions such as map()
+      or traverse(), that take a function (usually written as a
+      lambda function) and apply it to the nodes of the tree.
+    - As a consequence, writing algorithms that manipulate formula
+      is more friendly, and several algorithms that spanned a few
+      pages have been reduced to a few lines.
+    The page https://spot.lrde.epita.fr/tut03.html illustrates the
+    new interface, in both C++ and Python.
 
   * Directories ltlast/, ltlenv/, and ltlvisit/, have been merged into
     a single tl/ directory (for temporal logic).  This is motivated by
     the fact that these formulas are not restricted to LTL, and by the
     fact that we no longuer use the "visitor" pattern.
 
-  * For similar reasons, the spot::ltl namespace has been merged
-    with the spot namespace.
-
   * The LTL/PSL parser is now declared in tl/parse.hh (instead of
     ltlparse/public.hh).
 
-  * The dupexp_dfs() function has been renamed to copy(),
-    and as learn to preserve named states if required.
+  * The spot::ltl namespace has been merged with the spot namespace.
+
+  * The dupexp_dfs() function has been renamed to copy(), and has
+    learned to preserve named states if required.
+
+  * Atomic propositions can be declared without going through an
+    environment using the spot::formula::ap() static function.  They
+    can be registered for an automaton directly using the
+    spot::twa::register_ap() method.  The vector of atomic
+    propositions used by an automaton can now be retrieved using the
+    spot::twa::ap() method.
 
 New in spot 1.99.3 (2015-08-26)
 
