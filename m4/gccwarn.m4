@@ -25,13 +25,14 @@ EOF
   cf_save_CXXFLAGS="$CXXFLAGS"
   ac_cv_prog_gxx_warn_flags="-W -Wall"
   for cf_opt in \
+   Werror \
+   Wint-to-void-pointer-cast \
    Wzero-as-null-pointer-constant \
    Wcast-align \
    Wpointer-arith \
    Wwrite-strings \
    Wcast-qual \
-   Wdocumentation \
-   Werror
+   Wdocumentation
   do
     CXXFLAGS="$cf_save_CXXFLAGS $ac_cv_prog_gxx_warn_flags -$cf_opt"
     if AC_TRY_EVAL(ac_compile); then
