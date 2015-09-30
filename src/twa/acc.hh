@@ -544,7 +544,7 @@ namespace spot
 	    acc_cond::acc_code pair = fin({n++});
 	    acc_cond::mark_t m = 0U;
 	    for (unsigned ni = *i; ni > 0; --ni)
-	      m.set({n++});
+	      m.set(n++);
 	    pair.append_and(inf(m));
 	    std::swap(pair, res);
 	    res.append_or(std::move(pair));
