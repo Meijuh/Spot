@@ -109,7 +109,11 @@ namespace spot
 
 	for (auto c: f)
 	  {
-	    os_ << "  " << src << " -> " << rec(c);
+	    // Do not merge the next two lines, as there is no
+	    // guarantee that rec will be called before we start
+	    // printing the transition.
+	    int dst = rec(c);
+	    os_ << "  " << src << " -> " << dst;
 	    if (childnum > 0)
 	      os_ << " [taillabel=\"" << childnum << "\"]";
 	    if (childnum == -2)
