@@ -31,12 +31,9 @@ namespace spot
 {
   /// \ingroup twa_misc
   /// \brief Build an explicit automaton from all states of \a aut,
-  /// numbering states in bread first order as they are processed.
+  ///
+  /// This works for using the abstract interface for automata
   SPOT_API twa_graph_ptr
-  tgba_dupexp_bfs(const const_twa_ptr& aut, twa::prop_set p);
-  /// \ingroup twa_misc
-  /// \brief Build an explicit automaton from all states of \a aut,
-  /// numbering states in depth first order as they are processed.
-  SPOT_API twa_graph_ptr
-  tgba_dupexp_dfs(const const_twa_ptr& aut, twa::prop_set p);
+  copy(const const_twa_ptr& aut, twa::prop_set p,
+       bool preserve_names = false);
 }

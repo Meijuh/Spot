@@ -19,7 +19,6 @@
 
 #include "stutter.hh"
 #include "twa/twa.hh"
-#include "dupexp.hh"
 #include "misc/hash.hh"
 #include "misc/hashfunc.hh"
 #include "tl/apcollect.hh"

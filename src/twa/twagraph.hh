@@ -24,7 +24,7 @@
 #include "graph/ngraph.hh"
 #include "twa/bdddict.hh"
 #include "twa/twa.hh"
-#include "twaalgos/dupexp.hh"
+#include "twaalgos/copy.hh"
 #include "tl/formula.hh"
 #include <sstream>
 
@@ -476,24 +476,24 @@ namespace spot
   }
 
   inline twa_graph_ptr make_twa_graph(const twa_graph_ptr& aut,
-					    twa::prop_set p)
+				      twa::prop_set p)
   {
     return std::make_shared<twa_graph>(aut, p);
   }
 
   inline twa_graph_ptr make_twa_graph(const const_twa_graph_ptr& aut,
-					    twa::prop_set p)
+				      twa::prop_set p)
   {
     return std::make_shared<twa_graph>(aut, p);
   }
 
   inline twa_graph_ptr make_twa_graph(const const_twa_ptr& aut,
-					    twa::prop_set p)
+				      twa::prop_set p)
   {
     auto a = std::dynamic_pointer_cast<const twa_graph>(aut);
     if (a)
       return std::make_shared<twa_graph>(a, p);
     else
-      return tgba_dupexp_dfs(aut, p);
+      return copy(aut, p);
   }
 }

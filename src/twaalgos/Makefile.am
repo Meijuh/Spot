@@ -34,13 +34,13 @@ twaalgos_HEADERS = \
   cleanacc.hh \
   complete.hh \
   compsusp.hh \
+  copy.hh \
   cycles.hh \
   dtgbacomp.hh \
   degen.hh \
   dot.hh \
   dtbasat.hh \
   dtgbasat.hh \
-  dupexp.hh \
   emptiness.hh \
   emptiness_stats.hh \
   gv04.hh \
@@ -91,13 +91,13 @@ libtwaalgos_la_SOURCES = \
   cleanacc.cc \
   complete.cc \
   compsusp.cc \
+  copy.cc \
   cycles.cc \
   dtgbacomp.cc \
   degen.cc \
   dot.cc \
   dtbasat.cc \
   dtgbasat.cc \
-  dupexp.cc \
   emptiness.cc \
   gv04.cc \
   hoa.cc \

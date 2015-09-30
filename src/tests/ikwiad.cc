@@ -40,7 +40,7 @@
 #include "twa/twaproduct.hh"
 #include "twaalgos/reducerun.hh"
 #include "parseaut/public.hh"
-#include "twaalgos/dupexp.hh"
+#include "twaalgos/copy.hh"
 #include "twaalgos/minimize.hh"
 #include "taalgos/minimize.hh"
 #include "twaalgos/neverclaim.hh"
@@ -334,7 +334,7 @@ checked_main(int argc, char** argv)
   int formula_index = 0;
   const char* echeck_algo = nullptr;
   spot::emptiness_check_instantiator_ptr echeck_inst = nullptr;
-  enum { NoneDup, BFS, DFS } dupexp = NoneDup;
+  bool dupexp = false;
   bool expect_counter_example = false;
   bool accepting_run = false;
   bool accepting_run_replay = false;
@@ -740,13 +740,9 @@ checked_main(int argc, char** argv)
         {
           opt_monitor = true;
         }
-      else if (!strcmp(argv[formula_index], "-s"))
-	{
-	  dupexp = DFS;
-	}
       else if (!strcmp(argv[formula_index], "-S"))
 	{
-	  dupexp = BFS;
+	  dupexp = true;
 	}
       else if (!strcmp(argv[formula_index], "-CL"))
 	{
@@ -1266,17 +1262,8 @@ checked_main(int argc, char** argv)
 				// pointless.
 	}
 
-      switch (dupexp)
-	{
-	case NoneDup:
-	  break;
-	case BFS:
-	  a = tgba_dupexp_bfs(a, spot::twa::prop_set::all());
-	  break;
-	case DFS:
-	  a = tgba_dupexp_dfs(a, spot::twa::prop_set::all());
-	  break;
-	}
+      if (dupexp)
+	a = copy(a, spot::twa::prop_set::all());
 
       //TA, STA, GTA, SGTA and TGTA
       if (ta_opt || tgta_opt)

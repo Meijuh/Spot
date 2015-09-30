@@ -20,7 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "dupexp.hh"
+#include "copy.hh"
 #include "twa/twagraph.hh"
 #include <sstream>
 #include <string>
@@ -32,16 +32,22 @@ namespace spot
 {
   namespace
   {
-    template <class T>
-    class dupexp_iter: public T
+    class copy_iter: public tgba_reachable_iterator_depth_first
     {
     public:
-      dupexp_iter(const const_twa_ptr& a, twa::prop_set p)
-	: T(a), out_(make_twa_graph(a->get_dict()))
+      copy_iter(const const_twa_ptr& a, twa::prop_set p,
+		bool preserve_names)
+	: tgba_reachable_iterator_depth_first(a),
+	  out_(make_twa_graph(a->get_dict()))
       {
 	out_->copy_acceptance_of(a);
 	out_->copy_ap_of(a);
 	out_->prop_copy(a, p);
+	if (preserve_names)
+	  {
+	    names_ = new std::vector<std::string>;
+	    out_->set_named_prop("state-names", names_);
+	  }
       }
 
       twa_graph_ptr
@@ -51,9 +57,11 @@ namespace spot
       }
 
       virtual void
-      process_state(const state*, int n, twa_succ_iterator*)
+      process_state(const state* s, int n, twa_succ_iterator*)
       {
 	unsigned ns = out_->new_state();
+	if (names_)
+	  names_->emplace_back(aut_->format_state(s));
 	assert(ns == static_cast<unsigned>(n) - 1);
 	(void)ns;
 	(void)n;
@@ -71,22 +79,15 @@ namespace spot
 
     protected:
       twa_graph_ptr out_;
+      std::vector<std::string>* names_ = nullptr;
     };
 
   } // anonymous
 
   twa_graph_ptr
-  tgba_dupexp_bfs(const const_twa_ptr& aut, twa::prop_set p)
+  copy(const const_twa_ptr& aut, twa::prop_set p, bool preserve_names)
   {
-    dupexp_iter<tgba_reachable_iterator_breadth_first> di(aut, p);
-    di.run();
-    return di.result();
-  }
-
-  twa_graph_ptr
-  tgba_dupexp_dfs(const const_twa_ptr& aut, twa::prop_set p)
-  {
-    dupexp_iter<tgba_reachable_iterator_depth_first> di(aut, p);
+    copy_iter di(aut, p, preserve_names);
     di.run();
     return di.result();
   }

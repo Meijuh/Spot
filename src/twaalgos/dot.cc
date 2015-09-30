@@ -29,6 +29,7 @@
 #include "misc/escape.hh"
 #include "twa/twagraph.hh"
 #include "twa/formula2bdd.hh"
+#include "twaalgos/copy.hh"
 #include "twaalgos/sccinfo.hh"
 #include <cstdlib>
 #include <cstring>
@@ -534,7 +535,7 @@ namespace spot
     dotty_output d(os, options);
     auto aut = std::dynamic_pointer_cast<const twa_graph>(g);
     if (!aut)
-      aut = make_twa_graph(g, twa::prop_set::all());
+      aut = copy(g, twa::prop_set::all(), true);
     d.print(aut);
     return os;
   }
