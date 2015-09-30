@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
-## de Recherche et Développement de l'Epita (LRDE).
+## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
+## Laboratoire de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -24,37 +24,32 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(srcdir)/.. -I.. -DYY_NO_INPUT
 # Disable -Werror because too many versions of flex yield warnings.
 AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=)
 
-ltlparsedir = $(pkgincludedir)/ltlparse
+noinst_LTLIBRARIES = libparsetl.la
 
-noinst_LTLIBRARIES = libltlparse.la
-
-LTLPARSE_YY = ltlparse.yy
-FROM_LTLPARSE_YY_MAIN = ltlparse.cc
-FROM_LTLPARSE_YY_OTHERS = \
+PARSETL_YY = parsetl.yy
+FROM_PARSETL_YY_MAIN = parsetl.cc
+FROM_PARSETL_YY_OTHERS = \
   stack.hh \
-  ltlparse.hh
-FROM_LTLPARSE_YY = $(FROM_LTLPARSE_YY_MAIN) $(FROM_LTLPARSE_YY_OTHERS)
+  parsetl.hh
+FROM_PARSETL_YY = $(FROM_PARSETL_YY_MAIN) $(FROM_PARSETL_YY_OTHERS)
 
-BUILT_SOURCES = $(FROM_LTLPARSE_YY)
-MAINTAINERCLEANFILES = $(FROM_LTLPARSE_YY)
+BUILT_SOURCES = $(FROM_PARSETL_YY)
+MAINTAINERCLEANFILES = $(FROM_PARSETL_YY)
 
-$(FROM_LTLPARSE_YY_MAIN): $(srcdir)/$(LTLPARSE_YY)
+$(FROM_PARSETL_YY_MAIN): $(srcdir)/$(PARSETL_YY)
 ## We must cd into $(srcdir) first because if we tell bison to read
-## $(srcdir)/$(LTLPARSE_YY), it will also use the value of $(srcdir)/
+## $(srcdir)/$(PARSETL_YY), it will also use the value of $(srcdir)/
 ## in the generated include statements.
 	cd $(srcdir) && \
 	  $(BISON) -Wall -Werror --report=all $(BISON_EXTRA_FLAGS) \
-	  $(LTLPARSE_YY) -o $(FROM_LTLPARSE_YY_MAIN)
-$(FROM_LTLPARSE_YY_OTHERS): $(LTLPARSE_YY)
-	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) $(FROM_LTLPARSE_YY_MAIN)
+	  $(PARSETL_YY) -o $(FROM_PARSETL_YY_MAIN)
+$(FROM_PARSETL_YY_OTHERS): $(PARSETL_YY)
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) $(FROM_PARSETL_YY_MAIN)
 
-EXTRA_DIST = $(LTLPARSE_YY)
+EXTRA_DIST = $(PARSETL_YY)
 
-libltlparse_la_SOURCES = \
+libparsetl_la_SOURCES = \
   fmterror.cc \
-  $(FROM_LTLPARSE_YY) \
-  ltlscan.ll \
+  $(FROM_PARSETL_YY) \
+  scantl.ll \
   parsedecl.hh
-
-ltlparse_HEADERS = \
-  public.hh

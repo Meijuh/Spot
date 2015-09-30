@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 // Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -22,13 +22,13 @@
 
 #pragma once
 
-#include "ltlparse.hh"
+#include "parsetl.hh"
 #include "misc/location.hh"
 
 # define YY_DECL \
-  int ltlyylex (ltlyy::parser::semantic_type *yylval, \
-                spot::location *yylloc,				\
-		spot::parse_error_list& error_list)
+  int tlyylex (tlyy::parser::semantic_type *yylval, \
+               spot::location *yylloc,				\
+	       spot::parse_error_list& error_list)
 YY_DECL;
 
 void flex_set_buffer(const std::string& buf, int start_tok, bool lenient);

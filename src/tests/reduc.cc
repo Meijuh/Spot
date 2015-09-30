@@ -26,7 +26,7 @@
 #include <cstdlib>
 #include <string>
 #include <cstring>
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "tl/print.hh"
 #include "tl/simplify.hh"
 #include "tl/length.hh"

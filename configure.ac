@@ -203,10 +203,10 @@ AC_CONFIG_FILES([
   src/graph/Makefile
   src/kripke/Makefile
   src/kripkeparse/Makefile
-  src/ltlparse/Makefile
   src/Makefile
   src/misc/Makefile
   src/parseaut/Makefile
+  src/parsetl/Makefile
   src/priv/Makefile
   src/sanity/Makefile
   src/taalgos/Makefile

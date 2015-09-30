@@ -23,7 +23,7 @@
 %language "C++"
 %locations
 %defines
-%name-prefix "ltlyy"
+%name-prefix "tlyy"
 %debug
 %error-verbose
 %expect 0
@@ -34,7 +34,7 @@
 {
 #include <string>
 #include <sstream>
-#include "public.hh"
+#include "tl/parse.hh"
 #include "tl/formula.hh"
 #include "tl/print.hh"
 
@@ -53,7 +53,7 @@
 }
 
 %code {
-/* ltlparse.hh and parsedecl.hh include each other recursively.
+/* parsetl.hh and parsedecl.hh include each other recursively.
    We mut ensure that YYSTYPE is declared (by the above %union)
    before parsedecl.hh uses it. */
 #include "parsedecl.hh"
@@ -986,7 +986,7 @@ lbtformula: ATOMIC_PROP
 %%
 
 void
-ltlyy::parser::error(const location_type& location, const std::string& message)
+tlyy::parser::error(const location_type& location, const std::string& message)
 {
   error_list.emplace_back(location, message);
 }
@@ -1001,9 +1001,9 @@ namespace spot
   {
     formula result = nullptr;
     flex_set_buffer(ltl_string,
-		    ltlyy::parser::token::START_LTL,
+		    tlyy::parser::token::START_LTL,
 		    lenient);
-    ltlyy::parser parser(error_list, env, result);
+    tlyy::parser parser(error_list, env, result);
     parser.set_debug_level(debug);
     parser.parse();
     flex_unset_buffer();
@@ -1018,9 +1018,9 @@ namespace spot
   {
     formula result = nullptr;
     flex_set_buffer(ltl_string,
-		    ltlyy::parser::token::START_BOOL,
+		    tlyy::parser::token::START_BOOL,
 		    lenient);
-    ltlyy::parser parser(error_list, env, result);
+    tlyy::parser parser(error_list, env, result);
     parser.set_debug_level(debug);
     parser.parse();
     flex_unset_buffer();
@@ -1035,9 +1035,9 @@ namespace spot
   {
     formula result = nullptr;
     flex_set_buffer(ltl_string,
-		    ltlyy::parser::token::START_LBT,
+		    tlyy::parser::token::START_LBT,
 		    false);
-    ltlyy::parser parser(error_list, env, result);
+    tlyy::parser parser(error_list, env, result);
     parser.set_debug_level(debug);
     parser.parse();
     flex_unset_buffer();
@@ -1053,9 +1053,9 @@ namespace spot
   {
     formula result = nullptr;
     flex_set_buffer(sere_string,
-		    ltlyy::parser::token::START_SERE,
+		    tlyy::parser::token::START_SERE,
 		    lenient);
-    ltlyy::parser parser(error_list, env, result);
+    tlyy::parser parser(error_list, env, result);
     parser.set_debug_level(debug);
     parser.parse();
     flex_unset_buffer();

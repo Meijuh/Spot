@@ -25,7 +25,7 @@
 #include "twa/twaproduct.hh"
 #include "twaalgos/gtec/gtec.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "twaalgos/stats.hh"
 #include "twaalgos/emptiness.hh"
 #include "twaalgos/stats.hh"

@@ -49,6 +49,9 @@ New in spot 1.99.3a (not yet released)
   * For similar reasons, the spot::ltl namespace has been merged
     with the spot namespace.
 
+  * The LTL/PSL parser is now declared in tl/parse.hh (instead of
+    ltlparse/public.hh).
+
   * The dupexp_dfs() function has been renamed to copy(),
     and as learn to preserve named states if required.
 

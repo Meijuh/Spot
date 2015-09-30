@@ -129,7 +129,7 @@ never claim is done via the =print_never_claim= function.
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>
   #include <iostream>
-  #include "ltlparse/public.hh"
+  #include "tl/parse.hh"
   #include "tl/print.hh"
   #include "twaalgos/translate.hh"
   #include "twaalgos/neverclaim.hh"

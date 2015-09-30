@@ -85,7 +85,7 @@
 #include "tl/environment.hh"
 #include "tl/defaultenv.hh"
 
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 
 #include "twa/bdddict.hh"
 
@@ -222,7 +222,7 @@ namespace std {
 %include "tl/environment.hh"
 %include "tl/defaultenv.hh"
 
-%include "ltlparse/public.hh"
+%include "tl/parse.hh"
 
  /* these must come before apcollect.hh */
 %include "twa/bdddict.hh"

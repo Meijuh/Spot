@@ -20,7 +20,7 @@
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "tl/relabel.hh"
 #include "tl/print.hh"
 

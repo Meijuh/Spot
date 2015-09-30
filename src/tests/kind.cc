@@ -22,7 +22,7 @@
 #include <sstream>
 #include <cassert>
 #include <cstdlib>
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 
 void
 syntax(char *prog)

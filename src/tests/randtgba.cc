@@ -30,7 +30,7 @@
 #include <utility>
 #include <set>
 #include <vector>
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "tl/apcollect.hh"
 #include "tl/randomltl.hh"
 #include "tl/print.hh"

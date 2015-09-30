@@ -54,7 +54,7 @@ typedef std::map<std::string, bdd> formula_cache;
 %code
 {
 #include "kripke/kripkeexplicit.hh"
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include <map>
 
 /* twaparse.hh and parsedecl.hh include each other recursively.

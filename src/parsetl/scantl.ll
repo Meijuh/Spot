@@ -21,7 +21,7 @@
 ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 %option noyywrap warn 8bit batch
-%option prefix="ltlyy"
+%option prefix="tlyy"
 %option outfile="lex.yy.c"
 %option stack
 %option never-interactive
@@ -30,7 +30,7 @@
 #include <cstdlib>
 #include <string>
 
-#include "ltlparse/parsedecl.hh"
+#include "parsedecl.hh"
 #include "misc/escape.hh"
 
 #define YY_USER_ACTION \
@@ -43,7 +43,7 @@ static bool lenient_mode = false;
 static int orig_cond = 0;
 static unsigned comment_level = 0;
 
-typedef ltlyy::parser::token token;
+typedef tlyy::parser::token token;
 
 %}
 

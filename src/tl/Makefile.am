@@ -34,6 +34,7 @@ tl_HEADERS =					\
   length.hh					\
   mutation.hh					\
   nenoform.hh					\
+  parse.hh					\
   print.hh					\
   randomltl.hh					\
   relabel.hh					\

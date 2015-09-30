@@ -23,7 +23,7 @@
 
 #include <argp.h>
 #include <vector>
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 
 struct job
 {

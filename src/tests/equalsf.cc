@@ -26,7 +26,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "tl/unabbrev.hh"
 #include "tl/nenoform.hh"
 #include "tl/simplify.hh"

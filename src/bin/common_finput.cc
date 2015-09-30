@@ -19,7 +19,6 @@
 
 #include "common_finput.hh"
 #include "error.h"
-#include "ltlparse/public.hh"
 
 #include <fstream>
 #include <cstring>

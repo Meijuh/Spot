@@ -37,7 +37,7 @@
 #include "twa/formula2bdd.hh"
 #include "public.hh"
 #include "priv/accmap.hh"
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 
   inline namespace hoayy_support
   {
@@ -152,7 +152,6 @@
 %code
 {
 #include <sstream>
-#include "ltlparse/public.hh"
 
   /* parseaut.hh and parsedecl.hh include each other recursively.
    We must ensure that YYSTYPE is declared (by the above %union)

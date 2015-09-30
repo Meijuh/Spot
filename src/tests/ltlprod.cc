@@ -23,7 +23,7 @@
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "twaalgos/product.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/dot.hh"

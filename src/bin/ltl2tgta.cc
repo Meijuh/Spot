@@ -32,7 +32,7 @@
 #include "common_finput.hh"
 #include "common_post.hh"
 
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "tl/print.hh"
 #include "tl/simplify.hh"
 #include "twaalgos/dot.hh"

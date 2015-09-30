@@ -23,7 +23,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/sccfilter.hh"
 #include "twaalgos/degen.hh"

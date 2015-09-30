@@ -21,7 +21,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "tl/length.hh"
 
 void

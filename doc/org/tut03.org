@@ -201,7 +201,7 @@ save time by not exploring further).
   #include <iostream>
   #include "tl/formula.hh"
   #include "tl/print.hh"
-  #include "ltlparse/public.hh"
+  #include "tl/parse.hh"
 
   int main()
   {
@@ -249,7 +249,7 @@ in a formula:
   #include <iostream>
   #include "tl/formula.hh"
   #include "tl/print.hh"
-  #include "ltlparse/public.hh"
+  #include "tl/parse.hh"
 
   spot::formula xchg_fg(spot::formula in)
   {

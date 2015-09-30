@@ -29,7 +29,7 @@
 #include "tl/print.hh"
 #include "tl/apcollect.hh"
 #include "tl/formula.hh"
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/ltl2taa.hh"
 #include "twa/bddprint.hh"

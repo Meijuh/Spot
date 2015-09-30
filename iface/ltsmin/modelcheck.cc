@@ -20,7 +20,7 @@
 #include "ltsmin.hh"
 #include "twaalgos/dot.hh"
 #include "tl/defaultenv.hh"
-#include "ltlparse/public.hh"
+#include "tl/parse.hh"
 #include "twaalgos/translate.hh"
 #include "twaalgos/emptiness.hh"
 #include "twaalgos/reducerun.hh"
