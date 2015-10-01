@@ -53,6 +53,7 @@
 #include <list>
 #include <cstddef>
 #include <initializer_list>
+#include <limits>
 
 namespace spot
 {
@@ -108,17 +109,20 @@ namespace spot
   public:
     const fnode* clone() const
     {
+      // Saturate.
       ++refs_;
+      if (SPOT_UNLIKELY(!refs_))
+	saturated_ = 1;
       return this;
     }
 
     void destroy() const
     {
-      // last reference to a node that is not a constant?
-      if (SPOT_UNLIKELY(!refs_ && id_ > 2))
-	destroy_aux();
-      else
+      if (SPOT_LIKELY(refs_))
 	--refs_;
+      else if (SPOT_LIKELY(id_ > 2) && SPOT_LIKELY(!saturated_))
+	// last reference to a node that is not a constant
+	destroy_aux();
     }
 
     static constexpr uint8_t unbounded()
@@ -443,7 +447,7 @@ namespace spot
     op op_;			// operator
     uint8_t min_;		// range minimum (for star-like operators)
     uint8_t max_;		// range maximum;
-    //uint8_t unused_;
+    mutable uint8_t saturated_ = 0;
     uint16_t size_;		// number of children
     mutable uint16_t refs_ = 0; // reference count - 1;
     size_t id_;		// Also used as hash.
