@@ -118,8 +118,8 @@ namespace spot
 
   private:
     // Disallow copy.
-    ta_explicit(const ta_explicit& other) SPOT_DELETED;
-    ta_explicit& operator=(const ta_explicit& other) SPOT_DELETED;
+    ta_explicit(const ta_explicit& other) = delete;
+    ta_explicit& operator=(const ta_explicit& other) = delete;
 
     const_twa_ptr tgba_;
     state_ta_explicit* artificial_initial_state_;

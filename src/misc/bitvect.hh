@@ -467,8 +467,8 @@ namespace spot
     {
     }
 
-    SPOT_LOCAL bitvect_array(const bitvect_array&) SPOT_DELETED;
-    SPOT_LOCAL void operator=(const bitvect_array&) SPOT_DELETED;
+    SPOT_LOCAL bitvect_array(const bitvect_array&) = delete;
+    SPOT_LOCAL void operator=(const bitvect_array&) = delete;
 
     // Extra storage has been allocated at the end of the struct.
     char* storage()

@@ -114,8 +114,8 @@ namespace spot
 
   private:
     // Disallow copy.
-    twa_product(const twa_product&) SPOT_DELETED;
-    twa_product& operator=(const twa_product&) SPOT_DELETED;
+    twa_product(const twa_product&) = delete;
+    twa_product& operator=(const twa_product&) = delete;
   };
 
   /// \brief A lazy product with different initial states.
