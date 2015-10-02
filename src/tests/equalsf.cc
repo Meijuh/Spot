@@ -32,7 +32,7 @@
 #include "tl/simplify.hh"
 #include "tl/print.hh"
 
-void
+static void
 syntax(char* prog)
 {
   std::cerr << prog << " [-E] file" << std::endl;

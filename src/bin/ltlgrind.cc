@@ -108,7 +108,7 @@ namespace
   };
 }
 
-int
+static int
 parse_opt(int key, char* arg, struct argp_state*)
 {
   switch (key)

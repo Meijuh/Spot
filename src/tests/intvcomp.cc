@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2014 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// Copyright (C) 2011, 2014, 2015 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,7 +21,8 @@
 #include "misc/intvcomp.hh"
 #include <cstring>
 
-int check_vv(int* data, int size, unsigned expected = 0)
+static int
+check_vv(int* data, int size, unsigned expected = 0)
 {
 
   std::vector<int> input;
@@ -69,7 +70,8 @@ int check_vv(int* data, int size, unsigned expected = 0)
   return !!res;
 }
 
-int check_av(int* data, int size, unsigned expected = 0)
+static int
+check_av(int* data, int size, unsigned expected = 0)
 {
   const std::vector<unsigned int>* v =
     spot::int_array_vector_compress(data, size);
@@ -113,7 +115,8 @@ int check_av(int* data, int size, unsigned expected = 0)
   return !!res;
 }
 
-int check_aa(int* data, int size, unsigned expected = 0)
+static int
+check_aa(int* data, int size, unsigned expected = 0)
 {
   int* comp = new int[size *2];
   size_t csize = size * 2;
@@ -158,7 +161,8 @@ int check_aa(int* data, int size, unsigned expected = 0)
   return !!res;
 }
 
-int check(int* comp, int size, unsigned expected = 0)
+static int
+check(int* comp, int size, unsigned expected = 0)
 {
   return
     check_vv(comp, size, expected) +

@@ -29,7 +29,7 @@
 #include "twaalgos/product.hh"
 #include "twaalgos/dot.hh"
 
-void
+static void
 syntax(char* prog)
 {
   std::cerr << prog << " file" << std::endl;

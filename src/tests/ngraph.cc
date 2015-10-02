@@ -108,8 +108,8 @@ dot(std::ostream& out, const spot::named_graph<G1, G2, G3, G4>& g)
 }
 
 
-bool g1(const spot::digraph<void, void>& g,
-	unsigned s, int e)
+static bool
+g1(const spot::digraph<void, void>& g, unsigned s, int e)
 {
   int f = 0;
   for (auto& t: g.out(s))
@@ -120,7 +120,7 @@ bool g1(const spot::digraph<void, void>& g,
   return f == e;
 }
 
-bool f1()
+static bool f1()
 {
   spot::digraph<void, void> g(3);
   spot::named_graph<spot::digraph<void, void>, std::string> gg(g);
@@ -150,7 +150,7 @@ bool f1()
 }
 
 
-bool f2()
+static bool f2()
 {
   spot::digraph<int, void> g(3);
   spot::named_graph<spot::digraph<int, void>, std::string> gg(g);
@@ -173,7 +173,7 @@ bool f2()
   return f == 5;
 }
 
-bool f3()
+static bool f3()
 {
   spot::digraph<void, int> g(3);
   spot::named_graph<spot::digraph<void, int>, std::string> gg(g);
@@ -196,7 +196,7 @@ bool f3()
   return f == 3 && g.states().size() == 3;
 }
 
-bool f4()
+static bool f4()
 {
   spot::digraph<int, int> g(3);
   spot::named_graph<spot::digraph<int, int>, std::string> gg(g);
@@ -219,7 +219,7 @@ bool f4()
   return f == 11;
 }
 
-bool f5()
+static bool f5()
 {
   typedef spot::digraph<void, std::pair<int, float>> graph_t;
   graph_t g(3);
@@ -243,7 +243,7 @@ bool f5()
   return f == 3 && (h > 2.49 && h < 2.51);
 }
 
-bool f6()
+static bool f6()
 {
   typedef spot::digraph<void, std::pair<int, float>> graph_t;
   graph_t g(3);
@@ -267,7 +267,7 @@ bool f6()
   return f == 3 && (h > 2.49 && h < 2.51);
 }
 
-bool f7()
+static bool f7()
 {
   typedef spot::digraph<int, int, true> graph_t;
   graph_t g(3);
@@ -316,7 +316,7 @@ struct int_pair
 #endif
 };
 
-bool f8()
+static bool f8()
 {
   typedef spot::digraph<int_pair, int_pair> graph_t;
   graph_t g(3);
@@ -382,7 +382,7 @@ public:
   }
 };
 
-bool f9()
+static bool f9()
 {
   typedef spot::digraph<my_state, int_pair> graph_t;
   graph_t g(3);

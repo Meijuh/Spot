@@ -31,7 +31,7 @@
 #include "tl/simplify.hh"
 #include "tl/length.hh"
 
-void
+static void
 syntax(char* prog)
 {
   std::cerr << prog << " option formula1 (formula2)?" << std::endl;

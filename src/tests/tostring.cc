@@ -26,7 +26,7 @@
 #include "tl/parse.hh"
 #include "tl/print.hh"
 
-void
+static void
 syntax(char *prog)
 {
   std::cerr << prog << " formula1" << std::endl;

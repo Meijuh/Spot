@@ -120,17 +120,4 @@ namespace spot
     r.translation = e;
     return &r;
   }
-
-
-  formula
-  reduce_tau03(formula f, bool stronger)
-  {
-    if (!f.is_psl_formula())
-      return f;
-
-    ltl_simplifier_options opt(false, false, false,
-			       true, stronger);
-    ltl_simplifier simpl(opt);
-    return simpl.simplify(f);
-  }
 }

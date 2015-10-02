@@ -23,7 +23,7 @@
 #include "twaalgos/dot.hh"
 #include "tl/defaultenv.hh"
 
-void f1()
+static void f1()
 {
   auto d = spot::make_bdd_dict();
   auto tg = make_twa_graph(d);

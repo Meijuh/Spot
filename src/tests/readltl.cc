@@ -27,7 +27,7 @@
 #include "tl/parse.hh"
 #include "tl/dot.hh"
 
-void
+static void
 syntax(char* prog)
 {
   std::cerr << prog << " [-d] formula" << std::endl;

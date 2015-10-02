@@ -28,7 +28,7 @@
 #include "tl/simplify.hh"
 #include "tl/nenoform.hh"
 
-void
+static void
 syntax(char* prog)
 {
   std::cerr << prog << " formula1 formula2?" << std::endl;

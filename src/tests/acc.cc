@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include "twa/acc.hh"
 
-void check(spot::acc_cond& ac, spot::acc_cond::mark_t m)
+static void check(spot::acc_cond& ac, spot::acc_cond::mark_t m)
 {
   std::cout << '#' << m.count() << ": " << ac.format(m);
   if (!m)
@@ -34,7 +34,7 @@ void check(spot::acc_cond& ac, spot::acc_cond::mark_t m)
   std::cout << '\n';
 }
 
-void print(const std::vector<std::vector<int>>& res)
+static void print(const std::vector<std::vector<int>>& res)
 {
   for (auto& v: res)
     {

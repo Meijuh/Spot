@@ -943,75 +943,75 @@ namespace spot
       mutable callback_context* state_condition_last_cc_;
     };
 
-  }
+
+    //////////////////////////////////////////////////////////////////////////
+    // LOADER
 
 
-  ////////////////////////////////////////////////////////////////////////////
-  // LOADER
+    // Call spins to compile "foo.prom" as "foo.prom.spins" if the latter
+    // does not exist already or is older.
+    static bool
+    compile_model(std::string& filename, std::string& ext, bool verbose)
+    {
+      std::string command;
+      std::string compiled_ext;
 
+      if (ext == ".prom" || ext == ".pm" || ext == ".pml")
+	{
+	  command = "spins " + filename;
+	  compiled_ext = ".spins";
+	}
+      else if (ext == ".dve")
+	{
+	  command = "divine compile --ltsmin " + filename;
+	  compiled_ext = "2C";
+	}
+      else
+	{
+	  if (verbose)
+	    std::cerr << "Unknown extension `" << ext
+		      << ("'.  Use `.prom', `.pm', `.pml', `.dve', `.dve2C' or"
+			  "`.prom.spins'.") << std::endl;
+	  return false;
+	}
 
-  // Call spins to compile "foo.prom" as "foo.prom.spins" if the latter
-  // does not exist already or is older.
-  bool
-  compile_model(std::string& filename, std::string& ext, bool verbose)
-  {
-    std::string command;
-    std::string compiled_ext;
+      struct stat s;
+      if (stat(filename.c_str(), &s) != 0)
+	{
+	  if (verbose)
+	    {
+	      std::cerr << "Cannot open " << filename << std::endl;
+	      return true;
+	    }
+	}
 
-    if (ext == ".prom" || ext == ".pm" || ext == ".pml")
-      {
-        command = "spins " + filename;
-        compiled_ext = ".spins";
-      }
-    else if (ext == ".dve")
-      {
-        command = "divine compile --ltsmin " + filename;
-        compiled_ext = "2C";
-      }
-    else
-      {
-	if (verbose)
-	  std::cerr << "Unknown extension `" << ext
-		    << "'.  Use `.prom', `.pm', `.pml', `.dve', `.dve2C' or"\
-                    "`.prom.spins'." << std::endl;
-	return false;
-      }
+      std::string old = filename;
+      filename += compiled_ext;
 
-    struct stat s;
-    if (stat(filename.c_str(), &s) != 0)
-      {
-	if (verbose)
-	  {
-	    std::cerr << "Cannot open " << filename << std::endl;
-	    return true;
-	  }
-      }
+      // Remove any directory, because the new file will
+      // be compiled in the current directory.
+      size_t pos = filename.find_last_of("/\\");
+      if (pos != std::string::npos)
+	filename = "./" + filename.substr(pos + 1);
 
-    std::string old = filename;
-    filename += compiled_ext;
+      struct stat d;
+      if (stat(filename.c_str(), &d) == 0)
+	if (s.st_mtime < d.st_mtime)
+	  // The .spins or .dve2C is up-to-date, no need to recompile it.
+	  return false;
 
-    // Remove any directory, because the new file will
-    // be compiled in the current directory.
-    size_t pos = filename.find_last_of("/\\");
-    if (pos != std::string::npos)
-      filename = "./" + filename.substr(pos + 1);
+      int res = system(command.c_str());
+      if (res)
+	{
+	  if (verbose)
+	    std::cerr << "Execution of `" << command.c_str()
+		      << "' returned exit code " << WEXITSTATUS(res)
+		      << ".\n";
+	  return true;
+	}
+      return false;
+    }
 
-    struct stat d;
-    if (stat(filename.c_str(), &d) == 0)
-      if (s.st_mtime < d.st_mtime)
-	// The .spins or .dve2C is up-to-date, no need to recompile it.
-	return false;
-
-    int res = system(command.c_str());
-    if (res)
-      {
-	if (verbose)
-	  std::cerr << "Execution of `" << command.c_str()
-		    << "' returned exit code " << WEXITSTATUS(res)
-		    << ".\n";
-	return true;
-      }
-    return false;
   }
 
   kripke_ptr

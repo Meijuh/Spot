@@ -20,7 +20,7 @@
 #include <iostream>
 #include "misc/bitvect.hh"
 
-void ruler()
+static void ruler()
 {
   std::cout << "\n   ";
   for (size_t x = 0; x < 76; ++x)

@@ -28,7 +28,7 @@
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/dot.hh"
 
-void
+static void
 syntax(char* prog)
 {
   std::cerr << prog << " formula1 formula2" << std::endl;

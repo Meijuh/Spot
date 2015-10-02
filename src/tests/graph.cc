@@ -70,8 +70,9 @@ dot(std::ostream& out, spot::digraph<SL, TL>& g)
 }
 
 
-bool g1(const spot::digraph<void, void>& g,
-	unsigned s, int e)
+static bool
+g1(const spot::digraph<void, void>& g,
+   unsigned s, int e)
 {
   int f = 0;
   for (auto& t: g.out(s))
@@ -82,7 +83,8 @@ bool g1(const spot::digraph<void, void>& g,
   return f == e;
 }
 
-bool f1()
+static bool
+f1()
 {
   spot::digraph<void, void> g(3);
 
@@ -111,7 +113,8 @@ bool f1()
 }
 
 
-bool f2()
+static bool
+f2()
 {
   spot::digraph<int, void> g(3);
 
@@ -133,7 +136,8 @@ bool f2()
   return f == 5;
 }
 
-bool f3()
+static bool
+f3()
 {
   spot::digraph<void, int> g(3);
 
@@ -155,7 +159,8 @@ bool f3()
   return f == 3 && g.states().size() == 3;
 }
 
-bool f4()
+static bool
+f4()
 {
   spot::digraph<int, int> g(3);
 
@@ -177,7 +182,8 @@ bool f4()
   return f == 11;
 }
 
-bool f5()
+static bool
+f5()
 {
   spot::digraph<void, std::pair<int, float>> g(3);
 
@@ -199,7 +205,8 @@ bool f5()
   return f == 3 && (h > 2.49 && h < 2.51);
 }
 
-bool f6()
+static bool
+f6()
 {
   spot::digraph<void, std::pair<int, float>> g(3);
 
@@ -221,7 +228,8 @@ bool f6()
   return f == 3 && (h > 2.49 && h < 2.51);
 }
 
-bool f7()
+static bool
+f7()
 {
   spot::digraph<int, int, true> g(3);
   auto s1 = g.new_state(2);
@@ -267,7 +275,8 @@ struct int_pair
 #endif
 };
 
-bool f8()
+static bool
+f8()
 {
   spot::digraph<int_pair, int_pair> g(3);
   auto s1 = g.new_state(2, 4);

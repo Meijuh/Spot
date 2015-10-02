@@ -33,14 +33,15 @@
 #include "taalgos/dot.hh"
 #include "taalgos/stats.hh"
 
-void
+static void
 syntax(char* prog)
 {
   std::cerr << prog << " file" << std::endl;
   exit(2);
 }
 
-void stats(std::string title, const spot::ta_ptr& ta)
+static void
+stats(std::string title, const spot::ta_ptr& ta)
 {
   auto s = stats_reachable(ta);
 
@@ -50,7 +51,8 @@ void stats(std::string title, const spot::ta_ptr& ta)
 	    << std::setw(6) << s.acceptance_states << '\n';
 }
 
-void stats(std::string title, const spot::twa_ptr& tg)
+static void
+stats(std::string title, const spot::twa_ptr& tg)
 {
   auto s = stats_reachable(tg);
 

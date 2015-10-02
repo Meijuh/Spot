@@ -48,7 +48,7 @@ static struct shorthands_t
     { "spin", " -f %s>%O" },
   };
 
-void show_shorthands()
+static void show_shorthands()
 {
   std::cout
     << ("If a COMMANDFMT does not use any %-sequence, and starts with one of\n"

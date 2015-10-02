@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include "tl/parse.hh"
 
-void
+static void
 syntax(char *prog)
 {
   std::cerr << prog << " formula" << std::endl;

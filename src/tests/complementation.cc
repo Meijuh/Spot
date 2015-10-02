@@ -34,7 +34,7 @@
 
 #include "twa/twasafracomplement.hh"
 
-void usage(const char* prog)
+static void usage(const char* prog)
 {
   std::cout << "usage: " << prog << " [options]" << std::endl;
   std::cout << "with options" << std::endl

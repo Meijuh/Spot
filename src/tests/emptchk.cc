@@ -32,7 +32,7 @@
 #include "twaalgos/dot.hh"
 #include "twaalgos/emptiness.hh"
 
-void
+static void
 syntax(char* prog)
 {
   std::cerr << prog << " file" << std::endl;

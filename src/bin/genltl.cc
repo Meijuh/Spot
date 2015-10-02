@@ -321,7 +321,8 @@ phi_n(std::string name, int n)
   return result;
 }
 
-formula N_n(std::string name, int n)
+static formula
+N_n(std::string name, int n)
 {
   return formula::F(phi_n(name, n));
 }

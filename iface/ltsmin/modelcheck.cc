@@ -60,7 +60,7 @@ Options:\n\
   exit(1);
 }
 
-int
+static int
 checked_main(int argc, char **argv)
 {
   spot::timer_map tm;

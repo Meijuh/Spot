@@ -82,7 +82,7 @@ const char* default_algos[] = {
 
 std::vector<ec_algo> ec_algos;
 
-spot::emptiness_check_ptr
+static spot::emptiness_check_ptr
 cons_emptiness_check(int num, spot::const_twa_graph_ptr a,
 		     const spot::const_twa_graph_ptr& degen,
 		     unsigned int n_acc)
@@ -96,7 +96,7 @@ cons_emptiness_check(int num, spot::const_twa_graph_ptr a,
   return nullptr;
 }
 
-void
+static void
 syntax(char* prog)
 {
   std::cerr << "Usage: "<< prog << " [OPTIONS...] PROPS..." << std::endl
@@ -173,7 +173,7 @@ syntax(char* prog)
 }
 
 
-int
+static int
 to_int(const char* s)
 {
   char* endptr;
@@ -186,7 +186,7 @@ to_int(const char* s)
   return res;
 }
 
-int
+static int
 to_int_pos(const char* s, const char* arg)
 {
   int res = to_int(s);
@@ -199,7 +199,7 @@ to_int_pos(const char* s, const char* arg)
   return res;
 }
 
-int
+static int
 to_int_nonneg(const char* s, const char* arg)
 {
   int res = to_int(s);
@@ -212,7 +212,7 @@ to_int_nonneg(const char* s, const char* arg)
   return res;
 }
 
-float
+static float
 to_float(const char* s)
 {
   char* endptr;
@@ -226,7 +226,7 @@ to_float(const char* s)
   return res;
 }
 
-float
+static float
 to_float_nonneg(const char* s, const char* arg)
 {
   float res = to_float(s);
@@ -250,7 +250,7 @@ id(const char*, unsigned x)
 
 spot::tgba_statistics prod_stats;
 
-float
+static float
 prod_conv(const char* name, unsigned x)
 {
   float y = static_cast<float>(x);
@@ -418,7 +418,7 @@ ar_stats_type ar_stats;		// Statistics about accepting runs.
 ar_stats_type mar_stats;        // ... about minimized accepting runs.
 
 
-void
+static void
 print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
 {
   std::ios::fmtflags old = std::cout.flags();
@@ -486,7 +486,7 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
   std::cout << std::setiosflags(old);
 }
 
-spot::formula
+static spot::formula
 generate_formula(const spot::random_ltl& rl,
 		 spot::ltl_simplifier& simp,
 		 int opt_f, int opt_s,

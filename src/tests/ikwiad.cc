@@ -71,25 +71,7 @@
 #include "taalgos/dot.hh"
 #include "taalgos/stats.hh"
 
-std::string
-ltl_defs()
-{
-  std::string s = "\
-X=(0 1 true	   \
-   1 2 $0	   \
-   accept 2)	   \
-U=(0 0 $0	   \
-   0 1 $1	   \
-   accept 1)	   \
-G=(0 0 $0)	   \
-F=U(true, $0)	   \
-W=G($0)|U($0, $1)  \
-R=!U(!$0, !$1)     \
-M=F($0)&R($0, $1)";
-  return s;
-}
-
-void
+static void
 syntax(char* prog)
 {
   // Display the supplied name unless it appears to be a libtool wrapper.
@@ -304,7 +286,8 @@ to_int(const char* s)
   return res;
 }
 
-spot::twa_graph_ptr ensure_digraph(const spot::twa_ptr& a)
+static spot::twa_graph_ptr
+ensure_digraph(const spot::twa_ptr& a)
 {
   auto aa = std::dynamic_pointer_cast<spot::twa_graph>(a);
   if (aa)
@@ -312,7 +295,7 @@ spot::twa_graph_ptr ensure_digraph(const spot::twa_ptr& a)
   return spot::make_twa_graph(a, spot::twa::prop_set::all());
 }
 
-int
+static int
 checked_main(int argc, char** argv)
 {
   int exit_code = 0;
