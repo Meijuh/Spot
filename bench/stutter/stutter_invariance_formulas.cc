@@ -23,7 +23,6 @@
 #include "bin/common_output.hh"
 #include "twaalgos/translate.hh"
 #include "twaalgos/stutter.hh"
-#include "twaalgos/dupexp.hh"
 #include "twaalgos/stats.hh"
 #include "tl/apcollect.hh"
 #include "misc/timer.hh"
