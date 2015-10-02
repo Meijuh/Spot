@@ -34,8 +34,7 @@ namespace spot
   struct SPOT_API twa_graph_state: public spot::state
   {
   public:
-    twa_graph_state():
-      spot::state()
+    twa_graph_state() noexcept
     {
     }
 
@@ -78,12 +77,12 @@ namespace spot
     bdd cond;
     acc_cond::mark_t acc;
 
-    explicit twa_graph_edge_data()
+    explicit twa_graph_edge_data() noexcept
       : cond(bddfalse), acc(0)
     {
     }
 
-    twa_graph_edge_data(bdd cond, acc_cond::mark_t acc = 0U)
+    twa_graph_edge_data(bdd cond, acc_cond::mark_t acc = 0U) noexcept
       : cond(cond), acc(acc)
     {
     }

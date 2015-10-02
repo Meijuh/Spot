@@ -33,7 +33,8 @@ EOF
    Wwrite-strings \
    Wcast-qual \
    Wdocumentation \
-   Wmissing-declarations
+   Wmissing-declarations \
+   Wnoexcept
   do
     CXXFLAGS="$cf_save_CXXFLAGS $ac_cv_prog_gxx_warn_flags -$cf_opt"
     if AC_TRY_EVAL(ac_compile); then

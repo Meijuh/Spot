@@ -38,20 +38,20 @@ namespace spot
 
       mark_t() = default;
 
-      mark_t(value_t id)
+      mark_t(value_t id) noexcept
 	: id(id)
       {
       }
 
       template<class iterator>
-      mark_t(const iterator& begin, const iterator& end)
+      mark_t(const iterator& begin, const iterator& end) noexcept
       {
 	id = 0U;
 	for (iterator i = begin; i != end; ++i)
 	  set(*i);
       }
 
-      mark_t(std::initializer_list<unsigned> vals)
+      mark_t(std::initializer_list<unsigned> vals) noexcept
 	: mark_t(vals.begin(), vals.end())
       {
       }

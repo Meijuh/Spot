@@ -27,6 +27,7 @@
 #include <iterator>
 #include <algorithm>
 #include <iostream>
+#include <type_traits>
 
 namespace spot
 {
@@ -64,14 +65,16 @@ namespace spot
       template <typename... Args,
 		typename = typename std::enable_if<
 		  !first_is_base_of<boxed_label, Args...>::value>::type>
-      boxed_label(Args&&... args):
-	label{std::forward<Args>(args)...}
+	boxed_label(Args&&... args)
+	noexcept(std::is_nothrow_constructible<Data, Args...>::value)
+	: label{std::forward<Args>(args)...}
       {
       }
 
       // if Data is a POD type, G++ 4.8.2 wants default values for all
       // label fields unless we define this default constructor here.
       explicit boxed_label()
+	noexcept(std::is_nothrow_constructible<Data>::value)
       {
       }
 
@@ -115,14 +118,16 @@ namespace spot
       template <typename... Args,
 		typename = typename std::enable_if<
 		  !first_is_base_of<boxed_label, Args...>::value>::type>
-      boxed_label(Args&&... args):
-	Data{std::forward<Args>(args)...}
+	boxed_label(Args&&... args)
+	noexcept(std::is_nothrow_constructible<Data, Args...>::value)
+	: Data{std::forward<Args>(args)...}
       {
       }
 
       // if Data is a POD type, G++ 4.8.2 wants default values for all
       // label fields unless we define this default constructor here.
       explicit boxed_label()
+	noexcept(std::is_nothrow_constructible<Data>::value)
       {
       }
 
@@ -154,8 +159,9 @@ namespace spot
       template <typename... Args,
 		typename = typename std::enable_if<
 		  !first_is_base_of<distate_storage, Args...>::value>::type>
-      distate_storage(Args&&... args):
-	State_Data{std::forward<Args>(args)...}
+      distate_storage(Args&&... args)
+	noexcept(std::is_nothrow_constructible<State_Data, Args...>::value)
+	: State_Data{std::forward<Args>(args)...}
       {
       }
     };
@@ -178,6 +184,7 @@ namespace spot
       StateIn src;		// source
 
       explicit edge_storage()
+	noexcept(std::is_nothrow_constructible<Edge_Data>::value)
 	: Edge_Data{}
       {
       }
@@ -185,6 +192,9 @@ namespace spot
       template <typename... Args>
       edge_storage(StateOut dst, Edge next_succ,
 		    StateIn src, Args&&... args)
+	noexcept(std::is_nothrow_constructible<Edge_Data, Args...>::value
+		 && std::is_nothrow_constructible<StateOut, StateOut>::value
+		 && std::is_nothrow_constructible<Edge, Edge>::value)
 	: Edge_Data{std::forward<Args>(args)...},
 	dst(dst), next_succ(next_succ), src(src)
       {
@@ -238,12 +248,13 @@ namespace spot
     public:
       typedef typename Graph::edge edge;
 
-      edge_iterator()
+      edge_iterator() noexcept
 	: g_(nullptr), t_(0)
       {
       }
 
-      edge_iterator(Graph* g, edge t): g_(g), t_(t)
+      edge_iterator(Graph* g, edge t) noexcept
+	: g_(g), t_(t)
       {
       }
 
@@ -305,8 +316,8 @@ namespace spot
       typedef typename Graph::state_storage_t state_storage_t;
       typedef typename Graph::edge edge;
 
-      killer_edge_iterator(Graph* g, edge t, state_storage_t& src):
-	super(g, t), src_(src), prev_(0)
+      killer_edge_iterator(Graph* g, edge t, state_storage_t& src) noexcept
+	: super(g, t), src_(src), prev_(0)
       {
       }
 
@@ -371,8 +382,8 @@ namespace spot
     {
     public:
       typedef typename Graph::edge edge;
-      state_out(Graph* g, edge t):
-	g_(g), t_(t)
+      state_out(Graph* g, edge t) noexcept
+	: g_(g), t_(t)
       {
       }
 
@@ -433,13 +444,13 @@ namespace spot
       }
 
     public:
-      all_edge_iterator(unsigned pos, tv_t& tv)
+      all_edge_iterator(unsigned pos, tv_t& tv) noexcept
 	: t_(pos), tv_(tv)
       {
 	skip_();
       }
 
-      all_edge_iterator(tv_t& tv)
+      all_edge_iterator(tv_t& tv) noexcept
 	: t_(tv.size()), tv_(tv)
       {
       }
@@ -492,7 +503,7 @@ namespace spot
       tv_t& tv_;
     public:
 
-      all_trans(tv_t& tv)
+      all_trans(tv_t& tv) noexcept
 	: tv_(tv)
       {
       }
