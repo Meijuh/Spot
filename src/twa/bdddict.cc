@@ -155,43 +155,6 @@ namespace spot
     return num;
   }
 
-  void
-  bdd_dict::register_acceptance_variables(bdd f, const void* for_me)
-  {
-    if (f == bddtrue || f == bddfalse)
-      return;
-
-    int v = bdd_var(f);
-    assert(unsigned(v) < bdd_map.size());
-    bdd_info& i = bdd_map[v];
-    assert(i.type == acc);
-    i.refs.insert(for_me);
-
-    register_acceptance_variables(bdd_high(f), for_me);
-    register_acceptance_variables(bdd_low(f), for_me);
-  }
-
-  formula
-  bdd_dict::oneacc_to_formula(int var) const
-  {
-    assert(unsigned(var) < bdd_map.size());
-    const bdd_info& i = bdd_map[var];
-    assert(i.type == acc);
-    return i.f;
-  }
-
-  formula
-  bdd_dict::oneacc_to_formula(bdd oneacc) const
-  {
-    assert(oneacc != bddfalse);
-    while (bdd_high(oneacc) == bddfalse)
-      {
-	oneacc = bdd_low(oneacc);
-	assert(oneacc != bddfalse);
-      }
-    return oneacc_to_formula(bdd_var(oneacc));
-  }
-
   int
   bdd_dict::register_anonymous_variables(int n, const void* for_me)
   {
@@ -311,17 +274,6 @@ namespace spot
     for (unsigned i = 0; i < s; ++i)
       unregister_variable(i, me);
     priv_->free_anonymous_list_of.erase(me);
-  }
-
-  void
-  bdd_dict::unregister_all_typed_variables(var_type type, const void* me)
-  {
-    unsigned s = bdd_map.size();
-    for (unsigned i = 0; i < s; ++i)
-      if (bdd_map[i].type == type)
-	unregister_variable(i, me);
-    if (type == anon)
-      priv_->free_anonymous_list_of.erase(me);
   }
 
   std::ostream&

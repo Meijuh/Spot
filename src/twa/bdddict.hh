@@ -143,44 +143,6 @@ namespace spot
     }
     /// @}
 
-    /// \brief Register BDD variables as acceptance variables.
-    ///
-    /// Register all variables occurring in \a f as acceptance variables
-    /// used by \a for_me.  This assumes that these acceptance variables
-    /// are already known from the dictionary (i.e., they have already
-    /// been registered by register_acceptance_variable() for another
-    /// automaton).
-    /// @{
-    void register_acceptance_variables(bdd f, const void* for_me);
-
-    template <typename T>
-    void register_acceptance_variables(bdd f, std::shared_ptr<T> for_me)
-    {
-      register_acceptance_variables(f, for_me.get());
-    }
-    /// @}
-
-    /// \brief Convert one acceptance condition into the associated
-    /// formula.
-    ///
-    /// This version accepts a conjunction of Acc variables, in which
-    /// only one must be positive.  This positive variable will be
-    /// converted back into the associated formula.
-    ///
-    /// The returned formula is not cloned, and is valid until the BDD
-    /// variable used in \a oneacc are unregistered.
-    formula oneacc_to_formula(bdd oneacc) const;
-
-    /// \brief Convert one acceptance condition into the associated
-    /// formula.
-    ///
-    /// This version takes the number of a BDD variable that must has
-    /// been returned by a call to register_acceptance_variable().
-    ///
-    /// The returned formula is not cloned, and is valid until the BDD
-    /// variable \a var is unregistered.
-    formula oneacc_to_formula(int var) const;
-
     /// \brief Register anonymous BDD variables.
     ///
     /// Return (and maybe allocate) \a n consecutive BDD variables which
@@ -266,18 +228,6 @@ namespace spot
     ///
     /// Usually called in the destructor if \a me.
     void unregister_all_my_variables(const void* me);
-
-    /// \brief Release all variables of a given type, used by an
-    /// object.
-    /// @{
-    void unregister_all_typed_variables(var_type type, const void* me);
-
-    template <typename T>
-    void unregister_all_typed_variables(var_type type, std::shared_ptr<T> me)
-    {
-      unregister_all_typed_variables(type, me.get());
-    }
-    /// @}
 
     /// \brief Release a variable used by \a me.
     /// @{
