@@ -417,11 +417,10 @@ def _addfilter(fun):
     def nfiltf(self, *args, **kwargs):
         it = filter(lambda f: not getattr(f, fun)(*args, **kwargs), self)
         return formulaiterator(it)
-    setattr(formulaiterator, fun, filtf)
     if fun[:3] == 'is_':
-        notfun = fun[:3] + 'not_' + fun[3:]
+        notfun = 'is_not_' + fun[3:]
     elif fun[:4] == 'has_':
-        notfun = fun[:4] + 'no_' + fun[4:]
+        notfun = 'has_no_' + fun[4:]
     else:
         notfun = 'not_' + fun
     setattr(formulaiterator, fun, filtf)
@@ -433,9 +432,9 @@ def _addfilter(fun):
 def _addmap(fun):
     def mapf(self, *args, **kwargs):
         return formulaiterator(map(lambda f: getattr(f, fun)(*args, **kwargs),
-self))
-    setattr(formula, fun, lambda self, *args, **kwargs: globals()[fun](self,
-    *args, **kwargs))
+                                   self))
+    setattr(formula, fun,
+            lambda self, *args, **kwargs: globals()[fun](self, *args, **kwargs))
     setattr(formulaiterator, fun, mapf)
 
 def randltl(ap, n = -1, **kwargs):
@@ -531,18 +530,26 @@ def randltl(ap, n = -1, **kwargs):
             sys.stderr.write("internal error: unknown type of output")
         return
 
-    def _randltlgenerator(rg):
-        i = 0
-        while i != n:
-            f = rg.next()
+    class _randltliterator:
+        def __init__(self, rg, n):
+            self.rg = rg
+            self.i = 0
+            self.n = n
+        def __iter__(self):
+            return self
+        def __next__(self):
+            if self.i == self.n:
+                raise StopIteration
+            f = self.rg.next()
             if f is None:
-                sys.stderr.write("Warning: could not generate a new unique formula " \
-                "after " + str(MAX_TRIALS) + " trials.\n")
-                yield None
-            else:
-                yield f
-                i += 1
-    return formulaiterator(_randltlgenerator(rg))
+                sys.stderr.write("Warning: could not generate a new "
+                                 "unique formula after {} trials.\n"
+                                 .format(MAX_TRIALS))
+                raise StopIteration
+            self.i += 1
+            return f
+
+    return formulaiterator(_randltliterator(rg, n))
 
 def simplify(f, **kwargs):
     level = kwargs.get('level', None)
