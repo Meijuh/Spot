@@ -1,6 +1,17 @@
 New in spot 1.99.4a (not yet released)
 
-  Nothing yet.
+  Python:
+
+  * Add bindings for complete().
+
+  Bugs fixed:
+
+  * Work around some strange weird exception raised when using the
+    randltlgenerator under Python 3.5.
+  * Recognize "nullptr" formulas as None in Python.
+  * Fix compilation of bench/stutter/
+  * Handle saturation of formula reference counts.
+  * Fix typo in the Python code for the CGI server.
 
 New in spot 1.99.4 (2015-10-01)
 
