@@ -34,7 +34,8 @@ EOF
    Wcast-qual \
    Wdocumentation \
    Wmissing-declarations \
-   Wnoexcept
+   Wnoexcept \
+   Woverloaded-virtual
   do
     CXXFLAGS="$cf_save_CXXFLAGS $ac_cv_prog_gxx_warn_flags -$cf_opt"
     if AC_TRY_EVAL(ac_compile); then
