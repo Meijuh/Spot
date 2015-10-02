@@ -178,6 +178,13 @@ using namespace spot;
  };
 %apply char** OUTPUT { char** err };
 
+%typemap(out) spot::formula {
+  if (!$1)
+    $result = SWIG_Py_Void();
+  else
+    $result = SWIG_NewPointerObj(new spot::formula($1), $descriptor(spot::formula*), SWIG_POINTER_OWN);
+}
+
 %exception {
   try {
     $action

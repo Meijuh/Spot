@@ -48,6 +48,7 @@ TESTS = \
   parsetgba.py \
   piperead.ipynb \
   randaut.ipynb \
+  randgen.py \
   randltl.ipynb \
   relabel.py \
   setxor.py \
