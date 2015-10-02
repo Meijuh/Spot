@@ -21,7 +21,7 @@
 
 namespace spot
 {
-  unsigned tgba_complete_here(twa_graph_ptr aut)
+  unsigned complete_here(twa_graph_ptr aut)
   {
     unsigned n = aut->num_states();
     unsigned sink = -1U;
@@ -104,6 +104,8 @@ namespace spot
 	      }
 	    // In case the automaton use state-based acceptance, propagate
 	    // the acceptance of the first edge to the one we add.
+	    if (!aut->has_state_based_acc())
+	      acc = 0U;
 	    aut->new_edge(i, sink, missingcond, acc);
 	  }
       }
@@ -117,7 +119,7 @@ namespace spot
     return sink;
   }
 
-  twa_graph_ptr tgba_complete(const const_twa_ptr& aut)
+  twa_graph_ptr complete(const const_twa_ptr& aut)
   {
     auto res = make_twa_graph(aut, {
 					true, // state based
@@ -125,7 +127,7 @@ namespace spot
 					true, // deterministic
 					true, // stutter inv.
 				      });
-    tgba_complete_here(res);
+    complete_here(res);
     return res;
   }
 

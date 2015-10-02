@@ -1178,9 +1178,9 @@ checked_main(int argc, char** argv)
 
       if (opt_complete)
 	{
-	  tm.start("determinization");
-	  a = tgba_complete(a);
-	  tm.stop("determinization");
+	  tm.start("completion");
+	  a = complete(a);
+	  tm.stop("completion");
 	}
 
       if (opt_dtbasat >= 0)

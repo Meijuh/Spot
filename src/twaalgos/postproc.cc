@@ -156,7 +156,7 @@ namespace spot
 	  || (type_ == Monitor && a->num_sets() == 0))
 	{
 	  if (COMP_)
-	    a = tgba_complete(a);
+	    a = complete(a);
 	  if (SBACC_)
 	    a = sbacc(a);
 	  return a;
@@ -207,7 +207,7 @@ namespace spot
 	      a = m;
 	  }
 	if (COMP_)
-	  a = tgba_complete(a);
+	  a = complete(a);
 	return a;
       }
 
@@ -216,7 +216,7 @@ namespace spot
 	if (type_ == BA)
 	  a = do_degen(a);
 	if (COMP_)
-	  a = tgba_complete(a);
+	  a = complete(a);
 	if (SBACC_)
 	  a = sbacc(a);
 	return a;
@@ -380,7 +380,7 @@ namespace spot
 	    in = dba;
 	  }
 
-	const_twa_graph_ptr res = tgba_complete(in);
+	const_twa_graph_ptr res = complete(in);
 	if (target_acc == 1)
 	  {
 	    if (sat_states_ != -1)
@@ -457,7 +457,7 @@ namespace spot
     sim = dba ? dba : sim;
 
     if (COMP_)
-      sim = tgba_complete(sim);
+      sim = complete(sim);
     if (SBACC_)
       sim = sbacc(sim);
 

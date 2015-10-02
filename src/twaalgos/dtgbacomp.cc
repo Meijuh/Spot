@@ -178,7 +178,7 @@ namespace spot
       {
 	// Simply complete the automaton, and complement its
 	// acceptance.
-	auto res = cleanup_acceptance_here(tgba_complete(aut));
+	auto res = cleanup_acceptance_here(complete(aut));
 	res->set_acceptance(res->num_sets(),
 			    res->get_acceptance().complement());
 	return res;

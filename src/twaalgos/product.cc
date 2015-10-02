@@ -136,8 +136,8 @@ namespace spot
 			   unsigned left_state,
 			   unsigned right_state)
   {
-    return product_aux(tgba_complete(left),
-		       tgba_complete(right),
+    return product_aux(complete(left),
+		       complete(right),
 		       left_state, right_state, false);
   }
 

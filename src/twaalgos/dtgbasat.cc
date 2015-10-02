@@ -1339,7 +1339,7 @@ namespace spot
       }
     else
       {
-	tgba_complete_here(a);
+	complete_here(a);
       }
 
     if (states == -1 && max_states == -1)
