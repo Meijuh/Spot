@@ -6,6 +6,7 @@
 
 (print (concat "Org " (org-version)))
 (setq org-export-htmlize-output-type 'css)
+(setq org-html-htmlize-output-type 'css)
 ; the .org-timestamp directory does not always exist, is not always
 ; created by org, and that causes issues on our buildfarm.
 (setq org-publish-use-timestamps-flag nil)

@@ -4,7 +4,7 @@ a:hover{text-decoration:underline}
 body{font-family:Arial, sans-serif;font-weight:normal;max-width:62em;margin:auto;padding:0 .5em;background-image:url(/img/spot64.png);background-repeat:no-repeat;background-position:25px 25px}
 body.man{padding:0 .5em 3em .5em}
 body #content{padding-top:45px}
-body pre{background:#fafafa;border:none;font-family:monospace, courier}
+body pre{background:#fbfbfb;border:none;font-family:monospace, courier}
 body code{font-weight:bold}
 body a{color:#008181}
 #table-of-contents{font-size:80%;padding-left:0.5em;padding-right:0.5em;text-align:right;float:right;border-left:1px solid #ffd300;border-bottom:1px solid #ffd300;background:#ffe35e}
@@ -18,7 +18,7 @@ body a{color:#008181}
 div#postamble{visibility:hidden}
 .outline-2 h2{border-bottom-style:solid;border-color:#ffe35e}
 pre.src{padding-top:8px;border-left-style:solid;border-color:#00adad;overflow:auto}
-pre.example{border-left-style:solid;border-color:#d80076}
+pre.example{border-left-style:solid;border-color:#d70079}
 pre.src:before{border:none;border-bottom-style:solid;border-color:#00adad}
 img{max-width:100%}
 @media screen{
@@ -30,3 +30,11 @@ img{max-width:100%}
 #table-of-contents{border:1px solid #ffd300}
 #org-div-home-and-up{visibility:hidden}
 }
+.org-keyword{font-weight:bold}
+.org-builtin{font-weight:bold}
+.org-preprocessor{font-weight:bold}
+.org-string{font-weight:bold;color:#00adad}
+.org-function-name{font-weight:bold;color:#d70079}
+.org-type{font-weight:bold;color:#00adad}
+.org-comment-delimiter{font-weight:bold;color:#a13672}
+.org-comment{font-style:italic;color:#a13672}
