@@ -79,6 +79,7 @@
 #include "misc/minato.hh"
 #include "misc/optionmap.hh"
 #include "misc/random.hh"
+#include "misc/escape.hh"
 
 #include "tl/formula.hh"
 
@@ -215,6 +216,7 @@ using namespace spot;
 %include "misc/minato.hh"
 %include "misc/optionmap.hh"
 %include "misc/random.hh"
+%include "misc/escape.hh"
 
 %implicitconv std::vector<spot::formula>;
 

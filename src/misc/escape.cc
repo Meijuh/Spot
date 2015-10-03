@@ -27,6 +27,7 @@
 #include <functional>
 #include <cctype>
 #include <locale>
+#include <cstring>
 #include "escape.hh"
 
 namespace spot
@@ -143,4 +144,35 @@ namespace spot
 	      std::find_if(str.begin(), str.end(),
 			   std::not1(std::ptr_fun<int, int>(std::isspace))));
   }
+
+  std::ostream&
+  quote_shell_string(std::ostream& os, const char* str)
+  {
+    // Single quotes are best, unless the string to quote contains one.
+    if (!strchr(str, '\''))
+      {
+	os << '\'' << str << '\'';
+      }
+    else
+      {
+	// In double quotes we have to escape $ ` " or \.
+	os << '"';
+	while (*str)
+	  switch (*str)
+	    {
+	    case '$':
+	    case '`':
+	    case '"':
+	    case '\\':
+	      os << '\\';
+	      // fall through
+	    default:
+	      os << *str++;
+	      break;
+	    }
+	os << '"';
+      }
+    return os;
+  }
+
 }

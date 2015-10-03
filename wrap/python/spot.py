@@ -114,22 +114,91 @@ def _formula_str_ctor(self, str):
     self.this = parse_formula(str)
 
 def _formula_to_str(self, format = 'spot', parenth = False):
-    if format == 'spot':
+    if format == 'spot' or format == 'f':
         return str_psl(self, parenth)
-    elif format == 'spin':
+    elif format == 'spin' or format == 's':
         return str_spin_ltl(self, parenth)
-    elif format == 'utf8':
+    elif format == 'utf8' or format == '8':
         return str_utf8_psl(self, parenth)
-    elif format == 'lbt':
+    elif format == 'lbt' or format == 'l':
         return str_lbt_ltl(self)
-    elif format == 'wring':
+    elif format == 'wring' or format == 'w':
         return str_wring_ltl(self)
-    elif format == 'latex':
+    elif format == 'latex' or format == 'x':
         return str_latex_psl(self, parenth)
-    elif format == 'sclatex':
+    elif format == 'sclatex' or format == 'X':
         return str_sclatex_psl(self, parenth)
     else:
         raise ValueError("unknown string format: " + format)
+
+def _formula_format(self, spec):
+    """Format the formula according to spec.
+
+    'spec' should be a list of letters that select
+    how the formula should be formatted.
+
+    Use one of the following letters to select the syntax:
+
+    - 'f': use Spot's syntax (default)
+    - '8': use Spot's syntax in UTF-8 mode
+    - 's': use Spin's syntax
+    - 'l': use LBT's syntax
+    - 'w': use Wring's syntax
+    - 'x': use LaTeX output
+    - 'X': use self-contained LaTeX output
+
+    Add some of those letters for additional options:
+
+    - 'p': use full parentheses
+    - 'c': escape the formula for CSV output (this will
+           enclose the formula in double quotes, and escape
+           any included double quotes)
+    - 'h': escape the formula for HTML output
+    - 'd': escape double quotes and backslash,
+           for use in C-strings (the outermost double
+           quotes are *not* added)
+    - 'q': quote and escape for shell output, using single
+           quotes or double quotes depending on the contents.
+
+    - ':spec': pass the remaining specification to the
+               formating function for strings.
+    """
+
+    syntax = 'f'
+    parent = False
+    escape = None
+
+    while spec:
+        c, spec = spec[0], spec[1:]
+        if c in ('f', 's', '8', 'l', 'w', 'x', 'X'):
+            syntax = c
+        elif c == 'p':
+            parent = True
+        elif c in ('c', 'd', 'h', 'q'):
+            escape = c
+        elif c == ':':
+            break
+        else:
+            raise ValueError("unknown format specification: " + c + spec)
+
+    s = self.to_str(syntax, parent)
+
+    if escape == 'c':
+        o = ostringstream()
+        escape_rfc4180(o, s)
+        s = '"' + o.str() + '"'
+    elif escape == 'd':
+        s = escape_str(s)
+    elif escape == 'h':
+        o = ostringstream()
+        escape_html(o, s)
+        s = o.str()
+    elif escape == 'q':
+        o = ostringstream()
+        quote_shell_string(o, s)
+        s = o.str()
+
+    return s.__format__(spec)
 
 def _formula_traverse(self, func):
     if func(self):
@@ -158,6 +227,7 @@ formula.__init__ = _formula_str_ctor
 formula.to_str = _formula_to_str
 formula.show_ast = _render_formula_as_svg
 formula.traverse = _formula_traverse
+formula.__format__ = _formula_format
 formula.map = _formula_map
 
 def _twa_to_str(a, format='hoa', opt=None):

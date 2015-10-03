@@ -30,6 +30,7 @@
 
 #include "tl/print.hh"
 #include "common_conv.hh"
+#include "misc/escape.hh"
 
 // A set of tools for which we know the correct output
 static struct shorthands_t
@@ -146,39 +147,10 @@ translator_spec::~translator_spec()
 
 std::vector<translator_spec> translators;
 
-static void
-quote_shell_string(std::ostream& os, const char* str)
-{
-  // Single quotes are best, unless the string to quote contains one.
-  if (!strchr(str, '\''))
-    {
-      os << '\'' << str << '\'';
-    }
-  else
-    {
-      // In double quotes we have to escape $ ` " or \.
-      os << '"';
-      while (*str)
-	switch (*str)
-	  {
-	  case '$':
-	  case '`':
-	  case '"':
-	  case '\\':
-	    os << '\\';
-	    // fall through
-	  default:
-	    os << *str++;
-	    break;
-	  }
-      os << '"';
-    }
-}
-
 void
 quoted_string::print(std::ostream& os, const char*) const
 {
-  quote_shell_string(os, val().c_str());
+  spot::quote_shell_string(os, val().c_str());
 }
 
 printable_result_filename::printable_result_filename()
@@ -209,7 +181,7 @@ printable_result_filename::print(std::ostream& os, const char*) const
   snprintf(prefix, sizeof prefix, "lcr-o%u-", translator_num);
   const_cast<printable_result_filename*>(this)->val_ =
     spot::create_tmpfile(prefix);
-  quote_shell_string(os, val()->name());
+  spot::quote_shell_string(os, val()->name());
 }
 
 

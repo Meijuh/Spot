@@ -93,3 +93,26 @@ def count_g(f):
         x += 1
 f.traverse(count_g)
 assert x == 3
+
+#----------------------------------------------------------------------
+
+# The example from tut01.org
+
+formula = spot.formula('a U b U "$strange[0]=name"')
+res = """\
+Default output:    {f}
+Spin syntax:       {f:s}
+(Spin syntax):     {f:sp}
+Default for shell: echo {f:q} | ...
+LBT for shell:     echo {f:lq} | ...
+Default for CSV:   ...,{f:c},...
+Wring, centered:   {f:w:~^50}""".format(f = formula)
+
+assert res == """\
+Default output:    a U (b U "$strange[0]=name")
+Spin syntax:       a U (b U ($strange[0]=name))
+(Spin syntax):     (a) U ((b) U ($strange[0]=name))
+Default for shell: echo 'a U (b U "$strange[0]=name")' | ...
+LBT for shell:     echo 'U "a" U "b" "$strange[0]=name"' | ...
+Default for CSV:   ...,"a U (b U ""$strange[0]=name"")",...
+Wring, centered:   ~~~~~(a=1) U ((b=1) U ("$strange[0]=name"=1))~~~~~"""

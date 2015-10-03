@@ -65,5 +65,13 @@ namespace spot
   /// \brief Remove spaces at the front and back of \a str.
   SPOT_API void
   trim(std::string& str);
+
+  /// \brief Output \a str between simple quote or double quotes
+  ///
+  /// Simple quotes are preferred unless \a str contains some simple
+  /// quotes.  In that case we use double quotes and escape anything
+  /// that needs to be escaped.
+  SPOT_API std::ostream&
+  quote_shell_string(std::ostream& os, const char* str);
   /// @}
 }

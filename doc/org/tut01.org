@@ -376,3 +376,81 @@ ltlfilt --lenient -f '(a U ) U c'
 
 In C++ you can enable lenient using one of the Boolean arguments of
 =parse_infix_psl()=.
+** Python formatting
+
+Formulas have a custom format specification language that allows you
+to easily change the way a formula should be output when using the
+=format()= method of strings.
+
+#+BEGIN_SRC python :results output :exports both
+import spot
+formula = spot.formula('a U b U "$strange[0]=name"')
+print("""\
+Default output:    {f}
+Spin syntax:       {f:s}
+(Spin syntax):     {f:sp}
+Default for shell: echo {f:q} | ...
+LBT for shell:     echo {f:lq} | ...
+Default for CSV:   ...,{f:c},...
+Wring, centered:   {f:w:~^50}""".format(f = formula))
+#+END_SRC
+
+#+RESULTS:
+: Default output:    a U (b U "$strange[0]=name")
+: Spin syntax:       a U (b U ($strange[0]=name))
+: (Spin syntax):     (a) U ((b) U ($strange[0]=name))
+: Default for shell: echo 'a U (b U "$strange[0]=name")' | ...
+: LBT for shell:     echo 'U "a" U "b" "$strange[0]=name"' | ...
+: Default for CSV:   ...,"a U (b U ""$strange[0]=name"")",...
+: Wring, centered:   ~~~~~(a=1) U ((b=1) U ("$strange[0]=name"=1))~~~~~
+
+The specifiers after the first =:= are specific to formulas.  The
+specifiers after the second =:= (if any) are the usual [[https://docs.python.org/3/library/string.html#formatspec][format
+specifiers]] (typically alignment choices) and are applied on the string
+produced from the formula.
+
+The complete list of specified that apply to formulas can always be
+printed with =help(spot.formula.__format__)=:
+
+#+BEGIN_SRC python :results output :exports results
+import spot
+help(spot.formula.__format__)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Help on function _formula_format in module spot:
+
+_formula_format(self, spec)
+    Format the formula according to spec.
+
+    'spec' should be a list of letters that select
+    how the formula should be formatted.
+
+    Use one of the following letters to select the syntax:
+
+    - 'f': use Spot's syntax (default)
+    - '8': use Spot's syntax in UTF-8 mode
+    - 's': use Spin's syntax
+    - 'l': use LBT's syntax
+    - 'w': use Wring's syntax
+    - 'x': use LaTeX output
+    - 'X': use self-contained LaTeX output
+
+    Add some of those letters for additional options:
+
+    - 'p': use full parentheses
+    - 'c': escape the formula for CSV output (this will
+           enclose the formula in double quotes, and escape
+           any included double quotes)
+    - 'h': escape the formula for HTML output
+    - 'd': escape double quotes and backslash,
+           for use in C-strings (the outermost double
+           quotes are *not* added)
+    - 'q': quote and escape for shell output, using single
+           quotes or double quotes depending on the contents.
+
+    - ':spec': pass the remaining specification to the
+               formating function for strings.
+
+#+end_example

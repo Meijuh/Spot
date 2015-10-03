@@ -3,6 +3,8 @@ New in spot 1.99.4a (not yet released)
   Python:
 
   * Add bindings for complete().
+  * Formulas now have a custom __format__ function.  See
+    https://spot.lrde.epita.fr/tut01.html for examples.
 
   Bugs fixed:
 
