@@ -22,6 +22,7 @@ import subprocess
 import sys
 from functools import lru_cache
 
+
 def setup(**kwargs):
     """Configure Spot for fancy display.
 
@@ -43,7 +44,8 @@ def setup(**kwargs):
     """
     import os
 
-    s = 'size="{}" node[style=filled,fillcolor="{}"] edge[arrowhead=vee, arrowsize=.7]'
+    s = ('size="{}" node[style=filled,fillcolor="{}"] '
+         'edge[arrowhead=vee, arrowsize=.7]')
     os.environ['SPOT_DOTEXTRA'] = s.format(kwargs.get('size', '10.2,5'),
                                            kwargs.get('fillcolor', '#ffffaa'))
 
@@ -55,19 +57,20 @@ def setup(**kwargs):
 # namespace without prefixing them.  Latter versions fix this.  So we
 # can remove for following hack once 3.0.2 is no longer used in our
 # build farm.
-if not 'op_ff' in globals():
+if 'op_ff' not in globals():
     for i in ('ff', 'tt', 'eword', 'ap', 'Not', 'X', 'F', 'G',
               'Closure', 'NegClosure', 'NegClosureMarked',
               'Xor', 'Implies', 'Equiv', 'U', 'R', 'W', 'M',
               'EConcat', 'EConcatMarked', 'UConcat', 'Or',
               'OrRat', 'And', 'AndRat', 'AndNLM', 'Concat',
               'Fusion', 'Star', 'FStar'):
-        globals()['op_' + i] = globals()[i];
+        globals()['op_' + i] = globals()[i]
         del globals()[i]
 
 
 # Global BDD dict so that we do not have to create one in user code.
 _bdd_dict = make_bdd_dict()
+
 
 # Add a small LRU cache so that when we display automata into a
 # interactive widget, we avoid some repeated calls to dot for
@@ -81,16 +84,20 @@ def _str_to_svg(str):
     res = dotty.communicate()
     return res[0].decode('utf-8')
 
+
 def _ostream_to_svg(ostr):
     return _str_to_svg(ostr.str().encode('utf-8'))
+
 
 def _render_automaton_as_svg(a, opt=None):
     ostr = ostringstream()
     print_dot(ostr, a, opt)
     return _ostream_to_svg(ostr)
 
+
 twa._repr_svg_ = _render_automaton_as_svg
 ta._repr_svg_ = _render_automaton_as_svg
+
 
 def _render_formula_as_svg(a):
     # Load the SVG function only if we need it. This way the bindings
@@ -101,19 +108,24 @@ def _render_formula_as_svg(a):
     print_dot_psl(ostr, a)
     return SVG(_ostream_to_svg(ostr))
 
+
 def _return_automaton_as_svg(a, opt=None):
     # Load the SVG function only if we need it. This way the bindings
     # can still be used outside of IPython if IPython is not
     # installed.
     from IPython.display import SVG
     return SVG(_render_automaton_as_svg(a, opt))
+
+
 twa.show = _return_automaton_as_svg
 ta.show = _return_automaton_as_svg
+
 
 def _formula_str_ctor(self, str):
     self.this = parse_formula(str)
 
-def _formula_to_str(self, format = 'spot', parenth = False):
+
+def _formula_to_str(self, format='spot', parenth=False):
     if format == 'spot' or format == 'f':
         return str_psl(self, parenth)
     elif format == 'spin' or format == 's':
@@ -130,6 +142,7 @@ def _formula_to_str(self, format = 'spot', parenth = False):
         return str_sclatex_psl(self, parenth)
     else:
         raise ValueError("unknown string format: " + format)
+
 
 def _formula_format(self, spec):
     """Format the formula according to spec.
@@ -200,16 +213,18 @@ def _formula_format(self, spec):
 
     return s.__format__(spec)
 
+
 def _formula_traverse(self, func):
     if func(self):
         return
     for f in self:
         f.traverse(func)
 
+
 def _formula_map(self, func):
     k = self.kind()
     if k in (op_ff, op_tt, op_eword, op_ap):
-        return self;
+        return self
     if k in (op_Not, op_X, op_F, op_G, op_Closure,
              op_NegClosure, op_NegClosureMarked):
         return formula.unop(k, func(self[0]))
@@ -223,12 +238,14 @@ def _formula_map(self, func):
         return formula.bunop(k, func(self[0]), self.min(), self.max())
     raise ValueError("unknown type of formula")
 
+
 formula.__init__ = _formula_str_ctor
 formula.to_str = _formula_to_str
 formula.show_ast = _render_formula_as_svg
 formula.traverse = _formula_traverse
 formula.__format__ = _formula_format
 formula.map = _formula_map
+
 
 def _twa_to_str(a, format='hoa', opt=None):
     format = format.lower()
@@ -250,6 +267,7 @@ def _twa_to_str(a, format='hoa', opt=None):
         return ostr.str()
     raise ValueError("unknown string format: " + format)
 
+
 def _twa_save(a, filename, format='hoa', opt=None, append=False):
     with open(filename, 'a' if append else 'w') as f:
         s = a.to_str(format, opt)
@@ -258,8 +276,10 @@ def _twa_save(a, filename, format='hoa', opt=None, append=False):
             f.write('\n')
     return a
 
+
 twa.to_str = _twa_to_str
 twa.save = _twa_save
+
 
 def automata(*filenames):
     """Read automata from a list of filenames.
@@ -267,8 +287,10 @@ def automata(*filenames):
     The automata can be written in the
     [HOA format](http://adl.github.io/hoaf/), as
     [never claims](http://spinroot.com/spin/Man/never.html),
-    or in [LBTT's format]
-    (http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html).
+    in [LBTT's format]
+    (http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html),
+    or in [ltl2dstar's
+    format](http://www.ltl2dstar.de/docs/ltl2dstar.html#output-format-dstar)
 
     If an argument ends with a `|`, then this argument is interpreted as
     a shell command, and the output of that command (without the `|`)
@@ -304,7 +326,7 @@ def automata(*filenames):
             # Make sure we destroy the parser (p) and the subprocess
             # (prop) in the correct order...
             del p
-            if proc != None:
+            if proc is not None:
                 if not a:
                     # We reached the end of the stream.  Wait for the
                     # process to finish, so that we can its exit code.
@@ -321,6 +343,7 @@ def automata(*filenames):
                                        .format(filename[:-1], ret))
     return
 
+
 def automaton(filename):
     """Read a single automaton from a file.
 
@@ -329,6 +352,7 @@ def automaton(filename):
         return next(automata(filename))
     except StopIteration:
         raise RuntimeError("Failed to read automaton from {}".format(filename))
+
 
 def translate(formula, *args):
     """Translate a formula into an automaton.
@@ -358,7 +382,7 @@ def translate(formula, *args):
 
     def type_set(val):
         nonlocal type_
-        if type_ != None and type_ != val:
+        if type_ is not None and type_ != val:
             raise ValueError("type cannot be both {} and {}"
                              .format(type_, val))
         elif val == 'tgba':
@@ -371,7 +395,7 @@ def translate(formula, *args):
 
     def pref_set(val):
         nonlocal pref_
-        if pref_ != None and pref_ != val:
+        if pref_ is not None and pref_ != val:
             raise ValueError("preference cannot be both {} and {}"
                              .format(pref_, val))
         elif val == 'small':
@@ -384,7 +408,7 @@ def translate(formula, *args):
 
     def optm_set(val):
         nonlocal optm_
-        if optm_ != None and optm_ != val:
+        if optm_ is not None and optm_ != val:
             raise ValueError("optimization level cannot be both {} and {}"
                              .format(optm_, val))
         if val == 'high':
@@ -444,16 +468,15 @@ def translate(formula, *args):
                 raise ValueError("ambiguous option '{}' is prefix of {}"
                                  .format(arg, str(compat)))
 
-    if type_ == None:
+    if type_ is None:
         type_ = postprocessor.TGBA
-    if pref_ == None:
+    if pref_ is None:
         pref_ = postprocessor.Small
-    if optm_ == None:
+    if optm_ is None:
         optm_ = postprocessor.High
 
     if type(formula) == str:
         formula = parse_formula(formula)
-
 
     a = translator(_bdd_dict)
     a.set_type(type_)
@@ -462,7 +485,9 @@ def translate(formula, *args):
 
     return a.run(formula)
 
+
 formula.translate = translate
+
 
 # Wrapper around a formula iterator to which we add some methods of formula
 # (using _addfilter and _addmap), so that we can write things like
@@ -477,6 +502,7 @@ class formulaiterator:
     def __next__(self):
         return next(self._formulas)
 
+
 # fun shoud be a predicate and should be a method of formula.
 # _addfilter adds this predicate as a filter whith the same name in
 # formulaiterator.
@@ -484,9 +510,11 @@ def _addfilter(fun):
     def filtf(self, *args, **kwargs):
         it = filter(lambda f: getattr(f, fun)(*args, **kwargs), self)
         return formulaiterator(it)
+
     def nfiltf(self, *args, **kwargs):
         it = filter(lambda f: not getattr(f, fun)(*args, **kwargs), self)
         return formulaiterator(it)
+
     if fun[:3] == 'is_':
         notfun = 'is_not_' + fun[3:]
     elif fun[:4] == 'has_':
@@ -496,18 +524,21 @@ def _addfilter(fun):
     setattr(formulaiterator, fun, filtf)
     setattr(formulaiterator, notfun, nfiltf)
 
-# fun should be a function taking a formula as its first parameter and returning
-# a formula.
-# _addmap adds this function as a method of formula and formulaiterator.
+
+# fun should be a function taking a formula as its first parameter and
+# returning a formula.  _addmap adds this function as a method of
+# formula and formulaiterator.
 def _addmap(fun):
     def mapf(self, *args, **kwargs):
         return formulaiterator(map(lambda f: getattr(f, fun)(*args, **kwargs),
                                    self))
     setattr(formula, fun,
-            lambda self, *args, **kwargs: globals()[fun](self, *args, **kwargs))
+            lambda self, *args, **kwargs:
+            globals()[fun](self, *args, **kwargs))
     setattr(formulaiterator, fun, mapf)
 
-def randltl(ap, n = -1, **kwargs):
+
+def randltl(ap, n=-1, **kwargs):
     """Generate random formulas.
 
     Returns a random formula iterator.
@@ -534,10 +565,10 @@ def randltl(ap, n = -1, **kwargs):
     """
     opts = option_map()
     output_map = {
-        "ltl" : OUTPUTLTL,
-        "psl" : OUTPUTPSL,
-        "bool" : OUTPUTBOOL,
-        "sere" : OUTPUTSERE
+        "ltl": OUTPUTLTL,
+        "psl": OUTPUTPSL,
+        "bool": OUTPUTBOOL,
+        "sere": OUTPUTSERE
     }
 
     if isinstance(ap, list):
@@ -567,33 +598,33 @@ def randltl(ap, n = -1, **kwargs):
     opts.set("simplification_level", simpl_level)
 
     rg = randltlgenerator(ap, opts, ltl_priorities, sere_priorities,
-        boolean_priorities)
+                          boolean_priorities)
 
     dump_priorities = kwargs.get("dump_priorities", False)
     if dump_priorities:
         dumpstream = ostringstream()
         if output == OUTPUTLTL:
-            print('Use argument ltl_priorities=STRING to set the following ' \
-                    'LTL priorities:\n')
+            print('Use argument ltl_priorities=STRING to set the following '
+                  'LTL priorities:\n')
             rg.dump_ltl_priorities(dumpstream)
             print(dumpstream.str())
         elif output == OUTPUTBOOL:
-            print('Use argument boolean_priorities=STRING to set the ' \
-                    'following Boolean formula priorities:\n')
+            print('Use argument boolean_priorities=STRING to set the '
+                  'following Boolean formula priorities:\n')
             rg.dump_bool_priorities(dumpstream)
             print(dumpstream.str())
         elif output == OUTPUTPSL or output == OUTPUTSERE:
             if output != OUTPUTSERE:
-                print('Use argument ltl_priorities=STRING to set the following ' \
-                        'LTL priorities:\n')
+                print('Use argument ltl_priorities=STRING to set the '
+                      'following LTL priorities:\n')
                 rg.dump_psl_priorities(dumpstream)
                 print(dumpstream.str())
-            print('Use argument sere_priorities=STRING to set the following ' \
-                    'SERE priorities:\n')
+            print('Use argument sere_priorities=STRING to set the '
+                  'following SERE priorities:\n')
             rg.dump_sere_priorities(dumpstream)
             print(dumpstream.str())
-            print('Use argument boolean_priorities=STRING to set the ' \
-                    'following Boolean formula priorities:\n')
+            print('Use argument boolean_priorities=STRING to set the '
+                  'following Boolean formula priorities:\n')
             rg.dump_sere_bool_priorities(dumpstream)
             print(dumpstream.str())
         else:
@@ -605,8 +636,10 @@ def randltl(ap, n = -1, **kwargs):
             self.rg = rg
             self.i = 0
             self.n = n
+
         def __iter__(self):
             return self
+
         def __next__(self):
             if self.i == self.n:
                 raise StopIteration
@@ -621,6 +654,7 @@ def randltl(ap, n = -1, **kwargs):
 
     return formulaiterator(_randltliterator(rg, n))
 
+
 def simplify(f, **kwargs):
     level = kwargs.get('level', None)
     if level is not None:
@@ -629,8 +663,8 @@ def simplify(f, **kwargs):
     basics = kwargs.get('basics', True)
     synt_impl = kwargs.get('synt_impl', True)
     event_univ = kwargs.get('event_univ', True)
-    containment_checks = kwargs.get('containment_checks', False)
-    containment_checks_stronger = kwargs.get('containment_checks_stronger', False)
+    cont_checks = kwargs.get('containment_checks', False)
+    cont_checks_stronger = kwargs.get('containment_checks_stronger', False)
     nenoform_stop_on_boolean = kwargs.get('nenoform_stop_on_boolean', False)
     reduce_size_strictly = kwargs.get('reduce_size_strictly', False)
     boolean_to_isop = kwargs.get('boolean_to_isop', False)
@@ -639,17 +673,18 @@ def simplify(f, **kwargs):
     simp_opts = ltl_simplifier_options(basics,
                                        synt_impl,
                                        event_univ,
-                                       containment_checks,
-                                       containment_checks_stronger,
+                                       cont_checks,
+                                       cont_checks_stronger,
                                        nenoform_stop_on_boolean,
                                        reduce_size_strictly,
                                        boolean_to_isop,
                                        favor_event_univ)
     return ltl_simplifier(simp_opts).simplify(f)
 
+
 for fun in dir(formula):
-    if (callable(getattr(formula, fun)) and
-        (fun[:3] == 'is_' or fun[:4] == 'has_')):
+    if (callable(getattr(formula, fun)) and (fun[:3] == 'is_' or
+                                             fun[:4] == 'has_')):
         _addfilter(fun)
 
 for fun in ['remove_x', 'get_literal', 'relabel', 'relabel_bse',
