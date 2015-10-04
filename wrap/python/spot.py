@@ -26,21 +26,24 @@ from functools import lru_cache
 def setup(**kwargs):
     """Configure Spot for fancy display.
 
-    This is manly useful in IPython.
+    This is manly useful in Jupyter/IPython.
 
     Note that this function needs to be called before any automaton is
     displayed.  Afterwards it will have no effect (you should restart
-    Python, or the IPython Kernel).
+    Python, or the Jupyter/IPython Kernel).
 
-    Keywords arguments:
-    bullets -- a Boolean indicating whether to display acceptance conditions
-               as UTF8 bullets (default: True)
-    fillcolor -- a string indicating the color to use for states
-                 (default: '#ffffaa')
-    size -- a string giving the width and height of the GraphViz output
-            in inches (default: '10.2,5')
-    font -- the name of the font to use in the GraphViz output
-            (default: 'Lato')
+    Parameters
+    ----------
+    bullets : bool
+        whether to display acceptance conditions as UTF8 bullets
+        (default: True)
+    fillcolor : str
+        the color to use for states (default: '#ffffaa')
+    size : str
+        the width and height of the GraphViz output in inches
+        (default: '10.2,5')
+    font : str
+        the font to use in the GraphViz output (default: 'Lato')
     """
     import os
 
@@ -145,12 +148,16 @@ def _formula_to_str(self, format='spot', parenth=False):
 
 
 def _formula_format(self, spec):
-    """Format the formula according to spec.
+    """Format the formula according to `spec`.
 
-    'spec' should be a list of letters that select
-    how the formula should be formatted.
+    Parameters
+    ----------
+    spec : str, optional
+        a list of letters that specify how the formula
+        should be formatted.
 
-    Use one of the following letters to select the syntax:
+    Supported specifiers
+    --------------------
 
     - 'f': use Spot's syntax (default)
     - '8': use Spot's syntax in UTF-8 mode
@@ -175,6 +182,7 @@ def _formula_format(self, spec):
 
     - ':spec': pass the remaining specification to the
                formating function for strings.
+
     """
 
     syntax = 'f'
@@ -282,15 +290,20 @@ twa.save = _twa_save
 
 
 def automata(*filenames):
-    """Read automata from a list of filenames.
+    """Read automata from a list of sources.
 
-    The automata can be written in the
-    [HOA format](http://adl.github.io/hoaf/), as
-    [never claims](http://spinroot.com/spin/Man/never.html),
-    in [LBTT's format]
-    (http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html),
-    or in [ltl2dstar's
-    format](http://www.ltl2dstar.de/docs/ltl2dstar.html#output-format-dstar)
+    These sources can be either filenames, commands, or some
+    textual represantations of automata.
+
+    The automata can be written in the `HOA format`_, as `never
+    claims`_, in `LBTT's format`_, or in `ltl2dstar's format`_.
+
+    .. _HOA format: http://adl.github.io/hoaf/
+    .. _never claims: http://spinroot.com/spin/Man/never.html
+    .. _LBTT's format:
+       http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html
+    .. _ltl2dstar's format:
+       http://www.ltl2dstar.de/docs/ltl2dstar.html#output-format-dstar
 
     If an argument ends with a `|`, then this argument is interpreted as
     a shell command, and the output of that command (without the `|`)
@@ -300,6 +313,13 @@ def automata(*filenames):
     actual contents to be parsed.
 
     Otherwise, the argument is assumed to be a filename.
+
+    The result of this function is a generator on all the automata
+    objects read from these sources.  The typical usage is::
+
+        for aut in spot.automata(filename):
+            # do something with aut
+
     """
 
     for filename in filenames:
@@ -347,7 +367,7 @@ def automata(*filenames):
 def automaton(filename):
     """Read a single automaton from a file.
 
-    See `spot.automata()` for a list of supported formats."""
+    See `spot.automata` for a list of supported formats."""
     try:
         return next(automata(filename))
     except StopIteration:
@@ -370,7 +390,7 @@ def translate(formula, *args):
     - any combination of 'Complete', 'Unambiguous', and
       'StateBasedAcceptance' (or 'SBAcc' for short)
 
-    The default correspond to 'tgba', 'small' and 'high'.
+    The default corresponds to 'tgba', 'small' and 'high'.
     """
 
     type_ = None
