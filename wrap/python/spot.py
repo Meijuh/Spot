@@ -23,6 +23,21 @@ import sys
 from functools import lru_cache
 
 
+def _extend(*classes):
+    """
+    Decorator that extends all the given classes with the contents
+    of the class currently being defined.
+    """
+    def wrap(this):
+        for cls in classes:
+            for (name, val) in this.__dict__.items():
+                if name not in ('__dict__', '__weakref__') \
+                   and not (name == '__doc__' and val is None):
+                    setattr(cls, name, val)
+        return classes[0]
+    return wrap
+
+
 def setup(**kwargs):
     """Configure Spot for fancy display.
 
@@ -55,6 +70,7 @@ def setup(**kwargs):
     bullets = 'B' if kwargs.get('bullets', True) else ''
     d = 'rf({})'.format(kwargs.get('font', 'Lato')) + bullets
     os.environ['SPOT_DOTDEFAULT'] = d
+
 
 # In version 3.0.2, Swig puts strongly typed enum in the main
 # namespace without prefixing them.  Latter versions fix this.  So we
@@ -92,201 +108,184 @@ def _ostream_to_svg(ostr):
     return _str_to_svg(ostr.str().encode('utf-8'))
 
 
-def _render_automaton_as_svg(a, opt=None):
-    ostr = ostringstream()
-    print_dot(ostr, a, opt)
-    return _ostream_to_svg(ostr)
+@_extend(twa, ta)
+class twa:
+    def _repr_svg_(self, opt=None):
+        """Output the automaton as SVG"""
+        ostr = ostringstream()
+        print_dot(ostr, self, opt)
+        return _ostream_to_svg(ostr)
+
+    def show(self, opt=None):
+        """Display the automaton as SVG, in the IPython/Jupyter notebook"""
+        # Load the SVG function only if we need it. This way the
+        # bindings can still be used outside of IPython if IPython is
+        # not installed.
+        from IPython.display import SVG
+        return SVG(self._repr_svg_(opt))
 
 
-twa._repr_svg_ = _render_automaton_as_svg
-ta._repr_svg_ = _render_automaton_as_svg
-
-
-def _render_formula_as_svg(a):
-    # Load the SVG function only if we need it. This way the bindings
-    # can still be used outside of IPython if IPython is not
-    # installed.
-    from IPython.display import SVG
-    ostr = ostringstream()
-    print_dot_psl(ostr, a)
-    return SVG(_ostream_to_svg(ostr))
-
-
-def _return_automaton_as_svg(a, opt=None):
-    # Load the SVG function only if we need it. This way the bindings
-    # can still be used outside of IPython if IPython is not
-    # installed.
-    from IPython.display import SVG
-    return SVG(_render_automaton_as_svg(a, opt))
-
-
-twa.show = _return_automaton_as_svg
-ta.show = _return_automaton_as_svg
-
-
-def _formula_str_ctor(self, str):
-    self.this = parse_formula(str)
-
-
-def _formula_to_str(self, format='spot', parenth=False):
-    if format == 'spot' or format == 'f':
-        return str_psl(self, parenth)
-    elif format == 'spin' or format == 's':
-        return str_spin_ltl(self, parenth)
-    elif format == 'utf8' or format == '8':
-        return str_utf8_psl(self, parenth)
-    elif format == 'lbt' or format == 'l':
-        return str_lbt_ltl(self)
-    elif format == 'wring' or format == 'w':
-        return str_wring_ltl(self)
-    elif format == 'latex' or format == 'x':
-        return str_latex_psl(self, parenth)
-    elif format == 'sclatex' or format == 'X':
-        return str_sclatex_psl(self, parenth)
-    else:
+@_extend(twa)
+class twa:
+    def to_str(a, format='hoa', opt=None):
+        format = format.lower()
+        if format == 'hoa':
+            ostr = ostringstream()
+            print_hoa(ostr, a, opt)
+            return ostr.str()
+        if format == 'dot':
+            ostr = ostringstream()
+            print_dot(ostr, a, opt)
+            return ostr.str()
+        if format == 'spin':
+            ostr = ostringstream()
+            print_never_claim(ostr, a, opt)
+            return ostr.str()
+        if format == 'lbtt':
+            ostr = ostringstream()
+            print_lbtt(ostr, a, opt)
+            return ostr.str()
         raise ValueError("unknown string format: " + format)
 
+    def save(a, filename, format='hoa', opt=None, append=False):
+        with open(filename, 'a' if append else 'w') as f:
+            s = a.to_str(format, opt)
+            f.write(s)
+            if s[-1] != '\n':
+                f.write('\n')
+        return a
 
-def _formula_format(self, spec):
-    """Format the formula according to `spec`.
 
-    Parameters
-    ----------
-    spec : str, optional
-        a list of letters that specify how the formula
-        should be formatted.
+@_extend(formula)
+class formula:
+    def __init__(self, str):
+        """Parse the given string to create a formula."""
+        self.this = parse_formula(str)
 
-    Supported specifiers
-    --------------------
+    def show_ast(self):
+        """Display the syntax tree of the formula."""
+        # Load the SVG function only if we need it. This way the bindings
+        # can still be used outside of IPython if IPython is not
+        # installed.
+        from IPython.display import SVG
+        ostr = ostringstream()
+        print_dot_psl(ostr, self)
+        return SVG(_ostream_to_svg(ostr))
 
-    - 'f': use Spot's syntax (default)
-    - '8': use Spot's syntax in UTF-8 mode
-    - 's': use Spin's syntax
-    - 'l': use LBT's syntax
-    - 'w': use Wring's syntax
-    - 'x': use LaTeX output
-    - 'X': use self-contained LaTeX output
-
-    Add some of those letters for additional options:
-
-    - 'p': use full parentheses
-    - 'c': escape the formula for CSV output (this will
-           enclose the formula in double quotes, and escape
-           any included double quotes)
-    - 'h': escape the formula for HTML output
-    - 'd': escape double quotes and backslash,
-           for use in C-strings (the outermost double
-           quotes are *not* added)
-    - 'q': quote and escape for shell output, using single
-           quotes or double quotes depending on the contents.
-
-    - ':spec': pass the remaining specification to the
-               formating function for strings.
-
-    """
-
-    syntax = 'f'
-    parent = False
-    escape = None
-
-    while spec:
-        c, spec = spec[0], spec[1:]
-        if c in ('f', 's', '8', 'l', 'w', 'x', 'X'):
-            syntax = c
-        elif c == 'p':
-            parent = True
-        elif c in ('c', 'd', 'h', 'q'):
-            escape = c
-        elif c == ':':
-            break
+    def to_str(self, format='spot', parenth=False):
+        if format == 'spot' or format == 'f':
+            return str_psl(self, parenth)
+        elif format == 'spin' or format == 's':
+            return str_spin_ltl(self, parenth)
+        elif format == 'utf8' or format == '8':
+            return str_utf8_psl(self, parenth)
+        elif format == 'lbt' or format == 'l':
+            return str_lbt_ltl(self)
+        elif format == 'wring' or format == 'w':
+            return str_wring_ltl(self)
+        elif format == 'latex' or format == 'x':
+            return str_latex_psl(self, parenth)
+        elif format == 'sclatex' or format == 'X':
+            return str_sclatex_psl(self, parenth)
         else:
-            raise ValueError("unknown format specification: " + c + spec)
+            raise ValueError("unknown string format: " + format)
 
-    s = self.to_str(syntax, parent)
+    def __format__(self, spec):
+        """Format the formula according to `spec`.
 
-    if escape == 'c':
-        o = ostringstream()
-        escape_rfc4180(o, s)
-        s = '"' + o.str() + '"'
-    elif escape == 'd':
-        s = escape_str(s)
-    elif escape == 'h':
-        o = ostringstream()
-        escape_html(o, s)
-        s = o.str()
-    elif escape == 'q':
-        o = ostringstream()
-        quote_shell_string(o, s)
-        s = o.str()
+        Parameters
+        ----------
+        spec : str, optional
+            a list of letters that specify how the formula
+            should be formatted.
 
-    return s.__format__(spec)
+        Supported specifiers
+        --------------------
 
+        - 'f': use Spot's syntax (default)
+        - '8': use Spot's syntax in UTF-8 mode
+        - 's': use Spin's syntax
+        - 'l': use LBT's syntax
+        - 'w': use Wring's syntax
+        - 'x': use LaTeX output
+        - 'X': use self-contained LaTeX output
 
-def _formula_traverse(self, func):
-    if func(self):
-        return
-    for f in self:
-        f.traverse(func)
+        Add some of those letters for additional options:
 
+        - 'p': use full parentheses
+        - 'c': escape the formula for CSV output (this will
+               enclose the formula in double quotes, and escape
+               any included double quotes)
+        - 'h': escape the formula for HTML output
+        - 'd': escape double quotes and backslash,
+               for use in C-strings (the outermost double
+               quotes are *not* added)
+        - 'q': quote and escape for shell output, using single
+               quotes or double quotes depending on the contents.
 
-def _formula_map(self, func):
-    k = self.kind()
-    if k in (op_ff, op_tt, op_eword, op_ap):
-        return self
-    if k in (op_Not, op_X, op_F, op_G, op_Closure,
-             op_NegClosure, op_NegClosureMarked):
-        return formula.unop(k, func(self[0]))
-    if k in (op_Xor, op_Implies, op_Equiv, op_U, op_R, op_W,
-             op_M, op_EConcat, op_EConcatMarked, op_UConcat):
-        return formula.binop(k, func(self[0]), func(self[1]))
-    if k in (op_Or, op_OrRat, op_And, op_AndRat, op_AndNLM,
-             op_Concat, op_Fusion):
-        return formula.multop(k, [func(x) for x in self])
-    if k in (op_Star, op_FStar):
-        return formula.bunop(k, func(self[0]), self.min(), self.max())
-    raise ValueError("unknown type of formula")
+        - ':spec': pass the remaining specification to the
+                   formating function for strings.
 
+        """
 
-formula.__init__ = _formula_str_ctor
-formula.to_str = _formula_to_str
-formula.show_ast = _render_formula_as_svg
-formula.traverse = _formula_traverse
-formula.__format__ = _formula_format
-formula.map = _formula_map
+        syntax = 'f'
+        parent = False
+        escape = None
 
+        while spec:
+            c, spec = spec[0], spec[1:]
+            if c in ('f', 's', '8', 'l', 'w', 'x', 'X'):
+                syntax = c
+            elif c == 'p':
+                parent = True
+            elif c in ('c', 'd', 'h', 'q'):
+                escape = c
+            elif c == ':':
+                break
+            else:
+                raise ValueError("unknown format specification: " + c + spec)
 
-def _twa_to_str(a, format='hoa', opt=None):
-    format = format.lower()
-    if format == 'hoa':
-        ostr = ostringstream()
-        print_hoa(ostr, a, opt)
-        return ostr.str()
-    if format == 'dot':
-        ostr = ostringstream()
-        print_dot(ostr, a, opt)
-        return ostr.str()
-    if format == 'spin':
-        ostr = ostringstream()
-        print_never_claim(ostr, a, opt)
-        return ostr.str()
-    if format == 'lbtt':
-        ostr = ostringstream()
-        print_lbtt(ostr, a, opt)
-        return ostr.str()
-    raise ValueError("unknown string format: " + format)
+        s = self.to_str(syntax, parent)
 
+        if escape == 'c':
+            o = ostringstream()
+            escape_rfc4180(o, s)
+            s = '"' + o.str() + '"'
+        elif escape == 'd':
+            s = escape_str(s)
+        elif escape == 'h':
+            o = ostringstream()
+            escape_html(o, s)
+            s = o.str()
+        elif escape == 'q':
+            o = ostringstream()
+            quote_shell_string(o, s)
+            s = o.str()
 
-def _twa_save(a, filename, format='hoa', opt=None, append=False):
-    with open(filename, 'a' if append else 'w') as f:
-        s = a.to_str(format, opt)
-        f.write(s)
-        if s[-1] != '\n':
-            f.write('\n')
-    return a
+        return s.__format__(spec)
 
+    def traverse(self, func):
+        if func(self):
+            return
+        for f in self:
+            f.traverse(func)
 
-twa.to_str = _twa_to_str
-twa.save = _twa_save
+    def map(self, func):
+        k = self.kind()
+        if k in (op_ff, op_tt, op_eword, op_ap):
+            return self
+        if k in (op_Not, op_X, op_F, op_G, op_Closure,
+                 op_NegClosure, op_NegClosureMarked):
+            return formula.unop(k, func(self[0]))
+        if k in (op_Xor, op_Implies, op_Equiv, op_U, op_R, op_W,
+                 op_M, op_EConcat, op_EConcatMarked, op_UConcat):
+            return formula.binop(k, func(self[0]), func(self[1]))
+        if k in (op_Or, op_OrRat, op_And, op_AndRat, op_AndNLM,
+                 op_Concat, op_Fusion):
+            return formula.multop(k, [func(x) for x in self])
+        if k in (op_Star, op_FStar):
+            return formula.bunop(k, func(self[0]), self.min(), self.max())
+        raise ValueError("unknown type of formula")
 
 
 def automata(*filenames):
