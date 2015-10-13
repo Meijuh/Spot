@@ -1069,7 +1069,7 @@ namespace
 		    << std::endl;
 
 	  if (verbose)
-	    std::cerr << "info: getting rid of any Inf acceptance...\n";
+	    std::cerr << "info: getting rid of any Fin acceptance...\n";
 	  for (unsigned i = 0; i < m; ++i)
 	    {
 #define DO(x, prefix, suffix) if (x[i])					\
