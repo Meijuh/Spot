@@ -53,7 +53,7 @@
 #include "twaalgos/isweakscc.hh"
 #include "twaalgos/reducerun.hh"
 #include "twaalgos/word.hh"
-#include "twaalgos/dtgbacomp.hh"
+#include "twaalgos/complement.hh"
 #include "twaalgos/cleanacc.hh"
 #include "misc/formater.hh"
 #include "twaalgos/stats.hh"
@@ -1016,7 +1016,7 @@ namespace
 	  if (!no_complement && pos[n]
 	      && ((want_stats && !(*pstats)[n].nondeterministic)
 		  || (!want_stats && is_deterministic(pos[n]))))
-	    comp_pos[n] = dtgba_complement(pos[n]);
+	    comp_pos[n] = dtwa_complement(pos[n]);
 	}
 
       // ---------- Negative Formula ----------
@@ -1056,7 +1056,7 @@ namespace
 	      if (!no_complement && neg[n]
 		  && ((want_stats && !(*nstats)[n].nondeterministic)
 		      || (!want_stats && is_deterministic(neg[n]))))
-		comp_neg[n] = dtgba_complement(neg[n]);
+		comp_neg[n] = dtwa_complement(neg[n]);
 	    }
 	}
 

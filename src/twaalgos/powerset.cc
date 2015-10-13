@@ -34,7 +34,8 @@
 #include "twaalgos/gtec/gtec.hh"
 #include "twaalgos/sccfilter.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
-#include "twaalgos/dtgbacomp.hh"
+#include "twaalgos/complement.hh"
+#include "twaalgos/remfin.hh"
 #include "misc/bitvect.hh"
 #include "misc/bddlt.hh"
 
@@ -426,7 +427,7 @@ namespace spot
 
     if (product(det, neg_aut)->is_empty())
       // Complement the DBA.
-      if (product(aut, dtgba_complement(det))->is_empty())
+      if (product(aut, remove_fin(dtwa_complement(det)))->is_empty())
 	// Finally, we are now sure that it was safe
 	// to determinize the automaton.
 	return det;

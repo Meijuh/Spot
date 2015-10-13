@@ -27,7 +27,8 @@
 #include "twaalgos/product.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/isdet.hh"
-#include "twaalgos/dtgbacomp.hh"
+#include "twaalgos/complement.hh"
+#include "twaalgos/remfin.hh"
 #include "twa/twaproduct.hh"
 #include "twa/bddprint.hh"
 #include <deque>
@@ -635,8 +636,7 @@ namespace spot
 	aut->prop_deterministic(is_deterministic(aut));
 	if (!aut->is_deterministic())
 	  return false;
-
-	neg = dtgba_complement(aut);
+	neg = remove_fin(dtwa_complement(aut));
       }
 
     is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),

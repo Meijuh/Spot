@@ -44,7 +44,8 @@
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/bfssteps.hh"
 #include "twaalgos/isdet.hh"
-#include "twaalgos/dtgbacomp.hh"
+#include "twaalgos/complement.hh"
+#include "twaalgos/remfin.hh"
 
 namespace spot
 {
@@ -632,7 +633,7 @@ namespace spot
 	  {
 	    // If the automaton is deterministic, complementing is
 	    // easy.
-	    aut_neg_f = dtgba_complement(aut_f);
+	    aut_neg_f = remove_fin(dtwa_complement(aut_f));
 	  }
 	else
 	  {
@@ -654,7 +655,7 @@ namespace spot
       {
 	// Complement the minimized WDBA.
 	assert(min_aut_f->is_inherently_weak());
-	auto neg_min_aut_f = dtgba_complement(min_aut_f);
+	auto neg_min_aut_f = remove_fin(dtwa_complement(min_aut_f));
 	if (product(aut_f, neg_min_aut_f)->is_empty())
 	  // Finally, we are now sure that it was safe
 	  // to minimize the automaton.

@@ -19,7 +19,8 @@
 
 #include "misc/timer.hh"
 #include "tl/apcollect.hh"
-#include "twaalgos/dtgbacomp.hh"
+#include "twaalgos/complement.hh"
+#include "twaalgos/remfin.hh"
 #include "twaalgos/randomgraph.hh"
 #include "twaalgos/dot.hh"
 #include "twaalgos/product.hh"
@@ -80,7 +81,7 @@ main(int argc, char** argv)
 					  true);
 	    }
 	  while (a->is_empty());
-	  auto na = spot::dtgba_complement(a);
+	  auto na = spot::remove_fin(spot::dtwa_complement(a));
 
 	  std::cout << d << ',' << props_n << ',' << seed;
 	  stats.print(a);

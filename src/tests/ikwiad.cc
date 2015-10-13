@@ -60,7 +60,8 @@
 #include "twaalgos/simulation.hh"
 #include "twaalgos/compsusp.hh"
 #include "twaalgos/powerset.hh"
-#include "twaalgos/dtgbacomp.hh"
+#include "twaalgos/complement.hh"
+#include "twaalgos/remfin.hh"
 #include "twaalgos/complete.hh"
 #include "twaalgos/dtbasat.hh"
 #include "twaalgos/dtgbasat.hh"
@@ -338,7 +339,7 @@ checked_main(int argc, char** argv)
   bool opt_determinize = false;
   unsigned opt_determinize_threshold = 0;
   unsigned opt_o_threshold = 0;
-  bool opt_dtgbacomp = false;
+  bool opt_dtwacomp = false;
   bool reject_bigger = false;
   bool opt_monitor = false;
   bool containment = false;
@@ -411,7 +412,7 @@ checked_main(int argc, char** argv)
 	}
       else if (!strcmp(argv[formula_index], "-DC"))
 	{
-	  opt_dtgbacomp = true;
+	  opt_dtwacomp = true;
 	}
       else if (!strncmp(argv[formula_index], "-DS", 3)
 	       || !strncmp(argv[formula_index], "-DT", 3))
@@ -1203,14 +1204,14 @@ checked_main(int argc, char** argv)
 	    a = satminimized;
 	}
 
-      if (opt_dtgbacomp)
+      if (opt_dtwacomp)
 	{
-	  tm.start("DTGBA complement");
-	  a = dtgba_complement(ensure_digraph(a));
-	  tm.stop("DTGBA complement");
+	  tm.start("DTωA complement");
+	  a = remove_fin(dtwa_complement(ensure_digraph(a)));
+	  tm.stop("DTωA complement");
 	}
 
-      if (opt_determinize || opt_dtgbacomp || opt_dtbasat >= 0
+      if (opt_determinize || opt_dtwacomp || opt_dtbasat >= 0
 	  || opt_dtgbasat >= 0)
 	{
 	  if (scc_filter && (reduction_dir_sim || reduction_rev_sim))

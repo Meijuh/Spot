@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -17,19 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include "twa/twagraph.hh"
+#include "complement.hh"
+#include "sccinfo.hh"
+#include "complete.hh"
+#include "cleanacc.hh"
 
 namespace spot
 {
-  /// \brief Complement a deterministic TGBA
-  ///
-  /// The automaton \a aut should be deterministic.  It does no need
-  /// to be complete.  Acceptance can be transition-based, or
-  /// state-based.  Unless the input automaton is marked as weak (in
-  /// which case the output will also be weak and deterministic) the
-  /// resulting automaton is very unlikely to be deterministic.
-  SPOT_API twa_graph_ptr
-  dtgba_complement(const const_twa_graph_ptr& aut);
+  twa_graph_ptr
+  dtwa_complement(const const_twa_graph_ptr& aut)
+  {
+    // Simply complete the automaton, and complement its acceptance.
+    auto res = cleanup_acceptance_here(complete(aut));
+    res->set_acceptance(res->num_sets(), res->get_acceptance().complement());
+    return res;
+  }
 }

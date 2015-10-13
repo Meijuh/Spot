@@ -105,6 +105,8 @@ namespace spot
     twa_graph_ptr do_simul(const twa_graph_ptr& input, int opt);
     twa_graph_ptr do_sba_simul(const twa_graph_ptr& input, int opt);
     twa_graph_ptr do_degen(const twa_graph_ptr& input);
+    twa_graph_ptr do_scc_filter(const twa_graph_ptr& a, bool arg);
+    twa_graph_ptr do_scc_filter(const twa_graph_ptr& a);
 
     output_type type_;
     int pref_;

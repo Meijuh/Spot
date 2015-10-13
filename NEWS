@@ -1,8 +1,18 @@
 New in spot 1.99.4a (not yet released)
 
+  * Rename dtgba_complement() as dtwa_complement(), rename the header
+    as complement.hh, and restrict the purpose of this function to
+    just complete the automaton and complement its acceptance
+    condition.   Any further acceptance condition transformation
+    can be done with to_generalized_buchi() or remove_fin().
+
+  * The remove_fin() has learnt how to better deal with automata that
+    are declared as weak.  This code was previously in
+    dtgba_complement().
+
   Python:
 
-  * Add bindings for complete().
+  * Add bindings for complete() and dtwa_complement()
   * Formulas now have a custom __format__ function.  See
     https://spot.lrde.epita.fr/tut01.html for examples.
 

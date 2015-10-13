@@ -41,13 +41,13 @@ $ltlfilt -f '(GFa -> GFb) & (GFc -> GFd)' -l |
 ltl2dstar --ltl2nba=spin:$ltl2tgba@-s $STR - - |
 $autfilt --tgba --stats '%S %E %A %s %e %t %a %d' |
 tee out
-test "`cat out`" = '9 144 4 25 416 416 2 0'
+test "`cat out`" = '9 144 4 25 149 416 2 0'
 
 $ltlfilt -f '(GFa -> GFb) & (GFc -> GFd)' -l |
 ltl2dstar --ltl2nba=spin:$ltl2tgba@-s $STR - - |
 SPOT_STREETT_CONV_MIN=1 $autfilt --tgba --stats '%S %E %A %s %e %t %a %d' |
 tee out
-test "`cat out`" = '9 144 4 25 482 482 2 0'
+test "`cat out`" = '9 144 4 25 218 482 2 0'
 
 
 LTL2DSTAR="ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L"

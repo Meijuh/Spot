@@ -139,6 +139,23 @@ namespace spot
     return do_sba_simul(d, ba_simul_);
   }
 
+  twa_graph_ptr
+  postprocessor::do_scc_filter(const twa_graph_ptr& a, bool arg)
+  {
+    if (scc_filter_ == 0)
+      return a;
+    if (state_based_ && a->has_state_based_acc())
+      return scc_filter_states(a);
+    else
+      return scc_filter(a, arg);
+  }
+
+  twa_graph_ptr
+  postprocessor::do_scc_filter(const twa_graph_ptr& a)
+  {
+    return do_scc_filter(a, scc_filter_ > 1);
+  }
+
 #define PREF_ (pref_ & (Small | Deterministic))
 #define COMP_ (pref_ & Complete)
 #define SBACC_ (pref_ & SBAcc)
@@ -146,22 +163,6 @@ namespace spot
   twa_graph_ptr
   postprocessor::run(twa_graph_ptr a, formula f)
   {
-    if (type_ != Generic && !a->acc().is_generalized_buchi())
-      a = to_generalized_buchi(a);
-
-    if (PREF_ == Any && level_ == Low)
-      if (type_ == Generic
-	  || type_ == TGBA
-	  || (type_ == BA && a->is_sba())
-	  || (type_ == Monitor && a->num_sets() == 0))
-	{
-	  if (COMP_)
-	    a = complete(a);
-	  if (SBACC_)
-	    a = sbacc(a);
-	  return a;
-	}
-
     if (simul_ < 0)
       simul_ = (level_ == Low) ? 1 : 3;
     if (ba_simul_ < 0)
@@ -171,6 +172,28 @@ namespace spot
     if (type_ == BA || SBACC_)
       state_based_ = true;
 
+    bool tgb_used = false;
+    if (type_ != Generic && !a->acc().is_generalized_buchi())
+      {
+	a = to_generalized_buchi(a);
+	tgb_used = true;
+      }
+
+    if (PREF_ == Any && level_ == Low)
+      if (type_ == Generic
+	  || type_ == TGBA
+	  || (type_ == BA && a->is_sba())
+	  || (type_ == Monitor && a->num_sets() == 0))
+	{
+	  if (tgb_used)
+	    a = do_scc_filter(a);
+	  if (COMP_)
+	    a = complete(a);
+	  if (SBACC_)
+	    a = sbacc(a);
+	  return a;
+	}
+
     int original_acc = a->num_sets();
 
     // Remove useless SCCs.
@@ -178,13 +201,8 @@ namespace spot
       // Do not bother about acceptance conditions, they will be
       // ignored.
       a = scc_filter_states(a);
-    else if (scc_filter_ > 0)
-      {
-	if (state_based_ && a->has_state_based_acc())
-	  a = scc_filter_states(a);
-	else
-	  a = scc_filter(a, scc_filter_ > 1);
-      }
+    else
+      a = do_scc_filter(a);
 
     if (type_ == Monitor)
       {
@@ -380,7 +398,7 @@ namespace spot
 	    in = dba;
 	  }
 
-	const_twa_graph_ptr res = complete(in);
+	twa_graph_ptr res = complete(in);
 	if (target_acc == 1)
 	  {
 	    if (sat_states_ != -1)
@@ -408,14 +426,7 @@ namespace spot
 
 	if (res)
 	  {
-	    if (state_based_)
-	      // FIXME: This does not simplify generalized acceptance
-	      // conditions, but calling scc_filter() would break the
-	      // BA-typeness of res by removing acceptance marks from
-	      // out-of-SCC transitions.
-	      dba = scc_filter_states(res);
-	    else
-	      dba = scc_filter(res, true);
+	    dba = do_scc_filter(res, true);
 	    dba_is_minimal = true;
 	  }
       }
@@ -438,18 +449,12 @@ namespace spot
       {
 	if (dba && !dba_is_minimal) // WDBA is already clean.
 	  {
-	    if (state_based_ && dba->has_state_based_acc())
-	      dba = scc_filter_states(dba);
-	    else
-	      dba = scc_filter(dba, true);
+	    dba = do_scc_filter(dba, true);
 	    assert(!sim);
 	  }
 	else if (sim)
 	  {
-	    if (state_based_ && sim->has_state_based_acc())
-	      sim = scc_filter_states(sim);
-	    else
-	      sim = scc_filter(sim, true);
+	    sim = do_scc_filter(sim, true);
 	    assert(!dba);
 	  }
       }

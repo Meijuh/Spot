@@ -22,6 +22,7 @@
 #include <iostream>
 #include "cleanacc.hh"
 #include "totgba.hh"
+#include "isdet.hh"
 #include "mask.hh"
 
 //#define TRACE
@@ -450,12 +451,64 @@ namespace spot
       return res;
     }
 
+    static twa_graph_ptr
+    remove_fin_det_weak(const const_twa_graph_ptr& aut)
+    {
+      // Clone the original automaton.
+      auto res = make_twa_graph(aut,
+				{
+				  true, // state based
+				    true, // inherently weak
+				    true, // determinisitic
+				    true,  // stutter inv.
+				    });
+      scc_info si(res);
+
+      // We will modify res in place, and the resulting
+      // automaton will only have one acceptance set.
+      acc_cond::mark_t all_acc = res->set_buchi();
+      res->prop_state_based_acc();
+      res->prop_deterministic();
+
+      unsigned sink = res->num_states();
+      for (unsigned src = 0; src < sink; ++src)
+	{
+	  acc_cond::mark_t acc = 0U;
+	  unsigned scc = si.scc_of(src);
+	  if (si.is_accepting_scc(scc) && !si.is_trivial(scc))
+	    acc = all_acc;
+	  // Keep track of all conditions on edge leaving state
+	  // SRC, so we can complete it.
+	  bdd missingcond = bddtrue;
+	  for (auto& t: res->out(src))
+	    {
+	      missingcond -= t.cond;
+	      t.acc = acc;
+	    }
+	  // Complete the original automaton.
+	  if (missingcond != bddfalse)
+	    {
+	      if (res->num_states() == sink)
+		{
+		  res->new_state();
+		  res->new_acc_edge(sink, sink, bddtrue);
+		}
+	      res->new_edge(src, sink, missingcond);
+	    }
+	}
+      //res->merge_edges();
+      return res;
+    }
   }
 
   twa_graph_ptr remove_fin(const const_twa_graph_ptr& aut)
   {
     if (!aut->acc().uses_fin_acceptance())
       return std::const_pointer_cast<twa_graph>(aut);
+
+    // FIXME: we should check whether the automaton is weak.
+    if (aut->is_inherently_weak() && is_deterministic(aut))
+      return remove_fin_det_weak(aut);
 
     if (auto maybe = streett_to_generalized_buchi_maybe(aut))
       return maybe;
@@ -609,13 +662,13 @@ namespace spot
     unsigned nst = aut->num_states();
     auto res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
-    res->prop_copy(aut, { false, false, false, true });
+    res->prop_copy(aut, { true, false, false, true });
     res->new_states(nst);
     res->set_acceptance(aut->num_sets() + extra_sets, new_code);
     res->set_init_state(aut->get_init_state_number());
 
+    bool sbacc = aut->has_state_based_acc();
     scc_info si(aut);
-
     unsigned nscc = si.scc_count();
     std::vector<unsigned> state_map(nst);
     for (unsigned n = 0; n < nscc; ++n)
@@ -643,7 +696,12 @@ namespace spot
 	// Create the main copy
 	for (auto s: states)
 	  for (auto& t: aut->out(s))
-	    res->new_edge(s, t.dst, t.cond, (t.acc & main_sets) | main_add);
+	    {
+	      acc_cond::mark_t a = 0U;
+	      if (sbacc || SPOT_LIKELY(si.scc_of(t.dst) == n))
+		a = (t.acc & main_sets) | main_add;
+	      res->new_edge(s, t.dst, t.cond, a);
+	    }
 
 	// We do not need any other copy if the SCC is non-accepting,
 	// of if it does not intersect any Fin.
@@ -673,22 +731,27 @@ namespace spot
 		      // We need only one non-deterministic jump per
 		      // cycle.  As an approximation, we only do
 		      // them on back-links.
-		      //
-		      // The acceptance marks on these edge
-		      // are useless, but we keep them to preserve
-		      // state-based acceptance if any.
 		      if (t.dst <= s)
-			res->new_edge(s, nd, t.cond,
-				      (t.acc & main_sets) | main_add);
+			{
+			  acc_cond::mark_t a = 0U;
+			  if (sbacc)
+			    a = (t.acc & main_sets) | main_add;
+			  res->new_edge(s, nd, t.cond, a);
+			}
 		    }
 		}
 	    }
       }
 
+    // If the input had no Inf, the output is a state-based automaton.
+    if (allinf == 0U)
+      res->prop_state_based_acc();
+
     res->purge_dead_states();
     trace << "before cleanup: " << res->get_acceptance() << '\n';
     cleanup_acceptance_here(res);
     trace << "after cleanup: " << res->get_acceptance() << '\n';
+    res->merge_edges();
     return res;
   }
 }

@@ -33,10 +33,10 @@ twaalgos_HEADERS = \
   canonicalize.hh \
   cleanacc.hh \
   complete.hh \
+  complement.hh \
   compsusp.hh \
   copy.hh \
   cycles.hh \
-  dtgbacomp.hh \
   degen.hh \
   dot.hh \
   dtbasat.hh \
@@ -90,10 +90,10 @@ libtwaalgos_la_SOURCES = \
   canonicalize.cc \
   cleanacc.cc \
   complete.cc \
+  complement.cc \
   compsusp.cc \
   copy.cc \
   cycles.cc \
-  dtgbacomp.cc \
   degen.cc \
   dot.cc \
   dtbasat.cc \
