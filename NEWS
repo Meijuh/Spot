@@ -10,6 +10,14 @@ New in spot 1.99.4a (not yet released)
     are declared as weak.  This code was previously in
     dtgba_complement().
 
+  * scc_filter_states() has learnt to remove useless acceptance marks
+    that are on transitions between SCCs, while preserving state-based
+    acceptance.  The most visible effect is in the output of "ltl2tgba
+    -s XXXa": it used to have 5 accepting states, it now has only one.
+    (Changing removing acceptance of those 4 states has no effect on
+    the language, but it speedup some algorithms like NDFS-based
+    emptiness checks, as discussed in our Spin'15 paper.)
+
   Python:
 
   * Add bindings for complete() and dtwa_complement()

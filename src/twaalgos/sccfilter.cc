@@ -126,8 +126,10 @@ namespace spot
 
     // Remove acceptance conditions from all edges outside of
     // non-accepting SCCs.  If "RemoveAll" is false, keep those on
-    // transitions entering accepting SCCs.
-    template <bool RemoveAll, class next_filter = id_filter>
+    // transitions entering accepting SCCs.  If "PreserveSBA", is set
+    // only touch a transition if all its neighbor siblings can be
+    // touched as well.
+    template <bool RemoveAll, bool PreserveSBA, class next_filter = id_filter>
     struct acc_filter_mask: next_filter
     {
       acc_cond::mark_t accmask;
@@ -154,16 +156,47 @@ namespace spot
 
 	if (keep)
 	  {
-	    unsigned u = this->si->scc_of(dst);
-	    // If the edge is between two SCCs, we can simplify
-	    // remove the acceptance sets.  If the SCC is non-accepting,
-	    // we can only remove the Inf sets.
-	    if (RemoveAll && u != this->si->scc_of(src))
-	      acc = 0U;
-	    else if (this->si->is_rejecting_scc(u))
-	      acc &= accmask;
+	    unsigned u = this->si->scc_of(src);
+	    unsigned v = this->si->scc_of(dst);
+	    // The basic rules are as follows:
+	    //
+	    // - If an edge is between two SCCs, is OK to remove
+	    //   all acceptance sets, as this edge cannot be part
+	    //   of any loop.
+	    // - If an edge is in an non-accepting SCC, we can only
+	    //   remove the Inf sets, as removinf the Fin sets
+	    //   might make the SCC accepting.
+	    //
+	    // The above rules are made more complex with two flags:
+	    //
+	    // - If PreserveSBA is set, we have to tree a transition
+	    //   leaving an SCC as other transitions inside the SCC,
+	    //   otherwise we will break the property that all
+	    //   transitions leaving the same state have identical set
+	    //   membership.
+	    // - If RemoveAll is false, we like to keep the membership
+	    //   of transitions entering an SCC.  This can only be
+	    //   done if PreserveSBA is unset, unfortunately.
+	    if (u == v)
+	      {
+		if (this->si->is_rejecting_scc(u))
+		  acc &= accmask;
+	      }
+	    else if (PreserveSBA && this->si->is_rejecting_scc(u))
+	      {
+		if (!this->si->is_trivial(u))
+		  acc &= accmask; // No choice.
+		else if (RemoveAll)
+		  acc = 0U;
+	      }
+	    else if (!PreserveSBA)
+	      {
+		if (RemoveAll)
+		  acc = 0U;
+		else if (this->si->is_rejecting_scc(v))
+		  acc &= accmask;
+	      }
 	  }
-
 	return filtered_trans(keep, cond, acc);
       }
     };
@@ -186,7 +219,7 @@ namespace spot
 	auto& acc = this->si->get_aut()->acc();
 	if (!acc.is_generalized_buchi())
 	  throw std::runtime_error
-	    ("simplification of SCC acceptance work only with "
+	    ("simplification of SCC acceptance works only with "
 	     "generalized Büchi acceptance");
 
 	unsigned scc_count = this->si->scc_count();
@@ -243,10 +276,11 @@ namespace spot
     twa_graph_ptr scc_filter_apply(const_twa_graph_ptr aut,
 				   scc_info* given_si, Args&&... args)
     {
+      unsigned in_n = aut->num_states();
+      if (in_n == 0)			 // nothing to filter.
+	return make_twa_graph(aut, twa::prop_set::all());
+
       twa_graph_ptr filtered = make_twa_graph(aut->get_dict());
-      unsigned in_n = aut->num_states(); // Number of input states.
-      if (in_n == 0)			 // Nothing to filter.
-	return filtered;
       filtered->copy_ap_of(aut);
 
       // Compute scc_info if not supplied.
@@ -302,9 +336,16 @@ namespace spot
   }
 
   twa_graph_ptr
-  scc_filter_states(const const_twa_graph_ptr& aut, scc_info* given_si)
+  scc_filter_states(const const_twa_graph_ptr& aut, bool remove_all_useless,
+		    scc_info* given_si)
   {
-    auto res = scc_filter_apply<state_filter<>>(aut, given_si);
+    twa_graph_ptr res;
+    if (remove_all_useless)
+      res = scc_filter_apply<state_filter
+			     <acc_filter_mask<true, true>>>(aut, given_si);
+    else
+      res = scc_filter_apply<state_filter
+			     <acc_filter_mask<false, true>>>(aut, given_si);
     res->prop_copy(aut, { true, true, true, true });
     return res;
   }
@@ -321,21 +362,25 @@ namespace spot
 	  res =
 	    scc_filter_apply<state_filter
 			     <acc_filter_mask
-			      <true, acc_filter_simplify<>>>>(aut, given_si);
+			      <true, false,
+			       acc_filter_simplify<>>>>(aut, given_si);
 	else
 	  res =
 	    scc_filter_apply<state_filter
 			     <acc_filter_mask
-			      <false, acc_filter_simplify<>>>>(aut, given_si);
+			      <false, false,
+			       acc_filter_simplify<>>>>(aut, given_si);
       }
     else
       {
 	if (remove_all_useless)
 	  res = scc_filter_apply<state_filter
-				 <acc_filter_mask<true>>>(aut, given_si);
+				 <acc_filter_mask
+				  <true, false>>>(aut, given_si);
 	else
 	  res = scc_filter_apply<state_filter
-				 <acc_filter_mask<false>>>(aut, given_si);
+				 <acc_filter_mask
+				  <false, false>>>(aut, given_si);
       }
     res->merge_edges();
     res->prop_copy(aut,
@@ -357,18 +402,20 @@ namespace spot
       res = scc_filter_apply<susp_filter
 			     <state_filter
 			      <acc_filter_mask
-			       <true, acc_filter_simplify<>>>>>(aut, given_si,
-								suspvars,
-								ignoredvars,
-								early_susp);
+			       <true, false,
+				acc_filter_simplify<>>>>>(aut, given_si,
+							  suspvars,
+							  ignoredvars,
+							  early_susp);
     else
       res = scc_filter_apply<susp_filter
 			     <state_filter
 			      <acc_filter_mask
-			       <false, acc_filter_simplify<>>>>>(aut, given_si,
-								 suspvars,
-								 ignoredvars,
-								 early_susp);
+			       <false, false,
+				acc_filter_simplify<>>>>>(aut, given_si,
+							  suspvars,
+							  ignoredvars,
+							  early_susp);
     res->merge_edges();
     res->prop_copy(aut,
 		   { false,  // state-based acceptance is not preserved

@@ -777,7 +777,7 @@ namespace spot
 	res = cosimul.run();
 
 	if (Sba)
-	  res = scc_filter_states(res);
+	  res = scc_filter_states(res, false);
 	else
 	  res = scc_filter(res, false);
 

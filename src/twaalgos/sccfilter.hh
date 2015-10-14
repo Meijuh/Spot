@@ -63,14 +63,14 @@ namespace spot
 
   /// \brief Prune unaccepting SCCs.
   ///
-  /// This is an abridged version of scc_filter(), that only removes
-  /// useless states, without touching at the acceptance conditions.
-  ///
-  /// Especially, if the input TωA has the SBA property, (i.e.,
-  /// transitions leaving accepting states are all marked as
-  /// accepting), then the output TGBA will also have that property.
+  /// This is an abridged version of scc_filter(), that preserves
+  /// state-based acceptance.  I.e., if the input TωA has the SBA
+  /// property, (i.e., transitions leaving accepting states are all
+  /// marked as accepting), then the output TωA will also have that
+  /// property.
   SPOT_API twa_graph_ptr
   scc_filter_states(const const_twa_graph_ptr& aut,
+		    bool remove_all_useless = false,
 		    scc_info* given_si = nullptr);
 
   /// \brief Prune unaccepting SCCs, superfluous acceptance

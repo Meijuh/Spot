@@ -700,3 +700,40 @@ diff output3 expect3
 
 $autfilt -Hk input 2>stderr && exit 1
 grep 'print_hoa.*k' stderr
+
+cat >input4 <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 2 Inf(0) & Inf(1)
+--BODY--
+State: 0 {0}   [0] 1
+State: 1 {1}   [1] 2
+State: 2 {0 1} [0] 2
+--END--
+EOF
+
+$autfilt -H --small --high input4 >output4
+cat output4
+
+cat >expect4<<EOF
+HOA: v1
+States: 3
+Start: 1
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: inherently-weak
+--BODY--
+State: 0
+[1] 2
+State: 1
+[0] 0
+State: 2 {0}
+[0] 2
+--END--
+EOF
+
+diff output4 expect4

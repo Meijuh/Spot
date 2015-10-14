@@ -144,8 +144,10 @@ namespace spot
   {
     if (scc_filter_ == 0)
       return a;
-    if (state_based_ && a->has_state_based_acc())
-      return scc_filter_states(a);
+    // If the automaton is weak, using transition-based acceptance
+    // won't help, so let's preserve it.
+    if ((state_based_ || a->is_inherently_weak()) && a->has_state_based_acc())
+      return scc_filter_states(a, arg);
     else
       return scc_filter(a, arg);
   }
@@ -186,7 +188,7 @@ namespace spot
 	  || (type_ == Monitor && a->num_sets() == 0))
 	{
 	  if (tgb_used)
-	    a = do_scc_filter(a);
+	    a = do_scc_filter(a, true);
 	  if (COMP_)
 	    a = complete(a);
 	  if (SBACC_)
@@ -202,7 +204,7 @@ namespace spot
       // ignored.
       a = scc_filter_states(a);
     else
-      a = do_scc_filter(a);
+      a = do_scc_filter(a, (PREF_ == Any));
 
     if (type_ == Monitor)
       {
@@ -445,10 +447,12 @@ namespace spot
 	  sim = nullptr;
       }
 
-    if (type_ == TGBA && level_ == High && scc_filter_ != 0)
+    if (level_ == High && scc_filter_ != 0)
       {
-	if (dba && !dba_is_minimal) // WDBA is already clean.
+	if (dba)
 	  {
+	    // Do that even for WDBA, to remove marks from transitions
+	    // leaving trivial SCCs.
 	    dba = do_scc_filter(dba, true);
 	    assert(!sim);
 	  }
