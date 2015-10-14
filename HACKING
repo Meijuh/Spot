@@ -32,8 +32,36 @@ since the generated files they produce are distributed.)
   Doxygen >= 1.4.0
   Perl, with its Gettext module (it might be called something like
     liblocale-gettext-perl or p5-locale-gettext in your distribution)
-  A complete LaTeX distribution, including latexmk.
+  A complete LaTeX distribution, including latexmk and extra fonts
+    like dsfont.sty.
   Python >= 3.2, IPython >= 2.3
+  GraphViz
+
+The following additional tools are used if they are present, or
+only for certain operations (like releases):
+
+  pandoc    used during Debian packaging for the conversion of
+            IPython notebooks to html
+  optipng   used during "make dist" if present, to optimize
+            distributed png images
+  R         used by some example in the documentation (the
+            documentation will still compile without R, but that
+            example will appear broken)
+  ltl2ba    used in the generated documentation and the test suite
+  ltl2dstar likewise
+  ltl3dra   likewise
+  spin      likewise
+  glucose >= 3.0  likewise
+  lbtt >= 1.2.1a  used in the test suite (ltlcross is now more
+            powerful, but additional tests do not hurt)
+
+If you use Debian or a similar distribution, the Dockerfile at
+https://github.com/adl/spot-docker/blob/master/debuild/Dockerfile
+lists all the Debian packages that should be installed to build
+Debian packages out of the GIT tree.  Additionally, the script
+https://github.com/adl/spot-docker/blob/master/debuild/install.sh
+installs the third-party tools that do not have Debian packages.
+
 
 Bootstrap the GIT tree by running
 
