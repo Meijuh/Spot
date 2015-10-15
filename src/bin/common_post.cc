@@ -27,6 +27,9 @@ spot::postprocessor::output_pref comp = spot::postprocessor::Any;
 spot::postprocessor::output_pref sbacc = spot::postprocessor::Any;
 spot::postprocessor::optimization_level level = spot::postprocessor::High;
 
+bool level_set = false;
+bool pref_set = false;
+
 enum {
   OPT_HIGH = 1,
   OPT_LOW,
@@ -63,7 +66,7 @@ static const argp_option options_disabled[] =
     { "small", OPT_SMALL, nullptr, 0, "prefer small automata", 0 },
     { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
     { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
-      "or deterministic (default)", 0 },
+      "or deterministic", 0 },
     { "complete", 'C', nullptr, 0, "output a complete automaton (combine "
       "with other intents)", 0 },
     { "state-based-acceptance", 'S', nullptr, 0,
@@ -71,7 +74,7 @@ static const argp_option options_disabled[] =
     { "sbacc", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Optimization level:", 21 },
-    { "low", OPT_LOW, nullptr, 0, "minimal optimizations (fast, default)", 0 },
+    { "low", OPT_LOW, nullptr, 0, "minimal optimizations (fast)", 0 },
     { "medium", OPT_MEDIUM, nullptr, 0, "moderate optimizations", 0 },
     { "high", OPT_HIGH, nullptr, 0,
       "all available optimizations (slow)", 0 },
@@ -86,12 +89,14 @@ parse_opt_post(int key, char*, struct argp_state*)
     {
     case 'a':
       pref = spot::postprocessor::Any;
+      pref_set = true;
       break;
     case 'C':
       comp = spot::postprocessor::Complete;
       break;
     case 'D':
       pref = spot::postprocessor::Deterministic;
+      pref_set = true;
       break;
     case 'S':
       sbacc = spot::postprocessor::SBAcc;
@@ -99,17 +104,21 @@ parse_opt_post(int key, char*, struct argp_state*)
     case OPT_HIGH:
       level = spot::postprocessor::High;
       simplification_level = 3;
+      level_set = true;
       break;
     case OPT_LOW:
       level = spot::postprocessor::Low;
       simplification_level = 1;
+      level_set = true;
       break;
     case OPT_MEDIUM:
       level = spot::postprocessor::Medium;
       simplification_level = 2;
+      level_set = true;
       break;
     case OPT_SMALL:
       pref = spot::postprocessor::Small;
+      pref_set = true;
       break;
     default:
       return ARGP_ERR_UNKNOWN;

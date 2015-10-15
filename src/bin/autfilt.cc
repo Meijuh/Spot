@@ -210,6 +210,14 @@ static const argp_option options[] =
     { "acc-sets", OPT_ACC_SETS, "RANGE", 0,
       "keep automata whose number of acceptance sets are in RANGE", 0 },
     RANGE_DOC_FULL,
+    { nullptr, 0, nullptr, 0,
+      "If any option among --small, --deterministic, or --any is given, "
+      "then the optimization level defaults to --high unless specified "
+      "otherwise.  If any option among --low, --medium, or --high is given, "
+      "then the translation intent defaults to --small unless specified "
+      "otherwise.  If none of those options are specified, then autfilt "
+      "acts as is --any --low were given: these actually disable the "
+      "simplification routines.", 22 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
@@ -713,6 +721,11 @@ main(int argc, char** argv)
       type = spot::postprocessor::Generic;
       if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
 	exit(err);
+
+      if (level_set && !pref_set)
+	pref = spot::postprocessor::Small;
+      if (pref_set && !level_set)
+	level = spot::postprocessor::High;
 
       if (jobs.empty())
 	jobs.emplace_back("-", true);

@@ -715,6 +715,8 @@ State: 2 {0 1} [0] 2
 EOF
 
 $autfilt -H --small --high input4 >output4
+$autfilt -H --small input4 >output4b
+$autfilt -H --high input4 >output4c
 cat output4
 
 cat >expect4<<EOF
@@ -737,3 +739,5 @@ State: 2 {0}
 EOF
 
 diff output4 expect4
+diff output4b expect4
+diff output4c expect4

@@ -5,6 +5,14 @@ New in spot 1.99.4a (not yet released)
   * autfilt has gained a --complement option.
     It currently work only for deterministic automata.
 
+  * By default, autfilt does not simplify automata (this has not
+    changed), as if the --low --any options where used.  But now, if
+    one of --small, --deterministic, or --any is given, the
+    optimization level automatically defaults to --high (unless
+    specified otherwise).  For symmetry, if one of --low, --medium, or
+    --high is given, thn the translation intent defaults to --small
+    (unless specified otherwise).
+
   Library:
 
   * Rename dtgba_complement() as dtwa_complement(), rename the header

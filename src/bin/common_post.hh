@@ -31,3 +31,7 @@ extern spot::postprocessor::output_pref pref;
 extern spot::postprocessor::output_pref comp;
 extern spot::postprocessor::output_pref sbacc;
 extern spot::postprocessor::optimization_level level;
+// True if --low, --medium, or --high has been given
+extern bool level_set;
+// True if --any, --small, or --deterministic has been given
+extern bool pref_set;
