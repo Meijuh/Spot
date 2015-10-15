@@ -13,6 +13,9 @@ New in spot 1.99.4a (not yet released)
     --high is given, thn the translation intent defaults to --small
     (unless specified otherwise).
 
+  * ltlgrind FILENAME[/COL] is now the same as
+    ltlgrind -F FILENAME[/COL] for consistency with ltlfilt.
+
   Library:
 
   * Rename dtgba_complement() as dtwa_complement(), rename the header
@@ -48,6 +51,8 @@ New in spot 1.99.4a (not yet released)
   * Handle saturation of formula reference counts.
   * Fix typo in the Python code for the CGI server.
   * "randaut -Q0 1" used to segfault.
+  * "ltlgrind -F FILENAME/COL" did not preserve other CSV columns.
+  * "ltlgrind --help" did not document FORMAT.
 
 New in spot 1.99.4 (2015-10-01)
 
