@@ -174,6 +174,7 @@ TESTS_twa = \
   parseaut.test \
   optba.test \
   complete.test \
+  complement.test \
   remfin.test \
   dstar.test \
   readsave.test \

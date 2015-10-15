@@ -1,5 +1,12 @@
 New in spot 1.99.4a (not yet released)
 
+  Command-line tools:
+
+  * autfilt has gained a --complement option.
+    It currently work only for deterministic automata.
+
+  Library:
+
   * Rename dtgba_complement() as dtwa_complement(), rename the header
     as complement.hh, and restrict the purpose of this function to
     just complete the automaton and complement its acceptance

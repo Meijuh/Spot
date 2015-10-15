@@ -55,6 +55,7 @@
 #include "twaalgos/remfin.hh"
 #include "twaalgos/cleanacc.hh"
 #include "twaalgos/dtgbasat.hh"
+#include "twaalgos/complement.hh"
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter Büchi automata.\v\
@@ -69,6 +70,7 @@ enum {
   OPT_ARE_ISOMORPHIC,
   OPT_CLEAN_ACC,
   OPT_CNF_ACC,
+  OPT_COMPLEMENT,
   OPT_COMPLEMENT_ACC,
   OPT_COUNT,
   OPT_DESTUT,
@@ -152,6 +154,9 @@ static const argp_option options[] =
       "rewrite the automaton without using Fin acceptance", 0 },
     { "cleanup-acceptance", OPT_CLEAN_ACC, nullptr, 0,
       "remove unused acceptance sets from the automaton", 0 },
+    { "complement", OPT_COMPLEMENT, nullptr, 0,
+      "complement each automaton (currently support only deterministic "
+      "automata)", 0 },
     { "complement-acceptance", OPT_COMPLEMENT_ACC, nullptr, 0,
       "complement the acceptance condition (without touching the automaton)",
       0 },
@@ -264,6 +269,7 @@ static bool opt_dnf_acc = false;
 static bool opt_cnf_acc = false;
 static bool opt_rem_fin = false;
 static bool opt_clean_acc = false;
+static bool opt_complement = false;
 static bool opt_complement_acc = false;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
@@ -323,6 +329,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_CNF_ACC:
       opt_dnf_acc = false;
       opt_cnf_acc = true;
+      break;
+    case OPT_COMPLEMENT:
+      opt_complement = true;
       break;
     case OPT_COMPLEMENT_ACC:
       opt_complement_acc = true;
@@ -537,6 +546,17 @@ namespace
       if (opt_complement_acc)
 	aut->set_acceptance(aut->acc().num_sets(),
 			    aut->get_acceptance().complement());
+      if (opt_complement)
+	{
+	  if (!spot::is_deterministic(aut))
+	    {
+	      std::cerr << filename << ':'
+			<< haut->loc << (": --complement currently supports "
+					 "only deterministic automata\n");
+	      exit(2);
+	    }
+	  aut = spot::dtwa_complement(aut);
+	}
       if (opt_rem_fin)
 	aut = remove_fin(aut);
       if (opt_dnf_acc)
