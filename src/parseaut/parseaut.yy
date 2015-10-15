@@ -29,6 +29,8 @@
 
 %code requires
 {
+#include "config.h"
+#include "misc/common.hh"
 #include <string>
 #include <cstring>
 #include <sstream>
@@ -38,6 +40,11 @@
 #include "public.hh"
 #include "priv/accmap.hh"
 #include "tl/parse.hh"
+
+#ifndef HAVE_STRVERSCMP
+// If the libc does not have this, a version is compiled in lib/.
+extern "C" int strverscmp(const char *s1, const char *s2);
+#endif
 
   inline namespace hoayy_support
   {
@@ -71,6 +78,8 @@
 	spot::location used_loc;
       };
       spot::parsed_aut_ptr h;
+      std::string format_version;
+      spot::location format_version_loc;
       spot::environment* env;
       formula_cache fcache;
       named_tgba_t* namer = nullptr;
@@ -418,8 +427,8 @@ header: format-version header-items
 
 version: IDENTIFIER
          {
-	   if (*$1 != "v1")
-	     error(@$, "unsupported version of the HOA format");
+	   res.format_version = *$1;
+	   res.format_version_loc = @1;
 	   delete $1;
 	 }
 
@@ -1435,7 +1444,7 @@ nc-formula: nc-formula-or-ident
 nc-opt-dest:
   /* empty */
     {
-      $$ = 0;
+      $$ = nullptr;
     }
   | "->" "goto" IDENTIFIER
     {
@@ -1457,7 +1466,7 @@ nc-src-dest: nc-formula nc-opt-dest
       //   fi
       if (!$2)
 	{
-	  $$ = 0;
+	  $$ = nullptr;
 	}
       else
 	{
@@ -1847,6 +1856,37 @@ static void fix_properties(result_& r)
     r.h->aut->prop_state_based_acc();
 }
 
+static void check_version(const result_& r,
+			  spot::parse_aut_error_list& error_list)
+{
+  if (r.h->type != spot::parsed_aut_type::HOA)
+    return;
+  auto& v = r.format_version;
+  if (v.size() < 2 || v[0] != 'v' || v[1] < '1' || v[1] > '9')
+    {
+      error_list.emplace_front(r.format_version_loc, "unknown HOA version");
+      return;
+    }
+  const char* beg = &v[1];
+  char* end = nullptr;
+  long int vers = strtol(beg, &end, 10);
+  if (vers != 1)
+    {
+      error_list.emplace_front(r.format_version_loc, "unsupported HOA version");
+      return;
+    }
+  constexpr const char supported[] = "1";
+  if (strverscmp(supported, beg) < 0 && !error_list.empty())
+    {
+      std::ostringstream s;
+      s << "we can read HOA v" << supported
+	<< " but this file uses " << v << "; this might "
+	<< "cause the following errors";
+      error_list.emplace_front(r.format_version_loc, s.str());
+      return;
+    }
+}
+
 namespace spot
 {
   automaton_stream_parser::automaton_stream_parser(const std::string& name,
@@ -1906,6 +1946,7 @@ namespace spot
 	// Bison 3.0.2 lacks a += operator for locations.
 	r.h->loc = r.h->loc + e.pos;
       }
+    check_version(r, error_list);
     last_loc = r.h->loc;
     last_loc.step();
     if (r.h->aborted)

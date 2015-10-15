@@ -36,6 +36,9 @@ New in spot 1.99.4a (not yet released)
     the language, but it speedup some algorithms like NDFS-based
     emptiness checks, as discussed in our Spin'15 paper.)
 
+  * The HOA parser will diagnose any version that is not v1, unless it
+    looks like a subversion of v1 and no parse error was detected.
+
   Python:
 
   * Add bindings for complete() and dtwa_complement()

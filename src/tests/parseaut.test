@@ -250,17 +250,28 @@ State: 1 {0}
 HOA: v2
 --BODY--
 --END--
+HOA: w1
+--BODY--
+--END--
+HOA: v1_1
+--BODY--
+--END--
 EOF
 
+t='this might cause the following errors'
 expecterr input <<EOF
 input:5.19: number is larger than the count of acceptance sets...
 input:5.1-13: ... declared here.
-input:12.6-7: unsupported version of the HOA format
+input:12.6-7: unsupported HOA version
 input:12.1-7: missing 'Acceptance:' header
+input:15.6-7: unknown HOA version
+input:15.1-7: missing 'Acceptance:' header
+input:18.6-9: we can read HOA v1 but this file uses v1_1; $t
+input:18.1-9: missing 'Acceptance:' header
 EOF
 
 cat >input<<EOF
-    HOA: v1
+    HOA: v1a  /* version greater than 1, but assumed to be compatible */
     States: 3
     Start: 0
     acc-name: generalized-Buchi 2
