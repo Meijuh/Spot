@@ -221,6 +221,8 @@ parse_opt(int key, char* arg, struct argp_state* as)
       opt_states = parse_range(arg);
       if (opt_states.min > opt_states.max)
 	std::swap(opt_states.min, opt_states.max);
+      if (opt_states.min == 0)
+	error(1, 0, "cannot build an automaton with 0 states");
       break;
     case 'S':
       opt_state_acc = true;
@@ -307,6 +309,8 @@ main(int argc, char** argv)
 
   if (opt_acc_sets.min == -1)
     opt_acc_sets.min = 0;
+
+
 
   try
     {

@@ -144,4 +144,7 @@ grep 'randaut: --colored requires' stderr
 $randaut -S -A'parity min even 0..3' -q -n10 --colored 2 2>stderr && exit 1
 grep 'randaut: --colored requires' stderr
 
+$randaut -Q0 1 2>stderr && exit 1
+grep '0 states' stderr
+
 :

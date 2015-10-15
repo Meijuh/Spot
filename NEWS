@@ -32,6 +32,7 @@ New in spot 1.99.4a (not yet released)
   * Fix compilation of bench/stutter/
   * Handle saturation of formula reference counts.
   * Fix typo in the Python code for the CGI server.
+  * "randaut -Q0 1" used to segfault.
 
 New in spot 1.99.4 (2015-10-01)
 

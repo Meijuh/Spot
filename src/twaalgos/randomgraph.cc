@@ -126,7 +126,8 @@ namespace spot
 	       unsigned n_accs, float a, float t,
 	       bool deterministic, bool state_acc, bool colored)
   {
-    assert(n > 0);
+    if (n <= 0)
+      throw std::invalid_argument("random_graph() requires n>0 states");
     auto res = make_twa_graph(dict);
     if (deterministic)
       res->prop_deterministic();
