@@ -88,3 +88,4 @@ override_dh_auto_build:
 
 fix-mathjax:
 	perl -pi -e 's|http://orgmode.org/mathjax/MathJax.js|file:///usr/share/javascript/mathjax/MathJax.js|' doc/userdoc/*.html
+	perl -pi -e 's|https://cdn.mathjax.org/mathjax/latest/MathJax.js|file:///usr/share/javascript/mathjax/MathJax.js|' wrap/python/tests/*.html
