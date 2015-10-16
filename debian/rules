@@ -39,7 +39,8 @@ PRO1SETUP =					\
 PRO2SETUP =					\
   CFLAGS='-flto -fprofile-use'			\
   CXXFLAGS='-flto -fprofile-use'
-PYSETUP = PYTHON=/usr/bin/python3
+PYDEFAULT=$(shell py3versions --default)
+PYOTHERS=$(filter-out $(PYDEFAULT), $(shell py3versions --supported))
 
 # There seem to be a problem with unwinding of exception handling when
 # the binaries are compiled with -flto.  For instance in autfilt,
@@ -57,17 +58,27 @@ FLTOWORKAROUND = perl -pi -e s/-flto// src/bin/Makefile
 override_dh_auto_configure:
 	dh_auto_configure -- $(PRO1SETUP) $(LTOSETUP)	\
 	  --disable-devel --enable-optimizations	\
-	  --disable-static $(PYSETUP)
+	  --disable-static PYTHON=/usr/bin/$(PYDEFAULT)
 	$(FLTOWORKAROUND)
 	dh_auto_build
 	dh_auto_test
 	make clean
 	dh_auto_configure -- $(PRO2SETUP) $(LTOSETUP)	\
 	  --disable-devel --enable-optimizations	\
-	  --disable-static $(PYSETUP)
+	  --disable-static PYTHON=/usr/bin/$(PYDEFAULT)
 	$(FLTOWORKAROUND)
 override_dh_auto_install: fix-mathjax
 	dh_auto_install --destdir=$(CURDIR)/debian/tmp
+# Reconfigure for every other supported Python3 version,
+# and build/install only the python code.
+	for pyv in $(PYOTHERS); do			\
+	  dh_auto_configure -- $(LTOSETUP)		\
+	  --disable-devel --enable-optimizations	\
+	  --disable-static PYTHON=/usr/bin/$$pyv;	\
+	  dh_auto_build -- -C wrap/python clean;	\
+	  dh_auto_build -- -C wrap/python all;		\
+	  dh_auto_install -- -C wrap/python;		\
+	done
 	find debian/tmp -name '*.la' -exec rm -rv {} ';'
 override_dh_python3:
 	dh_python3 -p python3-spot
