@@ -462,6 +462,7 @@ namespace spot
 				    true, // determinisitic
 				    true,  // stutter inv.
 				    });
+      res->purge_dead_states();
       scc_info si(res);
 
       // We will modify res in place, and the resulting

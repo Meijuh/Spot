@@ -51,6 +51,7 @@ TESTS = \
   randgen.py \
   randltl.ipynb \
   relabel.py \
+  remfin.py \
   setxor.py \
   testingaut.ipynb
 
