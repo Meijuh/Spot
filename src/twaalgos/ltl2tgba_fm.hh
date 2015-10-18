@@ -101,7 +101,7 @@ namespace spot
   /// representing each state of the automaton will be simplified
   /// before computing the successor.  \a simpl should be configured
   /// for the type of reduction you want, see
-  /// spot::ltl_simplifier.  This idea is taken from the
+  /// spot::tl_simplifier.  This idea is taken from the
   /// following paper.
   /** \verbatim
       @InProceedings{	  thirioux.02.fmics,
@@ -145,6 +145,6 @@ namespace spot
 		 bool branching_postponement = false,
 		 bool fair_loop_approx = false,
 		 const atomic_prop_set* unobs = nullptr,
-		 ltl_simplifier* simplifier = nullptr,
+		 tl_simplifier* simplifier = nullptr,
 		 bool unambiguous = false);
 }

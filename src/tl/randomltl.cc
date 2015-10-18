@@ -470,8 +470,8 @@ namespace spot
 				  + std::string(tok_pB));
 
     spot::srand(opt_seed_);
-    ltl_simplifier_options simpl_opts(opt_simpl_level_);
-    ltl_simplifier simpl_(simpl_opts);
+    tl_simplifier_options simpl_opts(opt_simpl_level_);
+    tl_simplifier simpl_(simpl_opts);
   }
 
   randltlgenerator::randltlgenerator(int aprops_n,

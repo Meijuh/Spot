@@ -128,12 +128,12 @@ main(int argc, char** argv)
 	    f1.dump(std::cout) << std::endl;
 #endif
 #ifdef REDUC
-	    spot::ltl_simplifier_options opt(true, true, true,
+	    spot::tl_simplifier_options opt(true, true, true,
 						  false, false);
 #  ifdef EVENT_UNIV
 	    opt.favor_event_univ = true;
 #  endif
-	    spot::ltl_simplifier simp(opt);
+	    spot::tl_simplifier simp(opt);
 	    {
 	      spot::formula tmp;
 	      tmp = f1;
@@ -150,9 +150,9 @@ main(int argc, char** argv)
 	    f1.dump(std::cout) << std::endl;
 #endif
 #ifdef REDUC_TAU
-	    spot::ltl_simplifier_options opt(false, false, false,
+	    spot::tl_simplifier_options opt(false, false, false,
 						  true, false);
-	    spot::ltl_simplifier simp(opt);
+	    spot::tl_simplifier simp(opt);
 	    {
 	      spot::formula tmp;
 	      tmp = f1;
@@ -169,9 +169,9 @@ main(int argc, char** argv)
 	    f1.dump(std::cout) << std::endl;
 #endif
 #ifdef REDUC_TAUSTR
-	    spot::ltl_simplifier_options opt(false, false, false,
+	    spot::tl_simplifier_options opt(false, false, false,
 						  true, true);
-	    spot::ltl_simplifier simp(opt);
+	    spot::tl_simplifier simp(opt);
 	    {
 	      spot::formula tmp;
 	      tmp = f1;
@@ -191,7 +191,7 @@ main(int argc, char** argv)
 	    exit_code |= f1 != f2;
 
 #if (!defined(REDUC) && !defined(REDUC_TAU) && !defined(REDUC_TAUSTR))
-	    spot::ltl_simplifier simp;
+	    spot::tl_simplifier simp;
 #endif
 
 	    if (!simp.are_equivalent(f1, f2))

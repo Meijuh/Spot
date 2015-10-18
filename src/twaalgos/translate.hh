@@ -47,7 +47,7 @@ namespace spot
   class SPOT_API translator: protected postprocessor
   {
   public:
-    translator(ltl_simplifier* simpl, const option_map* opt = nullptr)
+    translator(tl_simplifier* simpl, const option_map* opt = nullptr)
       : postprocessor(opt), simpl_(simpl), simpl_owned_(nullptr)
     {
       assert(simpl);
@@ -114,8 +114,8 @@ namespace spot
     void build_simplifier(const bdd_dict_ptr& dict);
 
   private:
-    ltl_simplifier* simpl_;
-    ltl_simplifier* simpl_owned_;
+    tl_simplifier* simpl_;
+    tl_simplifier* simpl_owned_;
     int comp_susp_;
     int early_susp_;
     int skel_wdba_;

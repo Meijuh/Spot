@@ -326,7 +326,7 @@ checked_main(int argc, char** argv)
   bool nra2nba = false;
   bool scc_filter = false;
   bool simpltl = false;
-  spot::ltl_simplifier_options redopt(false, false, false, false,
+  spot::tl_simplifier_options redopt(false, false, false, false,
 					   false, false, false);
   bool simpcache_stats = false;
   bool scc_filter_all = false;
@@ -944,9 +944,9 @@ checked_main(int argc, char** argv)
 	}
       else
 	{
-	  spot::ltl_simplifier* simp = nullptr;
+	  spot::tl_simplifier* simp = nullptr;
 	  if (simpltl)
-	    simp = new spot::ltl_simplifier(redopt, dict);
+	    simp = new spot::tl_simplifier(redopt, dict);
 
 	  if (simp)
 	    {

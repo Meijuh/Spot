@@ -63,7 +63,7 @@ main(int argc, char** argv)
     std::string f1s = spot::str_psl(f1);
     std::string f2s = spot::str_psl(f2);
 
-    spot::ltl_simplifier* c = new spot::ltl_simplifier;
+    spot::tl_simplifier* c = new spot::tl_simplifier;
 
     switch (opt)
       {

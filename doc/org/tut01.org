@@ -309,7 +309,7 @@ prepared to reject the formula any way.  In our example, we are lucky
       return 1;
     if (!f.is_ltl_formula())
       {
-        spot::ltl_simplifier simp;
+        spot::tl_simplifier simp;
         f = simp.simplify(f);
       }
     if (!f.is_ltl_formula())

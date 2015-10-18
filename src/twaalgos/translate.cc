@@ -43,7 +43,7 @@ namespace spot
 
   void translator::build_simplifier(const bdd_dict_ptr& dict)
   {
-    ltl_simplifier_options options(false, false, false);
+    tl_simplifier_options options(false, false, false);
     switch (level_)
       {
       case High:
@@ -58,7 +58,7 @@ namespace spot
 	options.event_univ = true;
 	// fall through
       }
-    simpl_owned_ = simpl_ = new ltl_simplifier(options, dict);
+    simpl_owned_ = simpl_ = new tl_simplifier(options, dict);
   }
 
   twa_graph_ptr translator::run(formula* f)

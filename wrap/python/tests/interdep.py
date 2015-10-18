@@ -26,7 +26,7 @@ import buddy
 import spot
 import sys
 
-simp = spot.ltl_simplifier()
+simp = spot.tl_simplifier()
 
 e = spot.default_environment.instance()
 p = spot.empty_parse_error_list()

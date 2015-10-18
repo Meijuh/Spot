@@ -3,7 +3,7 @@ New in spot 1.99.4a (not yet released)
   Command-line tools:
 
   * autfilt has gained a --complement option.
-    It currently work only for deterministic automata.
+    It currently works only for deterministic automata.
 
   * By default, autfilt does not simplify automata (this has not
     changed), as if the --low --any options where used.  But now, if
@@ -18,7 +18,7 @@ New in spot 1.99.4a (not yet released)
 
   Library:
 
-  * Rename dtgba_complement() as dtwa_complement(), rename the header
+  * Rename dtgba_complement() to dtwa_complement(), rename the header
     as complement.hh, and restrict the purpose of this function to
     just complete the automaton and complement its acceptance
     condition.   Any further acceptance condition transformation
@@ -38,6 +38,8 @@ New in spot 1.99.4a (not yet released)
 
   * The HOA parser will diagnose any version that is not v1, unless it
     looks like a subversion of v1 and no parse error was detected.
+
+  * ltl_simplifier renamed to tl_simplifier.
 
   Python:
 

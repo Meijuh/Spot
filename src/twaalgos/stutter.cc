@@ -558,7 +558,7 @@ namespace spot
 	bool res;
 	if (algo == 0)		// Equivalence check
 	  {
-	    ltl_simplifier ls;
+	    tl_simplifier ls;
 	    res = ls.are_equivalent(f, g);
 	  }
 	else

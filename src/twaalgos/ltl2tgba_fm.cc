@@ -133,7 +133,7 @@ namespace spot
     {
     public:
 
-      translate_dict(twa_graph_ptr& a, ltl_simplifier* ls, bool exprop,
+      translate_dict(twa_graph_ptr& a, tl_simplifier* ls, bool exprop,
 		     bool single_acc, bool unambiguous)
 	: a_(a),
 	  dict(a->get_dict()),
@@ -156,7 +156,7 @@ namespace spot
 
       twa_graph_ptr& a_;
       bdd_dict_ptr dict;
-      ltl_simplifier* ls;
+      tl_simplifier* ls;
       mark_tools mt;
 
       typedef bdd_dict::fv_map fv_map;
@@ -1886,9 +1886,9 @@ namespace spot
   ltl_to_tgba_fm(formula f2, const bdd_dict_ptr& dict,
 		 bool exprop, bool symb_merge, bool branching_postponement,
 		 bool fair_loop_approx, const atomic_prop_set* unobs,
-		 ltl_simplifier* simplifier, bool unambiguous)
+		 tl_simplifier* simplifier, bool unambiguous)
   {
-    ltl_simplifier* s = simplifier;
+    tl_simplifier* s = simplifier;
 
     // Simplify the formula, if requested.
     if (s)
@@ -1903,7 +1903,7 @@ namespace spot
 	// negations on the atomic propositions.  We also suppress
 	// logic abbreviations such as <=>, =>, or XOR, since they
 	// would involve negations at the BDD level.
-	s = new ltl_simplifier(dict);
+	s = new tl_simplifier(dict);
 	f2 = s->negative_normal_form(f2, false);
       }
     assert(f2.is_in_nenoform());

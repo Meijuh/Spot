@@ -677,7 +677,7 @@ def randltl(ap, n=-1, **kwargs):
 def simplify(f, **kwargs):
     level = kwargs.get('level', None)
     if level is not None:
-        return ltl_simplifier(ltl_simplifier_options(level)).simplify(f)
+        return tl_simplifier(tl_simplifier_options(level)).simplify(f)
 
     basics = kwargs.get('basics', True)
     synt_impl = kwargs.get('synt_impl', True)
@@ -689,7 +689,7 @@ def simplify(f, **kwargs):
     boolean_to_isop = kwargs.get('boolean_to_isop', False)
     favor_event_univ = kwargs.get('favor_event_univ', False)
 
-    simp_opts = ltl_simplifier_options(basics,
+    simp_opts = tl_simplifier_options(basics,
                                        synt_impl,
                                        event_univ,
                                        cont_checks,
@@ -698,7 +698,7 @@ def simplify(f, **kwargs):
                                        reduce_size_strictly,
                                        boolean_to_isop,
                                        favor_event_univ)
-    return ltl_simplifier(simp_opts).simplify(f)
+    return tl_simplifier(simp_opts).simplify(f)
 
 
 for fun in dir(formula):

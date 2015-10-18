@@ -1286,24 +1286,24 @@ you plan to abbreviate many formulas sharing identical subformulas.
 \section{LTL simplifier}
 
 The LTL rewritings described in the next three sections are all
-implemented in the `\verb|ltl_simplifier|' class defined in
+implemented in the `\verb|tl_simplifier|' class defined in
 \texttt{spot/tl/simplify.hh}.  This class implements several
 caches in order to quickly rewrite formulas that have already been
 rewritten previously.  For this reason, it is suggested that you reuse
-your instance of `\verb|ltl_simplifier|' as much as possible.  If you
+your instance of `\verb|tl_simplifier|' as much as possible.  If you
 write an algorithm that will simplify LTL formulas, we suggest you
-accept an optional `\verb|ltl_simplifier|' argument, so that you can
+accept an optional `\verb|tl_simplifier|' argument, so that you can
 benefit from an existing instance.
 
-The `\verb|ltl_simplifier|' takes an optional
-`\verb|ltl_simplifier_options|' argument, making it possible to tune
+The `\verb|tl_simplifier|' takes an optional
+`\verb|tl_simplifier_options|' argument, making it possible to tune
 the various rewritings that can be performed by this class.  These
 options cannot be changed afterwards (because changing these options
 would invalidate the results stored in the caches).
 
 \section{Negative normal form}\label{sec:nnf}
 
-This is implemented by the `\verb|ltl_simplifier::negative_normal_form|`
+This is implemented by the `\verb|tl_simplifier::negative_normal_form|`
 method.
 
 A formula in negative normal form can only have negation
@@ -1347,11 +1347,11 @@ Note that the above rules include the ``unabbreviation'' of operators
 rules \texttt{"ei\^"} of function `\verb=unabbreviate()= as described
 in Section~\ref{sec:unabbrev}.  Therefore it is never necessary to
 apply these abbreviations before or after
-`\verb|ltl_simplifier::negative_normal_form|`.
+`\verb|tl_simplifier::negative_normal_form|`.
 
 If the option `\verb|nenoform_stop_on_boolean|' is set, the above
 recursive rewritings are not applied to Boolean subformulas.  For
-instance calling `\verb|ltl_simplifier::negative_normal_form|` on
+instance calling `\verb|tl_simplifier::negative_normal_form|` on
 $\NOT\F\G(a \XOR b)$ will produce $\G\F(((\NOT a)\AND(\NOT
 b))\OR(a\AND b))$ if `\verb|nenoform_stop_on_boolean|' is unset, while
 it will produce $\G\F(\NOT(a \XOR b))$ if
@@ -1359,8 +1359,8 @@ it will produce $\G\F(\NOT(a \XOR b))$ if
 
 \section{Simplifications}
 
-The `\verb|ltl_simplifier::simplify|' method performs several kinds of
-simplifications, depending on which `\verb|ltl_simplifier_options|'
+The `\verb|tl_simplifier::simplify|' method performs several kinds of
+simplifications, depending on which `\verb|tl_simplifier_options|'
 was set.
 
 The goals in most of these simplification are to:
@@ -1381,7 +1381,7 @@ The goals in most of these simplification are to:
 \end{itemize}
 
 Rewritings defined with $\equivEU$ are applied only when
-\verb|ltl_simplifier_options::favor_event_univ|' is \texttt{true}:
+\verb|tl_simplifier_options::favor_event_univ|' is \texttt{true}:
 they try to lift subformulas that are both eventual and universal
 \emph{higher} in the syntax tree.  Conversely, rules defined with $\equivNeu$
 are applied only when \verb|favor_event_univ|' is \texttt{false}: they
@@ -1390,10 +1390,10 @@ try to \textit{lower} subformulas that are both eventual and universal.
 \subsection{Basic Simplifications}\label{sec:basic-simp}
 
 These simplifications are enabled with
-\verb|ltl_simplifier_options::reduce_basics|'.  A couple of them may
+\verb|tl_simplifier_options::reduce_basics|'.  A couple of them may
 enlarge the size of the formula: they are denoted using $\equiV$
 instead of $\equiv$, and they can be disabled by setting the
-\verb|ltl_simplifier_options::reduce_size_strictly|' option to
+\verb|tl_simplifier_options::reduce_size_strictly|' option to
 \texttt{true}.
 
 \subsubsection{Basic Simplifications for Temporal Operators}
@@ -1596,7 +1596,7 @@ $\Esuffix$.  They assume that $b$, denote a Boolean formula.
 
 As noted at the beginning for section~\ref{sec:basic-simp}, rewritings
 denoted with $\equiV$ can be disabled by setting the
-\verb|ltl_simplifier_options::reduce_size_strictly|' option to
+\verb|tl_simplifier_options::reduce_size_strictly|' option to
 \texttt{true}.
 
 \begin{align*}
@@ -1707,19 +1707,19 @@ implication can be done in two ways:
 \begin{description}
 \item[Syntactic Implication Checks] were initially proposed
   by~\citet{somenzi.00.cav}.  This detection is enabled by the
-  ``\verb|ltl_simplifier_options::synt_impl|'' option.  This is a
+  ``\verb|tl_simplifier_options::synt_impl|'' option.  This is a
   cheap way to detect implications, but it may miss some.  The rules
   we implement are described in Appendix~\ref{ann:syntimpl}.
 
 \item[Language Containment Checks] were initially proposed
   by~\citet{tauriainen.03.a83}.  This detection is enabled by the
-  ``\verb|ltl_simplifier_options::containment_checks|'' option.
+  ``\verb|tl_simplifier_options::containment_checks|'' option.
 \end{description}
 
 In the following rewritings rules, $f\simp g$ means that $g$ was
 proved to be implied by $f$ using either of the above two methods.
 Additionally, implications denoted by $f\Simp g$ are only checked if
-the ``\verb|ltl_simplifier_options::containment_checks_stronger|''
+the ``\verb|tl_simplifier_options::containment_checks_stronger|''
 option is set (otherwise the rewriting rule is not applied).
 
 \begin{equation*}

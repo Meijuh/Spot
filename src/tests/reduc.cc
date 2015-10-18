@@ -45,7 +45,7 @@ main(int argc, char** argv)
   bool hidereduc = false;
   unsigned long sum_before = 0;
   unsigned long sum_after = 0;
-  spot::ltl_simplifier_options o(false, false, false, false, false);
+  spot::tl_simplifier_options o(false, false, false, false, false);
 
   if (argc < 3)
     syntax(argv[0]);
@@ -147,9 +147,9 @@ main(int argc, char** argv)
   int exit_code = 0;
 
   {
-    spot::ltl_simplifier* simp = new spot::ltl_simplifier(o);
+    spot::tl_simplifier* simp = new spot::tl_simplifier(o);
     o.reduce_size_strictly = true;
-    spot::ltl_simplifier* simp_size = new spot::ltl_simplifier(o);
+    spot::tl_simplifier* simp_size = new spot::tl_simplifier(o);
 
     spot::formula f1 = nullptr;
     spot::formula f2 = nullptr;

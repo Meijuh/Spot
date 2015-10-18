@@ -26,10 +26,10 @@
 
 namespace spot
 {
-  class ltl_simplifier_options
+  class tl_simplifier_options
   {
   public:
-    ltl_simplifier_options(bool basics = true,
+    tl_simplifier_options(bool basics = true,
 			   bool synt_impl = true,
 			   bool event_univ = true,
 			   bool containment_checks = false,
@@ -50,8 +50,8 @@ namespace spot
     {
     }
 
-    ltl_simplifier_options(int level) :
-      ltl_simplifier_options(false, false, false)
+    tl_simplifier_options(int level) :
+      tl_simplifier_options(false, false, false)
     {
       switch (level)
 	{
@@ -90,17 +90,17 @@ namespace spot
   };
 
   // fwd declaration to hide technical details.
-  class ltl_simplifier_cache;
+  class tl_simplifier_cache;
 
   /// \ingroup tl_rewriting
   /// \brief Rewrite or simplify \a f in various ways.
-  class SPOT_API ltl_simplifier
+  class SPOT_API tl_simplifier
   {
   public:
-    ltl_simplifier(const bdd_dict_ptr& dict = make_bdd_dict());
-    ltl_simplifier(const ltl_simplifier_options& opt,
+    tl_simplifier(const bdd_dict_ptr& dict = make_bdd_dict());
+    tl_simplifier(const tl_simplifier_options& opt,
 		   bdd_dict_ptr dict = make_bdd_dict());
-    ~ltl_simplifier();
+    ~tl_simplifier();
 
     /// Simplify the formula \a f (using options supplied to the
     /// constructor).
@@ -193,9 +193,9 @@ namespace spot
     void print_stats(std::ostream& os) const;
 
   private:
-    ltl_simplifier_cache* cache_;
+    tl_simplifier_cache* cache_;
     // Copy disallowed.
-    ltl_simplifier(const ltl_simplifier&) = delete;
-    void operator=(const ltl_simplifier&) = delete;
+    tl_simplifier(const tl_simplifier&) = delete;
+    void operator=(const tl_simplifier&) = delete;
   };
 }

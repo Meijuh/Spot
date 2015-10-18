@@ -39,7 +39,7 @@ namespace spot
   typedef std::vector<formula> vec;
 
   // The name of this class is public, but not its contents.
-  class ltl_simplifier_cache
+  class tl_simplifier_cache
   {
     typedef std::unordered_map<formula, formula> f2f_map;
     typedef std::unordered_map<formula, bdd> f2b_map;
@@ -47,21 +47,21 @@ namespace spot
     typedef std::map<pairf, bool> syntimpl_cache_t;
   public:
     bdd_dict_ptr dict;
-    ltl_simplifier_options options;
+    tl_simplifier_options options;
     language_containment_checker lcc;
 
-    ~ltl_simplifier_cache()
+    ~tl_simplifier_cache()
     {
       dict->unregister_all_my_variables(this);
     }
 
-    ltl_simplifier_cache(const bdd_dict_ptr& d)
+    tl_simplifier_cache(const bdd_dict_ptr& d)
       : dict(d), lcc(d, true, true, false, false)
     {
     }
 
-    ltl_simplifier_cache(const bdd_dict_ptr& d,
-			 const ltl_simplifier_options& opt)
+    tl_simplifier_cache(const bdd_dict_ptr& d,
+			 const tl_simplifier_options& opt)
       : dict(d), options(opt), lcc(d, true, true, false, false)
     {
       options.containment_checks |= options.containment_checks_stronger;
@@ -319,10 +319,10 @@ namespace spot
     //////////////////////////////////////////////////////////////////////
 
     formula
-    nenoform_rec(formula f, bool negated, ltl_simplifier_cache* c);
+    nenoform_rec(formula f, bool negated, tl_simplifier_cache* c);
 
     formula equiv_or_xor(bool equiv, formula f1, formula f2,
-			 ltl_simplifier_cache* c)
+			 tl_simplifier_cache* c)
     {
       auto rec = [c](formula f, bool negated)
 	{
@@ -354,7 +354,7 @@ namespace spot
     }
 
     formula
-    nenoform_rec(formula f, bool negated, ltl_simplifier_cache* c)
+    nenoform_rec(formula f, bool negated, tl_simplifier_cache* c)
     {
       if (f.is(op::Not))
 	{
@@ -542,7 +542,7 @@ namespace spot
 
     // Forward declaration.
     formula
-    simplify_recursively(formula f, ltl_simplifier_cache* c);
+    simplify_recursively(formula f, tl_simplifier_cache* c);
 
     // X(a) R b   or   X(a) M b
     // This returns a.
@@ -654,7 +654,7 @@ namespace spot
       };
 
     private:
-      mospliter(unsigned split, ltl_simplifier_cache* cache)
+      mospliter(unsigned split, tl_simplifier_cache* cache)
 	: split_(split), c_(cache),
 	  res_GF{(split_ & Split_GF) ? new vec : nullptr},
 	  res_FG{(split_ & Split_FG) ? new vec : nullptr},
@@ -672,7 +672,7 @@ namespace spot
       }
 
     public:
-      mospliter(unsigned split, vec v, ltl_simplifier_cache* cache)
+      mospliter(unsigned split, vec v, tl_simplifier_cache* cache)
 	: mospliter(split, cache)
       {
 	for (auto f: v)
@@ -683,7 +683,7 @@ namespace spot
       }
 
       mospliter(unsigned split, formula mo,
-		ltl_simplifier_cache* cache)
+		tl_simplifier_cache* cache)
 	: mospliter(split, cache)
       {
 	unsigned mos = mo.size();
@@ -788,7 +788,7 @@ namespace spot
       }
 
       unsigned split_;
-      ltl_simplifier_cache* c_;
+      tl_simplifier_cache* c_;
       std::unique_ptr<vec> res_GF;
       std::unique_ptr<vec> res_FG;
       std::unique_ptr<vec> res_F;
@@ -807,7 +807,7 @@ namespace spot
     {
     public:
 
-      simplify_visitor(ltl_simplifier_cache* cache)
+      simplify_visitor(tl_simplifier_cache* cache)
 	: c_(cache), opt_(cache->options)
 	{
 	}
@@ -2973,14 +2973,14 @@ namespace spot
       }
 
     protected:
-      ltl_simplifier_cache* c_;
-      const ltl_simplifier_options& opt_;
+      tl_simplifier_cache* c_;
+      const tl_simplifier_options& opt_;
     };
 
 
     formula
     simplify_recursively(formula f,
-			 ltl_simplifier_cache* c)
+			 tl_simplifier_cache* c)
     {
 #ifdef TRACE
       static int srec = 0;
@@ -3029,7 +3029,7 @@ namespace spot
   } // anonymous namespace
 
     //////////////////////////////////////////////////////////////////////
-    // ltl_simplifier_cache
+    // tl_simplifier_cache
 
 
     // This implements the recursive rules for syntactic implication.
@@ -3037,7 +3037,7 @@ namespace spot
     // appendix in the documentation for temporal logic operators.)
   inline
   bool
-  ltl_simplifier_cache::syntactic_implication_aux(formula f, formula g)
+  tl_simplifier_cache::syntactic_implication_aux(formula f, formula g)
   {
     // We first process all lines from the table except the
     // first two, and then we process the first two as a fallback.
@@ -3278,7 +3278,7 @@ namespace spot
 
   // Return true if f => g syntactically
   bool
-  ltl_simplifier_cache::syntactic_implication(formula f,
+  tl_simplifier_cache::syntactic_implication(formula f,
 					      formula g)
   {
     // We cannot run syntactic_implication on SERE formulae,
@@ -3331,7 +3331,7 @@ namespace spot
   // If right==false, true if !f1 => f2, false otherwise.
   // If right==true, true if f1 => !f2, false otherwise.
   bool
-  ltl_simplifier_cache::syntactic_implication_neg(formula f1,
+  tl_simplifier_cache::syntactic_implication_neg(formula f1,
 						  formula f2,
 						  bool right)
   {
@@ -3350,26 +3350,26 @@ namespace spot
 
 
   /////////////////////////////////////////////////////////////////////
-  // ltl_simplifier
+  // tl_simplifier
 
-  ltl_simplifier::ltl_simplifier(const bdd_dict_ptr& d)
+  tl_simplifier::tl_simplifier(const bdd_dict_ptr& d)
   {
-    cache_ = new ltl_simplifier_cache(d);
+    cache_ = new tl_simplifier_cache(d);
   }
 
-  ltl_simplifier::ltl_simplifier(const ltl_simplifier_options& opt,
+  tl_simplifier::tl_simplifier(const tl_simplifier_options& opt,
 				 bdd_dict_ptr d)
   {
-    cache_ = new ltl_simplifier_cache(d, opt);
+    cache_ = new tl_simplifier_cache(d, opt);
   }
 
-  ltl_simplifier::~ltl_simplifier()
+  tl_simplifier::~tl_simplifier()
   {
     delete cache_;
   }
 
   formula
-  ltl_simplifier::simplify(formula f)
+  tl_simplifier::simplify(formula f)
   {
     if (!f.is_in_nenoform())
       f = negative_normal_form(f, false);
@@ -3377,68 +3377,68 @@ namespace spot
   }
 
   formula
-  ltl_simplifier::negative_normal_form(formula f, bool negated)
+  tl_simplifier::negative_normal_form(formula f, bool negated)
   {
     return nenoform_rec(f, negated, cache_);
   }
 
   bool
-  ltl_simplifier::syntactic_implication(formula f1, formula f2)
+  tl_simplifier::syntactic_implication(formula f1, formula f2)
   {
     return cache_->syntactic_implication(f1, f2);
   }
 
   bool
-  ltl_simplifier::syntactic_implication_neg(formula f1,
+  tl_simplifier::syntactic_implication_neg(formula f1,
 					    formula f2, bool right)
   {
     return cache_->syntactic_implication_neg(f1, f2, right);
   }
 
   bool
-  ltl_simplifier::are_equivalent(formula f, formula g)
+  tl_simplifier::are_equivalent(formula f, formula g)
   {
     return cache_->lcc.equal(f, g);
   }
 
   bool
-  ltl_simplifier::implication(formula f, formula g)
+  tl_simplifier::implication(formula f, formula g)
   {
     return cache_->lcc.contained(f, g);
   }
 
   bdd
-  ltl_simplifier::as_bdd(formula f)
+  tl_simplifier::as_bdd(formula f)
   {
     return cache_->as_bdd(f);
   }
 
   formula
-  ltl_simplifier::star_normal_form(formula f)
+  tl_simplifier::star_normal_form(formula f)
   {
     return cache_->star_normal_form(f);
   }
 
   formula
-  ltl_simplifier::boolean_to_isop(formula f)
+  tl_simplifier::boolean_to_isop(formula f)
   {
     return cache_->boolean_to_isop(f);
   }
 
   bdd_dict_ptr
-  ltl_simplifier::get_dict() const
+  tl_simplifier::get_dict() const
   {
     return cache_->dict;
   }
 
   void
-  ltl_simplifier::print_stats(std::ostream& os) const
+  tl_simplifier::print_stats(std::ostream& os) const
   {
     cache_->print_stats(os);
   }
 
   void
-  ltl_simplifier::clear_as_bdd_cache()
+  tl_simplifier::clear_as_bdd_cache()
   {
     cache_->clear_as_bdd_cache();
     cache_->lcc.clear();

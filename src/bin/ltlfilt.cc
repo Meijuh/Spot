@@ -445,11 +445,11 @@ namespace
   class ltl_processor: public job_processor
   {
   public:
-    spot::ltl_simplifier& simpl;
+    spot::tl_simplifier& simpl;
     fset_t unique_set;
     spot::relabeling_map relmap;
 
-    ltl_processor(spot::ltl_simplifier& simpl)
+    ltl_processor(spot::tl_simplifier& simpl)
       : simpl(simpl)
     {
     }
@@ -641,9 +641,9 @@ main(int argc, char** argv)
 
       if (boolean_to_isop && simplification_level == 0)
 	simplification_level = 1;
-      spot::ltl_simplifier_options opt(simplification_level);
+      spot::tl_simplifier_options opt(simplification_level);
       opt.boolean_to_isop = boolean_to_isop;
-      spot::ltl_simplifier simpl(opt);
+      spot::tl_simplifier simpl(opt);
 
       ltl_processor processor(simpl);
       if (processor.run())

@@ -338,7 +338,7 @@ namespace spot
     bool opt_unique_;
     bool opt_wf_;
     int opt_simpl_level_;
-    ltl_simplifier simpl_;
+    tl_simplifier simpl_;
 
     int output_;
 

@@ -488,7 +488,7 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
 
 static spot::formula
 generate_formula(const spot::random_ltl& rl,
-		 spot::ltl_simplifier& simp,
+		 spot::tl_simplifier& simp,
 		 int opt_f, int opt_s,
                  int opt_l = 0, bool opt_u = false)
 {
@@ -580,8 +580,8 @@ main(int argc, char** argv)
   spot::atomic_prop_set* ap = new spot::atomic_prop_set;
   auto dict = spot::make_bdd_dict();
 
-  spot::ltl_simplifier_options simpopt(true, true, true, true, true);
-  spot::ltl_simplifier simp(simpopt);
+  spot::tl_simplifier_options simpopt(true, true, true, true, true);
+  spot::tl_simplifier simp(simpopt);
 
   if (argc <= 1)
     syntax(argv[0]);

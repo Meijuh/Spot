@@ -31,7 +31,7 @@ namespace spot
     if (!negated && f.is_in_nenoform())
       return f;
 
-    ltl_simplifier s;
+    tl_simplifier s;
     return s.negative_normal_form(f, negated);
   }
 }
