@@ -48,6 +48,7 @@ New in spot 1.99.4a (not yet released)
     https://spot.lrde.epita.fr/tut01.html for examples.
   * The Debian package is now compiled for all Python3 versions
     supported by Debian, not just the default one.
+  * Automata now have get_name()/set_name() methods.
 
   Bugs fixed:
 

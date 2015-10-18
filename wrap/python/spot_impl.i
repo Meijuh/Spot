@@ -187,6 +187,13 @@ using namespace spot;
     $result = SWIG_NewPointerObj(new spot::formula($1), $descriptor(spot::formula*), SWIG_POINTER_OWN);
 }
 
+%typemap(out) std::string* {
+  if (!$1)
+    $result = SWIG_Py_Void();
+  else
+    $result = SWIG_FromCharPtr($1->c_str());
+}
+
 %exception {
   try {
     $action
@@ -328,6 +335,18 @@ namespace std {
     return std::string("$") + spot::str_sclatex_psl(*self) + '$';
   }
   std::string __str__() { return spot::str_psl(*self); }
+}
+
+%extend spot::twa {
+  void set_name(std::string name)
+  {
+    self->set_named_prop("automaton-name", new std::string(name));
+  }
+
+  std::string* get_name()
+  {
+    return self->get_named_prop<std::string>("automaton-name");
+  }
 }
 
 %extend spot::acc_cond::acc_code {

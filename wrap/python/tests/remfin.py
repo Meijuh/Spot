@@ -35,3 +35,7 @@ State: 0
 State: 1
 [t] 1
 --END--""")
+
+assert(aut.get_name() == None)
+aut.set_name("test me")
+assert(aut.get_name() == "test me")

@@ -658,6 +658,7 @@ if output_type == 'm':
     unbufprint('<div class="automata-stats">')
     dont_run_dot = print_stats(automaton)
     unbufprint('</div>')
+    automaton.set_name(str(f))
     render_automaton(automaton, dont_run_dot)
     automaton = 0
     finish()
@@ -752,6 +753,7 @@ if output_type == 'a':
         del s
     else: # 't' or 's'
         dont_run_dot = print_stats(degen, True)
+        automaton.set_name(str(f))
         render_automaton(degen, dont_run_dot)
     degen = 0
     automaton = 0
