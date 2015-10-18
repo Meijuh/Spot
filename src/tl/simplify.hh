@@ -109,7 +109,7 @@ namespace spot
     /// Build the negative normal form of formula \a f.
     /// All negations of the formula are pushed in front of the
     /// atomic propositions.  Operators <=>, =>, xor are all removed
-    /// (calling spot::unabbreviate_ltl is not needed).
+    /// (calling spot::unabbreviate for those is not needed).
     ///
     /// \param f The formula to normalize.
     /// \param negated If \c true, return the negative normal form of
