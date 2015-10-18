@@ -706,6 +706,6 @@ for fun in dir(formula):
                                              fun[:4] == 'has_')):
         _addfilter(fun)
 
-for fun in ['remove_x', 'get_literal', 'relabel', 'relabel_bse',
-            'simplify', 'unabbreviate_ltl']:
+for fun in ['remove_x', 'relabel', 'relabel_bse',
+            'simplify', 'unabbreviate']:
     _addmap(fun)
