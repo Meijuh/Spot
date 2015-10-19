@@ -49,10 +49,13 @@ New in spot 1.99.4a (not yet released)
   * The Debian package is now compiled for all Python3 versions
     supported by Debian, not just the default one.
   * Automata now have get_name()/set_name() methods.
+  * spot.postprocess(aut, *options), or aut.postprocess(*options)
+    simplify the use of the spot.postprocessor object.  (Just like we
+    have spot.translate() on top of spot.translator().)
 
   Bugs fixed:
 
-  * Work around some strange weird exception raised when using the
+  * Work around some weird exception raised when using the
     randltlgenerator under Python 3.5.
   * Recognize "nullptr" formulas as None in Python.
   * Fix compilation of bench/stutter/
@@ -61,7 +64,7 @@ New in spot 1.99.4a (not yet released)
   * "randaut -Q0 1" used to segfault.
   * "ltlgrind -F FILENAME/COL" did not preserve other CSV columns.
   * "ltlgrind --help" did not document FORMAT.
-  * unabbreviate could easily use forbidden operators
+  * unabbreviate could easily use forbidden operators.
 
 New in spot 1.99.4 (2015-10-01)
 

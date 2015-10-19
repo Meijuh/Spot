@@ -373,25 +373,7 @@ def automaton(filename):
         raise RuntimeError("Failed to read automaton from {}".format(filename))
 
 
-def translate(formula, *args):
-    """Translate a formula into an automaton.
-
-    Keep in mind that pref expresses just a preference that may not be
-    satisfied.
-
-    The optional arguments should be strings among the following:
-    - at most one in 'TGBA', 'BA', or 'Monitor'
-      (type of automaton to build)
-    - at most one in 'Small', 'Deterministic', 'Any'
-      (preferred characteristics of the produced automaton)
-    - at most one in 'Low', 'Medium', 'High'
-      (optimization level)
-    - any combination of 'Complete', 'Unambiguous', and
-      'StateBasedAcceptance' (or 'SBAcc' for short)
-
-    The default corresponds to 'tgba', 'small' and 'high'.
-    """
-
+def _postproc_translate_options(obj, default_type, *args):
     type_ = None
     pref_ = None
     optm_ = None
@@ -404,6 +386,8 @@ def translate(formula, *args):
         if type_ is not None and type_ != val:
             raise ValueError("type cannot be both {} and {}"
                              .format(type_, val))
+        elif val == 'generic':
+            type_ = postprocessor.Generic
         elif val == 'tgba':
             type_ = postprocessor.TGBA
         elif val == 'ba':
@@ -452,6 +436,7 @@ def translate(formula, *args):
         'tgba': type_set,
         'ba': type_set,
         'monitor': type_set,
+        'generic': type_set,
         'small': pref_set,
         'deterministic': pref_set,
         'any': pref_set,
@@ -488,24 +473,75 @@ def translate(formula, *args):
                                  .format(arg, str(compat)))
 
     if type_ is None:
-        type_ = postprocessor.TGBA
+        type_ = default_type
     if pref_ is None:
         pref_ = postprocessor.Small
     if optm_ is None:
         optm_ = postprocessor.High
 
+    obj.set_type(type_)
+    obj.set_pref(pref_ | comp_ | unam_ | sbac_)
+    obj.set_level(optm_)
+
+
+def translate(formula, *args):
+    """Translate a formula into an automaton.
+
+    Keep in mind that 'Deterministic' expresses just a preference that
+    may not be satisfied.
+
+    The optional arguments should be strings among the following:
+    - at most one in 'TGBA', 'BA', or 'Monitor'
+      (type of automaton to build)
+    - at most one in 'Small', 'Deterministic', 'Any'
+      (preferred characteristics of the produced automaton)
+    - at most one in 'Low', 'Medium', 'High'
+      (optimization level)
+    - any combination of 'Complete', 'Unambiguous', and
+      'StateBasedAcceptance' (or 'SBAcc' for short)
+
+    The default corresponds to 'tgba', 'small' and 'high'.
+    """
+    a = translator(_bdd_dict)
+    _postproc_translate_options(a, postprocessor.TGBA, *args)
     if type(formula) == str:
         formula = parse_formula(formula)
-
-    a = translator(_bdd_dict)
-    a.set_type(type_)
-    a.set_pref(pref_ | comp_ | unam_ | sbac_)
-    a.set_level(optm_)
-
     return a.run(formula)
 
 
 formula.translate = translate
+
+
+def postprocess(automaton, *args):
+    """Post process an automaton.
+
+    This applies a number of simlification algorithms, depending on
+    the options supplied. Keep in mind that 'Deterministic' expresses
+    just a preference that may not be satisfied if the input is
+    not already 'Deterministic'.
+
+    The optional arguments should be strings among the following:
+    - at most one in 'Generic', 'TGBA', 'BA', or 'Monitor'
+      (type of automaton to build)
+    - at most one in 'Small', 'Deterministic', 'Any'
+      (preferred characteristics of the produced automaton)
+    - at most one in 'Low', 'Medium', 'High'
+      (optimization level)
+    - any combination of 'Complete' and 'StateBasedAcceptance'
+      (or 'SBAcc' for short)
+
+    The default corresponds to 'generic', 'small' and 'high'.
+    """
+    p = postprocessor()
+    if type(automaton) == str:
+        automaton = globals()['automaton'](automaton)
+    _postproc_translate_options(p, postprocessor.Generic, *args)
+    return p.run(automaton)
+
+
+twa.postprocess = postprocess
+twa.scc_filter = scc_filter
+twa.scc_filter_states = scc_filter_states
 
 
 # Wrapper around a formula iterator to which we add some methods of formula
