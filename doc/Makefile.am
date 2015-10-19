@@ -91,6 +91,7 @@ ORG_FILES = \
   org/tut20.org \
   org/tut21.org \
   org/tut22.org \
+  org/tut30.org \
   org/satmin.org \
   org/satmin.tex \
   org/setup.org \
