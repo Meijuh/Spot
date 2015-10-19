@@ -61,6 +61,7 @@ New in spot 1.99.4a (not yet released)
   * "randaut -Q0 1" used to segfault.
   * "ltlgrind -F FILENAME/COL" did not preserve other CSV columns.
   * "ltlgrind --help" did not document FORMAT.
+  * unabbreviate could easily use forbidden operators
 
 New in spot 1.99.4 (2015-10-01)
 

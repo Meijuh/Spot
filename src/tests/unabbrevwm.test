@@ -40,7 +40,10 @@ test `uniq out | wc -l` = 1
 for i in 'GFa' 'a R b' 'a W b' 'a M b'; do
     for fg in '' F G GF; do
 	for rwm in '' R W M RW RM WM RWM; do
-	    $ltlfilt -f "$i" --unabbrev=$fg$rwm --equivalent-to "$i"
+	    $ltlfilt -f "$i" --unabbrev=$fg$rwm --equivalent-to "$i" >out
+	    test -n "$rwm" && grep "[$rwm]" out && exit 1
 	done
     done
 done
+
+true

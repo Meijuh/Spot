@@ -205,7 +205,7 @@ namespace spot
 	  auto gf2 = formula::G(f2);
 	  if (re_g_)
 	    gf2 = run(gf2);
-	  out = formula::U(f2, formula::Or({f12, out}));
+	  out = formula::U(f2, formula::Or({f12, gf2}));
 	  break;
 	}
       case op::W:
@@ -225,8 +225,8 @@ namespace spot
 	    }
 	  auto gf1 = formula::G(f1);
 	  if (re_g_)
-	    gf1 = rec(gf1);
-	  out = formula::U(f1, formula::Or({f2, out}));
+	    gf1 = run(gf1);
+	  out = formula::U(f1, formula::Or({f2, gf1}));
 	  break;
 	}
       case op::M:
