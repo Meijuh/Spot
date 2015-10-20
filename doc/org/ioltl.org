@@ -225,7 +225,7 @@ wc -l example-*.ltl
 :  1 example-5.ltl
 :  5 total
 
-#+BEGIN_SRC sh :results verbatim :exports none
+#+BEGIN_SRC sh :results silent :exports results
 rm -f example-*.ltl
 #+END_SRC
 #+RESULTS:

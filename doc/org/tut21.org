@@ -158,6 +158,6 @@ State 3:
 #+end_example
 
 
-#+BEGIN_SRC sh :results verbatim :exports none
+#+BEGIN_SRC sh :results silent :exports results
 rm -f tut21.hoa
 #+END_SRC

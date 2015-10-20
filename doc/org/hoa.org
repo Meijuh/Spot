@@ -112,7 +112,7 @@ acceptance are pushed onto the outgoing transitions.
 So an automaton represented as an HOA file with this transition
 structure:
 
-#+BEGIN_SRC sh :results verbatim :exports none
+#+BEGIN_SRC sh :results silent :exports results
 cat >stvstracc.hoa <<EOF
 HOA: v1
 States: 3
@@ -120,13 +120,16 @@ Start: 0
 AP: 2 "p0" "p1"
 Acceptance: 2 Inf(0)&Inf(1)
 --BODY--
+/* state-based acceptance */
 State: 0 {0 1}
 [0&!1] 0
 [0&1] 1
 [!0] 2
+/* mixed state- and transition-based acceptance */
 State: 1 {0}
 [0] 1 {1}
 [0&1] 2
+/* transition-based acceptance */
 State: 2
 [!0] 1 {0}
 [0]  2 {1}
@@ -177,7 +180,7 @@ State: 2
 [0] 2 {1}
 #+end_example
 
-#+BEGIN_SRC sh :results verbatim :exports none
+#+BEGIN_SRC sh :results silent :exports results
 rm -f stvstracc.hoa
 #+END_SRC
 
@@ -289,7 +292,7 @@ State: 2
 --END--
 #+end_example
 
-#+BEGIN_SRC sh :results verbatim :exports nond\e
+#+BEGIN_SRC sh :results silent :exports results
 rm sba.hoa
 #+END_SRC
 
