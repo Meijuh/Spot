@@ -153,4 +153,22 @@ test `grep -c unambiguous output` = 0
 ../../bin/randltl --psl -n 1000 3 | $ltl2tgba -U -F- -H |
   $autfilt -v --is-unamb --stats=%M && exit 1
 
-:
+cat >input <<EOF
+HOA: v1
+properties: explicit-labels state-acc trans-labels
+States: 3
+Start: 0
+AP: 0
+Acceptance: 1 Inf(0)
+acc-name: Buchi
+name: ""
+tool: "GOAL" ""
+--BODY--
+State: 0
+[t] 2
+[t] 1
+State: 1
+State: 2
+--END--
+EOF
+run 0 $autfilt -q --is-unambiguous input

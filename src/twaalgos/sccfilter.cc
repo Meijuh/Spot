@@ -324,11 +324,12 @@ namespace spot
 	}
       if (!given_si)
 	delete si;
-      // If the initial state has been filtered out, we don't attempt
-      // to fix it.
+      // If the initial state has been filtered out, we have to create
+      // a new one (not doing so may cause empty automata, which in turn
+      // cause all sort of issue with algorithms assuming an automaton
+      // has one initial state).
       auto init = inout[aut->get_init_state_number()];
-      if (init < out_n)
-	filtered->set_init_state(init);
+      filtered->set_init_state(init < out_n ? init : filtered->new_state());
       return filtered;
     }
 

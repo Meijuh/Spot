@@ -65,6 +65,8 @@ New in spot 1.99.4a (not yet released)
   * "ltlgrind -F FILENAME/COL" did not preserve other CSV columns.
   * "ltlgrind --help" did not document FORMAT.
   * unabbreviate could easily use forbidden operators.
+  * "autfilt --is-unambiguous" could fail to detect the nonambiguity
+    of some automata with empty languages.
 
 New in spot 1.99.4 (2015-10-01)
 

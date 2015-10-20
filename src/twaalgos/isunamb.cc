@@ -30,6 +30,8 @@ namespace spot
     if (aut->is_deterministic() || aut->is_unambiguous())
       return true;
     auto clean_a = scc_filter_states(aut);
+    if (clean_a->num_edges() == 0)
+      return true;
     auto prod = product(clean_a, clean_a);
     auto clean_p = scc_filter_states(prod);
     return clean_a->num_states() == clean_p->num_states()
