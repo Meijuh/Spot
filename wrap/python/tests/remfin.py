@@ -20,8 +20,8 @@ State: 2
 """)
 aut.prop_inherently_weak()
 aut = spot.dtwa_complement(aut)
-aut = spot.scc_filter_states(aut)
-assert(aut.to_str('hoa') == """HOA: v1
+aut1 = spot.scc_filter_states(aut)
+assert(aut1.to_str('hoa') == """HOA: v1
 States: 2
 Start: 0
 AP: 1 "a"
@@ -36,6 +36,8 @@ State: 1
 [t] 1
 --END--""")
 
-assert(aut.get_name() == None)
-aut.set_name("test me")
-assert(aut.get_name() == "test me")
+assert(aut.scc_filter_states().to_str() == aut1.to_str())
+assert(aut1.get_name() == None)
+aut1.set_name("test me")
+assert(aut1.get_name() == "test me")
+# The method is the same as the function

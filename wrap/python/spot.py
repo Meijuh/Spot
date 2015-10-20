@@ -540,9 +540,14 @@ def postprocess(automaton, *args):
 
 
 twa.postprocess = postprocess
-twa.scc_filter = scc_filter
-twa.scc_filter_states = scc_filter_states
 
+# Wrap C++-functions into lambdas so that they get converted into
+# instance methods (i.e., self passed as first argument
+# automatically), because only used-defined functions are converted as
+# instance methods.
+for meth in ('scc_filter', 'scc_filter_states'):
+    setattr(twa_graph, meth, (lambda self, *args, **kwargs:
+                              globals()[meth](self, *args, **kwargs)))
 
 # Wrapper around a formula iterator to which we add some methods of formula
 # (using _addfilter and _addmap), so that we can write things like
