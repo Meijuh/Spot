@@ -71,6 +71,9 @@ New in spot 1.99.4a (not yet released)
   * unabbreviate could easily use forbidden operators.
   * "autfilt --is-unambiguous" could fail to detect the nonambiguity
     of some automata with empty languages.
+  * When parsing long tokens (e.g, state labels representing
+    very large strings) the automaton parser could die with
+    "input buffer overflow, can't enlarge buffer because scanner uses REJECT"
 
 New in spot 1.99.4 (2015-10-01)
 

@@ -2365,3 +2365,21 @@ State: 3 "[{8}]"
 [!1] 0 {0 1 2}
 --END--
 EOF
+
+# A 50000-char word
+BIGLABEL=`yes y | sed 25000q | tr 'y\n' 'xx'`
+cat >bigaut <<EOF
+HOA: v1
+States: 1
+Start: 0
+Acceptance: 1 Fin(0)
+AP: 0
+--BODY--
+State: 0 "$BIGLABEL"
+{0}
+[t] 0
+--END--
+EOF
+# At some point, this crashed with
+# input buffer overflow, can't enlarge buffer because scanner uses REJECT
+run 0 ../../bin/autfilt -q bigaut

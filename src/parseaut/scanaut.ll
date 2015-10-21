@@ -145,8 +145,8 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
   "AP:"			return token::AP;
   "v2"			return token::V2;
   "explicit"		return token::EXPLICIT;
-  "Comment:".*		continue;
-  "//".*		continue;
+  "Comment:".*		yylloc->step();
+  "//".*		yylloc->step();
   "Acceptance-Pairs:"	return token::ACCPAIRS;
   "Acc-Sig:"		return token::ACCSIG;
   "---"			return token::ENDOFHEADER;
@@ -154,7 +154,9 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
   /* The start of any automaton is the end of this one.
      We do not try to detect LBTT automata, as that would
      be too hard to distinguish from state numbers. */
-  ""/{eols}("HOA:"|"never"|"DSA"|"DRA")  {
+  {eols}("HOA:"|"never"|"DSA"|"DRA")  {
+			  yylloc->end = yylloc->begin;
+			  yyless(0);
 			  BEGIN(INITIAL);
 			  return token::ENDDSTAR;
 			}
@@ -281,7 +283,13 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
   "*"+[^*/\n\r]*	continue;
   {eol}			yylloc->lines(yyleng); yylloc->end.column = 1;
   {eol2}		yylloc->lines(yyleng / 2); yylloc->end.column = 1;
-  "*"+"/"		if (--comment_level == 0) BEGIN(orig_cond);
+  "*"+"/"		{
+			  if (--comment_level == 0)
+			    {
+			      yylloc->step();
+		              BEGIN(orig_cond);
+		            }
+                        }
   <<EOF>>		{
                            BEGIN(orig_cond);
                            error_list.push_back(
