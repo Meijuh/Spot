@@ -366,7 +366,9 @@ def automata(*sources, timeout=None):
                     p = automaton_stream_parser(proc.stdout.fileno(),
                                                 filename, True)
                 else:
+                    # universal_newlines for str output instead of bytes
                     out = subprocess.check_output(filename[:-1], shell=True,
+                                                  universal_newlines=True,
                                                   timeout=timeout)
                     p = automaton_stream_parser(out, filename, True)
             elif '\n' in filename:
