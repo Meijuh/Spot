@@ -27,6 +27,8 @@ if sys.hexversion < 0x03030000:
 
 from spot_impl import *
 import subprocess
+import os
+import signal
 from functools import lru_cache
 
 
@@ -360,16 +362,26 @@ def automata(*sources, timeout=None):
             p = None
             proc = None
             if filename[-1] == '|':
+                # universal_newlines for str output instead of bytes
+                # when the pipe is read from Python (which happens
+                # when timeout is set).
+                proc = subprocess.Popen(filename[:-1], shell=True,
+                                        preexec_fn=os.setsid,
+                                        universal_newlines=True,
+                                        stdout=subprocess.PIPE)
                 if timeout is None:
-                    proc = subprocess.Popen(filename[:-1], shell=True,
-                                            stdout=subprocess.PIPE)
                     p = automaton_stream_parser(proc.stdout.fileno(),
                                                 filename, True)
                 else:
-                    # universal_newlines for str output instead of bytes
-                    out = subprocess.check_output(filename[:-1], shell=True,
-                                                  universal_newlines=True,
-                                                  timeout=timeout)
+                    try:
+                        out, err = proc.communicate(timeout=timeout)
+                    except subprocess.TimeoutExpired:
+                        # Using subprocess.check_output() with timeout
+                        # would just kill the shell, not its children.
+                        os.killpg(proc.pid, signal.SIGKILL)
+                        raise
+                    finally:
+                        proc = None
                     p = automaton_stream_parser(out, filename, True)
             elif '\n' in filename:
                 p = automaton_stream_parser(filename, "<string>", True)
@@ -388,11 +400,11 @@ def automata(*sources, timeout=None):
             if proc is not None:
                 if not a:
                     # We reached the end of the stream.  Wait for the
-                    # process to finish, so that we can its exit code.
+                    # process to finish, so that we get its exit code.
                     ret = proc.wait()
                 else:
                     # if a != None, we probably got there through an
-                    # exception, and the subprocess my still be
+                    # exception, and the subprocess might still be
                     # running.  Check if an exit status is available
                     # just in case.
                     ret = proc.poll()
