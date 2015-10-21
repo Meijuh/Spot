@@ -1,5 +1,5 @@
 AC_DEFUN([adl_CHECK_PYTHON],
- [AM_PATH_PYTHON([3.2])
+ [AM_PATH_PYTHON([3.3])
   case $PYTHON in
     [[\\/$]]* | ?:[[\\/]]* );;
     *) AC_MSG_ERROR([The PYTHON variable must be set to an absolute filename.]);;

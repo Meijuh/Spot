@@ -18,7 +18,7 @@ successful development build]].
 Spot requires a C++11-compliant compiler.  =g++= 4.8 or later, as well
 as =clang++= 3.5 or later should work.
 
-Spot expects a complete installation of Python (version 3.2 or later).
+Spot expects a complete installation of Python (version 3.3 or later).
 Especially, Python's headers files should be installed.  If you don't
 have Python installed, and do NOT want to install it, you should run
 =./configure= with the =--disable-python= option.
