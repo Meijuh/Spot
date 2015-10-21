@@ -17,9 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+import sys
+
+
+if sys.hexversion < 0x03030000:
+    sys.exit("This module requires Python 3.3 or newer")
+
+
 from spot_impl import *
 import subprocess
-import sys
 from functools import lru_cache
 
 
@@ -288,11 +295,21 @@ class formula:
         raise ValueError("unknown type of formula")
 
 
-def automata(*filenames):
+def automata(*sources, timeout=None):
     """Read automata from a list of sources.
 
-    These sources can be either filenames, commands, or some
-    textual represantations of automata.
+    Parameters
+    ----------
+    *sources : list of str
+        These sources can be either commands (end with `|`),
+        textual represantations of automata (contain `\n`),
+        or filenames (else).
+    timeout_error : int, optional
+        Number of seconds to wait for the result of a command.
+        If None (the default), not limit is used.
+
+    Notes
+    -----
 
     The automata can be written in the `HOA format`_, as `never
     claims`_, in `LBTT's format`_, or in `ltl2dstar's format`_.
@@ -316,24 +333,45 @@ def automata(*filenames):
     The result of this function is a generator on all the automata
     objects read from these sources.  The typical usage is::
 
-        for aut in spot.automata(filename):
+        for aut in spot.automata(filename, command, ...):
             # do something with aut
 
+    When the source is a command, and no `timeout` is specified,
+    parsing is done straight out of the pipe connecting the
+    command.  So
+
+        for aut in spot.automata('randaut -H -n 10 2 |'):
+            process(aut)
+
+    will call `process(aut)` on each automaton as soon as it is output by
+    `randaut`, and without waiting for `randaut` to terminate.
+
+    However if `timeout` is passed, then `automata()` will wait for
+    the entire command to terminate before parsing its entire output.
+    If one command takes more than `timeout` seconds,
+    `subprocess.TimeoutExpired` is raised.
+
+    If any command terminates with a non-zero error,
+    `subprocess.CalledProcessError` is raised.
     """
 
-    for filename in filenames:
+    for filename in sources:
         try:
             p = None
+            proc = None
             if filename[-1] == '|':
-                proc = subprocess.Popen(filename[:-1], shell=True,
-                                        stdout=subprocess.PIPE)
-                p = automaton_stream_parser(proc.stdout.fileno(),
-                                            filename, True)
+                if timeout is None:
+                    proc = subprocess.Popen(filename[:-1], shell=True,
+                                            stdout=subprocess.PIPE)
+                    p = automaton_stream_parser(proc.stdout.fileno(),
+                                                filename, True)
+                else:
+                    out = subprocess.check_output(filename[:-1], shell=True,
+                                                  timeout=timeout)
+                    p = automaton_stream_parser(out, filename, True)
             elif '\n' in filename:
-                proc = None
                 p = automaton_stream_parser(filename, "<string>", True)
             else:
-                proc = None
                 p = automaton_stream_parser(filename, True)
             a = True
             while a:
@@ -358,17 +396,16 @@ def automata(*filenames):
                     ret = proc.poll()
                 del proc
                 if ret:
-                    raise RuntimeError("Command {} exited with exit status {}"
-                                       .format(filename[:-1], ret))
+                    raise subprocess.CalledProcessError(ret, filename[:-1])
     return
 
 
-def automaton(filename):
+def automaton(filename, **kwargs):
     """Read a single automaton from a file.
 
     See `spot.automata` for a list of supported formats."""
     try:
-        return next(automata(filename))
+        return next(automata(filename, **kwargs))
     except StopIteration:
         raise RuntimeError("Failed to read automaton from {}".format(filename))
 

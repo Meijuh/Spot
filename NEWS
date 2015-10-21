@@ -43,6 +43,7 @@ New in spot 1.99.4a (not yet released)
 
   Python:
 
+  * The minimum supported Python version is now 3.3.
   * Add bindings for complete() and dtwa_complement()
   * Formulas now have a custom __format__ function.  See
     https://spot.lrde.epita.fr/tut01.html for examples.
@@ -52,6 +53,9 @@ New in spot 1.99.4a (not yet released)
   * spot.postprocess(aut, *options), or aut.postprocess(*options)
     simplify the use of the spot.postprocessor object.  (Just like we
     have spot.translate() on top of spot.translator().)
+  * spot.automata() and spot.automaton() now have an optional
+    timeout argument to restrict the runtime of commands that
+    produce automata.
 
   Bugs fixed:
 
