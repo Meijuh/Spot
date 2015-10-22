@@ -6,12 +6,16 @@ New in spot 1.99.4a (not yet released)
     It currently works only for deterministic automata.
 
   * By default, autfilt does not simplify automata (this has not
-    changed), as if the --low --any options where used.  But now, if
+    changed), as if the --low --any options were used.  But now, if
     one of --small, --deterministic, or --any is given, the
     optimization level automatically defaults to --high (unless
     specified otherwise).  For symmetry, if one of --low, --medium, or
-    --high is given, thn the translation intent defaults to --small
+    --high is given, then the translation intent defaults to --small
     (unless specified otherwise).
+
+  * autfilt, dstar2tgba, ltlcross, and ltldo now trust the (supported)
+    automaton properties declared in any HOA file they read.  This can
+    be disabled with option --trust-hoa=no.
 
   * ltlgrind FILENAME[/COL] is now the same as
     ltlgrind -F FILENAME[/COL] for consistency with ltlfilt.
@@ -39,6 +43,11 @@ New in spot 1.99.4a (not yet released)
   * The HOA parser will diagnose any version that is not v1, unless it
     looks like a subversion of v1 and no parse error was detected.
 
+  * The way to pass option to the automaton parser has been changed to
+    make it easier to introduct new options.  One such new option is
+    "trust_hoa": when true (the default) supported properties declared
+    in HOA files are trusted even if they cannot be easily be verified.
+
   * ltl_simplifier renamed to tl_simplifier.
 
   Python:
@@ -53,9 +62,14 @@ New in spot 1.99.4a (not yet released)
   * spot.postprocess(aut, *options), or aut.postprocess(*options)
     simplify the use of the spot.postprocessor object.  (Just like we
     have spot.translate() on top of spot.translator().)
-  * spot.automata() and spot.automaton() now have an optional
-    timeout argument to restrict the runtime of commands that
-    produce automata.
+  * spot.automata() and spot.automaton() now have additional
+    optional arguments:
+    - timeout: to restrict the runtime of commands that
+      produce automata
+    - trust_hoa: can be set to False to ignore HOA properties
+      that cannot be easily verified
+    - ignore_abort: can be set to False if you do not want to
+      skip automata ended with --ABORT--.
 
   Bugs fixed:
 

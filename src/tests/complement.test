@@ -63,7 +63,7 @@ AP: 2 "a" "b"
 acc-name: generalized-co-Buchi 2
 Acceptance: 2 Fin(0)|Fin(1)
 properties: trans-labels explicit-labels trans-acc complete
-properties: deterministic
+properties: deterministic stutter-invariant
 --BODY--
 State: 0
 [0&1] 0 {0 1}
@@ -78,7 +78,7 @@ AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: deterministic inherently-weak
 --BODY--
 State: 0
 [0] 2

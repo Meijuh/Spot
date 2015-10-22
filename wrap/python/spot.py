@@ -297,7 +297,8 @@ class formula:
         raise ValueError("unknown type of formula")
 
 
-def automata(*sources, timeout=None, ignore_abort=True, debug=False):
+def automata(*sources, timeout=None, ignore_abort=True,
+             trust_hoa=True, debug=False):
     """Read automata from a list of sources.
 
     Parameters
@@ -306,13 +307,16 @@ def automata(*sources, timeout=None, ignore_abort=True, debug=False):
         These sources can be either commands (end with `|`),
         textual represantations of automata (contain `\n`),
         or filenames (else).
-    timeout_error : int, optional
+    timeout : int, optional
         Number of seconds to wait for the result of a command.
         If None (the default), not limit is used.
     ignore_abort : bool, optional
         If True (the default), skip HOA atomata that ends with
         `--ABORT--`, and return the next automaton in the stream.
         If False, aborted automata are reported as syntax errors.
+    trust_hoa : bool, optional
+        If True (the default), supported HOA properies that
+        cannot be easily verified are trusted.
     debug : bool, optional
         Whether to run the parser in debug mode.
 
@@ -366,6 +370,7 @@ def automata(*sources, timeout=None, ignore_abort=True, debug=False):
     o = automaton_parser_options()
     o.debug = debug
     o.ignore_abort = ignore_abort
+    o.trust_hoa = trust_hoa
     for filename in sources:
         try:
             p = None

@@ -76,7 +76,7 @@ AP: 1 "_foo_"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels trans-acc complete
-properties: deterministic
+properties: deterministic stutter-invariant
 --BODY--
 State: 0
 [0] 0 {0}
@@ -91,6 +91,27 @@ cat output
 cat >expected <<EOF
 HOA: v1
 name: "GF_foo_"
+States: 1
+Start: 0
+AP: 1 "_foo_"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[0] 0 {0}
+[!0] 0
+--END--
+EOF
+diff output expected
+
+# Not trusting properties
+run 0 $ltldo "$ltl2tgba -H %s>%H" -f GF_foo_ -H --trust-hoa=no >output
+cat output
+cat >expected <<EOF
+HOA: v1
+name: "GFp0"
 States: 1
 Start: 0
 AP: 1 "_foo_"

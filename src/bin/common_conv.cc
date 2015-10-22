@@ -20,7 +20,6 @@
 #include "common_conv.hh"
 #include <cstdlib>
 #include "error.h"
-#include "parseaut/public.hh"
 
 int
 to_int(const char* s)
@@ -68,17 +67,6 @@ to_probability(const char* s)
   if (res < 0.0 || res > 1.0)
     error(2, 0, "%f is not between 0 and 1.", res);
   return res;
-}
-
-spot::twa_graph_ptr
-read_automaton(const char* filename, spot::bdd_dict_ptr& dict)
-{
-  spot::parse_aut_error_list pel;
-  auto p = spot::parse_aut(filename, pel, dict);
-  if (spot::format_parse_aut_errors(std::cerr, filename, pel)
-      || !p || p->aborted)
-    error(2, 0, "failed to read automaton from %s", filename);
-  return std::move(p->aut);
 }
 
 std::vector<long>

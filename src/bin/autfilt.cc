@@ -35,6 +35,7 @@
 #include "common_range.hh"
 #include "common_post.hh"
 #include "common_conv.hh"
+#include "common_hoaread.hh"
 
 #include "twaalgos/product.hh"
 #include "twaalgos/isdet.hh"
@@ -58,7 +59,7 @@
 #include "twaalgos/complement.hh"
 
 static const char argp_program_doc[] ="\
-Convert, transform, and filter Büchi automata.\v\
+Convert, transform, and filter omega-automata.\v\
 Exit status:\n\
   0  if some automata were output\n\
   1  if no automata were output (no match)\n\
@@ -229,6 +230,7 @@ static const argp_option options[] =
 
 static const struct argp_child children[] =
   {
+    { &hoaread_argp, 0, nullptr, 0 },
     { &aoutput_argp, 0, nullptr, 0 },
     { &aoutput_io_format_argp, 0, nullptr, 4 },
     { &post_argp_disabled, 0, nullptr, 20 },
@@ -675,7 +677,7 @@ namespace
     process_file(const char* filename)
     {
       spot::parse_aut_error_list pel;
-      auto hp = spot::automaton_stream_parser(filename);
+      auto hp = spot::automaton_stream_parser(filename, opt_parse);
 
       int err = 0;
 

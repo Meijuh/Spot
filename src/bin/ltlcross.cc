@@ -38,6 +38,7 @@
 #include "common_trans.hh"
 #include "common_file.hh"
 #include "common_finput.hh"
+#include "common_hoaread.hh"
 #include "parseaut/public.hh"
 #include "tl/print.hh"
 #include "tl/apcollect.hh"
@@ -160,6 +161,7 @@ const struct argp_child children[] =
   {
     { &finput_argp, 0, nullptr, 1 },
     { &trans_argp, 0, nullptr, 0 },
+    { &hoaread_argp, 0, "Parsing of automata:", 4 },
     { &misc_argp, 0, nullptr, -2 },
     { nullptr, 0, nullptr, 0 }
   };
@@ -548,7 +550,9 @@ namespace
 
 	  spot::parse_aut_error_list pel;
 	  std::string filename = output.val()->name();
-	  auto aut = spot::parse_aut(filename, pel, dict);
+	  auto aut = spot::parse_aut(filename, pel, dict,
+				     spot::default_environment::instance(),
+				     opt_parse);
 	  if (!pel.empty())
 	    {
 	      status_str = "parse error";

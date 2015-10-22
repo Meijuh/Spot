@@ -1658,11 +1658,15 @@ EOF
 
 # Implicit labels
 
-../../bin/ltl2tgba -H 'GFa & GFb & (c U d)' > out.hoa
-../../bin/ltl2tgba -C -Hi 'GFa & GFb & (c U d)' |
-    sed 's/ stutter-invariant//;/properties:$/d' > out-i.hoa
-../../bin/autfilt -C -Hi out.hoa --name=%M > out-i2.hoa
-diff out-i.hoa out-i2.hoa
+../../bin/ltl2tgba -H 'GFa & GFb & (c U d)' >out.hoa
+../../bin/ltl2tgba -C -Hi 'GFa & GFb & (c U d)' >out-i.hoa
+../../bin/autfilt -C -Hi out.hoa --name=%M >out-i2.hoa
+diff -u out-i.hoa out-i2.hoa
+sed 's/ stutter-invariant//;/properties:$/d' <out-i.hoa >out-i3.hoa
+../../bin/autfilt --trust-hoa=no -C -Hi out.hoa --name=%M >out-i2.hoa
+diff -u out-i3.hoa out-i2.hoa
+
+
 
 cat >expected <<EOF
 HOA: v1
@@ -1673,6 +1677,7 @@ AP: 4 "c" "d" "a" "b"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
 properties: implicit-labels trans-acc complete deterministic
+properties: stutter-invariant
 --BODY--
 State: 0
 0
@@ -1738,6 +1743,7 @@ AP: 4 "c" "d" "a" "b"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
 properties: implicit-labels state-acc complete deterministic
+properties: stutter-invariant
 --BODY--
 State: 0
 1 0 2 2 1 0 2 2 1 0 2 2 1 0 2 2

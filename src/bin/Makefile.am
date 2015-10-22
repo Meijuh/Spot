@@ -36,6 +36,8 @@ libcommon_a_SOURCES =				\
   common_file.hh				\
   common_finput.cc				\
   common_finput.hh				\
+  common_hoaread.cc				\
+  common_hoaread.hh				\
   common_output.cc				\
   common_output.hh				\
   common_post.cc				\

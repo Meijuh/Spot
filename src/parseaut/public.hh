@@ -64,6 +64,7 @@ namespace spot
   {
     bool ignore_abort = false;	///< Skip aborted automata
     bool debug = false;		///< Run the parser in debug mode?
+    bool trust_hoa = true;	///< Trust properties in HOA files
   };
 
   class SPOT_API automaton_stream_parser
@@ -100,7 +101,7 @@ namespace spot
   /// \param dict The BDD dictionary where to use.
   /// \param env The environment of atomic proposition into which parsing
   ///        should take place.
-  /// \param debug When true, causes the parser to trace its execution.
+  /// \param opts Additional options to pass to the parser.
   /// \return A pointer to the tgba built from \a filename, or
   ///        0 if the file could not be opened.
   ///

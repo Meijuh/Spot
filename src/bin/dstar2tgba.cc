@@ -32,6 +32,7 @@
 #include "common_aoutput.hh"
 #include "common_post.hh"
 #include "common_file.hh"
+#include "common_hoaread.hh"
 
 #include "twaalgos/dot.hh"
 #include "twaalgos/lbtt.hh"
@@ -79,6 +80,7 @@ static const argp_option options[] =
 
 static const struct argp_child children[] =
   {
+    { &hoaread_argp, 0, nullptr, 0 },
     { &aoutput_argp, 0, nullptr, 0 },
     { &aoutput_io_format_argp, 0, nullptr, 4 },
     { &post_argp, 0, nullptr, 20 },
@@ -170,7 +172,7 @@ namespace
     process_file(const char* filename)
     {
       spot::parse_aut_error_list pel;
-      auto hp = spot::automaton_stream_parser(filename);
+      auto hp = spot::automaton_stream_parser(filename, opt_parse);
 
       int err = 0;
 

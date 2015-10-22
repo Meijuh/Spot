@@ -78,6 +78,7 @@ extern "C" int strverscmp(const char *s1, const char *s2);
 	spot::location used_loc;
       };
       spot::parsed_aut_ptr h;
+      spot::automaton_parser_options opts;
       std::string format_version;
       spot::location format_version_loc;
       spot::environment* env;
@@ -423,6 +424,16 @@ header: format-version header-items
 		res.complete = true;
 	      }
 	  }
+	  if (res.opts.trust_hoa)
+	    {
+	      auto e = res.props.end();
+	      bool si = res.props.find("stutter-invariant") != e;
+	      res.h->aut->prop_stutter_invariant(si);
+	      bool ss = res.props.find("stutter-sensitive") != e;
+	      res.h->aut->prop_stutter_sensitive(ss);
+	      bool iw = res.props.find("inherently-weak") != e;
+	      res.h->aut->prop_inherently_weak(iw);
+	    }
 	}
 
 version: IDENTIFIER
@@ -1927,6 +1938,7 @@ namespace spot
   {
   restart:
     result_ r;
+    r.opts = opts_;
     r.h = std::make_shared<spot::parsed_aut>();
     r.h->aut = make_twa_graph(dict);
     r.env = &env;

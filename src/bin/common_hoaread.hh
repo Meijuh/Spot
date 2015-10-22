@@ -20,13 +20,15 @@
 #pragma once
 
 #include "common_sys.hh"
-#include "twa/twagraph.hh"
 
-int to_int(const char* s);
-int to_pos_int(const char* s);
-unsigned to_unsigned (const char *s);
-float to_float(const char* s);
-float to_probability(const char* s);
+#include <argp.h>
 
-// Parse the comma or space seperate string of numbers.
-std::vector<long> to_longs(const char* s);
+#include "parseaut/public.hh"
+
+
+extern const struct argp hoaread_argp;
+
+extern spot::automaton_parser_options opt_parse;
+
+spot::twa_graph_ptr
+read_automaton(const char* filename, spot::bdd_dict_ptr& dict);

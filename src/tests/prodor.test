@@ -36,6 +36,7 @@ Start: 0
 AP: 2 "a" "b"
 Acceptance: 2 Inf(0) | Inf(1)
 properties: trans-labels explicit-labels trans-acc complete
+properties: stutter-invariant
 --BODY--
 State: 0
 [0&1] 1 {1}
@@ -66,7 +67,7 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels trans-acc stutter-invariant
 --BODY--
 State: 0
 [0&1] 1 {1}

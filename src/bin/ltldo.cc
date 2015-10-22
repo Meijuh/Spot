@@ -34,6 +34,7 @@
 #include "common_aoutput.hh"
 #include "common_post.hh"
 #include "common_trans.hh"
+#include "common_hoaread.hh"
 
 #include "tl/relabel.hh"
 #include "misc/bareword.hh"
@@ -93,6 +94,7 @@ build_percent_list()
 
 const struct argp_child children[] =
   {
+    { &hoaread_argp, 0, "Parsing of automata:", 3 },
     { &finput_argp, 0, nullptr, 1 },
     { &trans_argp, 0, nullptr, 3 },
     { &aoutput_argp, 0, nullptr, 4 },
@@ -169,7 +171,9 @@ namespace
 
 	  spot::parse_aut_error_list pel;
 	  std::string filename = output.val()->name();
-	  auto aut = spot::parse_aut(filename, pel, dict);
+	  auto aut = spot::parse_aut(filename, pel, dict,
+				     spot::default_environment::instance(),
+				     opt_parse);
 	  if (!pel.empty())
 	    {
 	      problem = true;
