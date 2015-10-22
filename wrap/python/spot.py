@@ -380,6 +380,11 @@ def automata(*sources, timeout=None):
                         # would just kill the shell, not its children.
                         os.killpg(proc.pid, signal.SIGKILL)
                         raise
+                    else:
+                        ret = proc.wait()
+                        if ret:
+                            raise subprocess.CalledProcessError(ret,
+                                                                filename[:-1])
                     finally:
                         proc = None
                     p = automaton_stream_parser(out, filename, True)
