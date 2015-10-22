@@ -123,6 +123,15 @@ namespace spot
     }
     /// @}
 
+    // \brief return the BDD variable associated to a registered
+    // proposition.
+    //
+    // Throws std::out_of_range if the \a is not a known proposition.
+    int varnum(formula f)
+    {
+      return var_map.at(f);
+    }
+
     /// \brief Register an acceptance variable.
     ///
     /// Return (and maybe allocate) a BDD variable designating an
