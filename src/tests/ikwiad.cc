@@ -580,8 +580,10 @@ checked_main(int argc, char** argv)
 	  tm.start("reading -P's argument");
 
 	  spot::parse_aut_error_list pel;
+	  spot::automaton_parser_options opts;
+	  opts.debug = debug_opt;
 	  auto daut = spot::parse_aut(argv[formula_index] + 2, pel,
-				      dict, env, debug_opt);
+				      dict, env, opts);
 	  if (spot::format_parse_aut_errors(std::cerr,
 					    argv[formula_index] + 2, pel))
 	    return 2;
@@ -931,7 +933,9 @@ checked_main(int argc, char** argv)
 	{
 	  spot::parse_aut_error_list pel;
 	  tm.start("parsing hoa");
-	  auto daut = spot::parse_aut(input, pel, dict, env, debug_opt);
+	  spot::automaton_parser_options opts;
+	  opts.debug = debug_opt;
+	  auto daut = spot::parse_aut(input, pel, dict, env, opts);
 	  tm.stop("parsing hoa");
 	  if (spot::format_parse_aut_errors(std::cerr, input, pel))
 	    return 2;

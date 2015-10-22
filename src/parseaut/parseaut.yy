@@ -1890,8 +1890,8 @@ static void check_version(const result_& r,
 namespace spot
 {
   automaton_stream_parser::automaton_stream_parser(const std::string& name,
-						   bool ignore_abort)
-    : filename_(name), ignore_abort_(ignore_abort)
+						   automaton_parser_options opt)
+    : filename_(name), opts_(opt)
   {
     if (hoayyopen(name))
       throw std::runtime_error(std::string("Cannot open file ") + name);
@@ -1899,8 +1899,8 @@ namespace spot
 
   automaton_stream_parser::automaton_stream_parser(int fd,
 						   const std::string& name,
-						   bool ignore_abort)
-    : filename_(name), ignore_abort_(ignore_abort)
+						   automaton_parser_options opt)
+    : filename_(name), opts_(opt)
   {
     if (hoayyopen(fd))
       throw std::runtime_error(std::string("Cannot open file ") + name);
@@ -1908,8 +1908,8 @@ namespace spot
 
   automaton_stream_parser::automaton_stream_parser(const char* data,
 						   const std::string& filename,
-						   bool ignore_abort)
-    : filename_(filename), ignore_abort_(ignore_abort)
+						   automaton_parser_options opt)
+    : filename_(filename), opts_(opt)
   {
     hoayystring(data);
   }
@@ -1923,8 +1923,7 @@ namespace spot
   parsed_aut_ptr
   automaton_stream_parser::parse(parse_aut_error_list& error_list,
 				 const bdd_dict_ptr& dict,
-				 environment& env,
-				 bool debug)
+				 environment& env)
   {
   restart:
     result_ r;
@@ -1933,7 +1932,7 @@ namespace spot
     r.env = &env;
     hoayy::parser parser(error_list, r, last_loc);
     static bool env_debug = !!getenv("SPOT_DEBUG_PARSER");
-    parser.set_debug_level(debug || env_debug);
+    parser.set_debug_level(opts_.debug || env_debug);
     hoayyreset();
     try
       {
@@ -1951,7 +1950,7 @@ namespace spot
     last_loc.step();
     if (r.h->aborted)
       {
-	if (ignore_abort_)
+	if (opts_.ignore_abort)
 	  goto restart;
 	return r.h;
       }
@@ -1967,11 +1966,10 @@ namespace spot
 
   twa_graph_ptr
   automaton_stream_parser::parse_strict(const bdd_dict_ptr& dict,
-					environment& env,
-					bool debug)
+					environment& env)
   {
     parse_aut_error_list pel;
-    auto a = parse(pel, dict, env, debug);
+    auto a = parse(pel, dict, env);
 
     if (!pel.empty())
       {

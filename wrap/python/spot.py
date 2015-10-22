@@ -297,7 +297,7 @@ class formula:
         raise ValueError("unknown type of formula")
 
 
-def automata(*sources, timeout=None):
+def automata(*sources, timeout=None, ignore_abort=True, debug=False):
     """Read automata from a list of sources.
 
     Parameters
@@ -309,6 +309,12 @@ def automata(*sources, timeout=None):
     timeout_error : int, optional
         Number of seconds to wait for the result of a command.
         If None (the default), not limit is used.
+    ignore_abort : bool, optional
+        If True (the default), skip HOA atomata that ends with
+        `--ABORT--`, and return the next automaton in the stream.
+        If False, aborted automata are reported as syntax errors.
+    debug : bool, optional
+        Whether to run the parser in debug mode.
 
     Notes
     -----
@@ -357,6 +363,9 @@ def automata(*sources, timeout=None):
     `subprocess.CalledProcessError` is raised.
     """
 
+    o = automaton_parser_options()
+    o.debug = debug
+    o.ignore_abort = ignore_abort
     for filename in sources:
         try:
             p = None
@@ -371,7 +380,7 @@ def automata(*sources, timeout=None):
                                         stdout=subprocess.PIPE)
                 if timeout is None:
                     p = automaton_stream_parser(proc.stdout.fileno(),
-                                                filename, True)
+                                                filename, o)
                 else:
                     try:
                         out, err = proc.communicate(timeout=timeout)
@@ -387,11 +396,11 @@ def automata(*sources, timeout=None):
                                                                 filename[:-1])
                     finally:
                         proc = None
-                    p = automaton_stream_parser(out, filename, True)
+                    p = automaton_stream_parser(out, filename, o)
             elif '\n' in filename:
-                p = automaton_stream_parser(filename, "<string>", True)
+                p = automaton_stream_parser(filename, "<string>", o)
             else:
-                p = automaton_stream_parser(filename, True)
+                p = automaton_stream_parser(filename, o)
             a = True
             while a:
                 # This returns None when we reach the end of the file.
@@ -416,6 +425,12 @@ def automata(*sources, timeout=None):
                 del proc
                 if ret:
                     raise subprocess.CalledProcessError(ret, filename[:-1])
+    # deleting o explicitely now prevents Python 3.5 from
+    # reporting the following error: "<built-in function
+    # delete_automaton_parser_options> returned a result with
+    # an error set".  It's not clear to me if the bug is in Python
+    # or Swig.  At least it's related to the use of generators.
+    del o
     return
 
 

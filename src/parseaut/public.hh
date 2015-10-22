@@ -60,33 +60,37 @@ namespace spot
   typedef std::shared_ptr<parsed_aut> parsed_aut_ptr;
   typedef std::shared_ptr<const parsed_aut> const_parsed_aut_ptr;
 
+  struct automaton_parser_options
+  {
+    bool ignore_abort = false;	///< Skip aborted automata
+    bool debug = false;		///< Run the parser in debug mode?
+  };
+
   class SPOT_API automaton_stream_parser
   {
     spot::location last_loc;
     std::string filename_;
-    bool ignore_abort_;
+    automaton_parser_options opts_;
   public:
     automaton_stream_parser(const std::string& filename,
-			    bool ignore_abort = false);
+			    automaton_parser_options opts = {});
     // Read from an already open file descriptor.
     // Use filename in error messages.
     automaton_stream_parser(int fd, const std::string& filename,
-			    bool ignore_abort = false);
+			    automaton_parser_options opts = {});
     // Read from a buffer
     automaton_stream_parser(const char* data,
 			    const std::string& filename,
-			    bool ignore_abort = false);
+			    automaton_parser_options opts = {});
     ~automaton_stream_parser();
     parsed_aut_ptr parse(parse_aut_error_list& error_list,
 			 const bdd_dict_ptr& dict,
 			 environment& env =
-			 default_environment::instance(),
-			 bool debug = false);
+			 default_environment::instance());
     // Raises a parse_error on any syntax error
     twa_graph_ptr parse_strict(const bdd_dict_ptr& dict,
 			       environment& env =
-			       default_environment::instance(),
-			       bool debug = false);
+			       default_environment::instance());
   };
 
   /// \brief Build a spot::twa_graph from a HOA file or a neverclaim.
@@ -121,12 +125,12 @@ namespace spot
 	    parse_aut_error_list& error_list,
 	    const bdd_dict_ptr& dict,
 	    environment& env = default_environment::instance(),
-	    bool debug = false)
+	    automaton_parser_options opts = {})
   {
     try
       {
-	automaton_stream_parser p(filename);
-	return p.parse(error_list, dict, env, debug);
+	automaton_stream_parser p(filename, opts);
+	return p.parse(error_list, dict, env);
       }
     catch (std::runtime_error& e)
       {
