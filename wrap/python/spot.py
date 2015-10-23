@@ -588,7 +588,7 @@ def translate(formula, *args):
 formula.translate = translate
 
 
-def postprocess(automaton, *args):
+def postprocess(automaton, *args, formula=None):
     """Post process an automaton.
 
     This applies a number of simlification algorithms, depending on
@@ -607,12 +607,16 @@ def postprocess(automaton, *args):
       (or 'SBAcc' for short)
 
     The default corresponds to 'generic', 'small' and 'high'.
+
+    If a formula denoted by this automaton is known, pass it to as the
+    optional `formula` argument; it can help some algorithms by
+    providing an easy way to complement the automaton.
     """
     p = postprocessor()
     if type(automaton) == str:
         automaton = globals()['automaton'](automaton)
     _postproc_translate_options(p, postprocessor.Generic, *args)
-    return p.run(automaton)
+    return p.run(automaton, formula)
 
 
 twa.postprocess = postprocess

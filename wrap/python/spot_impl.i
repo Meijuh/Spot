@@ -180,6 +180,24 @@ using namespace spot;
  };
 %apply char** OUTPUT { char** err };
 
+// Allow None to be passed for formula.  Some functions like
+// postprocessor::run() take an optional formula that defaults to
+// nullptr.  So it make sense to have function that take formulas that
+// default to None on the Python side.
+%typemap(in) spot::formula {
+    void *tmp;
+    int res = SWIG_ConvertPtr($input, &tmp, $descriptor(spot::formula*), 0);
+    if (!SWIG_IsOK(res)) {
+      %argument_fail(res, "spot::formula", $symname, $argnum);
+    }
+    if (tmp) {
+      spot::formula* temp = reinterpret_cast< spot::formula * >(tmp);
+      $1 = *temp;
+      if (SWIG_IsNewObj(res)) delete temp;
+    }
+    // if tmp == nullptr, then the default value of $1 is fine.
+}
+
 %typemap(out) spot::formula {
   if (!$1)
     $result = SWIG_Py_Void();
