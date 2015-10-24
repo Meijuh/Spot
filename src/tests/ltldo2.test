@@ -27,5 +27,5 @@ genltl=../../bin/genltl
 test -n "$LTL2BA" || exit 77
 
 $genltl --or-g=1..2 |
-    run 0 $ltldo 'ltl2ba -f %s>%H' '{foo}ltl2ba' >output
+    run 0 $ltldo "$LTL2BA -f %s>%H" '{foo}ltl2ba' >output
 test 4 = `grep -c digraph output`
