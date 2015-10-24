@@ -205,7 +205,7 @@ accept_T3:
 }
 EOF
 cat >expected<<EOF
-transitions: 6
+edges: 6
 states: 4
 EOF
 

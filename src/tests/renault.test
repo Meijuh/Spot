@@ -65,7 +65,7 @@ State: 9
 EOF
 
 cat >outexp <<EOF
-transitions: 12
+edges: 12
 states: 6
 EOF
 

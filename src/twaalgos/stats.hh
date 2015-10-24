@@ -32,27 +32,27 @@ namespace spot
   /// \addtogroup twa_misc
   /// @{
 
-  struct SPOT_API tgba_statistics
+  struct SPOT_API twa_statistics
   {
-    unsigned transitions;
+    unsigned edges;
     unsigned states;
 
-    tgba_statistics() { transitions = 0; states = 0; }
+    twa_statistics() { edges = 0; states = 0; }
     std::ostream& dump(std::ostream& out) const;
   };
 
-  struct SPOT_API tgba_sub_statistics: public tgba_statistics
+  struct SPOT_API twa_sub_statistics: public twa_statistics
   {
-    unsigned sub_transitions;
+    unsigned transitions;
 
-    tgba_sub_statistics() { sub_transitions = 0; }
+    twa_sub_statistics() { transitions = 0; }
     std::ostream& dump(std::ostream& out) const;
   };
 
   /// \brief Compute statistics for an automaton.
-  SPOT_API tgba_statistics stats_reachable(const const_twa_ptr& g);
+  SPOT_API twa_statistics stats_reachable(const const_twa_ptr& g);
   /// \brief Compute sub statistics for an automaton.
-  SPOT_API tgba_sub_statistics sub_stats_reachable(const const_twa_ptr& g);
+  SPOT_API twa_sub_statistics sub_stats_reachable(const const_twa_ptr& g);
 
 
   class SPOT_API printable_formula: public printable_value<formula>

@@ -1516,12 +1516,12 @@ checked_main(int argc, char** argv)
                   std::ios::fmtflags old = std::cout.flags();
                   std::cout << std::left << std::setw(25)
                             << echeck_algo << ", ";
-                  spot::tgba_statistics a_size =
+                  spot::twa_statistics a_size =
                                         spot::stats_reachable(ec->automaton());
                   std::cout << std::right << std::setw(10)
                             << a_size.states << ", "
                             << std::right << std::setw(10)
-                            << a_size.transitions << ", ";
+                            << a_size.edges << ", ";
                   std::cout << ec->automaton()->acc().num_sets()
                             << ", ";
 		  auto ecs = ec->emptiness_check_statistics();

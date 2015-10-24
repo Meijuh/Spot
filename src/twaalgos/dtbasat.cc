@@ -785,9 +785,8 @@ namespace spot
 	out << target_state_number << ',';
 	if (res)
 	  {
-	    tgba_sub_statistics st = sub_stats_reachable(res);
-	    out << st.states << ',' << st.transitions
-		<< ',' << st.sub_transitions;
+	    twa_sub_statistics st = sub_stats_reachable(res);
+	    out << st.states << ',' << st.edges << ',' << st.transitions;
 	  }
 	else
 	  {

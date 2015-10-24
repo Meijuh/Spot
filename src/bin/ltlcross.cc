@@ -601,10 +601,10 @@ namespace
 	      if (verbose)
 		std::cerr << "info: getting statistics\n";
 	      st->ok = true;
-	      spot::tgba_sub_statistics s = sub_stats_reachable(res);
+	      spot::twa_sub_statistics s = sub_stats_reachable(res);
 	      st->states = s.states;
-	      st->edges = s.transitions;
-	      st->transitions = s.sub_transitions;
+	      st->edges = s.edges;
+	      st->transitions = s.transitions;
 	      st->acc = res->acc().num_sets();
 	      spot::scc_info m(res);
 	      unsigned c = m.scc_count();
@@ -927,9 +927,9 @@ namespace
 	  if (sm)
 	    {
 	      (*stats)[i].product_scc.push_back(sm->scc_count());
-	      spot::tgba_statistics s = spot::stats_reachable(sm->get_aut());
+	      spot::twa_statistics s = spot::stats_reachable(sm->get_aut());
 	      (*stats)[i].product_states.push_back(s.states);
-	      (*stats)[i].product_transitions.push_back(s.transitions);
+	      (*stats)[i].product_transitions.push_back(s.edges);
 	    }
 	  else
 	    {

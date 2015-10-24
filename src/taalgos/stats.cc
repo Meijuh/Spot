@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -49,7 +49,7 @@ namespace spot
       void
       process_link(int, int, const ta_succ_iterator*)
       {
-        ++s_.transitions;
+        ++s_.edges;
       }
 
     private:
@@ -61,7 +61,7 @@ namespace spot
   std::ostream&
   ta_statistics::dump(std::ostream& out) const
   {
-    out << "transitions: " << transitions << std::endl;
+    out << "edges: " << edges << std::endl;
     out << "states: " << states << std::endl;
     return out;
   }

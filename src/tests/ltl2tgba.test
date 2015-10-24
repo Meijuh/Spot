@@ -109,7 +109,7 @@ run 0 ../ikwiad -e -R3 '(G!{(b;1)*;a} && ({1;1[*3]*}[]->{(b&!a)[*2];!b&!a}))'
 # before and after degeneralization.
 for opt in '' -DT -DS; do
   ../ikwiad -ks -f -R3 $opt 'a U (b U c)' > stdout
-  grep 'transitions: 6$' stdout
+  grep 'edges: 6$' stdout
   grep 'states: 3$' stdout
 done
 
@@ -117,8 +117,8 @@ done
 # before and after degeneralization.
 for opt in '' -DT -DS; do
   ../ikwiad -kt -f -R3 $opt '!(Ga U b)' > stdout
-  grep 'sub trans.: 11$' stdout
-  grep 'transitions: 6$' stdout
+  grep 'transitions: 11$' stdout
+  grep 'edges: 6$' stdout
   grep 'states: 3$' stdout
 done
 
@@ -126,8 +126,8 @@ done
 # before and after degeneralization.
 for opt in '' -DT -DS; do
   ../ikwiad -kt -f -R3 $opt 'Ga U b' > stdout
-  grep 'sub trans.: 12$' stdout
-  grep 'transitions: 6$' stdout
+  grep 'transitions: 12$' stdout
+  grep 'edges: 6$' stdout
   grep 'states: 4$' stdout
 done
 
@@ -136,10 +136,10 @@ done
 f='(G (p -> F q)) && ((X (p) U q) || ! X (p U (p && q)))'
 for opt in '' -DT -DS; do
   ../ikwiad -ks -f -R3 $opt "$f" > stdout
-  grep 'transitions: 15$' stdout
+  grep 'edges: 15$' stdout
   grep 'states: 6$' stdout
   ../ikwiad -ks -f -R3f $opt "$f" > stdout
-  grep 'transitions: 15$' stdout
+  grep 'edges: 15$' stdout
   grep 'states: 6$' stdout
 done
 
@@ -147,16 +147,16 @@ done
 # has 7 states and 34 transitions after degeneralization.
 f='GFa & GFb & GFc & GFd & GFe & GFg'
 ../ikwiad -ks -DS -x -f "$f" > stdout
-grep 'transitions: 34$' stdout
+grep 'edges: 34$' stdout
 grep 'states: 7$' stdout
 
 # Make sure 'Ga & XXXX!a' is minimized to one state.
 f='Ga & XXXX!a'
 ../ikwiad -ks -f "$f" > stdout
-grep 'transitions: 4$' stdout
+grep 'edges: 4$' stdout
 grep 'states: 5$' stdout
 ../ikwiad -ks -Rm -f "$f" > stdout
-grep 'transitions: 0$' stdout
+grep 'edges: 0$' stdout
 grep 'states: 1$' stdout
 
 # Make sure a monitor for F(a & F(b)) accepts everything.
@@ -169,12 +169,12 @@ cmp stdout expected
 
 # This formula caused a segfault with Spot 0.7.
 run 0 ../ikwiad -Rm -ks -f "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
-grep 'transitions: 5$' stdout
+grep 'edges: 5$' stdout
 grep 'states: 3$' stdout
 
 # Adding -R3 used to make it work...
 run 0 ../ikwiad -R3 -Rm -ks -f "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
-grep 'transitions: 5$' stdout
+grep 'edges: 5$' stdout
 grep 'states: 3$' stdout
 
 # Make sure FGa|GFb has the same number of states/transitions when
@@ -189,7 +189,7 @@ cmp count.never count.hoa
 
 # The following automaton should have only 4 states.
 run 0 ../ikwiad -R3 -ks -f '(p&XF!p)|(!p&XFp)|X(Fp&F!p)' >stdout
-grep 'transitions: 7$' stdout
+grep 'edges: 7$' stdout
 grep 'states: 4$' stdout
 
 # A bug in the translation of !{xxx} when xxx reduces to false caused

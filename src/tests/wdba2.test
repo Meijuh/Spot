@@ -23,8 +23,8 @@
 set -e
 
 cat >expected <<EOF
-sub trans.: 16
-transitions: 8
+transitions: 16
+edges: 8
 states: 4
 nondeterministic states: 0
 EOF

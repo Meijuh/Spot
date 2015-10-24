@@ -128,16 +128,16 @@ public:
 
 	if (has('T'))
 	  {
-	    spot::tgba_sub_statistics s = sub_stats_reachable(haut->aut);
+	    spot::twa_sub_statistics s = sub_stats_reachable(haut->aut);
 	    haut_states_ = s.states;
-	    haut_edges_ = s.transitions;
-	    haut_trans_ = s.sub_transitions;
+	    haut_edges_ = s.edges;
+	    haut_trans_ = s.transitions;
 	  }
 	else if (has('E'))
 	  {
-	    spot::tgba_sub_statistics s = sub_stats_reachable(haut->aut);
+	    spot::twa_sub_statistics s = sub_stats_reachable(haut->aut);
 	    haut_states_ = s.states;
-	    haut_edges_ = s.transitions;
+	    haut_edges_ = s.edges;
 	  }
 	if (has('M'))
 	  {

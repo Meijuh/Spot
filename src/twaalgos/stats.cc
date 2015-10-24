@@ -36,7 +36,7 @@ namespace spot
     class stats_bfs: public tgba_reachable_iterator_breadth_first
     {
     public:
-      stats_bfs(const const_twa_ptr& a, tgba_statistics& s)
+      stats_bfs(const const_twa_ptr& a, twa_statistics& s)
 	: tgba_reachable_iterator_breadth_first(a), s_(s)
       {
       }
@@ -51,17 +51,17 @@ namespace spot
       process_link(const state*, int, const state*, int,
 		   const twa_succ_iterator*)
       {
-	++s_.transitions;
+	++s_.edges;
       }
 
     private:
-      tgba_statistics& s_;
+      twa_statistics& s_;
     };
 
     class sub_stats_bfs: public stats_bfs
     {
     public:
-      sub_stats_bfs(const const_twa_ptr& a, tgba_sub_statistics& s)
+      sub_stats_bfs(const const_twa_ptr& a, twa_sub_statistics& s)
 	: stats_bfs(a, s), s_(s), seen_(bddtrue)
       {
       }
@@ -70,7 +70,7 @@ namespace spot
       process_link(const state*, int, const state*, int,
 		   const twa_succ_iterator* it)
       {
-	++s_.transitions;
+	++s_.edges;
 
 	bdd cond = it->current_condition();
 	bdd newvars = bdd_exist(bdd_support(cond), seen_);
@@ -87,49 +87,49 @@ namespace spot
 	    // transitions we counted so far are actually double
 	    // subtransitions.  If we have two new variables, they where
 	    // quadruple transitions, etc.
-	    s_.sub_transitions <<= count;
+	    s_.transitions <<= count;
 	  }
 	while (cond != bddfalse)
 	  {
 	    cond -= bdd_satoneset(cond, seen_, bddtrue);
-	    ++s_.sub_transitions;
+	    ++s_.transitions;
 	  }
       }
 
     private:
-      tgba_sub_statistics& s_;
+      twa_sub_statistics& s_;
       bdd seen_;
     };
   } // anonymous
 
 
-  std::ostream& tgba_statistics::dump(std::ostream& out) const
+  std::ostream& twa_statistics::dump(std::ostream& out) const
   {
-    out << "transitions: " << transitions << std::endl;
-    out << "states: " << states << std::endl;
+    out << "edges: " << edges << '\n';
+    out << "states: " << states << '\n';
     return out;
   }
 
-  std::ostream& tgba_sub_statistics::dump(std::ostream& out) const
+  std::ostream& twa_sub_statistics::dump(std::ostream& out) const
   {
-    out << "sub trans.: " << sub_transitions << std::endl;
-    this->tgba_statistics::dump(out);
+    out << "transitions: " << transitions << '\n';
+    this->twa_statistics::dump(out);
     return out;
   }
 
-  tgba_statistics
+  twa_statistics
   stats_reachable(const const_twa_ptr& g)
   {
-    tgba_statistics s;
+    twa_statistics s;
     stats_bfs d(g, s);
     d.run();
     return s;
   }
 
-  tgba_sub_statistics
+  twa_sub_statistics
   sub_stats_reachable(const const_twa_ptr& g)
   {
-    tgba_sub_statistics s;
+    twa_sub_statistics s;
     sub_stats_bfs d(g, s);
     d.run();
     return s;
@@ -169,16 +169,16 @@ namespace spot
 
     if (has('t'))
       {
-	tgba_sub_statistics s = sub_stats_reachable(aut);
+	twa_sub_statistics s = sub_stats_reachable(aut);
 	states_ = s.states;
-	edges_ = s.transitions;
-	trans_ = s.sub_transitions;
+	edges_ = s.edges;
+	trans_ = s.transitions;
       }
     else if (has('s') || has('e'))
       {
-	tgba_sub_statistics s = sub_stats_reachable(aut);
+	twa_sub_statistics s = sub_stats_reachable(aut);
 	states_ = s.states;
-	edges_ = s.transitions;
+	edges_ = s.edges;
       }
 
     if (has('a'))

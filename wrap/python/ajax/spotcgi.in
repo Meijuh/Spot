@@ -349,16 +349,14 @@ def print_stats(automaton, detinfo = False, ta = False):
             unbufprint(" (deterministic)")
         else:
             unbufprint(" (%d nondeterministic)" % nondet)
-    if not hasattr(stats, 'sub_transitions'):
-        unbufprint(", %d transition" % stats.transitions)
-        if stats.transitions > 1:
+    if not hasattr(stats, 'transitions'):
+        unbufprint(", %d edge" % stats.edges)
+        if stats.edges > 1:
             unbufprint("s")
     else:
         unbufprint(", %d edge%s (%d transition%s)"
-                   % (stats.transitions,
-                      's' if stats.transitions > 1 else '',
-                      stats.sub_transitions,
-                      's' if stats.sub_transitions > 1 else ''))
+                   % (stats.edges, 's' if stats.edges > 1 else '',
+                      stats.transitions, 's' if stats.transitions > 1 else ''))
     if hasattr(automaton, 'get_acceptance'):
         acc = automaton.get_acceptance()
         if (automaton.is_sba() and automaton.acc().is_buchi() and
@@ -372,9 +370,9 @@ def print_stats(automaton, detinfo = False, ta = False):
     # Decide whether we will render the automaton or not.
     # (A webserver is not a computation center...)
     if stats.states > 64:
-        return "Automaton has too much states"
-    if float(stats.transitions)/stats.states > 10:
-        return "Automaton has too much transitions per state"
+        return "Automaton has too many states"
+    if float(stats.edges)/stats.states > 10:
+        return "Automaton has too many edges per state"
     return False
 
 def format_formula(f, kind='div'):

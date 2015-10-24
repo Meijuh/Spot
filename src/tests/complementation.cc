@@ -186,10 +186,10 @@ int main(int argc, char* argv[])
 
     auto safra_complement = spot::make_safra_complement(a);
 
-    spot::tgba_statistics a_size =  spot::stats_reachable(a);
+    spot::twa_statistics a_size =  spot::stats_reachable(a);
     std::cout << "Original: "
               << a_size.states << ", "
-              << a_size.transitions << ", "
+              << a_size.edges << ", "
               << a->acc().num_sets()
               << std::endl;
 
@@ -200,20 +200,20 @@ int main(int argc, char* argv[])
               << buchi->acc().num_sets()
               << std::endl;
 
-    spot::tgba_statistics b_size =  spot::stats_reachable(safra_complement);
+    spot::twa_statistics b_size =  spot::stats_reachable(safra_complement);
     std::cout << "Safra Complement: "
               << b_size.states << ", "
-              << b_size.transitions << ", "
+              << b_size.edges << ", "
               << safra_complement->acc().num_sets()
               << std::endl;
 
     if (formula)
     {
       auto a2 = spot::ltl_to_tgba_fm(spot::formula::Not(f1), dict);
-      spot::tgba_statistics a_size = spot::stats_reachable(a2);
+      spot::twa_statistics a_size = spot::stats_reachable(a2);
       std::cout << "Not Formula: "
                 << a_size.states << ", "
-                << a_size.transitions << ", "
+                << a_size.edges << ", "
                 << a2->acc().num_sets()
                 << std::endl;
     }
@@ -233,11 +233,11 @@ int main(int argc, char* argv[])
     auto nAnf = spot::make_safra_complement(Anf);
     auto ec = spot::couvreur99(spot::otf_product(nAf, nAnf));
     auto res = ec->check();
-    spot::tgba_statistics a_size =  spot::stats_reachable(ec->automaton());
+    spot::twa_statistics a_size =  spot::stats_reachable(ec->automaton());
     std::cout << "States: "
               << a_size.states << std::endl
               << "Transitions: "
-              << a_size.transitions << std::endl
+              << a_size.edges << std::endl
               << "Acc Cond: "
               << ec->automaton()->acc().num_sets()
               << std::endl;

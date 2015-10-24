@@ -248,14 +248,14 @@ id(const char*, unsigned x)
   return static_cast<T>(x);
 }
 
-spot::tgba_statistics prod_stats;
+spot::twa_statistics prod_stats;
 
 static float
 prod_conv(const char* name, unsigned x)
 {
   float y = static_cast<float>(x);
   if (!strcmp(name, "transitions"))
-    return y / prod_stats.transitions * 100.0;
+    return y / prod_stats.edges * 100.0;
   return y / prod_stats.states * 100.0;
 }
 
@@ -958,7 +958,7 @@ main(int argc, char** argv)
 			{
 			  // To trigger a division by 0 if used erroneously.
 			  prod_stats.states = 0;
-			  prod_stats.transitions = 0;
+			  prod_stats.edges = 0;
 			}
 
 		      if (opt_z && ecs)

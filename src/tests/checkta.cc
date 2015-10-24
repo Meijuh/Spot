@@ -47,7 +47,7 @@ stats(std::string title, const spot::ta_ptr& ta)
 
   std::cout << std::left << std::setw(20) << title << " | "
 	    << std::right << std::setw(6) << s.states << " | "
-	    << std::setw(6) << s.transitions << " | "
+	    << std::setw(6) << s.edges << " | "
 	    << std::setw(6) << s.acceptance_states << '\n';
 }
 
@@ -58,7 +58,7 @@ stats(std::string title, const spot::twa_ptr& tg)
 
   std::cout << std::left << std::setw(20) << title << " | "
 	    << std::right << std::setw(6) << s.states << " | "
-	    << std::setw(6) << s.transitions << " | "
+	    << std::setw(6) << s.edges << " | "
 	    << std::setw(6) << "XXX" << '\n';
 }
 
