@@ -30,7 +30,7 @@
 namespace spot
 {
   /// \ingroup twa_misc
-  /// \brief Construct a tgba randomly.
+  /// \brief Construct a twa randomly.
   ///
   /// \param n The number of states wanted in the automata (>0).  All states
   ///          will be connected, and there will be no dead state.
@@ -79,6 +79,9 @@ namespace spot
   /// \f$1+(n-1)d\f$ and variance \f$(n-1)d(1-d)\f$.  (This is less
   /// accurate, but faster than considering all possible \a n
   /// successors one by one.)
+  ///
+  /// Note that while this constructs an automaton with random
+  /// acceptance sets, this does not set the acceptance condition.
   SPOT_API twa_graph_ptr
   random_graph(int n, float d,
 	       const atomic_prop_set* ap, const bdd_dict_ptr& dict,
