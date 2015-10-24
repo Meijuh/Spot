@@ -328,15 +328,15 @@ namespace spot
         {
         }
 
-        virtual tgba_run_ptr accepting_run()
+        virtual twa_run_ptr accepting_run()
         {
           assert(!ms_->st_blue.empty());
           assert(!ms_->st_red.empty());
 
-          auto run = std::make_shared<tgba_run>();
+          auto run = std::make_shared<twa_run>();
 
           typename stack_type::const_reverse_iterator i, j, end;
-          tgba_run::steps* l;
+          twa_run::steps* l;
 
           l = &run->prefix;
 
@@ -345,21 +345,21 @@ namespace spot
           j = i; ++j;
           for (; i != end; ++i, ++j)
             {
-              tgba_run::step s = { i->s->clone(), j->label, j->acc };
+              twa_run::step s = { i->s->clone(), j->label, j->acc };
               l->push_back(s);
             }
 
           l = &run->cycle;
 
           j = ms_->st_red.rbegin();
-          tgba_run::step s = { i->s->clone(), j->label, j->acc };
+          twa_run::step s = { i->s->clone(), j->label, j->acc };
           l->push_back(s);
 
           i = j; ++j;
           end = ms_->st_red.rend(); --end;
           for (; i != end; ++i, ++j)
             {
-              tgba_run::step s = { i->s->clone(), j->label, j->acc };
+              twa_run::step s = { i->s->clone(), j->label, j->acc };
               l->push_back(s);
             }
 
@@ -408,7 +408,7 @@ namespace spot
           delete computer;
         }
 
-        virtual tgba_run_ptr accepting_run()
+        virtual twa_run_ptr accepting_run()
         {
           return computer->accepting_run();
         }

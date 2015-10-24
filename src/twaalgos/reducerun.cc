@@ -56,7 +56,7 @@ namespace spot
       }
 
       const state*
-      search(const state* start, tgba_run::steps& l)
+      search(const state* start, twa_run::steps& l)
       {
 	return this->bfs_steps::search(filter(start), l);
       }
@@ -76,7 +76,7 @@ namespace spot
       }
 
       bool
-      match(tgba_run::step&, const state* dest)
+      match(twa_run::step&, const state* dest)
       {
         return target->find(dest) != target->end();
       }
@@ -87,10 +87,10 @@ namespace spot
     };
   }
 
-  tgba_run_ptr
-  reduce_run(const const_twa_ptr& a, const const_tgba_run_ptr& org)
+  twa_run_ptr
+  reduce_run(const const_twa_ptr& a, const const_twa_run_ptr& org)
   {
-    auto res = std::make_shared<tgba_run>();
+    auto res = std::make_shared<twa_run>();
     state_set ss;
     shortest_path shpath(a);
     shpath.set_target(&ss);
@@ -104,7 +104,7 @@ namespace spot
     // Start from the end of the original cycle, and rewind until all
     // acceptance sets have been seen.
     acc_cond::mark_t seen_acc = 0U;
-    tgba_run::steps::const_iterator seg = org->cycle.end();
+    twa_run::steps::const_iterator seg = org->cycle.end();
     do
       {
         assert(seg != org->cycle.begin());
@@ -122,7 +122,7 @@ namespace spot
         assert(seg != org->cycle.end());
         seen_acc |= seg->acc;
 
-	tgba_run::step st = { seg->s->clone(), seg->label, seg->acc };
+	twa_run::step st = { seg->s->clone(), seg->label, seg->acc };
 	res->cycle.push_back(st);
 
 	++seg;
@@ -145,7 +145,7 @@ namespace spot
     // state of the automata to any state of the cycle.
 
     // Register all states from the cycle as target of the BFS.
-    for (tgba_run::steps::const_iterator i = res->cycle.begin();
+    for (twa_run::steps::const_iterator i = res->cycle.begin();
 	 i != res->cycle.end(); ++i)
       ss.insert(i->s);
 
@@ -170,7 +170,7 @@ namespace spot
       }
 
     // Locate cycle_entry_point on the cycle.
-    tgba_run::steps::iterator cycle_ep_it;
+    twa_run::steps::iterator cycle_ep_it;
     for (cycle_ep_it = res->cycle.begin();
 	 cycle_ep_it != res->cycle.end()
 	   && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)

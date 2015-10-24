@@ -52,6 +52,7 @@ New in spot 1.99.4a (not yet released)
     ltl_simplifier -> tl_simplifier
     tgba_statistics::transitions -> twa_statistics::edges
     tgba_sub_statistics::sub_transitions -> twa_sub_statistics::transitions
+    tgba_run -> twa_run
 
   Python:
 

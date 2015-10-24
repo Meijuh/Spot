@@ -197,7 +197,7 @@ namespace spot
       }
 
       virtual bool
-      match(tgba_run::step&, const state* to)
+      match(twa_run::step&, const state* to)
       {
 	return to == dest;
       }
@@ -220,14 +220,14 @@ namespace spot
 
       // Find a loop around START in SCC #n.
       wdba_search_acc_loop wsal(det_a, scc_n, sm, pm, start);
-      tgba_run::steps loop;
+      twa_run::steps loop;
       const state* reached = wsal.search(start, loop);
       assert(reached == start);
       (void)reached;
 
       // Build an automaton representing this loop.
       auto loop_a = make_twa_graph(det_a->get_dict());
-      tgba_run::steps::const_iterator i;
+      twa_run::steps::const_iterator i;
       int loop_size = loop.size();
       loop_a->new_states(loop_size);
       int n;

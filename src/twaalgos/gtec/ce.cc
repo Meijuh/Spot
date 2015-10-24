@@ -39,7 +39,7 @@ namespace spot
       }
 
       const state*
-      search(const state* start, tgba_run::steps& l)
+      search(const state* start, twa_run::steps& l)
       {
 	return this->bfs_steps::search(filter(start), l);
       }
@@ -60,7 +60,7 @@ namespace spot
       }
 
       bool
-      match(tgba_run::step&, const state* dest)
+      match(twa_run::step&, const state* dest)
       {
         return target->find(dest) != target->end();
       }
@@ -91,10 +91,10 @@ namespace spot
     return count;
   }
 
-  tgba_run_ptr
+  twa_run_ptr
   couvreur99_check_result::accepting_run()
   {
-    run_ = std::make_shared<tgba_run>();
+    run_ = std::make_shared<twa_run>();
 
     assert(!ecs_->root.empty());
 
@@ -106,7 +106,7 @@ namespace spot
 
     // Register all states from the cycle as target of the BFS.
     state_set ss;
-    for (tgba_run::steps::const_iterator i = run_->cycle.begin();
+    for (twa_run::steps::const_iterator i = run_->cycle.begin();
 	 i != run_->cycle.end(); ++i)
       ss.insert(i->s);
     shortest_path shpath(&ss, ecs_, this);
@@ -132,7 +132,7 @@ namespace spot
       }
 
     // Locate cycle_entry_point on the cycle.
-    tgba_run::steps::iterator cycle_ep_it;
+    twa_run::steps::iterator cycle_ep_it;
     for (cycle_ep_it = run_->cycle.begin();
 	 cycle_ep_it != run_->cycle.end()
 	   && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)
@@ -201,7 +201,7 @@ namespace spot
 	  }
 
 	  virtual bool
-	  match(tgba_run::step& st, const state* s)
+	  match(twa_run::step& st, const state* s)
 	  {
 	    acc_cond::mark_t less_acc =
 	      acc_to_traverse - st.acc;

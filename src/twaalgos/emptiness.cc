@@ -34,10 +34,10 @@
 namespace spot
 {
 
-  // tgba_run
+  // twa_run
   //////////////////////////////////////////////////////////////////////
 
-  tgba_run::~tgba_run()
+  twa_run::~twa_run()
   {
     for (auto i : prefix)
       i.s->destroy();
@@ -45,7 +45,7 @@ namespace spot
       i.s->destroy();
   }
 
-  tgba_run::tgba_run(const tgba_run& run)
+  twa_run::twa_run(const twa_run& run)
   {
     for (steps::const_iterator i = run.prefix.begin();
 	 i != run.prefix.end(); ++i)
@@ -61,28 +61,28 @@ namespace spot
       }
   }
 
-  tgba_run&
-  tgba_run::operator=(const tgba_run& run)
+  twa_run&
+  twa_run::operator=(const twa_run& run)
   {
     if (&run != this)
       {
-	this->~tgba_run();
-	new(this) tgba_run(run);
+	this->~twa_run();
+	new(this) twa_run(run);
       }
     return *this;
   }
 
-  // print_tgba_run
+  // print_twa_run
   //////////////////////////////////////////////////////////////////////
 
   std::ostream&
-  print_tgba_run(std::ostream& os,
+  print_twa_run(std::ostream& os,
 		 const const_twa_ptr& a,
-		 const const_tgba_run_ptr& run)
+		 const const_twa_run_ptr& run)
   {
     bdd_dict_ptr d = a->get_dict();
     os << "Prefix:" << std::endl;
-    for (tgba_run::steps::const_iterator i = run->prefix.begin();
+    for (twa_run::steps::const_iterator i = run->prefix.begin();
 	 i != run->prefix.end(); ++i)
       {
 	os << "  " << a->format_state(i->s) << std::endl;
@@ -93,7 +93,7 @@ namespace spot
 	os << std::endl;
       }
     os << "Cycle:" << std::endl;
-    for (tgba_run::steps::const_iterator i = run->cycle.begin();
+    for (twa_run::steps::const_iterator i = run->cycle.begin();
 	 i != run->cycle.end(); ++i)
       {
 	os << "  " << a->format_state(i->s) << std::endl;
@@ -109,7 +109,7 @@ namespace spot
   // emptiness_check_result
   //////////////////////////////////////////////////////////////////////
 
-  tgba_run_ptr
+  twa_run_ptr
   emptiness_check_result::accepting_run()
   {
     return nullptr;
@@ -287,11 +287,11 @@ namespace spot
     return nullptr;
   }
 
-  // tgba_run_to_tgba
+  // twa_run_to_tgba
   //////////////////////////////////////////////////////////////////////
 
   twa_graph_ptr
-  tgba_run_to_tgba(const const_twa_ptr& a, const const_tgba_run_ptr& run)
+  twa_run_to_tgba(const const_twa_ptr& a, const const_twa_run_ptr& run)
   {
     auto d = a->get_dict();
     auto res = make_twa_graph(d);
@@ -301,7 +301,7 @@ namespace spot
     const state* s = a->get_init_state();
     unsigned src;
     unsigned dst;
-    const tgba_run::steps* l;
+    const twa_run::steps* l;
     acc_cond::mark_t seen_acc = 0U;
 
     typedef std::unordered_map<const state*, unsigned,
@@ -313,7 +313,7 @@ namespace spot
     else
         l = &run->prefix;
 
-    tgba_run::steps::const_iterator i = l->begin();
+    twa_run::steps::const_iterator i = l->begin();
 
     assert(s->compare(i->s) == 0);
     src = res->new_state();

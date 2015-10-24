@@ -1586,7 +1586,7 @@ checked_main(int argc, char** argv)
 			  if (accepting_run_replay)
 			    {
 			      tm.start("replaying acc. run");
-			      if (!spot::replay_tgba_run(std::cout, a,
+			      if (!spot::replay_twa_run(std::cout, a,
 							 run, true))
 				exit_code = 1;
 			      tm.stop("replaying acc. run");
@@ -1596,12 +1596,12 @@ checked_main(int argc, char** argv)
 			      tm.start("printing accepting run");
 			      if (graph_run_tgba_opt)
 				{
-                                  auto ar = spot::tgba_run_to_tgba(a, run);
+                                  auto ar = spot::twa_run_to_tgba(a, run);
 				  spot::print_dot(std::cout, ar);
 				}
 			      else
 				{
-				  spot::print_tgba_run(std::cout, a, run);
+				  spot::print_twa_run(std::cout, a, run);
 				}
 			      tm.stop("printing accepting run");
 			    }

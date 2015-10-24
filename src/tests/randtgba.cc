@@ -379,7 +379,7 @@ struct ar_stat
   }
 
   void
-  count(const spot::const_tgba_run_ptr& run)
+  count(const spot::const_twa_run_ptr& run)
   {
     int p = run->prefix.size();
     int c = run->cycle.size();
@@ -986,7 +986,7 @@ main(int argc, char** argv)
 			  ++n_non_empty;
 			  if (opt_replay)
 			    {
-			      spot::tgba_run_ptr run;
+			      spot::twa_run_ptr run;
 			      bool done = false;
 			      tm_ar.start(algo);
 			      for (int count = opt_R;;)
@@ -1026,7 +1026,7 @@ main(int argc, char** argv)
 				{
 				  tm_ar.stop(algo);
 				  std::ostringstream s;
-				  if (!spot::replay_tgba_run(s,
+				  if (!spot::replay_twa_run(s,
 							     res->automaton(),
 							     run))
 				    {
@@ -1051,7 +1051,7 @@ main(int argc, char** argv)
 				    {
 				      auto redrun =
 					spot::reduce_run(res->automaton(), run);
-				      if (!spot::replay_tgba_run(s,
+				      if (!spot::replay_twa_run(s,
 								 res
 								 ->automaton(),
 								 redrun))

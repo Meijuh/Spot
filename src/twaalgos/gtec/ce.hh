@@ -38,7 +38,7 @@ namespace spot
 			    std::shared_ptr<const couvreur99_check_status>& ecs,
 			    option_map o = option_map());
 
-    virtual tgba_run_ptr accepting_run();
+    virtual twa_run_ptr accepting_run();
 
     void print_stats(std::ostream& os) const;
 
@@ -51,6 +51,6 @@ namespace spot
 
   private:
     std::shared_ptr<const couvreur99_check_status> ecs_;
-    tgba_run_ptr run_;
+    twa_run_ptr run_;
   };
 }

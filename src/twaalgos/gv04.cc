@@ -284,10 +284,10 @@ namespace spot
 	  return s;
 	}
 
-	virtual tgba_run_ptr
+	virtual twa_run_ptr
 	accepting_run()
 	{
-	  auto res = std::make_shared<tgba_run>();
+	  auto res = std::make_shared<twa_run>();
 
 	  update_lowlinks();
 #ifdef TRACE
@@ -309,7 +309,7 @@ namespace spot
 	  int father = data.stack[scc_root].pre;
 	  while (father >= 0)
 	    {
-	      tgba_run::step st =
+	      twa_run::step st =
 		{
 		  data.stack[father].s->clone(),
 		  data.stack[father].lasttr->current_condition(),
@@ -360,7 +360,7 @@ namespace spot
 	    }
 
 	    virtual bool
-	    match(tgba_run::step& step, const state*)
+	    match(twa_run::step& step, const state*)
 	    {
 	      return step.acc != 0U;
 	    }
@@ -375,7 +375,7 @@ namespace spot
 	    }
 
 	    virtual bool
-	    match(tgba_run::step&, const state* s)
+	    match(twa_run::step&, const state* s)
 	    {
 	      return s == target;
 	    }

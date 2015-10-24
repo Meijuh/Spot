@@ -642,7 +642,7 @@ namespace spot
     /// is the empty string.
     ///
     /// This method is used for instance in print_dot(),
-    /// and replay_tgba_run().
+    /// and replay_twa_run().
     ///
     /// \param t a non-done twa_succ_iterator for this automaton
     virtual std::string

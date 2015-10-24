@@ -60,7 +60,7 @@
 %shared_ptr(spot::taa_tgba_string)
 %shared_ptr(spot::taa_tgba_formula)
 %shared_ptr(spot::twa_safra_complement)
-%shared_ptr(spot::tgba_run)
+%shared_ptr(spot::twa_run)
 %shared_ptr(spot::emptiness_check_result)
 %shared_ptr(spot::emptiness_check)
 %shared_ptr(spot::emptiness_check_instantiator)

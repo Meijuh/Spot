@@ -28,7 +28,7 @@
 namespace spot
 {
   /// \ingroup twa_misc
-  /// \brief Make a BFS in a spot::tgba to compute a tgba_run::steps.
+  /// \brief Make a BFS in a spot::tgba to compute a twa_run::steps.
   ///
   /// This class should be used to compute the shortest path
   /// between a state of a spot::tgba and the first transition or
@@ -48,7 +48,7 @@ namespace spot
     ///
     /// \return the destination state of the last step (not included
     /// in \a l) if a matching path was found, or 0 otherwise.
-    const state* search(const state* start, tgba_run::steps& l);
+    const state* search(const state* start, twa_run::steps& l);
 
     /// \brief Return a state* that is unique for \a a.
     ///
@@ -82,7 +82,7 @@ namespace spot
     /// and when this happens the list argument of search() is be
     /// augmented with the shortest past that ends with this
     /// transition.
-    virtual bool match(tgba_run::step& step, const state* dest) = 0;
+    virtual bool match(twa_run::step& step, const state* dest) = 0;
 
     /// \brief Append the resulting path to the resulting run.
     ///
@@ -90,11 +90,11 @@ namespace spot
     /// resulting path to \a l.  This seldom needs to be overridden,
     /// unless you do not want \a l to be updated (in which case an empty
     /// finalize() will do).
-    virtual void finalize(const std::map<const state*, tgba_run::step,
+    virtual void finalize(const std::map<const state*, twa_run::step,
 			                 state_ptr_less_than>& father,
-			  const tgba_run::step& s,
+			  const twa_run::step& s,
 			  const state* start,
-			  tgba_run::steps& l);
+			  twa_run::steps& l);
 
   protected:
     const_twa_ptr a_;		///< The spot::tgba we are searching into.

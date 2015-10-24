@@ -44,12 +44,12 @@ namespace spot
   }
 
   bool
-  replay_tgba_run(std::ostream& os, const const_twa_ptr& a,
-		  const const_tgba_run_ptr& run, bool debug)
+  replay_twa_run(std::ostream& os, const const_twa_ptr& a,
+		  const const_twa_run_ptr& run, bool debug)
   {
     const state* s = a->get_init_state();
     int serial = 1;
-    const tgba_run::steps* l;
+    const twa_run::steps* l;
     std::string in;
     acc_cond::mark_t all_acc = 0U;
     bool all_acc_seen = false;
@@ -72,7 +72,7 @@ namespace spot
 	  os << "Prefix:\n";
       }
 
-    tgba_run::steps::const_iterator i = l->begin();
+    twa_run::steps::const_iterator i = l->begin();
 
     if (s->compare(i->s))
       {

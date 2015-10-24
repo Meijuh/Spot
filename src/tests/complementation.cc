@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 	if (auto run = res->accepting_run())
 	  {
 	    spot::print_dot(std::cout, ec->automaton());
-	    spot::print_tgba_run(std::cout, ec->automaton(), run);
+	    spot::print_twa_run(std::cout, ec->automaton(), run);
 	  }
       }
     else

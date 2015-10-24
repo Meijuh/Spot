@@ -32,9 +32,9 @@
 
 namespace spot
 {
-  struct tgba_run;
-  typedef std::shared_ptr<tgba_run> tgba_run_ptr;
-  typedef std::shared_ptr<const tgba_run> const_tgba_run_ptr;
+  struct twa_run;
+  typedef std::shared_ptr<twa_run> twa_run_ptr;
+  typedef std::shared_ptr<const twa_run> const_twa_run_ptr;
 
   /// \addtogroup emptiness_check Emptiness-checks
   /// \ingroup twa_algorithms
@@ -64,7 +64,7 @@ namespace spot
   ///
   /// The acceptance run returned by
   /// spot::emptiness_check_result::accepting_run(), if any, is of
-  /// type spot::tgba_run.  \ref tgba_run "This page" gathers existing
+  /// type spot::twa_run.  \ref twa_run "This page" gathers existing
   /// operations on these objects.
   ///
   /// @{
@@ -100,7 +100,7 @@ namespace spot
     /// cannot produce a counter example (that does not mean there
     /// is no counter-example; the mere existence of an instance of
     /// this class asserts the existence of a counter-example).
-    virtual tgba_run_ptr accepting_run();
+    virtual twa_run_ptr accepting_run();
 
     /// The automaton on which an accepting_run() was found.
     const const_twa_ptr&
@@ -263,7 +263,7 @@ namespace spot
   /// @{
 
   /// An accepted run, for a tgba.
-  struct SPOT_API tgba_run
+  struct SPOT_API twa_run
   {
     struct step {
       const state* s;
@@ -284,39 +284,39 @@ namespace spot
     steps prefix;
     steps cycle;
 
-    ~tgba_run();
-    tgba_run()
+    ~twa_run();
+    twa_run()
     {
     };
-    tgba_run(const tgba_run& run);
-    tgba_run& operator=(const tgba_run& run);
+    twa_run(const twa_run& run);
+    twa_run& operator=(const twa_run& run);
   };
 
-  /// \brief Display a tgba_run.
+  /// \brief Display a twa_run.
   ///
-  /// Output the prefix and cycle parts of the tgba_run \a run on \a os.
+  /// Output the prefix and cycle parts of the twa_run \a run on \a os.
   ///
   /// The automaton \a a is used only to format the states, and
   /// to know how to print the BDDs describing the conditions and
   /// acceptance conditions of the run; it is <b>not</b> used to
   /// replay the run.  In other words this function will work even if
-  /// the tgba_run you are trying to print appears to connect states
+  /// the twa_run you are trying to print appears to connect states
   /// of \a a that are not connected.
   ///
-  /// This is unlike replay_tgba_run(), which will ensure the run
+  /// This is unlike replay_twa_run(), which will ensure the run
   /// actually exists in the automaton (and will also display any
   /// transition annotation).
   SPOT_API std::ostream&
-  print_tgba_run(std::ostream& os,
+  print_twa_run(std::ostream& os,
 		 const const_twa_ptr& a,
-		 const const_tgba_run_ptr& run);
+		 const const_twa_run_ptr& run);
 
   /// \brief Return an explicit_tgba corresponding to \a run (i.e. comparable
   /// states are merged).
   ///
   /// \pre \a run must correspond to an actual run of the automaton \a a.
   SPOT_API twa_graph_ptr
-  tgba_run_to_tgba(const const_twa_ptr& a, const const_tgba_run_ptr& run);
+  twa_run_to_tgba(const const_twa_ptr& a, const const_twa_run_ptr& run);
 
   /// @}
 

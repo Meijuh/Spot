@@ -314,7 +314,7 @@ checked_main(int argc, char **argv)
 	else if (accepting_run)
 	  {
 
-	    spot::tgba_run_ptr run;
+	    spot::twa_run_ptr run;
 	    tm.start("computing accepting run");
 	    try
 	      {
@@ -340,7 +340,7 @@ checked_main(int argc, char **argv)
 		tm.stop("reducing accepting run");
 
 		tm.start("printing accepting run");
-		spot::print_tgba_run(std::cout, product, run);
+		spot::print_twa_run(std::cout, product, run);
 		tm.stop("printing accepting run");
 	      }
 	  }

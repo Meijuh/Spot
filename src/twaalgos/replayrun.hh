@@ -29,12 +29,12 @@
 
 namespace spot
 {
-  struct tgba_run;
+  struct twa_run;
 
   /// \ingroup twa_run
-  /// \brief Replay a tgba_run on a tgba.
+  /// \brief Replay a twa_run on a tgba.
   ///
-  /// This is similar to print_tgba_run(), except that the run is
+  /// This is similar to print_twa_run(), except that the run is
   /// actually replayed on the automaton while it is printed.  Doing
   /// so makes it possible to display transition annotations (returned
   /// by spot::tgba::transition_annotation()).  The output will stop
@@ -47,8 +47,8 @@ namespace spot
   ///              debugging informations will be output on failure
   /// \return true iff the run could be completed
   SPOT_API bool
-  replay_tgba_run(std::ostream& os,
+  replay_twa_run(std::ostream& os,
 		  const const_twa_ptr& a,
-		  const const_tgba_run_ptr& run,
+		  const const_twa_run_ptr& run,
 		  bool debug = false);
 }

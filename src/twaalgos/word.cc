@@ -23,12 +23,12 @@
 
 namespace spot
 {
-  tgba_word::tgba_word(const tgba_run_ptr run)
+  tgba_word::tgba_word(const twa_run_ptr run)
   {
-    for (tgba_run::steps::const_iterator i = run->prefix.begin();
+    for (twa_run::steps::const_iterator i = run->prefix.begin();
 	 i != run->prefix.end(); ++i)
       prefix.push_back(i->label);
-    for (tgba_run::steps::const_iterator i = run->cycle.begin();
+    for (twa_run::steps::const_iterator i = run->cycle.begin();
 	 i != run->cycle.end(); ++i)
       cycle.push_back(i->label);
   }

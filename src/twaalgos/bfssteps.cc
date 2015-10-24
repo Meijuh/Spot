@@ -38,20 +38,20 @@ namespace spot
   }
 
   void
-  bfs_steps::finalize(const std::map<const state*, tgba_run::step,
-                state_ptr_less_than>& father, const tgba_run::step& s,
-                const state* start, tgba_run::steps& l)
+  bfs_steps::finalize(const std::map<const state*, twa_run::step,
+                state_ptr_less_than>& father, const twa_run::step& s,
+                const state* start, twa_run::steps& l)
   {
-    tgba_run::steps p;
-    tgba_run::step current = s;
+    twa_run::steps p;
+    twa_run::step current = s;
     for (;;)
       {
-        tgba_run::step tmp = current;
+        twa_run::step tmp = current;
         tmp.s = tmp.s->clone();
         p.push_front(tmp);
         if (current.s == start)
           break;
-        std::map<const state*, tgba_run::step,
+        std::map<const state*, twa_run::step,
             state_ptr_less_than>::const_iterator it = father.find(current.s);
         assert(it != father.end());
         current = it->second;
@@ -60,11 +60,11 @@ namespace spot
   }
 
   const state*
-  bfs_steps::search(const state* start, tgba_run::steps& l)
+  bfs_steps::search(const state* start, twa_run::steps& l)
   {
     // Records backlinks to parent state during the BFS.
     // (This also stores the propositions of this link.)
-    std::map<const state*, tgba_run::step,
+    std::map<const state*, twa_run::step,
       state_ptr_less_than> father;
     // BFS queue.
     std::deque<const state*> todo;
@@ -84,7 +84,7 @@ namespace spot
 
 	    bdd cond = i->current_condition();
 	    acc_cond::mark_t acc = i->current_acceptance_conditions();
-	    tgba_run::step s = { src, cond, acc };
+	    twa_run::step s = { src, cond, acc };
 
 	    if (match(s, dest))
 	      {

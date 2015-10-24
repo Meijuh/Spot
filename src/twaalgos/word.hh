@@ -28,7 +28,7 @@ namespace spot
   /// \brief An infinite word stored as a lasso.
   struct SPOT_API tgba_word
   {
-    tgba_word(const tgba_run_ptr run);
+    tgba_word(const twa_run_ptr run);
     void simplify();
     std::ostream& print(std::ostream& os, const bdd_dict_ptr& d) const;
 

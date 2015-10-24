@@ -27,12 +27,12 @@
 namespace spot
 {
 
-  tgba_run_ptr
-  project_tgba_run(const const_twa_ptr& a_run,
+  twa_run_ptr
+  project_twa_run(const const_twa_ptr& a_run,
 		   const const_twa_ptr& a_proj,
-		   const const_tgba_run_ptr& run)
+		   const const_twa_run_ptr& run)
   {
-    auto res = std::make_shared<tgba_run>();
+    auto res = std::make_shared<twa_run>();
     for (auto& i: run->prefix)
       res->prefix.emplace_back(a_run->project_state(i.s, a_proj),
 			       i.label, i.acc);

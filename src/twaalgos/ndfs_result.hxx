@@ -104,7 +104,7 @@ namespace spot
     {
     }
 
-    virtual tgba_run_ptr accepting_run()
+    virtual twa_run_ptr accepting_run()
     {
       const stack_type& stb = ms_->get_st_blue();
       const stack_type& str = ms_->get_st_red();
@@ -194,7 +194,7 @@ namespace spot
 
       assert(!acc_trans.empty());
 
-      auto run = std::make_shared<tgba_run>();
+      auto run = std::make_shared<twa_run>();
       // construct run->cycle from acc_trans.
       construct_cycle(run, acc_trans);
       // construct run->prefix (a minimal path from the initial state to any
@@ -389,7 +389,7 @@ namespace spot
           }
       }
 
-      const state* search(const state* start, tgba_run::steps& l)
+      const state* search(const state* start, twa_run::steps& l)
       {
         const state* s = filter(start);
         if (s)
@@ -412,9 +412,9 @@ namespace spot
         return s;
       }
 
-      void finalize(const std::map<const state*, tgba_run::step,
+      void finalize(const std::map<const state*, twa_run::step,
 		                   state_ptr_less_than>&,
-		    const tgba_run::step&, const state*, tgba_run::steps&)
+		    const twa_run::step&, const state*, twa_run::steps&)
       {
       }
 
@@ -423,7 +423,7 @@ namespace spot
         return seen;
       }
 
-      bool match(tgba_run::step&, const state* dest)
+      bool match(twa_run::step&, const state* dest)
       {
         return target->compare(dest) == 0;
       }
@@ -438,7 +438,7 @@ namespace spot
 
     bool search(const state* start, const state* target, state_set& dead)
     {
-      tgba_run::steps path;
+      twa_run::steps path;
       if (start->compare(target) == 0)
 	return true;
 
@@ -484,7 +484,7 @@ namespace spot
           }
       }
 
-      const state* search(const state* start, tgba_run::steps& l)
+      const state* search(const state* start, twa_run::steps& l)
       {
         const state* s = filter(start);
         if (s)
@@ -514,7 +514,7 @@ namespace spot
         return s;
       }
 
-      bool match(tgba_run::step&, const state* dest)
+      bool match(twa_run::step&, const state* dest)
       {
         ndfsr_trace << "match: " << a_->format_state(dest)
                     << std::endl;
@@ -528,7 +528,7 @@ namespace spot
       const heap& h;
     };
 
-    void construct_cycle(tgba_run_ptr run,
+    void construct_cycle(twa_run_ptr run,
 			 const accepting_transitions_list& acc_trans)
     {
       assert(!acc_trans.empty());
@@ -551,7 +551,7 @@ namespace spot
 	      ndfsr_trace << "(self loop " << a_->format_state(i->source)
 			  << " -> " << a_->format_state(i->dest)
 			  << " ignored) ";
-	      tgba_run::step st = { i->source->clone(), i->label, i->acc };
+	      twa_run::step st = { i->source->clone(), i->label, i->acc };
 	      run->cycle.push_back(st);
 	    }
 	  else
@@ -563,7 +563,7 @@ namespace spot
 	}
       ndfsr_trace << std::endl;
 
-      tgba_run::step st = { current.source->clone(), current.label,
+      twa_run::step st = { current.source->clone(), current.label,
 			    current.acc };
       run->cycle.push_back(st);
 
@@ -590,7 +590,7 @@ namespace spot
 	    }
 	  current = i->second;
 	  // complete the path with the corresponding transition
-	  tgba_run::step st = { current.source->clone(), current.label,
+	  twa_run::step st = { current.source->clone(), current.label,
 				current.acc };
 	  run->cycle.push_back(st);
 	  // remove this source state of target
@@ -617,7 +617,7 @@ namespace spot
 	}
     }
 
-    void construct_prefix(tgba_run_ptr run)
+    void construct_prefix(twa_run_ptr run)
     {
       m_source_trans target;
       transition tmp;
@@ -625,7 +625,7 @@ namespace spot
       tmp.acc = 0U;
 
       // Register all states from the cycle as target of the BFS.
-      for (tgba_run::steps::const_iterator i = run->cycle.begin();
+      for (twa_run::steps::const_iterator i = run->cycle.begin();
 	   i != run->cycle.end(); ++i)
         target.emplace(i->s, tmp);
 
@@ -653,7 +653,7 @@ namespace spot
         }
 
       // Locate cycle_entry_point on the cycle.
-      tgba_run::steps::iterator cycle_ep_it;
+      twa_run::steps::iterator cycle_ep_it;
       for (cycle_ep_it = run->cycle.begin();
 	   cycle_ep_it != run->cycle.end()
 	     && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)

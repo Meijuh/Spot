@@ -29,20 +29,20 @@
 
 namespace spot
 {
-  struct tgba_run;
+  struct twa_run;
 
   /// \ingroup twa_run
-  /// \brief Project a tgba_run on a tgba.
+  /// \brief Project a twa_run on a tgba.
   ///
-  /// If a tgba_run has been generated on a product, or any other
+  /// If a twa_run has been generated on a product, or any other
   /// on-the-fly algorithm with tgba operands,
   ///
   /// \param run the run to replay
   /// \param a_run the automata on which the run was generated
   /// \param a_proj the automata on which to project the run
   /// \return true iff the run could be completed
-  SPOT_API tgba_run_ptr
-  project_tgba_run(const const_twa_ptr& a_run,
+  SPOT_API twa_run_ptr
+  project_twa_run(const const_twa_ptr& a_run,
 		   const const_twa_ptr& a_proj,
-		   const const_tgba_run_ptr& run);
+		   const const_twa_run_ptr& run);
 }
