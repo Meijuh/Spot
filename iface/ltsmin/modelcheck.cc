@@ -23,7 +23,6 @@
 #include "tl/parse.hh"
 #include "twaalgos/translate.hh"
 #include "twaalgos/emptiness.hh"
-#include "twaalgos/reducerun.hh"
 #include "twaalgos/postproc.hh"
 #include "twa/twaproduct.hh"
 #include "misc/timer.hh"
@@ -336,11 +335,10 @@ checked_main(int argc, char **argv)
 	    else
 	      {
 		tm.start("reducing accepting run");
-		run = spot::reduce_run(res->automaton(), run);
+		run = run->reduce();
 		tm.stop("reducing accepting run");
-
 		tm.start("printing accepting run");
-		spot::print_twa_run(std::cout, product, run);
+		std::cout << run;
 		tm.stop("printing accepting run");
 	      }
 	  }

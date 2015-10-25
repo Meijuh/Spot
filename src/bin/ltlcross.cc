@@ -52,7 +52,6 @@
 #include "twaalgos/randomgraph.hh"
 #include "twaalgos/sccinfo.hh"
 #include "twaalgos/isweakscc.hh"
-#include "twaalgos/reducerun.hh"
 #include "twaalgos/word.hh"
 #include "twaalgos/complement.hh"
 #include "twaalgos/cleanacc.hh"
@@ -703,10 +702,9 @@ namespace
 	auto run = res->accepting_run();
 	if (run)
 	  {
-	    run = reduce_run(run);
 	    std::cerr << "; both automata accept the infinite word\n"
 		      << "       ";
-	    spot::tgba_word w(run);
+	    spot::tgba_word w(run->reduce());
 	    w.simplify();
 	    w.print(example(), prod->get_dict()) << '\n';
 	  }

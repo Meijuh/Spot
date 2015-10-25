@@ -62,11 +62,9 @@ twaalgos_HEADERS = \
   randomgraph.hh \
   randomize.hh \
   reachiter.hh \
-  reducerun.hh \
   relabel.hh \
   remfin.hh \
   remprop.hh \
-  replayrun.hh \
   safety.hh \
   sbacc.hh \
   sccfilter.hh \
@@ -119,10 +117,8 @@ libtwaalgos_la_SOURCES = \
   randomgraph.cc \
   randomize.cc \
   reachiter.cc \
-  reducerun.cc \
   remfin.cc \
   remprop.cc \
-  replayrun.cc \
   relabel.cc \
   safety.cc \
   sbacc.cc \

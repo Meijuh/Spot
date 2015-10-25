@@ -292,6 +292,31 @@ namespace spot
     twa_run(const twa_run& run);
     twa_run& operator=(const twa_run& run);
 
+    /// \brief Reduce an accepting run.
+    ///
+    /// Return a run which is still accepting for <code>aut</code>,
+    /// but is no longer than this one.
+    twa_run_ptr reduce() const;
+
+    /// \brief Replay a run.
+    ///
+    /// This is similar to <code>os << run;</code>, except that the
+    /// run is actually replayed on the automaton while it is printed.
+    /// Doing so makes it possible to display transition annotations
+    /// (returned by spot::twa::transition_annotation()).  The output
+    /// will stop if the run cannot be completed.
+    ///
+    /// \param os the stream on which the replay should be traced
+    /// \param debug if set the output will be more verbose and extra
+    ///              debugging informations will be output on failure
+    /// \return true iff the run could be completed
+    bool replay(std::ostream& os, bool debug = false) const;
+
+    /// \brief Return a twa_graph_ptr corresponding to \a run
+    ///
+    /// Identical states are merged.
+    twa_graph_ptr as_twa() const;
+
     /// \brief Display a twa_run.
     ///
     /// Output the prefix and cycle parts of the twa_run \a run on \a os.
@@ -309,15 +334,6 @@ namespace spot
     SPOT_API
     friend std::ostream& operator<<(std::ostream& os, const twa_run_ptr& run);
   };
-
-
-  /// \brief Return an explicit_tgba corresponding to \a run (i.e. comparable
-  /// states are merged).
-  ///
-  /// \pre \a run must correspond to an actual run of the automaton \a a.
-  SPOT_API twa_graph_ptr
-  twa_run_to_tgba(const const_twa_ptr& a, const const_twa_run_ptr& run);
-
   /// @}
 
   /// \addtogroup emptiness_check_stats Emptiness-check statistics

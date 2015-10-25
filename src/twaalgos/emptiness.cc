@@ -22,78 +22,18 @@
 
 #include <sstream>
 #include "emptiness.hh"
-#include "twa/twa.hh"
+#include "bfssteps.hh"
+#include "gtec/gtec.hh"
+#include "gv04.hh"
+#include "magic.hh"
+#include "misc/hash.hh"
+#include "se05.hh"
+#include "tau03.hh"
+#include "tau03opt.hh"
 #include "twa/bddprint.hh"
-#include "twaalgos/gtec/gtec.hh"
-#include "twaalgos/gv04.hh"
-#include "twaalgos/magic.hh"
-#include "twaalgos/se05.hh"
-#include "twaalgos/tau03.hh"
-#include "twaalgos/tau03opt.hh"
 
 namespace spot
 {
-
-  // twa_run
-  //////////////////////////////////////////////////////////////////////
-
-  twa_run::~twa_run()
-  {
-    for (auto i : prefix)
-      i.s->destroy();
-    for (auto i : cycle)
-      i.s->destroy();
-  }
-
-  twa_run::twa_run(const twa_run& run)
-  {
-    aut = run.aut;
-    for (step s : run.prefix)
-      {
-	s.s = s.s->clone();
-	prefix.push_back(s);
-      }
-    for (step s : run.cycle)
-      {
-	s.s = s.s->clone();
-	cycle.push_back(s);
-      }
-  }
-
-  twa_run&
-  twa_run::operator=(const twa_run& run)
-  {
-    if (&run != this)
-      {
-	this->~twa_run();
-	new(this) twa_run(run);
-      }
-    return *this;
-  }
-
-  std::ostream&
-  operator<<(std::ostream& os, const twa_run_ptr& run)
-  {
-    auto& a = run->aut;
-    bdd_dict_ptr d = a->get_dict();
-
-    auto pstep = [&](const twa_run::step& st)
-    {
-      os << "  " << a->format_state(st.s) << "\n  |  ";
-      bdd_print_formula(os, d, st.label);
-      if (st.acc)
-	os << '\t' << st.acc;
-      os << '\n';
-    };
-
-    os << "Prefix:" << std::endl;
-    for (auto& s: run->prefix)
-      pstep(s);
-    os << "Cycle:" << std::endl;
-    for (auto& s: run->cycle)
-      pstep(s);
-    return os;
-  }
 
   // emptiness_check_result
   //////////////////////////////////////////////////////////////////////
@@ -276,18 +216,459 @@ namespace spot
     return nullptr;
   }
 
-  // twa_run_to_tgba
+  // twa_run
   //////////////////////////////////////////////////////////////////////
 
-  twa_graph_ptr
-  twa_run_to_tgba(const const_twa_ptr& a, const const_twa_run_ptr& run)
+  twa_run::~twa_run()
   {
-    auto d = a->get_dict();
-    auto res = make_twa_graph(d);
-    res->copy_ap_of(a);
-    res->copy_acceptance_of(a);
+    for (auto i : prefix)
+      i.s->destroy();
+    for (auto i : cycle)
+      i.s->destroy();
+  }
 
-    const state* s = a->get_init_state();
+  twa_run::twa_run(const twa_run& run)
+  {
+    aut = run.aut;
+    for (step s : run.prefix)
+      {
+	s.s = s.s->clone();
+	prefix.push_back(s);
+      }
+    for (step s : run.cycle)
+      {
+	s.s = s.s->clone();
+	cycle.push_back(s);
+      }
+  }
+
+  twa_run&
+  twa_run::operator=(const twa_run& run)
+  {
+    if (&run != this)
+      {
+	this->~twa_run();
+	new(this) twa_run(run);
+      }
+    return *this;
+  }
+
+  std::ostream&
+  operator<<(std::ostream& os, const twa_run_ptr& run)
+  {
+    auto& a = run->aut;
+    bdd_dict_ptr d = a->get_dict();
+
+    auto pstep = [&](const twa_run::step& st)
+    {
+      os << "  " << a->format_state(st.s) << "\n  |  ";
+      bdd_print_formula(os, d, st.label);
+      if (st.acc)
+	os << '\t' << st.acc;
+      os << '\n';
+    };
+
+    os << "Prefix:" << std::endl;
+    for (auto& s: run->prefix)
+      pstep(s);
+    os << "Cycle:" << std::endl;
+    for (auto& s: run->cycle)
+      pstep(s);
+    return os;
+  }
+
+  namespace
+  {
+    class shortest_path: public bfs_steps
+    {
+    public:
+      shortest_path(const const_twa_ptr& a)
+        : bfs_steps(a), target(nullptr)
+      {
+      }
+
+      ~shortest_path()
+      {
+        state_set::const_iterator i = seen.begin();
+        while (i != seen.end())
+          {
+            const state* ptr = *i;
+            ++i;
+            ptr->destroy();
+          }
+      }
+
+      void
+      set_target(const state_set* t)
+      {
+        target = t;
+      }
+
+      const state*
+      search(const state* start, twa_run::steps& l)
+      {
+	return this->bfs_steps::search(filter(start), l);
+      }
+
+      const state*
+      filter(const state* s)
+      {
+        state_set::const_iterator i = seen.find(s);
+        if (i == seen.end())
+          seen.insert(s);
+        else
+          {
+            s->destroy();
+            s = *i;
+          }
+        return s;
+      }
+
+      bool
+      match(twa_run::step&, const state* dest)
+      {
+        return target->find(dest) != target->end();
+      }
+
+    private:
+      state_set seen;
+      const state_set* target;
+    };
+  }
+
+  twa_run_ptr twa_run::reduce() const
+  {
+    auto& a = aut;
+    auto res = std::make_shared<twa_run>(a);
+    state_set ss;
+    shortest_path shpath(a);
+    shpath.set_target(&ss);
+
+    // We want to find a short segment of the original cycle that
+    // contains all acceptance conditions.
+
+    const state* segment_start; // The initial state of the segment.
+    const state* segment_next; // The state immediately after the segment.
+
+    // Start from the end of the original cycle, and rewind until all
+    // acceptance sets have been seen.
+    acc_cond::mark_t seen_acc = 0U;
+    twa_run::steps::const_iterator seg = cycle.end();
+    do
+      {
+        assert(seg != cycle.begin());
+	--seg;
+        seen_acc |= seg->acc;
+      }
+    while (!a->acc().accepting(seen_acc));
+    segment_start = seg->s;
+
+    // Now go forward and ends the segment as soon as we have seen all
+    // acceptance sets, cloning it in our result along the way.
+    seen_acc = 0U;
+    do
+      {
+        assert(seg != cycle.end());
+        seen_acc |= seg->acc;
+
+	twa_run::step st = { seg->s->clone(), seg->label, seg->acc };
+	res->cycle.push_back(st);
+
+	++seg;
+      }
+    while (!a->acc().accepting(seen_acc));
+    segment_next = seg == cycle.end() ? cycle.front().s : seg->s;
+
+    // Close this cycle if needed, that is, compute a cycle going
+    // from the state following the segment to its starting state.
+    if (segment_start != segment_next)
+      {
+        ss.insert(segment_start);
+        const state* s = shpath.search(segment_next->clone(), res->cycle);
+        ss.clear();
+        assert(s->compare(segment_start) == 0);
+	(void)s;
+      }
+
+    // Compute the prefix: it's the shortest path from the initial
+    // state of the automata to any state of the cycle.
+
+    // Register all states from the cycle as target of the BFS.
+    for (twa_run::steps::const_iterator i = res->cycle.begin();
+	 i != res->cycle.end(); ++i)
+      ss.insert(i->s);
+
+    const state* prefix_start = a->get_init_state();
+    // There are two cases: either the initial state is already on
+    // the cycle, or it is not.  If it is, we will have to rotate
+    // the cycle so it begins on this position.  Otherwise we will shift
+    // the cycle so it begins on the state that follows the prefix.
+    // cycle_entry_point is that state.
+    const state* cycle_entry_point;
+    state_set::const_iterator ps = ss.find(prefix_start);
+    if (ps != ss.end())
+      {
+	// The initial state is on the cycle.
+	prefix_start->destroy();
+	cycle_entry_point = *ps;
+      }
+    else
+      {
+	// This initial state is outside the cycle.  Compute the prefix.
+        cycle_entry_point = shpath.search(prefix_start, res->prefix);
+      }
+
+    // Locate cycle_entry_point on the cycle.
+    twa_run::steps::iterator cycle_ep_it;
+    for (cycle_ep_it = res->cycle.begin();
+	 cycle_ep_it != res->cycle.end()
+	   && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)
+      continue;
+    assert(cycle_ep_it != res->cycle.end());
+
+    // Now shift the cycle so it starts on cycle_entry_point.
+    res->cycle.splice(res->cycle.end(), res->cycle,
+		      res->cycle.begin(), cycle_ep_it);
+
+    return res;
+  }
+
+  namespace
+  {
+    static void
+    print_annotation(std::ostream& os,
+		     const const_twa_ptr& a,
+		     const twa_succ_iterator* i)
+    {
+      std::string s = a->transition_annotation(i);
+      if (s == "")
+	return;
+      os << ' ' << s;
+    }
+  }
+
+  bool twa_run::replay(std::ostream& os, bool debug) const
+  {
+    const state* s = aut->get_init_state();
+    int serial = 1;
+    const twa_run::steps* l;
+    std::string in;
+    acc_cond::mark_t all_acc = 0U;
+    bool all_acc_seen = false;
+    typedef std::unordered_map<const state*, std::set<int>,
+			       state_ptr_hash, state_ptr_equal> state_map;
+    state_map seen;
+
+    if (prefix.empty())
+      {
+	l = &cycle;
+	in = "cycle";
+	if (!debug)
+	  os << "No prefix.\nCycle:\n";
+      }
+    else
+      {
+	l = &prefix;
+	in = "prefix";
+	if (!debug)
+	  os << "Prefix:\n";
+      }
+
+    twa_run::steps::const_iterator i = l->begin();
+
+    if (s->compare(i->s))
+      {
+	if (debug)
+	  os << "ERROR: First state of run (in " << in << "): "
+	     << aut->format_state(i->s)
+	     << "\ndoes not match initial state of automata: "
+	     << aut->format_state(s) << '\n';
+	s->destroy();
+	return false;
+      }
+
+    for (; i != l->end(); ++serial)
+      {
+	if (debug)
+	  {
+	    // Keep track of the serial associated to each state so we
+	    // can note duplicate states and make the replay easier to read.
+	    state_map::iterator o = seen.find(s);
+	    std::ostringstream msg;
+	    if (o != seen.end())
+	      {
+		for (auto d: o->second)
+		  msg << " == " << d;
+		o->second.insert(serial);
+		s->destroy();
+		s = o->first;
+	      }
+	    else
+	      {
+		seen[s].insert(serial);
+	      }
+	    os << "state " << serial << " in " << in << msg.str() << ": ";
+	  }
+	else
+	  {
+	    os << "  ";
+	  }
+	os << aut->format_state(s) << '\n';
+
+	// expected outgoing transition
+	bdd label = i->label;
+	acc_cond::mark_t acc = i->acc;
+
+	// compute the next expected state
+	const state* next;
+	++i;
+	if (i != l->end())
+	  {
+	    next = i->s;
+	  }
+	else
+	  {
+	    if (l == &prefix)
+	      {
+		l = &cycle;
+		in = "cycle";
+		i = l->begin();
+		if (!debug)
+		  os << "Cycle:\n";
+	      }
+	    next = l->begin()->s;
+	  }
+
+	// browse the actual outgoing transitions
+	twa_succ_iterator* j = aut->succ_iter(s);
+	// When not debugging, S is not used as key in SEEN, so we can
+	// destroy it right now.
+	if (!debug)
+	  s->destroy();
+	if (j->first())
+	  do
+	    {
+	      if (j->current_condition() != label
+		  || j->current_acceptance_conditions() != acc)
+		continue;
+
+	      const state* s2 = j->current_state();
+	      if (s2->compare(next))
+		{
+		  s2->destroy();
+		  continue;
+		}
+	      else
+		{
+		  s = s2;
+		  break;
+		}
+	    }
+	  while (j->next());
+	if (j->done())
+	  {
+	    if (debug)
+	      {
+		os << "ERROR: no transition with label="
+		   << bdd_format_formula(aut->get_dict(), label)
+		   << " and acc=" << aut->acc().format(acc)
+		   << " leaving state " << serial
+		   << " for state " << aut->format_state(next) << '\n'
+		   << "The following transitions leave state " << serial
+		   << ":\n";
+		if (j->first())
+		  do
+		    {
+		      const state* s2 = j->current_state();
+		      os << "  *";
+		      print_annotation(os, aut, j);
+		      os << " label="
+			 << bdd_format_formula(aut->get_dict(),
+					       j->current_condition())
+			 << " and acc="
+			 << (aut->acc().format
+			     (j->current_acceptance_conditions()))
+			 << " going to " << aut->format_state(s2) << '\n';
+		      s2->destroy();
+		    }
+		  while (j->next());
+	      }
+	    aut->release_iter(j);
+	    s->destroy();
+	    return false;
+	  }
+	if (debug)
+	  {
+	    os << "transition";
+	    print_annotation(os, aut, j);
+	    os << " with label="
+	       << bdd_format_formula(aut->get_dict(), label)
+	       << " and acc=" << aut->acc().format(acc)
+	       << std::endl;
+	  }
+	else
+	  {
+	    os << "  |  ";
+	    print_annotation(os, aut, j);
+	    bdd_print_formula(os, aut->get_dict(), label);
+	    os << '\t';
+	    aut->acc().format(acc);
+	    os << std::endl;
+	  }
+	aut->release_iter(j);
+
+	// Sum acceptance conditions.
+	//
+	// (Beware l and i designate the next step to consider.
+	// Therefore if i is at the beginning of the cycle, `acc'
+	// contains the acceptance conditions of the last transition
+	// in the prefix; we should not account it.)
+	if (l == &cycle && i != l->begin())
+	  {
+	    all_acc |= acc;
+	    if (!all_acc_seen && aut->acc().accepting(all_acc))
+	      {
+		all_acc_seen = true;
+		if (debug)
+		  os << "all acceptance conditions ("
+		     << aut->acc().format(all_acc)
+		     << ") have been seen\n";
+	      }
+	  }
+      }
+    s->destroy();
+    if (!aut->acc().accepting(all_acc))
+      {
+	if (debug)
+	  os << "ERROR: The cycle's acceptance conditions ("
+	     << aut->acc().format(all_acc)
+	     << ") do not\nmatch those of the automaton ("
+	     << aut->acc().format(aut->acc().all_sets())
+	     << ")\n";
+	return false;
+      }
+
+    state_map::const_iterator o = seen.begin();
+    while (o != seen.end())
+      {
+	// Advance the iterator before deleting the "key" pointer.
+	const state* ptr = o->first;
+	++o;
+	ptr->destroy();
+      }
+
+    return true;
+  }
+
+  twa_graph_ptr
+  twa_run::as_twa() const
+  {
+    auto d = aut->get_dict();
+    auto res = make_twa_graph(d);
+    res->copy_ap_of(aut);
+    res->copy_acceptance_of(aut);
+
+    const state* s = aut->get_init_state();
     unsigned src;
     unsigned dst;
     const twa_run::steps* l;
@@ -297,10 +678,10 @@ namespace spot
 			       state_ptr_hash, state_ptr_equal> state_map;
     state_map seen;
 
-    if (run->prefix.empty())
-        l = &run->cycle;
+    if (prefix.empty())
+        l = &cycle;
     else
-        l = &run->prefix;
+        l = &prefix;
 
     twa_run::steps::const_iterator i = l->begin();
 
@@ -323,9 +704,9 @@ namespace spot
           }
         else
           {
-            if (l == &run->prefix)
+            if (l == &prefix)
               {
-                l = &run->cycle;
+                l = &cycle;
                 i = l->begin();
               }
             next = l->begin()->s;
@@ -334,7 +715,7 @@ namespace spot
         // browse the actual outgoing transitions and
 	// look for next;
 	const state* the_next = nullptr;
-	for (auto j: a->succ(s))
+	for (auto j: aut->succ(s))
           {
             if (j->current_condition() != label
                 || j->current_acceptance_conditions() != acc)
@@ -362,13 +743,13 @@ namespace spot
 	src = dst;
 
         // Sum acceptance conditions.
-        if (l == &run->cycle && i != l->begin())
+        if (l == &cycle && i != l->begin())
 	  seen_acc |= acc;
       }
 
     s->destroy();
 
-    assert(a->acc().accepting(seen_acc));
+    assert(aut->acc().accepting(seen_acc));
     return res;
   }
 

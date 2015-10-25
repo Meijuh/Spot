@@ -29,7 +29,6 @@
 #include "twaalgos/stats.hh"
 #include "twaalgos/sccinfo.hh"
 #include "twaalgos/gtec/gtec.hh"
-#include "twaalgos/reducerun.hh"
 #include "twaalgos/word.hh"
 #include "twaalgos/isdet.hh"
 #include "common_file.hh"
@@ -179,8 +178,7 @@ public:
 	    {
 	      auto run = res->accepting_run();
 	      assert(run);
-	      run = reduce_run(run);
-	      spot::tgba_word w(run);
+	      spot::tgba_word w(run->reduce());
 	      w.simplify();
 	      std::ostringstream out;
 	      w.print(out, aut->get_dict());

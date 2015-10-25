@@ -161,8 +161,7 @@ main(int argc, char** argv)
 		      std::cout << ce_found << " counterexample found\n";
 		      if (auto run = res->accepting_run())
 			{
-			  auto ar = spot::twa_run_to_tgba(a, run);
-			  spot::print_dot(std::cout, ar);
+			  spot::print_dot(std::cout, run->as_twa());
 			}
 		      std::cout << '\n';
 		      if (runs == 0)

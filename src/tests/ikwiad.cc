@@ -38,13 +38,11 @@
 #include "twaalgos/hoa.hh"
 #include "twaalgos/degen.hh"
 #include "twa/twaproduct.hh"
-#include "twaalgos/reducerun.hh"
 #include "parseaut/public.hh"
 #include "twaalgos/copy.hh"
 #include "twaalgos/minimize.hh"
 #include "taalgos/minimize.hh"
 #include "twaalgos/neverclaim.hh"
-#include "twaalgos/replayrun.hh"
 #include "twaalgos/sccfilter.hh"
 #include "twaalgos/safety.hh"
 #include "twaalgos/gtec/gtec.hh"
@@ -1580,13 +1578,13 @@ checked_main(int argc, char** argv)
                           if (opt_reduce)
                             {
 			      tm.start("reducing accepting run");
-                              run = spot::reduce_run(run);
+                              run = run->reduce();
 			      tm.stop("reducing accepting run");
                             }
 			  if (accepting_run_replay)
 			    {
 			      tm.start("replaying acc. run");
-			      if (!spot::replay_twa_run(std::cout, run, true))
+			      if (!run->replay(std::cout, true))
 				exit_code = 1;
 			      tm.stop("replaying acc. run");
 			    }
@@ -1594,14 +1592,9 @@ checked_main(int argc, char** argv)
 			    {
 			      tm.start("printing accepting run");
 			      if (graph_run_tgba_opt)
-				{
-                                  auto ar = spot::twa_run_to_tgba(a, run);
-				  spot::print_dot(std::cout, ar);
-				}
+				spot::print_dot(std::cout, run->as_twa());
 			      else
-				{
-				  std::cout << run;
-				}
+				std::cout << run;
 			      tm.stop("printing accepting run");
 			    }
                         }

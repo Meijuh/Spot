@@ -843,7 +843,7 @@ if output_type == 'r':
                     unbufprint('<div class="accrun">%s</div>' %
                                cgi.escape(str(ec_run)))
                 if draw_acc_run:
-                    render_automaton(spot.twa_run_to_tgba(ec_a, ec_run), False)
+                    render_automaton(ec_run.as_twa(), False)
                 del ec_run
             del ec_res
             unbufprint('</div>')

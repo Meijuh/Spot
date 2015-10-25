@@ -44,7 +44,7 @@ New in spot 1.99.4a (not yet released)
     looks like a subversion of v1 and no parse error was detected.
 
   * The way to pass option to the automaton parser has been changed to
-    make it easier to introduct new options.  One such new option is
+    make it easier to introduce new options.  One such new option is
     "trust_hoa": when true (the default) supported properties declared
     in HOA files are trusted even if they cannot be easily be verified.
 
@@ -53,6 +53,10 @@ New in spot 1.99.4a (not yet released)
     tgba_statistics::transitions -> twa_statistics::edges
     tgba_sub_statistics::sub_transitions -> twa_sub_statistics::transitions
     tgba_run -> twa_run
+    reduce_run -> twa_run::reduce
+    replay_twa_run -> twa_run::replay
+    print_twa_run -> operator<<
+    twa_run_to_tgba -> twa_run::as_twa
 
   Python:
 
