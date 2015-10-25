@@ -51,8 +51,8 @@ State: 2
 EOF
 
 cat >expected <<EOF
-sub trans.: 2
 transitions: 2
+edges: 2
 states: 1
 nondeterministic states: 0
 EOF
