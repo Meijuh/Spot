@@ -53,24 +53,12 @@ Büchi automata.\n\nThis reads automata into any supported format \
 Transition-based Generalized Büchi Automata in GraphViz's format by default.  \
 Each supplied file may contain multiple automata.";
 
-enum {
-  OPT_TGBA = 1,
-};
-
 static const argp_option options[] =
   {
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Input:", 1 },
     { "file", 'F', "FILENAME", 0,
       "process the automaton in FILENAME", 0 },
-    /**************************************************/
-    { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
-    { "tgba", OPT_TGBA, nullptr, 0,
-      "Transition-based Generalized Büchi Automaton (default)", 0 },
-    { "ba", 'B', nullptr, 0,
-      "Büchi Automaton (with state-based acceptance)", 0 },
-    { "monitor", 'M', nullptr, 0, "Monitor (accepts all finite prefixes "
-      "of the given property)", 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
@@ -83,7 +71,7 @@ static const struct argp_child children[] =
     { &hoaread_argp, 0, nullptr, 0 },
     { &aoutput_argp, 0, nullptr, 0 },
     { &aoutput_io_format_argp, 0, nullptr, 4 },
-    { &post_argp, 0, nullptr, 20 },
+    { &post_argp, 0, nullptr, 0 },
     { &misc_argp, 0, nullptr, -1 },
     { nullptr, 0, nullptr, 0 }
   };
@@ -96,14 +84,8 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case 'B':
-      type = spot::postprocessor::BA;
-      break;
     case 'F':
       jobs.emplace_back(arg, true);
-      break;
-    case 'M':
-      type = spot::postprocessor::Monitor;
       break;
     case 'x':
       {
@@ -111,11 +93,6 @@ parse_opt(int key, char* arg, struct argp_state*)
 	if (opt)
 	  error(2, 0, "failed to parse --options near '%s'", opt);
       }
-      break;
-    case OPT_TGBA:
-      if (automaton_format == Spin)
-	error(2, 0, "--spin and --tgba are incompatible");
-      type = spot::postprocessor::TGBA;
       break;
     case ARGP_KEY_ARG:
       jobs.emplace_back(arg, true);

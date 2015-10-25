@@ -405,22 +405,18 @@ ltl2tgba -s --lenient '(a < b) U (process[2]@ok)'
 * Do you favor deterministic or small automata?
 
 The translation procedure can be controled by a few switches.  A first
-set of options specifies the intent of the translation: whenever
-possible, would you prefer a small automaton (=--small=) or a
+set of options specifies the goal of the simplification routines:
+whenever possible, would you prefer a small automaton (=--small=) or a
 deterministic (=--deterministic=) automaton?
 
 #+BEGIN_SRC sh :results verbatim :exports results
-ltl2tgba --help | sed -n '/Translation intent:/,/^$/p' | sed '1d;$d'
+ltl2tgba --help | sed -n '/Simplification goal:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :   -a, --any                  no preference, do not bother making it small or
 :                              deterministic
-:   -C, --complete             output a complete automaton (combine with other
-:                              intents)
 :   -D, --deterministic        prefer deterministic automata
 :       --small                prefer small automata (default)
-:   -U, --unambiguous          output unambiguous automata (combine with other
-:                              intents)
 
 The =--any= option tells the translator that it should attempt to
 reduce or produce a deterministic result result: any automaton
@@ -641,7 +637,7 @@ A last parameter that can be used to tune the translation is the amount
 of pre- and post-processing performed.  These two steps can be adjusted
 via a common set of switches:
 #+BEGIN_SRC sh :results verbatim :exports results
-ltl2tgba --help | sed -n '/Optimization level:/,/^$/p' | sed '1d;$d'
+ltl2tgba --help | sed -n '/Simplification level:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :       --high                 all available optimizations (slow, default)

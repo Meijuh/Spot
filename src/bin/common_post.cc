@@ -19,6 +19,7 @@
 
 #include "common_post.hh"
 #include "common_r.hh"
+#include "common_aoutput.hh"
 #include "error.h"
 
 spot::postprocessor::output_type type = spot::postprocessor::TGBA;
@@ -31,27 +32,36 @@ bool level_set = false;
 bool pref_set = false;
 
 enum {
-  OPT_HIGH = 1,
+  OPT_GENERIC = 1,
+  OPT_HIGH,
   OPT_LOW,
   OPT_MEDIUM,
   OPT_SMALL,
+  OPT_TGBA,
 };
 
 static const argp_option options[] =
   {
     /**************************************************/
-    { nullptr, 0, nullptr, 0, "Translation intent:", 20 },
-    { "small", OPT_SMALL, nullptr, 0, "prefer small automata (default)", 0 },
-    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
-    { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
-      "or deterministic", 0 },
-    { "complete", 'C', nullptr, 0, "output a complete automaton (combine "
-      "with other intents)", 0 },
+    { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
+    { "tgba", OPT_TGBA, nullptr, 0,
+      "Transition-based Generalized Büchi Automaton (default)", 0 },
+    { "ba", 'B', nullptr, 0,
+      "Büchi Automaton (implies -S)", 0 },
+    { "monitor", 'M', nullptr, 0, "Monitor (accepts all finite prefixes "
+      "of the given property)", 0 },
+    { "complete", 'C', nullptr, 0, "output a complete automaton", 0 },
     { "state-based-acceptance", 'S', nullptr, 0,
       "define the acceptance using states", 0 },
     { "sbacc", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
-    { nullptr, 0, nullptr, 0, "Optimization level:", 21 },
+    { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
+    { "small", OPT_SMALL, nullptr, 0, "prefer small automata (default)", 0 },
+    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
+    { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
+      "or deterministic", 0 },
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Simplification level:", 21 },
     { "low", OPT_LOW, nullptr, 0, "minimal optimizations (fast)", 0 },
     { "medium", OPT_MEDIUM, nullptr, 0, "moderate optimizations", 0 },
     { "high", OPT_HIGH, nullptr, 0,
@@ -62,18 +72,27 @@ static const argp_option options[] =
 static const argp_option options_disabled[] =
   {
     /**************************************************/
-    { nullptr, 0, nullptr, 0, "Translation intent:", 20 },
-    { "small", OPT_SMALL, nullptr, 0, "prefer small automata", 0 },
-    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
-    { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
-      "or deterministic", 0 },
-    { "complete", 'C', nullptr, 0, "output a complete automaton (combine "
-      "with other intents)", 0 },
+    { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
+    { "generic", OPT_GENERIC, nullptr, 0,
+      "Any acceptance is allowed (default)", 0 },
+    { "tgba", OPT_TGBA, nullptr, 0,
+      "Transition-based Generalized Büchi Automaton", 0 },
+    { "ba", 'B', nullptr, 0,
+      "Büchi Automaton (with state-based acceptance)", 0 },
+    { "monitor", 'M', nullptr, 0, "Monitor (accepts all finite prefixes "
+      "of the given property)", 0 },
+    { "complete", 'C', nullptr, 0, "output a complete automaton", 0 },
     { "state-based-acceptance", 'S', nullptr, 0,
       "define the acceptance using states", 0 },
     { "sbacc", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
-    { nullptr, 0, nullptr, 0, "Optimization level:", 21 },
+    { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
+    { "small", OPT_SMALL, nullptr, 0, "prefer small automata", 0 },
+    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
+    { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
+      "or deterministic", 0 },
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Simplification level:", 21 },
     { "low", OPT_LOW, nullptr, 0, "minimal optimizations (fast)", 0 },
     { "medium", OPT_MEDIUM, nullptr, 0, "moderate optimizations", 0 },
     { "high", OPT_HIGH, nullptr, 0,
@@ -91,6 +110,9 @@ parse_opt_post(int key, char*, struct argp_state*)
       pref = spot::postprocessor::Any;
       pref_set = true;
       break;
+    case 'B':
+      type = spot::postprocessor::BA;
+      break;
     case 'C':
       comp = spot::postprocessor::Complete;
       break;
@@ -98,8 +120,14 @@ parse_opt_post(int key, char*, struct argp_state*)
       pref = spot::postprocessor::Deterministic;
       pref_set = true;
       break;
+    case 'M':
+      type = spot::postprocessor::Monitor;
+      break;
     case 'S':
       sbacc = spot::postprocessor::SBAcc;
+      break;
+    case OPT_GENERIC:
+      type = spot::postprocessor::Generic;
       break;
     case OPT_HIGH:
       level = spot::postprocessor::High;
@@ -119,6 +147,11 @@ parse_opt_post(int key, char*, struct argp_state*)
     case OPT_SMALL:
       pref = spot::postprocessor::Small;
       pref_set = true;
+      break;
+    case OPT_TGBA:
+      if (automaton_format == Spin)
+	error(2, 0, "--spin and --tgba are incompatible");
+      type = spot::postprocessor::TGBA;
       break;
     default:
       return ARGP_ERR_UNKNOWN;

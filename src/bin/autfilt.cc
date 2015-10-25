@@ -101,7 +101,6 @@ enum {
   OPT_SIMPLIFY_EXCLUSIVE_AP,
   OPT_STATES,
   OPT_STRIPACC,
-  OPT_TGBA,
 };
 
 static const argp_option options[] =
@@ -110,16 +109,6 @@ static const argp_option options[] =
     { nullptr, 0, nullptr, 0, "Input:", 1 },
     { "file", 'F', "FILENAME", 0,
       "process the automaton in FILENAME", 0 },
-    /**************************************************/
-    { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
-    { "generic", OPT_GENERIC, nullptr, 0,
-      "Any acceptance is allowed (default)", 0 },
-    { "tgba", OPT_TGBA, nullptr, 0,
-      "Transition-based Generalized Büchi Automaton", 0 },
-    { "ba", 'B', nullptr, 0,
-      "Büchi Automaton (with state-based acceptance)", 0 },
-    { "monitor", 'M', nullptr, 0, "Monitor (accepts all finite prefixes "
-      "of the given property)", 0 },
     /**************************************************/
     { "count", 'c', nullptr, 0, "print only a count of matched automata", 3 },
     { "max-count", 'n', "NUM", 0, "output at most NUM automata", 3 },
@@ -213,9 +202,9 @@ static const argp_option options[] =
     RANGE_DOC_FULL,
     { nullptr, 0, nullptr, 0,
       "If any option among --small, --deterministic, or --any is given, "
-      "then the optimization level defaults to --high unless specified "
+      "then the simplification level defaults to --high unless specified "
       "otherwise.  If any option among --low, --medium, or --high is given, "
-      "then the translation intent defaults to --small unless specified "
+      "then the simplification goal defaults to --small unless specified "
       "otherwise.  If none of those options are specified, then autfilt "
       "acts as is --any --low were given: these actually disable the "
       "simplification routines.", 22 },
@@ -233,7 +222,7 @@ static const struct argp_child children[] =
     { &hoaread_argp, 0, nullptr, 0 },
     { &aoutput_argp, 0, nullptr, 0 },
     { &aoutput_io_format_argp, 0, nullptr, 4 },
-    { &post_argp_disabled, 0, nullptr, 20 },
+    { &post_argp_disabled, 0, nullptr, 0 },
     { &misc_argp, 0, nullptr, -1 },
     { nullptr, 0, nullptr, 0 }
   };
@@ -298,17 +287,11 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case 'B':
-      type = spot::postprocessor::BA;
-      break;
     case 'c':
       automaton_format = Count;
       break;
     case 'F':
       jobs.emplace_back(arg, true);
-      break;
-    case 'M':
-      type = spot::postprocessor::Monitor;
       break;
     case 'n':
       opt_max_count = to_pos_int(arg);
@@ -359,8 +342,6 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_EXCLUSIVE_AP:
       excl_ap.add_group(arg);
       break;
-    case OPT_GENERIC:
-      type = spot::postprocessor::Generic;
     case OPT_INSTUT:
       if (!arg || (arg[0] == '1' && arg[1] == 0))
 	opt_instut = 1;
@@ -492,11 +473,6 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_STRIPACC:
       opt_stripacc = true;
-      break;
-    case OPT_TGBA:
-      if (automaton_format == Spin)
-	error(2, 0, "--spin and --tgba are incompatible");
-      type = spot::postprocessor::TGBA;
       break;
     case ARGP_KEY_ARG:
       jobs.emplace_back(arg, true);

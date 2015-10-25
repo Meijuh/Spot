@@ -47,26 +47,13 @@ in GraphViz's format.\n\
 If multiple formulas are supplied, several automata will be output.";
 
 
-enum {
-  OPT_TGBA = 1,
-};
-
 static const argp_option options[] =
   {
-    /**************************************************/
-    { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
-    { "tgba", OPT_TGBA, nullptr, 0,
-      "Transition-based Generalized Büchi Automaton (default)", 0 },
-    { "ba", 'B', nullptr, 0,
-      "Büchi Automaton (with state-based acceptance)", 0 },
-    { "monitor", 'M', nullptr, 0, "Monitor (accepts all finite prefixes "
-      "of the given formula)", 0 },
     /**************************************************/
     { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the formula, in Spot's syntax", 4 },
     /**************************************************/
-    { "unambiguous", 'U', nullptr, 0, "output unambiguous automata "
-      "(combine with other intents)", 20 },
+    { "unambiguous", 'U', nullptr, 0, "output unambiguous automata", 2 },
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
@@ -92,12 +79,6 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case 'B':
-      type = spot::postprocessor::BA;
-      break;
-    case 'M':
-      type = spot::postprocessor::Monitor;
-      break;
     case 'U':
       unambig = spot::postprocessor::Unambiguous;
       break;
@@ -107,11 +88,6 @@ parse_opt(int key, char* arg, struct argp_state*)
 	if (opt)
 	  error(2, 0, "failed to parse --options near '%s'", opt);
       }
-      break;
-    case OPT_TGBA:
-      if (automaton_format == Spin)
-	error(2, 0, "--spin and --tgba are incompatible");
-      type = spot::postprocessor::TGBA;
       break;
     case ARGP_KEY_ARG:
       // FIXME: use stat() to distinguish filename from string?

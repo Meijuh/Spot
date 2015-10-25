@@ -324,21 +324,23 @@ dstar2tgba --help | sed -n '/Output automaton type:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 
 #+RESULTS:
-:   -B, --ba                   Büchi Automaton
+:   -B, --ba                   BÃ¼chi Automaton (implies -S)
+:   -C, --complete             output a complete automaton
 :   -M, --monitor              Monitor (accepts all finite prefixes of the given
-:                              formula)
-:       --tgba                 Transition-based Generalized Büchi Automaton
+:                              property)
+:   -S, --state-based-acceptance, --sbacc
+:                              define the acceptance using states
+:       --tgba                 Transition-based Generalized BÃ¼chi Automaton
 :                              (default)
 
-And these may be refined by a translation intent, should the
+And these may be refined by a simplification goal, should the
 post-processor routine had a choice to make:
 #+BEGIN_SRC sh :results verbatim :exports results
-dstar2tgba --help | sed -n '/Translation intent:/,/^$/p' | sed '1d;$d'
+dstar2tgba --help | sed -n '/Simplification goal:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
-:   -a, --any                  no preference
-:   -C, --complete             output a complete automaton (combine with other
-:                              intents)
+:   -a, --any                  no preference, do not bother making it small or
+:                              deterministic
 :   -D, --deterministic        prefer deterministic automata
 :       --small                prefer small automata (default)
 
@@ -346,7 +348,7 @@ The effort put into post-processing can be limited with the =--low= or
 =--medium= options:
 
 #+BEGIN_SRC sh :results verbatim :exports results
-dstar2tgba --help | sed -n '/Optimization level:/,/^$/p' | sed '1d;$d'
+dstar2tgba --help | sed -n '/Simplification level:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :       --high                 all available optimizations (slow, default)

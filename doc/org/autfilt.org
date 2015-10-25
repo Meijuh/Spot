@@ -193,44 +193,46 @@ This set of options controls the desired type of output automaton:
 autfilt --help | sed -n '/Output automaton type:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
-:   -B, --ba                   Büchi Automaton
+:   -B, --ba                   BÃ¼chi Automaton (with state-based acceptance)
+:   -C, --complete             output a complete automaton
 :       --generic              Any acceptance is allowed (default)
 :   -M, --monitor              Monitor (accepts all finite prefixes of the given
 :                              property)
-:       --tgba                 Transition-based Generalized Büchi Automaton
+:   -S, --state-based-acceptance, --sbacc
+:                              define the acceptance using states
+:       --tgba                 Transition-based Generalized BÃ¼chi Automaton
 
-These options specifies desired properties:
+These options specify any simplification goal:
 
 #+BEGIN_SRC sh :results verbatim :exports results
-autfilt --help | sed -n '/Translation intent:/,/^$/p' | sed '1d;$d'
+autfilt --help | sed -n '/Simplification goal:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :   -a, --any                  no preference, do not bother making it small or
-:                              deterministic (default)
-:   -C, --complete             output a complete automaton (combine with other
-:                              intents)
+:                              deterministic
 :   -D, --deterministic        prefer deterministic automata
 :       --small                prefer small automata
-:   -S, --state-based-acceptance, --sbacc
-:                              define the acceptance using states
 
 Finally, the following switches control the amount of effort applied
-to reach the desired properties:
+toward the desired goal:
 
 #+BEGIN_SRC sh :results verbatim :exports results
-autfilt --help | sed -n '/Optimization level:/,/^$/p' | sed '1d;$d'
+autfilt --help | sed -n '/Simplification level:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :       --high                 all available optimizations (slow)
-:       --low                  minimal optimizations (fast, default)
+:       --low                  minimal optimizations (fast)
 :       --medium               moderate optimizations
 
 
 By default, =--any --low= is used, which cause all simplifications to
-be skipped.  If you want to reduce the size of the automaton, try
-=--small --high= and if you want to try to make it deterministic
-(their is to guaranty of result, this is only a preference), try
-=--deterministic --high=.
+be skipped.  However if any goal is given, than the simplification level
+defaults to =--high= (unless specified otherwise).  If a simplification
+level is given without specifying any goal, then the goal default to =--small=.
+
+So if you want to reduce the size of the automaton, try =--small= and
+if you want to try to make (or keep) it deterministic (there is to
+guaranty of result, this is only a preference) try =--deterministic=.
 
 * Transformations
 
@@ -245,6 +247,8 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
       --cleanup-acceptance   remove unused acceptance sets from the automaton
       --cnf-acceptance       put the acceptance condition in Conjunctive Normal
                              Form
+      --complement           complement each automaton (currently support only
+                             deterministic automata)
       --complement-acceptance   complement the acceptance condition (without
                              touching the automaton)
       --destut               allow less stuttering
@@ -263,7 +267,11 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
                              sets
       --merge-transitions    merge transitions with same destination and
                              acceptance
-      --product=FILENAME     build the product with the automaton in FILENAME
+      --product=FILENAME, --product-and=FILENAME
+                             build the product with the automaton in FILENAME
+                             to intersect languages
+      --product-or=FILENAME  build the product with the automaton in FILENAME
+                             to sum languages
       --randomize[=s|t]      randomize states and transitions (specify 's' or
                              't' to randomize only states or transitions)
       --remove-ap=AP[=0|=1][,AP...]
@@ -276,6 +284,8 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
       --remove-unreachable-states
                              remove states that are unreachable from the
                              initial state
+      --sat-minimize[=options]   minimize the automaton using a SAT solver
+                             (only work for deterministic automata)
       --separate-sets        if both Inf(x) and Fin(x) appear in the acceptance
                              condition, replace Fin(x) by a new Fin(y) and
                              adjust the automaton
