@@ -194,7 +194,7 @@ namespace spot
 
       assert(!acc_trans.empty());
 
-      auto run = std::make_shared<twa_run>();
+      auto run = std::make_shared<twa_run>(automaton());
       // construct run->cycle from acc_trans.
       construct_cycle(run, acc_trans);
       // construct run->prefix (a minimal path from the initial state to any

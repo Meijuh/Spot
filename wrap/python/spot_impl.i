@@ -383,6 +383,15 @@ namespace std {
   }
 }
 
+%extend spot::twa_run_ptr {
+  std::string __str__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+}
+
 %nodefaultctor std::ostream;
 namespace std {
   class ostream {};

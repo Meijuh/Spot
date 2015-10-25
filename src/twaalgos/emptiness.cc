@@ -47,16 +47,15 @@ namespace spot
 
   twa_run::twa_run(const twa_run& run)
   {
-    for (steps::const_iterator i = run.prefix.begin();
-	 i != run.prefix.end(); ++i)
+    aut = run.aut;
+    for (step s : run.prefix)
       {
-	step s = { i->s->clone(), i->label, i->acc };
+	s.s = s.s->clone();
 	prefix.push_back(s);
       }
-    for (steps::const_iterator i = run.cycle.begin();
-	 i != run.cycle.end(); ++i)
+    for (step s : run.cycle)
       {
-	step s = { i->s->clone(), i->label, i->acc };
+	s.s = s.s->clone();
 	cycle.push_back(s);
       }
   }
@@ -72,37 +71,27 @@ namespace spot
     return *this;
   }
 
-  // print_twa_run
-  //////////////////////////////////////////////////////////////////////
-
   std::ostream&
-  print_twa_run(std::ostream& os,
-		 const const_twa_ptr& a,
-		 const const_twa_run_ptr& run)
+  operator<<(std::ostream& os, const twa_run_ptr& run)
   {
+    auto& a = run->aut;
     bdd_dict_ptr d = a->get_dict();
+
+    auto pstep = [&](const twa_run::step& st)
+    {
+      os << "  " << a->format_state(st.s) << "\n  |  ";
+      bdd_print_formula(os, d, st.label);
+      if (st.acc)
+	os << '\t' << st.acc;
+      os << '\n';
+    };
+
     os << "Prefix:" << std::endl;
-    for (twa_run::steps::const_iterator i = run->prefix.begin();
-	 i != run->prefix.end(); ++i)
-      {
-	os << "  " << a->format_state(i->s) << std::endl;
-	os << "  |  ";
-	bdd_print_formula(os, d, i->label);
-	os << '\t';
-	os << a->acc().format(i->acc);
-	os << std::endl;
-      }
+    for (auto& s: run->prefix)
+      pstep(s);
     os << "Cycle:" << std::endl;
-    for (twa_run::steps::const_iterator i = run->cycle.begin();
-	 i != run->cycle.end(); ++i)
-      {
-	os << "  " << a->format_state(i->s) << std::endl;
-	os << "  |  ";
-	bdd_print_formula(os, d, i->label);
-	os << '\t';
-	os << a->acc().format(i->acc);
-	os << '\n';
-      }
+    for (auto& s: run->cycle)
+      pstep(s);
     return os;
   }
 

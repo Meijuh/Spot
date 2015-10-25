@@ -1026,9 +1026,7 @@ main(int argc, char** argv)
 				{
 				  tm_ar.stop(algo);
 				  std::ostringstream s;
-				  if (!spot::replay_twa_run(s,
-							     res->automaton(),
-							     run))
+				  if (!spot::replay_twa_run(s, run))
 				    {
 				      if (!opt_paper)
 					std::cout << ", but could not replay "
@@ -1049,12 +1047,8 @@ main(int argc, char** argv)
 
 				  if (opt_reduce)
 				    {
-				      auto redrun =
-					spot::reduce_run(res->automaton(), run);
-				      if (!spot::replay_twa_run(s,
-								 res
-								 ->automaton(),
-								 redrun))
+				      auto redrun = spot::reduce_run(run);
+				      if (!spot::replay_twa_run(s, redrun))
 					{
 					  if (!opt_paper)
 					    std::cout

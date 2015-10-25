@@ -703,7 +703,7 @@ namespace
 	auto run = res->accepting_run();
 	if (run)
 	  {
-	    run = reduce_run(prod, run);
+	    run = reduce_run(run);
 	    std::cerr << "; both automata accept the infinite word\n"
 		      << "       ";
 	    spot::tgba_word w(run);

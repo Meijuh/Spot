@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2010, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita.
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -31,8 +31,8 @@ namespace spot
   /// \ingroup twa_run
   /// \brief Reduce an accepting run.
   ///
-  /// Return a run which is accepting for \a a and that is no longer
-  /// than \a org.
+  /// Return a run which is still accepting for <code>org->aut</code>,
+  /// but is no longer than \a org.
   SPOT_API twa_run_ptr
-  reduce_run(const const_twa_ptr& a, const const_twa_run_ptr& org);
+  reduce_run(const const_twa_run_ptr& org);
 }

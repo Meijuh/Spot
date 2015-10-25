@@ -32,7 +32,7 @@ namespace spot
 		   const const_twa_ptr& a_proj,
 		   const const_twa_run_ptr& run)
   {
-    auto res = std::make_shared<twa_run>();
+    auto res = std::make_shared<twa_run>(a_proj);
     for (auto& i: run->prefix)
       res->prefix.emplace_back(a_run->project_state(i.s, a_proj),
 			       i.label, i.acc);

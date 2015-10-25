@@ -88,9 +88,10 @@ namespace spot
   }
 
   twa_run_ptr
-  reduce_run(const const_twa_ptr& a, const const_twa_run_ptr& org)
+  reduce_run(const const_twa_run_ptr& org)
   {
-    auto res = std::make_shared<twa_run>();
+    auto& a = org->aut;
+    auto res = std::make_shared<twa_run>(a);
     state_set ss;
     shortest_path shpath(a);
     shpath.set_target(&ss);

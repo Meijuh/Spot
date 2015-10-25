@@ -94,7 +94,7 @@ namespace spot
   twa_run_ptr
   couvreur99_check_result::accepting_run()
   {
-    run_ = std::make_shared<twa_run>();
+    run_ = std::make_shared<twa_run>(ecs_->aut);
 
     assert(!ecs_->root.empty());
 

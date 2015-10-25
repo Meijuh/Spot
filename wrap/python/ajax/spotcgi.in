@@ -840,11 +840,8 @@ if output_type == 'r':
             unbufprint('<div class="ec">An accepting run was found.<br/>')
             if ec_run:
                 if print_acc_run:
-                    s = spot.ostringstream()
-                    spot.print_twa_run(s, ec_a, ec_run)
                     unbufprint('<div class="accrun">%s</div>' %
-                               cgi.escape(s.str()))
-                    del s
+                               cgi.escape(str(ec_run)))
                 if draw_acc_run:
                     render_automaton(spot.twa_run_to_tgba(ec_a, ec_run), False)
                 del ec_run

@@ -179,7 +179,7 @@ public:
 	    {
 	      auto run = res->accepting_run();
 	      assert(run);
-	      run = reduce_run(aut, run);
+	      run = reduce_run(run);
 	      spot::tgba_word w(run);
 	      w.simplify();
 	      std::ostringstream out;

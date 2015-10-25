@@ -287,7 +287,7 @@ namespace spot
 	virtual twa_run_ptr
 	accepting_run()
 	{
-	  auto res = std::make_shared<twa_run>();
+	  auto res = std::make_shared<twa_run>(automaton());
 
 	  update_lowlinks();
 #ifdef TRACE

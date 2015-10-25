@@ -257,13 +257,12 @@ namespace spot
   /// \addtogroup emptiness_check_algorithms Emptiness-check algorithms
   /// \ingroup emptiness_check
 
-
-  /// \addtogroup twa_run TGBA runs and supporting functions
+  /// \addtogroup twa_run TωA runs and supporting functions
   /// \ingroup emptiness_check
   /// @{
 
-  /// An accepted run, for a tgba.
-  struct SPOT_API twa_run
+  /// An accepted run, for a twa.
+  struct SPOT_API twa_run final
   {
     struct step {
       const state* s;
@@ -283,33 +282,34 @@ namespace spot
 
     steps prefix;
     steps cycle;
+    const_twa_ptr aut;
 
     ~twa_run();
-    twa_run()
+    twa_run(const const_twa_ptr& aut)
+      : aut(aut)
     {
-    };
+    }
     twa_run(const twa_run& run);
     twa_run& operator=(const twa_run& run);
+
+    /// \brief Display a twa_run.
+    ///
+    /// Output the prefix and cycle parts of the twa_run \a run on \a os.
+    ///
+    /// The automaton object (stored by \a run) is used only to format
+    /// the states, and to know how to print the BDDs describing the
+    /// conditions and acceptance conditions of the run; it is
+    /// <b>not</b> used to replay the run.  In other words this
+    /// function will work even if the twa_run you are trying to print
+    /// appears to connect states that are not connected.
+    ///
+    /// This is unlike replay_twa_run(), which will ensure the run
+    /// actually exists in the automaton (and will also display any
+    /// transition annotation).
+    SPOT_API
+    friend std::ostream& operator<<(std::ostream& os, const twa_run_ptr& run);
   };
 
-  /// \brief Display a twa_run.
-  ///
-  /// Output the prefix and cycle parts of the twa_run \a run on \a os.
-  ///
-  /// The automaton \a a is used only to format the states, and
-  /// to know how to print the BDDs describing the conditions and
-  /// acceptance conditions of the run; it is <b>not</b> used to
-  /// replay the run.  In other words this function will work even if
-  /// the twa_run you are trying to print appears to connect states
-  /// of \a a that are not connected.
-  ///
-  /// This is unlike replay_twa_run(), which will ensure the run
-  /// actually exists in the automaton (and will also display any
-  /// transition annotation).
-  SPOT_API std::ostream&
-  print_twa_run(std::ostream& os,
-		 const const_twa_ptr& a,
-		 const const_twa_run_ptr& run);
 
   /// \brief Return an explicit_tgba corresponding to \a run (i.e. comparable
   /// states are merged).

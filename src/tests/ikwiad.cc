@@ -1580,14 +1580,13 @@ checked_main(int argc, char** argv)
                           if (opt_reduce)
                             {
 			      tm.start("reducing accepting run");
-                              run = spot::reduce_run(res->automaton(), run);
+                              run = spot::reduce_run(run);
 			      tm.stop("reducing accepting run");
                             }
 			  if (accepting_run_replay)
 			    {
 			      tm.start("replaying acc. run");
-			      if (!spot::replay_twa_run(std::cout, a,
-							 run, true))
+			      if (!spot::replay_twa_run(std::cout, run, true))
 				exit_code = 1;
 			      tm.stop("replaying acc. run");
 			    }
@@ -1601,7 +1600,7 @@ checked_main(int argc, char** argv)
 				}
 			      else
 				{
-				  spot::print_twa_run(std::cout, a, run);
+				  std::cout << run;
 				}
 			      tm.stop("printing accepting run");
 			    }

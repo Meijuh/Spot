@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -44,9 +44,10 @@ namespace spot
   }
 
   bool
-  replay_twa_run(std::ostream& os, const const_twa_ptr& a,
+  replay_twa_run(std::ostream& os,
 		  const const_twa_run_ptr& run, bool debug)
   {
+    auto& a = run->aut;
     const state* s = a->get_init_state();
     int serial = 1;
     const twa_run::steps* l;

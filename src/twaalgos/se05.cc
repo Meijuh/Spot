@@ -339,7 +339,7 @@ namespace spot
           assert(!ms_->st_blue.empty());
           assert(!ms_->st_red.empty());
 
-          auto run = std::make_shared<twa_run>();
+          auto run = std::make_shared<twa_run>(automaton());
 
           typename stack_type::const_reverse_iterator i, j, end;
           twa_run::steps* l;
