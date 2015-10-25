@@ -371,6 +371,7 @@ def automata(*sources, timeout=None, ignore_abort=True,
     o.debug = debug
     o.ignore_abort = ignore_abort
     o.trust_hoa = trust_hoa
+    o.raise_errors = True
     for filename in sources:
         try:
             p = None
@@ -409,7 +410,7 @@ def automata(*sources, timeout=None, ignore_abort=True,
             a = True
             while a:
                 # This returns None when we reach the end of the file.
-                a = p.parse_strict(_bdd_dict)
+                a = p.parse(_bdd_dict).aut
                 if a:
                     yield a
         finally:

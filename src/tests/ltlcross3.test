@@ -174,7 +174,7 @@ check_csv out.csv
 
 # Diagnose empty automata, and make sure %% is correctly replaced by %
 run 1 ../../bin/ltlcross ': %f >%O; echo %%>foo' -f a 2>stderr
-test 2 = `grep -c 'error: empty output.' stderr`
+test 2 = `grep -c ':.*empty input' stderr`
 cat foo
 cat >expected<<EOF
 %

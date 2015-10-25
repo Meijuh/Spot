@@ -168,25 +168,15 @@ namespace
       else if (output.val())
 	{
 	  problem = false;
-
-	  spot::parse_aut_error_list pel;
-	  std::string filename = output.val()->name();
-	  auto aut = spot::parse_aut(filename, pel, dict,
+	  auto aut = spot::parse_aut(output.val()->name(), dict,
 				     spot::default_environment::instance(),
 				     opt_parse);
-	  if (!pel.empty())
+	  if (!aut->errors.empty())
 	    {
 	      problem = true;
 	      std::cerr << "error: failed to parse the automaton "
 		"produced by \"" << cmd << "\".\n";
-	      spot::format_parse_aut_errors(std::cerr, filename, pel);
-	      res = nullptr;
-	    }
-	  else if (!aut)
-	    {
-	      problem = true;
-	      std::cerr << "error: command \"" << cmd
-			<< "\" produced an empty output.\n";
+	      aut->format_errors(std::cerr);
 	      res = nullptr;
 	    }
 	  else if (aut->aborted)

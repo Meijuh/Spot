@@ -676,27 +676,22 @@ namespace
     int
     process_file(const char* filename)
     {
-      spot::parse_aut_error_list pel;
       auto hp = spot::automaton_stream_parser(filename, opt_parse);
-
       int err = 0;
-
       while (!abort_run)
 	{
-	  pel.clear();
-	  auto haut = hp.parse(pel, opt->dict);
-	  if (!haut && pel.empty())
+	  auto haut = hp.parse(opt->dict);
+	  if (!haut->aut && haut->errors.empty())
 	    break;
-	  if (spot::format_parse_aut_errors(std::cerr, filename, pel))
+	  if (haut->format_errors(std::cerr))
 	    err = 2;
-	  if (!haut)
+	  if (!haut->aut)
 	    error(2, 0, "failed to read automaton from %s", filename);
 	  else if (haut->aborted)
 	    err = std::max(err, aborted(haut, filename));
 	  else
             process_automaton(haut, filename);
 	}
-
       return err;
     }
   };

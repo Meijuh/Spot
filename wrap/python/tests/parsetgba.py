@@ -32,14 +32,12 @@ out = open(filename, 'w+')
 out.write(contents)
 out.close()
 
-p = spot.empty_parse_aut_error_list()
-a = spot.parse_aut(filename, p, spot.make_bdd_dict())
+a = spot.parse_aut(filename, spot.make_bdd_dict())
 
-assert not p
+assert not a.errors
 
 spot.print_dot(spot.get_cout(), a.aut)
 
-del p
 del a
 
 os.unlink(filename)

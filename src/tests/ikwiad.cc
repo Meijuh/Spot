@@ -577,13 +577,10 @@ checked_main(int argc, char** argv)
 	{
 	  tm.start("reading -P's argument");
 
-	  spot::parse_aut_error_list pel;
 	  spot::automaton_parser_options opts;
 	  opts.debug = debug_opt;
-	  auto daut = spot::parse_aut(argv[formula_index] + 2, pel,
-				      dict, env, opts);
-	  if (spot::format_parse_aut_errors(std::cerr,
-					    argv[formula_index] + 2, pel))
+	  auto daut = spot::parse_aut(argv[formula_index] + 2, dict, env, opts);
+	  if (daut->format_errors(std::cerr))
 	    return 2;
 	  daut->aut->merge_edges();
 	  system_aut = daut->aut;
@@ -929,13 +926,12 @@ checked_main(int argc, char** argv)
 
       if (from_file)
 	{
-	  spot::parse_aut_error_list pel;
 	  tm.start("parsing hoa");
 	  spot::automaton_parser_options opts;
 	  opts.debug = debug_opt;
-	  auto daut = spot::parse_aut(input, pel, dict, env, opts);
+	  auto daut = spot::parse_aut(input, dict, env, opts);
 	  tm.stop("parsing hoa");
-	  if (spot::format_parse_aut_errors(std::cerr, input, pel))
+	  if (daut->format_errors(std::cerr))
 	    return 2;
 	  daut->aut->merge_edges();
 	  a = daut->aut;

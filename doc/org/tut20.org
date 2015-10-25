@@ -124,16 +124,15 @@ State: 4
 * C++
 
 Parsing an automaton is almost similar to [[file:tut01.org][parsing an LTL formula]].  The
-=parse_aut()= function takes a filename, a reference to a
-=parse_aut_error_list= object to populate (should errors be found) and
-a BDD dictionary (to be discussed later on this page).  It returns a
-shared pointer to a structure that has two fields: =aborted= is a
+=parse_aut()= function takes a filename and a BDD dictionary (to be
+discussed later on this page).  It returns a shared pointer to a
+structure that has a couple of important fields: =aborted= is a
 Boolean telling if the input automaton was voluntarily aborted (a
-feature of [[file:hoa.org][the HOA format]]), and =aut= is the actual automaton.  The
-shared pointer returned by =parse_aut()= might be null (in which case
-the the =parse_aut_error_list= is guaranteed not to be empty), but
-since the parser performs some error recovery it is likely that an
-automaton is returned even in the presence of parse errors.
+feature of [[file:hoa.org][the HOA format]]), =errors= is a list of syntax errors that
+occurred while parsing the automaton (printing these errors is up to
+you), and =aut= is the actual automaton.  The parser usually tries to
+recover from errors, so =aut= may not be null even if =errors= is
+non-empty.
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>
@@ -144,10 +143,9 @@ automaton is returned even in the presence of parse errors.
   int main()
   {
     std::string input = "tut20.never";
-    spot::parse_aut_error_list pel;
     spot::bdd_dict_ptr dict = spot::make_bdd_dict();
-    spot::parsed_aut_ptr pa = parse_aut(input, pel, dict);
-    if (spot::format_parse_aut_errors(std::cerr, input, pel))
+    spot::parsed_aut_ptr pa = parse_aut(input, dict);
+    if (pa->format_errors(std::cerr))
       return 1;
     // This cannot occur when reading a never claim, but
     // it could while reading a HOA file.

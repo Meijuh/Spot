@@ -129,7 +129,7 @@ diff output expected
 
 $ltldo ': %s; true>%O' -f GFa 2>stderr && exit 1
 test $? = 2
-grep 'error: command ".*" produced an empty output.' stderr
+grep ':.*empty input' stderr
 grep 'ltldo: aborting' stderr
 
 $ltldo '{name} foo/bar/ltl2baextended' -f GFa 2>stderr && exit 1

@@ -24,7 +24,7 @@
 %name-prefix "hoayy"
 %debug
 %error-verbose
-%lex-param { spot::parse_aut_error_list& error_list }
+%lex-param { PARSE_ERROR_LIST }
 %define api.location.type "spot::location"
 
 %code requires
@@ -45,6 +45,10 @@
 // If the libc does not have this, a version is compiled in lib/.
 extern "C" int strverscmp(const char *s1, const char *s2);
 #endif
+
+// Work around Bison not letting us write
+//  %lex-param { res.h->errors }
+#define PARSE_ERROR_LIST res.h->errors
 
   inline namespace hoayy_support
   {
@@ -142,7 +146,6 @@ extern "C" int strverscmp(const char *s1, const char *s2);
   }
 }
 
-%parse-param {spot::parse_aut_error_list& error_list}
 %parse-param {result_& res}
 %parse-param {spot::location initial_loc}
 
@@ -1433,7 +1436,7 @@ nc-formula: nc-formula-or-ident
 	       here.end.column = here.begin.column + j.first.end.column - 1;
 	       here.begin.line += j.first.begin.line - 1;
 	       here.begin.column += j.first.begin.column - 1;
-	       error_list.emplace_back(here, j.second);
+	       res.h->errors.emplace_back(here, j.second);
 	     }
            bdd cond = bddfalse;
 	   if (f)
@@ -1614,7 +1617,7 @@ lbtt-guard: STRING
 		  here.end.column = here.begin.column + j.first.end.column - 1;
 		  here.begin.line += j.first.begin.line - 1;
 		  here.begin.column += j.first.begin.column - 1;
-		  error_list.emplace_back(here, j.second);
+		  res.h->errors.emplace_back(here, j.second);
 		}
 	    if (!f)
 	      {
@@ -1679,7 +1682,7 @@ void
 hoayy::parser::error(const location_type& location,
 		     const std::string& message)
 {
-  error_list.emplace_back(location, message);
+  res.h->errors.emplace_back(location, message);
 }
 
 static spot::acc_cond::acc_code
@@ -1867,15 +1870,14 @@ static void fix_properties(result_& r)
     r.h->aut->prop_state_based_acc();
 }
 
-static void check_version(const result_& r,
-			  spot::parse_aut_error_list& error_list)
+static void check_version(const result_& r)
 {
   if (r.h->type != spot::parsed_aut_type::HOA)
     return;
   auto& v = r.format_version;
   if (v.size() < 2 || v[0] != 'v' || v[1] < '1' || v[1] > '9')
     {
-      error_list.emplace_front(r.format_version_loc, "unknown HOA version");
+      r.h->errors.emplace_front(r.format_version_loc, "unknown HOA version");
       return;
     }
   const char* beg = &v[1];
@@ -1883,17 +1885,18 @@ static void check_version(const result_& r,
   long int vers = strtol(beg, &end, 10);
   if (vers != 1)
     {
-      error_list.emplace_front(r.format_version_loc, "unsupported HOA version");
+      r.h->errors.emplace_front(r.format_version_loc,
+				  "unsupported HOA version");
       return;
     }
   constexpr const char supported[] = "1";
-  if (strverscmp(supported, beg) < 0 && !error_list.empty())
+  if (strverscmp(supported, beg) < 0 && !r.h->errors.empty())
     {
       std::ostringstream s;
       s << "we can read HOA v" << supported
 	<< " but this file uses " << v << "; this might "
 	<< "cause the following errors";
-      error_list.emplace_front(r.format_version_loc, s.str());
+      r.h->errors.emplace_front(r.format_version_loc, s.str());
       return;
     }
 }
@@ -1930,19 +1933,31 @@ namespace spot
     hoayyclose();
   }
 
+  void raise_parse_error(const parsed_aut_ptr& pa)
+  {
+    if (pa->aborted)
+      pa->errors.emplace_back(pa->loc, "parsing aborted");
+    if (!pa->errors.empty())
+      {
+	std::ostringstream s;
+	if (pa->format_errors(s))
+	  throw parse_error(s.str());
+      }
+    // It is possible that pa->aut == nullptr if we reach the end of a
+    // stream.  It is not necessarily an error.
+  }
 
   parsed_aut_ptr
-  automaton_stream_parser::parse(parse_aut_error_list& error_list,
-				 const bdd_dict_ptr& dict,
+  automaton_stream_parser::parse(const bdd_dict_ptr& dict,
 				 environment& env)
   {
   restart:
     result_ r;
     r.opts = opts_;
-    r.h = std::make_shared<spot::parsed_aut>();
+    r.h = std::make_shared<spot::parsed_aut>(filename_);
     r.h->aut = make_twa_graph(dict);
     r.env = &env;
-    hoayy::parser parser(error_list, r, last_loc);
+    hoayy::parser parser(r, last_loc);
     static bool env_debug = !!getenv("SPOT_DEBUG_PARSER");
     parser.set_debug_level(opts_.debug || env_debug);
     hoayyreset();
@@ -1957,7 +1972,7 @@ namespace spot
 	// Bison 3.0.2 lacks a += operator for locations.
 	r.h->loc = r.h->loc + e.pos;
       }
-    check_version(r, error_list);
+    check_version(r);
     last_loc = r.h->loc;
     last_loc.step();
     if (r.h->aborted)
@@ -1966,8 +1981,10 @@ namespace spot
 	  goto restart;
 	return r.h;
       }
+    if (opts_.raise_errors)
+      raise_parse_error(r.h);
     if (!r.h->aut)
-      return nullptr;
+      return r.h;
     if (r.state_names)
       r.h->aut->set_named_prop("state-names", r.state_names);
     fix_acceptance(r);
@@ -1976,27 +1993,34 @@ namespace spot
     return r.h;
   };
 
-  twa_graph_ptr
-  automaton_stream_parser::parse_strict(const bdd_dict_ptr& dict,
-					environment& env)
+  parsed_aut_ptr
+  parse_aut(const std::string& filename, const bdd_dict_ptr& dict,
+	    environment& env, automaton_parser_options opts)
   {
-    parse_aut_error_list pel;
-    auto a = parse(pel, dict, env);
-
-    if (!pel.empty())
+    auto localopts = opts;
+    localopts.raise_errors = false;
+    parsed_aut_ptr pa;
+    try
       {
-	std::ostringstream s;
-	if (format_parse_aut_errors(s, filename_, pel))
-	  throw parse_error(s.str());
+	automaton_stream_parser p(filename, localopts);
+	pa = p.parse(dict, env);
       }
-    if (!a)
-      return nullptr;
-
-    if (a->aborted)
-      throw parse_error("parsing aborted");
-
-    return a->aut;
+    catch (std::runtime_error& e)
+      {
+	if (opts.raise_errors)
+	  throw;
+	parsed_aut_ptr pa = std::make_shared<spot::parsed_aut>(filename);
+	pa->errors.emplace_back(spot::location(), e.what());
+	return pa;
+      }
+    if (!pa->aut && pa->errors.empty())
+      pa->errors.emplace_back(pa->loc, "no automaton read (empty input?)");
+    if (opts.raise_errors)
+      raise_parse_error(pa);
+    return pa;
   }
+
+
 }
 
 // Local Variables:

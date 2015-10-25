@@ -120,9 +120,8 @@ int main(int argc, char* argv[])
   if (print_automaton || print_safra)
   {
     spot::environment& env(spot::default_environment::instance());
-    spot::parse_aut_error_list pel;
-    auto h = spot::parse_aut(file, pel, dict, env);
-    if (spot::format_parse_aut_errors(std::cerr, file, pel))
+    auto h = spot::parse_aut(file, dict, env);
+    if (h->format_errors(std::cerr))
       return 2;
     spot::twa_graph_ptr a = h->aut;
 
@@ -176,10 +175,8 @@ int main(int argc, char* argv[])
     }
     else
     {
-      spot::parse_aut_error_list pel;
-      spot::environment& env(spot::default_environment::instance());
-      auto h = spot::parse_aut(file, pel, dict, env);
-      if (spot::format_parse_aut_errors(std::cerr, file, pel))
+      auto h = spot::parse_aut(file, dict);
+      if (h->format_errors(std::cerr))
         return 2;
       a = h->aut;
     }

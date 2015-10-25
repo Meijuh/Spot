@@ -71,10 +71,8 @@ corresponding BDD variable number, and then use for instance
   int main()
   {
     std::string input = "tut21.hoa";
-    spot::parse_aut_error_list pel;
-    spot::bdd_dict_ptr dict = spot::make_bdd_dict();
-    spot::parsed_aut_ptr pa = parse_aut(input, pel, dict);
-    if (spot::format_parse_aut_errors(std::cerr, input, pel))
+    spot::parsed_aut_ptr pa = parse_aut(input, spot::make_bdd_dict());
+    if (pa->format_errors(std::cerr))
       return 1;
     // This cannot occur when reading a never claim, but
     // it could while reading a HOA file.

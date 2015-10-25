@@ -45,70 +45,58 @@ namespace spot
 
   enum class parsed_aut_type { HOA, NeverClaim, LBTT, DRA, DSA, Unknown };
 
-  /// \brief Temporary encoding of an omega automaton produced by
-  /// the parser.
-  struct SPOT_API parsed_aut
+  /// \brief Result of the automaton parser
+  struct SPOT_API parsed_aut final
   {
-    // Transition structure of the automaton.
-    // This is encoded as a TGBA without acceptance condition.
+    /// \brief The parsed automaton.
+    ///
+    /// May be null if the parser reached the end of the stream or a
+    /// serious error. In the latter case, \c errors is non-empty.
     twa_graph_ptr aut;
+    /// Whether an HOA file was termined with <code>--ABORT</code>
     bool aborted = false;
+    /// Location of the automaton in the stream.
     spot::location loc;
+    /// Format of the automaton.
     parsed_aut_type type = parsed_aut_type::Unknown;
+    /// Name of the stream (used for displaying syntax errors)
+    const std::string filename;
+    /// \brief Syntax errors that occurred during parsing.
+    ///
+    /// Note that the parser does not print any diagnostic.
+    /// Deciding how to output those errors is up to you.
+    parse_aut_error_list errors;
+
+    parsed_aut(const std::string& str)
+      : filename(str)
+    {
+    }
+    /// \brief Format diagnostics produced by spot::parse_aut.
+    /// \param os Where diagnostics should be output.
+    /// \return \c true iff any diagnostic was output.
+    bool format_errors(std::ostream& os);
   };
 
   typedef std::shared_ptr<parsed_aut> parsed_aut_ptr;
   typedef std::shared_ptr<const parsed_aut> const_parsed_aut_ptr;
 
-  struct automaton_parser_options
+  struct automaton_parser_options final
   {
     bool ignore_abort = false;	///< Skip aborted automata
     bool debug = false;		///< Run the parser in debug mode?
     bool trust_hoa = true;	///< Trust properties in HOA files
+    bool raise_errors = false;	///< Raise errors as exceptions.
   };
 
-  class SPOT_API automaton_stream_parser
-  {
-    spot::location last_loc;
-    std::string filename_;
-    automaton_parser_options opts_;
-  public:
-    automaton_stream_parser(const std::string& filename,
-			    automaton_parser_options opts = {});
-    // Read from an already open file descriptor.
-    // Use filename in error messages.
-    automaton_stream_parser(int fd, const std::string& filename,
-			    automaton_parser_options opts = {});
-    // Read from a buffer
-    automaton_stream_parser(const char* data,
-			    const std::string& filename,
-			    automaton_parser_options opts = {});
-    ~automaton_stream_parser();
-    parsed_aut_ptr parse(parse_aut_error_list& error_list,
-			 const bdd_dict_ptr& dict,
-			 environment& env =
-			 default_environment::instance());
-    // Raises a parse_error on any syntax error
-    twa_graph_ptr parse_strict(const bdd_dict_ptr& dict,
-			       environment& env =
-			       default_environment::instance());
-  };
-
-  /// \brief Build a spot::twa_graph from a HOA file or a neverclaim.
-  /// \param filename The name of the file to parse.
-  /// \param error_list A list that will be filled with
-  ///        parse errors that occured during parsing.
-  /// \param dict The BDD dictionary where to use.
-  /// \param env The environment of atomic proposition into which parsing
-  ///        should take place.
-  /// \param opts Additional options to pass to the parser.
-  /// \return A pointer to the tgba built from \a filename, or
-  ///        0 if the file could not be opened.
+  /// \brief Parse a stream of automata
   ///
-  /// Note that the parser usually tries to recover from errors.  It can
-  /// return a non zero value even if it encountered error during the
-  /// parsing of \a filename.  If you want to make sure \a filename
-  /// was parsed succesfully, check \a error_list for emptiness.
+  /// This object should be constructed for a given stream (a file, a
+  /// file descriptor, or a raw buffer), and then it parse() method
+  /// may be called in a loop to parse each automaton in the stream.
+  ///
+  /// Several input formats are supported, and automatically
+  /// recognized: HOA, LBTT, DSTAR, or neverclaim.  We recommend
+  /// using the HOA format, because it is the most general.
   ///
   /// The specification of the HOA format can be found at
   ///    http://adl.github.io/hoaf/
@@ -119,37 +107,78 @@ namespace spot
   /// tool that produce Büchi automata in the form of a neverclaim,
   /// but is not understood by this parser, please report it to
   /// spot@lrde.epita.fr.
+  class SPOT_API automaton_stream_parser final
+  {
+    spot::location last_loc;
+    std::string filename_;
+    automaton_parser_options opts_;
+  public:
+    /// \brief Parse from a file opened file descriptor.
+    ///
+    /// \param filename The file to read from.
+    /// \param opts Parser options.
+    automaton_stream_parser(const std::string& filename,
+			    automaton_parser_options opts = {});
+
+    /// \brief Parse from an already opened file descriptor.
+    ///
+    /// \param fd The file descriptor to read from.
+    /// \param filename What to display in error messages.
+    /// \param opts Parser options.
+    automaton_stream_parser(int fd, const std::string& filename,
+			    automaton_parser_options opts = {});
+
+    /// \brief Parse from a buffer
+    ///
+    /// \param data The buffer to read from.
+    /// \param filename What to display in error messages.
+    /// \param opts Parser options.
+    automaton_stream_parser(const char* data,
+			    const std::string& filename,
+			    automaton_parser_options opts = {});
+
+    ~automaton_stream_parser();
+
+    /// \brief Parse the next automaton in the stream.
+    ///
+    /// Note that the parser usually tries to recover from errors.  It
+    /// can return an automaton even if it encountered an error during
+    /// parsing.  If you want to make sure the input was parsed
+    /// successfully, make sure \c errors is empty and \c aborted is
+    /// false in the result.  (Testing \c aborted is obviously
+    /// superfluous if the parser is configured to skip aborted
+    /// automata.)
+    ///
+    /// The \c aut field of the result can be null in two conditions:
+    /// some serious error occurred (in this case \c errors is non
+    /// empty), or the end of the stream was reached.
+    ///
+    /// \warning This function is not reentrant.
+    parsed_aut_ptr parse(const bdd_dict_ptr& dict,
+			 environment& env =
+			 default_environment::instance());
+  };
+
+  /// \brief Read the first spot::twa_graph from a file.
+  /// \param filename The name of the file to parse.
+  /// \param dict The BDD dictionary where to use.
+  /// \param env The environment of atomic proposition into which parsing
+  ///        should take place.
+  /// \param opts Additional options to pass to the parser.
+  /// \return A pointer to a \c parsed_aut structure.
+  ///
+  /// This is a wrapper around spot::automaton_stream_parser that returns
+  /// the first automaton of the file.  Empty inputs are reported as
+  /// syntax errors, so the \c aut field of the result is guaranteed not
+  /// to be null if \c errors is empty.  (This is unlike
+  /// automaton_stream_parser::parse() where a null \c aut denots the
+  /// end of a stream.)
   ///
   /// \warning This function is not reentrant.
-  inline parsed_aut_ptr
+  SPOT_API parsed_aut_ptr
   parse_aut(const std::string& filename,
-	    parse_aut_error_list& error_list,
 	    const bdd_dict_ptr& dict,
 	    environment& env = default_environment::instance(),
-	    automaton_parser_options opts = {})
-  {
-    try
-      {
-	automaton_stream_parser p(filename, opts);
-	return p.parse(error_list, dict, env);
-      }
-    catch (std::runtime_error& e)
-      {
-	error_list.emplace_back(spot::location(), e.what());
-	return nullptr;
-      }
-  }
-
-  /// \brief Format diagnostics produced by spot::parse_aut.
-  /// \param os Where diagnostics should be output.
-  /// \param filename The filename that should appear in the diagnostics.
-  /// \param error_list The error list filled by spot::parse while
-  ///        parsing \a ltl_string.
-  /// \return \c true iff any diagnostic was output.
-  SPOT_API bool
-  format_parse_aut_errors(std::ostream& os,
-			  const std::string& filename,
-			  parse_aut_error_list& error_list);
-
+	    automaton_parser_options opts = {});
   /// @}
 }

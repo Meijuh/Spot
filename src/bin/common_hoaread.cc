@@ -40,13 +40,13 @@ spot::automaton_parser_options opt_parse;
 spot::twa_graph_ptr
 read_automaton(const char* filename, spot::bdd_dict_ptr& dict)
 {
-  spot::parse_aut_error_list pel;
-  auto p = spot::parse_aut(filename, pel, dict,
+  auto p = spot::parse_aut(filename, dict,
 			   spot::default_environment::instance(),
 			   opt_parse);
-  if (spot::format_parse_aut_errors(std::cerr, filename, pel)
-      || !p || p->aborted)
+  if (p->format_errors(std::cerr))
     error(2, 0, "failed to read automaton from %s", filename);
+  if (p->aborted)
+    error(2, 0, "failed to read automaton from %s (--ABORT-- read)", filename);
   return std::move(p->aut);
 }
 

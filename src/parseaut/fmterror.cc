@@ -23,18 +23,16 @@
 namespace spot
 {
   bool
-  format_parse_aut_errors(std::ostream& os,
-			  const std::string& filename,
-			  parse_aut_error_list& error_list)
+  parsed_aut::format_errors(std::ostream& os)
   {
     bool printed = false;
     spot::parse_aut_error_list::iterator it;
-    for (it = error_list.begin(); it != error_list.end(); ++it)
+    for (auto& err : errors)
       {
-	if (filename != "-")
+	if (!filename.empty() && filename != "-")
 	  os << filename << ':';
-	os << it->first << ": ";
-	os << it->second << std::endl;
+	os << err.first << ": ";
+	os << err.second << std::endl;
 	printed = true;
       }
     return printed;

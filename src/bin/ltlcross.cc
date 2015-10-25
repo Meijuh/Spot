@@ -547,28 +547,17 @@ namespace
 	  problem = false;
 	  es = 0;
 
-	  spot::parse_aut_error_list pel;
-	  std::string filename = output.val()->name();
-	  auto aut = spot::parse_aut(filename, pel, dict,
+	  auto aut = spot::parse_aut(output.val()->name(), dict,
 				     spot::default_environment::instance(),
 				     opt_parse);
-	  if (!pel.empty())
+	  if (!aut->errors.empty())
 	    {
 	      status_str = "parse error";
 	      problem = true;
 	      es = -1;
 	      std::ostream& err = global_error();
 	      err << "error: failed to parse the produced automaton.\n";
-	      spot::format_parse_aut_errors(err, filename, pel);
-	      end_error();
-	      res = nullptr;
-	    }
-	  else if (!aut)
-	    {
-	      status_str = "empty output";
-	      problem = true;
-	      es = -1;
-	      global_error() << "error: empty output.\n";
+	      aut->format_errors(err);
 	      end_error();
 	      res = nullptr;
 	    }

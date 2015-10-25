@@ -240,10 +240,8 @@ automaton to process.
   int main()
   {
     std::string input = "tut30.hoa";
-    spot::parse_aut_error_list pel;
-    spot::bdd_dict_ptr dict = spot::make_bdd_dict();
-    spot::parsed_aut_ptr pa = parse_aut(input, pel, dict);
-    if (spot::format_parse_aut_errors(std::cerr, input, pel))
+    spot::parsed_aut_ptr pa = parse_aut(input, spot::make_bdd_dict());
+    if (pa->format_errors(std::cerr))
       return 1;
     if (pa->aborted)
       {
