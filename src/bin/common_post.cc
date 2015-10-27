@@ -74,7 +74,7 @@ static const argp_option options_disabled[] =
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
     { "generic", OPT_GENERIC, nullptr, 0,
-      "Any acceptance is allowed (default)", 0 },
+      "any acceptance is allowed (default)", 0 },
     { "tgba", OPT_TGBA, nullptr, 0,
       "Transition-based Generalized Büchi Automaton", 0 },
     { "ba", 'B', nullptr, 0,
