@@ -88,12 +88,12 @@ namespace spot
 
     // inspection
     state_ta_product*
-    current_state() const;
+    dst() const;
     bdd
-    current_condition() const;
+    cond() const;
 
     acc_cond::mark_t
-    current_acceptance_conditions() const;
+    acc() const;
 
     /// \brief Return true if the changeset of the current transition is empty
     bool

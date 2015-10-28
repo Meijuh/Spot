@@ -289,7 +289,7 @@ namespace spot
       }
 
       virtual
-      state* current_state() const
+      state* dst() const
       {
 	return (*it_)->clone();
       }

@@ -272,11 +272,11 @@ namespace spot
                       << std::endl;
           if (!f.it->done())
             {
-              const state *s_prime = f.it->current_state();
+              const state *s_prime = f.it->dst();
               ndfsr_trace << "  Visit the successor: "
                           << a_->format_state(s_prime) << std::endl;
-              bdd label = f.it->current_condition();
-	      auto acc = f.it->current_acceptance_conditions();
+              bdd label = f.it->cond();
+	      auto acc = f.it->acc();
               f.it->next();
               if (h_.has_been_visited(s_prime))
                 {

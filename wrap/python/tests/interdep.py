@@ -42,7 +42,7 @@ s0 = a.get_init_state()
 it = a.succ_iter(s0)
 it.first()
 while not it.done():
-    c = it.current_condition()
+    c = it.cond()
     sys.stdout.write("%s\n" % c)
     b &= c # `&=' is defined only in buddy.  So if this statement works
            # it means buddy can grok spot's objects.

@@ -39,23 +39,23 @@ namespace spot
   ///   - fair_kripke_succ_iterator::first()
   ///   - fair_kripke_succ_iterator::next()
   ///   - fair_kripke_succ_iterator::done()
-  ///   - fair_kripke_succ_iterator::current_state()
+  ///   - fair_kripke_succ_iterator::dst()
   ///
-  /// This class implements fair_kripke_succ_iterator::current_condition(),
-  /// and fair_kripke_succ_iterator::current_acceptance_conditions().
+  /// This class implements fair_kripke_succ_iterator::cond(),
+  /// and fair_kripke_succ_iterator::acc().
   class SPOT_API fair_kripke_succ_iterator : public twa_succ_iterator
   {
   public:
     /// \brief Constructor
     ///
     /// The \a cond and \a acc_cond arguments will be those returned
-    /// by fair_kripke_succ_iterator::current_condition(),
-    /// and fair_kripke_succ_iterator::current_acceptance_conditions().
+    /// by fair_kripke_succ_iterator::cond(),
+    /// and fair_kripke_succ_iterator::acc().
     fair_kripke_succ_iterator(const bdd& cond, acc_cond::mark_t acc_cond);
     virtual ~fair_kripke_succ_iterator();
 
-    virtual bdd current_condition() const;
-    virtual acc_cond::mark_t current_acceptance_conditions() const;
+    virtual bdd cond() const;
+    virtual acc_cond::mark_t acc() const;
   protected:
     bdd cond_;
     acc_cond::mark_t acc_cond_;

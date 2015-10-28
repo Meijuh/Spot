@@ -101,7 +101,7 @@ namespace spot
       {
 
         state_ta_product* init = new state_ta_product(
-            (ta_init_it_->current_state()), kripke_init_state->clone());
+            (ta_init_it_->dst()), kripke_init_state->clone());
 
         if (!h.emplace(init, num + 1).second)
 	  {
@@ -188,9 +188,9 @@ namespace spot
             inc_transitions();
             trace << "PASS 1: transition\n";
             // Fetch the values destination state we are interested in...
-            state* dest = succ->current_state();
+            state* dest = succ->dst();
 
-            auto acc_cond = succ->current_acceptance_conditions();
+            auto acc_cond = succ->acc();
 
             bool curr_is_livelock_hole_state_in_ta_component =
                 (a_->is_hole_state_in_ta_component(curr))
@@ -472,7 +472,7 @@ namespace spot
             inc_transitions();
             trace << "PASS 2 : transition\n";
             // Fetch the values destination state we are interested in...
-            state* dest = succ->current_state();
+            state* dest = succ->dst();
 
             bool is_stuttering_transition = succ->is_stuttering_transition();
             // ... and point the iterator to the next successor, for

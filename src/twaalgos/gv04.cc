@@ -120,9 +120,9 @@ namespace spot
 	      }
 	    else
 	      {
-		const state* s_prime = iter->current_state();
+		const state* s_prime = iter->dst();
 		bool acc =
-		  a_->acc().accepting(iter->current_acceptance_conditions());
+		  a_->acc().accepting(iter->acc());
 		inc_transitions();
 
 		trace << " Next successor: s_prime = "
@@ -312,8 +312,8 @@ namespace spot
 	      twa_run::step st =
 		{
 		  data.stack[father].s->clone(),
-		  data.stack[father].lasttr->current_condition(),
-		  data.stack[father].lasttr->current_acceptance_conditions()
+		  data.stack[father].lasttr->cond(),
+		  data.stack[father].lasttr->acc()
 		};
 	      res->prefix.push_front(st);
 	      father = data.stack[father].pre;

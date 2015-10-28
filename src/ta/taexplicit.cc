@@ -72,28 +72,28 @@ namespace spot
   }
 
   state*
-  ta_explicit_succ_iterator::current_state() const
+  ta_explicit_succ_iterator::dst() const
   {
     trace
-      << "***ta_explicit_succ_iterator::current_state()  if(done()) =***"
+      << "***ta_explicit_succ_iterator::dst()  if(done()) =***"
           << done() << std::endl;
     assert(!done());
     trace
-      << "***ta_explicit_succ_iterator::current_state() (*i_)->condition =***"
+      << "***ta_explicit_succ_iterator::dst() (*i_)->condition =***"
           << (*i_)->condition << std::endl;
     state_ta_explicit* s = (*i_)->dest;
     return s;
   }
 
   bdd
-  ta_explicit_succ_iterator::current_condition() const
+  ta_explicit_succ_iterator::cond() const
   {
     assert(!done());
     return (*i_)->condition;
   }
 
   acc_cond::mark_t
-  ta_explicit_succ_iterator::current_acceptance_conditions() const
+  ta_explicit_succ_iterator::acc() const
   {
     assert(!done());
     return (*i_)->acceptance_conditions;

@@ -130,7 +130,7 @@ namespace spot
         return;
       }
 
-    kripke_current_dest_state = kripke_succ_it_->current_state();
+    kripke_current_dest_state = kripke_succ_it_->dst();
     bdd kripke_current_dest_condition = kripke_->state_condition(
         kripke_current_dest_state);
     is_stuttering_transition_ = (kripke_source_condition
@@ -196,10 +196,10 @@ namespace spot
 
         if (!ta_succ_it_->done())
           {
-            current_state_ = new state_ta_product(ta_succ_it_->current_state(),
+            current_state_ = new state_ta_product(ta_succ_it_->dst(),
                 kripke_current_dest_state->clone());
             current_acceptance_conditions_
-                = ta_succ_it_->current_acceptance_conditions();
+                = ta_succ_it_->acc();
             return true;
           }
 
@@ -215,7 +215,7 @@ namespace spot
   }
 
   state_ta_product*
-  ta_succ_iterator_product::current_state() const
+  ta_succ_iterator_product::dst() const
   {
     return current_state_->clone();
   }
@@ -227,13 +227,13 @@ namespace spot
   }
 
   bdd
-  ta_succ_iterator_product::current_condition() const
+  ta_succ_iterator_product::cond() const
   {
     return current_condition_;
   }
 
   acc_cond::mark_t
-  ta_succ_iterator_product::current_acceptance_conditions() const
+  ta_succ_iterator_product::acc() const
   {
     return current_acceptance_conditions_;
   }
@@ -281,7 +281,7 @@ namespace spot
             artificial_initial_state, kripke_init_state_condition);
         for (ta_init_it_->first(); !ta_init_it_->done(); ta_init_it_->next())
           {
-            ta_init_states_set.insert(ta_init_it_->current_state());
+            ta_init_states_set.insert(ta_init_it_->dst());
           }
         delete ta_init_it_;
 
@@ -444,7 +444,7 @@ namespace spot
         return;
       }
 
-    kripke_current_dest_state = kripke_succ_it_->current_state();
+    kripke_current_dest_state = kripke_succ_it_->dst();
     bdd kripke_current_dest_condition = kripke_->state_condition(
         kripke_current_dest_state);
 

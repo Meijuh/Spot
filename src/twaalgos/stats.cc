@@ -72,7 +72,7 @@ namespace spot
       {
 	++s_.edges;
 
-	bdd cond = it->current_condition();
+	bdd cond = it->cond();
 	bdd newvars = bdd_exist(bdd_support(cond), seen_);
 	if (newvars != bddtrue)
 	  {

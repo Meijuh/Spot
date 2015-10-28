@@ -548,11 +548,11 @@ namespace spot
 	if (j->first())
 	  do
 	    {
-	      if (j->current_condition() != label
-		  || j->current_acceptance_conditions() != acc)
+	      if (j->cond() != label
+		  || j->acc() != acc)
 		continue;
 
-	      const state* s2 = j->current_state();
+	      const state* s2 = j->dst();
 	      if (s2->compare(next))
 		{
 		  s2->destroy();
@@ -579,15 +579,15 @@ namespace spot
 		if (j->first())
 		  do
 		    {
-		      const state* s2 = j->current_state();
+		      const state* s2 = j->dst();
 		      os << "  *";
 		      print_annotation(os, aut, j);
 		      os << " label="
 			 << bdd_format_formula(aut->get_dict(),
-					       j->current_condition())
+					       j->cond())
 			 << " and acc="
 			 << (aut->acc().format
-			     (j->current_acceptance_conditions()))
+			     (j->acc()))
 			 << " going to " << aut->format_state(s2) << '\n';
 		      s2->destroy();
 		    }
@@ -717,11 +717,11 @@ namespace spot
 	const state* the_next = nullptr;
 	for (auto j: aut->succ(s))
           {
-            if (j->current_condition() != label
-                || j->current_acceptance_conditions() != acc)
+            if (j->cond() != label
+                || j->acc() != acc)
               continue;
 
-            const state* s2 = j->current_state();
+            const state* s2 = j->dst();
             if (s2->compare(next) == 0)
               {
 		the_next = s2;

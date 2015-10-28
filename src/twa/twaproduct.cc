@@ -130,10 +130,10 @@ namespace spot
 	return !right_ || right_->done();
       }
 
-      state_product* current_state() const
+      state_product* dst() const
       {
-	return new(pool_->allocate()) state_product(left_->current_state(),
-						    right_->current_state(),
+	return new(pool_->allocate()) state_product(left_->dst(),
+						    right_->dst(),
 						    pool_);
       }
 
@@ -175,8 +175,8 @@ namespace spot
 	assert(!done());
 	do
 	  {
-	    bdd l = left_->current_condition();
-	    bdd r = right_->current_condition();
+	    bdd l = left_->cond();
+	    bdd r = right_->cond();
 	    bdd current_cond = l & r;
 
 	    if (current_cond != bddfalse)
@@ -196,18 +196,18 @@ namespace spot
 	return false;
       }
 
-      bdd current_condition() const
+      bdd cond() const
       {
 	return current_cond_;
       }
 
-      acc_cond::mark_t current_acceptance_conditions() const
+      acc_cond::mark_t acc() const
       {
 	return
 	  prod_->acc().join(prod_->left_acc(),
-			    left_->current_acceptance_conditions(),
+			    left_->acc(),
 			    prod_->right_acc(),
-			    right_->current_acceptance_conditions());
+			    right_->acc());
        }
 
     protected:
@@ -236,11 +236,11 @@ namespace spot
       {
 	// All the transitions of left_ iterator have the
 	// same label, because it is a Kripke structure.
-	bdd l = left_->current_condition();
+	bdd l = left_->cond();
 	assert(!right_->done());
 	do
 	  {
-	    bdd r = right_->current_condition();
+	    bdd r = right_->cond();
 	    bdd current_cond = l & r;
 
 	    if (current_cond != bddfalse)
@@ -263,14 +263,14 @@ namespace spot
 	return false;
       }
 
-      bdd current_condition() const
+      bdd cond() const
       {
 	return current_cond_;
       }
 
-      acc_cond::mark_t current_acceptance_conditions() const
+      acc_cond::mark_t acc() const
       {
-	return right_->current_acceptance_conditions();
+	return right_->acc();
       }
 
     protected:

@@ -64,7 +64,7 @@ namespace spot
 	if (si->first())
 	  do
 	    {
-	      const state* current = si->current_state();
+	      const state* current = si->dst();
 	      seen_map::const_iterator s = seen.find(current);
 	      bool ws = want_state(current);
 	      if (s == seen.end())
@@ -202,7 +202,7 @@ namespace spot
 	    continue;
 	  }
 
-	dst = si->current_state();
+	dst = si->dst();
 	auto res = seen.emplace(dst, n);
 	if (!res.second)
 	  {

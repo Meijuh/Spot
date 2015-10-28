@@ -67,12 +67,12 @@ namespace spot
 
     // inspection
     state_product*
-    current_state() const;
+    dst() const;
     bdd
-    current_condition() const;
+    cond() const;
 
     acc_cond::mark_t
-    current_acceptance_conditions() const;
+    acc() const;
 
   private:
     //@{

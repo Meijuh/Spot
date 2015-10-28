@@ -195,8 +195,8 @@ namespace spot
 
 	  for (auto li: left->succ(ls))
 	    {
-	      state_pair d(li->current_state(), ris);
-	      bdd lc = li->current_condition();
+	      state_pair d(li->dst(), ris);
+	      bdd lc = li->cond();
 
 	      twa_succ_iterator* ri = nullptr;
 	      // Should we reset the right automaton?
@@ -222,15 +222,15 @@ namespace spot
 		  acc_cond::mark_t racc = radd;
 		  if (ri)
 		    {
-		      cond = lc & ri->current_condition();
+		      cond = lc & ri->cond();
 		      // Skip incompatible edges.
 		      if (cond == bddfalse)
 			{
 			  ri->next();
 			  continue;
 			}
-		      d.second = ri->current_state();
-		      racc = ri->current_acceptance_conditions();
+		      d.second = ri->dst();
+		      racc = ri->acc();
 		    }
 
 		  int dest;
@@ -247,7 +247,7 @@ namespace spot
 		    }
 
 		  acc_cond::mark_t a =
-		    res->acc().join(la, li->current_acceptance_conditions(),
+		    res->acc().join(la, li->acc(),
 				    ra, racc);
 		  res->new_edge(src, dest, bdd_exist(cond, v), a);
 

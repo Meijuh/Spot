@@ -109,9 +109,9 @@ namespace spot
     virtual bool next();
     virtual bool done() const;
 
-    virtual set_state* current_state() const;
-    virtual bdd current_condition() const;
-    virtual acc_cond::mark_t current_acceptance_conditions() const;
+    virtual set_state* dst() const;
+    virtual bdd cond() const;
+    virtual acc_cond::mark_t acc() const;
 
   private:
     /// Those typedefs are used to generate all possible successors in

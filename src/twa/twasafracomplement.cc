@@ -661,9 +661,9 @@ namespace spot
         safra_tree::tr_cache_t transitions;
 	for (auto iterator: sba_aut->succ(n))
         {
-          bdd condition = iterator->current_condition();
+          bdd condition = iterator->cond();
           typedef std::pair<bdd, const state*> bdd_state;
-          transitions.insert(bdd_state(condition, iterator->current_state()));
+          transitions.insert(bdd_state(condition, iterator->dst()));
           set_atomic_list(atomic_list, condition);
         }
         cache[n] = transitions;
@@ -958,9 +958,9 @@ namespace spot
       virtual bool first();
       virtual bool next();
       virtual bool done() const;
-      virtual state_complement* current_state() const;
-      virtual bdd current_condition() const;
-      virtual acc_cond::mark_t current_acceptance_conditions() const;
+      virtual state_complement* dst() const;
+      virtual bdd cond() const;
+      virtual acc_cond::mark_t acc() const;
     private:
       succ_list_t list_;
       acc_cond::mark_t the_acceptance_cond_;
@@ -988,21 +988,21 @@ namespace spot
     }
 
     state_complement*
-    twa_safra_complement_succ_iterator::current_state() const
+    twa_safra_complement_succ_iterator::dst() const
     {
       assert(!done());
       return new state_complement(*(it_->second));
     }
 
     bdd
-    twa_safra_complement_succ_iterator::current_condition() const
+    twa_safra_complement_succ_iterator::cond() const
     {
       assert(!done());
       return it_->first;
     }
 
     acc_cond::mark_t
-    twa_safra_complement_succ_iterator::current_acceptance_conditions() const
+    twa_safra_complement_succ_iterator::acc() const
     {
       assert(!done());
       return the_acceptance_cond_;

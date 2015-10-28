@@ -239,12 +239,12 @@ namespace spot
     virtual bool done() const;
 
     virtual state*
-    current_state() const;
+    dst() const;
     virtual bdd
-    current_condition() const;
+    cond() const;
 
     virtual acc_cond::mark_t
-    current_acceptance_conditions() const;
+    acc() const;
 
   private:
     state_ta_explicit::transitions* transitions_;

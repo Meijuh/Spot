@@ -84,7 +84,7 @@ namespace spot
         process_state(t, tn);
         for (si->first(); !si->done(); si->next())
           {
-            const state* current = si->current_state();
+            const state* current = si->dst();
             seen_map::const_iterator s = seen.find(current);
             bool ws = want_state(current);
             if (s == seen.end())

@@ -156,11 +156,11 @@ namespace spot
             trace << "DFS_BLUE treats: " << a_->format_state(f.s) << std::endl;
             if (!f.it->done())
               {
-                const state *s_prime = f.it->current_state();
+                const state *s_prime = f.it->dst();
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
-                bdd label = f.it->current_condition();
-                auto acc = f.it->current_acceptance_conditions();
+                bdd label = f.it->cond();
+                auto acc = f.it->acc();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();
@@ -190,12 +190,12 @@ namespace spot
 		for (auto i: a_->succ(f.s))
                   {
                    inc_transitions();
-                   const state *s_prime = i->current_state();
+                   const state *s_prime = i->dst();
                    trace << "DFS_BLUE rescanning the arc from "
                          << a_->format_state(f.s) << "  to "
                          << a_->format_state(s_prime) << std::endl;
-                    bdd label = i->current_condition();
-                    auto acc = i->current_acceptance_conditions();
+                    bdd label = i->cond();
+                    auto acc = i->acc();
                     typename heap::color_ref c_prime = h.get_color_ref(s_prime);
                     assert(!c_prime.is_white());
 		    auto acu = acc | c.get_acc();
@@ -236,11 +236,11 @@ namespace spot
             trace << "DFS_RED treats: " << a_->format_state(f.s) << std::endl;
             if (!f.it->done())
               {
-                const state *s_prime = f.it->current_state();
+                const state *s_prime = f.it->dst();
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
-                bdd label = f.it->current_condition();
-                auto acc = f.it->current_acceptance_conditions();
+                bdd label = f.it->cond();
+                auto acc = f.it->acc();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();

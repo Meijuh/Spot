@@ -108,7 +108,7 @@ namespace spot
 	    {
 	      inc_transitions();
 
-	      state* s = i->current_state();
+	      state* s = i->dst();
 	      auto j = ecs_->h.find(s);
 	      assert(j != ecs_->h.end());
 	      s->destroy();
@@ -215,8 +215,8 @@ namespace spot
 	inc_transitions();
 	// Fetch the values (destination state, acceptance conditions
 	// of the arc) we are interested in...
-	const state* dest = succ->current_state();
-	acc_cond::mark_t acc = succ->current_acceptance_conditions();
+	const state* dest = succ->dst();
+	acc_cond::mark_t acc = succ->acc();
 	// ... and point the iterator to the next successor, for
 	// the next iteration.
 	succ->next();
@@ -319,8 +319,8 @@ namespace spot
   {
     for (auto iter: shy->ecs_->aut->succ(s))
       {
-	q.emplace_back(iter->current_acceptance_conditions(),
-		       iter->current_state());
+	q.emplace_back(iter->acc(),
+		       iter->dst());
 	shy->inc_depth();
 	shy->inc_transitions();
       }

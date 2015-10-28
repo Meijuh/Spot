@@ -385,14 +385,14 @@ namespace spot
     ///
     /// The returned state should be destroyed (see state::destroy)
     /// by the caller after it is no longer used.
-    virtual state* current_state() const = 0;
+    virtual state* dst() const = 0;
     /// \brief Get the condition on the transition leading to this successor.
     ///
     /// This is a boolean function of atomic propositions.
-    virtual bdd current_condition() const = 0;
+    virtual bdd cond() const = 0;
     /// \brief Get the acceptance conditions on the transition leading
     /// to this successor.
-    virtual acc_cond::mark_t current_acceptance_conditions() const = 0;
+    virtual acc_cond::mark_t acc() const = 0;
 
     //@}
   };
@@ -545,7 +545,7 @@ namespace spot
     /// \brief Build an iterable over the successors of \a s.
     ///
     /// This is meant to be used as
-    /// <code>for (auto i: aut->succ(s)) { /* i->current_state() */ }</code>.
+    /// <code>for (auto i: aut->succ(s)) { /* i->dst() */ }</code>.
     succ_iterable
     succ(const state* s) const
     {

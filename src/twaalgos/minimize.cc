@@ -98,7 +98,7 @@ namespace spot
 
 	  for (auto sit: a->succ(src))
 	    {
-	      const state* dst = sit->current_state();
+	      const state* dst = sit->dst();
 	      // Is it a new state ?
 	      if (seen->find(dst) == seen->end())
 		{
@@ -156,13 +156,13 @@ namespace spot
 	  // Connect it to all destinations.
 	  for (auto succit: a->succ(src))
 	    {
-	      const state* dst = succit->current_state();
+	      const state* dst = succit->dst();
 	      hash_map::const_iterator i = state_num.find(dst);
 	      dst->destroy();
 	      if (i == state_num.end()) // Ignore useless destinations.
 		continue;
 	      res->new_acc_edge(src_num, i->second,
-				succit->current_condition(), accepting);
+				succit->cond(), accepting);
 	    }
 	}
       res->merge_edges();
@@ -354,7 +354,7 @@ namespace spot
 		  bdd f = bddfalse;
 		  for (auto si: det_a->succ(src))
 		    {
-		      const state* dst = si->current_state();
+		      const state* dst = si->dst();
 		      hash_map::const_iterator i = state_set_map.find(dst);
 		      dst->destroy();
 		      if (i == state_set_map.end())
@@ -365,7 +365,7 @@ namespace spot
 			// want to ignore some useless states).  Simply
 			// ignore these states here.
 			continue;
-		      f |= (bdd_ithvar(i->second) & si->current_condition());
+		      f |= (bdd_ithvar(i->second) & si->cond());
 		    }
 
 		  // Have we already seen this formula ?

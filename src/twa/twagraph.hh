@@ -143,20 +143,20 @@ namespace spot
       return !p_;
     }
 
-    virtual twa_graph_state* current_state() const
+    virtual twa_graph_state* dst() const
     {
       assert(!done());
       return const_cast<twa_graph_state*>
 	(&g_->state_data(g_->edge_storage(p_).dst));
     }
 
-    virtual bdd current_condition() const
+    virtual bdd cond() const
     {
       assert(!done());
       return g_->edge_data(p_).cond;
     }
 
-    virtual acc_cond::mark_t current_acceptance_conditions() const
+    virtual acc_cond::mark_t acc() const
     {
       assert(!done());
       return g_->edge_data(p_).acc;

@@ -1234,8 +1234,8 @@ namespace spot
 		return res;
 	      for (auto i: aut->succ(st))
 		{
-		  bdd label = i->current_condition();
-		  state* s = i->current_state();
+		  bdd label = i->cond();
+		  state* s = i->dst();
 		  formula dest =
 		    namer->get_name(aut->state_number(s));
 
@@ -1279,8 +1279,8 @@ namespace spot
 
 	      for (auto i: aut->succ(st))
 		{
-		  bdd label = i->current_condition();
-		  state* s = i->current_state();
+		  bdd label = i->cond();
+		  state* s = i->dst();
 		  formula dest = namer->get_name(aut->state_number(s));
 
 		  missing -= label;

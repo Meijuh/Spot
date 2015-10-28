@@ -99,7 +99,7 @@ namespace spot
     virtual bool next();
     virtual bool done() const;
 
-    virtual state_kripke* current_state() const;
+    virtual state_kripke* dst() const;
 
     private:
     const state_kripke* s_;

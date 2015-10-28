@@ -67,7 +67,7 @@ namespace spot
 	twa_succ_iterator* it = aut_->succ_iter(s);
 	if (!it->first())
 	  return {};
-	auto res = it->current_acceptance_conditions();
+	auto res = it->acc();
 	aut_->release_iter(it);
 	return res;
       }
@@ -98,11 +98,11 @@ namespace spot
 	body_ << out - 1 << ' ';
 	if (!sba_format_)
 	  {
-	    for (auto s: aut_->acc().sets(si->current_acceptance_conditions()))
+	    for (auto s: aut_->acc().sets(si->acc()))
 	      body_ << s << ' ';
 	    body_ << "-1 ";
 	  }
-	print_lbt_ltl(body_, bdd_to_formula(si->current_condition(),
+	print_lbt_ltl(body_, bdd_to_formula(si->cond(),
 					    aut_->get_dict())) << '\n';
       }
 

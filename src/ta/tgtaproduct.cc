@@ -162,7 +162,7 @@ namespace spot
         return;
       }
 
-    kripke_current_dest_state = kripke_succ_it_->current_state();
+    kripke_current_dest_state = kripke_succ_it_->dst();
     bdd kripke_current_dest_condition = kripke_->state_condition(
         kripke_current_dest_state);
 
@@ -205,9 +205,9 @@ namespace spot
           {
             current_state_ = new (pool_->allocate()) state_product(
                 kripke_current_dest_state->clone(),
-                tgta_succ_it_->current_state(), pool_);
+                tgta_succ_it_->dst(), pool_);
             current_acceptance_conditions_
-	      = tgta_succ_it_->current_acceptance_conditions();
+	      = tgta_succ_it_->acc();
             return true;
           }
 
@@ -231,21 +231,21 @@ namespace spot
   }
 
   state_product*
-  tgta_succ_iterator_product::current_state() const
+  tgta_succ_iterator_product::dst() const
   {
     trace
-      << "*** current_state() .... if(done()) = ***" << done() << std::endl;
+      << "*** dst() .... if(done()) = ***" << done() << std::endl;
     return current_state_->clone();
   }
 
   bdd
-  tgta_succ_iterator_product::current_condition() const
+  tgta_succ_iterator_product::cond() const
   {
     return current_condition_;
   }
 
   acc_cond::mark_t
-  tgta_succ_iterator_product::current_acceptance_conditions() const
+  tgta_succ_iterator_product::acc() const
   {
     return current_acceptance_conditions_;
   }

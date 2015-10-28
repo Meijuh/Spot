@@ -77,13 +77,13 @@ namespace spot
 	todo.pop_front();
 	for (auto i: a_->succ(src))
 	  {
-	    const state* dest = filter(i->current_state());
+	    const state* dest = filter(i->dst());
 
 	    if (!dest)
 	      continue;
 
-	    bdd cond = i->current_condition();
-	    acc_cond::mark_t acc = i->current_acceptance_conditions();
+	    bdd cond = i->cond();
+	    acc_cond::mark_t acc = i->acc();
 	    twa_run::step s = { src, cond, acc };
 
 	    if (match(s, dest))

@@ -73,8 +73,8 @@ namespace spot
 		   const twa_succ_iterator* si)
       {
 	out_->new_edge
-	  (in - 1, out - 1, si->current_condition(),
-	   si->current_acceptance_conditions());
+	  (in - 1, out - 1, si->cond(),
+	   si->acc());
       }
 
     protected:

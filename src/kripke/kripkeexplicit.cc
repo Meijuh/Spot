@@ -116,7 +116,7 @@ namespace spot
     return it_ == s_->get_succ().end();
   }
 
-  state_kripke* kripke_explicit_succ_iterator::current_state() const
+  state_kripke* kripke_explicit_succ_iterator::dst() const
   {
     assert(!done());
     return *it_;

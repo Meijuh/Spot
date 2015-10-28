@@ -138,7 +138,7 @@ namespace spot
 
 	   for (succit->first(); !succit->done(); succit->next())
 	     {
-	       const state* dst = succit->current_state();
+	       const state* dst = succit->dst();
 	       hash_map::const_iterator i = state_num.find(dst);
 
 	       if (i == state_num.end()) // Ignore useless destinations.
@@ -175,8 +175,8 @@ namespace spot
 		 result->add_to_initial_states_set(new_dst);
 
 	       result->create_transition
-		 (ta_src, succit->current_condition(),
-		  succit->current_acceptance_conditions(),
+		 (ta_src, succit->cond(),
+		  succit->acc(),
 		  ta_dst);
 	     }
 	   delete succit;
@@ -390,24 +390,24 @@ namespace spot
 		  trace << "+src: " << src << std::endl;
 		  for (si->first(); !si->done(); si->next())
 		    {
-		      const state* dst = si->current_state();
+		      const state* dst = si->dst();
 		      hash_map::const_iterator i = state_set_map.find(dst);
 
 		      assert(i != state_set_map.end());
 		      auto curacc =
-			mark_to_bdd(si->current_acceptance_conditions());
+			mark_to_bdd(si->acc());
 		      f |= (bdd_ithvar(i->second)
-			    & si->current_condition() & curacc);
+			    & si->cond() & curacc);
 		      trace
 			<< "+f: " << bdd_format_accset(ta_->get_dict(), f)
 			<< "\n      -bdd_ithvar(i->second): "
 			<< bdd_format_accset(ta_->get_dict(),
 					     bdd_ithvar(i->second))
-			<< "\n      -si->current_condition(): "
+			<< "\n      -si->cond(): "
 			<< bdd_format_accset(ta_->get_dict(),
-					     si->current_condition())
+					     si->cond())
 			<< "\n      -current_acceptance_conditions: "
-			<< si->current_acceptance_conditions()
+			<< si->acc()
 		      << std::endl;
 		    }
 		  delete si;

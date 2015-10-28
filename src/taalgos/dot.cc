@@ -203,8 +203,8 @@ namespace spot
 	bdd_dict_ptr d = t_automata_->get_dict();
 	std::string label =
 	  ((in == 1 && artificial_initial_state_)
-	   ? bdd_format_formula(d, si->current_condition())
-	   : bdd_format_accset(d, si->current_condition()));
+	   ? bdd_format_formula(d, si->cond())
+	   : bdd_format_accset(d, si->cond()));
 
 	if (label.empty())
 	  label = "{}";
@@ -213,7 +213,7 @@ namespace spot
 	  {
 	    label += "\n";
 	    label += t_automata_->acc().
-	      format(si->current_acceptance_conditions());
+	      format(si->acc());
 	  }
 
         os_ << "  " << in << " -> " << out << " [label=\"";

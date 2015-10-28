@@ -52,7 +52,7 @@ namespace spot
 	os_ << "\",";
 	for (si->first(); !si->done(); si->next())
 	  {
-	    state* dest = si->current_state();
+	    state* dest = si->dst();
 	    os_ << " \"";
 	    escape_str(os_, aut_->format_state(dest));
 	    os_ << '"';

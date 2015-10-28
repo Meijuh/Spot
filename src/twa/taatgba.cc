@@ -287,21 +287,21 @@ namespace spot
   }
 
   spot::set_state*
-  taa_succ_iterator::current_state() const
+  taa_succ_iterator::dst() const
   {
     assert(!done());
     return new spot::set_state(new taa_tgba::state_set(*(*i_)->dst), true);
   }
 
   bdd
-  taa_succ_iterator::current_condition() const
+  taa_succ_iterator::cond() const
   {
     assert(!done());
     return (*i_)->condition;
   }
 
   acc_cond::mark_t
-  taa_succ_iterator::current_acceptance_conditions() const
+  taa_succ_iterator::acc() const
   {
     assert(!done());
     return acc_.comp((*i_)->acceptance_conditions);

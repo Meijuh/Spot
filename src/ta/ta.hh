@@ -206,16 +206,16 @@ namespace spot
     virtual bool done() const = 0;
 
     virtual state*
-    current_state() const = 0;
+    dst() const = 0;
 
     /// \brief Get the changeset on the transition leading to current successor.
     ///
     /// This is a boolean function of atomic propositions.
     virtual bdd
-    current_condition() const = 0;
+    cond() const = 0;
 
     acc_cond::mark_t
-    current_acceptance_conditions() const = 0;
+    acc() const = 0;
 
   };
 

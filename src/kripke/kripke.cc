@@ -27,7 +27,7 @@ namespace spot
   }
 
   bdd
-  kripke_succ_iterator::current_condition() const
+  kripke_succ_iterator::cond() const
   {
     // Do not assert(!done()) here.  It is OK to call
     // this function on a state without successor.
@@ -35,7 +35,7 @@ namespace spot
   }
 
   acc_cond::mark_t
-  kripke_succ_iterator::current_acceptance_conditions() const
+  kripke_succ_iterator::acc() const
   {
     // Do not assert(!done()) here.  It is OK to call
     // this function on a state without successor.

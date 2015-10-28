@@ -64,6 +64,12 @@ New in spot 1.99.4a (not yet released)
     print_tgba_run -> operator<<
     tgba_run_to_tgba -> twa_run::as_twa
     format_parse_aut_errors -> parsed_aut::format_errors
+    twa_succ_iterator::current_state -> twa_succ_iterator::dst
+    twa_succ_iterator::current_condition -> twa_succ_iterator::cond
+    twa_succ_iterator::current_acceptance_conditions -> twa_succ_iterator::acc
+    ta_succ_iterator::current_state -> ta_succ_iterator::dst
+    ta_succ_iterator::current_condition -> ta_succ_iterator::cond
+    ta_succ_iterator::current_acceptance_conditions -> ta_succ_iterator::acc
 
   Python:
 

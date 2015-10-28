@@ -119,7 +119,7 @@ namespace spot
         need_loop_ = true;
         if (it_->first())
           {
-            cond_ = it_->current_condition();
+            cond_ = it_->cond();
             next_edge();
           }
         return true;
@@ -142,7 +142,7 @@ namespace spot
           }
         else
           {
-            cond_ = it_->current_condition();
+            cond_ = it_->cond();
             next_edge();
             return true;
           }
@@ -157,15 +157,15 @@ namespace spot
       // inspection
 
       state_tgbasl*
-      current_state() const
+      dst() const
       {
         if (loop_)
           return new state_tgbasl(state_->real_state(), state_->cond());
-        return new state_tgbasl(it_->current_state(), one_);
+        return new state_tgbasl(it_->dst(), one_);
       }
 
       bdd
-      current_condition() const
+      cond() const
       {
         if (loop_)
           return state_->cond();
@@ -173,11 +173,11 @@ namespace spot
       }
 
       acc_cond::mark_t
-      current_acceptance_conditions() const
+      acc() const
       {
         if (loop_)
           return 0U;
-        return it_->current_acceptance_conditions();
+        return it_->acc();
       }
 
     private:
@@ -187,7 +187,7 @@ namespace spot
         one_ = bdd_satoneset(cond_, aps_, bddtrue);
         cond_ -= one_;
         if (need_loop_ && (state_->cond() == one_)
-            && (state_ == it_->current_state()))
+            && (state_ == it_->dst()))
           need_loop_ = false;
       }
 

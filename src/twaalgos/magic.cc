@@ -186,11 +186,11 @@ namespace spot
             trace << "DFS_BLUE treats: " << a_->format_state(f.s) << std::endl;
             if (!f.it->done())
               {
-                const state *s_prime = f.it->current_state();
+                const state *s_prime = f.it->dst();
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
-                bdd label = f.it->current_condition();
-                auto acc = f.it->current_acceptance_conditions();
+                bdd label = f.it->cond();
+                auto acc = f.it->acc();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();
@@ -273,11 +273,11 @@ namespace spot
             trace << "DFS_RED treats: " << a_->format_state(f.s) << std::endl;
             if (!f.it->done())
               {
-                const state *s_prime = f.it->current_state();
+                const state *s_prime = f.it->dst();
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
-                bdd label = f.it->current_condition();
-                auto acc = f.it->current_acceptance_conditions();
+                bdd label = f.it->cond();
+                auto acc = f.it->acc();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();

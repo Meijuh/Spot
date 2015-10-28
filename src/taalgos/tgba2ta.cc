@@ -285,9 +285,9 @@ namespace spot
 		}
 
 	      // Fetch the values destination state we are interested in...
-	      state* dest = succ->current_state();
+	      state* dest = succ->dst();
 
-	      auto acc_cond = succ->current_acceptance_conditions();
+	      auto acc_cond = succ->acc();
 	      // ... and point the iterator to the next successor, for
 	      // the next iteration.
 	      succ->next();
@@ -422,7 +422,7 @@ namespace spot
 	  twa_succ_iterator* it = tgba_->succ_iter(tgba_init_state);
 	  it->first();
 	  if (!it->done())
-	    is_acc = it->current_acceptance_conditions() != 0U;
+	    is_acc = it->acc() != 0U;
 	  delete it;
 	}
 
@@ -453,10 +453,10 @@ namespace spot
 	  for (twa_succ_it->first(); !twa_succ_it->done();
 	       twa_succ_it->next())
 	    {
-	      const state* tgba_state = twa_succ_it->current_state();
-	      bdd tgba_condition = twa_succ_it->current_condition();
+	      const state* tgba_state = twa_succ_it->dst();
+	      bdd tgba_condition = twa_succ_it->cond();
 	      acc_cond::mark_t tgba_acceptance_conditions =
-                twa_succ_it->current_acceptance_conditions();
+                twa_succ_it->acc();
 	      bdd satone_tgba_condition;
 	      while ((satone_tgba_condition =
 		      bdd_satoneset(tgba_condition,
@@ -474,7 +474,7 @@ namespace spot
 		    twa_succ_iterator* it = tgba_->succ_iter(tgba_state);
 		    it->first();
 		    if (!it->done())
-		      is_acc = it->current_acceptance_conditions() != 0U;
+		      is_acc = it->acc() != 0U;
 		    delete it;
 		  }
 
@@ -623,7 +623,7 @@ namespace spot
 	delete initial_states_iter;
 	return tgta;
       }
-    bdd first_state_condition = initial_states_iter->current_condition();
+    bdd first_state_condition = initial_states_iter->cond();
     delete initial_states_iter;
 
     bdd bdd_stutering_transition = bdd_setxor(first_state_condition,
