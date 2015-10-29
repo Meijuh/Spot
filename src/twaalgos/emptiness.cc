@@ -254,9 +254,9 @@ namespace spot
   }
 
   std::ostream&
-  operator<<(std::ostream& os, const twa_run_ptr& run)
+  operator<<(std::ostream& os, const twa_run& run)
   {
-    auto& a = run->aut;
+    auto& a = run.aut;
     bdd_dict_ptr d = a->get_dict();
 
     auto pstep = [&](const twa_run::step& st)
@@ -268,11 +268,11 @@ namespace spot
       os << '\n';
     };
 
-    os << "Prefix:" << std::endl;
-    for (auto& s: run->prefix)
+    os << "Prefix:\n";
+    for (auto& s: run.prefix)
       pstep(s);
-    os << "Cycle:" << std::endl;
-    for (auto& s: run->cycle)
+    os << "Cycle:\n";
+    for (auto& s: run.cycle)
       pstep(s);
     return os;
   }

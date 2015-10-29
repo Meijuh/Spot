@@ -383,7 +383,7 @@ namespace std {
   }
 }
 
-%extend spot::twa_run_ptr {
+%extend spot::twa_run {
   std::string __str__()
   {
     std::ostringstream os;

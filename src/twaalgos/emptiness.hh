@@ -332,7 +332,7 @@ namespace spot
     /// actually exists in the automaton (and will also display any
     /// transition annotation).
     SPOT_API
-    friend std::ostream& operator<<(std::ostream& os, const twa_run_ptr& run);
+    friend std::ostream& operator<<(std::ostream& os, const twa_run& run);
   };
   /// @}
 
