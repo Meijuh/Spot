@@ -142,9 +142,8 @@ non-empty.
 
   int main()
   {
-    std::string input = "tut20.never";
     spot::bdd_dict_ptr dict = spot::make_bdd_dict();
-    spot::parsed_aut_ptr pa = parse_aut(input, dict);
+    spot::parsed_aut_ptr pa = parse_aut("tut20.never", dict);
     if (pa->format_errors(std::cerr))
       return 1;
     // This cannot occur when reading a never claim, but
@@ -215,7 +214,7 @@ processed in a loop.  For this, you would instanciate a
 =automaton_stream_parser= object and call its =parse()= method in a
 loop.  Each call to this method will either return one automaton, or
 =nullptr= if there is no more automaton to read.  The =parse_aut()=
-function is actually a simple convenience wrapper that instanciate
+function is actually a simple convenience wrapper that instantiates
 an =automaton_stream_parser= and calls its =parse()= method once.
 
 
