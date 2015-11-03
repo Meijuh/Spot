@@ -1,4 +1,4 @@
-New in spot 1.99.4a (not yet released)
+New in spot 1.99.5 (2015-11-03)
 
   Command-line tools:
 
@@ -52,9 +52,9 @@ New in spot 1.99.4a (not yet released)
 
   * The output of the automaton parser now include the list of parse
     errors (that does not have to be passed as a parameters) and the
-    input filename (making the output of error message easier).
+    input filename (making the output of error messages easier).
 
-  * renamings:
+  * The following renamings make the code more consistent:
     ltl_simplifier -> tl_simplifier
     tgba_statistics::transitions -> twa_statistics::edges
     tgba_sub_statistics::sub_transitions -> twa_sub_statistics::transitions
@@ -91,6 +91,12 @@ New in spot 1.99.4a (not yet released)
       that cannot be easily verified
     - ignore_abort: can be set to False if you do not want to
       skip automata ended with --ABORT--.
+
+  Documentation:
+
+  * There is a new page showing how to use spot::postprocessor
+    to convert any type of automaton to Büchi.
+    https://spot.lrde.epita.fr/tut30.html
 
   Bugs fixed:
 
