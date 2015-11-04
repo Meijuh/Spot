@@ -468,8 +468,8 @@ namespace spot
       // We will modify res in place, and the resulting
       // automaton will only have one acceptance set.
       acc_cond::mark_t all_acc = res->set_buchi();
-      res->prop_state_based_acc();
-      res->prop_deterministic();
+      res->prop_state_based_acc(true);
+      res->prop_deterministic(true);
 
       unsigned sink = res->num_states();
       for (unsigned src = 0; src < sink; ++src)
@@ -746,7 +746,7 @@ namespace spot
 
     // If the input had no Inf, the output is a state-based automaton.
     if (allinf == 0U)
-      res->prop_state_based_acc();
+      res->prop_state_based_acc(true);
 
     res->purge_dead_states();
     trace << "before cleanup: " << res->get_acceptance() << '\n';

@@ -1026,8 +1026,8 @@ namespace spot
       auto a = make_twa_graph(autdict);
       a->copy_ap_of(aut);
       if (state_based)
-	a->prop_state_based_acc();
-      a->prop_deterministic();
+	a->prop_state_based_acc(true);
+      a->prop_deterministic(true);
       a->set_acceptance(satdict.cand_nacc, satdict.cand_acc);
       a->new_states(satdict.cand_size);
 

@@ -18,7 +18,7 @@ State: 2
 [t] 2
 --END--
 """)
-aut.prop_inherently_weak()
+aut.prop_inherently_weak(True)
 aut = spot.dtwa_complement(aut)
 aut1 = spot.scc_filter_states(aut)
 assert(aut1.to_str('hoa') == """HOA: v1

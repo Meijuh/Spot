@@ -640,9 +640,9 @@ namespace spot
 			 true, // stutter inv.
 		       });
         if (nb_minato == nb_satoneset && !Cosimulation)
-	  res->prop_deterministic();
+	  res->prop_deterministic(true);
 	if (Sba)
-	  res->prop_state_based_acc();
+	  res->prop_state_based_acc(true);
 	return res;
       }
 

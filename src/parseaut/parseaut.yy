@@ -1158,8 +1158,8 @@ dstar_header: dstar_sizes
 	res.h->aut->new_states(res.states);;
 	res.info_states.resize(res.states);
       }
-    res.h->aut->prop_state_based_acc();
-    res.h->aut->prop_deterministic();
+    res.h->aut->prop_state_based_acc(true);
+    res.h->aut->prop_deterministic(true);
     // res.h->aut->prop_complete();
     fill_guards(res);
     res.cur_guard = res.guards.end();
@@ -1303,7 +1303,7 @@ dstar_states:
 
 never: "never" { res.namer = res.h->aut->create_namer<std::string>();
 	         res.h->aut->set_buchi();
-		 res.h->aut->prop_state_based_acc();
+		 res.h->aut->prop_state_based_acc(true);
 		 res.acc_state = State_Acc;
 		 res.pos_acc_sets = res.h->aut->acc().all_sets();
 	       }
@@ -1560,7 +1560,7 @@ lbtt-header-states: LBTT
 lbtt-header: lbtt-header-states INT_S
            {
 	     res.acc_mapper = new spot::acc_mapper_int(res.h->aut, $2);
-	     res.h->aut->prop_state_based_acc();
+	     res.h->aut->prop_state_based_acc(true);
 	     res.acc_state = State_Acc;
 	   }
            | lbtt-header-states INT
@@ -1869,7 +1869,7 @@ static void fix_properties(result_& r)
   //r.h->aut->prop_complete(r.complete);
   if (r.acc_style == State_Acc ||
       (r.acc_style == Mixed_Acc && !r.trans_acc_seen))
-    r.h->aut->prop_state_based_acc();
+    r.h->aut->prop_state_based_acc(true);
 }
 
 static void check_version(const result_& r)

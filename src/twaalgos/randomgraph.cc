@@ -130,9 +130,9 @@ namespace spot
       throw std::invalid_argument("random_graph() requires n>0 states");
     auto res = make_twa_graph(dict);
     if (deterministic)
-      res->prop_deterministic();
+      res->prop_deterministic(true);
     if (state_acc)
-      res->prop_state_based_acc();
+      res->prop_state_based_acc(true);
 
     int props_n = ap->size();
     int* props = new int[props_n];

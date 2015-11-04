@@ -706,7 +706,7 @@ namespace spot
       set_num_sets_(num);
       acc_.set_acceptance(c);
       if (num == 0)
-	prop_state_based_acc();
+	prop_state_based_acc(true);
     }
 
     /// \brief Copy the acceptance condition of another tgba.
@@ -715,7 +715,7 @@ namespace spot
       acc_ = a->acc();
       unsigned num = acc_.num_sets();
       if (num == 0)
-	prop_state_based_acc();
+	prop_state_based_acc(true);
     }
 
     void copy_ap_of(const const_twa_ptr& a)
@@ -730,7 +730,7 @@ namespace spot
       set_num_sets_(num);
       acc_.set_generalized_buchi();
       if (num == 0)
-	prop_state_based_acc();
+	prop_state_based_acc(true);
     }
 
     acc_cond::mark_t set_buchi()
@@ -810,7 +810,7 @@ namespace spot
       return is.state_based_acc;
     }
 
-    void prop_state_based_acc(bool val = true)
+    void prop_state_based_acc(bool val)
     {
       is.state_based_acc = val;
     }
@@ -825,7 +825,7 @@ namespace spot
       return is.inherently_weak;
     }
 
-    void prop_inherently_weak(bool val = true)
+    void prop_inherently_weak(bool val)
     {
       is.inherently_weak = val;
     }
@@ -835,7 +835,7 @@ namespace spot
       return is.deterministic;
     }
 
-    void prop_deterministic(bool val = true)
+    void prop_deterministic(bool val)
     {
       is.deterministic = val;
     }
@@ -845,7 +845,7 @@ namespace spot
       return is.unambiguous;
     }
 
-    void prop_unambiguous(bool val = true)
+    void prop_unambiguous(bool val)
     {
       is.unambiguous = val;
     }
@@ -860,12 +860,12 @@ namespace spot
       return is.stutter_sensitive;
     }
 
-    void prop_stutter_invariant(bool val = true)
+    void prop_stutter_invariant(bool val)
     {
       is.stutter_invariant = val;
     }
 
-    void prop_stutter_sensitive(bool val = true)
+    void prop_stutter_sensitive(bool val)
     {
       is.stutter_sensitive = val;
     }
