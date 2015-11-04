@@ -170,5 +170,53 @@ State: 0
 State: 1
 State: 2
 --END--
+HOA: v1
+AP: 0
+States: 3
+Start: 0
+Acceptance: 1 Inf(0)
+properties: explicit-labels state-acc trans-labels unambiguous
+--BODY--
+State: 0
+[t] 2
+[t] 1
+State: 1
+State: 2
+--END--
 EOF
-run 0 $autfilt -q --is-unambiguous input
+
+# Make sure we preserve the "unambiguous" property if it is given.
+run 0 $autfilt -H --is-unambiguous input >output
+
+cat >expected <<EOF
+HOA: v1
+name: ""
+States: 3
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[t] 2
+[t] 1
+State: 1
+State: 2
+--END--
+HOA: v1
+States: 3
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc unambiguous
+--BODY--
+State: 0
+[t] 2
+[t] 1
+State: 1
+State: 2
+--END--
+EOF
+diff output expected

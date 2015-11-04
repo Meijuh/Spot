@@ -1,6 +1,7 @@
 New in spot 1.99.5a (not yet released)
 
-  Nothing yet.
+  Bug fixes:
+  * automaton parser was ignoring the "unambiguous" property.
 
 New in spot 1.99.5 (2015-11-03)
 
