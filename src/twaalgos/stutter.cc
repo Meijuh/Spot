@@ -620,7 +620,7 @@ namespace spot
   bool
   check_stutter_invariance(const twa_graph_ptr& aut, formula f)
   {
-    bool is_stut = aut->is_stutter_invariant();
+    bool is_stut = aut->prop_stutter_invariant();
     if (is_stut)
       return is_stut;
 
@@ -634,7 +634,7 @@ namespace spot
 	// If the automaton is deterministic, we
 	// know how to complement it.
 	aut->prop_deterministic(is_deterministic(aut));
-	if (!aut->is_deterministic())
+	if (!aut->prop_deterministic())
 	  return false;
 	neg = remove_fin(dtwa_complement(aut));
       }

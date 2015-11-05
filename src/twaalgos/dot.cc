@@ -468,7 +468,7 @@ namespace spot
 	  sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
 	if (opt_name_)
 	  name_ = aut_->get_named_prop<std::string>("automaton-name");
-	mark_states_ = !opt_force_acc_trans_ && aut_->has_state_based_acc();
+	mark_states_ = !opt_force_acc_trans_ && aut_->prop_state_acc();
 	if (opt_shape_ == ShapeAuto)
 	  {
 	    if (sn_ || aut->num_states() > 100)

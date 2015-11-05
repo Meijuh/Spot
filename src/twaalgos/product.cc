@@ -103,14 +103,14 @@ namespace spot
 	      }
 	}
 
-      res->prop_deterministic(left->is_deterministic()
-			      && right->is_deterministic());
-      res->prop_stutter_invariant(left->is_stutter_invariant()
-				  && right->is_stutter_invariant());
-      res->prop_stutter_sensitive(left->is_stutter_sensitive()
-				  && right->is_stutter_sensitive());
-      res->prop_state_based_acc(left->has_state_based_acc()
-				&& right->has_state_based_acc());
+      res->prop_deterministic(left->prop_deterministic()
+			      && right->prop_deterministic());
+      res->prop_stutter_invariant(left->prop_stutter_invariant()
+				  && right->prop_stutter_invariant());
+      res->prop_stutter_sensitive(left->prop_stutter_sensitive()
+				  && right->prop_stutter_sensitive());
+      res->prop_state_acc(left->prop_state_acc()
+				&& right->prop_state_acc());
       return res;
     }
   }

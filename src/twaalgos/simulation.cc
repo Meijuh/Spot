@@ -642,7 +642,7 @@ namespace spot
         if (nb_minato == nb_satoneset && !Cosimulation)
 	  res->prop_deterministic(true);
 	if (Sba)
-	  res->prop_state_based_acc(true);
+	  res->prop_state_acc(true);
 	return res;
       }
 
@@ -770,7 +770,7 @@ namespace spot
         prev = next;
         direct_simulation<false, Sba> simul(res ? res : t);
         res = simul.run();
-        if (res->is_deterministic())
+        if (res->prop_deterministic())
 	  break;
 
         direct_simulation<true, Sba> cosimul(res);

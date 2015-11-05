@@ -1,5 +1,27 @@
 New in spot 1.99.5a (not yet released)
 
+  Library:
+
+  * Properties of automata (like the "properties:" line of the HOA
+    format) are stored as bits whose interpretation is True=yes,
+    False=maybe.  Having getters like "aut->is_deterministic()" or
+    "aut->is_unambiguous()" was confusing, because there are separate
+    functions "is_deterministic(aut)" and "is_unambiguous(aut)" that
+    do actually check the automaton.  The getters have been renamed
+    to avoid confusion, and get the names more in line with HOA.
+
+    - twa::has_state_based_acc() -> twa::prop_state_acc()
+    - twa::prop_state_based_acc(bool) -> twa::prop_state_acc(bool)
+    - twa::is_inherently_weak() -> twa::prop_inherently_weak()
+    - twa::is_deterministic() -> twa::prop_deterministic()
+    - twa::is_unambiguous() -> twa::prop_unambiguous()
+    - twa::is_stutter_invariant() -> twa::prop_stutter_invariant()
+    - twa::is_stutter_sensitive() -> twa::prop_stutter_sensitive()
+
+    The setters have the same name as the getters, except they take a
+    Boolean argument.  This argument used to be optionnal (defaulting
+    to True), but it no longer is.
+
   Bug fixes:
   * automaton parser was ignoring the "unambiguous" property.
 

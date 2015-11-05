@@ -63,7 +63,7 @@ namespace spot
   bool
   is_deterministic(const const_twa_graph_ptr& aut)
   {
-    if (aut->is_deterministic())
+    if (aut->prop_deterministic())
       return true;
     return !count_nondet_states_aux<false>(aut);
   }

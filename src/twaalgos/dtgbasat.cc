@@ -1026,7 +1026,7 @@ namespace spot
       auto a = make_twa_graph(autdict);
       a->copy_ap_of(aut);
       if (state_based)
-	a->prop_state_based_acc(true);
+	a->prop_state_acc(true);
       a->prop_deterministic(true);
       a->set_acceptance(satdict.cand_nacc, satdict.cand_acc);
       a->new_states(satdict.cand_size);
@@ -1303,7 +1303,7 @@ namespace spot
     if (int preproc = om.get("preproc", 3))
       {
 	postprocessor post;
-	auto sba = (state_based && a->has_state_based_acc()) ?
+	auto sba = (state_based && a->prop_state_acc()) ?
 	  postprocessor::SBAcc : postprocessor::Any;
 	post.set_pref(postprocessor::Deterministic
 		      | postprocessor::Complete
@@ -1332,7 +1332,7 @@ namespace spot
 	// mode.  If the desired output is a Büchi automaton, or not
 	// desired acceptance was specified, stop here.  There is not
 	// point in minimizing a minimal automaton.
-	if (a->is_inherently_weak() && a->is_deterministic()
+	if (a->prop_inherently_weak() && a->prop_deterministic()
 	    && (target_is_buchi || !user_supplied_acc))
 	  return a;
       }

@@ -640,7 +640,7 @@ namespace spot
       a->copy_ap_of(aut);
       acc_cond::mark_t acc = a->set_buchi();
       if (state_based)
-	a->prop_state_based_acc(true);
+	a->prop_state_acc(true);
       a->prop_deterministic(true);
       a->new_states(satdict.cand_size);
 

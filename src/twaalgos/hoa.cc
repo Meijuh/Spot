@@ -153,8 +153,8 @@ namespace spot
 	is_colored = colored && (!has_state_acc || nodeadend);
 	// If the automaton declares that it is deterministic or
 	// state-based, make sure that it really is.
-	assert(!aut->is_deterministic() || deterministic);
-	assert(!aut->has_state_based_acc() || state_acc);
+	assert(!aut->prop_deterministic() || deterministic);
+	assert(!aut->prop_state_acc() || state_acc);
       }
 
       void number_all_ap()
@@ -402,14 +402,14 @@ namespace spot
       prop(" complete");
     if (md.is_deterministic)
       prop(" deterministic");
-    if (aut->is_unambiguous())
+    if (aut->prop_unambiguous())
       prop(" unambiguous");
-    assert(!(aut->is_stutter_invariant() && aut->is_stutter_sensitive()));
-    if (aut->is_stutter_invariant())
+    assert(!(aut->prop_stutter_invariant() && aut->prop_stutter_sensitive()));
+    if (aut->prop_stutter_invariant())
       prop(" stutter-invariant");
-    if (aut->is_stutter_sensitive())
+    if (aut->prop_stutter_sensitive())
       prop(" stutter-sensitive");
-    if (aut->is_inherently_weak())
+    if (aut->prop_inherently_weak())
       prop(" inherently-weak");
     os << nl;
 

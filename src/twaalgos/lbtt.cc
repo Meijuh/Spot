@@ -133,7 +133,7 @@ namespace spot
       throw std::runtime_error
 	("LBTT only supports generalized Büchi acceptance");
 
-    bool sba = g->has_state_based_acc();
+    bool sba = g->prop_state_acc();
     if (opt)
       switch (char c = *opt++)
 	{

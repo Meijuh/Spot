@@ -207,7 +207,7 @@ namespace spot
       res->copy_ap_of(a);
       res->set_buchi();
       if (want_sba)
-	res->prop_state_based_acc(true);
+	res->prop_state_acc(true);
       // Preserve determinism, weakness, and stutter-invariance
       res->prop_copy(a, { false, true, true, true });
 

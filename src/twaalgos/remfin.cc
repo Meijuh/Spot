@@ -87,7 +87,7 @@ namespace spot
 	  // check result, however it prevent recurring into this
 	  // procedure, because empty() will call to_tgba() wich will
 	  // call remove_fin()...
-	  sccaut->prop_state_based_acc(false);
+	  sccaut->prop_state_acc(false);
 	  // If SCCAUT is empty, the SCC is BA-type (and none
 	  // of its states are final).  If SCCAUT is nonempty, the SCC
 	  // is not BA type.
@@ -153,7 +153,7 @@ namespace spot
 	     acc_cond::mark_t inf_alone,
 	     acc_cond::mark_t fin_alone)
     {
-      assert(aut->has_state_based_acc());
+      assert(aut->prop_state_acc());
 
       scc_info si(aut);
       // For state-based Rabin automata, we check each SCC for
@@ -227,7 +227,7 @@ namespace spot
       res->new_states(nst);
       res->set_buchi();
       res->set_init_state(aut->get_init_state_number());
-      bool deterministic = aut->is_deterministic();
+      bool deterministic = aut->prop_deterministic();
 
       std::vector<unsigned> state_map(aut->num_states());
       for (unsigned n = 0; n < scc_max; ++n)
@@ -307,7 +307,7 @@ namespace spot
     static twa_graph_ptr
     rabin_to_buchi_maybe(const const_twa_graph_ptr& aut)
     {
-      if (!aut->has_state_based_acc())
+      if (!aut->prop_state_acc())
 	return nullptr;
 
       auto code = aut->get_acceptance();
@@ -468,7 +468,7 @@ namespace spot
       // We will modify res in place, and the resulting
       // automaton will only have one acceptance set.
       acc_cond::mark_t all_acc = res->set_buchi();
-      res->prop_state_based_acc(true);
+      res->prop_state_acc(true);
       res->prop_deterministic(true);
 
       unsigned sink = res->num_states();
@@ -508,7 +508,7 @@ namespace spot
       return std::const_pointer_cast<twa_graph>(aut);
 
     // FIXME: we should check whether the automaton is weak.
-    if (aut->is_inherently_weak() && is_deterministic(aut))
+    if (aut->prop_inherently_weak() && is_deterministic(aut))
       return remove_fin_det_weak(aut);
 
     if (auto maybe = streett_to_generalized_buchi_maybe(aut))
@@ -668,7 +668,7 @@ namespace spot
     res->set_acceptance(aut->num_sets() + extra_sets, new_code);
     res->set_init_state(aut->get_init_state_number());
 
-    bool sbacc = aut->has_state_based_acc();
+    bool sbacc = aut->prop_state_acc();
     scc_info si(aut);
     unsigned nscc = si.scc_count();
     std::vector<unsigned> state_map(nst);
@@ -746,7 +746,7 @@ namespace spot
 
     // If the input had no Inf, the output is a state-based automaton.
     if (allinf == 0U)
-      res->prop_state_based_acc(true);
+      res->prop_state_acc(true);
 
     res->purge_dead_states();
     trace << "before cleanup: " << res->get_acceptance() << '\n';

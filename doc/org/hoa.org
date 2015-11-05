@@ -536,7 +536,7 @@ bit is false, it only means that it is unknown whether the property is
 true.  For instance if in some algorithm you want to know whether an
 automaton is deterministic (the equivalent of calling =autfilt -q
 --is-deterministic aut.hoa= from the command-line), you not call the
-method =aut->is_deterministic()= because that only check the property
+method =aut->prop_deterministic()= because that only check the property
 bit, and it might be false even if the =aut= is deterministic.
 Instead, call the function =is_deterministic(aut)=.  This function
 will first test the property bit, and do the actual check if it has

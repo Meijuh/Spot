@@ -113,7 +113,7 @@ namespace spot
   isomorphism_checker::isomorphism_checker(const const_twa_graph_ptr ref)
   {
     ref_ = make_twa_graph(ref, twa::prop_set::all());
-    ref_deterministic_ = ref_->is_deterministic();
+    ref_deterministic_ = ref_->prop_deterministic();
     if (!ref_deterministic_)
       {
         nondet_states_ = spot::count_nondet_states(ref_);
@@ -130,14 +130,14 @@ namespace spot
 
     if (ref_deterministic_)
       {
-        if (aut->is_deterministic() || spot::is_deterministic(aut))
+        if (aut->prop_deterministic() || spot::is_deterministic(aut))
           {
             return are_isomorphic_det(ref_, aut);
           }
       }
     else
       {
-        if (aut->is_deterministic() ||
+        if (aut->prop_deterministic() ||
             nondet_states_ != spot::count_nondet_states(aut))
           {
             return false;

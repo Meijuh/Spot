@@ -146,7 +146,7 @@ namespace spot
       return a;
     // If the automaton is weak, using transition-based acceptance
     // won't help, so let's preserve it.
-    if ((state_based_ || a->is_inherently_weak()) && a->has_state_based_acc())
+    if ((state_based_ || a->prop_inherently_weak()) && a->prop_state_acc())
       return scc_filter_states(a, arg);
     else
       return scc_filter(a, arg);
@@ -253,7 +253,7 @@ namespace spot
       {
 	bool reject_bigger = (PREF_ == Small) && (level_ == Medium);
 	dba = minimize_obligation(a, f, nullptr, reject_bigger);
-	if (dba && dba->is_inherently_weak() && dba->is_deterministic())
+	if (dba && dba->prop_inherently_weak() && dba->prop_deterministic())
 	  {
 	    // The WDBA is a BA, so no degeneralization is required.
 	    // We just need to add an acceptance set if there is none.
@@ -272,7 +272,7 @@ namespace spot
     // at hard levels if we want a small output.
     if (!dba || (level_ == High && PREF_ == Small))
       {
-	if (((SBACC_ && a->has_state_based_acc())
+	if (((SBACC_ && a->prop_state_acc())
 	     || (type_ == BA && a->is_sba()))
 	    && !tba_determinisation_)
 	  {

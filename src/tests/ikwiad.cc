@@ -1026,7 +1026,7 @@ checked_main(int argc, char** argv)
       if (scc_filter)
 	{
 	  tm.start("SCC-filter");
-	  if (a->has_state_based_acc() & !scc_filter_all)
+	  if (a->prop_state_acc() & !scc_filter_all)
 	    a = spot::scc_filter_states(ensure_digraph(a));
 	  else
 	    a = spot::scc_filter(ensure_digraph(a), scc_filter_all);

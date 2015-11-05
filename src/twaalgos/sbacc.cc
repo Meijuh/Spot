@@ -26,14 +26,14 @@ namespace spot
 {
   twa_graph_ptr sbacc(twa_graph_ptr old)
   {
-    if (old->has_state_based_acc())
+    if (old->prop_state_acc())
       return old;
 
     auto res = make_twa_graph(old->get_dict());
     res->copy_ap_of(old);
     res->copy_acceptance_of(old);
     res->prop_copy(old, {false, true, true, true});
-    res->prop_state_based_acc(true);
+    res->prop_state_acc(true);
 
     typedef std::pair<unsigned, acc_cond::mark_t> pair_t;
     std::map<pair_t, unsigned> s2n;

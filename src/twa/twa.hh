@@ -706,7 +706,7 @@ namespace spot
       set_num_sets_(num);
       acc_.set_acceptance(c);
       if (num == 0)
-	prop_state_based_acc(true);
+	prop_state_acc(true);
     }
 
     /// \brief Copy the acceptance condition of another tgba.
@@ -715,7 +715,7 @@ namespace spot
       acc_ = a->acc();
       unsigned num = acc_.num_sets();
       if (num == 0)
-	prop_state_based_acc(true);
+	prop_state_acc(true);
     }
 
     void copy_ap_of(const const_twa_ptr& a)
@@ -730,7 +730,7 @@ namespace spot
       set_num_sets_(num);
       acc_.set_generalized_buchi();
       if (num == 0)
-	prop_state_based_acc(true);
+	prop_state_acc(true);
     }
 
     acc_cond::mark_t set_buchi()
@@ -805,22 +805,22 @@ namespace spot
       named_prop_.clear();
     }
 
-    bool has_state_based_acc() const
+    bool prop_state_acc() const
     {
       return is.state_based_acc;
     }
 
-    void prop_state_based_acc(bool val)
+    void prop_state_acc(bool val)
     {
       is.state_based_acc = val;
     }
 
     bool is_sba() const
     {
-      return has_state_based_acc() && acc().is_buchi();
+      return prop_state_acc() && acc().is_buchi();
     }
 
-    bool is_inherently_weak() const
+    bool prop_inherently_weak() const
     {
       return is.inherently_weak;
     }
@@ -830,7 +830,7 @@ namespace spot
       is.inherently_weak = val;
     }
 
-    bool is_deterministic() const
+    bool prop_deterministic() const
     {
       return is.deterministic;
     }
@@ -840,7 +840,7 @@ namespace spot
       is.deterministic = val;
     }
 
-    bool is_unambiguous() const
+    bool prop_unambiguous() const
     {
       return is.unambiguous;
     }
@@ -850,12 +850,12 @@ namespace spot
       is.unambiguous = val;
     }
 
-    bool is_stutter_invariant() const
+    bool prop_stutter_invariant() const
     {
       return is.stutter_invariant;
     }
 
-    bool is_stutter_sensitive() const
+    bool prop_stutter_sensitive() const
     {
       return is.stutter_sensitive;
     }
@@ -888,25 +888,25 @@ namespace spot
     void prop_copy(const const_twa_ptr& other, prop_set p)
     {
       if (p.state_based)
-	prop_state_based_acc(other->has_state_based_acc());
+	prop_state_acc(other->prop_state_acc());
       if (p.inherently_weak)
-	prop_inherently_weak(other->is_inherently_weak());
+	prop_inherently_weak(other->prop_inherently_weak());
       if (p.deterministic)
 	{
-	  prop_deterministic(other->is_deterministic());
-	  prop_unambiguous(other->is_unambiguous());
+	  prop_deterministic(other->prop_deterministic());
+	  prop_unambiguous(other->prop_unambiguous());
 	}
       if (p.stutter_inv)
 	{
-	  prop_stutter_invariant(other->is_stutter_invariant());
-	  prop_stutter_sensitive(other->is_stutter_sensitive());
+	  prop_stutter_invariant(other->prop_stutter_invariant());
+	  prop_stutter_sensitive(other->prop_stutter_sensitive());
 	}
     }
 
     void prop_keep(prop_set p)
     {
       if (!p.state_based)
-	prop_state_based_acc(false);
+	prop_state_acc(false);
       if (!p.inherently_weak)
 	prop_inherently_weak(false);
       if (!p.deterministic)

@@ -132,7 +132,7 @@ namespace spot
     if (deterministic)
       res->prop_deterministic(true);
     if (state_acc)
-      res->prop_state_based_acc(true);
+      res->prop_state_acc(true);
 
     int props_n = ap->size();
     int* props = new int[props_n];

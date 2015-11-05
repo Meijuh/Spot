@@ -122,7 +122,7 @@ namespace spot
       auto dict = a->get_dict();
       auto res = make_twa_graph(dict);
       res->copy_ap_of(a);
-      res->prop_state_based_acc(true);
+      res->prop_state_acc(true);
 
       // For each set, create a state in the resulting automaton.
       // For a state s, state_num[s] is the number of the state in the minimal
@@ -483,7 +483,7 @@ namespace spot
     res->prop_copy(a, { false, false, false, true });
     res->prop_deterministic(true);
     res->prop_inherently_weak(true);
-    res->prop_state_based_acc(true);
+    res->prop_state_acc(true);
     return res;
   }
 
@@ -605,7 +605,7 @@ namespace spot
 
     // If the input automaton was already weak and deterministic, the
     // output is necessary correct.
-    if (aut_f->is_inherently_weak() && aut_f->is_deterministic())
+    if (aut_f->prop_inherently_weak() && aut_f->prop_deterministic())
       return min_aut_f;
 
     // if f is a syntactic obligation formula, the WDBA minimization
@@ -654,7 +654,7 @@ namespace spot
     if (product(min_aut_f, aut_neg_f)->is_empty())
       {
 	// Complement the minimized WDBA.
-	assert(min_aut_f->is_inherently_weak());
+	assert(min_aut_f->prop_inherently_weak());
 	auto neg_min_aut_f = remove_fin(dtwa_complement(min_aut_f));
 	if (product(aut_f, neg_min_aut_f)->is_empty())
 	  // Finally, we are now sure that it was safe

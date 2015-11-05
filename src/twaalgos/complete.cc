@@ -114,7 +114,7 @@ namespace spot
 	      }
 	    // In case the automaton use state-based acceptance, propagate
 	    // the acceptance of the first edge to the one we add.
-	    if (!aut->has_state_based_acc())
+	    if (!aut->prop_state_acc())
 	      acc = 0U;
 	    aut->new_edge(i, sink, missingcond, acc);
 	  }

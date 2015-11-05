@@ -164,7 +164,7 @@ namespace spot
     bs2num[s] = out->new_state();
     todo.push_back(s);
 
-    bool sbacc = in->has_state_based_acc();
+    bool sbacc = in->prop_state_acc();
 
     // States of the original automaton are marked with s.pend == -1U.
     const acc_cond::mark_t orig_copy(-1U);
@@ -334,7 +334,7 @@ namespace spot
 	assert(cnf.front().mark == 0U);
 	res = make_twa_graph(aut->get_dict());
 	res->set_init_state(res->new_state());
-	res->prop_state_based_acc(true);
+	res->prop_state_acc(true);
 	res->prop_inherently_weak(true);
 	res->prop_deterministic(true);
 	res->prop_stutter_invariant(true);

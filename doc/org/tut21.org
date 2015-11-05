@@ -104,12 +104,12 @@ corresponding BDD variable number, and then use for instance
     // automaton, so they can be queried in constant time, and they are
     // only set whenever they can be determined at a cheap cost.
     out << "Deterministic: "
-        << (aut->is_deterministic() ? "yes\n" : "maybe\n");
+        << (aut->prop_deterministic() ? "yes\n" : "maybe\n");
     out << "StateBasedAcc: "
-        << (aut->has_state_based_acc() ? "yes\n" : "maybe\n");
+        << (aut->prop_state_acc() ? "yes\n" : "maybe\n");
     out << "Stutter Invariant: "
-        << (aut->is_stutter_invariant() ? "yes\n" :
-            aut->is_stutter_sensitive() ? "no\n" : "maybe\n");
+        << (aut->prop_stutter_invariant() ? "yes\n" :
+            aut->prop_stutter_sensitive() ? "no\n" : "maybe\n");
 
     // States are numbered from 0 to n-1
     unsigned n = aut->num_states();
