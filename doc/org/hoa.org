@@ -513,34 +513,36 @@ and likewise for =Inf(4)&Inf(5)=.
 ** Property bits
 
 The =HOA= format supports a number of optional =property:= tokens.
-Currently most of those are ignored by Spot, or used only to
-double-check automata that are read.  For instance is it interesting
-for Spot to know that an automaton is deterministic, but this can be
-automatically determined when the automaton is read, so it is not
-necessary to say so on the =property:= line.  (If =property:
-deterministic= is present, the parser will just make sure that the
-automaton is indeed deterministic, and output an error otherwise.)
-Some of the properties are not as easy to check, and will be stored
-in the future.
+These properties can be useful to speedup certain algorithms: for
+instance it is easier to complement a deterministic automaton that is
+known to be inherently weak.
 
-Internally, each TωA object carries a set of named bits representing
-properties about the automaton.  Currently these properties are quite
-limited: they will tell for instance if an automaton is deterministic,
-if it uses state-based acceptance (as discussed above), if it is
-stutter-invariant or stutter-sensitive, if it is unambiguous, or if it
-is inherently weak.  This set of supported properties will grow in the
-future.
+Spot stores this properties that matters to its algorithms as
+additional bits attached to each automaton.  Currently the HOA parser
+ignores all the properties that are unused by Spot.
+
+Some of the supported properties are double-checked when the automaton
+is parsed; this is for instance the case of =deterministic=,
+=state-based=.  The parser will in fact infer these properties from the
+body of the file, and then return and error if what has been declared
+does not correspond to the reality.
+
+Some supported properties (like =inherently-weak=, =unambiguous=, or
+=stutter-invariant=) are not double-checked, because that would
+require too much additional operations.  Command-line tools that read
+HOA files all take a =--trust-hoa=no= option to ignore properties that
+are not double-checked by the parser.
 
 It should be noted that these bits are only implications.  When such a
 bit is false, it only means that it is unknown whether the property is
 true.  For instance if in some algorithm you want to know whether an
 automaton is deterministic (the equivalent of calling =autfilt -q
---is-deterministic aut.hoa= from the command-line), you not call the
-method =aut->prop_deterministic()= because that only check the property
-bit, and it might be false even if the =aut= is deterministic.
-Instead, call the function =is_deterministic(aut)=.  This function
-will first test the property bit, and do the actual check if it has
-to.
+--is-deterministic aut.hoa= from the command-line), you should not
+call the method =aut->prop_deterministic()= because that only checks
+the property bit, and it might be false even if the =aut= is
+deterministic.  Instead, call the function =is_deterministic(aut)=.
+This function will first test the property bit, and do the actual
+check if it has to.
 
 Algorithms that update a TωA should call the method =prop_keep()= and
 use the argument to specify which of the properties they preserve.
