@@ -741,3 +741,25 @@ EOF
 diff output4 expect4
 diff output4b expect4
 diff output4c expect4
+
+$autfilt -Hv --small input4 >output5
+
+cat >expect5<<EOF
+HOA: v1
+States: 3
+Start: 1
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: no-univ-branch trans-labels explicit-labels state-acc
+properties: deterministic unambiguous inherently-weak
+--BODY--
+State: 0
+[1] 2
+State: 1
+[0] 0
+State: 2 {0}
+[0] 2
+--END--
+EOF
+diff output5 expect5

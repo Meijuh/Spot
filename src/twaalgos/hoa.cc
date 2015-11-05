@@ -243,6 +243,7 @@ namespace spot
     bool newline = true;
     hoa_acceptance acceptance = Hoa_Acceptance_States;
     bool implicit_labels = false;
+    bool verbose = false;
 
     if (opt)
       while (*opt)
@@ -263,6 +264,9 @@ namespace spot
 	      break;
 	    case 't':
 	      acceptance = Hoa_Acceptance_Transitions;
+	      break;
+	    case 'v':
+	      verbose = true;
 	      break;
 	    default:
 	      throw std::runtime_error
@@ -387,6 +391,13 @@ namespace spot
 	  }
 	os << str;
       };
+    // We do not support alternating automata so far, and it's
+    // probable that nobody cares about the "no-univ-branch"
+    // properties.  The "univ-branch" properties seems more important
+    // to announce that the automaton might not be parsable by tools
+    // that do not support alternating automata.
+    if (verbose)
+      prop(" no-univ-branch");
     implicit_labels = md.use_implicit_labels;
     if (implicit_labels)
       prop(" implicit-labels");
@@ -402,7 +413,12 @@ namespace spot
       prop(" complete");
     if (md.is_deterministic)
       prop(" deterministic");
-    if (aut->prop_unambiguous())
+    // Deterministic automata are also unambiguous, so writing both
+    // properties seems redundant.  People working on unambiguous
+    // automata are usually concerned about non-deterministic
+    // unambiguous automata.  So do not mention "unambiguous"
+    // in the case of deterministic automata.
+    if (aut->prop_unambiguous() && (verbose || !md.is_deterministic))
       prop(" unambiguous");
     assert(!(aut->prop_stutter_invariant() && aut->prop_stutter_sensitive()));
     if (aut->prop_stutter_invariant())

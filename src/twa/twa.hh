@@ -837,7 +837,16 @@ namespace spot
 
     void prop_deterministic(bool val)
     {
-      is.deterministic = val;
+      if (val)
+	{
+	  // deterministic implies unambiguous
+	  is.deterministic = true;
+	  is.unambiguous = true;
+	}
+      else
+	{
+	  is.deterministic = false;
+	}
     }
 
     bool prop_unambiguous() const

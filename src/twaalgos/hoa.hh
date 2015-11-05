@@ -34,7 +34,7 @@ namespace spot
   ///        option: (i) implicit labels for complete and
   ///        deterministic automata, (s) state-based acceptance, (t)
   ///        transition-based acceptance, (m) mixed acceptance, (l)
-  ///        single-line output.
+  ///        single-line output, (v) verbose properties.
   SPOT_API std::ostream&
   print_hoa(std::ostream& os,
 	    const const_twa_ptr& g,

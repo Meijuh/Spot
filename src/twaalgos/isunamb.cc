@@ -27,7 +27,7 @@ namespace spot
 {
   bool is_unambiguous(const const_twa_graph_ptr& aut)
   {
-    if (aut->prop_deterministic() || aut->prop_unambiguous())
+    if (aut->prop_unambiguous())
       return true;
     auto clean_a = scc_filter_states(aut);
     if (clean_a->num_edges() == 0)

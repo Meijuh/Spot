@@ -36,8 +36,10 @@ for f in 'Ga' \
 do
   $ltl2tgba -UH "$f" | $autfilt -q --is-unambiguous
   $ltl2tgba -UH "!($f)" | $autfilt -q --is-unambiguous
-  $ltl2tgba -UH "$f" | $autfilt --check | grep unambiguous
-  $ltl2tgba -UH "!($f)" | $autfilt --check | grep unambiguous
+  $ltl2tgba -UH "$f" | $autfilt --check |
+      grep -E 'properties:.* (unambiguous|deterministic)'
+  $ltl2tgba -UH "!($f)" | $autfilt --check |
+      grep -E 'properties:.* (unambiguous|deterministic)'
 done
 
 for f in FGa '(({p1[*0..1]}[]-> 0) R XFp0)'

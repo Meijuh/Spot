@@ -93,13 +93,14 @@ static const argp_option options[] =
       "(r) rainbow colors for acceptance sets, "
       "(R) color acceptance sets by Inf/Fin, (s) with SCCs, "
       "(t) force transition-based acceptance.", 0 },
-    { "hoaf", 'H', "i|s|t|m|l", OPTION_ARG_OPTIONAL,
+    { "hoaf", 'H', "i|l|m|s|t|v", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format.  Add letters to select "
       "(i) use implicit labels for complete deterministic automata, "
       "(s) prefer state-based acceptance when possible [default], "
       "(t) force transition-based acceptance, "
       "(m) mix state and transition-based acceptance, "
-      "(l) single-line output", 0 },
+      "(l) single-line output, "
+      "(v) verbose properties", 0 },
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
       "LBTT's format (add =t to force transition-based acceptance even"
       " on Büchi automata)", 0 },

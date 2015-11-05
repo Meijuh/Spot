@@ -553,6 +553,47 @@ property is added to the TωA class, we cannot forget to update all the
 calls =prop_copy()= or =prop_keep()= (because these functions will
 take a new argument).
 
+The =HOA= printer also tries to not bloat the output with many
+redundant and useless properties.  For instance =deterministic=
+automata are necessarily =unambiguous=, and people interested in
+unambiguous automata know that, so Spot only output the =unambiguous=
+property if an unambiguous automaton is non-deterministic.  Similarly,
+while Spot only outputs non-alternating automata, it does not output
+the =no-univ-branch= property because we cannot think of a situation
+where this would be useful.  This decision can be overridden by
+passing the =-Hv= (or =--hoa=v=) option to the command-line tools:
+this requests "verbose" properties.
+
+The following table summarizes how supported properties are handled.  In
+particular:
+- for the parser =checked= means that the property is always inferred
+  and checked against any declaration (if present), =trusted= means
+  that the property will be stored without being checked (unless
+  =--trust-hoa=no= is specified).
+- Stored properties are those represented as bits in the automaton.
+- the printer will sometime check some properties when it can do
+  it as part of its initial "survey scan" of the automaton; in that
+  case the stored property is not used.  This makes it possible
+  to detect deterministic automata that have been output by algorithms
+  that do not try to output deterministic automata.
+
+| property            | parser  | stored | printer                                     | notes                                                  |
+|---------------------+---------+--------+---------------------------------------------+--------------------------------------------------------|
+| =state-labels=      | checked | no     | never                                       | state labels are always converted to transition labels |
+| =trans-labels=      | checked | no     | always, unless =-Hi=                        |                                                        |
+| =implicit-labels=   | checked | no     | if =-Hi=                                    | =-Hi= only works for deterministic automata            |
+| =explicit-labels=   | checked | no     | always, unless =-Hi=                        |                                                        |
+| =state-acc=         | checked | yes    | re-checked, unless =-Ht= or =-Hm=           |                                                        |
+| =trans-acc=         | checked | no     | if not =state-acc= and not =-Hm=            |                                                        |
+| =no-univ-branch=    | ignored | no     | only if =-Hv=                               |                                                        |
+| =deterministic=     | checked | yes    | re-checked                                  |                                                        |
+| =complete=          | checked | no     | re-checked                                  |                                                        |
+| =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=) | can be re-checked with =--check=unambiguous=           |
+| =stutter-invariant= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=            |
+| =stutter-sensitive= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=            |
+| =inherently-weak=   | trusted | yes    | as stored                                   |                                                        |
+| =colored=           | ignored | no     | checked                                     |                                                        |
+
 ** Named properties
 
 In addition to the bit properties discussed above, a TωA can carry
