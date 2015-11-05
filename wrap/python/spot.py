@@ -626,9 +626,13 @@ twa.postprocess = postprocess
 # instance methods (i.e., self passed as first argument
 # automatically), because only used-defined functions are converted as
 # instance methods.
-for meth in ('scc_filter', 'scc_filter_states'):
+def _add_twa_graph(meth):
     setattr(twa_graph, meth, (lambda self, *args, **kwargs:
                               globals()[meth](self, *args, **kwargs)))
+
+for meth in ('scc_filter', 'scc_filter_states',
+             'is_deterministic', 'is_unambiguous'):
+    _add_twa_graph(meth)
 
 # Wrapper around a formula iterator to which we add some methods of formula
 # (using _addfilter and _addmap), so that we can write things like

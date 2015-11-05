@@ -41,3 +41,9 @@ assert(aut1.get_name() == None)
 aut1.set_name("test me")
 assert(aut1.get_name() == "test me")
 # The method is the same as the function
+
+a = spot.translate('true', 'low', 'any')
+assert(a.prop_deterministic() == False)
+assert(a.prop_unambiguous() == False)
+assert(a.is_deterministic() == True)
+assert(a.is_unambiguous() == True)

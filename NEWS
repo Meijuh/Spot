@@ -22,6 +22,9 @@ New in spot 1.99.5a (not yet released)
     Boolean argument.  This argument used to be optionnal (defaulting
     to True), but it no longer is.
 
+  Python:
+  * Add bindings for is_unambiguous().
+
   Bug fixes:
   * automaton parser was ignoring the "unambiguous" property.
 
