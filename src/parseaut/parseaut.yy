@@ -436,8 +436,10 @@ header: format-version header-items
 	      res.h->aut->prop_stutter_sensitive(ss);
 	      bool iw = res.props.find("inherently-weak") != e;
 	      res.h->aut->prop_inherently_weak(iw);
-	      bool iu = res.props.find("unambiguous") != e;
-	      res.h->aut->prop_unambiguous(iu);
+	      bool wk = res.props.find("weak") != e;
+	      res.h->aut->prop_weak(wk);
+	      bool un = res.props.find("unambiguous") != e;
+	      res.h->aut->prop_unambiguous(un);
 	    }
 	}
 

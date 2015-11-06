@@ -316,7 +316,7 @@ AP: 1 "p0"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic inherently-weak
+properties: deterministic weak
 --BODY--
 State: 0 {0}
 [t] 0
@@ -331,7 +331,7 @@ AP: 1 "p0"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic inherently-weak
+properties: deterministic weak
 --BODY--
 State: 0 {0}
 [t] 0

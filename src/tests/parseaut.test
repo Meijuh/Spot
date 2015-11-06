@@ -1189,8 +1189,7 @@ run 2 ../ikwiad -XH foob 2>output.err
 grep 'foob:1.1: Cannot open file foob' output.err
 
 # Make sure we can read multiple automata from stdin
-../../bin/ltl2tgba 'a U b' 'GFa' --hoa | grep -v '^name:' |
-    sed 's/ stutter-invariant//;s/ inherently-weak//;/properties:$/d' > input
+../../bin/ltl2tgba 'a U b' 'GFa' --hoa | grep -v '^name:' > input
 ../../bin/autfilt --hoa < input | ../../bin/autfilt --hoa > output
 diff input output
 

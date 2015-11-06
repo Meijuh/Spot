@@ -482,7 +482,7 @@ namespace spot
     auto res = minimize_dfa(det_a, final, non_final);
     res->prop_copy(a, { false, false, false, true });
     res->prop_deterministic(true);
-    res->prop_inherently_weak(true);
+    res->prop_weak(true);
     res->prop_state_acc(true);
     return res;
   }
@@ -583,7 +583,7 @@ namespace spot
     auto res = minimize_dfa(det_a, final, non_final);
     res->prop_copy(a, { false, false, false, true });
     res->prop_deterministic(true);
-    res->prop_inherently_weak(true);
+    res->prop_weak(true);
     return res;
   }
 
@@ -605,7 +605,7 @@ namespace spot
 
     // If the input automaton was already weak and deterministic, the
     // output is necessary correct.
-    if (aut_f->prop_inherently_weak() && aut_f->prop_deterministic())
+    if (aut_f->prop_weak() && aut_f->prop_deterministic())
       return min_aut_f;
 
     // if f is a syntactic obligation formula, the WDBA minimization
@@ -654,7 +654,7 @@ namespace spot
     if (product(min_aut_f, aut_neg_f)->is_empty())
       {
 	// Complement the minimized WDBA.
-	assert(min_aut_f->prop_inherently_weak());
+	assert(min_aut_f->prop_weak());
 	auto neg_min_aut_f = remove_fin(dtwa_complement(min_aut_f));
 	if (product(aut_f, neg_min_aut_f)->is_empty())
 	  // Finally, we are now sure that it was safe

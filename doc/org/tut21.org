@@ -85,7 +85,7 @@ corresponding BDD variable number, and then use for instance
 
   void custom_print(std::ostream& out, spot::twa_graph_ptr& aut)
   {
-    // We need the dictionary to print the BDD that labels the edge
+    // We need the dictionary to print the BDDs that label the edges
     const auto& dict = aut->get_dict();
 
     // Some meta-data...
@@ -119,6 +119,8 @@ corresponding BDD variable number, and then use for instance
         << (aut->prop_unambiguous() ? "yes\n" : "maybe\n");
     out << "State-Based Acc: "
         << (aut->prop_state_acc() ? "yes\n" : "maybe\n");
+    out << "Weak: "
+        << (aut->prop_weak() ? "yes\n" : "maybe\n");
     out << "Inherently Weak: "
         << (aut->prop_inherently_weak() ? "yes\n" : "maybe\n");
     out << "Stutter Invariant: "
@@ -158,6 +160,7 @@ Name: Fa | G(Fb & Fc)
 Deterministic: maybe
 Unambiguous: yes
 State-Based Acc: maybe
+Weak: maybe
 Inherently Weak: maybe
 Stutter Invariant: yes
 State 0:

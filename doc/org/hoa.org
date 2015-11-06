@@ -527,7 +527,7 @@ is parsed; this is for instance the case of =deterministic=,
 body of the file, and then return and error if what has been declared
 does not correspond to the reality.
 
-Some supported properties (like =inherently-weak=, =unambiguous=, or
+Some supported properties (like =weak=, =unambiguous=, or
 =stutter-invariant=) are not double-checked, because that would
 require too much additional operations.  Command-line tools that read
 HOA files all take a =--trust-hoa=no= option to ignore properties that
@@ -591,7 +591,8 @@ particular:
 | =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=) | can be re-checked with =--check=unambiguous=           |
 | =stutter-invariant= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=            |
 | =stutter-sensitive= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=            |
-| =inherently-weak=   | trusted | yes    | as stored                                   |                                                        |
+| =weak=              | trusted | yes    | as stored                                   |                                                        |
+| =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)          |                                                        |
 | =colored=           | ignored | no     | checked                                     |                                                        |
 
 ** Named properties

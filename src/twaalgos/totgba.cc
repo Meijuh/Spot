@@ -335,7 +335,7 @@ namespace spot
 	res = make_twa_graph(aut->get_dict());
 	res->set_init_state(res->new_state());
 	res->prop_state_acc(true);
-	res->prop_inherently_weak(true);
+	res->prop_weak(true);
 	res->prop_deterministic(true);
 	res->prop_stutter_invariant(true);
 	return res;

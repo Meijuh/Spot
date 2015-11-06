@@ -67,8 +67,7 @@ Start: 2
 AP: 1 "p1"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: implicit-labels state-acc complete deterministic
-properties: inherently-weak
+properties: implicit-labels state-acc complete deterministic weak
 --BODY--
 State: 0 {0}
 0 0

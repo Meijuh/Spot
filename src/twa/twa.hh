@@ -755,7 +755,8 @@ namespace spot
     struct bprop
     {
       bool state_based_acc:1;	// State-based acceptance.
-      bool inherently_weak:1;	// Weak automaton.
+      bool inherently_weak:1;	// Inherently Weak automaton.
+      bool weak:1;		// Weak automaton.
       bool deterministic:1;	// Deterministic automaton.
       bool unambiguous:1;	// Unambiguous automaton.
       bool stutter_invariant:1;	// Stutter invariant language.
@@ -830,6 +831,19 @@ namespace spot
       is.inherently_weak = val;
     }
 
+    bool prop_weak() const
+    {
+      return is.weak;
+    }
+
+    void prop_weak(bool val)
+    {
+      if (val)
+	is.inherently_weak = is.weak = true;
+      else
+	is.weak = false;
+    }
+
     bool prop_deterministic() const
     {
       return is.deterministic;
@@ -882,9 +896,9 @@ namespace spot
     struct prop_set
     {
       bool state_based;
-      bool inherently_weak;
-      bool deterministic;
-      bool stutter_inv;
+      bool inherently_weak;	// and weak
+      bool deterministic;	// and unambiguous
+      bool stutter_inv;		// and stutter_sensitive
 
       static prop_set all()
       {
@@ -899,7 +913,10 @@ namespace spot
       if (p.state_based)
 	prop_state_acc(other->prop_state_acc());
       if (p.inherently_weak)
-	prop_inherently_weak(other->prop_inherently_weak());
+	{
+	  prop_weak(other->prop_weak());
+	  prop_inherently_weak(other->prop_inherently_weak());
+	}
       if (p.deterministic)
 	{
 	  prop_deterministic(other->prop_deterministic());
@@ -917,7 +934,10 @@ namespace spot
       if (!p.state_based)
 	prop_state_acc(false);
       if (!p.inherently_weak)
-	prop_inherently_weak(false);
+	{
+	  prop_weak(false);
+	  prop_inherently_weak(false);
+	}
       if (!p.deterministic)
 	{
 	  prop_deterministic(false);

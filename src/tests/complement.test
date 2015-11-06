@@ -78,7 +78,7 @@ AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic inherently-weak
+properties: deterministic weak
 --BODY--
 State: 0
 [0] 2
