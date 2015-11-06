@@ -11,7 +11,7 @@ commands aren't up to the task either.
 First let's create an example automaton in HOA format.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltl2tgba 'Fa | G(Fb&Fc)' -H | tee tut21.hoa
+ltl2tgba -U -H 'Fa | G(Fb&Fc)' | tee tut21.hoa
 #+END_SRC
 
 #+RESULTS:
@@ -23,7 +23,7 @@ Start: 0
 AP: 3 "a" "b" "c"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels trans-acc complete
+properties: trans-labels explicit-labels trans-acc unambiguous
 properties: stutter-invariant
 --BODY--
 State: 0
@@ -36,10 +36,10 @@ State: 2
 [0] 1
 [!0] 2
 State: 3
-[1&2] 3 {0 1}
-[1&!2] 3 {0}
-[!1&2] 3 {1}
-[!1&!2] 3
+[!0&1&2] 3 {0 1}
+[!0&!1&2] 3 {1}
+[!0&1&!2] 3 {0}
+[!0&!1&!2] 3
 --END--
 #+end_example
 
@@ -81,7 +81,6 @@ corresponding BDD variable number, and then use for instance
         return 1;
       }
     custom_print(std::cout, pa->aut);
-    return 0;
   }
 
   void custom_print(std::ostream& out, spot::twa_graph_ptr& aut)
@@ -89,7 +88,7 @@ corresponding BDD variable number, and then use for instance
     // We need the dictionary to print the BDD that labels the edge
     const auto& dict = aut->get_dict();
 
-    // Print some meta-data
+    // Some meta-data...
     out << "Acceptance: " << aut->get_acceptance() << '\n';
     out << "Number of sets: " << aut->num_sets() << '\n';
     out << "Number of states: " << aut->num_states() << '\n';
@@ -99,14 +98,29 @@ corresponding BDD variable number, and then use for instance
     for (spot::formula ap: aut->ap())
         out << ' ' << ap << " (=" << dict->varnum(ap) << ')';
     out << '\n';
-    // For these methods, true means "it's sure", false means "I don't
-    // know".  These properties correspond to bits stored in the
-    // automaton, so they can be queried in constant time, and they are
-    // only set whenever they can be determined at a cheap cost.
+
+    // Arbitrary data can be attached to automata, by giving them
+    // a type and a name.  The HOA parser and printer both use the
+    // "automaton-name" to name the automaton.
+    if (auto name = aut->get_named_prop<std::string>("automaton-name"))
+       out << "Name: " << *name << '\n';
+
+    // For the following prop_*() methods, true means "it's sure", false
+    // means "I don't know".  These properties correspond to bits stored
+    // in the automaton, so they can be queried in constant time.  They
+    // are only set whenever they can be determined at a cheap cost: for
+    // instance any algorithm that always produce deterministic automata
+    // would set the deterministic bit on its output.  In this example,
+    // the properties that are set come from the "properties:" line of
+    // the input file.
     out << "Deterministic: "
         << (aut->prop_deterministic() ? "yes\n" : "maybe\n");
-    out << "StateBasedAcc: "
+    out << "Unambiguous: "
+        << (aut->prop_unambiguous() ? "yes\n" : "maybe\n");
+    out << "State-Based Acc: "
         << (aut->prop_state_acc() ? "yes\n" : "maybe\n");
+    out << "Inherently Weak: "
+        << (aut->prop_inherently_weak() ? "yes\n" : "maybe\n");
     out << "Stutter Invariant: "
         << (aut->prop_stutter_invariant() ? "yes\n" :
             aut->prop_stutter_sensitive() ? "no\n" : "maybe\n");
@@ -140,8 +154,11 @@ Number of states: 4
 Number of edges: 10
 Initial state: 0
 Atomic propositions: a (=0) b (=1) c (=2)
+Name: Fa | G(Fb & Fc)
 Deterministic: maybe
-StateBasedAcc: maybe
+Unambiguous: yes
+State-Based Acc: maybe
+Inherently Weak: maybe
 Stutter Invariant: yes
 State 0:
   edge(0 -> 1)
@@ -166,16 +183,16 @@ State 2:
     acc sets = {}
 State 3:
   edge(3 -> 3)
-    label = b & c
+    label = !a & b & c
     acc sets = {0,1}
   edge(3 -> 3)
-    label = b & !c
-    acc sets = {0}
-  edge(3 -> 3)
-    label = !b & c
+    label = !a & !b & c
     acc sets = {1}
   edge(3 -> 3)
-    label = !b & !c
+    label = !a & b & !c
+    acc sets = {0}
+  edge(3 -> 3)
+    label = !a & !b & !c
     acc sets = {}
 #+end_example
 
