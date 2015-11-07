@@ -590,7 +590,7 @@ namespace spot
     // the case where the input is terminal.  See issue #120.
     // (2) It would be nice to have a more precise detection of
     // terminal automata in the output.  Calling
-    // is_guarantee_automaton() seems overkill here.  But maybe we can
+    // is_terminal_automaton() seems overkill here.  But maybe we can
     // add a quick check inside minimize_dfa.
     if (a->prop_terminal())
       res->prop_terminal(true);
@@ -625,7 +625,7 @@ namespace spot
 
     // If aut_f is a guarantee automaton, the WDBA minimization must be
     // correct.
-    if (is_guarantee_automaton(aut_f))
+    if (is_terminal_automaton(aut_f))
       return min_aut_f;
 
     // Build negation automaton if not supplied.
@@ -654,10 +654,8 @@ namespace spot
 
     // If the negation is a guarantee automaton, then the
     // minimization is correct.
-    if (is_guarantee_automaton(aut_neg_f))
-      {
-	return min_aut_f;
-      }
+    if (is_terminal_automaton(aut_neg_f))
+      return min_aut_f;
 
     bool ok = false;
 

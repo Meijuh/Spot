@@ -23,30 +23,18 @@
 
 namespace spot
 {
-  /// \brief Whether an automaton represents a guarantee property.
+  /// \brief Whether an automaton is terminal.
   ///
-  /// A weak deterministic TGBA represents a guarantee property if any
-  /// accepting path ends on an accepting state with only one
-  /// transition that is a self-loop labelled by true.
-  ///
-  /// Note that in the general case, this is only a sufficient
-  /// condition : some guarantee automata might not be recognized with
-  /// this check e.g. because of some non-determinism in the
-  /// automaton.  In that case, you should interpret a \c false return
-  /// value as "I don't know".
-  ///
-  /// If you apply this function on a weak deterministic TGBA
-  /// (e.g. after a successful minimization with
-  /// minimize_obligation()), then the result leaves no doubt: false
-  /// really means that the automaton is not a guarantee property.
+  /// An automaton is terminal if any accepting path ends on an
+  /// accepting state with only one transition that is a self-loop
+  /// labelled by true.
   ///
   /// \param aut the automaton to check
   ///
   /// \param sm an scc_info object for the automaton if available (it
   /// will be built otherwise).
   SPOT_API bool
-  is_guarantee_automaton(const const_twa_graph_ptr& aut,
-			 scc_info* sm = nullptr);
+  is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
 
   /// \brief Whether a minimized WDBA represents a safety property.
   ///

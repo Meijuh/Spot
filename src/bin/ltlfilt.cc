@@ -589,7 +589,7 @@ namespace
 	    }
 	  else
 	    {
-	      matched &= !guarantee || is_guarantee_automaton(min);
+	      matched &= !guarantee || is_terminal_automaton(min);
 	      matched &= !safety || is_safety_mwdba(min);
 	    }
 	}

@@ -33,6 +33,9 @@ New in spot 1.99.5a (not yet released)
     automata already tagged as "deterministic", and "inherently-weak"
     or "weak" even for automata tagged "weak" or "terminal".
 
+  * Renamings:
+    is_guarantee_automaton() -> is_terminal_automaton()
+
   Python:
   * Add bindings for is_unambiguous().
 

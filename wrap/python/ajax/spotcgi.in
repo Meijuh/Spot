@@ -516,7 +516,7 @@ if output_type == 'f':
             automaton = spot.ltl_to_tgba_fm(f, dict, False, True)
             minimized = spot.minimize_obligation(automaton, f)
             if minimized != automaton:
-                g = spot.is_guarantee_automaton(minimized)
+                g = spot.is_terminal_automaton(minimized)
                 s = spot.is_safety_mwdba(minimized)
                 if s and not f.is_syntactic_safety():
                     unbufprint('<li>pathologic safety</li>')

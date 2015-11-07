@@ -24,8 +24,7 @@
 namespace spot
 {
   bool
-  is_guarantee_automaton(const const_twa_graph_ptr& aut,
-			 scc_info* si)
+  is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* si)
   {
     if (aut->prop_terminal())
       return true;

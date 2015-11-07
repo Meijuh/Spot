@@ -1432,7 +1432,7 @@ checked_main(int argc, char** argv)
 		}
 	      else
 		{
-		  bool g = is_guarantee_automaton(ensure_digraph(a));
+		  bool g = is_terminal_automaton(ensure_digraph(a));
 		  bool s = is_safety_mwdba(ensure_digraph(a));
 		  if (g && !s)
 		    {
