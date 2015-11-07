@@ -25,9 +25,8 @@ namespace spot
 {
   /// \brief Whether an automaton is terminal.
   ///
-  /// An automaton is terminal if any accepting path ends on an
-  /// accepting state with only one transition that is a self-loop
-  /// labelled by true.
+  /// An automaton is terminal if it is weak, and all accepting SCCs
+  /// are complete.
   ///
   /// \param aut the automaton to check
   ///
@@ -35,6 +34,19 @@ namespace spot
   /// will be built otherwise).
   SPOT_API bool
   is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
+
+
+  /// \brief Whether an automaton is weak.
+  ///
+  /// An automaton is weak if if any given SCC, all transitions belong
+  /// to the same acceptance sets.
+  ///
+  /// \param aut the automaton to check
+  ///
+  /// \param sm an scc_info object for the automaton if available (it
+  /// will be built otherwise).
+  SPOT_API bool
+  is_weak_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
 
   /// \brief Whether a minimized WDBA represents a safety property.
   ///

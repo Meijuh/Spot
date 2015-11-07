@@ -51,6 +51,8 @@ EOF
 run 0 $autfilt --hoa input > stdout
 diff stdout input
 
+test `$autfilt -c --is-weak input` = 0
+
 # Transition merging
 cat >input <<\EOF
 HOA: v1
@@ -714,6 +716,9 @@ State: 2 {0 1} [0] 2
 --END--
 EOF
 
+test `$autfilt --is-weak -c input4` = 1
+test `$autfilt --is-terminal -c input4` = 0
+
 $autfilt -H --small --high input4 >output4
 $autfilt -H --small input4 >output4b
 $autfilt -H --high input4 >output4c
@@ -742,6 +747,12 @@ diff output4b expect4
 diff output4c expect4
 
 $autfilt -Hv --small input4 >output5
+test `$autfilt --is-weak -c output4` = 1
+test `$autfilt --is-terminal -c output4` = 0
+
+sed 's/\[0\]/[t]/g' expect4 > output4d
+test `$autfilt --is-terminal -c output4d` = 1
+
 
 cat >expect5<<EOF
 HOA: v1

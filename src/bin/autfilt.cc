@@ -57,6 +57,7 @@
 #include "twaalgos/cleanacc.hh"
 #include "twaalgos/dtgbasat.hh"
 #include "twaalgos/complement.hh"
+#include "twaalgos/strength.hh"
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter omega-automata.\v\
@@ -85,6 +86,8 @@ enum {
   OPT_IS_DETERMINISTIC,
   OPT_IS_EMPTY,
   OPT_IS_UNAMBIGUOUS,
+  OPT_IS_TERMINAL,
+  OPT_IS_WEAK,
   OPT_KEEP_STATES,
   OPT_MASK_ACC,
   OPT_MERGE,
@@ -189,6 +192,10 @@ static const argp_option options[] =
       "keep automata with an empty language", 0 },
     { "is-unambiguous", OPT_IS_UNAMBIGUOUS, nullptr, 0,
       "keep only unambiguous automata", 0 },
+    { "is-terminal", OPT_IS_TERMINAL, nullptr, 0,
+      "keep only terminal automata", 0 },
+    { "is-weak", OPT_IS_WEAK, nullptr, 0,
+      "keep only weak automata", 0 },
     { "intersect", OPT_INTERSECT, "FILENAME", 0,
       "keep automata whose languages have an non-empty intersection with"
       " the automaton from FILENAME", 0 },
@@ -255,6 +262,8 @@ static bool opt_merge = false;
 static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
 static bool opt_is_unambiguous = false;
+static bool opt_is_terminal = false;
+static bool opt_is_weak = false;
 static bool opt_invert = false;
 static range opt_states = { 0, std::numeric_limits<int>::max() };
 static range opt_edges = { 0, std::numeric_limits<int>::max() };
@@ -364,6 +373,12 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_IS_UNAMBIGUOUS:
       opt_is_unambiguous = true;
+      break;
+    case OPT_IS_TERMINAL:
+      opt_is_terminal = true;
+      break;
+    case OPT_IS_WEAK:
+      opt_is_weak = true;
       break;
     case OPT_MERGE:
       opt_merge = true;
@@ -567,6 +582,10 @@ namespace
 	matched &= is_deterministic(aut);
       else if (opt_is_unambiguous)
 	matched &= is_unambiguous(aut);
+      if (opt_is_terminal)
+	matched &= is_terminal_automaton(aut);
+      else if (opt_is_weak)
+	matched &= is_weak_automaton(aut);
       if (opt->are_isomorphic)
         matched &= opt->isomorphism_checker->is_isomorphic(aut);
       if (opt_is_empty)

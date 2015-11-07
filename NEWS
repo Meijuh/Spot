@@ -1,5 +1,9 @@
 New in spot 1.99.5a (not yet released)
 
+  Command-line tools:
+
+  * autfilt has two now filters: --is-weak and --is-terminal.
+
   Library:
 
   * Properties of automata (like the "properties:" line of the HOA
