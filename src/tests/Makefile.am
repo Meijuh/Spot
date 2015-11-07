@@ -229,6 +229,7 @@ TESTS_twa = \
   uniq.test \
   sbacc.test \
   stutter-tgba.test \
+  strength.test \
   emptchk.test \
   emptchke.test \
   dfs.test \

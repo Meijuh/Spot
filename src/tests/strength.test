@@ -1,0 +1,166 @@
+#!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2015 Laboratoire de Recherche et Developpement
+# de l'Epita
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+. ./defs
+
+set -e
+
+autfilt=../../bin/autfilt
+
+cat >in <<EOF
+HOA: v1
+name: "a U b"
+States: 2
+Start: 1
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[t] 0
+State: 1
+[1] 0
+[0&!1] 1
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[0] 0 {0}
+[!0] 1 {0}
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+Acceptance: 2 Inf(0)|Inf(1)
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[0] 0 {1}
+[!0] 1 {0}
+--END--
+HOA: v1
+States: 2
+Start: 1
+Acceptance: 0 t
+--BODY--
+State: 0
+[t] 1
+State: 1
+[t] 0
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[!0] 1 {0}
+--END--
+EOF
+
+run 0 $autfilt -H --check=strength in | tee out
+
+cat >expected <<EOF
+HOA: v1
+name: "a U b"
+States: 2
+Start: 1
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: terminal
+--BODY--
+State: 0 {0}
+[t] 0
+State: 1
+[1] 0
+[0&!1] 1
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc colored complete
+properties: deterministic terminal
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1 {0}
+[0] 0
+[!0] 1
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+Acceptance: 2 Inf(0) | Inf(1)
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic
+--BODY--
+State: 0
+[t] 1 {0}
+State: 1
+[0] 0 {1}
+[!0] 1 {0}
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 0
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic terminal
+--BODY--
+State: 0
+[t] 1
+State: 1
+[t] 0
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc colored
+properties: deterministic weak
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1 {0}
+[!0] 1
+--END--
+EOF
+
+diff out expected

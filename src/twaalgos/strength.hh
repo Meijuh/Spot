@@ -58,4 +58,14 @@ namespace spot
   SPOT_API bool
   is_safety_mwdba(const const_twa_graph_ptr& aut);
 
+  /// \brief Whether an automaton is weak or terminal.
+  ///
+  /// This sets the "weak" and "terminal" property as appropriate.
+  ///
+  /// \param aut the automaton to check
+  ///
+  /// \param sm an scc_info object for the automaton if available (it
+  /// will be built otherwise).
+  SPOT_API void
+  check_strength(const twa_graph_ptr& aut, scc_info* sm = nullptr);
 }

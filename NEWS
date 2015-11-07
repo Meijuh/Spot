@@ -4,6 +4,12 @@ New in spot 1.99.5a (not yet released)
 
   * autfilt has two now filters: --is-weak and --is-terminal.
 
+  * All tools that output HOA files accept a --check=strength option
+    to request automata to be marked as "weak" or "terminal" as
+    appropriate.  Without this option, these properties may only be
+    set as a side-effect of running transformations that use this
+    information.
+
   Library:
 
   * Properties of automata (like the "properties:" line of the HOA

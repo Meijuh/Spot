@@ -26,8 +26,8 @@ namespace spot
 {
   namespace
   {
-    template <bool terminal>
-    bool is_type_automaton(const const_twa_graph_ptr& aut, scc_info* si)
+    template <bool terminal, bool set = false>
+    bool is_type_automaton(const twa_graph_ptr& aut, scc_info* si)
     {
       // Create an scc_info if the user did not give one to us.
       bool need_si = !si;
@@ -35,7 +35,8 @@ namespace spot
 	si = new scc_info(aut);
       si->determine_unknown_acceptance();
 
-      bool result = true;
+      bool is_weak = true;
+      bool is_term = true;
       unsigned n = si->scc_count();
       for (unsigned i = 0; i < n; ++i)
 	{
@@ -54,33 +55,49 @@ namespace spot
 		    }
 		  else if (m != t.acc)
 		    {
-		      result = false;
+		      is_weak = false;
 		      goto exit;
 		    }
 		}
 	  if (terminal && si->is_accepting_scc(i) && !is_complete_scc(*si, i))
 	    {
-	      result = false;
-	      break;
+	      is_term = false;
+	      if (!set)
+		break;
 	    }
 	}
     exit:
       if (need_si)
 	delete si;
-      return result;
+      if (set)
+	{
+	  if (terminal)
+	    aut->prop_terminal(is_term && is_weak);
+	  aut->prop_weak(is_weak);
+	}
+      return is_weak && is_term;
     }
   }
 
   bool
   is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* si)
   {
-    return aut->prop_terminal() || is_type_automaton<true>(aut, si);
+    return (aut->prop_terminal() ||
+	    is_type_automaton<true>(std::const_pointer_cast<twa_graph>(aut),
+				    si));
   }
 
   bool
   is_weak_automaton(const const_twa_graph_ptr& aut, scc_info* si)
   {
-    return aut->prop_weak() || is_type_automaton<false>(aut, si);
+    return (aut->prop_weak() ||
+	    is_type_automaton<false>(std::const_pointer_cast<twa_graph>(aut),
+				     si));
+  }
+
+  void check_strength(const twa_graph_ptr& aut, scc_info* si)
+  {
+    is_type_automaton<true, true>(aut, si);
   }
 
   bool is_safety_mwdba(const const_twa_graph_ptr& aut)
