@@ -584,6 +584,16 @@ namespace spot
     res->prop_copy(a, { false, false, false, true });
     res->prop_deterministic(true);
     res->prop_weak(true);
+    // If the input was terminal, then the output is also terminal.
+    // FIXME:
+    // (1) We should have a specialized version of this function for
+    // the case where the input is terminal.  See issue #120.
+    // (2) It would be nice to have a more precise detection of
+    // terminal automata in the output.  Calling
+    // is_guarantee_automaton() seems overkill here.  But maybe we can
+    // add a quick check inside minimize_dfa.
+    if (a->prop_terminal())
+      res->prop_terminal(true);
     return res;
   }
 

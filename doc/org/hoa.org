@@ -591,7 +591,8 @@ particular:
 | =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=) | can be re-checked with =--check=unambiguous=           |
 | =stutter-invariant= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=            |
 | =stutter-sensitive= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=            |
-| =weak=              | trusted | yes    | as stored                                   |                                                        |
+| =terminal=          | trusted | yes    | as stored                                   |                                                        |
+| =weak=              | trusted | yes    | as stored if (=-Hv= or not =terminal=)      |                                                        |
 | =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)          |                                                        |
 | =colored=           | ignored | no     | checked                                     |                                                        |
 

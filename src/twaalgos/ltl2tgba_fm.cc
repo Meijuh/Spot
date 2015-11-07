@@ -1972,6 +1972,8 @@ namespace spot
       }
     bdd all_events = observable_events | unobservable_events;
 
+    auto orig_f = f2;
+
     // This is in case the initial state is equivalent to true...
     if (symb_merge)
       f2 = fc.canonize(f2);
@@ -2172,9 +2174,6 @@ namespace spot
 	}
       }
 
-    // Set the following to true to preserve state names.
-    a->release_formula_namer(namer, false);
-
     auto& acc = a->acc();
     unsigned ns = a->num_states();
     for (unsigned s = 0; s < ns; ++s)
@@ -2185,9 +2184,17 @@ namespace spot
 
     a->prop_inherently_weak(f2.is_syntactic_persistence());
     a->prop_stutter_invariant(f2.is_syntactic_stutter_invariant());
+    if (orig_f.is_syntactic_guarantee())
+      {
+	a->prop_terminal(true);
+	assert(a->num_sets() <= 1);
+      }
 
     // Currently the unambiguous option work only with LTL.
     a->prop_unambiguous(f2.is_ltl_formula() && unambiguous);
+
+    // Set the following to true to preserve state names.
+    a->release_formula_namer(namer, false);
 
     if (!simplifier)
       // This should not be deleted before we have registered all propositions.

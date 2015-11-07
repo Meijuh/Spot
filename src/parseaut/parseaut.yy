@@ -429,17 +429,15 @@ header: format-version header-items
 	  }
 	  if (res.opts.trust_hoa)
 	    {
-	      auto e = res.props.end();
-	      bool si = res.props.find("stutter-invariant") != e;
-	      res.h->aut->prop_stutter_invariant(si);
-	      bool ss = res.props.find("stutter-sensitive") != e;
-	      res.h->aut->prop_stutter_sensitive(ss);
-	      bool iw = res.props.find("inherently-weak") != e;
-	      res.h->aut->prop_inherently_weak(iw);
-	      bool wk = res.props.find("weak") != e;
-	      res.h->aut->prop_weak(wk);
-	      bool un = res.props.find("unambiguous") != e;
-	      res.h->aut->prop_unambiguous(un);
+	      auto& a = res.h->aut;
+	      auto& p = res.props;
+	      auto e = p.end();
+	      a->prop_stutter_invariant(p.find("stutter-invariant") != e);
+	      a->prop_stutter_sensitive(p.find("stutter-sensitive") != e);
+	      a->prop_inherently_weak(p.find("inherently-weak") != e);
+	      a->prop_weak(p.find("weak") != e);
+	      a->prop_terminal(p.find("terminal") != e);
+	      a->prop_unambiguous(p.find("unambiguous") != e);
 	    }
 	}
 

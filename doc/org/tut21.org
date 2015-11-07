@@ -119,6 +119,8 @@ corresponding BDD variable number, and then use for instance
         << (aut->prop_unambiguous() ? "yes\n" : "maybe\n");
     out << "State-Based Acc: "
         << (aut->prop_state_acc() ? "yes\n" : "maybe\n");
+    out << "Terminal: "
+        << (aut->prop_terminal() ? "yes\n" : "maybe\n");
     out << "Weak: "
         << (aut->prop_weak() ? "yes\n" : "maybe\n");
     out << "Inherently Weak: "
@@ -160,6 +162,7 @@ Name: Fa | G(Fb & Fc)
 Deterministic: maybe
 Unambiguous: yes
 State-Based Acc: maybe
+Terminal: maybe
 Weak: maybe
 Inherently Weak: maybe
 Stutter Invariant: yes

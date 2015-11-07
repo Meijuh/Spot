@@ -53,7 +53,7 @@ AP: 1 "a"
 acc-name: all
 Acceptance: 0 t
 properties: trans-labels explicit-labels state-acc deterministic
-properties: stutter-invariant inherently-weak
+properties: stutter-invariant terminal
 --BODY--
 State: 0
 [t] 0

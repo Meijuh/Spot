@@ -425,7 +425,9 @@ namespace spot
       prop(" stutter-invariant");
     if (aut->prop_stutter_sensitive())
       prop(" stutter-sensitive");
-    if (aut->prop_weak())
+    if (aut->prop_terminal())
+      prop(" terminal");
+    if (aut->prop_weak() && (verbose || !aut->prop_terminal()))
       prop(" weak");
     if (aut->prop_inherently_weak() && (verbose || !aut->prop_weak()))
       prop(" inherently-weak");

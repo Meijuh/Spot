@@ -27,6 +27,8 @@ namespace spot
   is_guarantee_automaton(const const_twa_graph_ptr& aut,
 			 scc_info* si)
   {
+    if (aut->prop_terminal())
+      return true;
     // Create an scc_info if the user did not give one to us.
     bool need_si = !si;
     if (need_si)

@@ -757,6 +757,7 @@ namespace spot
       bool state_based_acc:1;	// State-based acceptance.
       bool inherently_weak:1;	// Inherently Weak automaton.
       bool weak:1;		// Weak automaton.
+      bool terminal:1;		// Terminal automaton.
       bool deterministic:1;	// Deterministic automaton.
       bool unambiguous:1;	// Unambiguous automaton.
       bool stutter_invariant:1;	// Stutter invariant language.
@@ -829,6 +830,19 @@ namespace spot
     void prop_inherently_weak(bool val)
     {
       is.inherently_weak = val;
+    }
+
+    bool prop_terminal() const
+    {
+      return is.terminal;
+    }
+
+    void prop_terminal(bool val)
+    {
+      if (val)
+	is.inherently_weak = is.weak = is.terminal = true;
+      else
+	is.terminal = false;
     }
 
     bool prop_weak() const
@@ -914,6 +928,7 @@ namespace spot
 	prop_state_acc(other->prop_state_acc());
       if (p.inherently_weak)
 	{
+	  prop_terminal(other->prop_terminal());
 	  prop_weak(other->prop_weak());
 	  prop_inherently_weak(other->prop_inherently_weak());
 	}
@@ -935,6 +950,7 @@ namespace spot
 	prop_state_acc(false);
       if (!p.inherently_weak)
 	{
+	  prop_terminal(false);
 	  prop_weak(false);
 	  prop_inherently_weak(false);
 	}

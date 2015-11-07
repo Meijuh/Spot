@@ -22,16 +22,16 @@ New in spot 1.99.5a (not yet released)
     Boolean argument.  This argument used to be optionnal (defaulting
     to True), but it no longer is.
 
-  * Automata now support the "weak" property in addition to the
-    previously supported "inherently-weak".
+  * Automata now support the "weak" and "terminal" properties in
+    addition to the previously supported "inherently-weak".
 
-  * By default the HOA printer tries to not bloat the output with
-    properties that are probably useless.  The HOA printer now has a
-    new option "v" (use "-Hv" from the command line) to output more
-    verbose "properties:".  This currently includes outputing
-    "no-univ-branch", outputting "unambiguous" even for automata
-    already tagged as "deterministic", and "inherently-weak" even
-    for automata tagged as "weak".
+  * By default the HOA printer tries not to bloat the output with
+    properties that are redundant and probably useless.  The HOA
+    printer now has a new option "v" (use "-Hv" from the command line)
+    to output more verbose "properties:".  This currently includes
+    outputing "no-univ-branch", outputting "unambiguous" even for
+    automata already tagged as "deterministic", and "inherently-weak"
+    or "weak" even for automata tagged "weak" or "terminal".
 
   Python:
   * Add bindings for is_unambiguous().
