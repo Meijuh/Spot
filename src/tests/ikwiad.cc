@@ -44,7 +44,7 @@
 #include "taalgos/minimize.hh"
 #include "twaalgos/neverclaim.hh"
 #include "twaalgos/sccfilter.hh"
-#include "twaalgos/safety.hh"
+#include "twaalgos/strength.hh"
 #include "twaalgos/gtec/gtec.hh"
 #include "misc/timer.hh"
 #include "twaalgos/stats.hh"

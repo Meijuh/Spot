@@ -24,7 +24,7 @@
 #include "ltl2tgba_fm.hh"
 #include "minimize.hh"
 #include "simulation.hh"
-#include "safety.hh"
+#include "strength.hh"
 #include "tl/print.hh"
 #include <queue>
 #include <sstream>

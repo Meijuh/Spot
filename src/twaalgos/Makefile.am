@@ -65,7 +65,7 @@ twaalgos_HEADERS = \
   relabel.hh \
   remfin.hh \
   remprop.hh \
-  safety.hh \
+  strength.hh \
   sbacc.hh \
   sccfilter.hh \
   sccinfo.hh \
@@ -120,7 +120,7 @@ libtwaalgos_la_SOURCES = \
   remfin.cc \
   remprop.cc \
   relabel.cc \
-  safety.cc \
+  strength.cc \
   sbacc.cc \
   sccinfo.cc \
   sccfilter.cc \

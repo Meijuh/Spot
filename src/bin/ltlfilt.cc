@@ -45,7 +45,7 @@
 #include "tl/print.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/minimize.hh"
-#include "twaalgos/safety.hh"
+#include "twaalgos/strength.hh"
 #include "twaalgos/stutter.hh"
 
 const char argp_program_doc[] ="\
