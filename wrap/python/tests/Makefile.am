@@ -37,6 +37,7 @@ TESTS = \
   automata.ipynb \
   automata-io.ipynb \
   bddnqueen.py \
+  decompose.ipynb \
   formulas.ipynb \
   implies.py \
   interdep.py \

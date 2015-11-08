@@ -148,6 +148,33 @@ namespace spot
 	    (std::string("unknown option for decompose_strength(): ") + c);
 	}
 
+    acc_cond::mark_t wacc = 0U;	// Acceptance for weak SCCs
+    acc_cond::mark_t uacc = 0U;	// Acceptance for "needed" SCCs, that
+				// we only want to traverse.
+
+    // If the acceptance condition is always satisfiable, we will
+    // consider the automaton has weak (even if that is not the
+    // case syntactically) and not output any strong part.
+    bool all_accepting = false;
+    if (aut->acc().is_tt())
+      {
+	all_accepting = true;
+      }
+    else if (aut->acc().uses_fin_acceptance())
+      {
+	auto p = aut->get_acceptance().unsat_mark();
+	if (p.first)
+	  uacc = p.second;
+	else
+	  all_accepting = true;
+      }
+    if (all_accepting)
+      {
+	keep &= ~Strong;
+	if (keep == Ignore)
+	  return nullptr;
+      }
+
     scc_info si(aut);
     si.determine_unknown_acceptance();
 
@@ -160,7 +187,7 @@ namespace spot
       {
 	if (si.is_accepting_scc(i))
 	  {
-	    if (is_weak_scc(si, i))
+	    if (all_accepting | is_weak_scc(si, i))
 	      {
 		if (keep & Weak)
 		  {
@@ -194,23 +221,10 @@ namespace spot
     res->copy_ap_of(aut);
     res->prop_copy(aut, { true, false, true, false });
 
-    acc_cond::mark_t wacc = 0U;	// Acceptance for weak SCCs
-    acc_cond::mark_t uacc = 0U;	// Acceptance for "needed" SCCs, that
-				// we only want to traverse.
     if (keep & Strong)
-      {
-	res->copy_acceptance_of(aut);
-	auto& ac = res->acc();
-	if (ac.uses_fin_acceptance())
-	  // Note that we ignore the cases where the acceptance
-	  // condition is always satisfiable.  In that case
-	  // uacc will be set to 0U, which will be satisfiable
-	  uacc = ac.get_acceptance().unsat_mark().second;
-      }
+      res->copy_acceptance_of(aut);
     else
-      {
-	wacc = res->set_buchi();
-      }
+      wacc = res->set_buchi();
 
     auto fun = [&si, &want, uacc, wacc, keep]
       (unsigned src, bdd& cond, acc_cond::mark_t& acc, unsigned dst)

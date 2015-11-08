@@ -535,14 +535,14 @@ HOA: v1
 States: 2
 Start: 0
 AP: 0
-acc-name: all
-Acceptance: 0 t
-properties: trans-labels explicit-labels state-acc complete
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc colored complete
 properties: deterministic weak
 --BODY--
-State: 0
+State: 0 {0}
 [t] 1
-State: 1
+State: 1 {0}
 [t] 0
 --END--
 HOA: v1

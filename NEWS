@@ -6,6 +6,8 @@ New in spot 1.99.5a (not yet released)
 
   * autfilt has a new transformation: --decompose-strength,
     implementing the decomposition of our TACAS'13 paper.
+    A demonstration of this feature via the Python bindings
+    can be found at https://spot.lrde.epita.fr/ipynb/decompose.html
 
   * All tools that output HOA files accept a --check=strength option
     to request automata to be marked as "weak" or "terminal" as

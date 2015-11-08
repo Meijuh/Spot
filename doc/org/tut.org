@@ -54,5 +54,6 @@ real notebooks instead.
   after acceptance simplification
 - [[https://spot.lrde.epita.fr/ipynb/accparse.html][accparse.ipynb]] exercises the acceptance condition parser
 - [[https://spot.lrde.epita.fr/ipynb/randltl.html][randltl.ipynb]] demonstrates a Python-version of [[file:randltl.org][=randltl=]]
+- [[https://spot.lrde.epita.fr/ipynb/decompose.html][decompose.ipynb]] illustrates the =decompose_strength()= function
 - [[https://spot.lrde.epita.fr/ipynb/testingaut.html][testingaut.ipynb]] shows the step necessary to build a testing
   automaton
