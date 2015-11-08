@@ -2,7 +2,10 @@ New in spot 1.99.5a (not yet released)
 
   Command-line tools:
 
-  * autfilt has two now filters: --is-weak and --is-terminal.
+  * autfilt has two new filters: --is-weak and --is-terminal.
+
+  * autfilt has a new transformation: --decompose-strength,
+    implementing the decomposition of our TACAS'13 paper.
 
   * All tools that output HOA files accept a --check=strength option
     to request automata to be marked as "weak" or "terminal" as

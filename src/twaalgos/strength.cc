@@ -20,6 +20,7 @@
 #include "strength.hh"
 #include "misc/hash.hh"
 #include "isweakscc.hh"
+#include "mask.hh"
 #include <deque>
 
 namespace spot
@@ -113,5 +114,137 @@ namespace spot
   }
 
 
+  twa_graph_ptr
+  decompose_strength(const const_twa_graph_ptr& aut, const char* keep_opt)
+  {
+    if (keep_opt == nullptr || *keep_opt == 0)
+      throw std::runtime_error
+	(std::string("option for decompose_strength() should not be empty"));
 
+    enum strength {
+      Ignore = 0,
+      Terminal = 1,
+      WeakStrict = 2,
+      Weak = Terminal | WeakStrict,
+      Strong = 4,
+      Needed = 8,		// Needed SCCs are those that lead to
+				// the SCCs we want to keep.
+    };
+    unsigned char keep = Ignore;
+    while (auto c = *keep_opt++)
+      switch (c)
+	{
+	case 's':
+	  keep |= Strong;
+	  break;
+	case 't':
+	  keep |= Terminal;
+	  break;
+	case 'w':
+	  keep |= WeakStrict;
+	  break;
+	default:
+	  throw std::runtime_error
+	    (std::string("unknown option for decompose_strength(): ") + c);
+	}
+
+    scc_info si(aut);
+    si.determine_unknown_acceptance();
+
+    unsigned n = si.scc_count();
+    std::vector<unsigned char> want(n, Ignore);
+    bool nonempty = false;
+    bool strong_seen = false;
+
+    for (unsigned i = 0; i < n; ++i) // SCC are topologically ordered
+      {
+	if (si.is_accepting_scc(i))
+	  {
+	    if (is_weak_scc(si, i))
+	      {
+		if (keep & Weak)
+		  {
+		    if ((keep & Weak) == Weak)
+		      want[i] = Weak;
+		    else
+		      want[i] = keep &
+			(is_complete_scc(si, i) ? Terminal : WeakStrict);
+		  }
+	      }
+	    else
+	      {
+		want[i] = keep & Strong;
+		strong_seen = true;
+	      }
+	    nonempty |= want[i];
+	  }
+	// An SCC is needed if one of its successor is.
+	for (unsigned j: si.succ(i))
+	  if (want[j])
+	    {
+	      want[i] |= Needed;
+	      break;
+	    }
+      }
+
+    if (!nonempty)
+      return nullptr;
+
+    twa_graph_ptr res = make_twa_graph(aut->get_dict());
+    res->copy_ap_of(aut);
+    res->prop_copy(aut, { true, false, true, false });
+
+    acc_cond::mark_t wacc = 0U;	// Acceptance for weak SCCs
+    acc_cond::mark_t uacc = 0U;	// Acceptance for "needed" SCCs, that
+				// we only want to traverse.
+    if (keep & Strong)
+      {
+	res->copy_acceptance_of(aut);
+	auto& ac = res->acc();
+	if (ac.uses_fin_acceptance())
+	  // Note that we ignore the cases where the acceptance
+	  // condition is always satisfiable.  In that case
+	  // uacc will be set to 0U, which will be satisfiable
+	  uacc = ac.get_acceptance().unsat_mark().second;
+      }
+    else
+      {
+	wacc = res->set_buchi();
+      }
+
+    auto fun = [&si, &want, uacc, wacc, keep]
+      (unsigned src, bdd& cond, acc_cond::mark_t& acc, unsigned dst)
+      {
+	if (want[si.scc_of(dst)] == Ignore)
+	  {
+	    cond = bddfalse;
+	    return;
+	  }
+	if (want[si.scc_of(src)] == Needed)
+	  {
+	    acc = uacc;
+	    return;
+	  }
+	if (keep & Strong)
+	  return;
+	acc = wacc;
+      };
+
+    transform_accessible(aut, res, fun);
+
+    if (!(keep & Strong))
+      {
+	res->prop_weak(true);
+	if (!(keep & WeakStrict))
+	  {
+	    assert(keep & Terminal);
+	    res->prop_terminal(true);
+	  }
+      }
+    else
+      {
+	res->prop_weak(!strong_seen);
+      }
+    return res;
+  }
 }
