@@ -20,7 +20,8 @@
 #include <iostream>
 #include <cstring>
 
-#include "ltlparse/public.hh" // ltl::parse
+#include "tl/parse.hh" // spot::parse_infix_psl
+#include "tl/formula.hh" // spot::formula
 #include "parseaut/public.hh"
 #include "twa/twagraph.hh"
 #include "twaalgos/degen.hh"
@@ -96,22 +97,19 @@ int main(int argc, char* argv[])
   spot::twa_graph_ptr res;
   if (in_ltl)
     {
-      spot::ltl::parse_error_list pel;
-      const spot::ltl::formula* f =
-      spot::ltl::parse_infix_psl(input, pel);
-      if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+      spot::parse_error_list pel;
+      spot::formula f = spot::parse_infix_psl(input, pel);
+      if (spot::format_parse_errors(std::cerr, input, pel))
         return 2;
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
       res = spot::tgba_determinisation(tmp, sim, pretty_print, scc_opt);
-      f->destroy();
     }
   else if (in_hoa)
     {
-      spot::parse_aut_error_list pel;
-      auto aut = spot::parse_aut(input, pel, dict);
-      if (spot::format_parse_aut_errors(std::cerr, input, pel))
+      auto aut = spot::parse_aut(input, dict);
+      if (aut->format_errors(std::cerr))
         return 2;
       res = tgba_determinisation(aut->aut, sim, pretty_print, scc_opt);
     }

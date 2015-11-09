@@ -493,7 +493,7 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
     res->copy_ap_of(aut);
     res->prop_copy(aut,
                    { false, // state based
-                   true, // inherently_weak
+                   false, // inherently_weak
                    false, // deterministic
                    true // stutter inv
                    });
@@ -550,7 +550,7 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
     // Acceptance is now min(odd) since we con emit Red on paths 0 with new opti
     res->set_acceptance(sets, acc_cond::acc_code::parity(false, true, sets));
     res->prop_deterministic(true);
-    res->prop_state_based_acc(false);
+    res->prop_state_acc(false);
     if (bisimulation)
       res = simulation(res);
     if (pretty_print)
