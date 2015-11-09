@@ -1,6 +1,6 @@
 .\" -*- coding: utf-8 -*-
 [NAME]
-autfilt \- filter, convert, and transform Büchi automata
+autfilt \- filter, convert, and transform omega-automata
 [DESCRIPTION]
 .\" Add any additional description here
 [BIBLIOGRAPHY]
