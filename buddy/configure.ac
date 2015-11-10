@@ -19,6 +19,7 @@ AC_PROG_YACC
 AC_PROG_CXX
 
 LT_INIT([win32-dll])
+AX_BSYMBOLIC
 
 # Use -Werror since using -fvisibility under MinGW is only a warning.
 # (The option is ignored anyway since this does not make sense under windows).

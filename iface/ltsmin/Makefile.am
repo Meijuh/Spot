@@ -29,6 +29,7 @@ lib_LTLIBRARIES = libspotltsmin.la
 libspotltsmin_la_LIBADD = \
   $(top_builddir)/src/libspot.la \
   $(top_builddir)/ltdl/libltdlc.la -lpthread
+libspotltsmin_la_LDFLAGS = -no-undefined $(SYMBOLIC_LDFLAGS)
 libspotltsmin_la_SOURCES = ltsmin.cc
 
 noinst_PROGRAMS = modelcheck

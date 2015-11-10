@@ -36,7 +36,7 @@ MAINTAINERCLEANFILES = \
 ## spot
 
 _spot_impl_la_SOURCES = $(srcdir)/spot_impl_wrap.cxx
-_spot_impl_la_LDFLAGS = -avoid-version -module
+_spot_impl_la_LDFLAGS = -avoid-version -module -no-undefined $(SYMBOLIC_LDFLAGS)
 _spot_impl_la_LIBADD = $(top_builddir)/src/libspot.la
 
 $(srcdir)/spot_impl_wrap.cxx: $(srcdir)/spot_impl.i
@@ -49,7 +49,8 @@ $(srcdir)/spot_impl.py: $(srcdir)/spot_impl.i
 ## buddy
 
 _buddy_la_SOURCES = $(srcdir)/buddy_wrap.cxx
-_buddy_la_LDFLAGS = -avoid-version -module $(BUDDY_LDFLAGS)
+_buddy_la_LDFLAGS = -avoid-version -module $(BUDDY_LDFLAGS) \
+                    -no-undefined $(SYMBOLIC_LDFLAGS)
 
 $(srcdir)/buddy_wrap.cxx: $(srcdir)/buddy.i
 	$(SWIG) -c++ -python $(BUDDY_CPPFLAGS) $(srcdir)/buddy.i

@@ -30,7 +30,7 @@ SUBDIRS = misc priv tl graph twa twaalgos ta taalgos kripke	\
 
 lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =
-libspot_la_LDFLAGS = $(BUDDY_LDFLAGS) -no-undefined
+libspot_la_LDFLAGS = $(BUDDY_LDFLAGS) -no-undefined $(SYMBOLIC_LDFLAGS)
 libspot_la_LIBADD =  \
   kripke/libkripke.la \
   kripkeparse/libkripkeparse.la \

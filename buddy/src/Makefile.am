@@ -5,7 +5,7 @@ BUDDY_FLAGS = -I$(top_builddir) -DVERSION=23 -DBUDDY_DLL_EXPORTS -DBUDDY_DLL
 lib_LTLIBRARIES = libbddx.la
 # See the `Updating version info' node of the Libtool manual before
 # changing this.
-libbddx_la_LDFLAGS = -no-undefined -version-info 0:0:0
+libbddx_la_LDFLAGS = -no-undefined -version-info 0:0:0 $(SYMBOLIC_LDFLAGS)
 libbddx_la_CPPFLAGS = $(BUDDY_FLAGS)
 libbddx_la_SOURCES = \
  bddio.c \

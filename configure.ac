@@ -118,6 +118,7 @@ LTDL_INIT([subproject convenience])
 link_all_deplibs=yes
 link_all_deplibs_CXX=yes
 
+AX_BSYMBOLIC
 
 AC_ARG_ENABLE([python],
               [AC_HELP_STRING([--disable-python],
