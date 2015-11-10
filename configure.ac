@@ -44,8 +44,10 @@ AC_PROG_CXX
 AM_PROG_LEX
 adl_CHECK_BISON
 
-gl_INIT
+# Activate at C11 for gnulib tests
+AX_CHECK_COMPILE_FLAG([-std=c11], [CFLAGS="$CFLAGS -std=c11"])
 
+gl_INIT
 
 # Use -Werror since using -fvisibility under MinGW is only a warning.
 # (The option is ignored anyway since this does not make sense under windows).
