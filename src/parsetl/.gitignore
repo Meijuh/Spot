@@ -2,10 +2,10 @@
 Makefile
 Makefile.in
 location.hh
-ltlparse.cc
-ltlparse.hh
-ltlparse.output
-ltlscan.cc
+parsetl.cc
+parsetl.hh
+parsetl.output
+scantl.cc
 position.hh
 readltl
 stack.hh
