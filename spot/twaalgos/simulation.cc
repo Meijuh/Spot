@@ -344,10 +344,10 @@ namespace spot
       }
 
       // The core loop of the algorithm.
-      twa_graph_ptr run()
+      twa_graph_ptr run(std::map<int, bdd>* implications = nullptr)
       {
         main_loop();
-	return build_result();
+	return build_result(implications);
       }
 
       // Take a state and compute its signature.
@@ -484,7 +484,7 @@ namespace spot
       }
 
       // Build the minimal resulting automaton.
-      twa_graph_ptr build_result()
+      twa_graph_ptr build_result(std::map<int, bdd>* implications = nullptr)
       {
 	twa_graph_ptr res = make_twa_graph(a_->get_dict());
 	res->copy_ap_of(a_);
@@ -503,6 +503,8 @@ namespace spot
 	    // its class, or by all the implied classes.
 	    auto s = gb->new_state(cl.id());
 	    gb->alias_state(s, relation_[cl].id());
+            if (implications)
+              (*implications)[s] = relation_[cl];
           }
 
 	// Acceptance of states.  Only used if Sba && Cosimulation.
@@ -631,7 +633,7 @@ namespace spot
 
 	res->purge_unreachable_states();
 
-	delete gb;
+        delete gb;
 	res->prop_copy(original_,
 		       { false, // state-based acc forced below
 		         true,  // weakness preserved,
@@ -733,6 +735,14 @@ namespace spot
   {
     direct_simulation<false, false> simul(t);
     return simul.run();
+  }
+
+  twa_graph_ptr
+  simulation(const const_twa_graph_ptr& t,
+             std::map<int, bdd>* implications)
+  {
+    direct_simulation<false, false> simul(t);
+    return simul.run(implications);
   }
 
   twa_graph_ptr

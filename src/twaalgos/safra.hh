@@ -61,12 +61,19 @@ namespace spot
                                              bdd_hash>& deltas,
                            succs_t& res,
                            const scc_info& scc,
-                           bool scc_opt = false) const;
+                           const std::map<int, bdd>& implications,
+                           const std::vector<bool>& is_connected,
+                           bool scc_opt = false,
+                           bool use_bisimulation = false) const;
     // scc_id has to be an accepting SCC.  This function tries to find a node
     // who lives in that SCC and if it does, we return the brace_id of that SCC.
     unsigned find_scc_brace_id(unsigned scc_id, const scc_info& scc);
     // The outermost brace of each node cannot be green
     void ungreenify_last_brace();
+    // When a nodes a implies a node b, remove the node a.
+    void merge_redundant_states(const std::map<int, bdd>& implications,
+                                const scc_info& scc,
+                                const std::vector<bool>& is_connected);
     // Used when creating the list of successors
     // A new intermediate node is created with  src's braces and with dst as id
     // A merge is done if dst already existed in *this
@@ -90,5 +97,6 @@ namespace spot
   tgba_determinisation(const const_twa_graph_ptr& aut,
                        bool bisimulation = false,
                        bool pretty_print = false,
-                       bool scc_opt = false);
+                       bool scc_opt = false,
+                       bool use_bisimulation = false);
 }

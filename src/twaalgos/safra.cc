@@ -25,6 +25,7 @@
 
 #include "safra.hh"
 #include "twaalgos/degen.hh"
+#include "twaalgos/sccfilter.hh"
 #include "twaalgos/simulation.hh"
 
 namespace spot
@@ -186,7 +187,10 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
                                            bdd_hash>& deltas,
                             succs_t& res,
                             const scc_info& scc,
-                            bool scc_opt) const
+                            const std::map<int, bdd>& implications,
+                            const std::vector<bool>& is_connected,
+                            bool scc_opt,
+                            bool use_bisimulation) const
 {
   // Given a bdd returns index of associated safra_state in res
   std::map<unsigned, unsigned> bdd2num;
@@ -242,8 +246,42 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
     for (auto& s: res)
       {
         safra_state& tmp = s.first;
+        if (use_bisimulation)
+          tmp.merge_redundant_states(implications, scc, is_connected);
         tmp.ungreenify_last_brace();
         s.first.color_ = tmp.finalize_construction();
+      }
+  }
+
+  void
+  safra_state::merge_redundant_states(const std::map<int, bdd>& implications,
+                                      const scc_info& scc,
+                                      const std::vector<bool>& is_connected)
+  {
+    std::vector<int> to_remove;
+    for (auto& n1: nodes_)
+      {
+        for (auto& n2: nodes_)
+          {
+            if (n1 == n2)
+              continue;
+            // index to see if there is a path from scc2 -> scc1
+            unsigned idx = scc.scc_count() * scc.scc_of(n2.first) +
+                           scc.scc_of(n1.first);
+            if (bdd_implies(implications.at(n1.first),
+                            implications.at(n2.first)) && !is_connected[idx])
+            {
+              to_remove.push_back(n1.first);
+            }
+          }
+      }
+    for (auto& n: to_remove)
+      {
+        for (auto& brace: nodes_[n])
+          {
+            --nb_braces_[brace];
+          }
+        nodes_.erase(n);
       }
   }
 
@@ -438,17 +476,42 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
       }
   }
 
+  std::vector<bool>
+  find_scc_paths(const scc_info& scc)
+  {
+    unsigned scccount = scc.scc_count();
+    std::vector<bool> res(scccount * scccount, 0);
+    for (unsigned i = 0; i < scccount; ++i)
+      res[i + scccount * i] = 1;
+    for (unsigned i = 0; i < scccount; ++i)
+      {
+        std::stack<unsigned> s;
+        s.push(i);
+        while (!s.empty())
+          {
+            unsigned src = s.top();
+            s.pop();
+            for (auto& d: scc.succ(src))
+              {
+                s.push(d);
+                unsigned idx = scccount * i + d;
+                res[idx] = 1;
+              }
+          }
+      }
+    return res;
+  }
+
   twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& a, bool bisimulation,
-                       bool pretty_print, bool scc_opt)
+                       bool pretty_print, bool scc_opt, bool use_bisimulation)
   {
     // Degeneralize
-    twa_graph_ptr aut = spot::degeneralize_tba(a);
+    twa_graph_ptr aut = spot::scc_filter(spot::degeneralize_tba(a));
+    std::map<int, bdd> implications;
+    aut = simulation(aut, &implications);
     scc_info scc = scc_info(aut);
-    // TODO
-    // if (emit_scc)
-    //   emit_accepting_scc(aut, scc);
-
+    std::vector<bool> is_connected = find_scc_paths(scc);
 
     bdd allap = bddtrue;
     {
@@ -518,7 +581,8 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
         safra_state curr = todo.front();
         unsigned src_num = seen.find(curr)->second;
         todo.pop_front();
-        curr.compute_succs(aut, bddnums, deltas, succs, scc, scc_opt);
+        curr.compute_succs(aut, bddnums, deltas, succs, scc, implications,
+                           is_connected, scc_opt, use_bisimulation);
         for (auto s: succs)
           {
             auto i = seen.find(s.first);
@@ -551,6 +615,7 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
     res->set_acceptance(sets, acc_cond::acc_code::parity(false, true, sets));
     res->prop_deterministic(true);
     res->prop_state_acc(false);
+
     if (bisimulation)
       res = simulation(res);
     if (pretty_print)

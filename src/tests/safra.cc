@@ -46,6 +46,7 @@ int help()
 int main(int argc, char* argv[])
 {
   bool scc_opt = false;
+  bool use_bisim = false;
   bool sim = false;
   bool in_hoa = false;
   bool in_ltl = false;
@@ -83,6 +84,8 @@ int main(int argc, char* argv[])
         sim = true;
       else if (!strncmp(argv[i], "--scc_opt", 9))
         scc_opt = true;
+      else if (!strncmp(argv[i], "--bisim_opt", 10))
+        use_bisim = true;
       else
         {
           std::cerr << "Warning: " << argv[i] << " not used\n";
@@ -104,14 +107,16 @@ int main(int argc, char* argv[])
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
-      res = spot::tgba_determinisation(tmp, sim, pretty_print, scc_opt);
+      res = spot::tgba_determinisation(tmp, sim, pretty_print, scc_opt,
+                                       use_bisim);
     }
   else if (in_hoa)
     {
       auto aut = spot::parse_aut(input, dict);
       if (aut->format_errors(std::cerr))
         return 2;
-      res = tgba_determinisation(aut->aut, sim, pretty_print, scc_opt);
+      res = tgba_determinisation(aut->aut, sim, pretty_print, scc_opt,
+                                 use_bisim);
     }
   res->merge_edges();
 

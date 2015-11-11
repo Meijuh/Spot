@@ -70,6 +70,9 @@ namespace spot
   SPOT_API twa_graph_ptr
   simulation(const const_twa_graph_ptr& automaton);
   SPOT_API twa_graph_ptr
+  simulation(const const_twa_graph_ptr& automaton,
+                      std::map<int, bdd>* implementation);
+  SPOT_API twa_graph_ptr
   simulation_sba(const const_twa_graph_ptr& automaton);
   /// @}
 
