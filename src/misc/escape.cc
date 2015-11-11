@@ -23,10 +23,6 @@
 #include "config.h"
 #include <sstream>
 #include <ostream>
-#include <algorithm>
-#include <functional>
-#include <cctype>
-#include <locale>
 #include <cstring>
 #include "escape.hh"
 
@@ -131,18 +127,6 @@ namespace spot
     std::ostringstream os;
     escape_str(os, str);
     return os.str();
-  }
-
-  void
-  trim(std::string& str)
-  {
-    str.erase(std::find_if(str.rbegin(), str.rend(),
-			   std::not1(std::ptr_fun<int, int>
-				     (std::isspace))).base(),
-	      str.end());
-    str.erase(str.begin(),
-	      std::find_if(str.begin(), str.end(),
-			   std::not1(std::ptr_fun<int, int>(std::isspace))));
   }
 
   std::ostream&

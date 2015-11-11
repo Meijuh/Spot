@@ -26,7 +26,7 @@
 #include <string>
 #include <sys/stat.h>
 #include "parseaut/parsedecl.hh"
-#include "misc/escape.hh"
+#include "priv/trim.hh"
 
 #define YY_USER_ACTION yylloc->columns(yyleng);
 #define YY_NEVER_INTERACTIVE 1

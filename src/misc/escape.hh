@@ -62,10 +62,6 @@ namespace spot
   SPOT_API std::string
   escape_str(const std::string& str);
 
-  /// \brief Remove spaces at the front and back of \a str.
-  SPOT_API void
-  trim(std::string& str);
-
   /// \brief Output \a str between simple quote or double quotes
   ///
   /// Simple quotes are preferred unless \a str contains some simple

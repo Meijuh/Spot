@@ -31,7 +31,7 @@
 #include <string>
 
 #include "parsedecl.hh"
-#include "misc/escape.hh"
+#include "priv/trim.hh"
 
 #define YY_USER_ACTION \
   yylloc->columns(yyleng);
