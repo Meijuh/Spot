@@ -693,7 +693,7 @@ namespace
 	  {
 	    std::cerr << "; both automata accept the infinite word\n"
 		      << "       ";
-	    spot::tgba_word w(run->reduce());
+	    spot::twa_word w(run->reduce());
 	    w.simplify();
 	    w.print(example(), prod->get_dict()) << '\n';
 	  }

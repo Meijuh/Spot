@@ -178,7 +178,7 @@ public:
 	    {
 	      auto run = res->accepting_run();
 	      assert(run);
-	      spot::tgba_word w(run->reduce());
+	      spot::twa_word w(run->reduce());
 	      w.simplify();
 	      std::ostringstream out;
 	      w.print(out, aut->get_dict());

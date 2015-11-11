@@ -50,6 +50,7 @@ New in spot 1.99.5a (not yet released)
 
   * Renamings:
     is_guarantee_automaton() -> is_terminal_automaton()
+    tgba_run -> twa_run
 
   Python:
   * Add bindings for is_unambiguous().

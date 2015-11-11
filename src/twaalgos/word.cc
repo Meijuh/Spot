@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -23,18 +23,16 @@
 
 namespace spot
 {
-  tgba_word::tgba_word(const twa_run_ptr run)
+  twa_word::twa_word(const twa_run_ptr run)
   {
-    for (twa_run::steps::const_iterator i = run->prefix.begin();
-	 i != run->prefix.end(); ++i)
-      prefix.push_back(i->label);
-    for (twa_run::steps::const_iterator i = run->cycle.begin();
-	 i != run->cycle.end(); ++i)
-      cycle.push_back(i->label);
+    for (auto& i: run->prefix)
+      prefix.push_back(i.label);
+    for (auto& i: run->cycle)
+      cycle.push_back(i.label);
   }
 
   void
-  tgba_word::simplify()
+  twa_word::simplify()
   {
     // If all the formulas on the cycle are compatible, reduce the
     // cycle to a simple conjunction.
@@ -45,8 +43,8 @@ namespace spot
     //   !a|!b; b; a&b; cycle{a&b}
     {
       bdd all = bddtrue;
-      for (seq_t::const_iterator i = cycle.begin(); i != cycle.end(); ++i)
-	all &= *i;
+      for (auto& i: cycle)
+	all &= i;
       if (all != bddfalse)
 	{
 	  cycle.clear();
@@ -76,35 +74,32 @@ namespace spot
     //   !a|!b; cycle{a&b}
     // can be reduced to
     //   !a&!b; cycle{a&b}
-    for (seq_t::iterator i = prefix.begin(); i != prefix.end(); ++i)
-      *i = bdd_satone(*i);
-    for (seq_t::iterator i = cycle.begin(); i != cycle.end(); ++i)
-      *i = bdd_satone(*i);
-
+    for (auto& i: prefix)
+      i = bdd_satone(i);
+    for (auto& i: cycle)
+      i = bdd_satone(i);
   }
 
   std::ostream&
-  tgba_word::print(std::ostream& os, const bdd_dict_ptr& d) const
+  twa_word::print(std::ostream& os, const bdd_dict_ptr& d) const
   {
     if (!prefix.empty())
-      for (seq_t::const_iterator i = prefix.begin(); i != prefix.end(); ++i)
+      for (auto& i: prefix)
 	{
-	  bdd_print_formula(os, d, *i);
+	  bdd_print_formula(os, d, i);
 	  os << "; ";
 	}
     assert(!cycle.empty());
     bool notfirst = false;
     os << "cycle{";
-    for (seq_t::const_iterator i = cycle.begin(); i != cycle.end(); ++i)
+    for (auto& i: cycle)
       {
 	if (notfirst)
 	  os << "; ";
 	notfirst = true;
-	bdd_print_formula(os, d, *i);
+	bdd_print_formula(os, d, i);
       }
     os << '}';
     return os;
   }
-
-
 }
