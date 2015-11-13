@@ -48,6 +48,11 @@ New in spot 1.99.5a (not yet released)
     automata already tagged as "deterministic", and "inherently-weak"
     or "weak" even for automata tagged "weak" or "terminal".
 
+  * The dot output will display pair of states when displaying an
+    automaton built as an explicit product.  This works in IPython
+    with spot.product() or spot.product_or() and in the shell with
+    autfilt's --product or --product-or options.
+
   * Renamings:
     is_guarantee_automaton() -> is_terminal_automaton()
     tgba_run -> twa_run

@@ -56,6 +56,7 @@ namespace spot
       bool opt_html_labels_ = false;
       const_twa_graph_ptr aut_;
       std::vector<std::string>* sn_ = nullptr;
+      std::vector<std::pair<unsigned, unsigned>>* sprod_ = nullptr;
       std::string* name_ = nullptr;
       acc_cond::mark_t inf_sets_ = 0U;
       acc_cond::mark_t fin_sets_ = 0U;
@@ -385,6 +386,8 @@ namespace spot
 		os_ << '"';
 		if (has_name)
 		  escape_str(os_, (*sn_)[s]);
+		else if (sprod_)
+		  os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
 		else
 		  os_ << s;
 		if (acc)
@@ -399,6 +402,8 @@ namespace spot
 		os_ << '<';
 		if (has_name)
 		  escape_html(os_, (*sn_)[s]);
+		else if (sprod_)
+		  os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
 		else
 		  os_ << s;
 		if (acc)
@@ -416,6 +421,8 @@ namespace spot
 	    os_ << "  " << s << " [label=\"";
 	    if (sn_ && s < sn_->size() && !(*sn_)[s].empty())
 	      escape_str(os_, (*sn_)[s]);
+	    else if (sprod_)
+	      os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
 	    else
 	      os_ << s;
 	    os_ << '"';
@@ -466,13 +473,24 @@ namespace spot
       {
 	aut_ = aut;
 	if (opt_want_state_names_)
-	  sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
+	  {
+	    sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
+	    // We have no names.  Do we have product sources?
+	    if (!sn_)
+	      {
+		sprod_ = aut->get_named_prop
+		  <std::vector<std::pair<unsigned, unsigned>>>
+		  ("product-states");
+		if (sprod_ && aut->num_states() != sprod_->size())
+		  sprod_ = nullptr;
+	      }
+	  }
 	if (opt_name_)
 	  name_ = aut_->get_named_prop<std::string>("automaton-name");
 	mark_states_ = !opt_force_acc_trans_ && aut_->prop_state_acc();
 	if (opt_shape_ == ShapeAuto)
 	  {
-	    if (sn_ || aut->num_states() > 100)
+	    if (sn_ || sprod_ || aut->num_states() > 100)
 	      opt_shape_ = ShapeEllipse;
 	    else
 	      opt_shape_ = ShapeCircle;
