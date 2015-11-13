@@ -46,6 +46,7 @@ def _extend(*classes):
         return classes[0]
     return wrap
 
+_show_default = None
 
 def setup(**kwargs):
     """Configure Spot for fancy display.
@@ -68,6 +69,8 @@ def setup(**kwargs):
         (default: '10.2,5')
     font : str
         the font to use in the GraphViz output (default: 'Lato')
+    show_default : str
+        default options for show()
     """
     import os
 
@@ -78,6 +81,8 @@ def setup(**kwargs):
 
     bullets = 'B' if kwargs.get('bullets', True) else ''
     d = 'rf({})'.format(kwargs.get('font', 'Lato')) + bullets
+    global _show_default
+    _show_default = kwargs.get('show_default', None)
     os.environ['SPOT_DOTDEFAULT'] = d
 
 
@@ -122,11 +127,17 @@ class twa:
     def _repr_svg_(self, opt=None):
         """Output the automaton as SVG"""
         ostr = ostringstream()
+        if opt is None:
+            global _show_default
+            opt = _show_default
         print_dot(ostr, self, opt)
         return _ostream_to_svg(ostr)
 
     def show(self, opt=None):
         """Display the automaton as SVG, in the IPython/Jupyter notebook"""
+        if opt is None:
+            global _show_default
+            opt = _show_default
         # Load the SVG function only if we need it. This way the
         # bindings can still be used outside of IPython if IPython is
         # not installed.
