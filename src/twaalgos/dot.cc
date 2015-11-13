@@ -119,6 +119,7 @@ namespace spot
 	      break;
 	    case 'b':
 	      opt_bullet = true;
+	      opt_bullet_but_buchi = false;
 	      break;
 	    case 'B':
 	      opt_bullet = true;
