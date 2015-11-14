@@ -53,6 +53,13 @@ New in spot 1.99.5a (not yet released)
     with spot.product() or spot.product_or() and in the shell with
     autfilt's --product or --product-or options.
 
+  * The print_dot() function supports a new option, +N, where N is a
+    positive integer that will be added to all set numbers in the
+    output.  This is convenient when displaying two automata before
+    building their product: use +N to shift the displayed sets of the
+    second automaton by the number of acceptance sets N of the first
+    one.
+
   * Renamings:
     is_guarantee_automaton() -> is_terminal_automaton()
     tgba_run -> twa_run

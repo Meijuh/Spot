@@ -66,6 +66,7 @@ namespace spot
       bool opt_all_bullets = false;
       bool opt_numbered_trans = false;
       bool opt_want_state_names_ = true;
+      unsigned opt_shift_sets_ = 0;
       std::string opt_font_;
 
       const char* const palette9[9] =
@@ -110,6 +111,16 @@ namespace spot
 		    (std::string("SPOT_DOTDEFAULT should not contain '.'"));
 		if (!def.empty())
 		  parse_opts(def.c_str());
+		break;
+	      }
+	    case '+':
+	      {
+		char* end;
+		opt_shift_sets_ = strtoul(options, &end, 10);
+		if (options == end)
+		  throw std::runtime_error
+		    ("missing number after '+' in print_dot() options");
+		options = end;
 		break;
 	      }
 	    case '1':
@@ -189,6 +200,7 @@ namespace spot
       void
       output_set(std::ostream& os, int v) const
       {
+	v += opt_shift_sets_;
 	if (opt_bullet && (v >= 0) & (v <= MAX_BULLET))
 	  {
 	    static const char* const tab[MAX_BULLET + 1] = {
@@ -228,7 +240,7 @@ namespace spot
       html_set_color(int v) const
       {
 	if (opt_rainbow)
-	  return palette[v % palette_mod];
+	  return palette[(v + opt_shift_sets_) % palette_mod];
 	// Color according to Fin/Inf
 	if (inf_sets_.has(v))
 	  {
