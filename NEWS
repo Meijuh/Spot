@@ -66,6 +66,7 @@ New in spot 1.99.5a (not yet released)
 
   Python:
   * Add bindings for is_unambiguous().
+  * Better interface for sat_minimize().
 
   Bug fixes:
   * automaton parser was ignoring the "unambiguous" property.

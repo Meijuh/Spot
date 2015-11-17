@@ -846,3 +846,29 @@ for fun in dir(formula):
 for fun in ['remove_x', 'relabel', 'relabel_bse',
             'simplify', 'unabbreviate']:
     _addmap(fun)
+
+
+
+# Better interface to the corresponding C++ function.
+def sat_minimize(aut, acc=None, colored=False,
+                 state_based=False, states=0,
+                 max_states=0, dichotomy=False):
+    args=''
+    if acc is not None:
+        if type(acc) is not str:
+            raise ValueError("argument 'acc' should be a string")
+        args += ',acc="' + acc + '"'
+    if colored:
+        args += ',colored'
+    if states:
+        if type(states) is not int or states < 0:
+            raise ValueError("argument 'states' should be a positive integer")
+        args += ',states=' + str(states)
+    if max_states:
+        if type(max_states) is not int or max_states < 0:
+            raise ValueError("argument 'states' should be a positive integer")
+        args += ',max-states=' + str(max_states)
+    if dichotomy:
+        args += ',dichotomy';
+    from spot_impl import sat_minimize as sm
+    return sm(aut, args, state_based)

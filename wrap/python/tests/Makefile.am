@@ -53,6 +53,7 @@ TESTS = \
   randltl.ipynb \
   relabel.py \
   remfin.py \
+  satmin.py \
   setxor.py \
   testingaut.ipynb
 
