@@ -35,7 +35,7 @@ they are considered as atomic propositions in all the other syntaxes.)
 
 * Python bindings
 
-Here are the same operation in Python
+Here are the same operations in Python
 
 #+BEGIN_SRC python :results output :exports both
 import spot

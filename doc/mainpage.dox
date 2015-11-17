@@ -25,7 +25,7 @@
 /// \li spot::twa             Base class for Transition-based
 ///                           ω-Automata.
 /// \li spot::translator      Convert a spot::formula into a
-///                           spot::tgba.
+///                           spot::twa.
 /// \li spot::kripke          Base class for Kripke structures.
 /// \li spot::twa_product     On-the-fly product of two spot::twa.
 /// \li spot::emptiness_check Base class for all emptiness-check algorithms
