@@ -21,14 +21,14 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 if NEVER
-  # For Automake a conditional directory
+  # For Automake a, conditional directory
   # is conditionally built, but unconditionally distributed.
   # So using NEVER here ensures that `make all' will not
   # recurse in bench/, but `make dist' will.
-  NEVER_BENCH = bench
+  NEVER_SUBDIRS = bench elisp
 endif
 
-SUBDIRS = buddy lib src wrap ltdl iface doc $(NEVER_BENCH)
+SUBDIRS = buddy lib src wrap ltdl iface doc $(NEVER_SUBDIRS)
 
 UTF8 = utf8/doc/ReleaseNotes utf8/doc/utf8cpp.html utf8/utf8.h	\
   utf8/utf8/checked.h utf8/utf8/core.h utf8/utf8/unchecked.h

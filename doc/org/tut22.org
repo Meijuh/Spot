@@ -5,7 +5,7 @@
 
 This example demonstrates how to create an automaton in C++, and then print it.
 
-#+BEGIN_SRC C++ :results verbatim :exports both
+#+BEGIN_SRC C++ :results verbatim :exports both :wrap SRC hoa
   #include <iostream>
   #include "twaalgos/hoa.hh"
   #include "twa/twagraph.hh"
@@ -47,7 +47,7 @@ This example demonstrates how to create an automaton in C++, and then print it.
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 3
 Start: 0
@@ -64,4 +64,4 @@ State: 1
 State: 2
 [0 | 1] 1 {0 1}
 --END--
-#+end_example
+#+END_SRC

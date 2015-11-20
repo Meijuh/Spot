@@ -52,12 +52,12 @@ This is very simple: [[file:autfilt.org][=autfilt=]] can read automata in any of
 supported formats, so all we have to do is to request the HOA output
 with =-H=:
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 autfilt -H tut20.never
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 5
 Start: 0
@@ -81,7 +81,7 @@ State: 4
 [1] 3
 [t] 4
 --END--
-#+end_example
+#+END_SRC
 
 * Python
 
@@ -89,13 +89,13 @@ Another one-liner.  The =spot.automaton()= function reads a single
 automaton, and each automaton has a =to_str()= method that can print
 in =hoa=, =lbtt=, =spin= (for never claim) or =dot=.
 
-#+BEGIN_SRC python :results output :exports both
+#+BEGIN_SRC python :results output :exports both :wrap SRC hoa
 import spot
 print(spot.automaton('tut20.never').to_str('hoa'))
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 5
 Start: 0
@@ -119,7 +119,7 @@ State: 4
 [1] 3
 [t] 4
 --END--
-#+end_example
+#+END_SRC
 
 * C++
 
@@ -134,7 +134,7 @@ you), and =aut= is the actual automaton.  The parser usually tries to
 recover from errors, so =aut= may not be null even if =errors= is
 non-empty.
 
-#+BEGIN_SRC C++ :results verbatim :exports both
+#+BEGIN_SRC C++ :results verbatim :exports both :wrap SRC hoa
   #include <string>
   #include <iostream>
   #include "parseaut/public.hh"
@@ -159,7 +159,7 @@ non-empty.
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 5
 Start: 0
@@ -183,7 +183,7 @@ State: 4
 [1] 3
 [t] 4
 --END--
-#+end_example
+#+END_SRC
 
 In automata, transitions guards are represented by BDDs.  The role of
 =bdd_dict= object is to keep track of the correspondence between BDD
@@ -221,14 +221,14 @@ an =automaton_stream_parser= and calls its =parse()= method once.
 In Python, you can easily iterate over a file containing multiple
 automata by doing:
 
-#+BEGIN_SRC python :results output :exports code
+#+BEGIN_SRC python :results output :exports code :wrap SRC hoa
 import spot
 for aut in spot.automata('tut20.never'):
     print(aut.to_str('hoa'))
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 5
 Start: 0
@@ -252,7 +252,7 @@ State: 4
 [1] 3
 [t] 4
 --END--
-#+end_example
+#+END_SRC
 
 In fact =spot.automaton()= is just a wrapper around =spot.automata()=
 to return only the first automaton.

@@ -10,12 +10,11 @@ commands aren't up to the task either.
 
 First let's create an example automaton in HOA format.
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 ltl2tgba -U -H 'Fa | G(Fb&Fc)' | tee tut21.hoa
 #+END_SRC
-
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 name: "Fa | G(Fb & Fc)"
 States: 4
@@ -41,7 +40,7 @@ State: 3
 [!0&1&!2] 3 {0}
 [!0&!1&!2] 3
 --END--
-#+end_example
+#+END_SRC
 
 We now write some C++ to load this automaton [[file:tut20.org][as we did before]], and in
 =custom_print()= we print it out in a custom way by explicitly

@@ -197,6 +197,7 @@ AC_CONFIG_FILES([
   doc/tl/Makefile
   doc/org/.dir-locals.el
   doc/org/init.el
+  elisp/Makefile
   iface/ltsmin/defs
   iface/ltsmin/Makefile
   iface/Makefile

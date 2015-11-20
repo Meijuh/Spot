@@ -139,12 +139,12 @@ EOF
 
 #+RESULTS:
 
-#+BEGIN_SRC sh :results verbatim :exports results
+#+BEGIN_SRC sh :results verbatim :exports results :wrap SRC hoa
 sed -n '/--BODY/,/--END/p' stvstracc.hoa | grep -v -- --
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 /* state-based acceptance */
 State: 0 {0 1}
 [0&!1] 0
@@ -158,16 +158,16 @@ State: 1 {0}
 State: 2
 [!0] 1 {0}
 [0]  2 {1}
-#+end_example
+#+END_SRC
 
 will always be stored as a TωA with this transition structure:
 
-#+BEGIN_SRC sh :results verbatim :exports results
+#+BEGIN_SRC sh :results verbatim :exports results :wrap SRC hoa
 autfilt -Ht stvstracc.hoa | sed -n '/--BODY/,/--END/p' | grep -v -- --
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 State: 0
 [0&!1] 0 {0 1}
 [0&1] 1 {0 1}
@@ -178,7 +178,7 @@ State: 1
 State: 2
 [!0] 1 {0}
 [0] 2 {1}
-#+end_example
+#+END_SRC
 
 #+BEGIN_SRC sh :results silent :exports results
 rm -f stvstracc.hoa
@@ -201,8 +201,8 @@ For instance in the following automaton, the outgoing transitions of
 each states belong to the same sets:
 
 #+NAME: state-based-example
-#+BEGIN_SRC sh :results verbatim :exports both
-cat >sba.hoa <<EOF
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
+cat >sba.hoa <<EOF_HOA
 HOA: v1
 States: 3
 Start: 0
@@ -220,14 +220,14 @@ State: 2
 [!0] 1 {0 1}
 [0]  2 {0 1}
 --END--
-EOF
+EOF_HOA
 autfilt -H sba.hoa
 #+END_SRC
 
 so the HOA output of =autfilt= automatically uses state-based acceptance:
 
 #+RESULTS: state-based-example
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 3
 Start: 0
@@ -247,7 +247,7 @@ State: 2 {0 1}
 [!0] 1
 [0] 2
 --END--
-#+end_example
+#+END_SRC
 
 The rational for this automatic switch to state-based acceptance is as follows:
 - Tools that support transition-based acceptance can easily see
@@ -265,12 +265,12 @@ Nevertheless, should you really insist on having an output with
 transition-based acceptance, you can do so by passing the option =t=
 to the HOA printer:
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 autfilt -Ht sba.hoa
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 3
 Start: 0
@@ -290,7 +290,7 @@ State: 2
 [!0] 1 {0 1}
 [0] 2 {0 1}
 --END--
-#+end_example
+#+END_SRC
 
 #+BEGIN_SRC sh :results silent :exports results
 rm sba.hoa
@@ -302,12 +302,12 @@ format to prevents mixing the two: if you use =-Hm=, the decision of
 using state or transition-based acceptance will be made for each state
 separately.  For instance:
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 ltl2tgba -Hm 'GFa | Fb'
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 name: "F(b | GFa)"
 States: 3
@@ -327,7 +327,7 @@ State: 2
 [1] 2 {0}
 [!1] 2
 --END--
-#+end_example
+#+END_SRC
 
 
 So far we have discussed transforming state-based acceptance into
@@ -342,12 +342,12 @@ when necessary.  Most tools have a =-S= option (or
 =--state-based-acceptance=) for this purpose.  Compare the following
 output with the previous one.
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 ltl2tgba -S -Hm 'GFa | Fb'
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 name: "F(b | GFa)"
 States: 4
@@ -370,7 +370,7 @@ State: 3
 [1] 2
 [!1] 3
 --END--
-#+end_example
+#+END_SRC
 
 ** Generic acceptance
 
@@ -431,7 +431,7 @@ In the following example, you can see =autfilt= removing the duplicate
 Rabin pair, and reordering the remaining pair to fit the syntax
 corresponding to =Rabin 1=.
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 autfilt -H <<EOF
 HOA: v1
 States: 3
@@ -454,7 +454,7 @@ EOF
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 3
 Start: 0
@@ -474,9 +474,7 @@ State: 2 {0 1}
 [!0] 1
 [0] 2
 --END--
-#+end_example
-
-
+#+END_SRC
 
 Internally, the acceptance condition is stored as an array in reverse
 polish notation, and the primitives =Inf= and =Fin= are actually
@@ -500,12 +498,14 @@ When you look at an acceptance condition output by Spot, you can
 actually spot the terms that have been grouped together internally by
 looking at the spacing around operators =&= and =|=.  For instance:
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 randaut -A"Fin(0)|Fin(1)|Fin(2)&Fin(3)&Inf(4)&Inf(5)" -H 0 | grep Acceptance:
 #+END_SRC
 
 #+RESULTS:
-: Acceptance: 6 (Fin(0)|Fin(1)) | (Fin(2) & Fin(3) & (Inf(4)&Inf(5)))
+#+BEGIN_SRC hoa
+Acceptance: 6 (Fin(0)|Fin(1)) | (Fin(2) & Fin(3) & (Inf(4)&Inf(5)))
+#+END_SRC
 
 Here =Fin(0)|Fin(1)= is actually a single internal term =Fin({0,1})=,
 and likewise for =Inf(4)&Inf(5)=.
@@ -611,7 +611,7 @@ They are currently two named properties related to the HOA format.
 You can see these properties being preserved when an automaton is read and then immediately output:
 
 #+NAME: hello-world
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 cat >hw.hoa <<EOF
 HOA: v1
 name: "hello world!"
@@ -636,7 +636,7 @@ autfilt -H hw.hoa
 #+END_SRC
 
 #+RESULTS: hello-world
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 name: "hello world!"
 States: 3
@@ -657,7 +657,7 @@ State: 2 "so am I" {0 1}
 [!0] 1
 [0] 2
 --END--
-#+end_example
+#+END_SRC
 
 However if =autfilt= performs some transformation, and actually has to
 construct a new automaton, those properties will not be quarried over
@@ -670,32 +670,32 @@ the old states and the new ones.
 Here is for instance the result when =autfilt= is instructed to
 simplify the automaton:
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 autfilt -H --small hw.hoa
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 3
 Start: 0
 AP: 2 "a" "b"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels trans-acc deterministic
+properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0
 [0&!1] 0
-[0&1] 1 {0}
-[!0] 2 {0}
+[0&1] 1
+[!0] 2
 State: 1
 [0&!1] 1
 [0&1] 2
-State: 2
-[!0] 1 {0}
-[0] 2 {0}
+State: 2 {0}
+[!0] 1
+[0] 2
 --END--
-#+end_example
+#+END_SRC
 
 
 Note that if the name of the automaton is important to you, it can be
@@ -703,12 +703,12 @@ fixed via the =--name= option.  For instance =--name=%M= will
 construct the new name by simply copying the one of the original
 automaton.
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 autfilt -H --small hw.hoa --name=%M
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 name: "hello world!"
 States: 3
@@ -716,20 +716,20 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels trans-acc deterministic
+properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0
 [0&!1] 0
-[0&1] 1 {0}
-[!0] 2 {0}
+[0&1] 1
+[!0] 2
 State: 1
 [0&!1] 1
 [0&1] 2
-State: 2
-[!0] 1 {0}
-[0] 2 {0}
+State: 2 {0}
+[!0] 1
+[0] 2
 --END--
-#+end_example
+#+END_SRC
 
 The page about [[file:oaut.org][common output option for automata]] has a section showing
 how =--name= can be used to construct complex pipelines with automata that
@@ -748,12 +748,12 @@ in the HOA format, and then read those automata with =autfilt= to
 randomize the order of their transitions and states before printing
 them in HOA format.
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 genltl --and-gf=1..3 | ltl2tgba -B -F- -H | autfilt --randomize -H
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 name: "GFp1"
 States: 2
@@ -762,7 +762,7 @@ AP: 1 "p1"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: deterministic stutter-invariant
 --BODY--
 State: 0
 [0] 1
@@ -779,7 +779,7 @@ AP: 2 "p1" "p2"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: deterministic stutter-invariant
 --BODY--
 State: 0
 [!0&1] 2
@@ -801,7 +801,7 @@ AP: 3 "p1" "p2" "p3"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: deterministic stutter-invariant
 --BODY--
 State: 0
 [!2] 0
@@ -821,7 +821,7 @@ State: 3
 [0] 1
 [!0] 3
 --END--
-#+end_example
+#+END_SRC
 
 
 It should be noted that the HOA parser is less efficient when it reads

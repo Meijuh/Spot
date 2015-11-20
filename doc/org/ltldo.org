@@ -128,19 +128,20 @@ Here is another example, where we use Spin to produce two automata in
 the [[http://adl.github.io/hoaf/][HOA format]].  Spin has no support for HOA, but =ltldo= simply
 converts the never claim produced by =spin= into this format.
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 ltldo -f a -f GFa 'spin -f %s>%O' -H
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 2
 Start: 0
 AP: 1 "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels state-acc deterministic
+properties: trans-labels explicit-labels state-acc colored
+properties: deterministic
 --BODY--
 State: 0 {0}
 [0] 1
@@ -161,7 +162,7 @@ State: 0
 State: 1 {0}
 [t] 0
 --END--
-#+end_example
+#+END_SRC
 
 Again, using the shorthands defined below, the previous command can be
 simplified to just this:
@@ -405,34 +406,35 @@ an LTL formula).  In the following example, you can see that the
 automaton uses the atomic proposition =Error=, but its name contains a
 reference to =p0=.
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 ltldo 'ltl3ba -H' -f '[]!Error' -H
 #+END_SRC
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
-name: "BA for ([](!(p0)))"
+name: "BA for [](!(p0))"
 States: 1
 Start: 0
 AP: 1 "Error"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels state-acc deterministic
+properties: trans-labels explicit-labels state-acc colored
+properties: deterministic
 --BODY--
 State: 0 "accept_init" {0}
 [!0] 0
 --END--
-#+end_example
+#+END_SRC
 
 If this is a problem, you can always force a new name with the
 =--name= option:
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 ltldo 'ltl3ba -H' -f '[]!Error' -H --name='BA for %f'
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 name: "BA for []!Error"
 States: 1
@@ -440,12 +442,13 @@ Start: 0
 AP: 1 "Error"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels state-acc deterministic
+properties: trans-labels explicit-labels state-acc colored
+properties: deterministic
 --BODY--
 State: 0 "accept_init" {0}
 [!0] 0
 --END--
-#+end_example
+#+END_SRC
 
 * Controlling and measuring time
 

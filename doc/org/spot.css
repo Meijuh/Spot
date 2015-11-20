@@ -18,8 +18,10 @@ body a{color:#008181}
 div#postamble{visibility:hidden}
 .outline-2 h2{border-bottom-style:solid;border-color:#ffe35e}
 pre.src{padding-top:8px;border-left-style:solid;border-color:#00adad;overflow:auto}
+pre.src-hoa{padding-top:8px;border-left-style:solid;border-color:#d70079;overflow:auto}
 pre.example{border-left-style:solid;border-color:#d70079}
-pre.src:before{border:none;border-bottom-style:solid;border-color:#00adad}
+pre.src:before{border:none;border-bottom-style:solid;border-color:#00adad;top:0px;}
+pre.src-hoa:before{content:'HOA';border:none;border-bottom-style:solid;border-color:#d70079;overflow:auto}
 img{max-width:100%}
 @media screen{
 #table-of-contents{position:fixed;right:0em;top:0em;max-width:50%;max-height:80%;overflow:auto;z-index:10}
@@ -34,7 +36,14 @@ img{max-width:100%}
 .org-builtin{font-weight:bold}
 .org-preprocessor{font-weight:bold}
 .org-string{font-weight:bold;color:#00adad}
+.src-hoa .org-string{font-weight:bold;color:#d70079}
 .org-function-name{font-weight:bold;color:#d70079}
 .org-type{font-weight:bold;color:#00adad}
 .org-comment-delimiter{font-weight:bold;color:#a13672}
 .org-comment{font-style:italic;color:#a13672}
+.org-hoa-keyword{font-weight:bold}
+.org-hoa-builtin{font-weight:bold}
+.org-hoa-acceptance-set{font-weight:bold}
+.org-hoa-header-uppercase{font-weight:bold;color:#00adad}
+.org-hoa-header-lowercase{color:#00adad}
+.org-hoa-ap-number{color:#d70079}

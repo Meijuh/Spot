@@ -180,6 +180,7 @@ buddy/            A customized version of BuDDy 2.3 (a BDD library).
 ltdl/             Libtool's portable dlopen() wrapper library.
 lib/              Gnulib's portability modules.
 utf8/             Nemanja Trifunovic's utf-8 routines.
+elisp/		  Related emacs modes, used for building the documentation.
 
 Build-system stuff
 ------------------

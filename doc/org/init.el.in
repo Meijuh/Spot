@@ -1,8 +1,12 @@
-;; htmlize is not always in the load-path.  On Debian it can be found here.
-(setq load-path (cons "/usr/share/emacs/site-lisp/emacs-goodies-el" load-path))
+(setq load-path (append '("@abs_top_srcdir@/elisp/" ; for hoa-mode.el
+			  ;; htmlize is not always in the load-path.
+			  ;; On Debian it can be found here.
+			  "/usr/share/emacs/site-lisp/emacs-goodies-el")
+			load-path))
 (or (require 'org-publish nil t)	; Org 7
     (require 'ox-publish))		; Org 8
 (require 'org-install)
+(require 'hoa-mode)
 
 (print (concat "Org " (org-version)))
 (setq org-export-htmlize-output-type 'css)

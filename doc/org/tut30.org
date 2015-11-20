@@ -20,7 +20,7 @@ autfilt tut30.hoa --dot=.a
 #+begin_example
 digraph G {
   rankdir=LR
-  label=<(Fin(<font color="#5DA5DA">â¿</font>) &amp; Inf(<font color="#F17CB0">â¶</font>)) | (Fin(<font color="#FAA43A">â·</font>) &amp; Inf(<font color="#B276B2">â¸</font>)) | (Fin(<font color="#60BD68">â¹</font>) &amp; Inf(<font color="#F15854">âº</font>))>
+  label=<(Fin(<font color="#5DA5DA">⓿</font>) &amp; Inf(<font color="#F17CB0">❶</font>)) | (Fin(<font color="#FAA43A">❷</font>) &amp; Inf(<font color="#B276B2">❸</font>)) | (Fin(<font color="#60BD68">❹</font>) &amp; Inf(<font color="#F15854">❺</font>))>
   labelloc="t"
   node [shape="circle"]
   fontname="Lato"
@@ -29,25 +29,25 @@ digraph G {
   node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 6
-  0 [label=<0<br/><font color="#FAA43A">â·</font><font color="#F15854">âº</font>>]
+  0 [label=<0<br/><font color="#FAA43A">❷</font><font color="#F15854">❺</font>>]
   0 -> 2 [label=<!p1>]
   0 -> 4 [label=<p1>]
-  1 [label=<1<br/><font color="#FAA43A">â·</font><font color="#F15854">âº</font>>]
+  1 [label=<1<br/><font color="#FAA43A">❷</font><font color="#F15854">❺</font>>]
   1 -> 4 [label=<!p1>]
   1 -> 3 [label=<p1>]
-  2 [label=<2<br/><font color="#B276B2">â¸</font><font color="#60BD68">â¹</font>>]
+  2 [label=<2<br/><font color="#B276B2">❸</font><font color="#60BD68">❹</font>>]
   2 -> 0 [label=<!p1>]
   2 -> 4 [label=<p1>]
-  3 [label=<3<br/><font color="#B276B2">â¸</font><font color="#60BD68">â¹</font>>]
+  3 [label=<3<br/><font color="#B276B2">❸</font><font color="#60BD68">❹</font>>]
   3 -> 4 [label=<!p1>]
   3 -> 1 [label=<p1>]
-  4 [label=<4<br/><font color="#F17CB0">â¶</font><font color="#FAA43A">â·</font><font color="#60BD68">â¹</font>>]
+  4 [label=<4<br/><font color="#F17CB0">❶</font><font color="#FAA43A">❷</font><font color="#60BD68">❹</font>>]
   4 -> 4 [label=<!p1>]
   4 -> 4 [label=<p1>]
-  5 [label=<5<br/><font color="#FAA43A">â·</font><font color="#60BD68">â¹</font>>]
+  5 [label=<5<br/><font color="#FAA43A">❷</font><font color="#60BD68">❹</font>>]
   5 -> 2 [label=<!p1>]
   5 -> 3 [label=<p1>]
-  6 [label=<6<br/><font color="#FAA43A">â·</font><font color="#60BD68">â¹</font>>]
+  6 [label=<6<br/><font color="#FAA43A">❷</font><font color="#60BD68">❹</font>>]
   6 -> 5 [label=<!p1>]
   6 -> 5 [label=<p1>]
 }
@@ -76,12 +76,11 @@ changed to Büchi, but simplification routines (useless SCCs removal,
 simulation-based reductions, acceptance sets simplifications,
 WDBA-minimization, ...) will also be applied.
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
 autfilt -B -D -H tut30.hoa
 #+END_SRC
-
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 5
 Start: 1
@@ -89,7 +88,7 @@ AP: 1 "p1"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic inherently-weak
+properties: deterministic weak
 --BODY--
 State: 0 {0}
 [t] 0
@@ -105,7 +104,7 @@ State: 4
 [!0] 0
 [0] 4
 --END--
-#+end_example
+#+END_SRC
 
 #+NAME: tut30out
 #+BEGIN_SRC sh :results verbatim :exports none
@@ -156,14 +155,13 @@ the result further.
 
 The Python version uses the =postprocess()= routine:
 
-#+BEGIN_SRC python :results output :exports both
+#+BEGIN_SRC python :results output :exports both :wrap SRC hoa
 import spot
 aut = spot.automaton('tut30.hoa').postprocess('BA', 'deterministic')
 print(aut.to_str('hoa'))
 #+END_SRC
-
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 5
 Start: 1
@@ -171,7 +169,7 @@ AP: 1 "p1"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic inherently-weak
+properties: deterministic weak
 --BODY--
 State: 0 {0}
 [t] 0
@@ -187,7 +185,7 @@ State: 4
 [!0] 0
 [0] 4
 --END--
-#+end_example
+#+END_SRC
 
 The =postprocess()= function has an interface similar to
 [[file:tut10.org][the =translate()= function discussed previously]]:
@@ -231,7 +229,7 @@ The C++ version of this code is a bit more verbose, because the
 =postprocessor= object, configure it, and then call it for each
 automaton to process.
 
-#+BEGIN_SRC C++ :results verbatim :exports both
+#+BEGIN_SRC C++ :results verbatim :exports both :wrap SRC hoa
   #include <iostream>
   #include "parseaut/public.hh"
   #include "twaalgos/postproc.hh"
@@ -258,7 +256,7 @@ automaton to process.
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_SRC hoa
 HOA: v1
 States: 5
 Start: 1
@@ -266,7 +264,7 @@ AP: 1 "p1"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic inherently-weak
+properties: deterministic weak
 --BODY--
 State: 0 {0}
 [t] 0
@@ -282,7 +280,7 @@ State: 4
 [!0] 0
 [0] 4
 --END--
-#+end_example
+#+END_SRC
 
 #+BEGIN_SRC sh :results silent :exports results
 rm -f tut30.hoa
