@@ -62,7 +62,7 @@
 #include "twaalgos/remfin.hh"
 #include "twaalgos/complete.hh"
 #include "twaalgos/dtbasat.hh"
-#include "twaalgos/dtgbasat.hh"
+#include "twaalgos/dtwasat.hh"
 #include "twaalgos/stutter.hh"
 #include "twaalgos/totgba.hh"
 
@@ -367,7 +367,7 @@ checked_main(int argc, char** argv)
   bool cs_oblig = false;
   bool opt_complete = false;
   int opt_dtbasat = -1;
-  int opt_dtgbasat = -1;
+  int opt_dtwasat = -1;
 
   for (;;)
     {
@@ -679,9 +679,9 @@ checked_main(int argc, char** argv)
       else if (!strncmp(argv[formula_index], "-RG", 3))
         {
 	  if (argv[formula_index][3] != 0)
-	    opt_dtgbasat = to_int(argv[formula_index] + 3);
+	    opt_dtwasat = to_int(argv[formula_index] + 3);
 	  else
-	    opt_dtgbasat = 0;
+	    opt_dtwasat = 0;
           //output = -1;
         }
       else if (!strcmp(argv[formula_index], "-Rm"))
@@ -1191,13 +1191,13 @@ checked_main(int argc, char** argv)
 	  if (satminimized)
 	    a = satminimized;
 	}
-      else if (opt_dtgbasat >= 0)
+      else if (opt_dtwasat >= 0)
 	{
-	  tm.start("dtgbasat");
-	  auto satminimized = dtgba_sat_minimize
-	    (ensure_digraph(a), opt_dtgbasat,
-	     spot::acc_cond::generalized_buchi(opt_dtgbasat));
-	  tm.stop("dtgbasat");
+	  tm.start("dtwasat");
+	  auto satminimized = dtwa_sat_minimize
+	    (ensure_digraph(a), opt_dtwasat,
+	     spot::acc_cond::generalized_buchi(opt_dtwasat));
+	  tm.stop("dtwasat");
 	  if (satminimized)
 	    a = satminimized;
 	}
@@ -1210,7 +1210,7 @@ checked_main(int argc, char** argv)
 	}
 
       if (opt_determinize || opt_dtwacomp || opt_dtbasat >= 0
-	  || opt_dtgbasat >= 0)
+	  || opt_dtwasat >= 0)
 	{
 	  if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
 	    {

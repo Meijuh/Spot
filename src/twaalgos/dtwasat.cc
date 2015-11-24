@@ -20,8 +20,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "dtgbasat.hh"
-#include "reachiter.hh"
+#include "dtwasat.hh"
+#include "dtbasat.hh"
 #include <map>
 #include <utility>
 #include "sccinfo.hh"
@@ -35,7 +35,6 @@
 #include "dot.hh"
 #include "complete.hh"
 #include "misc/optionmap.hh"
-#include "dtbasat.hh"
 #include "sccfilter.hh"
 #include "sbacc.hh"
 #include "postproc.hh"
@@ -46,7 +45,7 @@
 //
 // Additionally, if the following DEBUG macro is set to 1, the CNF
 // file will be output with a comment before each clause, and an
-// additional output file (dtgba-sat.dbg) will be created with a list
+// additional output file (dtwa-sat.dbg) will be created with a list
 // of all positive variables in the result and their meaning.
 
 #define DEBUG 0
@@ -602,7 +601,7 @@ namespace spot
     typedef std::pair<int, int> sat_stats;
 
     static
-    sat_stats dtgba_to_sat(std::ostream& out, const_twa_graph_ptr ref,
+    sat_stats dtwa_to_sat(std::ostream& out, const_twa_graph_ptr ref,
 			   dict& d, bool state_based, bool colored)
     {
 #if DEBUG
@@ -1037,7 +1036,7 @@ namespace spot
       const transition* last_sat_trans = nullptr;
 
 #if DEBUG
-      std::fstream out("dtgba-sat.dbg",
+      std::fstream out("dtwa-sat.dbg",
 		       std::ios_base::trunc | std::ios_base::out);
       out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
       std::set<int> positive;
@@ -1119,15 +1118,15 @@ namespace spot
   }
 
   twa_graph_ptr
-  dtgba_sat_synthetize(const const_twa_graph_ptr& a,
-		       unsigned target_acc_number,
-		       const acc_cond::acc_code& target_acc,
-		       int target_state_number,
-		       bool state_based, bool colored)
+  dtwa_sat_synthetize(const const_twa_graph_ptr& a,
+		      unsigned target_acc_number,
+		      const acc_cond::acc_code& target_acc,
+		      int target_state_number,
+		      bool state_based, bool colored)
   {
     if (target_state_number == 0)
       return nullptr;
-    trace << "dtgba_sat_synthetize(..., nacc = " << target_acc_number
+    trace << "dtwa_sat_synthetize(..., nacc = " << target_acc_number
 	  << ", acc = \"" << target_acc
 	  << "\", states = " << target_state_number
 	  << ", state_based = " << state_based << ")\n";
@@ -1142,7 +1141,7 @@ namespace spot
 
     timer_map t;
     t.start("encode");
-    sat_stats s = dtgba_to_sat(solver(), a, d, state_based, colored);
+    sat_stats s = dtwa_to_sat(solver(), a, d, state_based, colored);
     t.stop("encode");
     t.start("solve");
     solution = solver.get_solution();
@@ -1186,16 +1185,16 @@ namespace spot
     if (show && res)
       print_dot(std::cout, res);
 
-    trace << "dtgba_sat_synthetize(...) = " << res << '\n';
+    trace << "dtwa_sat_synthetize(...) = " << res << '\n';
     return res;
   }
 
   twa_graph_ptr
-  dtgba_sat_minimize(const const_twa_graph_ptr& a,
-		     unsigned target_acc_number,
-		     const acc_cond::acc_code& target_acc,
-		     bool state_based, int max_states,
-		     bool colored)
+  dtwa_sat_minimize(const const_twa_graph_ptr& a,
+		    unsigned target_acc_number,
+		    const acc_cond::acc_code& target_acc,
+		    bool state_based, int max_states,
+		    bool colored)
   {
     int n_states = (max_states < 0) ?
       stats_reachable(a).states : max_states + 1;
@@ -1204,9 +1203,9 @@ namespace spot
     for (;;)
       {
 	auto next =
-	  dtgba_sat_synthetize(prev ? prev : a, target_acc_number,
-			       target_acc, --n_states,
-			       state_based, colored);
+	  dtwa_sat_synthetize(prev ? prev : a, target_acc_number,
+			      target_acc, --n_states,
+			      state_based, colored);
 	if (!next)
 	  return prev;
 	else
@@ -1217,11 +1216,11 @@ namespace spot
   }
 
   twa_graph_ptr
-  dtgba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
-			       unsigned target_acc_number,
-			       const acc_cond::acc_code& target_acc,
-			       bool state_based, int max_states,
-			       bool colored)
+  dtwa_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
+			      unsigned target_acc_number,
+			      const acc_cond::acc_code& target_acc,
+			      bool state_based, int max_states,
+			      bool colored)
   {
     if (max_states < 1)
       max_states = stats_reachable(a).states - 1;
@@ -1232,9 +1231,9 @@ namespace spot
       {
 	int target = (max_states + min_states) / 2;
 	auto next =
-	  dtgba_sat_synthetize(prev ? prev : a, target_acc_number,
-			       target_acc, target, state_based,
-			       colored);
+	  dtwa_sat_synthetize(prev ? prev : a, target_acc_number,
+			      target_acc, target, state_based,
+			      colored);
 	if (!next)
 	  {
 	    min_states = target + 1;
@@ -1358,7 +1357,7 @@ namespace spot
       {
 	auto orig = a;
 	if (!target_is_buchi || !a->acc().is_buchi() || colored)
-	  a = (dicho ? dtgba_sat_minimize_dichotomy : dtgba_sat_minimize)
+	  a = (dicho ? dtwa_sat_minimize_dichotomy : dtwa_sat_minimize)
 	    (a, nacc, target_acc, state_based, max_states, colored);
 	else
 	  a = (dicho ? dtba_sat_minimize_dichotomy : dtba_sat_minimize)
@@ -1370,8 +1369,8 @@ namespace spot
     else
       {
 	if (!target_is_buchi || !a->acc().is_buchi() || colored)
-	  a = dtgba_sat_synthetize(a, nacc, target_acc, states,
-				   state_based, colored);
+	  a = dtwa_sat_synthetize(a, nacc, target_acc, states,
+				  state_based, colored);
 	else
 	  a = dtba_sat_synthetize(a, states, state_based);
       }

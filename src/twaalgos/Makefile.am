@@ -40,7 +40,7 @@ twaalgos_HEADERS = \
   degen.hh \
   dot.hh \
   dtbasat.hh \
-  dtgbasat.hh \
+  dtwasat.hh \
   emptiness.hh \
   emptiness_stats.hh \
   gv04.hh \
@@ -95,7 +95,7 @@ libtwaalgos_la_SOURCES = \
   degen.cc \
   dot.cc \
   dtbasat.cc \
-  dtgbasat.cc \
+  dtwasat.cc \
   emptiness.cc \
   gv04.cc \
   hoa.cc \

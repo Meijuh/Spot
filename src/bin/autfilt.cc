@@ -55,7 +55,7 @@
 #include "twaalgos/stripacc.hh"
 #include "twaalgos/remfin.hh"
 #include "twaalgos/cleanacc.hh"
-#include "twaalgos/dtgbasat.hh"
+#include "twaalgos/dtwasat.hh"
 #include "twaalgos/complement.hh"
 #include "twaalgos/strength.hh"
 

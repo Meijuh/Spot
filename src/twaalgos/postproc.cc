@@ -28,7 +28,7 @@
 #include "powerset.hh"
 #include "isdet.hh"
 #include "dtbasat.hh"
-#include "dtgbasat.hh"
+#include "dtwasat.hh"
 #include "complete.hh"
 #include "totgba.hh"
 #include "sbacc.hh"
@@ -413,15 +413,15 @@ namespace spot
 	else
 	  {
 	    if (sat_states_ != -1)
-	      res = dtgba_sat_synthetize
+	      res = dtwa_sat_synthetize
 		(res, target_acc, acc_cond::generalized_buchi(target_acc),
 		 sat_states_, state_based_);
 	    else if (sat_minimize_ == 1 || sat_minimize_ == -1)
-	      res = dtgba_sat_minimize
+	      res = dtwa_sat_minimize
 		(res, target_acc, acc_cond::generalized_buchi(target_acc),
 		 state_based_);
 	    else  // sat_minimize_ == 2
-	      res = dtgba_sat_minimize_dichotomy
+	      res = dtwa_sat_minimize_dichotomy
 		(res, target_acc, acc_cond::generalized_buchi(target_acc),
 		 state_based_);
 	  }

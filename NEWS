@@ -63,6 +63,8 @@ New in spot 1.99.5a (not yet released)
   * Renamings:
     is_guarantee_automaton() -> is_terminal_automaton()
     tgba_run -> twa_run
+    dtgba_sat_synthetize() -> dtwa_sat_synthetize()
+    dtgba_sat_synthetize_dichotomy() -> dtwa_sat_synthetize_dichotomy()
 
   Python:
   * Add bindings for is_unambiguous().

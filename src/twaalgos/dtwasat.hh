@@ -23,10 +23,10 @@
 
 namespace spot
 {
-  /// \brief Attempt to synthetize am equivalent deterministic TGBA
+  /// \brief Attempt to synthetize an equivalent deterministic TωA
   /// with a SAT solver.
   ///
-  /// \param a the input TGBA.  It should be a deterministic TGBA.
+  /// \param a the input TωA.  It should be a deterministic TωA.
   ///
   /// \param target_acc_number is the number of acceptance sets wanted
   /// in the result.
@@ -38,51 +38,50 @@ namespace spot
   /// target_state_number reachable states.
   ///
   /// \param state_based set to true to force all outgoing transitions
-  /// of a state to share the same acceptance conditions, effectively
-  /// turning the TGBA into a TBA.
+  /// of a state to share the same acceptance conditions.
   ///
   /// \param colored if true, force all transitions to belong to
   /// exactly one acceptance set.
   ///
-  /// This functions attempts to find a TGBA with \a target_acc_number
+  /// This functions attempts to find a TωA with \a target_acc_number
   /// acceptance sets and target_state_number states that is
-  /// equivalent to \a a.  If no such TGBA is found, a null pointer is
+  /// equivalent to \a a.  If no such TωA is found, a null pointer is
   /// returned.
   SPOT_API twa_graph_ptr
-  dtgba_sat_synthetize(const const_twa_graph_ptr& a,
-		       unsigned target_acc_number,
-		       const acc_cond::acc_code& target_acc,
-		       int target_state_number,
-		       bool state_based = false,
-		       bool colored = false);
+  dtwa_sat_synthetize(const const_twa_graph_ptr& a,
+		      unsigned target_acc_number,
+		      const acc_cond::acc_code& target_acc,
+		      int target_state_number,
+		      bool state_based = false,
+		      bool colored = false);
 
-  /// \brief Attempt to minimize a deterministic TGBA with a SAT solver.
+  /// \brief Attempt to minimize a deterministic TωA with a SAT solver.
   ///
-  /// This calls dtgba_sat_synthetize() in a loop, with a decreasing
+  /// This calls dtwa_sat_synthetize() in a loop, with a decreasing
   /// number of states, and returns the last successfully built TGBA.
   ///
-  /// If no smaller TGBA exist, this returns a null pointer.
+  /// If no smaller TGBA exists, this returns a null pointer.
   SPOT_API twa_graph_ptr
-  dtgba_sat_minimize(const const_twa_graph_ptr& a,
-		     unsigned target_acc_number,
-		     const acc_cond::acc_code& target_acc,
-		     bool state_based = false,
-		     int max_states = -1,
-		     bool colored = false);
+  dtwa_sat_minimize(const const_twa_graph_ptr& a,
+		    unsigned target_acc_number,
+		    const acc_cond::acc_code& target_acc,
+		    bool state_based = false,
+		    int max_states = -1,
+		    bool colored = false);
 
-  /// \brief Attempt to minimize a deterministic TGBA with a SAT solver.
+  /// \brief Attempt to minimize a deterministic TωA with a SAT solver.
   ///
-  /// This calls dtgba_sat_synthetize() in a loop, but attempting to
+  /// This calls dtwa_sat_synthetize() in a loop, but attempting to
   /// find the minimum number of states using a binary search.
   //
   /// If no smaller TBA exist, this returns a null pointer.
   SPOT_API twa_graph_ptr
-  dtgba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
-			       unsigned target_acc_number,
-			       const acc_cond::acc_code& target_acc,
-			       bool state_based = false,
-			       int max_states = -1,
-			       bool colored = false);
+  dtwa_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
+			      unsigned target_acc_number,
+			      const acc_cond::acc_code& target_acc,
+			      bool state_based = false,
+			      int max_states = -1,
+			      bool colored = false);
 
   /// \brief High-level interface to SAT-based minimization
   ///
