@@ -60,6 +60,12 @@ New in spot 1.99.5a (not yet released)
     second automaton by the number of acceptance sets N of the first
     one.
 
+  * The sat minimization for DTWA now do a better job at selecting
+    reference automata when the output acceptance is the the same as
+    the input acceptance.  This can provide nice speedups when tring
+    to syntethise larged automata with different acceptance
+    conditions.
+
   * Renamings:
     is_guarantee_automaton() -> is_terminal_automaton()
     tgba_run -> twa_run

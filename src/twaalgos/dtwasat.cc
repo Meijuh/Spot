@@ -1189,6 +1189,39 @@ namespace spot
     return res;
   }
 
+
+  namespace
+  {
+    // Chose a good reference automaton given two automata.
+    //
+    // The right automaton only is allowed to be null.  In that
+    // case the left automaton is returned.
+    //
+    // The selection relies on the fact that the SAT encoding is
+    // quadratic in the number of input states, and exponential in the
+    // number of input sets.
+    static const_twa_graph_ptr
+    best_aut(const const_twa_graph_ptr& left,
+	     const const_twa_graph_ptr& right)
+    {
+      if (right == nullptr)
+	return left;
+      auto lstates = left->num_states();
+      auto lsets = left->num_sets();
+      auto rstates = right->num_states();
+      auto rsets = right->num_sets();
+      if (lstates <= rstates && lsets <= rsets)
+	return left;
+      if (lstates >= rstates && lsets >= rsets)
+	return right;
+
+      long long unsigned lw = (1ULL << lsets) * lstates * lstates;
+      long long unsigned rw = (1ULL << rsets) * rstates * rstates;
+
+      return lw <= rw ? left : right;
+    }
+  }
+
   twa_graph_ptr
   dtwa_sat_minimize(const const_twa_graph_ptr& a,
 		    unsigned target_acc_number,
@@ -1202,10 +1235,10 @@ namespace spot
     twa_graph_ptr prev = nullptr;
     for (;;)
       {
-	auto next =
-	  dtwa_sat_synthetize(prev ? prev : a, target_acc_number,
-			      target_acc, --n_states,
-			      state_based, colored);
+	auto src = best_aut(a, prev);
+	auto next = dtwa_sat_synthetize(src, target_acc_number,
+					target_acc, --n_states,
+					state_based, colored);
 	if (!next)
 	  return prev;
 	else
@@ -1230,10 +1263,10 @@ namespace spot
     while (min_states <= max_states)
       {
 	int target = (max_states + min_states) / 2;
-	auto next =
-	  dtwa_sat_synthetize(prev ? prev : a, target_acc_number,
-			      target_acc, target, state_based,
-			      colored);
+	auto src = best_aut(a, prev);
+	auto next = dtwa_sat_synthetize(src, target_acc_number,
+					target_acc, target, state_based,
+					colored);
 	if (!next)
 	  {
 	    min_states = target + 1;
