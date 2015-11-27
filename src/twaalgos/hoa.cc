@@ -52,6 +52,7 @@ namespace spot
       bool is_deterministic;
       bool is_colored;
       bool use_implicit_labels;
+      bool use_state_labels = true;
       bdd all_ap;
 
       // Label support: the set of all conditions occurring in the
@@ -59,10 +60,12 @@ namespace spot
       typedef std::map<bdd, std::string, bdd_less_than> sup_map;
       sup_map sup;
 
-      metadata(const const_twa_graph_ptr& aut, bool implicit)
+      metadata(const const_twa_graph_ptr& aut, bool implicit,
+	       bool state_labels)
       {
 	check_det_and_comp(aut);
 	use_implicit_labels = implicit && is_deterministic && is_complete;
+	use_state_labels &= state_labels;
 	number_all_ap();
       }
 
@@ -106,8 +109,13 @@ namespace spot
 	    bool notfirst = false;
 	    acc_cond::mark_t prev = 0U;
 	    bool has_succ = false;
+	    bdd lastcond = bddfalse;
 	    for (auto& t: aut->out(src))
 	      {
+		if (has_succ)
+		  use_state_labels &= lastcond == t.cond;
+		else
+		  lastcond = t.cond;
 		if (complete)
 		  sum |= t.cond;
 		if (deterministic)
@@ -244,6 +252,7 @@ namespace spot
     hoa_acceptance acceptance = Hoa_Acceptance_States;
     bool implicit_labels = false;
     bool verbose = false;
+    bool state_labels = false;
 
     if (opt)
       while (*opt)
@@ -252,6 +261,9 @@ namespace spot
 	    {
 	    case 'i':
 	      implicit_labels = true;
+	      break;
+	    case 'k':
+	      state_labels = true;
 	      break;
 	    case 'l':
 	      newline = false;
@@ -278,7 +290,7 @@ namespace spot
     // automata, so it has to be done first.
     unsigned init = aut->get_init_state_number();
 
-    metadata md(aut, implicit_labels);
+    metadata md(aut, implicit_labels, state_labels);
 
     if (acceptance == Hoa_Acceptance_States && !md.has_state_acc)
       acceptance = Hoa_Acceptance_Transitions;
@@ -399,8 +411,11 @@ namespace spot
     if (verbose)
       prop(" no-univ-branch");
     implicit_labels = md.use_implicit_labels;
+    state_labels = md.use_state_labels;
     if (implicit_labels)
       prop(" implicit-labels");
+    else if (state_labels)
+      prop(" state-labels explicit-labels");
     else
       prop(" trans-labels explicit-labels");
     if (acceptance == Hoa_Acceptance_States)
@@ -453,7 +468,20 @@ namespace spot
 	  this_acc = (md.common_acc[i] ?
 		      Hoa_Acceptance_States : Hoa_Acceptance_Transitions);
 
-	os << "State: " << i;
+	os << "State: ";
+	if (state_labels)
+	  {
+	    bool output = false;
+	    for (auto& t: aut->out(i))
+	      {
+		os << '[' << md.sup[t.cond] << "] ";
+		output = true;
+		break;
+	      }
+	    if (!output)
+	      os << "[f] ";
+	  }
+	os << i;
 	if (sn && i < sn->size() && !(*sn)[i].empty())
 	  os << " \"" << (*sn)[i] << '"';
 	if (this_acc == Hoa_Acceptance_States)
@@ -468,14 +496,33 @@ namespace spot
 	  }
 	os << nl;
 
-	if (!implicit_labels)
+	if (!implicit_labels && !state_labels)
 	  {
+
 	    for (auto& t: aut->out(i))
 	      {
 		os << '[' << md.sup[t.cond] << "] " << t.dst;
 		if (this_acc == Hoa_Acceptance_Transitions)
 		  md.emit_acc(os, aut, t.acc);
 		os << nl;
+	      }
+	  }
+	else if (state_labels)
+	  {
+	    unsigned n = 0;
+	    for (auto& t: aut->out(i))
+	      {
+		os << t.dst;
+		if (this_acc == Hoa_Acceptance_Transitions)
+		  {
+		    md.emit_acc(os, aut, t.acc);
+		    os << nl;
+		  }
+		else
+		  {
+		    ++n;
+		    os << (((n & 15) && t.next_succ) ? ' ' : nl);
+		  }
 	      }
 	  }
 	else

@@ -32,7 +32,8 @@ namespace spot
   /// \param g The automaton to output.
   /// \param opt a set of characters each corresponding to a possible
   ///        option: (i) implicit labels for complete and
-  ///        deterministic automata, (s) state-based acceptance, (t)
+  ///        deterministic automata, (k) state labels when possible,
+  ///        (s) state-based acceptance when possible, (t)
   ///        transition-based acceptance, (m) mixed acceptance, (l)
   ///        single-line output, (v) verbose properties.
   SPOT_API std::ostream&

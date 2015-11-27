@@ -510,6 +510,79 @@ Acceptance: 6 (Fin(0)|Fin(1)) | (Fin(2) & Fin(3) & (Inf(4)&Inf(5)))
 Here =Fin(0)|Fin(1)= is actually a single internal term =Fin({0,1})=,
 and likewise for =Inf(4)&Inf(5)=.
 
+** State-based vs. transition-based labels
+
+State labels are handled in the same way as state-based acceptance:
+Spot store labels on transitions internally, so if an input automaton
+has state labels, those are pushed to all outgoing transitions.
+
+For instance an automaton declared in some HOA file with this body:
+
+#+BEGIN_SRC sh :results silent :exports results
+cat >stvstrlab.hoa <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "p0" "p1"
+Acceptance: 1 Inf(1)
+--BODY--
+State: [0&1] 0
+0 1 2
+State: [!0&1] 1 {0}
+0 1
+State: [!1] 2
+2 1
+--END--
+EOF
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh :results verbatim :exports results :wrap SRC hoa
+sed -n '/--BODY/,/--END/p' stvstrlab.hoa | grep -v -- --
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC hoa
+State: [0&1] 0
+0 1 2
+State: [!0&1] 1 {0}
+0 1
+State: [!1] 2
+2 1
+#+END_SRC
+
+will always be stored as an automaton with the following transition
+structure
+
+
+#+BEGIN_SRC sh :results verbatim :exports results :wrap SRC hoa
+autfilt -Ht stvstrlab.hoa | sed -n '/--BODY/,/--END/p' | grep -v -- --
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC hoa
+State: 0
+[0&1] 0
+[0&1] 1
+[0&1] 2
+State: 1
+[!0&1] 0 {0}
+[!0&1] 1 {0}
+State: 2
+[!1] 2
+[!1] 1
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent :exports results
+rm -f stvstrlab.hoa
+#+END_SRC
+
+The HOA printer has an option to output automata using state-based
+labels whenever that is possible.  The option is named =k= (i.e., use
+=-Hk= with command-line tools) because it is useful when the HOA file
+is used to describe a Kripke structure.
+
 ** Property bits
 
 The =HOA= format supports a number of optional =property:= tokens.
@@ -577,24 +650,24 @@ particular:
   to detect deterministic automata that have been output by algorithms
   that do not try to output deterministic automata.
 
-| property            | parser  | stored | printer                                     | notes                                                  |
-|---------------------+---------+--------+---------------------------------------------+--------------------------------------------------------|
-| =state-labels=      | checked | no     | never                                       | state labels are always converted to transition labels |
-| =trans-labels=      | checked | no     | always, unless =-Hi=                        |                                                        |
-| =implicit-labels=   | checked | no     | if =-Hi=                                    | =-Hi= only works for deterministic automata            |
-| =explicit-labels=   | checked | no     | always, unless =-Hi=                        |                                                        |
-| =state-acc=         | checked | yes    | re-checked, unless =-Ht= or =-Hm=           |                                                        |
-| =trans-acc=         | checked | no     | if not =state-acc= and not =-Hm=            |                                                        |
-| =no-univ-branch=    | ignored | no     | only if =-Hv=                               |                                                        |
-| =deterministic=     | checked | yes    | re-checked                                  |                                                        |
-| =complete=          | checked | no     | re-checked                                  |                                                        |
-| =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=) | can be re-checked with =--check=unambiguous=           |
-| =stutter-invariant= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=            |
-| =stutter-sensitive= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=            |
-| =terminal=          | trusted | yes    | as stored                                   | can be re-checked with =--check=strength=              |
-| =weak=              | trusted | yes    | as stored if (=-Hv= or not =terminal=)      | can be re-checked with =--check=strength=              |
-| =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)          |                                                        |
-| =colored=           | ignored | no     | checked                                     |                                                        |
+| property            | parser  | stored | printer                                     | notes                                                            |
+|---------------------+---------+--------+---------------------------------------------+------------------------------------------------------------------|
+| =state-labels=      | checked | no     | re-rechecked if =-Hk=                       | state labels are converted to transition labels when reading TωA |
+| =trans-labels=      | checked | no     | always, unless =-Hi= or =-Hk=               |                                                                  |
+| =implicit-labels=   | checked | no     | if =-Hi=                                    | =-Hi= only works for deterministic automata                      |
+| =explicit-labels=   | checked | no     | always, unless =-Hi=                        |                                                                  |
+| =state-acc=         | checked | yes    | re-checked, unless =-Ht= or =-Hm=           |                                                                  |
+| =trans-acc=         | checked | no     | if not =state-acc= and not =-Hm=            |                                                                  |
+| =no-univ-branch=    | ignored | no     | only if =-Hv=                               |                                                                  |
+| =deterministic=     | checked | yes    | re-checked                                  |                                                                  |
+| =complete=          | checked | no     | re-checked                                  |                                                                  |
+| =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=) | can be re-checked with =--check=unambiguous=                     |
+| =stutter-invariant= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=                      |
+| =stutter-sensitive= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=                      |
+| =terminal=          | trusted | yes    | as stored                                   | can be re-checked with =--check=strength=                        |
+| =weak=              | trusted | yes    | as stored if (=-Hv= or not =terminal=)      | can be re-checked with =--check=strength=                        |
+| =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)          |                                                                  |
+| =colored=           | ignored | no     | checked                                     |                                                                  |
 
 ** Named properties
 

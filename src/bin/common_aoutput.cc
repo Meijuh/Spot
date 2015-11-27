@@ -104,6 +104,7 @@ static const argp_option options[] =
       "(s) prefer state-based acceptance when possible [default], "
       "(t) force transition-based acceptance, "
       "(m) mix state and transition-based acceptance, "
+      "(k) use state labels when possible, "
       "(l) single-line output, "
       "(v) verbose properties", 0 },
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,

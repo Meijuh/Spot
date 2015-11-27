@@ -633,7 +633,27 @@ EOF
 
 diff output2 expect2
 
+$autfilt -Hk expect2 >output2b
 
+cat >expect2b <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "p0" "p1"
+acc-name: all
+Acceptance: 0 t
+properties: state-labels explicit-labels state-acc deterministic
+--BODY--
+State: [!0&!1] 0
+1
+State: [0&1] 1
+2
+State: [!0&!1] 2
+0
+--END--
+EOF
+
+diff output2b expect2b
 
 # Check the difference between --remove-unreach and --remove-dead
 cat >input <<EOF
@@ -700,8 +720,8 @@ EOF
 diff output3 expect3
 
 
-$autfilt -Hk input 2>stderr && exit 1
-grep 'print_hoa.*k' stderr
+$autfilt -Hz input 2>stderr && exit 1
+grep 'print_hoa.*z' stderr
 
 cat >input4 <<EOF
 HOA: v1
@@ -773,3 +793,47 @@ State: 2 {0}
 --END--
 EOF
 diff output5 expect5
+
+cat >input6 <<EOF
+HOA: v1
+States: 3
+Start: 1
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: no-univ-branch trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[1] 2
+[1] 1
+[1] 1
+State: 1
+[0] 0
+[0] 1
+State: 2 {0}
+[0] 2
+[0] 0
+[0] 1
+--END--
+EOF
+
+run 0 $autfilt -Hk input6 >output6
+cat >expect6 <<EOF
+HOA: v1
+States: 3
+Start: 1
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: state-labels explicit-labels state-acc
+--BODY--
+State: [1] 0
+2 1 1
+State: [0] 1
+0 1
+State: [0] 2 {0}
+2 0 1
+--END--
+EOF
+
+diff output6 expect6

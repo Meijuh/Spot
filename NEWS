@@ -48,6 +48,10 @@ New in spot 1.99.5a (not yet released)
     automata already tagged as "deterministic", and "inherently-weak"
     or "weak" even for automata tagged "weak" or "terminal".
 
+  * The HOA printer has a new option "k" (use "-Hk" from the command
+    line) to output automata using state labels whenever possible.
+    This is useful to print Kripke structures.
+
   * The dot output will display pair of states when displaying an
     automaton built as an explicit product.  This works in IPython
     with spot.product() or spot.product_or() and in the shell with
