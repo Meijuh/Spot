@@ -10,12 +10,12 @@ AC_DEFUN([AC_LIB_PROG_LD_GNU_SYMBOLIC],
 acl_cv_prog_gnu_ld_symbolic, [
 acl_cv_prog_gnu_ld_symbolic=no
 if test x"$with_gnu_ld" = x"yes"; then
-  if $LD -Bsymbolic-functions -Bsymbolic --help>/dev/null 2>&1 </dev/null; then
+  if $LD -Bsymbolic-functions --help>/dev/null 2>&1 </dev/null; then
     acl_cv_prog_gnu_ld_symbolic=yes
   fi
 fi])
 if test x"$acl_cv_prog_gnu_ld_symbolic" = x"yes"; then
-  SYMBOLIC_LDFLAGS="-Wl,-Bsymbolic-functions -Wl,-Bsymbolic"
+  SYMBOLIC_LDFLAGS="-Wl,-Bsymbolic-functions"
 else
   SYMBOLIC_LDFLAGS=''
 fi
