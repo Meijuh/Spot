@@ -33,7 +33,8 @@ namespace spot
 
   namespace
   {
-    typedef std::pair<spot::state*, ta_succ_iterator_product*> pair_state_iter;
+    typedef std::pair<const spot::state*,
+		      ta_succ_iterator_product*> pair_state_iter;
   }
 
   /// \addtogroup ta_emptiness_check Emptiness-checks
@@ -127,7 +128,7 @@ namespace spot
   protected:
     void
     clear(hash_type& h, std::stack<pair_state_iter> todo, std::queue<
-        spot::state*> init_set);
+        const spot::state*> init_set);
 
     void
     clear(hash_type& h, std::stack<pair_state_iter> todo,

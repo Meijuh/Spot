@@ -49,7 +49,7 @@ namespace spot
   {
   }
 
-  state*
+  const state*
   tgta_product::get_init_state() const
   {
     fixed_size_pool* p = const_cast<fixed_size_pool*> (&pool_);
@@ -79,7 +79,7 @@ namespace spot
     : source_(s), tgta_(t), kripke_(k), pool_(pool)
   {
 
-    state * tgta_init_state = tgta_->get_init_state();
+    const state* tgta_init_state = tgta_->get_init_state();
     if ((s->right())->compare(tgta_init_state) == 0)
       source_ = nullptr;
 

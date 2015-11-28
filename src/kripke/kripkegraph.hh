@@ -180,12 +180,11 @@ namespace spot
       return init_number_;
     }
 
-    // FIXME: The return type ought to be const.
-    virtual kripke_graph_state* get_init_state() const
+    virtual const kripke_graph_state* get_init_state() const
     {
       if (num_states() == 0)
 	const_cast<graph_t&>(g_).new_state();
-      return const_cast<kripke_graph_state*>(state_from_number(init_number_));
+      return state_from_number(init_number_);
     }
 
     /// \brief Allow to get an iterator on the state we passed in

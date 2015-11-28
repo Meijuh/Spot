@@ -35,8 +35,7 @@ namespace spot
     tgta_product(const const_kripke_ptr& left,
 		 const const_tgta_ptr& right);
 
-    virtual state*
-    get_init_state() const;
+    virtual const state* get_init_state() const;
 
     virtual twa_succ_iterator*
     succ_iter(const state* local_state) const;
@@ -97,6 +96,6 @@ namespace spot
     bdd current_condition_;
     acc_cond::mark_t current_acceptance_conditions_;
     bdd kripke_source_condition;
-    state* kripke_current_dest_state;
+    const state* kripke_current_dest_state;
   };
 }

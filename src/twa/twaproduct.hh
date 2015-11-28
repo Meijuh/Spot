@@ -42,20 +42,22 @@ namespace spot
     /// \param pool The pool from which the state was allocated.
     /// These states are acquired by spot::state_product, and will
     /// be destroyed on destruction.
-    state_product(state* left, state* right, fixed_size_pool* pool)
+    state_product(const state* left,
+		  const state* right,
+		  fixed_size_pool* pool)
       :	left_(left), right_(right), count_(1), pool_(pool)
     {
     }
 
     virtual void destroy() const;
 
-    state*
+    const state*
     left() const
     {
       return left_;
     }
 
-    state*
+    const state*
     right() const
     {
       return right_;
@@ -66,8 +68,8 @@ namespace spot
     virtual state_product* clone() const;
 
   private:
-    state* left_;		///< State from the left automaton.
-    state* right_;		///< State from the right automaton.
+    const state* left_;		///< State from the left automaton.
+    const state* right_;	///< State from the right automaton.
     mutable unsigned count_;
     fixed_size_pool* pool_;
 
@@ -88,7 +90,7 @@ namespace spot
 
     virtual ~twa_product();
 
-    virtual state* get_init_state() const;
+    virtual const state* get_init_state() const;
 
     virtual twa_succ_iterator*
     succ_iter(const state* state) const;
@@ -124,7 +126,7 @@ namespace spot
   public:
     twa_product_init(const const_twa_ptr& left, const const_twa_ptr& right,
 		      const state* left_init, const state* right_init);
-    virtual state* get_init_state() const;
+    virtual const state* get_init_state() const;
   protected:
     const state* left_init_;
     const state* right_init_;

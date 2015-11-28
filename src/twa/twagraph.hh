@@ -143,11 +143,10 @@ namespace spot
       return !p_;
     }
 
-    virtual twa_graph_state* dst() const
+    virtual const twa_graph_state* dst() const
     {
       assert(!done());
-      return const_cast<twa_graph_state*>
-	(&g_->state_data(g_->edge_storage(p_).dst));
+      return &g_->state_data(g_->edge_storage(p_).dst);
     }
 
     virtual bdd cond() const
@@ -266,12 +265,11 @@ namespace spot
       return init_number_;
     }
 
-    // FIXME: The return type ought to be const.
-    virtual twa_graph_state* get_init_state() const
+    virtual const twa_graph_state* get_init_state() const
     {
       if (num_states() == 0)
 	const_cast<graph_t&>(g_).new_state();
-      return const_cast<twa_graph_state*>(state_from_number(init_number_));
+      return state_from_number(init_number_);
     }
 
     virtual twa_succ_iterator*

@@ -108,7 +108,7 @@ namespace spot
 	    {
 	      inc_transitions();
 
-	      state* s = i->dst();
+	      const state* s = i->dst();
 	      auto j = ecs_->h.find(s);
 	      assert(j != ecs_->h.end());
 	      s->destroy();
@@ -158,7 +158,7 @@ namespace spot
 
     // Setup depth-first search from the initial state.
     {
-      state* init = ecs_->aut->get_init_state();
+      const state* init = ecs_->aut->get_init_state();
       ecs_->h[init] = 1;
       ecs_->root.push(1);
       arc.push(0U);

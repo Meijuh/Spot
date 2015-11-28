@@ -146,9 +146,7 @@ namespace spot
 
         artificial_initial_state_ = t_automata_->get_artificial_initial_state();
 
-        ta::states_set_t init_states_set;
-
-        ta::states_set_t::const_iterator it;
+        ta::const_states_set_t init_states_set;
 
         if (artificial_initial_state_)
 	  {
@@ -159,10 +157,9 @@ namespace spot
 	  {
 	    int n = 0;
 	    init_states_set = t_automata_->get_initial_states_set();
-	    for (it = init_states_set.begin();
-		 it != init_states_set.end(); ++it)
+	    for (auto s: init_states_set)
 	      {
-		bdd init_condition = t_automata_->get_state_condition(*it);
+		bdd init_condition = t_automata_->get_state_condition(s);
 		std::string label = bdd_format_formula(t_automata_->get_dict(),
 						       init_condition);
 		++n;
@@ -223,7 +220,7 @@ namespace spot
 
     private:
       std::ostream& os_;
-      spot::state* artificial_initial_state_;
+      const spot::state* artificial_initial_state_;
 
       bool opt_horizontal_ = true;
       bool opt_circles_ = false;

@@ -90,9 +90,10 @@ namespace spot
     }
 
     typedef std::set<state*, state_ptr_less_than> states_set_t;
+    typedef std::set<const state*, state_ptr_less_than> const_states_set_t;
 
     /// \brief Get the initial states set of the automaton.
-    virtual const states_set_t
+    virtual const_states_set_t
     get_initial_states_set() const = 0;
 
     /// \brief Get the artificial initial state set of the automaton.
@@ -102,7 +103,7 @@ namespace spot
     /// artificial initial state have one transition to each real initial state,
     /// and this transition is labeled by the corresponding initial condition.
     /// (For more details, see the paper cited above)
-    virtual spot::state*
+    virtual const spot::state*
     get_artificial_initial_state() const
     {
       return nullptr;
@@ -205,17 +206,14 @@ namespace spot
     virtual bool next() = 0;
     virtual bool done() const = 0;
 
-    virtual state*
-    dst() const = 0;
+    virtual const state* dst() const = 0;
 
     /// \brief Get the changeset on the transition leading to current successor.
     ///
     /// This is a boolean function of atomic propositions.
-    virtual bdd
-    cond() const = 0;
+    virtual bdd cond() const = 0;
 
-    acc_cond::mark_t
-    acc() const = 0;
+    acc_cond::mark_t acc() const = 0;
 
   };
 
@@ -238,7 +236,7 @@ namespace spot
       /// transitions which connect the states of the connected component.
       acc_cond::mark_t condition;
 
-      std::list<state*> rem;
+      std::list<const state*> rem;
     };
 
     /// Stack a new SCC with index \a index.
@@ -262,7 +260,7 @@ namespace spot
     size() const;
 
     /// The \c rem member of the top SCC.
-    std::list<state*>&
+    std::list<const state*>&
     rem();
 
     /// Is the stack empty?

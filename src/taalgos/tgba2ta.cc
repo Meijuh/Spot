@@ -42,7 +42,7 @@ namespace spot
 
   namespace
   {
-    typedef std::pair<spot::state*, twa_succ_iterator*> pair_state_iter;
+    typedef std::pair<const spot::state*, twa_succ_iterator*> pair_state_iter;
 
     static void
     transform_to_single_pass_automaton
@@ -52,7 +52,7 @@ namespace spot
 
       if (artificial_livelock_acc_state)
 	{
-	  state_ta_explicit* artificial_livelock_acc_state_added =
+	  auto artificial_livelock_acc_state_added =
             testing_automata->add_state(artificial_livelock_acc_state);
 
 	  // unique artificial_livelock_acc_state
@@ -71,7 +71,8 @@ namespace spot
 
       for (it = states_set.begin(); it != states_set.end(); ++it)
 	{
-	  state_ta_explicit* source = static_cast<state_ta_explicit*> (*it);
+	  auto source = const_cast<state_ta_explicit*>
+	    (static_cast<const state_ta_explicit*>(*it));
 
 	  transitions_to_livelock_states->clear();
 
@@ -81,10 +82,10 @@ namespace spot
 	  if (trans)
 	    for (it_trans = trans->begin(); it_trans != trans->end();)
 	      {
-		state_ta_explicit* dest = (*it_trans)->dest;
+		auto dest = const_cast<state_ta_explicit*>((*it_trans)->dest);
 
 		state_ta_explicit::transitions* dest_trans =
-                  (dest)->get_transitions();
+		  dest->get_transitions();
 		bool dest_trans_empty = !dest_trans || dest_trans->empty();
 
 		//select transitions where a destination is a livelock state
@@ -175,9 +176,9 @@ namespace spot
       std::stack<pair_state_iter> todo;
 
       // * init: the set of the depth-first search initial states
-      std::stack<state*> init_set;
+      std::stack<const state*> init_set;
 
-      for (state* s: testing_aut->get_initial_states_set())
+      for (auto s: testing_aut->get_initial_states_set())
 	init_set.push(s);
 
       while (!init_set.empty())
@@ -185,8 +186,7 @@ namespace spot
 	  // Setup depth-first search from initial states.
 
 	  {
-	    state_ta_explicit* init =
-	      down_cast<state_ta_explicit*> (init_set.top());
+	    auto init = down_cast<const state_ta_explicit*> (init_set.top());
 	    init_set.pop();
 
 	    if (!h.emplace(init, num + 1).second)
@@ -206,7 +206,7 @@ namespace spot
 
 	  while (!todo.empty())
 	    {
-	      state* curr = todo.top().first;
+	      auto curr = todo.top().first;
 
 	      auto i = h.find(curr);
 	      // If we have reached a dead component, ignore it.
@@ -254,8 +254,9 @@ namespace spot
 			      trace << "*** sscc.size() > 1: states: ***"
 				    << testing_aut->format_state(j)
 				    << '\n';
-			      state_ta_explicit* livelock_accepting_state =
-				down_cast<state_ta_explicit*>(j);
+			      auto livelock_accepting_state =
+				const_cast<state_ta_explicit*>
+				(down_cast<const state_ta_explicit*>(j));
 
 			      livelock_accepting_state->
 				set_livelock_accepting_state(true);
@@ -285,7 +286,7 @@ namespace spot
 		}
 
 	      // Fetch the values destination state we are interested in...
-	      state* dest = succ->dst();
+	      auto dest = succ->dst();
 
 	      auto acc_cond = succ->acc();
 	      // ... and point the iterator to the next successor, for
@@ -332,8 +333,8 @@ namespace spot
 
 	      if (!curr->compare(id->first))
 		{
-		  state_ta_explicit * self_loop_state =
-		    down_cast<state_ta_explicit*> (curr);
+		  auto self_loop_state = const_cast<state_ta_explicit*>
+		    (down_cast<const state_ta_explicit*>(curr));
 		  assert(self_loop_state);
 
 		  if (testing_aut->is_accepting_state(self_loop_state)
@@ -365,7 +366,7 @@ namespace spot
 	      // top of ROOT that have an index greater to the one of
 	      // the SSCC of S2 (called the "threshold").
 	      int threshold = id->second;
-	      std::list<state*> rem;
+	      std::list<const state*> rem;
 	      bool acc = false;
 
 	      while (threshold < sscc.top().index)
@@ -412,7 +413,7 @@ namespace spot
       const_twa_ptr tgba_ = ta->get_tgba();
 
       // build Initial states set:
-      state* tgba_init_state = tgba_->get_init_state();
+      auto tgba_init_state = tgba_->get_init_state();
 
       bdd tgba_condition = tgba_->support_conditions(tgba_init_state);
 
@@ -546,7 +547,7 @@ namespace spot
   {
     ta_explicit_ptr ta;
 
-    state* tgba_init_state = tgba_->get_init_state();
+    auto tgba_init_state = tgba_->get_init_state();
     if (artificial_initial_state_mode)
       {
         state_ta_explicit* artificial_init_state =
@@ -597,7 +598,7 @@ namespace spot
   tgta_explicit_ptr
   tgba_to_tgta(const const_twa_ptr& tgba_, bdd atomic_propositions_set_)
   {
-    state* tgba_init_state = tgba_->get_init_state();
+    auto tgba_init_state = tgba_->get_init_state();
     auto artificial_init_state = new state_ta_explicit(tgba_init_state->clone(),
 						       bddfalse, true);
     tgba_init_state->destroy();

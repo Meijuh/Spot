@@ -36,7 +36,7 @@ namespace spot
     /// \brief Constructor
     /// \param ta_state The state from the ta automaton.
     /// \param kripke_state The state from Kripke structure.
-    state_ta_product(state* ta_state, state* kripke_state) :
+    state_ta_product(const state* ta_state, const state* kripke_state) :
       ta_state_(ta_state), kripke_state_(kripke_state)
     {
     }
@@ -47,13 +47,13 @@ namespace spot
     virtual
     ~state_ta_product();
 
-    state*
+    const state*
     get_ta_state() const
     {
       return ta_state_;
     }
 
-    state*
+    const state*
     get_kripke_state() const
     {
       return kripke_state_;
@@ -67,8 +67,8 @@ namespace spot
     clone() const;
 
   private:
-    state* ta_state_; ///< State from the ta automaton.
-    state* kripke_state_; ///< State from the kripke structure.
+    const state* ta_state_; ///< State from the ta automaton.
+    const state* kripke_state_; ///< State from the kripke structure.
   };
 
   /// \brief Iterate over the successors of a product computed on the fly.
@@ -117,12 +117,12 @@ namespace spot
     const kripke* kripke_;
     ta_succ_iterator* ta_succ_it_;
     twa_succ_iterator* kripke_succ_it_;
-    state_ta_product* current_state_;
+    const state_ta_product* current_state_;
     bdd current_condition_;
     acc_cond::mark_t current_acceptance_conditions_;
     bool is_stuttering_transition_;
     bdd kripke_source_condition;
-    state * kripke_current_dest_state;
+    const state* kripke_current_dest_state;
 
   };
 
@@ -141,7 +141,7 @@ namespace spot
     virtual
     ~ta_product();
 
-    virtual const std::set<state*, state_ptr_less_than>
+    virtual ta::const_states_set_t
     get_initial_states_set() const;
 
     virtual ta_succ_iterator_product*

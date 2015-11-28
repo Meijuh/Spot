@@ -88,11 +88,11 @@ namespace spot
     // Setup depth-first search from initial states.
     auto& ta_ = a_->get_ta();
     auto& kripke_ = a_->get_kripke();
-    state* kripke_init_state = kripke_->get_init_state();
+    auto kripke_init_state = kripke_->get_init_state();
     bdd kripke_init_state_condition = kripke_->state_condition(
         kripke_init_state);
 
-    spot::state* artificial_initial_state = ta_->get_artificial_initial_state();
+    auto artificial_initial_state = ta_->get_artificial_initial_state();
 
     ta_succ_iterator* ta_init_it_ = ta_->succ_iter(artificial_initial_state,
         kripke_init_state_condition);
@@ -124,8 +124,7 @@ namespace spot
 
         while (!todo.empty())
           {
-
-            state* curr = todo.top().first;
+            auto curr = todo.top().first;
 
             // We are looking at the next successor in SUCC.
             ta_succ_iterator_product* succ = todo.top().second;
@@ -249,7 +248,7 @@ namespace spot
             // top of ROOT that have an index greater to the one of
             // the SSCC of S2 (called the "threshold").
             int threshold = std::abs(p.first->second);
-            std::list<state*> rem;
+            std::list<const state*> rem;
             bool acc = false;
 
             trace << "***PASS 1: CYCLE***\n";
@@ -393,21 +392,17 @@ namespace spot
     std::stack<pair_state_iter> todo;
 
     // * init: the set of the depth-first search initial states
-    std::queue<spot::state*> ta_init_it_;
+    std::queue<const spot::state*> ta_init_it_;
 
-    const ta::states_set_t init_states_set = a_->get_initial_states_set();
-    ta::states_set_t::const_iterator it;
-    for (it = init_states_set.begin(); it != init_states_set.end(); ++it)
-      {
-        state* init_state = (*it);
-        ta_init_it_.push(init_state);
-      }
+    auto init_states_set = a_->get_initial_states_set();
+    for (auto init_state: init_states_set)
+      ta_init_it_.push(init_state);
 
     while (!ta_init_it_.empty())
       {
         // Setup depth-first search from initial states.
           {
-            state* init = ta_init_it_.front();
+            auto init = ta_init_it_.front();
             ta_init_it_.pop();
 
 	    if (!h.emplace(init, num + 1).second)
@@ -426,8 +421,7 @@ namespace spot
 
         while (!todo.empty())
           {
-
-            state* curr = todo.top().first;
+            auto curr = todo.top().first;
 
             // We are looking at the next successor in SUCC.
             ta_succ_iterator_product* succ = todo.top().second;
@@ -517,16 +511,12 @@ namespace spot
 
             //self loop state
             if (!curr->compare(i->first))
-              {
-                state* self_loop_state = curr;
-
-                if (t->is_livelock_accepting_state(self_loop_state))
-                  {
-                    clear(h, todo, ta_init_it_);
-                    trace << "PASS 2: SUCCESS\n";
-                    return true;
-                  }
-              }
+	      if (t->is_livelock_accepting_state(curr))
+		{
+		  clear(h, todo, ta_init_it_);
+		  trace << "PASS 2: SUCCESS\n";
+		  return true;
+		}
 
             // Now this is the most interesting case.  We have reached a
             // state S1 which is already part of a non-dead SSCC.  Any such
@@ -540,7 +530,7 @@ namespace spot
             // top of ROOT that have an index greater to the one of
             // the SSCC of S2 (called the "threshold").
             int threshold = i->second;
-            std::list<state*> rem;
+            std::list<const state*> rem;
             bool acc = false;
 
             while (threshold < sscc.top().index)
@@ -578,7 +568,7 @@ namespace spot
 
   void
   ta_check::clear(hash_type& h, std::stack<pair_state_iter> todo,
-      std::queue<spot::state*> init_states)
+      std::queue<const spot::state*> init_states)
   {
 
     set_states(states() + h.size());

@@ -50,7 +50,7 @@ namespace spot
   {
     int n = 0;
     start();
-    state* i = aut_->get_init_state();
+    const state* i = aut_->get_init_state();
     if (want_state(i))
       add_state(i);
     seen[i] = ++n;
@@ -188,7 +188,7 @@ namespace spot
   {
     int n = 1;
     start();
-    state* i = aut_->get_init_state();
+    const state* i = aut_->get_init_state();
     if (want_state(i))
       push(i, n);
     seen[i] = n++;

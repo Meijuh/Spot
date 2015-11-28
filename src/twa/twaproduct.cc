@@ -130,7 +130,7 @@ namespace spot
 	return !right_ || right_->done();
       }
 
-      state_product* dst() const
+      const state_product* dst() const
       {
 	return new(pool_->allocate()) state_product(left_->dst(),
 						    right_->dst(),
@@ -330,7 +330,7 @@ namespace spot
       }
   }
 
-  state*
+  const state*
   twa_product::get_init_state() const
   {
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);
@@ -434,7 +434,7 @@ namespace spot
       std::swap(left_init_, right_init_);
   }
 
-  state*
+  const state*
   twa_product_init::get_init_state() const
   {
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);

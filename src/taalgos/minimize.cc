@@ -230,8 +230,7 @@ namespace spot
 
       std::set<const state*>::iterator it;
 
-      spot::state* artificial_initial_state =
-	ta_->get_artificial_initial_state();
+      auto artificial_initial_state = ta_->get_artificial_initial_state();
 
       for (it = states_set.begin(); it != states_set.end(); ++it)
 	{

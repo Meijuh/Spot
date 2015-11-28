@@ -259,26 +259,25 @@ namespace spot
     dict_->unregister_all_my_variables(this);
   }
 
-  const ta::states_set_t
+  ta::const_states_set_t
   ta_product::get_initial_states_set() const
   {
     //build initial states set
 
-    ta::states_set_t ta_init_states_set;
-    ta::states_set_t::const_iterator it;
+    ta::const_states_set_t ta_init_states_set;
+    ta::const_states_set_t::const_iterator it;
 
-    ta::states_set_t initial_states_set;
-    state* kripke_init_state = kripke_->get_init_state();
-    bdd kripke_init_state_condition = kripke_->state_condition(
-        kripke_init_state);
+    ta::const_states_set_t initial_states_set;
+    const state* kripke_init = kripke_->get_init_state();
+    bdd kripke_init_condition = kripke_->state_condition(kripke_init);
 
-    spot::state* artificial_initial_state =
+    const spot::state* artificial_initial_state =
       ta_->get_artificial_initial_state();
 
     if (artificial_initial_state)
       {
         ta_succ_iterator* ta_init_it_ = ta_->succ_iter(
-            artificial_initial_state, kripke_init_state_condition);
+            artificial_initial_state, kripke_init_condition);
         for (ta_init_it_->first(); !ta_init_it_->done(); ta_init_it_->next())
           {
             ta_init_states_set.insert(ta_init_it_->dst());
@@ -291,21 +290,13 @@ namespace spot
         ta_init_states_set = ta_->get_initial_states_set();
       }
 
-    for (it = ta_init_states_set.begin(); it != ta_init_states_set.end(); ++it)
-      {
+    for (auto s: ta_init_states_set)
+      if (artificial_initial_state ||
+	  (kripke_init_condition == ta_->get_state_condition(s)))
+	initial_states_set.insert(new state_ta_product(s,
+						       kripke_init->clone()));
 
-        if (artificial_initial_state ||
-	    (kripke_init_state_condition == ta_->get_state_condition(*it)))
-          {
-            state_ta_product* stp = new state_ta_product((*it),
-                kripke_init_state->clone());
-
-            initial_states_set.insert(stp);
-          }
-
-      }
-
-    kripke_init_state->destroy();
+    kripke_init->destroy();
     return initial_states_set;
   }
 
@@ -369,8 +360,8 @@ namespace spot
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
     assert(stp);
 
-    state* ta_s = stp->get_ta_state();
-    state* kr_s = stp->get_kripke_state();
+    const state* ta_s = stp->get_ta_state();
+    const state* kr_s = stp->get_kripke_state();
 
     return (ta_->is_initial_state(ta_s))
         && ((kripke_->get_init_state())->compare(kr_s) == 0)
@@ -393,7 +384,7 @@ namespace spot
   {
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
     assert(stp);
-    state* ta_s = stp->get_ta_state();
+    const state* ta_s = stp->get_ta_state();
     return ta_->get_state_condition(ta_s);
   }
 

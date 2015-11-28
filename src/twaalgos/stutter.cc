@@ -43,7 +43,7 @@ namespace spot
     class state_tgbasl: public state
     {
     public:
-      state_tgbasl(state* s, bdd cond) : s_(s), cond_(cond)
+      state_tgbasl(const state* s, bdd cond) : s_(s), cond_(cond)
       {
       }
 
@@ -77,7 +77,7 @@ namespace spot
         return new state_tgbasl(*this);
       }
 
-      state*
+      const state*
       real_state() const
       {
         return s_;
@@ -90,7 +90,7 @@ namespace spot
       }
 
     private:
-      state* s_;
+      const state* s_;
       bdd cond_;
     };
 
@@ -220,7 +220,7 @@ namespace spot
 	get_dict()->unregister_all_my_variables(this);
       }
 
-      virtual state* get_init_state() const override
+      virtual const state* get_init_state() const override
       {
 	return new state_tgbasl(a_->get_init_state(), bddfalse);
       }

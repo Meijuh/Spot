@@ -56,7 +56,7 @@ namespace spot
     s.emplace_front(index);
   }
 
-  std::list<state*>&
+  std::list<const state*>&
   scc_stack_ta::rem()
   {
     return top().rem;

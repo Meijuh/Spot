@@ -56,7 +56,7 @@ namespace spot
     void
     create_transition(state_ta_explicit* source, bdd condition,
 		      acc_cond::mark_t acceptance_conditions,
-		      state_ta_explicit* dest,
+		      const state_ta_explicit* dest,
 		      bool add_at_beginning = false);
 
     void
@@ -64,7 +64,7 @@ namespace spot
     // ta interface
     virtual
     ~ta_explicit();
-    virtual const states_set_t
+    virtual const_states_set_t
     get_initial_states_set() const;
 
     virtual ta_succ_iterator*
@@ -108,7 +108,7 @@ namespace spot
     }
 
     virtual void
-    delete_stuttering_and_hole_successors(spot::state* s);
+    delete_stuttering_and_hole_successors(const spot::state* s);
 
     ta::states_set_t
     get_states_set()
@@ -124,7 +124,7 @@ namespace spot
     const_twa_ptr tgba_;
     state_ta_explicit* artificial_initial_state_;
     ta::states_set_t states_set_;
-    ta::states_set_t initial_states_set_;
+    ta::const_states_set_t initial_states_set_;
   };
 
   /// states used by spot::ta_explicit.
@@ -139,7 +139,7 @@ namespace spot
     {
       bdd condition;
       acc_cond::mark_t acceptance_conditions;
-      state_ta_explicit* dest;
+      const state_ta_explicit* dest;
     };
 
     typedef std::list<transition*> transitions;
@@ -238,13 +238,10 @@ namespace spot
     virtual bool next();
     virtual bool done() const;
 
-    virtual state*
-    dst() const;
-    virtual bdd
-    cond() const;
+    virtual const state* dst() const;
+    virtual bdd cond() const;
 
-    virtual acc_cond::mark_t
-    acc() const;
+    virtual acc_cond::mark_t acc() const;
 
   private:
     state_ta_explicit::transitions* transitions_;

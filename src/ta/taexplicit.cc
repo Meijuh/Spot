@@ -71,7 +71,7 @@ namespace spot
     return !transitions_ || i_ == transitions_->end();
   }
 
-  state*
+  const state*
   ta_explicit_succ_iterator::dst() const
   {
     trace
@@ -81,8 +81,7 @@ namespace spot
     trace
       << "***ta_explicit_succ_iterator::dst() (*i_)->condition =***"
           << (*i_)->condition << std::endl;
-    state_ta_explicit* s = (*i_)->dest;
-    return s;
+    return (*i_)->dest;
   }
 
   bdd
@@ -273,7 +272,7 @@ namespace spot
     if (trans)
       for (it_trans = trans->begin(); it_trans != trans->end();)
         {
-          state_ta_explicit* dest = (*it_trans)->dest;
+          auto dest = (*it_trans)->dest;
           bool is_stuttering_transition = (get_tgba_condition()
               == (dest)->get_tgba_condition());
           bool dest_is_livelock_accepting =
@@ -316,14 +315,11 @@ namespace spot
   state_ta_explicit::free_transitions()
   {
     state_ta_explicit::transitions* trans = transitions_;
-    state_ta_explicit::transitions::iterator it_trans;
     // We don't destroy the transitions in the state's destructor because
     // they are not cloned.
     if (trans)
-      for (it_trans = trans->begin(); it_trans != trans->end(); ++it_trans)
-        {
-          delete *it_trans;
-        }
+      for (auto& t: *trans)
+	delete t;
     delete trans;
 
     std::unordered_map<int, transitions*, std::hash<int> >::iterator i =
@@ -353,7 +349,7 @@ namespace spot
     acc().set_generalized_buchi();
     if (artificial_initial_state)
       {
-        state_ta_explicit* is = add_state(artificial_initial_state);
+        auto is = add_state(artificial_initial_state);
         assert(is == artificial_initial_state);
 	(void)is;
       }
@@ -364,7 +360,8 @@ namespace spot
     ta::states_set_t::iterator it;
     for (it = states_set_.begin(); it != states_set_.end(); ++it)
       {
-        state_ta_explicit* s = down_cast<state_ta_explicit*>(*it);
+        auto* s = const_cast<state_ta_explicit*>
+	  (down_cast<const state_ta_explicit*>(*it));
 
         s->free_transitions();
         s->get_tgba_state()->destroy();
@@ -379,7 +376,7 @@ namespace spot
     std::pair<ta::states_set_t::iterator, bool> add_state_to_ta =
         states_set_.insert(s);
 
-    return static_cast<state_ta_explicit*>(*add_state_to_ta.first);
+    return down_cast<state_ta_explicit*>(*add_state_to_ta.first);
   }
 
   void
@@ -389,21 +386,21 @@ namespace spot
     s->set_initial_state(true);
     if (condition == bddfalse)
       condition = get_state_condition(s);
-    std::pair<ta::states_set_t::iterator, bool> add_state =
-        initial_states_set_.insert(s);
+    auto add_state = initial_states_set_.insert(s);
     if (get_artificial_initial_state())
       if (add_state.second)
 	{
-	  state_ta_explicit* i =
+	  auto i =
 	    down_cast<state_ta_explicit*>(get_artificial_initial_state());
 	  create_transition(i, condition, 0U, s);
 	}
   }
 
   void
-  ta_explicit::delete_stuttering_and_hole_successors(spot::state* s)
+  ta_explicit::delete_stuttering_and_hole_successors(const spot::state* s)
   {
-    state_ta_explicit * state = down_cast<state_ta_explicit*>(s);
+    auto state =
+      const_cast<state_ta_explicit*>(down_cast<const state_ta_explicit*>(s));
     assert(state);
     state->delete_stuttering_and_hole_successors();
     if (state->is_initial_state())
@@ -414,7 +411,8 @@ namespace spot
   void
   ta_explicit::create_transition(state_ta_explicit* source, bdd condition,
 				 acc_cond::mark_t acceptance_conditions,
-				 state_ta_explicit* dest, bool add_at_beginning)
+				 const state_ta_explicit* dest,
+				 bool add_at_beginning)
   {
     state_ta_explicit::transition* t = new state_ta_explicit::transition;
     t->dest = dest;
@@ -424,7 +422,7 @@ namespace spot
 
   }
 
-  const ta::states_set_t
+  ta::const_states_set_t
   ta_explicit::get_initial_states_set() const
   {
     return initial_states_set_;

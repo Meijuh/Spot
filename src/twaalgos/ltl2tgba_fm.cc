@@ -1235,7 +1235,7 @@ namespace spot
 	      for (auto i: aut->succ(st))
 		{
 		  bdd label = i->cond();
-		  state* s = i->dst();
+		  const state* s = i->dst();
 		  formula dest =
 		    namer->get_name(aut->state_number(s));
 
@@ -1280,7 +1280,7 @@ namespace spot
 	      for (auto i: aut->succ(st))
 		{
 		  bdd label = i->cond();
-		  state* s = i->dst();
+		  const state* s = i->dst();
 		  formula dest = namer->get_name(aut->state_number(s));
 
 		  missing -= label;

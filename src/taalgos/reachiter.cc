@@ -50,12 +50,10 @@ namespace spot
     int n = 0;
     start();
 
-   spot::state* artificial_initial_state =
-        t_automata_->get_artificial_initial_state();
+    const spot::state* artificial_initial_state =
+      t_automata_->get_artificial_initial_state();
 
-    ta::states_set_t init_states_set;
-
-    ta::states_set_t::const_iterator it;
+    ta::const_states_set_t init_states_set;
 
     if (artificial_initial_state)
       {
@@ -66,13 +64,11 @@ namespace spot
         init_states_set = t_automata_->get_initial_states_set();
       }
 
-    for (it = init_states_set.begin(); it != init_states_set.end(); ++it)
+    for (auto init_state: init_states_set)
       {
-        state* init_state = (*it);
         if (want_state(init_state))
           add_state(init_state);
         seen[init_state] = ++n;
-
       }
 
     const state* t;

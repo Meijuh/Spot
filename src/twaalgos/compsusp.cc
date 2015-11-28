@@ -178,7 +178,7 @@ namespace spot
       pair_queue todo;
 
       state_pair p(left->get_init_state(), nullptr);
-      state* ris = right->get_init_state();
+      const state* ris = right->get_init_state();
       p.second = ris;
       unsigned i = res->new_state();
       seen[p] = i;

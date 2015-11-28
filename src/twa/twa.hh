@@ -385,7 +385,7 @@ namespace spot
     ///
     /// The returned state should be destroyed (see state::destroy)
     /// by the caller after it is no longer used.
-    virtual state* dst() const = 0;
+    virtual const state* dst() const = 0;
     /// \brief Get the condition on the transition leading to this successor.
     ///
     /// This is a boolean function of atomic propositions.
@@ -531,7 +531,7 @@ namespace spot
     /// The state has been allocated with \c new.  It is the
     /// responsability of the caller to \c destroy it when no
     /// longer needed.
-    virtual state* get_init_state() const = 0;
+    virtual const state* get_init_state() const = 0;
 
     /// \brief Get an iterator over the successors of \a local_state.
     ///
