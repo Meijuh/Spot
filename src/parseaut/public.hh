@@ -20,6 +20,7 @@
 #pragma once
 
 #include "twa/twagraph.hh"
+#include "kripke/kripkegraph.hh"
 #include "misc/location.hh"
 #include "tl/defaultenv.hh"
 #include <string>
@@ -52,7 +53,15 @@ namespace spot
     ///
     /// May be null if the parser reached the end of the stream or a
     /// serious error. In the latter case, \c errors is non-empty.
+    /// May also be null if the parser is used to parse a Kripke
+    /// structure.
     twa_graph_ptr aut;
+    /// \brief The parsed kripke structure.
+    ///
+    /// Used instead of \c aut when the parser is called with option
+    /// want_kripke.
+    kripke_graph_ptr ks;
+
     /// Whether an HOA file was termined with <code>--ABORT</code>
     bool aborted = false;
     /// Location of the automaton in the stream.
@@ -86,6 +95,7 @@ namespace spot
     bool debug = false;		///< Run the parser in debug mode?
     bool trust_hoa = true;	///< Trust properties in HOA files
     bool raise_errors = false;	///< Raise errors as exceptions.
+    bool want_kripke = false;	///< Parse as a Kripke structure.
   };
 
   /// \brief Parse a stream of automata

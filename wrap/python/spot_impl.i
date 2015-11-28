@@ -44,7 +44,7 @@
 %shared_ptr(spot::parsed_aut)
 %shared_ptr(spot::fair_kripke)
 %shared_ptr(spot::kripke)
-%shared_ptr(spot::kripke_explicit)
+%shared_ptr(spot::kripke_graph)
 %shared_ptr(spot::kripke)
 %shared_ptr(spot::ta)
 %shared_ptr(spot::ta_explicit)

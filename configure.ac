@@ -206,7 +206,6 @@ AC_CONFIG_FILES([
   src/bin/man/Makefile
   src/graph/Makefile
   src/kripke/Makefile
-  src/kripkeparse/Makefile
   src/Makefile
   src/misc/Makefile
   src/parseaut/Makefile

@@ -70,6 +70,14 @@ New in spot 1.99.5a (not yet released)
     to syntethise larged automata with different acceptance
     conditions.
 
+  * Explicit Kripke structure (i.e., stored as explciti graphs) have
+    been rewritten above the graph class, using an interface similar
+    to the twa class.  The new class is called kripke_graph.  The
+    custom Kripke parser and printer have been removed, because we can
+    now use print_hoa() with the "k" option to print Kripke structure
+    in the HOA format, and furthermore the parse_aut() function now
+    has an option to read HOA file and produce them as kripke_graph.
+
   * Renamings:
     is_guarantee_automaton() -> is_terminal_automaton()
     tgba_run -> twa_run

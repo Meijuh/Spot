@@ -26,12 +26,9 @@ kripke_HEADERS = \
   fairkripke.hh \
   fwd.hh \
   kripke.hh \
-  kripkeexplicit.hh \
-  kripkeprint.hh
+  kripkegraph.hh
 
 noinst_LTLIBRARIES = libkripke.la
 libkripke_la_SOURCES = \
   fairkripke.cc \
-  kripke.cc \
-  kripkeexplicit.cc \
-  kripkeprint.cc
+  kripke.cc

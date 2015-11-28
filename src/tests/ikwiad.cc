@@ -54,7 +54,6 @@
 #include "twaalgos/isdet.hh"
 #include "twaalgos/cycles.hh"
 #include "twaalgos/isweakscc.hh"
-#include "kripkeparse/public.hh"
 #include "twaalgos/simulation.hh"
 #include "twaalgos/compsusp.hh"
 #include "twaalgos/powerset.hh"
@@ -523,13 +522,13 @@ checked_main(int argc, char** argv)
       else if (!strncmp(argv[formula_index], "-KP", 3))
 	{
 	  tm.start("reading -KP's argument");
-
-	  spot::kripke_parse_error_list pel;
-	  system_aut = spot::kripke_parse(argv[formula_index] + 3,
-					  pel, dict, env, debug_opt);
-	  if (spot::format_kripke_parse_errors(std::cerr,
-					       argv[formula_index] + 2, pel))
+	  spot::automaton_parser_options opts;
+	  opts.debug = debug_opt;
+	  opts.want_kripke = true;
+	  auto paut = spot::parse_aut(argv[formula_index] + 3, dict, env, opts);
+	  if (paut->format_errors(std::cerr))
 	    return 2;
+	  system_aut = paut->ks;
 	  tm.stop("reading -KP's argument");
 	}
       else if (!strcmp(argv[formula_index], "-KC"))

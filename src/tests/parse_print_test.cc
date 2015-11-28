@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#include "kripkeparse/public.hh"
-#include "kripke/kripkeprint.hh"
+#include "parseaut/public.hh"
+#include "twaalgos/hoa.hh"
 
 using namespace spot;
 
@@ -28,20 +28,23 @@ int main(int argc, char** argv)
   (void) argc;
   assert(argc == 2);
   int return_value = 0;
-  kripke_parse_error_list pel;
 
-  {
-    auto k = kripke_parse(argv[1], pel, make_bdd_dict());
-    if (!pel.empty())
-      {
-	format_kripke_parse_errors(std::cerr, argv[1], pel);
-	return_value = 1;
-      }
+  spot::automaton_parser_options opts;
+  opts.want_kripke = true;
+  spot::automaton_stream_parser parser(argv[1], opts);
 
-    if (!return_value)
-      kripke_save_reachable(std::cout, k);
-  }
-
-  assert(spot::fnode::instances_check());
+  while (auto paut = parser.parse(make_bdd_dict(),
+				  default_environment::instance()))
+    {
+      if (paut->format_errors(std::cerr))
+	{
+	  return_value = 1;
+	  if (paut->ks)
+	    continue;
+	}
+      if (!paut->ks)
+	break;
+      print_hoa(std::cout, paut->ks, "k");
+    }
   return return_value;
 }

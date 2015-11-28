@@ -28,8 +28,8 @@
 #include "misc/timer.hh"
 #include "misc/memusage.hh"
 #include <cstring>
-#include "kripke/kripkeexplicit.hh"
-#include "kripke/kripkeprint.hh"
+#include "kripke/kripkegraph.hh"
+#include "twaalgos/hoa.hh"
 
 static void
 syntax(char* prog)
@@ -236,7 +236,7 @@ checked_main(int argc, char **argv)
       if (output == Kripke)
       {
         tm.start("kripke output");
-	spot::kripke_save_reachable_renumbered(std::cout, model);
+	spot::print_hoa(std::cout, model, "k");
         tm.stop("kripke output");
         goto safe_exit;
       }

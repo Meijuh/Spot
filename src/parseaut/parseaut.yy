@@ -82,6 +82,7 @@ extern "C" int strverscmp(const char *s1, const char *s2);
 	spot::location used_loc;
       };
       spot::parsed_aut_ptr h;
+      spot::twa_ptr aut_or_ks;
       spot::automaton_parser_options opts;
       std::string format_version;
       spot::location format_version_loc;
@@ -309,7 +310,10 @@ header: format-version header-items
 		    error(res.states_loc, "... declared here.");
 		    states = std::max(states, p.second + 1);
 		  }
-	      res.h->aut->new_states(states);
+	      if (res.opts.want_kripke)
+		res.h->ks->new_states(states, bddfalse);
+	      else
+		res.h->aut->new_states(states);
 	      res.info_states.resize(states);
 	    }
 	  if (res.accset < 0)
@@ -321,6 +325,11 @@ header: format-version header-items
 	  {
 	    auto explicit_labels = res.props.find("explicit-labels");
 	    auto implicit_labels = res.props.find("implicit-labels");
+
+	    if (implicit_labels != res.props.end() && res.opts.want_kripke)
+	      error(implicit_labels->second,
+		    "Kripke structure may not use implicit labels");
+
 	    if (implicit_labels != res.props.end())
 	      {
 		if (explicit_labels == res.props.end())
@@ -330,15 +339,20 @@ header: format-version header-items
 		else
 		  {
 		    error(implicit_labels->second,
-			  "'property: implicit-labels' is incompatible "
+			  "'properties: implicit-labels' is incompatible "
 			  "with...");
 		    error(explicit_labels->second,
-			  "... 'property: explicit-labels'.");
+			  "... 'properties: explicit-labels'.");
 		  }
 	      }
 
 	    auto trans_labels = res.props.find("trans-labels");
 	    auto state_labels = res.props.find("state-labels");
+
+	    if (trans_labels != res.props.end() && res.opts.want_kripke)
+	      error(trans_labels->second,
+		    "Kripke structure may not use transition labels");
+
 	    if (trans_labels != res.props.end())
 	      {
 		if (state_labels == res.props.end())
@@ -349,9 +363,9 @@ header: format-version header-items
 		else
 		  {
 		    error(trans_labels->second,
-			  "'property: trans-labels' is incompatible with...");
+			  "'properties: trans-labels' is incompatible with...");
 		    error(state_labels->second,
-			  "... 'property: state-labels'.");
+			  "... 'properties: state-labels'.");
 		  }
 	      }
 	    else if (state_labels != res.props.end())
@@ -363,11 +377,15 @@ header: format-version header-items
 		else
 		  {
 		    error(state_labels->second,
-			  "'property: state-labels' is incompatible with...");
+			  "'properties: state-labels' is incompatible with...");
 		    error(implicit_labels->second,
-			  "... 'property: implicit-labels'.");
+			  "... 'properties: implicit-labels'.");
 		  }
 	      }
+
+	    if (res.opts.want_kripke && res.label_style != State_Labels)
+	      error(@$,
+		    "Kripke structure should use 'properties: state-labels'");
 
 	    auto state_acc = res.props.find("state-acc");
 	    auto trans_acc = res.props.find("trans-acc");
@@ -380,9 +398,9 @@ header: format-version header-items
 		else
 		  {
 		    error(trans_acc->second,
-			  "'property: trans-acc' is incompatible with...");
+			  "'properties: trans-acc' is incompatible with...");
 		    error(state_acc->second,
-			  "... 'property: state-acc'.");
+			  "... 'properties: state-acc'.");
 		  }
 	      }
 	    else if (state_acc != res.props.end())
@@ -392,9 +410,9 @@ header: format-version header-items
 	  }
 	  {
 	    unsigned ss = res.start.size();
+	    auto det = res.props.find("deterministic");
 	    if (ss > 1)
 	      {
-		auto det = res.props.find("deterministic");
 		if (det != res.props.end())
 		  {
 		    error(det->second,
@@ -406,12 +424,12 @@ header: format-version header-items
 	    else
 	      {
 		// Assume the automaton is deterministic until proven
-		// wrong.
-		res.deterministic = true;
+		// wrong, or unless we are building a Kripke structure.
+		res.deterministic = !res.opts.want_kripke;
 	      }
+	    auto complete = res.props.find("complete");
 	    if (ss < 1)
 	      {
-		auto complete = res.props.find("complete");
 		if (complete != res.props.end())
 		  {
 		    error(complete->second,
@@ -424,12 +442,19 @@ header: format-version header-items
 	      {
 		// Assume the automaton is complete until proven
 		// wrong.
-		res.complete = true;
+		res.complete = !res.opts.want_kripke;
 	      }
+	    // if ap_count == 0, then a Kripke structure could be
+	    // declared complete, although that probably doesn't
+	    // matter.
+	    if (res.opts.want_kripke && complete != res.props.end()
+		&& res.ap_count > 0)
+	      error(complete->second,
+		    "Kripke structure may not be complete");
 	  }
 	  if (res.opts.trust_hoa)
 	    {
-	      auto& a = res.h->aut;
+	      auto& a = res.aut_or_ks;
 	      auto& p = res.props;
 	      auto e = p.end();
 	      a->prop_stutter_invariant(p.find("stutter-invariant") != e);
@@ -450,34 +475,35 @@ version: IDENTIFIER
 
 format-version: "HOA:" { res.h->loc = @1; } version
 
-aps: "AP:" INT {
-	                 if (res.ignore_more_ap)
-			   {
-			     error(@1, "ignoring this redeclaration of APs...");
-			     error(res.ap_loc, "... previously declared here.");
-			   }
-			 else
-			   {
-			     res.ap_count = $2;
-			     res.ap.reserve($2);
-			   }
-	               }
-                   ap-names
+aps: "AP:" INT
+     {
+       if (res.ignore_more_ap)
+	 {
+	   error(@1, "ignoring this redeclaration of APs...");
+	   error(res.ap_loc, "... previously declared here.");
+	 }
+       else
+	 {
+	   res.ap_count = $2;
+	   res.ap.reserve($2);
+	 }
+     }
+     ap-names
+     {
+       if (!res.ignore_more_ap)
+	 {
+	   res.ap_loc = @1 + @2;
+	   if ((int) res.ap.size() != res.ap_count)
 	     {
-	       if (!res.ignore_more_ap)
-		 {
-		   res.ap_loc = @1 + @2;
-		   if ((int) res.ap.size() != res.ap_count)
-		     {
-		       std::ostringstream out;
-		       out << "found " << res.ap.size()
-			   << " atomic propositions instead of the "
-			   << res.ap_count << " announced";
-		       error(@$, out.str());
-		     }
-		   res.ignore_more_ap = true;
-		 }
+	       std::ostringstream out;
+	       out << "found " << res.ap.size()
+		   << " atomic propositions instead of the "
+		   << res.ap_count << " announced";
+	       error(@$, out.str());
 	     }
+	   res.ignore_more_ap = true;
+	 }
+     }
 
 header-items: | header-items header-item
 header-item: "States:" INT
@@ -536,7 +562,7 @@ header-item: "States:" INT
 		  }
 		else
 		  {
-		    res.h->aut->acc().add_sets($2);
+		    res.aut_or_ks->acc().add_sets($2);
 		    res.accset = $2;
 		    res.accset_loc = @1 + @2;
 		  }
@@ -544,7 +570,13 @@ header-item: "States:" INT
              acceptance-cond
 	     {
 	       res.ignore_more_acc = true;
-	       res.h->aut->set_acceptance($2, *$4);
+	       // Not setting the acceptance in case of error will
+	       // force it to be true.
+	       if (res.opts.want_kripke && (!$4->is_tt() || $2 > 0))
+		 error(@2 + @4,
+		       "the acceptance for Kripke structure must be '0 t'");
+	       else
+		 res.aut_or_ks->set_acceptance($2, *$4);
 	       delete $4;
 	     }
            | "acc-name:" IDENTIFIER acc-spec
@@ -558,7 +590,7 @@ header-item: "States:" INT
 	     }
            | "name:" STRING
              {
-	       res.h->aut->set_named_prop("automaton-name", $2);
+	       res.aut_or_ks->set_named_prop("automaton-name", $2);
 	     }
            | "properties:" properties
            | HEADERNAME header-spec
@@ -584,11 +616,11 @@ ap-name: STRING
 		   std::ostringstream out;
 		   out << "unknown atomic proposition \"" << *$1 << "\"";
 		   error(@1, out.str());
-		   b = res.h->aut->register_ap("$unknown$");
+		   b = res.aut_or_ks->register_ap("$unknown$");
 		 }
 	       else
 		 {
-		   b = res.h->aut->register_ap(f);
+		   b = res.aut_or_ks->register_ap(f);
 		   if (!res.ap_set.emplace(b).second)
 		     {
 		       std::ostringstream out;
@@ -716,13 +748,13 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
 		 {
 		   if ($3 != -1U)
 		     {
-		       res.pos_acc_sets |= res.h->aut->acc().mark($3);
+		       res.pos_acc_sets |= res.aut_or_ks->acc().mark($3);
 		       if (*$1 == "Inf")
 			 $$ = new spot::acc_cond::acc_code
-			   (res.h->aut->acc().inf({$3}));
+			   (res.aut_or_ks->acc().inf({$3}));
 		       else
 			 $$ = new spot::acc_cond::acc_code
-			   (res.h->aut->acc().fin({$3}));
+			   (res.aut_or_ks->acc().fin({$3}));
 		     }
 		   else
 		     {
@@ -734,13 +766,13 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
 		 {
 		   if ($4 != -1U)
 		     {
-		       res.neg_acc_sets |= res.h->aut->acc().mark($4);
+		       res.neg_acc_sets |= res.aut_or_ks->acc().mark($4);
 		       if (*$1 == "Inf")
 			 $$ = new spot::acc_cond::acc_code
-			   (res.h->aut->acc().inf_neg({$4}));
+			   (res.aut_or_ks->acc().inf_neg({$4}));
 		       else
 			 $$ = new spot::acc_cond::acc_code
-			   (res.h->aut->acc().fin_neg({$4}));
+			   (res.aut_or_ks->acc().fin_neg({$4}));
 		     }
 		   else
 		     {
@@ -771,7 +803,8 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
 	       | 'f'
 	       {
 	         {
-		   $$ = new spot::acc_cond::acc_code(res.h->aut->acc().fin({}));
+		   $$ = new spot::acc_cond::acc_code
+		     (res.aut_or_ks->acc().fin({}));
 		 }
 	       }
 
@@ -824,13 +857,27 @@ checked-state-num: state-num
 				   "count...");
 			     error(res.states_loc, "... declared here.");
 			   }
-			 int missing =
-			   ((int) $1) - res.h->aut->num_states() + 1;
-			 if (missing >= 0)
+			 if (res.opts.want_kripke)
 			   {
-			     res.h->aut->new_states(missing);
-			     res.info_states.resize
-			       (res.info_states.size() + missing);
+			     int missing =
+			       ((int) $1) - res.h->ks->num_states() + 1;
+			     if (missing >= 0)
+			       {
+				 res.h->ks->new_states(missing, bddfalse);
+				 res.info_states.resize
+				   (res.info_states.size() + missing);
+			       }
+			   }
+			 else
+			   {
+			     int missing =
+			       ((int) $1) - res.h->aut->num_states() + 1;
+			     if (missing >= 0)
+			       {
+				 res.h->aut->new_states(missing);
+				 res.info_states.resize
+				   (res.info_states.size() + missing);
+			       }
 			   }
 		       }
 		     // Remember the first place were a state is the
@@ -845,7 +892,7 @@ checked-state-num: state-num
 
 states: | states state
         {
-	  if (res.deterministic || res.complete)
+	  if ((res.deterministic || res.complete) && !res.opts.want_kripke)
 	    {
 	      bdd available = bddtrue;
 	      bool det = true;
@@ -862,7 +909,8 @@ states: | states state
 		  if (p != res.props.end())
 		    {
 		      error(@2, "automaton is not deterministic...");
-		      error(p->second, "... despite 'property: deterministic'");
+		      error(p->second,
+			    "... despite 'properties: deterministic'");
 		    }
 		}
 	      if (res.complete && available != bddfalse)
@@ -872,7 +920,7 @@ states: | states state
 		  if (p != res.props.end())
 		    {
 		      error(@2, "automaton is not complete...");
-		      error(p->second, "... despite 'property: complete'");
+		      error(p->second, "... despite 'properties: complete'");
 		    }
 		}
 	    }
@@ -890,13 +938,17 @@ state: state-name labeled-edges
 		 error(@2, "these transitions have implicit labels but the"
 		       " automaton is...");
 		 error(res.props["state-labels"], "... declared with "
-		       "'property: state-labels'");
+		       "'properties: state-labels'");
 		 // Do not repeat this message.
 		 res.label_style = Mixed_Labels;
 	       }
-
 	     res.cur_guard = res.guards.begin();
 	   }
+	 else if (res.opts.want_kripke)
+	   {
+	     res.h->ks->state_from_number(res.cur_state)->cond(res.state_label);
+	   }
+
        }
      | error
        {
@@ -928,6 +980,8 @@ state-name: "State:" state-label_opt checked-state-num string_opt state-acc_opt
 		(*res.state_names)[$3] = std::move(*$4);
 		delete $4;
 	      }
+	    if (res.opts.want_kripke && !res.has_state_label)
+	      error(@$, "Kripke structures should have labeled states");
 	  }
 label: '[' label-expr ']'
 	   {
@@ -952,11 +1006,12 @@ state-label_opt:       { res.has_state_label = false; }
 			   "state label used although the automaton was...");
 		     if (res.label_style == Trans_Labels)
 		       error(res.props["trans-labels"],
-			     "... declared with 'property: trans-labels' here");
+			     "... declared with 'properties: trans-labels'"
+			     " here");
 		     else
 		       error(res.props["implicit-labels"],
-			     "... declared with 'property: implicit-labels' "
-			     "here");
+			     "... declared with 'properties: implicit-labels'"
+			     " here");
 		     // Do not show this error anymore.
 		     res.label_style = Mixed_Labels;
 		   }
@@ -977,12 +1032,12 @@ trans-label: label
 			     "automaton was...");
 		       if (res.label_style == State_Labels)
 			 error(res.props["state-labels"],
-			       "... declared with 'property: state-labels' "
+			       "... declared with 'properties: state-labels' "
 			       "here");
 		       else
 			 error(res.props["implicit-labels"],
-			       "... declared with 'property: implicit-labels' "
-			       "here");
+			       "... declared with 'properties: implicit-labels'"
+			       " here");
 		       // Do not show this error anymore.
 		       res.label_style = Mixed_Labels;
 		     }
@@ -1012,7 +1067,7 @@ acc-sets:
 	    if (res.ignore_acc || $2 == -1U)
 	      $$ = spot::acc_cond::mark_t(0U);
 	    else
-	      $$ = $1 | res.h->aut->acc().mark($2);
+	      $$ = $1 | res.aut_or_ks->acc().mark($2);
 	  }
 
 state-acc_opt:
@@ -1060,14 +1115,26 @@ incorrectly-unlabeled-edge: checked-state-num trans-acc_opt
 				      "(previous edge is labeled)");
 			      else
 				cond = res.state_label;
-			      res.h->aut->new_edge(res.cur_state, $1,
-						   cond, $2 | res.acc_state);
+			      if (cond != bddfalse)
+				{
+				  if (res.opts.want_kripke)
+				    res.h->ks->new_edge(res.cur_state, $1);
+				  else
+				    res.h->aut->new_edge(res.cur_state, $1,
+							 cond,
+							 $2 | res.acc_state);
+				}
 			    }
 labeled-edge: trans-label checked-state-num trans-acc_opt
 	      {
 		if (res.cur_label != bddfalse)
-		  res.h->aut->new_edge(res.cur_state, $2,
-				       res.cur_label, $3 | res.acc_state);
+		  {
+		    if (res.opts.want_kripke)
+		      res.h->ks->new_edge(res.cur_state, $2);
+		    else
+		      res.h->aut->new_edge(res.cur_state, $2,
+					   res.cur_label, $3 | res.acc_state);
+		  }
 	      }
 	    | trans-label state-conj-2 trans-acc_opt
 	      {
@@ -1104,8 +1171,13 @@ unlabeled-edge: checked-state-num trans-acc_opt
 			}
 		    }
 		  if (cond != bddfalse)
-		    res.h->aut->new_edge(res.cur_state, $1,
-					 cond, $2 | res.acc_state);
+		    {
+		      if (res.opts.want_kripke)
+			res.h->ks->new_edge(res.cur_state, $1);
+		      else
+			res.h->aut->new_edge(res.cur_state, $1,
+					     cond, $2 | res.acc_state);
+		    }
 		}
 	      | state-conj-2 trans-acc_opt
 		{
@@ -1134,12 +1206,24 @@ dstar_type: "DRA"
          res.h->type = spot::parsed_aut_type::DRA;
          res.plus = 1;
          res.minus = 0;
+	 if (res.opts.want_kripke)
+	   {
+	     error(@$,
+		   "cannot read a Kripke structure out of a DSTAR automaton");
+	     YYABORT;
+	   }
        }
        | "DSA"
        {
 	 res.h->type = spot::parsed_aut_type::DSA;
          res.plus = 0;
          res.minus = 1;
+	 if (res.opts.want_kripke)
+	   {
+	     error(@$,
+		   "cannot read a Kripke structure out of a DSTAR automaton");
+	     YYABORT;
+	   }
        }
 
 dstar_header: dstar_sizes
@@ -1301,12 +1385,19 @@ dstar_states:
 /*                      Rules for neverclaims                         */
 /**********************************************************************/
 
-never: "never" { res.namer = res.h->aut->create_namer<std::string>();
-	         res.h->aut->set_buchi();
-		 res.h->aut->prop_state_acc(true);
-		 res.acc_state = State_Acc;
-		 res.pos_acc_sets = res.h->aut->acc().all_sets();
-	       }
+never: "never"
+       {
+	 if (res.opts.want_kripke)
+	   {
+	     error(@$, "cannot read a Kripke structure out of a never claim.");
+	     YYABORT;
+	   }
+	 res.namer = res.h->aut->create_namer<std::string>();
+	 res.h->aut->set_buchi();
+	 res.h->aut->prop_state_acc(true);
+	 res.acc_state = State_Acc;
+	 res.pos_acc_sets = res.h->aut->acc().all_sets();
+       }
        '{' nc-states '}'
        {
 	 // Add an accept_all state if needed.
@@ -1553,6 +1644,13 @@ lbtt: lbtt-header lbtt-body ENDAUT
 
 lbtt-header-states: LBTT
                   {
+		    if (res.opts.want_kripke)
+		      {
+			error(@$,
+			      "cannot read a Kripke structure out of "
+			      "an LBTT automaton");
+			YYABORT;
+		      }
 		    res.states = $1;
 		    res.states_loc = @1;
 		    res.h->aut->new_states($1);
@@ -1655,7 +1753,7 @@ lbtt-transitions:
 		  else
 		    {
 		      res.states_map.emplace(dst, dst);
-	            }
+		    }
 		  res.h->aut->new_edge(res.cur_state, dst,
 				       res.cur_label,
 				       res.acc_state | $3);
@@ -1766,6 +1864,8 @@ fix_acceptance_aux(spot::acc_cond& acc,
 
 static void fix_acceptance(result_& r)
 {
+  if (r.opts.want_kripke)
+    return;
   auto& acc = r.h->aut->acc();
 
   // If a set x appears only as Inf(!x), we can complement it so that
@@ -1808,7 +1908,6 @@ static void fix_acceptance(result_& r)
 
 static void fix_initial_state(result_& r)
 {
-
   std::vector<unsigned> start;
   start.reserve(r.start.size());
   for (auto& p : r.start)
@@ -1821,7 +1920,10 @@ static void fix_initial_state(result_& r)
     {
       // If no initial state has been declared, add one, because
       // Spot will not work without one.
-      r.h->aut->set_init_state(r.h->aut->new_state());
+      if (r.opts.want_kripke)
+	r.h->ks->set_init_state(r.h->ks->new_state(bddfalse));
+      else
+	r.h->aut->set_init_state(r.h->aut->new_state());
       return;
     }
 
@@ -1833,10 +1935,20 @@ static void fix_initial_state(result_& r)
   assert(start.size() >= 1);
   if (start.size() == 1)
     {
-      r.h->aut->set_init_state(start.front());
+      if (r.opts.want_kripke)
+	r.h->ks->set_init_state(start.front());
+      else
+	r.h->aut->set_init_state(start.front());
     }
   else
     {
+      if (r.opts.want_kripke)
+	{
+	  r.h->errors.emplace_front(r.start.front().first,
+				    "Kripke structure only support "
+				    "a single initial state");
+	  return;
+	}
       // Multiple initial states.  We might need to add a fake one,
       // unless one of the actual initial state has no incoming edge.
       auto& aut = r.h->aut;
@@ -1865,11 +1977,11 @@ static void fix_initial_state(result_& r)
 
 static void fix_properties(result_& r)
 {
-  r.h->aut->prop_deterministic(r.deterministic);
-  //r.h->aut->prop_complete(r.complete);
+  r.aut_or_ks->prop_deterministic(r.deterministic);
+  //r.aut_or_ks->prop_complete(r.complete);
   if (r.acc_style == State_Acc ||
       (r.acc_style == Mixed_Acc && !r.trans_acc_seen))
-    r.h->aut->prop_state_acc(true);
+    r.aut_or_ks->prop_state_acc(true);
 }
 
 static void check_version(const result_& r)
@@ -1935,7 +2047,7 @@ namespace spot
     hoayyclose();
   }
 
-  void raise_parse_error(const parsed_aut_ptr& pa)
+  static void raise_parse_error(const parsed_aut_ptr& pa)
   {
     if (pa->aborted)
       pa->errors.emplace_back(pa->loc, "parsing aborted");
@@ -1957,7 +2069,10 @@ namespace spot
     result_ r;
     r.opts = opts_;
     r.h = std::make_shared<spot::parsed_aut>(filename_);
-    r.h->aut = make_twa_graph(dict);
+    if (opts_.want_kripke)
+      r.aut_or_ks = r.h->ks = make_kripke_graph(dict);
+    else
+      r.aut_or_ks = r.h->aut = make_twa_graph(dict);
     r.env = &env;
     hoayy::parser parser(r, last_loc);
     static bool env_debug = !!getenv("SPOT_DEBUG_PARSER");
@@ -1966,7 +2081,11 @@ namespace spot
     try
       {
 	if (parser.parse())
-	  r.h->aut = nullptr;
+	  {
+	    r.h->aut = nullptr;
+	    r.h->ks = nullptr;
+	    r.aut_or_ks = nullptr;
+	  }
       }
     catch (const spot::hoa_abort& e)
       {
@@ -1985,10 +2104,10 @@ namespace spot
       }
     if (opts_.raise_errors)
       raise_parse_error(r.h);
-    if (!r.h->aut)
+    if (!r.aut_or_ks)
       return r.h;
     if (r.state_names)
-      r.h->aut->set_named_prop("state-names", r.state_names);
+      r.aut_or_ks->set_named_prop("state-names", r.state_names);
     fix_acceptance(r);
     fix_initial_state(r);
     fix_properties(r);
@@ -2015,7 +2134,7 @@ namespace spot
 	pa->errors.emplace_back(spot::location(), e.what());
 	return pa;
       }
-    if (!pa->aut && pa->errors.empty())
+    if (!pa->aut && !pa->ks && pa->errors.empty())
       pa->errors.emplace_back(pa->loc, "no automaton read (empty input?)");
     if (opts.raise_errors)
       raise_parse_error(pa);

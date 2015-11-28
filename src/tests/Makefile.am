@@ -157,8 +157,7 @@ TESTS_graph = \
   tgbagraph.test
 
 TESTS_kripke = \
-  kripke.test \
-  bad_parsing.test
+  kripke.test
 
 TESTS_twa = \
   acc.test \

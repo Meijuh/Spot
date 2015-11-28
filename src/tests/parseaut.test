@@ -360,11 +360,11 @@ EOF
 expecterr input <<EOF
 input:9.5-12.7: not enough transitions for this state
 input:10.7-12.7: these transitions have implicit labels but the automaton is...
-input:7.17-28: ... declared with 'property: state-labels'
+input:7.17-28: ... declared with 'properties: state-labels'
 input:9.5-12.7: automaton is not complete...
-input:7.30-37: ... despite 'property: complete'
+input:7.30-37: ... despite 'properties: complete'
 input:27.8-10: state label used although the automaton was...
-input:25.13-27: ... declared with 'property: implicit-labels' here
+input:25.13-27: ... declared with 'properties: implicit-labels' here
 EOF
 
 cat >input<<EOF
@@ -430,17 +430,17 @@ cat >input<<EOF
 EOF
 
 expecterr input <<EOF
-input:7.17-31: 'property: implicit-labels' is incompatible with...
-input:7.33-47: ... 'property: explicit-labels'.
-input:8.17-25: 'property: trans-acc' is incompatible with...
-input:8.27-35: ... 'property: state-acc'.
+input:7.17-31: 'properties: implicit-labels' is incompatible with...
+input:7.33-47: ... 'properties: explicit-labels'.
+input:8.17-25: 'properties: trans-acc' is incompatible with...
+input:8.27-35: ... 'properties: state-acc'.
 input:16.7: too many transitions for this state, ignoring this one
-input:28.33-44: 'property: state-labels' is incompatible with...
-input:28.17-31: ... 'property: implicit-labels'.
+input:28.33-44: 'properties: state-labels' is incompatible with...
+input:28.17-31: ... 'properties: implicit-labels'.
 input:50.20-24: state-based acceptance used despite...
 input:47.33-41: ... declaration of transition-based acceptance.
 input:58.7-9: transition label used although the automaton was...
-input:47.17-31: ... declared with 'property: implicit-labels' here
+input:47.17-31: ... declared with 'properties: implicit-labels' here
 EOF
 
 
@@ -469,7 +469,7 @@ expecterr input <<EOF
 input:9.5-19: ignoring redefinition of alias @a
 input:14.13-15: unknown alias @bc
 input:14.5-16: transition label used although the automaton was...
-input:10.17-28: ... declared with 'property: state-labels' here
+input:10.17-28: ... declared with 'properties: state-labels' here
 input:15.12-14: unknown alias @bc
 input:15.20-22: trans-based acceptance used despite...
 input:11.17-25: ... declaration of state-based acceptance.
@@ -654,7 +654,7 @@ expecterr input <<EOF
 input:7.13-25: deterministic automata should have at most one initial state
 input:20.13-20: complete automata should have at least one initial state
 input:33.1-35.6: automaton is not deterministic...
-input:28.13-25: ... despite 'property: deterministic'
+input:28.13-25: ... despite 'properties: deterministic'
 EOF
 
 # Mix HOA with neverclaims and LBTT automata
@@ -878,9 +878,9 @@ input:9.8-10: ... the state is already labeled.
 input:14.6: missing label for this edge (previous edge is labeled)
 input:17.1-3: ignoring this label, because previous edge has no label
 input:27.8-10: state label used although the automaton was...
-input:25.13-24: ... declared with 'property: trans-labels' here
-input:34.26-37: 'property: trans-labels' is incompatible with...
-input:34.13-24: ... 'property: state-labels'.
+input:25.13-24: ... declared with 'properties: trans-labels' here
+input:34.26-37: 'properties: trans-labels' is incompatible with...
+input:34.13-24: ... 'properties: state-labels'.
 EOF
 
 
