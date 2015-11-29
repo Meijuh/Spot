@@ -652,20 +652,20 @@ particular:
 
 | property            | parser  | stored | printer                                     | notes                                                            |
 |---------------------+---------+--------+---------------------------------------------+------------------------------------------------------------------|
-| =state-labels=      | checked | no     | re-rechecked if =-Hk=                       | state labels are converted to transition labels when reading TωA |
+| =state-labels=      | checked | no     | checked if =-Hk=                            | state labels are converted to transition labels when reading TωA |
 | =trans-labels=      | checked | no     | always, unless =-Hi= or =-Hk=               |                                                                  |
 | =implicit-labels=   | checked | no     | if =-Hi=                                    | =-Hi= only works for deterministic automata                      |
 | =explicit-labels=   | checked | no     | always, unless =-Hi=                        |                                                                  |
-| =state-acc=         | checked | yes    | re-checked, unless =-Ht= or =-Hm=           |                                                                  |
+| =state-acc=         | checked | yes    | checked, unless =-Ht= or =-Hm=              |                                                                  |
 | =trans-acc=         | checked | no     | if not =state-acc= and not =-Hm=            |                                                                  |
 | =no-univ-branch=    | ignored | no     | only if =-Hv=                               |                                                                  |
-| =deterministic=     | checked | yes    | re-checked                                  |                                                                  |
-| =complete=          | checked | no     | re-checked                                  |                                                                  |
-| =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=) | can be re-checked with =--check=unambiguous=                     |
-| =stutter-invariant= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=                      |
-| =stutter-sensitive= | trusted | yes    | as stored                                   | can be re-checked with =--check=stuttering=                      |
-| =terminal=          | trusted | yes    | as stored                                   | can be re-checked with =--check=strength=                        |
-| =weak=              | trusted | yes    | as stored if (=-Hv= or not =terminal=)      | can be re-checked with =--check=strength=                        |
+| =deterministic=     | checked | yes    | checked                                     |                                                                  |
+| =complete=          | checked | no     | checked                                     |                                                                  |
+| =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=) | can be checked with =--check=unambiguous=                        |
+| =stutter-invariant= | trusted | yes    | as stored                                   | can be checked with =--check=stuttering=                         |
+| =stutter-sensitive= | trusted | yes    | as stored                                   | can be checked with =--check=stuttering=                         |
+| =terminal=          | trusted | yes    | as stored                                   | can be checked with =--check=strength=                           |
+| =weak=              | trusted | yes    | as stored if (=-Hv= or not =terminal=)      | can be checked with =--check=strength=                           |
 | =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)          |                                                                  |
 | =colored=           | ignored | no     | checked                                     |                                                                  |
 
