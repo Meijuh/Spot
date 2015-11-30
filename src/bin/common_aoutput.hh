@@ -181,7 +181,7 @@ public:
 	      spot::twa_word w(run->reduce());
 	      w.simplify();
 	      std::ostringstream out;
-	      w.print(out, aut->get_dict());
+	      out << w;
 	      aut_word_ = out.str();
 	    }
 	  else

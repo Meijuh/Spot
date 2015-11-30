@@ -695,7 +695,7 @@ namespace
 		      << "       ";
 	    spot::twa_word w(run->reduce());
 	    w.simplify();
-	    w.print(example(), prod->get_dict()) << '\n';
+	    example() << w << '\n';
 	  }
 	else
 	  {

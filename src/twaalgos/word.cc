@@ -24,11 +24,13 @@
 namespace spot
 {
   twa_word::twa_word(const twa_run_ptr run)
+    : dict_(run->aut->get_dict())
   {
     for (auto& i: run->prefix)
       prefix.push_back(i.label);
     for (auto& i: run->cycle)
       cycle.push_back(i.label);
+    dict_->register_all_variables_of(run->aut, this);
   }
 
   void
@@ -81,18 +83,19 @@ namespace spot
   }
 
   std::ostream&
-  twa_word::print(std::ostream& os, const bdd_dict_ptr& d) const
+  operator<<(std::ostream& os, const twa_word& w)
   {
-    if (!prefix.empty())
-      for (auto& i: prefix)
+    auto d = w.get_dict();
+    if (!w.prefix.empty())
+      for (auto& i: w.prefix)
 	{
 	  bdd_print_formula(os, d, i);
 	  os << "; ";
 	}
-    assert(!cycle.empty());
+    assert(!w.cycle.empty());
     bool notfirst = false;
     os << "cycle{";
-    for (auto& i: cycle)
+    for (auto& i: w.cycle)
       {
 	if (notfirst)
 	  os << "; ";

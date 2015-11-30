@@ -26,15 +26,29 @@ namespace spot
   class bdd_dict;
 
   /// \brief An infinite word stored as a lasso.
-  struct SPOT_API twa_word
+  struct SPOT_API twa_word final
   {
     twa_word(const twa_run_ptr run);
+    ~twa_word()
+    {
+      dict_->unregister_all_my_variables(this);
+    }
+
     void simplify();
-    std::ostream& print(std::ostream& os, const bdd_dict_ptr& d) const;
 
     typedef std::list<bdd> seq_t;
     seq_t prefix;
     seq_t cycle;
+
+    bdd_dict_ptr get_dict() const
+    {
+      return dict_;
+    }
+
+    SPOT_API
+    friend std::ostream& operator<<(std::ostream& os, const twa_word& w);
+  private:
+    bdd_dict_ptr dict_;
   };
 
 }
