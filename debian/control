@@ -30,7 +30,7 @@ Package: libspot-dev
 Architecture: any
 Section: libdevel
 Suggests: spot-doc
-Depends: libspot0 (>= ${source:Version}), libspot0 (<< ${source:Version}.1~), libspotltsmin0 (>= ${source:Version}) , libspotltsmin0 (<< ${source:Version}.1~), ${misc:Depends}
+Depends: libspot0 (>= ${source:Version}), libspot0 (<< ${source:Version}.1~), libspotltsmin0 (>= ${source:Version}) , libspotltsmin0 (<< ${source:Version}.1~), ${misc:Depends}, libbddx-dev
 Description: headers for the Spot model checking library
  C++ headers for the Spot library.
 
@@ -47,9 +47,9 @@ Description: alternate version of BuDDy
 Package: libbddx-dev
 Architecture: any
 Section: libdevel
-Depends: spot (>= ${source:Version}), spot (<< ${source:Version}.1~), ${misc:Depends}
-Description: headers for the Spot model checking library
- C++ headers for the Spot library.
+Depends: libbddx0 (>= ${source:Version}), libbddx0 (<< ${source:Version}.1~), ${misc:Depends}
+Description: headers for the BuDDy library
+ C++ headers for the Buddy library.
 
 Package: libspotltsmin0
 Architecture: any
