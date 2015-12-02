@@ -78,6 +78,10 @@ New in spot 1.99.5a (not yet released)
     in the HOA format, and furthermore the parse_aut() function now
     has an option to read HOA file and produce them as kripke_graph.
 
+  * The HOA parser now accepts identifier, aliases, and headernames
+    containing dots, as this will be allowed in the next version of
+    the HOA format.
+
   * Renamings:
     is_guarantee_automaton() -> is_terminal_automaton()
     tgba_run -> twa_run
@@ -90,7 +94,7 @@ New in spot 1.99.5a (not yet released)
   * Better interface for sat_minimize().
 
   Bug fixes:
-  * automaton parser was ignoring the "unambiguous" property.
+  * the HOA parser was ignoring the "unambiguous" property.
   * --dot=Bb should work like --dot=b, allowing us to disable
     a B option set via an environment variable.
 

@@ -44,7 +44,7 @@ static unsigned lbtt_states = 0;
 eol         \n+|\r+
 eol2        (\n\r)+|(\r\n)+
 eols        ({eol}|{eol2})*
-identifier  [[:alpha:]_][[:alnum:]_-]*
+identifier  [[:alpha:]_][[:alnum:]_.-]*
 
 %x in_COMMENT in_STRING in_NEVER_PAR
 %s in_HOA in_NEVER in_LBTT_HEADER
@@ -131,7 +131,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			   yylval->str = new std::string(yytext, yyleng - 1);
 			   return token::HEADERNAME;
 			}
-  "@"[[:alnum:]_-]+     {
+  "@"[[:alnum:]_.-]+     {
 			   yylval->str = new std::string(yytext + 1, yyleng - 1);
 			   return token::ANAME;
 			}
