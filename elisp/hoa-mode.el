@@ -83,33 +83,37 @@
   :group 'hoa-mode-faces)
 
 (defconst hoa-alias-regex
-  "@[a-zA-Z0-9_-]*\\_>"
+  "@[a-zA-Z0-9_.-]*\\_>"
   "Regex for matching aliases.")
 
-(defvar hoa-font-lock-keywords
-  (list
-   '("\\_<[A-Z][a-zA-Z0-9_-]*:" . 'hoa-header-uppercase-face)
-   '("\\_<[a-z][a-zA-Z0-9_-]*:" . 'hoa-header-lowercase-face)
-   `(,hoa-alias-regex . 'hoa-alias-face)
-   '("\\_<--\\(BODY\\|END\\|ABORT\\)--" . 'hoa-keyword-face)
-   '("\\_<\\(Inf\\|Fin\\|t\\|f\\)\\_>" . 'hoa-builtin-face)
-   '("(\\s-*\\([0-9]+\\)\\s-*)" 1 'hoa-acceptance-set-face)
-   '("{\\(\\([0-9]\\|\\s-\\)+\\)}" 1 'hoa-acceptance-set-face)
-   ;; numbers between brackets denote atomic propositions.
-   '("\\["
-     ("\\_<[0-9]+\\_>"
-      (save-excursion (search-forward "]" nil t))
-      nil
-      (0 'hoa-ap-number-face)))
-   ;; likewise for numbers following an Alias: definition
-   `(,(concat "Alias:\\s-*" hoa-alias-regex)
-     ("\\_<[0-9]+\\_>"
-      (save-excursion
-	(re-search-forward
-	 (concat "\\(" hoa-alias-regex "\\|[0-9|&!]\\|\\s-\\)+") nil t))
-      nil
-      (0 'hoa-ap-number-face))))
-  "Hilighting rules for `hoa-mode'.")
+(defvar hoa-font-lock-keywords-1
+  `(("\\_<--\\(:?BODY\\|END\\|ABORT\\)--" . 'hoa-keyword-face)
+    ("\\_<\\(:?Inf\\|Fin\\|t\\|f\\)\\_>" . 'hoa-builtin-face)
+    ("\\_<[A-Z][a-zA-Z0-9_.-]*:" . 'hoa-header-uppercase-face)
+    ("\\_<[a-z][a-zA-Z0-9_.-]*:" . 'hoa-header-lowercase-face)
+    (,hoa-alias-regex . 'hoa-alias-face))
+  "Fontification rules for keywords, builtins, headers and aliases.")
+
+(defvar hoa-font-lock-keywords-2
+  (append hoa-font-lock-keywords-1
+	  `(("(\\s-*\\([0-9]+\\)\\s-*)" 1 'hoa-acceptance-set-face)
+	    ("{\\(\\([0-9]\\|\\s-\\)+\\)}" 1 'hoa-acceptance-set-face)
+	    ;; numbers between brackets denote atomic propositions.
+	    ("\\["
+	     ("\\_<[0-9]+\\_>"
+	      (save-excursion (search-forward "]" nil t))
+	      nil
+	      (0 'hoa-ap-number-face)))
+	    ;; likewise for numbers following an Alias: definition
+	    (,(concat "Alias:\\s-*" hoa-alias-regex)
+	     ("\\_<[0-9]+\\_>"
+	      (save-excursion
+		(re-search-forward
+		 (concat "\\(" hoa-alias-regex
+			 "\\|[0-9|&!]\\|\\_<[ft]\\_>\\|\\s-\\)+") nil t))
+	      nil
+	      (0 'hoa-ap-number-face)))))
+  "Complete fontification rules, including acceptance sets and AP numbers.")
 
 (defvar hoa-mode-syntax-table
   (let ((st (make-syntax-table)))
@@ -117,6 +121,7 @@
     (modify-syntax-entry ?> "." st)
     (modify-syntax-entry ?| "." st)
     (modify-syntax-entry ?_ "_" st)
+    (modify-syntax-entry ?. "_" st)
     (modify-syntax-entry ?- "_" st)
     (modify-syntax-entry ?$ "." st)
     (modify-syntax-entry ?& "." st)
@@ -192,11 +197,14 @@ put in `hoa-display-error-buffer' and shown."
 	   (call-process-region b e shell-file-name nil (list dotbuf errfile)
 				nil shell-command-switch hoa-display-command)))
       (when (equal 0 exit-status)
-	(let ((hoa-img (create-image (with-current-buffer dotbuf (buffer-string))
+	(let ((hoa-img (create-image (with-current-buffer dotbuf
+				       (buffer-string))
 				     'png t)))
 	  (with-current-buffer (get-buffer-create hoa-display-buffer)
+	    (setq buffer-read-only nil)
 	    (erase-buffer)
 	    (insert-image hoa-img)
+	    (setq buffer-read-only t)
 	    (display-buffer (current-buffer)))))
       (when (file-exists-p errfile)
 	(when (< 0 (nth 7 (file-attributes errfile)))
@@ -217,13 +225,8 @@ put in `hoa-display-error-buffer' and shown."
     map)
   "Keymap for `hoa-mode'.")
 
-(defcustom hoa-mode-hook nil
-  "Hook run whenever `hoa-mode' is activated."
-  :group 'hoa-mode
-  :type 'hook)
-
 ;;;### autoload
-(defun hoa-mode ()
+(define-derived-mode hoa-mode fundamental-mode "HOA"
   "Major mode for editing files in the Hanoi Omega Automata format.
 
 See URL `http://adl.github.io/hoaf/' for a definition of that format.
@@ -235,15 +238,10 @@ The following key bindings are installed in hoa-mode:
 By default the `hoa-display-automaton-at-point' function requires
 extra software (Spot and GraphViz), but can be configured to use
 other tools.  See that function for details."
-  (interactive)
-  (kill-all-local-variables)
-  (set-syntax-table hoa-mode-syntax-table)
-  (set (make-local-variable 'font-lock-defaults) '(hoa-font-lock-keywords))
-  (use-local-map hoa-mode-map)
-  (setq major-mode 'hoa-mode)
-  (setq mode-name "HOA")
-  (run-hooks 'hoa-mode-hook))
+  :group 'hoa-mode
+  (setq font-lock-defaults '((hoa-font-lock-keywords-1
+			      hoa-font-lock-keywords-1
+			      hoa-font-lock-keywords-2))))
 
 (provide 'hoa-mode)
-
 ;;; hoa-mode.el ends here
