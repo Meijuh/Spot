@@ -22,8 +22,8 @@ New in spot 1.99.5a (not yet released)
     False=maybe.  Having getters like "aut->is_deterministic()" or
     "aut->is_unambiguous()" was confusing, because there are separate
     functions "is_deterministic(aut)" and "is_unambiguous(aut)" that
-    do actually check the automaton.  The getters have been renamed
-    to avoid confusion, and get the names more in line with HOA.
+    do actually check the automaton.  The getters have been renamed to
+    avoid confusion, and get names more in line with the HOA format.
 
     - twa::has_state_based_acc() -> twa::prop_state_acc()
     - twa::prop_state_based_acc(bool) -> twa::prop_state_acc(bool)
@@ -33,7 +33,7 @@ New in spot 1.99.5a (not yet released)
     - twa::is_stutter_invariant() -> twa::prop_stutter_invariant()
     - twa::is_stutter_sensitive() -> twa::prop_stutter_sensitive()
 
-    The setters have the same name as the getters, except they take a
+    The setters have the same names as the getters, except they take a
     Boolean argument.  This argument used to be optionnal (defaulting
     to True), but it no longer is.
 
@@ -64,7 +64,7 @@ New in spot 1.99.5a (not yet released)
     second automaton by the number of acceptance sets N of the first
     one.
 
-  * The sat minimization for DTWA now do a better job at selecting
+  * The sat minimization for DTWA now does a better job at selecting
     reference automata when the output acceptance is the the same as
     the input acceptance.  This can provide nice speedups when tring
     to syntethise larged automata with different acceptance
@@ -72,11 +72,11 @@ New in spot 1.99.5a (not yet released)
 
   * Explicit Kripke structure (i.e., stored as explciti graphs) have
     been rewritten above the graph class, using an interface similar
-    to the twa class.  The new class is called kripke_graph.  The
-    custom Kripke parser and printer have been removed, because we can
+    to the twa class.  The new class is called kripke_graph.  The ad
+    hoc Kripke parser and printer have been removed, because we can
     now use print_hoa() with the "k" option to print Kripke structure
     in the HOA format, and furthermore the parse_aut() function now
-    has an option to read HOA file and produce them as kripke_graph.
+    has an option to load such an HOA file as a kripke_graph.
 
   * The HOA parser now accepts identifier, aliases, and headernames
     containing dots, as this will be allowed in the next version of
@@ -90,10 +90,12 @@ New in spot 1.99.5a (not yet released)
     dtgba_sat_synthetize_dichotomy() -> dtwa_sat_synthetize_dichotomy()
 
   Python:
+
   * Add bindings for is_unambiguous().
   * Better interface for sat_minimize().
 
   Bug fixes:
+
   * the HOA parser was ignoring the "unambiguous" property.
   * --dot=Bb should work like --dot=b, allowing us to disable
     a B option set via an environment variable.
