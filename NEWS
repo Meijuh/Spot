@@ -74,13 +74,13 @@ New in spot 1.99.6 (2015-12-04)
     second automaton by the number of acceptance sets N of the first
     one.
 
-  * The sat minimization for DTWA now does a better job at selecting
+  * The sat minimization for DTωA now does a better job at selecting
     reference automata when the output acceptance is the the same as
     the input acceptance.  This can provide nice speedups when tring
     to syntethise larged automata with different acceptance
     conditions.
 
-  * Explicit Kripke structure (i.e., stored as explciti graphs) have
+  * Explicit Kripke structures (i.e., stored as explicit graphs) have
     been rewritten above the graph class, using an interface similar
     to the twa class.  The new class is called kripke_graph.  The ad
     hoc Kripke parser and printer have been removed, because we can
