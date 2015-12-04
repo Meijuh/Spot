@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "kripke/kripke.hh"
-#include "tl/apcollect.hh"
+#include <spot/kripke/kripke.hh>
+#include <spot/tl/apcollect.hh>
 
 namespace spot
 {

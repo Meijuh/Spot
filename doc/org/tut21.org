@@ -61,9 +61,9 @@ corresponding BDD variable number, and then use for instance
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>
   #include <iostream>
-  #include "parseaut/public.hh"
-  #include "twaalgos/hoa.hh"
-  #include "twa/bddprint.hh"
+  #include <spot/parseaut/public.hh>
+  #include <spot/twaalgos/hoa.hh>
+  #include <spot/twa/bddprint.hh>
 
   void custom_print(std::ostream& out, spot::twa_graph_ptr& aut);
 

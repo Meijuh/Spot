@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This is a python translation of the ltl2tgba C++ test program.
-# Compare with src/tgbatest/ltl2tgba.cc.
-
 import spot
 
 o = spot.option_map()

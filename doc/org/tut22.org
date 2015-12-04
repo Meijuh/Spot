@@ -7,8 +7,8 @@ This example demonstrates how to create an automaton in C++, and then print it.
 
 #+BEGIN_SRC C++ :results verbatim :exports both :wrap SRC hoa
   #include <iostream>
-  #include "twaalgos/hoa.hh"
-  #include "twa/twagraph.hh"
+  #include <spot/twaalgos/hoa.hh>
+  #include <spot/twa/twagraph.hh>
 
   int main(void)
   {

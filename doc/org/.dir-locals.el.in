@@ -6,14 +6,14 @@
 	      (eval .
 		    (progn
 		      (setenv "PATH"
-			      (concat "@abs_top_builddir@/src/bin"
+			      (concat "@abs_top_builddir@/spot/bin"
 				      path-separator
 				      (getenv "PATH")))
 		      (setenv "PYTHONPATH"
 			      (concat "@abs_top_builddir@/wrap/python/.libs:@abs_top_builddir@/wrap/python:@abs_top_srcdir@/wrap/python:"
 				      (getenv "PYTHONPATH")))
 		      (setenv "DYLD_LIBRARY_PATH"
-			      (concat "@abs_top_builddir@/wrap/python/.libs:@abs_top_builddir@/src/.libs:@abs_top_builddir@/buddy/src/.libs:"
+			      (concat "@abs_top_builddir@/wrap/python/.libs:@abs_top_builddir@/spot/.libs:@abs_top_builddir@/buddy/spot/.libs:"
 				      (getenv "DYLD_LIBRARY_PATH")))
 		      (setenv "SPOT_DOTDEFAULT" "Brf(Lato)")
 		      (setenv "SPOT_DOTEXTRA" "node[style=filled, fillcolor=\"#ffffa0\"] edge[arrowhead=vee, arrowsize=.7]")

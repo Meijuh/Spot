@@ -4,6 +4,22 @@ New in spot 1.99.6a (not yet released)
 
   Library:
 
+  * Installed headers now assume that they will be included as
+    #include <spot/subdir/header.hh>
+    instead of
+    #include <subdir/header.hh>
+
+    This implies that when Spot headers are installed in
+    /usr/include/spot/... (the default when using the Debian packages)
+    or /usr/local/include/spot/... (the default when compiling from
+    source), then it is no longuer necessary to add
+    -I/usr/include/spot or -I/usr/local/include/spot when compiling.
+
+    Inside the source distribution, the subdirectory src/ has been
+    renamed to spot/, so that the root of the source tree can also be
+    put on the preprocessor's search path to compile against a
+    non-installed version of Spot.
+
   Python:
 
   Bug fixes:

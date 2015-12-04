@@ -122,7 +122,7 @@ Some documentation can be found in the doc/ directory.
   logic operators supported by Spot
 
 "make install" will install man pages for command-line tools.  (These
-man pages can also be found in the src/bin/man/ subdirectory of the
+man pages can also be found in the spot/bin/man/ subdirectory of the
 source tree.)  Additional documentation about these tools can be found
 in doc/userdoc/, or on-line at http://spot.lrde.lip6.fr/tools.html
 
@@ -134,7 +134,7 @@ Layout of the source tree
 Core directories
 ----------------
 
-src/              Sources for libspot.
+spot/             Sources for libspot.
    bin/           User tools built using the Spot library.
       man/        Man pages for the above tools.
    graph/         Graph representations.

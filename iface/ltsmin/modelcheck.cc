@@ -17,19 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "ltsmin.hh"
-#include "twaalgos/dot.hh"
-#include "tl/defaultenv.hh"
-#include "tl/parse.hh"
-#include "twaalgos/translate.hh"
-#include "twaalgos/emptiness.hh"
-#include "twaalgos/postproc.hh"
-#include "twa/twaproduct.hh"
-#include "misc/timer.hh"
-#include "misc/memusage.hh"
+#include <iface/ltsmin/ltsmin.hh>
+#include <spot/twaalgos/dot.hh>
+#include <spot/tl/defaultenv.hh>
+#include <spot/tl/parse.hh>
+#include <spot/twaalgos/translate.hh>
+#include <spot/twaalgos/emptiness.hh>
+#include <spot/twaalgos/postproc.hh>
+#include <spot/twa/twaproduct.hh>
+#include <spot/misc/timer.hh>
+#include <spot/misc/memusage.hh>
 #include <cstring>
-#include "kripke/kripkegraph.hh"
-#include "twaalgos/hoa.hh"
+#include <spot/kripke/kripkegraph.hh>
+#include <spot/twaalgos/hoa.hh>
 
 static void
 syntax(char* prog)

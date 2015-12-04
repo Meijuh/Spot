@@ -137,8 +137,8 @@ non-empty.
 #+BEGIN_SRC C++ :results verbatim :exports both :wrap SRC hoa
   #include <string>
   #include <iostream>
-  #include "parseaut/public.hh"
-  #include "twaalgos/hoa.hh"
+  #include <spot/parseaut/public.hh>
+  #include <spot/twaalgos/hoa.hh>
 
   int main()
   {

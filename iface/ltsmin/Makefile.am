@@ -17,7 +17,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src \
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) \
               $(BUDDY_CPPFLAGS) -I$(top_srcdir)/ltdl
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
@@ -27,7 +27,7 @@ ltsmin_HEADERS = ltsmin.hh
 
 lib_LTLIBRARIES = libspotltsmin.la
 libspotltsmin_la_LIBADD = \
-  $(top_builddir)/src/libspot.la \
+  $(top_builddir)/spot/libspot.la \
   $(top_builddir)/ltdl/libltdlc.la -lpthread
 libspotltsmin_la_LDFLAGS = -no-undefined $(SYMBOLIC_LDFLAGS)
 libspotltsmin_la_SOURCES = ltsmin.cc
@@ -42,10 +42,10 @@ check_SCRIPTS = defs
 TESTS = check.test finite.test finite2.test kripke.test
 EXTRA_DIST = $(TESTS) beem-peterson.4.dve finite.dve finite.pm
 
-kripke.test: $(top_builddir)/src/tests/parse_print$(EXEEXT)
+kripke.test: $(top_builddir)/spot/tests/parse_print$(EXEEXT)
 
-$(top_builddir)/src/tests/parse_print$(EXEEXT):
-	cd $(top_builddir)/src/tests && \
+$(top_builddir)/spot/tests/parse_print$(EXEEXT):
+	cd $(top_builddir)/spot/tests && \
 	$(MAKE) $(AM_MAKEFLAGS) parse_print$(EXEEXT)
 
 distclean-local:

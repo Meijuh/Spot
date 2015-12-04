@@ -152,7 +152,7 @@ FULL_PATH_NAMES        = YES
 # will be relative from the directory where doxygen is started.
 # This tag requires that the tag FULL_PATH_NAMES is set to YES.
 
-STRIP_FROM_PATH        = @top_srcdir@/src/ \
+STRIP_FROM_PATH        = @top_srcdir@/ \
                          @top_srcdir@/iface/ \
                          @srcdir@
 
@@ -163,7 +163,7 @@ STRIP_FROM_PATH        = @top_srcdir@/src/ \
 # specify the list of include paths that are normally passed to the compiler
 # using the -I flag.
 
-STRIP_FROM_INC_PATH    = @top_srcdir@/src/ \
+STRIP_FROM_INC_PATH    = @top_srcdir@/ \
                          @top_srcdir@/iface/
 
 # If the SHORT_NAMES tag is set to YES, doxygen will generate much shorter (but
@@ -762,7 +762,7 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = @srcdir@/mainpage.dox \
-                         @top_srcdir@/src \
+                         @top_srcdir@/spot \
                          @top_srcdir@/iface
 
 # This tag can be used to specify the character encoding of the source files
@@ -1992,7 +1992,7 @@ SEARCH_INCLUDES        = YES
 # preprocessor.
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
-INCLUDE_PATH           = @top_srcdir@/src
+INCLUDE_PATH           = @top_srcdir@
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
 # patterns (like *.h and *.hpp) to filter out the header-files in the

@@ -30,12 +30,12 @@
 # define WEXITSTATUS(x) ((x) & 0xff)
 #endif
 
-#include "ltsmin.hh"
-#include "misc/hashfunc.hh"
-#include "misc/fixpool.hh"
-#include "misc/mspool.hh"
-#include "misc/intvcomp.hh"
-#include "misc/intvcmp2.hh"
+#include <iface/ltsmin/ltsmin.hh>
+#include <spot/misc/hashfunc.hh>
+#include <spot/misc/fixpool.hh>
+#include <spot/misc/mspool.hh>
+#include <spot/misc/intvcomp.hh>
+#include <spot/misc/intvcmp2.hh>
 
 namespace spot
 {

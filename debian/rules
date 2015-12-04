@@ -50,8 +50,8 @@ PYOTHERS=$(filter-out $(PYDEFAULT), $(shell py3versions --supported))
 # compiled with -flto, the exception never traverses argp.  Moving
 # the try/catch block inside parse_opt() also fixes this praticular
 # problem, but who knows about other exceptions?   So as a workaround,
-# we simply disable -flto in src/bin/.
-FLTOWORKAROUND = perl -pi -e s/-flto// src/bin/Makefile
+# we simply disable -flto in spot/bin/.
+FLTOWORKAROUND = perl -pi -e s/-flto// spot/bin/Makefile
 
 # We want to build Spot twice: once to get profile data, and a second
 # time to use it.

@@ -89,8 +89,8 @@ detail of the top-level oeprator in the formula.
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>
-  #include "tl/formula.hh"
-  #include "tl/print.hh"
+  #include <spot/tl/formula.hh>
+  #include <spot/tl/print.hh>
 
   int main()
   {
@@ -200,9 +200,9 @@ time time by not exploring further.
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>
-  #include "tl/formula.hh"
-  #include "tl/print.hh"
-  #include "tl/parse.hh"
+  #include <spot/tl/formula.hh>
+  #include <spot/tl/print.hh>
+  #include <spot/tl/parse.hh>
 
   int main()
   {
@@ -248,9 +248,9 @@ in a formula:
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>
-  #include "tl/formula.hh"
-  #include "tl/print.hh"
-  #include "tl/parse.hh"
+  #include <spot/tl/formula.hh>
+  #include <spot/tl/print.hh>
+  #include <spot/tl/parse.hh>
 
   spot::formula xchg_fg(spot::formula in)
   {

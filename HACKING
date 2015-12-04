@@ -283,6 +283,26 @@ Encoding
     In emacs the simplest way to convert the file is to add a comment
     with -*- coding: utf-8 -*- at the top or bottom of the file.
 
+Includes
+--------
+
+  * Use #include with angle-brackets to refer to public headers
+    of Spot; i.e., those that will be installed, or system
+    headers that are already installed.  E.g.,
+
+    #include <spot/misc/version.hh>
+    #include <iostream>
+
+  * Use #include with double quotes to refer to private headers.
+    Those can be from Spot, or from third-party libraries that
+    we ship.  E.g.,
+
+    #include "utf8/utf8.hh"
+    #include "spot/priv/trim.hh"
+    #include "config.h"
+
+    This style of #include should never occur in public headers.
+
 Exporting symbols
 -----------------
 

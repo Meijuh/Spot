@@ -48,7 +48,7 @@ cachegrind.*
 ltdl
 config.h
 config.h.in
-src/src/misc/_config.h
+spot/misc/_config.h
 _configs.sed
 stamp-h1
 *.trs
@@ -78,4 +78,3 @@ GTAGS
 *.deb
 *.changes
 *.dsc
-

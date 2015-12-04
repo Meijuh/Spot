@@ -80,9 +80,9 @@ destructor.
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>
   #include <iostream>
-  #include "tl/parse.hh"
-  #include "tl/print.hh"
-  #include "tl/relabel.hh"
+  #include <spot/tl/parse.hh>
+  #include <spot/tl/print.hh>
+  #include <spot/tl/relabel.hh>
 
   int main()
   {

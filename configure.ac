@@ -26,7 +26,7 @@ AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 gnu tar-ustar color-tests parallel-tests])
 AC_CONFIG_HEADERS([config.h])dnl Private config, not to be used in .hh files.
-AX_PREFIX_CONFIG_H([src/misc/_config.h])dnl Public config, for .hh files.
+AX_PREFIX_CONFIG_H([spot/misc/_config.h])dnl Public config, for .hh files.
 
 # If the user didn't supply a CFLAGS value,
 # set an empty one to prevent autoconf to stick -O2 -g here.
@@ -202,24 +202,24 @@ AC_CONFIG_FILES([
   iface/ltsmin/Makefile
   iface/Makefile
   lib/Makefile
-  src/bin/Makefile
-  src/bin/man/Makefile
-  src/graph/Makefile
-  src/kripke/Makefile
-  src/Makefile
-  src/misc/Makefile
-  src/parseaut/Makefile
-  src/parsetl/Makefile
-  src/priv/Makefile
-  src/sanity/Makefile
-  src/taalgos/Makefile
-  src/ta/Makefile
-  src/tests/defs
-  src/tests/Makefile
-  src/tl/Makefile
-  src/twaalgos/gtec/Makefile
-  src/twaalgos/Makefile
-  src/twa/Makefile
+  spot/bin/Makefile
+  spot/bin/man/Makefile
+  spot/graph/Makefile
+  spot/kripke/Makefile
+  spot/Makefile
+  spot/misc/Makefile
+  spot/parseaut/Makefile
+  spot/parsetl/Makefile
+  spot/priv/Makefile
+  spot/sanity/Makefile
+  spot/taalgos/Makefile
+  spot/ta/Makefile
+  spot/tests/defs
+  spot/tests/Makefile
+  spot/tl/Makefile
+  spot/twaalgos/gtec/Makefile
+  spot/twaalgos/Makefile
+  spot/twa/Makefile
   wrap/Makefile
   wrap/python/ajax/Makefile
   wrap/python/Makefile

@@ -22,7 +22,7 @@
 
 SUBDIRS = . ajax tests
 
-AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_srcdir)/src -I$(top_builddir)/src \
+AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_builddir) -I$(top_srcdir) \
 	      $(BUDDY_CPPFLAGS) -DSWIG_TYPE_TABLE=spot
 
 EXTRA_DIST = spot_impl.i buddy.i
@@ -37,10 +37,10 @@ MAINTAINERCLEANFILES = \
 
 _spot_impl_la_SOURCES = $(srcdir)/spot_impl_wrap.cxx
 _spot_impl_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
-_spot_impl_la_LIBADD = $(top_builddir)/src/libspot.la
+_spot_impl_la_LIBADD = $(top_builddir)/spot/libspot.la
 
 $(srcdir)/spot_impl_wrap.cxx: $(srcdir)/spot_impl.i
-	$(SWIG) -c++ -python -I$(srcdir) -I$(top_srcdir)/src $(srcdir)/spot_impl.i
+	$(SWIG) -c++ -python -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot_impl.i
 
 $(srcdir)/spot_impl.py: $(srcdir)/spot_impl.i
 	$(MAKE) $(AM_MAKEFLAGS) spot_impl_wrap.cxx

@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "misc/timer.hh"
-#include "tl/apcollect.hh"
-#include "twaalgos/complement.hh"
-#include "twaalgos/remfin.hh"
-#include "twaalgos/randomgraph.hh"
-#include "twaalgos/dot.hh"
-#include "twaalgos/product.hh"
-#include "twaalgos/stutter.hh"
-#include "twaalgos/stats.hh"
-#include "twa/twagraph.hh"
-#include "twa/bdddict.hh"
-#include "misc/random.hh"
+#include <spot/misc/timer.hh>
+#include <spot/tl/apcollect.hh>
+#include <spot/twaalgos/complement.hh>
+#include <spot/twaalgos/remfin.hh>
+#include <spot/twaalgos/randomgraph.hh>
+#include <spot/twaalgos/dot.hh>
+#include <spot/twaalgos/product.hh>
+#include <spot/twaalgos/stutter.hh>
+#include <spot/twaalgos/stats.hh>
+#include <spot/twa/twagraph.hh>
+#include <spot/twa/bdddict.hh>
+#include <spot/misc/random.hh>
 #include <cstdio>
 #include <cstring>
 #include <vector>

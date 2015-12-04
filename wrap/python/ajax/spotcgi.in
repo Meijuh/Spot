@@ -202,7 +202,7 @@ if ('SERVER_SOFTWARE' in os.environ and
     # Darwin needs some help in figuring out where non-installed libtool
     # libraries are (on this platform libtool encodes the expected final
     # path of dependent libraries in each library).
-    m = '../.libs:@top_builddir@/src/.libs:@top_builddir@/buddy/src/.libs'
+    m = '../.libs:@top_builddir@/spot/.libs:@top_builddir@/buddy/spot/.libs'
     os.environ['DYLD_LIBRARY_PATH'] = m
 
 try:

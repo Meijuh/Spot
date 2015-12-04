@@ -74,80 +74,80 @@
 #include <sstream>
 #include <signal.h>
 
-#include "misc/common.hh"
-#include "misc/version.hh"
-#include "misc/minato.hh"
-#include "misc/optionmap.hh"
-#include "misc/random.hh"
-#include "misc/escape.hh"
+#include <spot/misc/common.hh>
+#include <spot/misc/version.hh>
+#include <spot/misc/minato.hh>
+#include <spot/misc/optionmap.hh>
+#include <spot/misc/random.hh>
+#include <spot/misc/escape.hh>
 
-#include "tl/formula.hh"
+#include <spot/tl/formula.hh>
 
-#include "tl/environment.hh"
-#include "tl/defaultenv.hh"
+#include <spot/tl/environment.hh>
+#include <spot/tl/defaultenv.hh>
 
-#include "tl/parse.hh"
+#include <spot/tl/parse.hh>
 
-#include "twa/bdddict.hh"
+#include <spot/twa/bdddict.hh>
 
-#include "tl/apcollect.hh"
-#include "tl/dot.hh"
-#include "tl/nenoform.hh"
-#include "tl/print.hh"
-#include "tl/simplify.hh"
-#include "tl/unabbrev.hh"
-#include "tl/randomltl.hh"
-#include "tl/length.hh"
-#include "tl/remove_x.hh"
-#include "tl/relabel.hh"
+#include <spot/tl/apcollect.hh>
+#include <spot/tl/dot.hh>
+#include <spot/tl/nenoform.hh>
+#include <spot/tl/print.hh>
+#include <spot/tl/simplify.hh>
+#include <spot/tl/unabbrev.hh>
+#include <spot/tl/randomltl.hh>
+#include <spot/tl/length.hh>
+#include <spot/tl/remove_x.hh>
+#include <spot/tl/relabel.hh>
 
-#include "twa/bddprint.hh"
-#include "twa/fwd.hh"
-#include "twa/acc.hh"
-#include "twa/twa.hh"
-#include "twa/taatgba.hh"
-#include "twa/twaproduct.hh"
+#include <spot/twa/bddprint.hh>
+#include <spot/twa/fwd.hh>
+#include <spot/twa/acc.hh>
+#include <spot/twa/twa.hh>
+#include <spot/twa/taatgba.hh>
+#include <spot/twa/twaproduct.hh>
 
-#include "twaalgos/cleanacc.hh"
-#include "twaalgos/dot.hh"
-#include "twaalgos/degen.hh"
-#include "twaalgos/copy.hh"
-#include "twaalgos/complete.hh"
-#include "twaalgos/complement.hh"
-#include "twaalgos/emptiness.hh"
-#include "twaalgos/gtec/gtec.hh"
-#include "twaalgos/lbtt.hh"
-#include "twaalgos/ltl2taa.hh"
-#include "twaalgos/ltl2tgba_fm.hh"
-#include "twaalgos/compsusp.hh"
-#include "twaalgos/magic.hh"
-#include "twaalgos/minimize.hh"
-#include "twaalgos/neverclaim.hh"
-#include "twaalgos/remfin.hh"
-#include "twaalgos/strength.hh"
-#include "twaalgos/sccfilter.hh"
-#include "twaalgos/stats.hh"
-#include "twaalgos/isdet.hh"
-#include "twaalgos/isunamb.hh"
-#include "twaalgos/simulation.hh"
-#include "twaalgos/postproc.hh"
-#include "twaalgos/product.hh"
-#include "twaalgos/stutter.hh"
-#include "twaalgos/translate.hh"
-#include "twaalgos/hoa.hh"
-#include "twaalgos/dtwasat.hh"
-#include "twaalgos/relabel.hh"
+#include <spot/twaalgos/cleanacc.hh>
+#include <spot/twaalgos/dot.hh>
+#include <spot/twaalgos/degen.hh>
+#include <spot/twaalgos/copy.hh>
+#include <spot/twaalgos/complete.hh>
+#include <spot/twaalgos/complement.hh>
+#include <spot/twaalgos/emptiness.hh>
+#include <spot/twaalgos/gtec/gtec.hh>
+#include <spot/twaalgos/lbtt.hh>
+#include <spot/twaalgos/ltl2taa.hh>
+#include <spot/twaalgos/ltl2tgba_fm.hh>
+#include <spot/twaalgos/compsusp.hh>
+#include <spot/twaalgos/magic.hh>
+#include <spot/twaalgos/minimize.hh>
+#include <spot/twaalgos/neverclaim.hh>
+#include <spot/twaalgos/remfin.hh>
+#include <spot/twaalgos/strength.hh>
+#include <spot/twaalgos/sccfilter.hh>
+#include <spot/twaalgos/stats.hh>
+#include <spot/twaalgos/isdet.hh>
+#include <spot/twaalgos/isunamb.hh>
+#include <spot/twaalgos/simulation.hh>
+#include <spot/twaalgos/postproc.hh>
+#include <spot/twaalgos/product.hh>
+#include <spot/twaalgos/stutter.hh>
+#include <spot/twaalgos/translate.hh>
+#include <spot/twaalgos/hoa.hh>
+#include <spot/twaalgos/dtwasat.hh>
+#include <spot/twaalgos/relabel.hh>
 
-#include "parseaut/public.hh"
+#include <spot/parseaut/public.hh>
 
-#include "ta/ta.hh"
-#include "ta/tgta.hh"
-#include "ta/taexplicit.hh"
-#include "ta/tgtaexplicit.hh"
-#include "taalgos/tgba2ta.hh"
-#include "taalgos/dot.hh"
-#include "taalgos/stats.hh"
-#include "taalgos/minimize.hh"
+#include <spot/ta/ta.hh>
+#include <spot/ta/tgta.hh>
+#include <spot/ta/taexplicit.hh>
+#include <spot/ta/tgtaexplicit.hh>
+#include <spot/taalgos/tgba2ta.hh>
+#include <spot/taalgos/dot.hh>
+#include <spot/taalgos/stats.hh>
+#include <spot/taalgos/minimize.hh>
 
 using namespace spot;
 %}
@@ -238,16 +238,16 @@ using namespace spot;
 %rename(FalseVal) False;
 %rename(TrueVal) True;
 
-%include "misc/common.hh"
-%include "misc/version.hh"
-%include "misc/minato.hh"
-%include "misc/optionmap.hh"
-%include "misc/random.hh"
-%include "misc/escape.hh"
+%include <spot/misc/common.hh>
+%include <spot/misc/version.hh>
+%include <spot/misc/minato.hh>
+%include <spot/misc/optionmap.hh>
+%include <spot/misc/random.hh>
+%include <spot/misc/escape.hh>
 
 %implicitconv std::vector<spot::formula>;
 
-%include "tl/formula.hh"
+%include <spot/tl/formula.hh>
 
 namespace std {
   %template(liststr) list<std::string>;
@@ -256,78 +256,78 @@ namespace std {
   %template(relabeling_map) map<spot::formula, spot::formula>;
 }
 
-%include "tl/environment.hh"
-%include "tl/defaultenv.hh"
+%include <spot/tl/environment.hh>
+%include <spot/tl/defaultenv.hh>
 
-%include "tl/parse.hh"
+%include <spot/tl/parse.hh>
 
  /* these must come before apcollect.hh */
-%include "twa/bdddict.hh"
-%include "twa/bddprint.hh"
-%include "twa/fwd.hh"
+%include <spot/twa/bdddict.hh>
+%include <spot/twa/bddprint.hh>
+%include <spot/twa/fwd.hh>
 %feature("flatnested") spot::acc_cond::mark_t;
 %feature("flatnested") spot::acc_cond::acc_code;
 %apply bool* OUTPUT {bool& max, bool& odd};
-%include "twa/acc.hh"
-%include "twa/twa.hh"
+%include <spot/twa/acc.hh>
+%include <spot/twa/twa.hh>
 
-%include "tl/apcollect.hh"
-%include "tl/dot.hh"
-%include "tl/nenoform.hh"
-%include "tl/print.hh"
-%include "tl/simplify.hh"
-%include "tl/unabbrev.hh"
-%include "tl/randomltl.hh"
-%include "tl/length.hh"
-%include "tl/remove_x.hh"
-%include "tl/relabel.hh"
+%include <spot/tl/apcollect.hh>
+%include <spot/tl/dot.hh>
+%include <spot/tl/nenoform.hh>
+%include <spot/tl/print.hh>
+%include <spot/tl/simplify.hh>
+%include <spot/tl/unabbrev.hh>
+%include <spot/tl/randomltl.hh>
+%include <spot/tl/length.hh>
+%include <spot/tl/remove_x.hh>
+%include <spot/tl/relabel.hh>
 
-%include "twa/taatgba.hh"
-%include "twa/twaproduct.hh"
-%include "twa/twagraph.hh"
+%include <spot/twa/taatgba.hh>
+%include <spot/twa/twaproduct.hh>
+%include <spot/twa/twagraph.hh>
 
 // Should come after the definition of twa_graph
 
-%include "twaalgos/cleanacc.hh"
-%include "twaalgos/degen.hh"
-%include "twaalgos/dot.hh"
-%include "twaalgos/copy.hh"
-%include "twaalgos/complete.hh"
-%include "twaalgos/complement.hh"
-%include "twaalgos/emptiness.hh"
-%include "twaalgos/gtec/gtec.hh"
-%include "twaalgos/lbtt.hh"
-%include "twaalgos/ltl2taa.hh"
-%include "twaalgos/ltl2tgba_fm.hh"
-%include "twaalgos/compsusp.hh"
-%include "twaalgos/magic.hh"
-%include "twaalgos/minimize.hh"
-%include "twaalgos/neverclaim.hh"
-%include "twaalgos/strength.hh"
-%include "twaalgos/remfin.hh"
-%include "twaalgos/sccfilter.hh"
-%include "twaalgos/stats.hh"
-%include "twaalgos/isdet.hh"
-%include "twaalgos/isunamb.hh"
-%include "twaalgos/simulation.hh"
-%include "twaalgos/postproc.hh"
-%include "twaalgos/product.hh"
-%include "twaalgos/stutter.hh"
-%include "twaalgos/translate.hh"
-%include "twaalgos/hoa.hh"
-%include "twaalgos/dtwasat.hh"
-%include "twaalgos/relabel.hh"
+%include <spot/twaalgos/cleanacc.hh>
+%include <spot/twaalgos/degen.hh>
+%include <spot/twaalgos/dot.hh>
+%include <spot/twaalgos/copy.hh>
+%include <spot/twaalgos/complete.hh>
+%include <spot/twaalgos/complement.hh>
+%include <spot/twaalgos/emptiness.hh>
+%include <spot/twaalgos/gtec/gtec.hh>
+%include <spot/twaalgos/lbtt.hh>
+%include <spot/twaalgos/ltl2taa.hh>
+%include <spot/twaalgos/ltl2tgba_fm.hh>
+%include <spot/twaalgos/compsusp.hh>
+%include <spot/twaalgos/magic.hh>
+%include <spot/twaalgos/minimize.hh>
+%include <spot/twaalgos/neverclaim.hh>
+%include <spot/twaalgos/strength.hh>
+%include <spot/twaalgos/remfin.hh>
+%include <spot/twaalgos/sccfilter.hh>
+%include <spot/twaalgos/stats.hh>
+%include <spot/twaalgos/isdet.hh>
+%include <spot/twaalgos/isunamb.hh>
+%include <spot/twaalgos/simulation.hh>
+%include <spot/twaalgos/postproc.hh>
+%include <spot/twaalgos/product.hh>
+%include <spot/twaalgos/stutter.hh>
+%include <spot/twaalgos/translate.hh>
+%include <spot/twaalgos/hoa.hh>
+%include <spot/twaalgos/dtwasat.hh>
+%include <spot/twaalgos/relabel.hh>
 
-%include "parseaut/public.hh"
+%include <spot/parseaut/public.hh>
 
-%include "ta/ta.hh"
-%include "ta/tgta.hh"
-%include "ta/taexplicit.hh"
-%include "ta/tgtaexplicit.hh"
-%include "taalgos/tgba2ta.hh"
-%include "taalgos/dot.hh"
-%include "taalgos/stats.hh"
-%include "taalgos/minimize.hh"
+%include <spot/ta/ta.hh>
+%include <spot/ta/tgta.hh>
+%include <spot/ta/taexplicit.hh>
+%include <spot/ta/tgtaexplicit.hh>
+%include <spot/taalgos/tgba2ta.hh>
+%include <spot/taalgos/dot.hh>
+%include <spot/taalgos/stats.hh>
+%include <spot/taalgos/minimize.hh>
 
 
 #undef ltl

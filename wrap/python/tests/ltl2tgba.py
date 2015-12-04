@@ -20,8 +20,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This is a python translation of the ltl2tgba C++ test program.
-# Compare with src/tgbatest/ltl2tgba.cc.
+# This is a python implementation of a small ltl2tgba translator that calls the
+# translation and simplifications functions itself.  It's better to use the
+# translate() function today.
 
 import sys
 import getopt

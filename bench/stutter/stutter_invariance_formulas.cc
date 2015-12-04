@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "bin/common_sys.hh"
-#include "bin/common_setup.hh"
-#include "bin/common_finput.hh"
-#include "bin/common_output.hh"
-#include "twaalgos/translate.hh"
-#include "twaalgos/stutter.hh"
-#include "twaalgos/stats.hh"
-#include "tl/apcollect.hh"
-#include "misc/timer.hh"
+#include "spot/bin/common_sys.hh"
+#include "spot/bin/common_setup.hh"
+#include "spot/bin/common_finput.hh"
+#include "spot/bin/common_output.hh"
+#include <spot/twaalgos/translate.hh>
+#include <spot/twaalgos/stutter.hh>
+#include <spot/twaalgos/stats.hh>
+#include <spot/tl/apcollect.hh>
+#include <spot/misc/timer.hh>
 #include <argp.h>
 
 const char argp_program_doc[] ="";
