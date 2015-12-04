@@ -334,7 +334,7 @@ def print_stats(automaton, detinfo = False, ta = False):
         stats = spot.stats_reachable(automaton)
         detinfo = False
     else:
-        if (buchi_type == 't' and automaton.is_inherently_weak() and
+        if (buchi_type == 't' and automaton.prop_inherently_weak() and
             automaton.acc().is_buchi()):
             unbufprint("Note: this is a weak automaton, using transition-based "
                        "or generalized acceptance does not bring any benefit."
