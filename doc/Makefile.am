@@ -67,6 +67,7 @@ ORG_FILES = \
   org/spot.css \
   org/autfilt.org \
   org/csv.org \
+  org/compile.org \
   org/dstar2tgba.org \
   org/genltl.org \
   org/hoa.org \

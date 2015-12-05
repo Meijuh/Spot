@@ -22,6 +22,11 @@ New in spot 1.99.6a (not yet released)
 
   Python:
 
+  Documentation:
+
+  * There is a new page explaining how to compile example programs and
+    and link them with Spot.  https://spot.lrde.epita.fr/compile.html
+
   Bug fixes:
 
 New in spot 1.99.6 (2015-12-04)

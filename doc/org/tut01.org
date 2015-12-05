@@ -67,6 +67,7 @@ We first start with the easy parser interface, similar to the one used
 above in the python bindings.  Here parse errors would be returned as
 exceptions.
 
+#+NAME: 1stex
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>
   #include <spot/tl/parse.hh>
@@ -83,7 +84,9 @@ exceptions.
   }
 #+END_SRC
 
-#+RESULTS:
+After [[file:compile.org][compiling and executing]] we get:
+
+#+RESULTS: 1stex
 : GFp0 | FGp1
 : p_{1} \land p_{2} \land \G p_{0}
 : & & p1 p2 G p0
