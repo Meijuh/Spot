@@ -20,6 +20,13 @@ stutter-invariant LTL. Information Processing Letters 75(6): 261-263
 Describes the transformation behind the \fB\-\-remove\-x\fR option.
 .TP
 \(bu
+Thibaud Michaud and Alexandre Duret-Lutz:
+Practical stutter-invariance checks for ω-regular languages.
+Proceedings of SPIN'15.  LNCS 9232.
+
+Describes the algorithm used by \fB\-\-stutter\-insensitive\fR option.
+.TP
+\(bu
 Christian Dax, Jochen Eisinger, Felix Klaedtke: Mechanizing the
 Powerset Construction for Restricted Classes of
 ω-Automata. Proceedings of ATVA'07.  LNCS 4762.

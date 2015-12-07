@@ -94,6 +94,14 @@ LNCS 8461.
 Explains the SAT-based minimization techniques that can be used (on
 request only) by dstar2tgba to minimize deterministic Büchi automata.
 
+.TP
+5.
+Souheib Baarir and Alexandre Duret-Lutz: SAT-based minimization of
+deterministic ω-automata.  Proceedings of LPAR'15 (a.k.a LPAR-20).
+LNCS 9450.
+
+Extends the previous paper by allowing arbitrary acceptance
+conditions.
 [SEE ALSO]
 .BR spot-x (7),
 .BR autfilt (1)
