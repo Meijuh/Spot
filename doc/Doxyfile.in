@@ -153,7 +153,6 @@ FULL_PATH_NAMES        = YES
 # This tag requires that the tag FULL_PATH_NAMES is set to YES.
 
 STRIP_FROM_PATH        = @top_srcdir@/ \
-                         @top_srcdir@/iface/ \
                          @srcdir@
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of the
@@ -163,8 +162,7 @@ STRIP_FROM_PATH        = @top_srcdir@/ \
 # specify the list of include paths that are normally passed to the compiler
 # using the -I flag.
 
-STRIP_FROM_INC_PATH    = @top_srcdir@/ \
-                         @top_srcdir@/iface/
+STRIP_FROM_INC_PATH    = @top_srcdir@/
 
 # If the SHORT_NAMES tag is set to YES, doxygen will generate much shorter (but
 # less readable) file names. This can be useful is your file systems doesn't
@@ -763,7 +761,7 @@ WARN_LOGFILE           =
 
 INPUT                  = @srcdir@/mainpage.dox \
                          @top_srcdir@/spot \
-                         @top_srcdir@/iface
+                         @top_srcdir@/spot-if
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses

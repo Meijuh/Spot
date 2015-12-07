@@ -18,7 +18,10 @@ New in spot 1.99.6a (not yet released)
     Inside the source distribution, the subdirectory src/ has been
     renamed to spot/, so that the root of the source tree can also be
     put on the preprocessor's search path to compile against a
-    non-installed version of Spot.
+    non-installed version of Spot.  Similarly, iface/ has been renamed
+    to spot-if/ and is now installed in $includedir/spot-if/ instead
+    of $includedir/spot/iface/, so that installed and non-installed
+    directories can be used similarly.
 
   Python:
 

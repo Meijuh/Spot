@@ -30,7 +30,7 @@
 # define WEXITSTATUS(x) ((x) & 0xff)
 #endif
 
-#include <iface/ltsmin/ltsmin.hh>
+#include <spot-if/ltsmin/ltsmin.hh>
 #include <spot/misc/hashfunc.hh>
 #include <spot/misc/fixpool.hh>
 #include <spot/misc/mspool.hh>

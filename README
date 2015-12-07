@@ -124,7 +124,7 @@ Some documentation can be found in the doc/ directory.
 "make install" will install man pages for command-line tools.  (These
 man pages can also be found in the spot/bin/man/ subdirectory of the
 source tree.)  Additional documentation about these tools can be found
-in doc/userdoc/, or on-line at http://spot.lrde.lip6.fr/tools.html
+in doc/userdoc/, or online at https://spot.lrde.epita.fr/tools.html
 
 
 
@@ -151,7 +151,7 @@ spot/             Sources for libspot.
    twaalgos/      Algorithms on TωA.
       gtec/       Couvreur's Emptiness-Check.
    sanity/        Sanity tests for the whole project.
-doc/              Documentation for libspot.
+doc/              Documentation for Spot.
    org/           Source of userdoc/ as org-mode files.
    tl/            Documentation of the Temporal Logic operators.
    userdoc/       HTML documentation about the command-line tools.
@@ -163,13 +163,13 @@ bench/            Benchmarks for ...
    ltlcounter/    ... translation of a class of LTL formulas,
    ltlclasses/    ... translation of more classes of LTL formulas,
    spin13/        ... compositional suspension and other improvements,
+   stutter/       ... stutter-invariance checking algorithms,
    wdba/          ... WDBA minimization (for obligation properties).
-   stutter/       ... stutter-invariance checking algorithms
 wrap/             Wrappers for other languages.
    python/        Python bindings for Spot and BuDDy
       tests/      Tests for these bindings
       ajax/       LTL-to-TGBA translator with web interface, using Ajax.
-iface/            Interfaces to other libraries.
+spot-if/          Interfaces between Spot and other libraries.
    ltsmin/        Interface with DiVinE2 and SpinS.
 
 Third party software
@@ -197,9 +197,11 @@ End:
  LocalWords:  Python's BuDDy LBTT LTL Büchi lbtt gspn DIR GreatSPN Soheib Yann
  LocalWords:  Baarir Thierry Mieg CVS Università di Torino devel src libspot ac
  LocalWords:  ltlast ltlenv ltlparse ltlvisit  misc tgba TGBA tgbaalgos
- LocalWords:  gtec Tarjan doc html PDF spotref pdf cgi ELTL
+ LocalWords:  gtec Tarjan doc html PDF spotref pdf cgi ELTL LRDE tl
  LocalWords:  CGI ltl iface BDD Couvreur's emptchk kripke Kripke saba vm
  LocalWords:  eltlparse eltltest SABA sabaalgos sabatest ssp ltlcouter scc SCC
-LocalWords:  optimizations kripkeparse  Automata
+LocalWords:  optimizations kripkeparse  Automata IPython subdirectory
 LocalWords:  neverparse ltlcounter ltlclasses parallelizing automata
-LocalWords:  wdba WDBA ajax dve DiVinE ltdl Libtool's dlopen
+LocalWords:  wdba WDBA ajax dve DiVinE ltdl Libtool's dlopen userdoc
+LocalWords:  parseaut parsetl priv TGTA taalgos twa twaalgos dtgbasat
+LocalWords:  DTGBA compositional invariance ltsmin SpinS Gnulib's

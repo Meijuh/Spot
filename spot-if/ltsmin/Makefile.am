@@ -21,7 +21,7 @@ AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) \
               $(BUDDY_CPPFLAGS) -I$(top_srcdir)/ltdl
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
-ltsmindir = $(pkgincludedir)/iface/ltsmin
+ltsmindir = $(includedir)/spot-if/ltsmin
 
 ltsmin_HEADERS = ltsmin.hh
 

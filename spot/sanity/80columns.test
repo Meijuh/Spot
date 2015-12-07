@@ -42,7 +42,7 @@ fi
 x="$x$x$x$x$x$x$x$x$x" # 9x
 x="$x$x$x$x$x$x$x$x$x" # 81x
 
-for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
+for dir in "${INCDIR-..}" "${INCDIR-..}"/../spot-if; do
 
   find "$dir" \(    -name "${1-*}.hh" \
                  -o -name "${1-*}.hxx" \

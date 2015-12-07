@@ -52,7 +52,7 @@ export LC_ALL
 
 tmp=incltest.tmp
 
-for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
+for dir in "${INCDIR-..}" "${INCDIR-..}"/../spot-if; do
 
   find "$dir" \(    -name "${1-*}.hh" \
                  -o -name "${1-*}.hxx" \
@@ -326,7 +326,7 @@ done
 
 
 # Rules for Makefiles.
-for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
+for dir in "${INCDIR-..}" "${INCDIR-..}"/../spot-if; do
 
   find "$dir" -name "Makefile.am" -a -type f -a -print |
   while read file; do

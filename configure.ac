@@ -198,9 +198,6 @@ AC_CONFIG_FILES([
   doc/org/.dir-locals.el
   doc/org/init.el
   elisp/Makefile
-  iface/ltsmin/defs
-  iface/ltsmin/Makefile
-  iface/Makefile
   lib/Makefile
   spot/bin/Makefile
   spot/bin/man/Makefile
@@ -220,6 +217,9 @@ AC_CONFIG_FILES([
   spot/twaalgos/gtec/Makefile
   spot/twaalgos/Makefile
   spot/twa/Makefile
+  spot-if/ltsmin/defs
+  spot-if/ltsmin/Makefile
+  spot-if/Makefile
   wrap/Makefile
   wrap/python/ajax/Makefile
   wrap/python/Makefile

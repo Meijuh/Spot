@@ -28,7 +28,7 @@ if NEVER
   NEVER_SUBDIRS = bench elisp
 endif
 
-SUBDIRS = buddy lib spot wrap ltdl iface doc $(NEVER_SUBDIRS)
+SUBDIRS = buddy lib spot wrap ltdl spot-if doc $(NEVER_SUBDIRS)
 
 UTF8 = utf8/doc/ReleaseNotes utf8/doc/utf8cpp.html utf8/utf8.h	\
   utf8/utf8/checked.h utf8/utf8/core.h utf8/utf8/unchecked.h

@@ -1,3 +1,4 @@
 usr/include/spot
+usr/include/spot-if
 usr/lib/*-*/libspot.so
 usr/lib/*-*/libspotltsmin.so
