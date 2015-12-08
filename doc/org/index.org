@@ -12,7 +12,7 @@ checking.  It has the following notable features:
 - Support for transition-based acceptance (state-based acceptance is
   supported by a reduction to transition-based acceptance).
 - The automaton parser can read a stream of automata written in any of
-  three syntaxes ([[http://spinroot.com/spin/Man/never.html][never claims]], [[file:hoa.org][HOA]], or [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]]).
+  four syntaxes ([[file:hoa.org][HOA]], [[http://spinroot.com/spin/Man/never.html][never claims]], [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]], [[http://www.ltl2dstar.de/docs/ltl2dstar.html][DSTAR]]).
 - Several algorithms for formula manipulation including: simplifying
   formulas, testing implication or equivalence, testing
   stutter-invariance, removing some operators by rewriting, ...
@@ -22,7 +22,7 @@ checking.  It has the following notable features:
   transformations, etc.
 - In addition to the C++ interface, most of its algorithms are usable
   via [[file:tools.org][command-line tools]], and via Python bindings.
-- One of the command-line tool, called [[file:ltlcross.org][=ltlcross=]] is a rewrite of
+- One command-line tool, called [[file:ltlcross.org][=ltlcross=]], is a rewrite of
   [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], but with support for PSL and arbitrary acceptance conditions.
   It could for instance be used to test tools that translate LTL into
   Rabin automata.
