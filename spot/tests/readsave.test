@@ -737,6 +737,7 @@ State: 2 {0 1} [0] 2
 EOF
 
 test `$autfilt --is-weak -c input4` = 1
+test `$autfilt --is-inherently-weak -c input4` = 1
 test `$autfilt --is-terminal -c input4` = 0
 
 $autfilt -H --small --high input4 >output4
@@ -837,3 +838,62 @@ State: [0] 2 {0}
 EOF
 
 diff output6 expect6
+
+
+cat >input7 <<EOF
+HOA: v1
+States: 3
+Start: 1
+AP: 0
+acc-name: Buchi
+Acceptance: 2 Inf(0) & Inf(1)
+--BODY--
+State: 0
+[t] 1 {0}
+[t] 0 {0 1}
+State: 1
+[t] 0 {1}
+[t] 1 {0 1}
+--END--
+EOF
+test `$autfilt -c --is-inherently-weak input7` = 1
+test `$autfilt -c --is-weak input7` = 0
+$autfilt --check input7 -H >output7
+cat >expected7 <<EOF
+HOA: v1
+States: 3
+Start: 1
+AP: 0
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels trans-acc inherently-weak
+--BODY--
+State: 0
+[t] 1 {0}
+[t] 0 {0 1}
+State: 1
+[t] 0 {1}
+[t] 1 {0 1}
+State: 2
+--END--
+EOF
+diff output7 expected7
+
+cat >input8 <<EOF
+HOA: v1
+States: 3
+Start: 1
+AP: 0
+acc-name: Buchi
+Acceptance: 2 Inf(0) & Inf(1)
+--BODY--
+State: 0
+[t] 1 {0}
+[t] 0 {0 1}
+State: 1
+[t] 0 {1}
+[t] 1 {0}
+--END--
+EOF
+test `$autfilt -c --is-inherently-weak input8` = 0
+test `$autfilt -c --is-weak input8` = 0

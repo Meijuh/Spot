@@ -2,6 +2,8 @@ New in spot 1.99.6a (not yet released)
 
   Command-line tools:
 
+  * autfilt has a new option: --is-inherently-weak.
+
   Library:
 
   * Installed headers now assume that they will be included as
@@ -22,6 +24,10 @@ New in spot 1.99.6a (not yet released)
     to spot-if/ and is now installed in $includedir/spot-if/ instead
     of $includedir/spot/iface/, so that installed and non-installed
     directories can be used similarly.
+
+  * is_inherently_weak_automaton() is a new function, and
+    check_strength() has been modified to also check inherently weak
+    automata.
 
   Python:
 

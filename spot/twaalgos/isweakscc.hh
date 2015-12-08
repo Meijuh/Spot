@@ -26,6 +26,11 @@ namespace spot
   /// \addtogroup twa_misc
   /// @{
 
+  /// \brief Whether the SCC number \a scc in \a map has a rejecting
+  /// cycle.
+  SPOT_API bool
+  scc_has_rejecting_cycle(scc_info& map, unsigned scc);
+
   /// \brief Whether the SCC number \a scc in \a map is inherently
   /// weak.
   ///
@@ -34,13 +39,6 @@ namespace spot
   ///
   /// Note the terminal SCCs are also inherently weak with that
   /// definition.
-  ///
-  /// The absence of accepting cycle is easy to check (the scc_info
-  /// object can tell whether the SCC is non-accepting already).
-  /// Similarly, an SCC in which all transitions belong to all
-  /// acceptance sets is necessarily weak.  For other accepting SCCs,
-  /// this function enumerates all cycles in the given SCC (it stops
-  /// if it find a non-accepting cycle).
   SPOT_API bool
   is_inherently_weak_scc(scc_info& map, unsigned scc);
 

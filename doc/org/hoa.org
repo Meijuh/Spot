@@ -666,7 +666,7 @@ particular:
 | =stutter-sensitive= | trusted | yes    | as stored                                   | can be checked with =--check=stuttering=                         |
 | =terminal=          | trusted | yes    | as stored                                   | can be checked with =--check=strength=                           |
 | =weak=              | trusted | yes    | as stored if (=-Hv= or not =terminal=)      | can be checked with =--check=strength=                           |
-| =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)          |                                                                  |
+| =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)          | can be checked with =--check=strength=                           |
 | =colored=           | ignored | no     | checked                                     |                                                                  |
 
 ** Named properties
@@ -942,4 +942,5 @@ bits section above), and property that are trivial to compute.
 
 Command-line tools with a HOA output all have a =--check= option that
 can be used to request additional checks such as testing whether the
-automaton is stutter-invariant, unambiguous, weak, and terminal.
+automaton is stutter-invariant, unambiguous, (inherently) weak, and
+terminal.

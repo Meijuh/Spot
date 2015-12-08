@@ -38,7 +38,7 @@ namespace spot
 
   /// \brief Whether an automaton is weak.
   ///
-  /// An automaton is weak if if any given SCC, all transitions belong
+  /// An automaton is weak if in any given SCC, all transitions belong
   /// to the same acceptance sets.
   ///
   /// \param aut the automaton to check
@@ -47,6 +47,19 @@ namespace spot
   /// will be built otherwise).
   SPOT_API bool
   is_weak_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
+
+  /// \brief Whether an automaton is inherently weak.
+  ///
+  /// An automaton is inherently weak if in any given SCC, there
+  /// are only accepting cycles, or only rejecting cycles.
+  ///
+  /// \param aut the automaton to check
+  ///
+  /// \param sm an scc_info object for the automaton if available (it
+  /// will be built otherwise).
+  SPOT_API bool
+  is_inherently_weak_automaton(const const_twa_graph_ptr& aut,
+			       scc_info* sm = nullptr);
 
   /// \brief Whether a minimized WDBA represents a safety property.
   ///

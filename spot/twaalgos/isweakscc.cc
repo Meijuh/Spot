@@ -17,51 +17,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <spot/twaalgos/cycles.hh>
 #include <spot/tl/formula.hh>
 #include <spot/twaalgos/isweakscc.hh>
+#include <spot/twaalgos/mask.hh>
 
 namespace spot
 {
-  namespace
+  bool
+  scc_has_rejecting_cycle(scc_info& map, unsigned scc)
   {
-    // Look for a non-accepting cycle.
-    class weak_checker final : public enumerate_cycles
-    {
-    public:
-      bool result;
-
-      weak_checker(const scc_info& map)
-	: enumerate_cycles(map), result(true)
-      {
-      }
-
-      virtual bool
-      cycle_found(unsigned start) override
-      {
-	dfs_stack::const_reverse_iterator i = dfs_.rbegin();
-	acc_cond::mark_t acc = 0U;
-	for (;;)
-	  {
-	    acc |= aut_->edge_storage(i->succ).acc;
-	    if (i->s == start)
-	      break;
-	    ++i;
-	    // The const cast is here to please old g++ versions.
-	    // At least version 4.0 needs it.
-	    assert(i != const_cast<const dfs_stack&>(dfs_).rend());
-	  }
-	if (!aut_->acc().accepting(acc))
-	  {
-	    // We have found an non-accepting cycle, so the SCC is not
-	    // weak.
-	    result = false;
-	    return false;
-	  }
-	return true;
-      }
-
-    };
+    // We check that by cloning the SCC and complementing its
+    // acceptance condition.
+    auto aut = map.get_aut();
+    std::vector<bool> keep(aut->num_states(), false);
+    auto& states = map.states_of(scc);
+    for (auto s: states)
+      keep[s] = true;
+    auto sccaut = mask_keep_states(aut, keep, states.front());
+    sccaut->set_acceptance(sccaut->acc().num_sets(),
+			   sccaut->get_acceptance().complement());
+    return !sccaut->is_empty();
   }
 
   bool
@@ -70,11 +45,10 @@ namespace spot
      // Weak SCCs are inherently weak.
     if (is_weak_scc(map, scc))
       return true;
-    // If the SCC is accepting, but one cycle is not, the SCC is not
-    // weak.
-    weak_checker w(map);
-    w.run(scc);
-    return w.result;
+    // If we reach this place, we now the SCC has an accepting cycle.
+    // The question is now to find whether is also contains a
+    // rejecting cycle.
+    return !scc_has_rejecting_cycle(map, scc);
   }
 
   bool
