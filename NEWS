@@ -29,6 +29,10 @@ New in spot 1.99.6a (not yet released)
     check_strength() has been modified to also check inherently weak
     automata.
 
+  * decompose_strength() is now extracting inherently weak SCCs
+    instead of just weak SCCs.  This gets rid of some corner cases
+    that used to require ad hoc handling.
+
   Python:
 
   Documentation:

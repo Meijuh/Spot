@@ -199,7 +199,7 @@ namespace spot
       {
 	if (si.is_accepting_scc(i))
 	  {
-	    if (all_accepting | is_weak_scc(si, i))
+	    if (all_accepting | is_inherently_weak_scc(si, i))
 	      {
 		if (keep & Weak)
 		  {

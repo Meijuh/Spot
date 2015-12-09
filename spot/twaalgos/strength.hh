@@ -87,15 +87,21 @@ namespace spot
   ///
   /// The string \a keep should be a non-empty combination of
   /// the following letters:
-  /// - 'w': keep only weak SCCs (i.e., SCCs in which all transitions belong
-  ///   to the same acceptance sets) that are not terminal.
-  /// - 't': keep terminal SCCs (i.e., weak SCCs that are complete)
-  /// - 's': keep strong SCCs (i.e., SCCs that are not weak).
+  /// - 'w': keep only inherently weak SCCs (i.e., SCCs in which
+  ///        all transitions belong to the same acceptance sets) that
+  ///        are not terminal.
+  /// - 't': keep terminal SCCs (i.e., inherently weak SCCs that are complete)
+  /// - 's': keep strong SCCs (i.e., SCCs that are not inherently weak).
   ///
   /// This algorithm returns a subautomaton that contains all SCCs of the
   /// requested strength, plus any upstream SCC (but adjusted not to be
   /// accepting).
   ///
+  /// The definition are basically those used in the following paper,
+  /// except that we extra the "inherently weak" part instead of the
+  /// weak part because we can now test for inherent weakness
+  /// efficiently enough (not enumerating all cycles as suggested in
+  /// the paper).
   /** \verbatim
       @inproceedings{renault.13.tacas,
         author = {Etienne Renault and Alexandre Duret-Lutz and Fabrice

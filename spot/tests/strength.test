@@ -264,6 +264,21 @@ State: 1 {0}
 HOA: v1
 States: 2
 Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc colored complete
+properties: deterministic terminal
+--BODY--
+State: 0 {0}
+[0] 1
+[!0] 0
+State: 1 {0}
+[t] 0
+--END--
+HOA: v1
+States: 2
+Start: 0
 AP: 0
 acc-name: Buchi
 Acceptance: 1 Inf(0)
@@ -334,20 +349,6 @@ State: 2
 HOA: v1
 States: 2
 Start: 0
-AP: 1 "a"
-Acceptance: 2 Inf(0) | Inf(1)
-properties: trans-labels explicit-labels trans-acc colored complete
-properties: deterministic
---BODY--
-State: 0
-[0] 1 {1}
-[!0] 0 {0}
-State: 1
-[t] 0 {0}
---END--
-HOA: v1
-States: 2
-Start: 0
 AP: 2 "a" "c"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
@@ -374,6 +375,21 @@ State: 0
 [0&!1] 0
 State: 1 {0}
 [t] 1
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc colored complete
+properties: deterministic weak
+--BODY--
+State: 0 {0}
+[0] 1
+[!0] 0
+State: 1 {0}
+[t] 0
 --END--
 HOA: v1
 States: 2
@@ -444,20 +460,6 @@ State: 4
 --END--
 /******************************/
 HOA: v1
-States: 2
-Start: 0
-AP: 1 "a"
-Acceptance: 2 Inf(0) | Inf(1)
-properties: trans-labels explicit-labels trans-acc colored complete
-properties: deterministic
---BODY--
-State: 0
-[0] 1 {1}
-[!0] 0 {0}
-State: 1
-[t] 0 {0}
---END--
-HOA: v1
 States: 1
 Start: 0
 AP: 1 "a"
@@ -523,7 +525,7 @@ Start: 0
 AP: 1 "a"
 Acceptance: 2 Inf(0) | Inf(1)
 properties: trans-labels explicit-labels trans-acc colored complete
-properties: deterministic
+properties: deterministic weak
 --BODY--
 State: 0
 [0] 1 {1}
