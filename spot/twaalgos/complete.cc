@@ -34,7 +34,7 @@ namespace spot
     // UM is a pair (bool, mark).  If the Boolean is false, the
     // acceptance is always satisfiable.  Otherwise, MARK is an
     // example of unsatisfiable mark.
-    auto um = aut->get_acceptance().unsat_mark();
+    auto um = aut->acc().unsat_mark();
     if (!um.first)
       {
 	// We cannot safely complete an automaton if its

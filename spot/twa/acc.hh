@@ -832,10 +832,6 @@ namespace spot
       // Return the set of sets appearing in the condition.
       acc_cond::mark_t used_sets() const;
 
-      // Return (true, m) if there exist some m that does not satisfy
-      // the acceptance condition.  Return (false, 0U) otherwise.
-      std::pair<bool, acc_cond::mark_t> unsat_mark() const;
-
       // Return the sets used as Inf or Fin in the acceptance condition
       std::pair<acc_cond::mark_t, acc_cond::mark_t> used_inf_fin_sets() const;
 
@@ -957,6 +953,11 @@ namespace spot
 	m = mark_t(-1U);
       return acc_code::inf(m);
     }
+
+    // Return (true, m) if there exist some acceptance mark m that
+    // does not satisfy the acceptance condition.  Return (false, 0U)
+    // otherwise.
+    std::pair<bool, acc_cond::mark_t> unsat_mark() const;
 
   protected:
     bool check_fin_acceptance() const;

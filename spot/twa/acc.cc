@@ -857,12 +857,14 @@ namespace spot
   }
 
   std::pair<bool, acc_cond::mark_t>
-  acc_cond::acc_code::unsat_mark() const
+  acc_cond::unsat_mark() const
   {
-    if (empty())
+    if (is_tt())
       return {false, 0U};
+    if (!uses_fin_acceptance())
+      return {true, 0U};
 
-    auto used = acc_cond::acc_code::used_sets();
+    auto used = code_.used_sets();
     unsigned c = used.count();
     unsigned max = used.max_set();
 
@@ -884,7 +886,7 @@ namespace spot
 	  }
       }
 
-    bdd res = to_bdd_rec(&back(), &r[0]);
+    bdd res = to_bdd_rec(&code_.back(), &r[0]);
 
     if (res == bddtrue)
       return {false, 0U};

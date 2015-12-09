@@ -171,26 +171,15 @@ namespace spot
 	    (std::string("unknown option for decompose_strength(): ") + c);
 	}
 
+    auto p = aut->acc().unsat_mark();
+    bool all_accepting = !p.first;
     acc_cond::mark_t wacc = 0U;	// Acceptance for weak SCCs
-    acc_cond::mark_t uacc = 0U;	// Acceptance for "needed" SCCs, that
-				// we only want to traverse.
+    acc_cond::mark_t uacc = p.second; // Acceptance for "needed" SCCs, that
+                                      // we only want to traverse.
 
     // If the acceptance condition is always satisfiable, we will
-    // consider the automaton has weak (even if that is not the
+    // consider the automaton as weak (even if that is not the
     // case syntactically) and not output any strong part.
-    bool all_accepting = false;
-    if (aut->acc().is_tt())
-      {
-	all_accepting = true;
-      }
-    else if (aut->acc().uses_fin_acceptance())
-      {
-	auto p = aut->get_acceptance().unsat_mark();
-	if (p.first)
-	  uacc = p.second;
-	else
-	  all_accepting = true;
-      }
     if (all_accepting)
       {
 	keep &= ~Strong;
