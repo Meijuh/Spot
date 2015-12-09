@@ -123,29 +123,40 @@ namespace spot
   }
 
   bool
-  isomorphism_checker::is_isomorphic(const const_twa_graph_ptr aut)
+  isomorphism_checker::is_isomorphic_(const const_twa_graph_ptr aut)
   {
-    if (trivially_different(ref_, aut))
-      return false;
-
+    bool autdet = aut->prop_deterministic();
     if (ref_deterministic_)
       {
-        if (aut->prop_deterministic() || spot::is_deterministic(aut))
-          {
-            return are_isomorphic_det(ref_, aut);
-          }
+        if (autdet || spot::is_deterministic(aut))
+	  return are_isomorphic_det(ref_, aut);
       }
     else
       {
-        if (aut->prop_deterministic() ||
-            nondet_states_ != spot::count_nondet_states(aut))
-          {
-            return false;
-          }
+        if (autdet || nondet_states_ != spot::count_nondet_states(aut))
+	  return false;
       }
 
     auto tmp = make_twa_graph(aut, twa::prop_set::all());
     spot::canonicalize(tmp);
     return *tmp == *ref_;
+  }
+
+  bool
+  isomorphism_checker::is_isomorphic(const const_twa_graph_ptr aut)
+  {
+    if (trivially_different(ref_, aut))
+      return false;
+    return is_isomorphic_(aut);
+  }
+
+  bool
+  isomorphism_checker::are_isomorphic(const const_twa_graph_ptr ref,
+				      const const_twa_graph_ptr aut)
+  {
+    if (trivially_different(ref, aut))
+      return false;
+    isomorphism_checker c(ref);
+    return c.is_isomorphic_(aut);
   }
 }

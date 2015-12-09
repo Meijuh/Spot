@@ -24,6 +24,7 @@
 #include <spot/tl/simplify.hh>
 #include <spot/tl/formula.hh>
 #include <spot/twaalgos/product.hh>
+#include <spot/twaalgos/are_isomorphic.hh>
 
 namespace spot
 {
@@ -104,6 +105,12 @@ namespace spot
   bool
   language_containment_checker::equal(formula l, formula g)
   {
+    if (l == g)
+      return true;
+    record_* rl = register_formula_(l);
+    record_* rg = register_formula_(g);
+    if (isomorphism_checker::are_isomorphic(rl->translation, rg->translation))
+      return true;
     return contained(l, g) && contained(g, l);
   }
 

@@ -25,7 +25,7 @@
 namespace spot
 {
   /// Check if two automata are isomorphic.
-  class SPOT_API isomorphism_checker
+  class SPOT_API isomorphism_checker final
   {
   public:
     isomorphism_checker(const const_twa_graph_ptr ref);
@@ -45,7 +45,14 @@ namespace spot
     bool
     is_isomorphic(const const_twa_graph_ptr aut);
 
+
+    /// \ingroup twa_misc
+    /// \brief Check whether two automata are isomorphic.
+    static bool are_isomorphic(const const_twa_graph_ptr ref,
+			       const const_twa_graph_ptr aut);
+
   private:
+    bool is_isomorphic_(const const_twa_graph_ptr aut);
     twa_graph_ptr ref_;
     bool ref_deterministic_ = false;
     unsigned nondet_states_ = 0;
