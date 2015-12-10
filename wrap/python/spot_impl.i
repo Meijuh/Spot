@@ -199,6 +199,11 @@ using namespace spot;
     // if tmp == nullptr, then the default value of $1 is fine.
 }
 
+%typemap(typecheck) spot::formula {
+    $1 = SWIG_CheckState(SWIG_ConvertPtr($input, nullptr,
+					 $descriptor(spot::formula*), 0));
+}
+
 %typemap(out) spot::formula {
   if (!$1)
     $result = SWIG_Py_Void();
