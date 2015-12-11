@@ -387,11 +387,20 @@ namespace spot
     }
 
 #ifndef SWIG
-    auto out(unsigned src) const
-      SPOT_RETURN(g_.out(src));
-    auto out(unsigned src)
-      SPOT_RETURN(g_.out(src));
+    internal::state_out<const graph_t>
+    out(unsigned src) const
+    {
+      return g_.out(src);
+    }
+#endif
 
+    internal::state_out<graph_t>
+    out(unsigned src)
+    {
+      return g_.out(src);
+    }
+
+#ifndef SWIG
     auto states() const
       SPOT_RETURN(g_.states());
     auto states()

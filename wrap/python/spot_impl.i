@@ -109,8 +109,8 @@
 #include <spot/twa/twaproduct.hh>
 
 #include <spot/twaalgos/cleanacc.hh>
-#include <spot/twaalgos/dot.hh>
 #include <spot/twaalgos/degen.hh>
+#include <spot/twaalgos/dot.hh>
 #include <spot/twaalgos/copy.hh>
 #include <spot/twaalgos/complete.hh>
 #include <spot/twaalgos/complement.hh>
@@ -153,6 +153,71 @@ using namespace spot;
 %}
 
 
+// Swig come with iterators that implement a decrement method.
+// This is not supported in our "successor" iterators.
+%fragment("ForwardIterator_T","header",fragment="SwigPyIterator_T") {
+namespace swig
+{
+  template<typename OutIterator,
+	   typename ValueType =
+	   typename std::iterator_traits<OutIterator>::value_type,
+	   typename FromOper = from_oper<ValueType> >
+  class ForwardIterator_T :  public SwigPyIterator_T<OutIterator>
+  {
+  public:
+    FromOper from;
+    typedef OutIterator out_iterator;
+    typedef ValueType value_type;
+    typedef SwigPyIterator_T<out_iterator>  base;
+    typedef ForwardIterator_T<OutIterator, ValueType, FromOper> self_type;
+
+    ForwardIterator_T(out_iterator curr, out_iterator first,
+		      out_iterator last, PyObject *seq)
+      : SwigPyIterator_T<OutIterator>(curr, seq), begin(first), end(last)
+    {
+    }
+
+    PyObject *value() const {
+      if (base::current == end) {
+	throw stop_iteration();
+      } else {
+	return from(static_cast<const value_type&>(*(base::current)));
+      }
+    }
+
+    SwigPyIterator *copy() const
+    {
+      return new self_type(*this);
+    }
+
+    SwigPyIterator *incr(size_t n = 1)
+    {
+      while (n--) {
+	if (base::current == end) {
+	  throw stop_iteration();
+	} else {
+	  ++base::current;
+	}
+      }
+      return this;
+    }
+
+  private:
+    out_iterator begin;
+    out_iterator end;
+  };
+
+  template<typename OutIter>
+  inline SwigPyIterator*
+  make_forward_iterator(const OutIter& current,
+			const OutIter& begin,
+			const OutIter& end, PyObject *seq = 0)
+  {
+    return new ForwardIterator_T<OutIter>(current, begin, end, seq);
+  }
+}
+}
+%fragment("ForwardIterator_T");
 
 // For spot::emptiness_check_instantiator::construct and any other
 // function that return errors via a "char **err" argument.
@@ -284,7 +349,24 @@ namespace std {
 
 %include <spot/twa/taatgba.hh>
 %include <spot/twa/twaproduct.hh>
+
+%include <spot/graph/graph.hh>
+%nodefaultctor spot::digraph;
+%nodefaultctor spot::internal::state_out;
+%traits_swigtype(spot::internal::edge_storage<unsigned int, unsigned int, unsigned int, spot::internal::boxed_label<spot::twa_graph_edge_data, false> >);
+%fragment(SWIG_Traits_frag(spot::internal::edge_storage<unsigned int, unsigned int, unsigned int, spot::internal::boxed_label<spot::twa_graph_edge_data, false> >));
+
+%typemap(out, optimal="1") spot::internal::state_out<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>> {
+  $result = SWIG_NewPointerObj(new $1_ltype($1), $&1_descriptor,
+			       SWIG_POINTER_OWN);
+}
+
+%noexception spot::twa_graph::out;
 %include <spot/twa/twagraph.hh>
+
+%template(twa_graph_state_out) spot::internal::state_out<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>>;
+%template(twa_graph_edge_boxed_data) spot::internal::boxed_label<spot::twa_graph_edge_data, false>;
+%template(twa_graph_edge_storage) spot::internal::edge_storage<unsigned int, unsigned int, unsigned int, spot::internal::boxed_label<spot::twa_graph_edge_data, false> >;
 
 // Should come after the definition of twa_graph
 
@@ -303,8 +385,8 @@ namespace std {
 %include <spot/twaalgos/magic.hh>
 %include <spot/twaalgos/minimize.hh>
 %include <spot/twaalgos/neverclaim.hh>
-%include <spot/twaalgos/strength.hh>
 %include <spot/twaalgos/remfin.hh>
+%include <spot/twaalgos/strength.hh>
 %include <spot/twaalgos/sccfilter.hh>
 %include <spot/twaalgos/stats.hh>
 %include <spot/twaalgos/isdet.hh>
@@ -367,6 +449,15 @@ namespace std {
   {
     return self->get_named_prop<std::string>("automaton-name");
   }
+}
+
+
+%extend spot::internal::state_out<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>> {
+  swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
+   {
+      return swig::make_forward_iterator(self->begin(), self->begin(),
+				         self->end(), *PYTHON_SELF);
+   }
 }
 
 %extend spot::acc_cond::acc_code {

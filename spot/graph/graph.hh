@@ -36,6 +36,7 @@ namespace spot
 
   namespace internal
   {
+#ifndef SWIG
     template <typename Of, typename ...Args>
     struct first_is_base_of
     {
@@ -48,7 +49,7 @@ namespace spot
       static const bool value =
 	std::is_base_of<Of, typename std::decay<Arg1>::type>::value;
     };
-
+#endif
 
     // The boxed_label class stores Data as an attribute called
     // "label" if boxed is true.  It is an empty class if Data is
@@ -62,6 +63,7 @@ namespace spot
       typedef Data data_t;
       Data label;
 
+#ifndef SWIG
       template <typename... Args,
 		typename = typename std::enable_if<
 		  !first_is_base_of<boxed_label, Args...>::value>::type>
@@ -70,6 +72,7 @@ namespace spot
 	: label{std::forward<Args>(args)...}
       {
       }
+#endif
 
       // if Data is a POD type, G++ 4.8.2 wants default values for all
       // label fields unless we define this default constructor here.
@@ -115,6 +118,7 @@ namespace spot
     {
       typedef Data data_t;
 
+#ifndef SWIG
       template <typename... Args,
 		typename = typename std::enable_if<
 		  !first_is_base_of<boxed_label, Args...>::value>::type>
@@ -123,6 +127,7 @@ namespace spot
 	: Data{std::forward<Args>(args)...}
       {
       }
+#endif
 
       // if Data is a POD type, G++ 4.8.2 wants default values for all
       // label fields unless we define this default constructor here.
@@ -155,7 +160,7 @@ namespace spot
       Edge succ = 0; // First outgoing edge (used when iterating)
       Edge succ_tail = 0;	// Last outgoing edge (used for
 				// appending new edges)
-
+#ifndef SWIG
       template <typename... Args,
 		typename = typename std::enable_if<
 		  !first_is_base_of<distate_storage, Args...>::value>::type>
@@ -164,6 +169,7 @@ namespace spot
 	: State_Data{std::forward<Args>(args)...}
       {
       }
+#endif
     };
 
     //////////////////////////////////////////////////
@@ -189,6 +195,7 @@ namespace spot
       {
       }
 
+#ifndef SWIG
       template <typename... Args>
       edge_storage(StateOut dst, Edge next_succ,
 		    StateIn src, Args&&... args)
@@ -199,6 +206,7 @@ namespace spot
 	dst(dst), next_succ(next_succ), src(src)
       {
       }
+#endif
 
       bool operator<(const edge_storage& other) const
       {
@@ -231,12 +239,12 @@ namespace spot
     // of that list.
 
     template <typename Graph>
-    class SPOT_API edge_iterator:
-      std::iterator<std::forward_iterator_tag,
-		    typename
-		    std::conditional<std::is_const<Graph>::value,
-				     const typename Graph::edge_storage_t,
-				     typename Graph::edge_storage_t>::type>
+    class SPOT_API edge_iterator: public
+    std::iterator<std::forward_iterator_tag,
+		  typename
+		  std::conditional<std::is_const<Graph>::value,
+				   const typename Graph::edge_storage_t,
+				   typename Graph::edge_storage_t>::type>
     {
       typedef
 	std::iterator<std::forward_iterator_tag,
@@ -274,8 +282,20 @@ namespace spot
 	return g_->edge_storage(t_);
       }
 
+      const typename super::reference
+      operator*() const
+      {
+	return g_->edge_storage(t_);
+      }
+
       typename super::pointer
       operator->()
+      {
+	return &g_->edge_storage(t_);
+      }
+
+      const typename super::pointer
+      operator->() const
       {
 	return &g_->edge_storage(t_);
       }
@@ -412,7 +432,7 @@ namespace spot
     //////////////////////////////////////////////////
 
     template <typename Graph>
-    class SPOT_API all_edge_iterator:
+    class SPOT_API all_edge_iterator: public
       std::iterator<std::forward_iterator_tag,
 		    typename
 		    std::conditional<std::is_const<Graph>::value,
@@ -484,8 +504,20 @@ namespace spot
 	return tv_[t_];
       }
 
-      typename super::pointer
+      const typename super::reference
+      operator*() const
+      {
+	return tv_[t_];
+      }
+
+      const typename super::pointer
       operator->()
+      {
+	return &tv_[t_];
+      }
+
+      typename super::pointer
+      operator->() const
       {
 	return &tv_[t_];
       }
