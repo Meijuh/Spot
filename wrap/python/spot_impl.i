@@ -238,11 +238,6 @@ using namespace spot;
   }
 }
 
-// False and True cannot be redefined in Python3, even in a class.
-// Spot uses these in an enum of the constant class.
-%rename(FalseVal) False;
-%rename(TrueVal) True;
-
 %include <spot/misc/common.hh>
 %include <spot/misc/version.hh>
 %include <spot/misc/minato.hh>
