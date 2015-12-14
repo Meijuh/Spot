@@ -35,6 +35,10 @@ New in spot 1.99.6a (not yet released)
 
   Python:
 
+  * Iterating over the transitions leaving a state (the
+    twa_graph::out() C++ function) is now possible in Python.  See
+    https://spot.lrde.epita.fr/tut21.html for a demonstration.
+
   Documentation:
 
   * There is a new page explaining how to compile example programs and

@@ -476,6 +476,15 @@ namespace std {
   }
 }
 
+%extend spot::acc_cond::mark_t {
+  std::string __str__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+}
+
 %extend spot::twa_run {
   std::string __str__()
   {

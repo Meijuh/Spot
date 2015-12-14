@@ -3,10 +3,23 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 
-This example demonstrates how to iterate over an automaton.  We will
-only show how to do this in C++: the Python bindings for the automata
-are not yet supporting these low-level iterations, and the shell
-commands aren't up to the task either.
+This example demonstrates how to iterate over an automaton in C++ and
+Python.  This case uses automata stored entirely in memory as a graph:
+states are numbered by integers, and transitions can be seen as tuple
+of the form
+$(\mathit{src},\mathit{dst},\mathit{cond},\mathit{accsets})$ where
+$\mathit{src}$ and $\mathit{dst}$ are integer denoting the extremities
+of the transition, $\mathit{cond}$ is a BDD representing the label
+(a.k.a. guard), and $\mathit{accsets}$ is an object of type
+=acc_cond::mark_t= encoding the membership to each acceptance sets
+(=acc_cond::mark_t= is basically a bit vector).
+
+The interface available for those graph-based automata allows random
+access to any state of the graph, hence the code given bellow can do a
+simple loop over all states of the automaton.  Spot also supports a
+different kind of interface (not demonstrated here) to iterate over
+automata that are constructed on-the-fly and where such a loop would
+be impossible.
 
 First let's create an example automaton in HOA format.
 
@@ -42,9 +55,11 @@ State: 3
 --END--
 #+END_SRC
 
+* C++
+
 We now write some C++ to load this automaton [[file:tut20.org][as we did before]], and in
 =custom_print()= we print it out in a custom way by explicitly
-iterating over it states and edges.
+iterating over its states and edges.
 
 The only tricky part is to print the edge labels.  Since they are
 BDDs, printing them directly would just show the identifiers of BDDs
@@ -158,6 +173,111 @@ Number of edges: 10
 Initial state: 0
 Atomic propositions: a (=0) b (=1) c (=2)
 Name: Fa | G(Fb & Fc)
+Deterministic: maybe
+Unambiguous: yes
+State-Based Acc: maybe
+Terminal: maybe
+Weak: maybe
+Inherently Weak: maybe
+Stutter Invariant: yes
+State 0:
+  edge(0 -> 1)
+    label = a
+    acc sets = {}
+  edge(0 -> 2)
+    label = !a
+    acc sets = {}
+  edge(0 -> 3)
+    label = !a
+    acc sets = {}
+State 1:
+  edge(1 -> 1)
+    label = 1
+    acc sets = {0,1}
+State 2:
+  edge(2 -> 1)
+    label = a
+    acc sets = {}
+  edge(2 -> 2)
+    label = !a
+    acc sets = {}
+State 3:
+  edge(3 -> 3)
+    label = !a & b & c
+    acc sets = {0,1}
+  edge(3 -> 3)
+    label = !a & !b & c
+    acc sets = {1}
+  edge(3 -> 3)
+    label = !a & b & !c
+    acc sets = {0}
+  edge(3 -> 3)
+    label = !a & !b & !c
+    acc sets = {}
+#+end_example
+
+* Python
+
+Here is the very same example, but written in Python:
+
+#+BEGIN_SRC python :results output :exports both
+  import spot
+
+
+  def maybe_yes(pos, neg=False):
+      if neg:
+          return "no"
+      return "yes" if pos else "maybe"
+
+
+  def custom_print(aut):
+      bdict = aut.get_dict()
+      print("Acceptance:", aut.get_acceptance())
+      print("Number of sets:", aut.num_sets())
+      print("Number of states: ", aut.num_states())
+      print("Initial states: ", aut.get_init_state_number())
+      print("Atomic propositions:", end='')
+      for ap in aut.ap():
+          print(' ', ap, ' (=', bdict.varnum(ap), ')', sep='', end='')
+      print()
+      # Templated methods are not available in Python, so we cannot
+      # retrieve/attach arbitrary objects from/to the automaton.  However the
+      # Python bindings have get_name() and set_name() to access the
+      # "automaton-name" property.
+      name = aut.get_name()
+      if name:
+          print("Name: ", name)
+      print("Deterministic:", maybe_yes(aut.prop_deterministic()))
+      print("Unambiguous:", maybe_yes(aut.prop_unambiguous()))
+      print("State-Based Acc:", maybe_yes(aut.prop_state_acc()))
+      print("Terminal:", maybe_yes(aut.prop_terminal()))
+      print("Weak:", maybe_yes(aut.prop_weak()))
+      print("Inherently Weak:", maybe_yes(aut.prop_inherently_weak()))
+      print("Stutter Invariant:", maybe_yes(aut.prop_stutter_invariant(),
+                                            aut.prop_stutter_sensitive()))
+
+      for s in range(0, aut.num_states()):
+          print("State {}:".format(s))
+          for t in aut.out(s):
+              print("  edge({} -> {})".format(t.src, t.dst))
+              # bdd_print_formula() is designed to print on a std::ostream, and
+              # is inconveniant to use in Python.  Instead we use
+              # bdd_format_formula() as this simply returns a string.
+              print("    label =", spot.bdd_format_formula(bdict, t.cond))
+              print("    acc sets =", t.acc)
+
+
+  custom_print(spot.automaton("tut21.hoa"))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Acceptance: Inf(0)&Inf(1)
+Number of sets: 2
+Number of states:  4
+Initial states:  0
+Atomic propositions: a (=0) b (=1) c (=2)
+Name:  Fa | G(Fb & Fc)
 Deterministic: maybe
 Unambiguous: yes
 State-Based Acc: maybe

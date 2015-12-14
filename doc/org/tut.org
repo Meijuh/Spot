@@ -5,7 +5,7 @@
 
 
 This section contains code examples for using Spot.  This is a work in
-progress.  Feel free to [[mailto:spot@lrde.epita.fr][send]] suggestion of small tasks you would like
+progress.  Feel free to [[mailto:spot@lrde.epita.fr][send]] suggestions of small tasks you would like
 to see illustrated here.
 
 If you have difficulties compiling the C++ examples, check out [[file:compile.org][these
@@ -25,14 +25,13 @@ three interfaces supported by Spot: shell commands, Python, or C++.
 * Examples in Python and C++
 
 - [[file:tut03.org][Constructing and transforming formulas]]
+- [[file:tut21.org][Custom print of an automaton]]
 
-* Examples in
-C++ only
+* Examples in C++ only
 
 The following examples are too low-level to be implemented in shell or
 Python (at least at the moment), so they are purely C++ so far.
 
-- [[file:tut21.org][Custom print of an automaton]]
 - [[file:tut22.org][Creating an automaton in C++]]
 
 * Examples in Python only

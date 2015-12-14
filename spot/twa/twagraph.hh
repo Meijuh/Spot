@@ -173,6 +173,12 @@ namespace spot
   public:
     typedef digraph<twa_graph_state, twa_graph_edge_data> graph_t;
     typedef graph_t::edge_storage_t edge_storage_t;
+    // We avoid using graph_t::state because graph_t is not
+    // instantiated in the SWIG bindings, and SWIG would therefore
+    // handle graph_t::state as an abstract type.
+    typedef unsigned state_num;
+    static_assert(std::is_same<typename graph_t::state, state_num>::value,
+		  "type mismatch");
 
   protected:
     graph_t g_;
@@ -247,7 +253,7 @@ namespace spot
       return g_.num_edges();
     }
 
-    void set_init_state(graph_t::state s)
+    void set_init_state(state_num s)
     {
       assert(s < num_states());
       init_number_ = s;
@@ -258,7 +264,7 @@ namespace spot
       set_init_state(state_number(s));
     }
 
-    graph_t::state get_init_state_number() const
+    state_num get_init_state_number() const
     {
       if (num_states() == 0)
 	const_cast<graph_t&>(g_).new_state();
@@ -290,7 +296,7 @@ namespace spot
       return new twa_graph_succ_iterator<graph_t>(&g_, s->succ);
     }
 
-    graph_t::state
+    state_num
     state_number(const state* st) const
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
@@ -299,7 +305,7 @@ namespace spot
     }
 
     const twa_graph_state*
-    state_from_number(graph_t::state n) const
+    state_from_number(state_num n) const
     {
       return &g_.state_data(n);
     }
