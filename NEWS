@@ -39,6 +39,10 @@ New in spot 1.99.6a (not yet released)
     twa_graph::out() C++ function) is now possible in Python.  See
     https://spot.lrde.epita.fr/tut21.html for a demonstration.
 
+  * Membership to acceptance sets can be specified using Python list
+    when calling for instance the Python version of twa_graph::new_edge().
+    See https://spot.lrde.epita.fr/tut22.html for a demonstration.
+
   Documentation:
 
   * There is a new page explaining how to compile example programs and

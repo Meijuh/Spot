@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-#+TITLE: Creating an automaton in C++
+#+TITLE: Creating an automaton by adding states and transitions
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 
-This example demonstrates how to create an automaton in C++, and then print it.
+This example demonstrates how to create an automaton and then print it.
+
+* C++
 
 #+BEGIN_SRC C++ :results verbatim :exports both :wrap SRC hoa
   #include <iostream>
@@ -12,8 +14,8 @@ This example demonstrates how to create an automaton in C++, and then print it.
 
   int main(void)
   {
-    // The dict is used to maintain the correspondence between the
-    // atomic propositions and the BDD variables to label the edges of
+    // The bdd_dict is used to maintain the correspondence between the
+    // atomic propositions and the BDD variables that label the edges of
     // the automaton.
     spot::bdd_dict_ptr dict = spot::make_bdd_dict();
     // This creates an empty automaton that we have yet to fill.
@@ -31,10 +33,9 @@ This example demonstrates how to create an automaton in C++, and then print it.
     // States are numbered from 0.
     aut->new_states(3);
 
-    // new_edge() takes 3 mandatory parameters:
-    // source state, destination state, label
-    // and a last optional parameter can be used
-    // to specify membership to acceptance sets.
+    // new_edge() takes 3 mandatory parameters: source state,
+    // destination state, and label.  A last optional parameter can be
+    // used to specify membership to acceptance sets.
     aut->new_edge(0, 1, p1);
     aut->new_edge(1, 1, p1 & p2, {0});
     aut->new_edge(1, 2, p2, {1});
@@ -44,6 +45,64 @@ This example demonstrates how to create an automaton in C++, and then print it.
     print_hoa(std::cout, aut);
     return 0;
   }
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC hoa
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "p1" "p2"
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0] 1
+State: 1
+[0&1] 1 {0}
+[1] 2 {1}
+State: 2
+[0 | 1] 1 {0 1}
+--END--
+#+END_SRC
+
+* Python
+
+#+BEGIN_SRC python :results output :exports both :wrap SRC hoa
+  import spot
+  import buddy
+
+  # The bdd_dict is used to maintain the correspondence between the
+  # atomic propositions and the BDD variables that label the edges of
+  # the automaton.
+  bdict = spot.make_bdd_dict();
+  # This creates an empty automaton that we have yet to fill.
+  aut = spot.make_twa_graph(bdict)
+
+  # Since a BDD is associated to every atomic proposition, the register_ap()
+  # function returns a BDD variable number that can be converted into a BDD using
+  # bdd_ithvar() from the BuDDy library.
+  p1 = buddy.bdd_ithvar(aut.register_ap("p1"))
+  p2 = buddy.bdd_ithvar(aut.register_ap("p2"))
+
+  # Set the acceptance condition of the automaton to Inf(0)&Inf(1)
+  aut.set_generalized_buchi(2)
+
+  # States are numbered from 0.
+  aut.new_states(3)
+
+  # new_edge() takes 3 mandatory parameters: source state, destination state, and
+  # label.  A last optional parameter can be used to specify membership to
+  # acceptance sets.  In the Python version, the list of acceptance sets the
+  # transition belongs to should be specified as a list.
+  aut.new_edge(0, 1, p1)
+  aut.new_edge(1, 1, p1 & p2, [0])
+  aut.new_edge(1, 2, p2, [1]);
+  aut.new_edge(2, 1, p1 | p2, [0, 1]);
+
+  # Print the resulting automaton.
+  print(aut.to_str('hoa'))
 #+END_SRC
 
 #+RESULTS:

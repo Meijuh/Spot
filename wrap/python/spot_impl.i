@@ -317,6 +317,7 @@ namespace swig
 namespace std {
   %template(liststr) list<std::string>;
   %template(vectorformula) vector<spot::formula>;
+  %template(vectorunsigned) vector<unsigned>;
   %template(atomic_prop_set) set<spot::formula>;
   %template(relabeling_map) map<spot::formula, spot::formula>;
 }
@@ -330,6 +331,7 @@ namespace std {
 %include <spot/twa/bdddict.hh>
 %include <spot/twa/bddprint.hh>
 %include <spot/twa/fwd.hh>
+%implicitconv spot::acc_cond::mark_t;
 %feature("flatnested") spot::acc_cond::mark_t;
 %feature("flatnested") spot::acc_cond::acc_code;
 %apply bool* OUTPUT {bool& max, bool& odd};
@@ -437,6 +439,14 @@ namespace std {
     return std::string("$") + spot::str_sclatex_psl(*self) + '$';
   }
   std::string __str__() { return spot::str_psl(*self); }
+}
+
+%extend spot::acc_cond::mark_t {
+  // http://comments.gmane.org/gmane.comp.programming.swig/14822
+  mark_t(const std::vector<unsigned>& f)
+  {
+    return new spot::acc_cond::mark_t(f.begin(), f.end());
+  }
 }
 
 %extend spot::twa {
