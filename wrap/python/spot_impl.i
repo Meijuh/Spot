@@ -441,14 +441,6 @@ namespace std {
   std::string __str__() { return spot::str_psl(*self); }
 }
 
-%extend spot::acc_cond::mark_t {
-  // http://comments.gmane.org/gmane.comp.programming.swig/14822
-  mark_t(const std::vector<unsigned>& f)
-  {
-    return new spot::acc_cond::mark_t(f.begin(), f.end());
-  }
-}
-
 %extend spot::twa {
   void set_name(std::string name)
   {
@@ -487,7 +479,20 @@ namespace std {
 }
 
 %extend spot::acc_cond::mark_t {
+  // http://comments.gmane.org/gmane.comp.programming.swig/14822
+  mark_t(const std::vector<unsigned>& f)
+  {
+    return new spot::acc_cond::mark_t(f.begin(), f.end());
+  }
+
   std::string __str__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+
+  std::string __repr__()
   {
     std::ostringstream os;
     os << *self;

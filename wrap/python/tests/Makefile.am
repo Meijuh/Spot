@@ -31,6 +31,7 @@ LOG_DRIVER = $(TEST_LOG_DRIVER)
 check_SCRIPTS = run
 
 TESTS = \
+  acc_cond.ipynb \
   accparse.ipynb \
   accparse2.py \
   alarm.py \
