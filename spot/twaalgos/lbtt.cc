@@ -98,7 +98,7 @@ namespace spot
 	body_ << out - 1 << ' ';
 	if (!sba_format_)
 	  {
-	    for (auto s: aut_->acc().sets(si->acc()))
+	    for (auto s: si->acc().sets())
 	      body_ << s << ' ';
 	    body_ << "-1 ";
 	  }

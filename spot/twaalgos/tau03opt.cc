@@ -160,9 +160,9 @@ namespace spot
 	// FIXME: This should be improved.
 	std::vector<unsigned> res;
 	unsigned max = a_->num_sets();
-	for (unsigned n = 0; n < max && a_->acc().has(acc, n); ++n)
+	for (unsigned n = 0; n < max && acc.has(n); ++n)
 	  res.push_back(n);
-	return a_->acc().marks(res.begin(), res.end());
+	return acc_cond::mark_t(res.begin(), res.end());
       }
 
       /// \brief weight of the state on top of the blue stack.
@@ -209,7 +209,7 @@ namespace spot
                   {
                     trace << "  It is white, go down" << std::endl;
 		    if (use_weights)
-		      current_weight.add(a_->acc(), acc);
+		      current_weight.add(acc);
                     inc_states();
                     h.add_new_state(s_prime, CYAN, current_weight);
                     push(st_blue, s_prime, label, acc);
@@ -260,7 +260,7 @@ namespace spot
                 stack_item f_dest(f);
                 pop(st_blue);
 		if (use_weights)
-		  current_weight.sub(a_->acc(), f_dest.acc);
+		  current_weight.sub(f_dest.acc);
                 typename heap::color_ref c_prime = h.get_color_ref(f_dest.s);
                 assert(!c_prime.is_white());
                 c_prime.set_color(BLUE);

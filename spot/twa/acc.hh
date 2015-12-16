@@ -512,9 +512,7 @@ namespace spot
 	acc_cond::acc_code res = f();
 	while (n > 0)
 	  {
-	    acc_cond::acc_code pair = inf({2*n - 1});
-	    pair.append_and(fin({2*n - 2}));
-	    res.append_or(std::move(pair));
+	    res |= inf({2*n - 1}) & fin({2*n - 2});
 	    --n;
 	  }
 	return res;
@@ -526,9 +524,7 @@ namespace spot
 	acc_cond::acc_code res = t();
 	while (n > 0)
 	  {
-	    acc_cond::acc_code pair = inf({2*n - 1});
-	    pair.append_or(fin({2*n - 2}));
-	    res.append_and(std::move(pair));
+	    res &= inf({2*n - 1}) | fin({2*n - 2});
 	    --n;
 	  }
 	return res;
@@ -545,9 +541,9 @@ namespace spot
 	    acc_cond::mark_t m = 0U;
 	    for (unsigned ni = *i; ni > 0; --ni)
 	      m.set(n++);
-	    pair.append_and(inf(m));
+	    pair &= inf(m);
 	    std::swap(pair, res);
-	    res.append_or(std::move(pair));
+	    res |= std::move(pair);
 	  }
 	return res;
       }
@@ -559,15 +555,15 @@ namespace spot
       // acceptance formula.
       static acc_code random(unsigned n, double reuse = 0.0);
 
-      void append_and(acc_code&& r)
+      acc_code& operator&=(acc_code&& r)
       {
 	if (is_tt() || r.is_ff())
 	  {
 	    *this = std::move(r);
-	    return;
+	    return *this;
 	  }
 	if (is_ff() || r.is_tt())
-	  return;
+	  return *this;
 	unsigned s = size() - 1;
 	unsigned rs = r.size() - 1;
 	// We want to group all Inf(x) operators:
@@ -576,7 +572,7 @@ namespace spot
 	    || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
 	  {
 	    (*this)[s - 1].mark |= r[rs - 1].mark;
-	    return;
+	    return *this;
 	  }
 
 	// In the more complex scenarios, left and right may both
@@ -648,17 +644,18 @@ namespace spot
 	w.op = acc_op::And;
 	w.size = size();
 	push_back(w);
+	return *this;
       }
 
-      void append_and(const acc_code& r)
+      acc_code& operator&=(const acc_code& r)
       {
 	if (is_tt() || r.is_ff())
 	  {
 	    *this = r;
-	    return;
+	    return *this;
 	  }
 	if (is_ff() || r.is_tt())
-	  return;
+	  return *this;
 	unsigned s = size() - 1;
 	unsigned rs = r.size() - 1;
 	// Inf(a) & Inf(b) = Inf(a & b)
@@ -666,7 +663,7 @@ namespace spot
 	    || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
 	  {
 	    (*this)[s - 1].mark |= r[rs - 1].mark;
-	    return;
+	    return *this;
 	  }
 
 	// In the more complex scenarios, left and right may both
@@ -738,16 +735,31 @@ namespace spot
 	w.op = acc_op::And;
 	w.size = size();
 	push_back(w);
+	return *this;
       }
 
-      void append_or(acc_code&& r)
+      acc_code operator&(acc_code&& r)
+      {
+	acc_code res = *this;
+	res &= r;
+	return res;
+      }
+
+      acc_code operator&(const acc_code& r)
+      {
+	acc_code res = *this;
+	res &= r;
+	return res;
+      }
+
+      acc_code& operator|=(acc_code&& r)
       {
 	if (is_tt() || r.is_ff())
-	  return;
+	  return *this;
 	if (is_ff() || r.is_tt())
 	  {
 	    *this = std::move(r);
-	    return;
+	    return *this;
 	  }
 	unsigned s = size() - 1;
 	unsigned rs = r.size() - 1;
@@ -756,7 +768,7 @@ namespace spot
 	    || ((*this)[s].op == acc_op::FinNeg && r[rs].op == acc_op::FinNeg))
 	  {
 	    (*this)[s - 1].mark |= r[rs - 1].mark;
-	    return;
+	    return *this;
 	  }
 	if ((*this)[s].op == acc_op::Or)
 	  pop_back();
@@ -767,12 +779,32 @@ namespace spot
 	w.op = acc_op::Or;
 	w.size = size();
 	push_back(w);
+	return *this;
       }
 
-      void shift_left(unsigned sets)
+      acc_code& operator|=(const acc_code& r)
+      {
+	return *this |= acc_code(r);
+      }
+
+      acc_code operator|(acc_code&& r)
+      {
+	acc_code res = *this;
+	res |= r;
+	return res;
+      }
+
+      acc_code operator|(const acc_code& r)
+      {
+	acc_code res = *this;
+	res |= r;
+	return res;
+      }
+
+      acc_code& operator<<=(unsigned sets)
       {
 	if (empty())
-	  return;
+	  return *this;
 	unsigned pos = size();
 	do
 	  {
@@ -792,6 +824,14 @@ namespace spot
 	      }
 	  }
 	while (pos > 0);
+	return *this;
+      }
+
+      acc_code operator<<(unsigned sets) const
+      {
+	acc_code res = *this;
+	res <<= sets;
+	return res;
       }
 
       bool is_dnf() const;
@@ -854,8 +894,8 @@ namespace spot
       friend std::ostream& operator<<(std::ostream& os, const acc_code& code);
     };
 
-    acc_cond(unsigned n_sets = 0)
-      : num_(0U), all_(0U)
+    acc_cond(unsigned n_sets = 0, acc_code code = {})
+      : num_(0U), all_(0U), code_(code)
     {
       add_sets(n_sets);
     }
@@ -970,7 +1010,7 @@ namespace spot
 
     acc_code inf(std::initializer_list<unsigned> vals) const
     {
-      return inf(marks(vals.begin(), vals.end()));
+      return inf(mark_t(vals.begin(), vals.end()));
     }
 
     acc_code inf_neg(mark_t mark) const
@@ -980,7 +1020,7 @@ namespace spot
 
     acc_code inf_neg(std::initializer_list<unsigned> vals) const
     {
-      return inf_neg(marks(vals.begin(), vals.end()));
+      return inf_neg(mark_t(vals.begin(), vals.end()));
     }
 
     acc_code fin(mark_t mark) const
@@ -990,7 +1030,7 @@ namespace spot
 
     acc_code fin(std::initializer_list<unsigned> vals) const
     {
-      return fin(marks(vals.begin(), vals.end()));
+      return fin(mark_t(vals.begin(), vals.end()));
     }
 
     acc_code fin_neg(mark_t mark) const
@@ -1000,7 +1040,7 @@ namespace spot
 
     acc_code fin_neg(std::initializer_list<unsigned> vals) const
     {
-      return fin_neg(marks(vals.begin(), vals.end()));
+      return fin_neg(mark_t(vals.begin(), vals.end()));
     }
 
     unsigned add_sets(unsigned num)
@@ -1023,44 +1063,6 @@ namespace spot
     mark_t mark(unsigned u) const
     {
       return mark_(u);
-    }
-
-    template<class iterator>
-    mark_t marks(const iterator& begin, const iterator& end) const
-    {
-      return mark_t(begin, end);
-    }
-
-    mark_t marks(std::initializer_list<unsigned> vals) const
-    {
-      return marks(vals.begin(), vals.end());
-    }
-
-    // FIXME: Return some iterable object without building a vector.
-    std::vector<unsigned> sets(mark_t m) const
-    {
-      return m.sets();
-    }
-
-    // whether m contains u
-    bool has(mark_t m, unsigned u) const
-    {
-      return m.has(u);
-    }
-
-    mark_t cup(mark_t l, mark_t r) const
-    {
-      return l | r;
-    }
-
-    mark_t cap(mark_t l, mark_t r) const
-    {
-      return l & r;
-    }
-
-    mark_t set_minus(mark_t l, mark_t r) const
-    {
-      return l - r;
     }
 
     mark_t join(const acc_cond& la, mark_t lm,

@@ -312,9 +312,8 @@ namespace spot
 
     assert(num_sets() == 0);
     auto left_num = left->num_sets();
-    auto right_acc = right->get_acceptance();
-    right_acc.shift_left(left_num);
-    right_acc.append_and(left->get_acceptance());
+    auto right_acc = right->get_acceptance() << left_num;
+    right_acc &= left->get_acceptance();
     set_acceptance(left_num + right->num_sets(), right_acc);
   }
 

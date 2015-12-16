@@ -41,9 +41,9 @@ static void f1()
   tg->new_edge(s1, s2, p1, 0U);
   tg->new_edge(s1, s3, p2, tg->acc().mark(1));
   tg->new_edge(s2, s3, p1 & p2, tg->acc().mark(0));
-  tg->new_edge(s3, s1, p1 | p2, tg->acc().marks({0, 1}));
+  tg->new_edge(s3, s1, p1 | p2, spot::acc_cond::mark_t({0, 1}));
   tg->new_edge(s3, s2, p1 >> p2, 0U);
-  tg->new_edge(s3, s3, bddtrue, tg->acc().marks({0, 1}));
+  tg->new_edge(s3, s3, bddtrue, spot::acc_cond::mark_t({0, 1}));
 
   spot::print_dot(std::cout, tg);
 
@@ -63,7 +63,7 @@ static void f1()
     spot::print_dot(std::cout, tg);
   }
 
-  auto all = tg->acc().marks({0, 1});
+  spot::acc_cond::mark_t all({0, 1});
   tg->new_edge(s3, s1, p1 | p2, all);
   tg->new_edge(s3, s2, p1 >> p2, 0U);
   tg->new_edge(s3, s1, bddtrue, all);

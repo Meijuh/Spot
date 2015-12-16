@@ -786,13 +786,13 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
 		 }
                | acceptance-cond '&' acceptance-cond
 	         {
-		   $3->append_and(std::move(*$1));
+		   *$3 &= std::move(*$1);
 		   $$ = $3;
 		   delete $1;
 		 }
                | acceptance-cond '|' acceptance-cond
 	         {
-		   $3->append_or(std::move(*$1));
+		   *$3 |= std::move(*$1);
 		   $$ = $3;
 		   delete $1;
 		 }
@@ -1804,7 +1804,7 @@ fix_acceptance_aux(spot::acc_cond& acc,
 	while (sub < pos)
 	  {
 	    --pos;
-	    c.append_and(fix_acceptance_aux(acc, in, pos, onlyneg, both, base));
+	    c &= fix_acceptance_aux(acc, in, pos, onlyneg, both, base);
 	    pos -= in[pos].size;
 	  }
 	return c;
@@ -1818,7 +1818,7 @@ fix_acceptance_aux(spot::acc_cond& acc,
 	while (sub < pos)
 	  {
 	    --pos;
-	    c.append_or(fix_acceptance_aux(acc, in, pos, onlyneg, both, base));
+	    c |= fix_acceptance_aux(acc, in, pos, onlyneg, both, base);
 	    pos -= in[pos].size;
 	  }
 	return c;
@@ -1839,7 +1839,7 @@ fix_acceptance_aux(spot::acc_cond& acc,
 	    ++base;
 	  }
 	if (tmp)
-	  c.append_or(acc.fin(tmp));
+	  c |= acc.fin(tmp);
 	return c;
       }
     case spot::acc_cond::acc_op::InfNeg:
@@ -1854,7 +1854,7 @@ fix_acceptance_aux(spot::acc_cond& acc,
 	    ++base;
 	  }
 	if (tmp)
-	  c.append_and(acc.inf(tmp));
+	  c &= acc.inf(tmp);
 	return c;
       }
     }
@@ -1886,7 +1886,7 @@ static void fix_acceptance(result_& r)
   unsigned base = 0;
   if (both)
     {
-      auto v = acc.sets(both);
+      auto v = both.sets();
       auto vs = v.size();
       base = acc.add_sets(vs);
       for (auto& t: r.h->aut->edge_vector())

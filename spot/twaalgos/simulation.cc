@@ -168,12 +168,12 @@ namespace spot
       {
 	// FIXME: Use a cache.
 	bdd res = bddtrue;
-	for (auto n: a_->acc().sets(m))
+	for (auto n: m.sets())
 	  res &= bdd_ithvar(acc_vars + n);
 	return res;
       }
 
-      acc_cond::mark_t bdd_to_mark(const twa_graph_ptr& aut, bdd b)
+      acc_cond::mark_t bdd_to_mark(bdd b)
       {
 	// FIXME: Use a cache.
 	std::vector<unsigned> res;
@@ -182,7 +182,7 @@ namespace spot
 	    res.push_back(bdd_var(b) - acc_vars);
 	    b = bdd_high(b);
 	  }
-	return aut->acc().marks(res.begin(), res.end());
+	return acc_cond::mark_t(res.begin(), res.end());
       }
 
       direct_simulation(const const_twa_graph_ptr& in)
@@ -575,8 +575,8 @@ namespace spot
 					     all_class_var_);
 
 		    // Keep only ones who are acceptance condition.
-		    auto acc = bdd_to_mark(res, bdd_existcomp(cond_acc_dest,
-							      all_proms_));
+		    auto acc = bdd_to_mark(bdd_existcomp(cond_acc_dest,
+							 all_proms_));
 
 		    // Keep the other!
 		    bdd cond = bdd_existcomp(cond_acc_dest,

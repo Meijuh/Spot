@@ -54,12 +54,11 @@ namespace spot
       res->copy_ap_of(left);
       res->copy_ap_of(right);
       auto left_num = left->num_sets();
-      auto right_acc = right->get_acceptance();
-      right_acc.shift_left(left_num);
+      auto right_acc = right->get_acceptance() << left_num;
       if (and_acc)
-	right_acc.append_and(left->get_acceptance());
+	right_acc &= left->get_acceptance();
       else
-	right_acc.append_or(acc_cond::acc_code(left->get_acceptance()));
+	right_acc |= left->get_acceptance();
       res->set_acceptance(left_num + right->num_sets(), right_acc);
 
       auto v = new product_states;

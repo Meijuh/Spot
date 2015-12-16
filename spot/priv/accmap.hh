@@ -64,7 +64,7 @@ namespace spot
        auto p = map_.find(name);
        if (p == map_.end())
 	 return std::make_pair(false, 0U);
-       return std::make_pair(true, aut_->acc().marks({p->second}));
+       return std::make_pair(true, acc_cond::mark_t({p->second}));
     }
   };
 
@@ -83,7 +83,7 @@ namespace spot
     std::pair<bool, acc_cond::mark_t> lookup(unsigned n)
     {
       if (n < aut_->acc().num_sets())
-	return std::make_pair(true, aut_->acc().marks({n}));
+	return std::make_pair(true, acc_cond::mark_t({n}));
       else
 	return std::make_pair(false, 0U);
     }
@@ -109,7 +109,7 @@ namespace spot
 	 return std::make_pair(true, p->second);
        if (used_ < aut_->acc().num_sets())
 	 {
-	   auto res = aut_->acc().marks({used_++});
+	   auto res = acc_cond::mark_t({used_++});
 	   map_[n] = res;
 	   return std::make_pair(true, res);
 	 }

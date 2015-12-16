@@ -31,16 +31,16 @@ namespace spot
   {
   }
 
-  weight& weight::add(const acc_cond& acc, acc_cond::mark_t a)
+  weight& weight::add(acc_cond::mark_t a)
   {
-    for (auto s: acc.sets(a))
+    for (auto s: a.sets())
       ++m[s];
     return *this;
   }
 
-  weight& weight::sub(const acc_cond& acc, acc_cond::mark_t a)
+  weight& weight::sub(acc_cond::mark_t a)
   {
-    for (auto s: acc.sets(a))
+    for (auto s: a.sets())
       if (m[s] > 0)
 	--m[s];
     return *this;
@@ -53,7 +53,7 @@ namespace spot
     for (unsigned n = 0; n < max; ++n)
       if (m[n] > w.m[n])
 	res.push_back(n);
-    return acc.marks(res.begin(), res.end());
+    return acc_cond::mark_t(res.begin(), res.end());
   }
 
   std::ostream& operator<<(std::ostream& os, const weight& w)

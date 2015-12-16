@@ -996,7 +996,7 @@ namespace spot
 						  ta(q2, l,
 						     d.cacc.mark(m), q3);
 						int tai = d.transaccid[ta];
-						if (d.cacc.has(biga, m))
+						if (biga.has(m))
 						  tai = -tai;
 						out << tai << ' ';
 					      }

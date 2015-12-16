@@ -445,7 +445,7 @@ namespace spot
 	      c.insert(c.end(), w, w + 2);
 	      auto p = res.emplace(fin, c);
 	      if (!p.second)
-		p.first->second.append_or(std::move(c));
+		p.first->second |= std::move(c);
 	    }
 	}
       return res;
@@ -627,7 +627,7 @@ namespace spot
 	      trace << "rem[" << i << "] = " << rem[i]
 		    << "  m = " << m << '\n';
 	      add[i] = m;
-	      code[i].append_and(acc.inf(m));
+	      code[i] &= acc.inf(m);
 	      trace << "code[" << i << "] = " << code[i] << '\n';
 	    }
 	}
@@ -636,14 +636,14 @@ namespace spot
 	  trace << "We have a true term\n";
 	  unsigned one = acc.add_sets(1);
 	  extra_sets += 1;
-	  auto m = acc.marks({one});
+	  acc_cond::mark_t m({one});
 	  auto c = acc.inf(m);
 	  for (unsigned i = 0; i < sz; ++i)
 	    {
 	      if (!code[i].is_tt())
 		continue;
 	      add[i] = m;
-	      code[i].append_and(c);
+	      code[i] &= std::move(c);
 	      c = acc.fin(0U);	// Use false for the other terms.
 	      trace << "code[" << i << "] = " << code[i] << '\n';
 	    }
@@ -653,7 +653,7 @@ namespace spot
 
     acc_cond::acc_code new_code = aut->acc().fin(0U);
     for (auto c: code)
-      new_code.append_or(std::move(c));
+      new_code |= std::move(c);
 
     unsigned cs = code.size();
     for (unsigned i = 0; i < cs; ++i)

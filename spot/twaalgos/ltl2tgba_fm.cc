@@ -253,7 +253,7 @@ namespace spot
 	      }
 	  }
 	while (a != bddtrue);
-	return acc.marks(t.begin(), t.end());
+	return acc_cond::mark_t(t.begin(), t.end());
       }
 
       int

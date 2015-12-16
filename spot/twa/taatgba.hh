@@ -196,7 +196,7 @@ namespace spot
     {
       auto p = acc_map_.emplace(f, 0);
       if (p.second)
-	p.first->second = acc_.marks({acc_.add_set()});
+	p.first->second = acc_cond::mark_t({acc_.add_set()});
       t->acceptance_conditions |= p.first->second;
     }
 

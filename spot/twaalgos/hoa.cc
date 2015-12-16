@@ -70,16 +70,14 @@ namespace spot
       }
 
       std::ostream&
-      emit_acc(std::ostream& os,
-	       const const_twa_graph_ptr& aut,
-	       acc_cond::mark_t b)
+      emit_acc(std::ostream& os, acc_cond::mark_t b)
       {
 	// FIXME: We could use a cache for this.
 	if (b == 0U)
 	  return os;
 	os << " {";
 	bool notfirst = false;
-	for (auto v: aut->acc().sets(b))
+	for (auto v: b.sets())
 	  {
 	    if (notfirst)
 	      os << ' ';
@@ -492,7 +490,7 @@ namespace spot
 		acc = t.acc;
 		break;
 	      }
-	    md.emit_acc(os, aut, acc);
+	    md.emit_acc(os, acc);
 	  }
 	os << nl;
 
@@ -503,7 +501,7 @@ namespace spot
 	      {
 		os << '[' << md.sup[t.cond] << "] " << t.dst;
 		if (this_acc == Hoa_Acceptance_Transitions)
-		  md.emit_acc(os, aut, t.acc);
+		  md.emit_acc(os, t.acc);
 		os << nl;
 	      }
 	  }
@@ -515,7 +513,7 @@ namespace spot
 		os << t.dst;
 		if (this_acc == Hoa_Acceptance_Transitions)
 		  {
-		    md.emit_acc(os, aut, t.acc);
+		    md.emit_acc(os, t.acc);
 		    os << nl;
 		  }
 		else
@@ -561,7 +559,7 @@ namespace spot
 		os << out[i];
 		if (this_acc != Hoa_Acceptance_States)
 		  {
-		    md.emit_acc(os, aut, outm[i]) << nl;
+		    md.emit_acc(os, outm[i]) << nl;
 		    ++i;
 		  }
 		else

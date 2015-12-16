@@ -59,9 +59,9 @@ int main()
   ac.set_generalized_buchi();
   std::cout << ac.get_acceptance() << '\n';
 
-  auto m1 = ac.marks({0, 2});
-  auto m2 = ac.marks({0, 3});
-  auto m3 = ac.marks({2, 1});
+  auto m1 = spot::acc_cond::mark_t({0, 2});
+  auto m2 = spot::acc_cond::mark_t({0, 3});
+  auto m3 = spot::acc_cond::mark_t({2, 1});
 
   check(ac, m1);
   check(ac, m2);
@@ -128,23 +128,23 @@ int main()
 
   auto code1 = ac.inf({0, 1, 3});
   std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
-  code1.append_or(ac.fin({2}));
+  code1 |= ac.fin({2});
   std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
-  code1.append_or(ac.fin({0}));
+  code1 |= ac.fin({0});
   std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
-  code1.append_or(ac.fin({}));
+  code1 |= ac.fin({});
   std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
-  code1.append_and(ac.inf({}));
+  code1 &= ac.inf({});
   std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
   auto code2 = code1;
-  code1.append_and(ac.fin({0, 1}));
+  code1 &= ac.fin({0, 1});
   std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
-  code1.append_and(ac.fin({}));
+  code1 &= ac.fin({});
   std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
-  code2.append_or(ac.fin({0, 1}));
+  code2 |= ac.fin({0, 1});
   std::cout << code2.size() << ' ' << code2 << ' ' << code2.is_dnf() << '\n';
   auto code3 = ac.inf({0, 1});
-  code3.append_and(ac.fin({2, 3}));
+  code3 &= ac.fin({2, 3});
   std::cout << code3.size() << ' ' << code3 << ' ' << code3.is_dnf() << '\n';
 
   // code3 == (Fin(2)|Fin(3)) & (Inf(0)&Inf(1))

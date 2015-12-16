@@ -538,9 +538,9 @@ namespace spot
     for (int i = start; i != end; i += inc)
       {
 	if ((i & 1) == odd)
-	  res.append_or(inf({(unsigned)i}));
+	  res |= inf({(unsigned)i});
 	else
-	  res.append_and(fin({(unsigned)i}));
+	  res &= fin({(unsigned)i});
       }
     return res;
   }
@@ -577,9 +577,9 @@ namespace spot
 	int p2 = mrand(s);
 
 	if (drand() < 0.5)
-	  codes[p2].append_or(std::move(codes.back()));
+	  codes[p2] |= std::move(codes.back());
 	else
-	  codes[p2].append_and(std::move(codes.back()));
+	  codes[p2] &= std::move(codes.back());
 
 	codes.pop_back();
       }
@@ -765,8 +765,7 @@ namespace spot
 		// The strange order here make sure we can smaller set
 		// numbers at the end of the acceptance code, i.e., at
 		// the front of the output.
-		auto a = fin(s);
-		a.append_and(std::move(c));
+		auto a = fin(s) & std::move(c);
 		std::swap(a, c);
 	      }
 	    else		// Positive variable? -> Inf
@@ -775,9 +774,9 @@ namespace spot
 		cube = h;
 	      }
 	  }
-	c.append_and(inf(i));
+	c &= inf(i);
 	// See comment above for the order.
-	c.append_or(std::move(rescode));
+	c |= std::move(rescode);
 	std::swap(c, rescode);
       }
 
@@ -838,8 +837,7 @@ namespace spot
 		// The strange order here make sure we can smaller set
 		// numbers at the end of the acceptance code, i.e., at
 		// the front of the output.
-		auto a = inf(s);
-		a.append_or(std::move(c));
+		auto a = inf(s) | std::move(c);
 		std::swap(a, c);
 	      }
 	    else		// Positive variable? -> Fin
@@ -848,9 +846,9 @@ namespace spot
 		cube = h;
 	      }
 	  }
-	c.append_or(fin(m));
+	c |= fin(m);
 	// See comment above for the order.
-	c.append_and(std::move(rescode));
+	c &= std::move(rescode);
 	std::swap(c, rescode);
       }
     return rescode;
@@ -1069,8 +1067,7 @@ namespace spot
 	    auto res = acc_cond::acc_code::f();
 	    do
 	      {
-		auto tmp = complement_rec(pos);
-		tmp.append_or(std::move(res));
+		auto tmp = complement_rec(pos) | std::move(res);
 		std::swap(tmp, res);
 		pos -= pos->size + 1;
 	      }
@@ -1083,8 +1080,7 @@ namespace spot
 	    auto res = acc_cond::acc_code::t();
 	    do
 	      {
-		auto tmp = complement_rec(pos);
-		tmp.append_and(std::move(res));
+		auto tmp = complement_rec(pos) & std::move(res);
 		std::swap(tmp, res);
 		pos -= pos->size + 1;
 	      }
@@ -1128,8 +1124,7 @@ namespace spot
 	    auto res = acc_cond::acc_code::t();
 	    do
 	      {
-		auto tmp = strip_rec(pos, rem, missing);
-		tmp.append_and(std::move(res));
+		auto tmp = strip_rec(pos, rem, missing) & std::move(res);
 		std::swap(tmp, res);
 		pos -= pos->size + 1;
 	      }
@@ -1142,8 +1137,7 @@ namespace spot
 	    auto res = acc_cond::acc_code::f();
 	    do
 	      {
-		auto tmp = strip_rec(pos, rem, missing);
-		tmp.append_or(std::move(res));
+		auto tmp = strip_rec(pos, rem, missing) | std::move(res);
 		std::swap(tmp, res);
 		pos -= pos->size + 1;
 	      }
@@ -1313,7 +1307,7 @@ namespace spot
 	  // Prepend instead of append, to preserve the input order.
 	  auto tmp = parse_term(input);
 	  std::swap(tmp, res);
-	  res.append_or(std::move(tmp));
+	  res |= std::move(tmp);
 	}
       return res;
     }
@@ -1477,7 +1471,7 @@ namespace spot
 	  // Prepend instead of append, to preserve the input order.
 	  auto tmp = parse_term(input);
 	  std::swap(tmp, res);
-	  res.append_and(std::move(tmp));
+	  res &= std::move(tmp);
 	}
       return res;
     }

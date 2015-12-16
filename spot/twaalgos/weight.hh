@@ -37,10 +37,10 @@ namespace spot
   public:
     /// Construct a empty vector (all counters set to zero).
     weight(const acc_cond& acc);
-    /// Increment by one the counters of each acceptance condition in \a acc.
-    weight& add(const acc_cond& acc, acc_cond::mark_t a);
-    /// Decrement by one the counters of each acceptance condition in \a acc.
-    weight& sub(const acc_cond& acc, acc_cond::mark_t a);
+    /// Increment by one the counters of each acceptance condition in \a a.
+    weight& add(acc_cond::mark_t a);
+    /// Decrement by one the counters of each acceptance condition in \a a.
+    weight& sub(acc_cond::mark_t a);
     /// Return the set of each acceptance condition such that its counter is
     /// strictly greatest than the corresponding counter in w.
     ///
