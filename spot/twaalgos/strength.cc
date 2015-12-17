@@ -126,7 +126,7 @@ namespace spot
 
   bool is_safety_mwdba(const const_twa_graph_ptr& aut)
   {
-    if (!(aut->acc().is_buchi() || aut->acc().is_tt()))
+    if (!(aut->acc().is_buchi() || aut->acc().is_all()))
       throw std::runtime_error
 	("is_safety_mwdba() should be called on a Buchi automaton");
 

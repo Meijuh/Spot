@@ -205,7 +205,7 @@ namespace spot
   print_never_claim(std::ostream& os, const const_twa_ptr& g,
 			const char* options)
   {
-    if (!(g->acc().is_buchi() || g->acc().is_tt()))
+    if (!(g->acc().is_buchi() || g->acc().is_all()))
       throw std::runtime_error
 	("Never claim output only supports Büchi acceptance");
     never_claim_output d(os, options);

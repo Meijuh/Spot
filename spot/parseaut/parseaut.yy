@@ -572,7 +572,7 @@ header-item: "States:" INT
 	       res.ignore_more_acc = true;
 	       // Not setting the acceptance in case of error will
 	       // force it to be true.
-	       if (res.opts.want_kripke && (!$4->is_tt() || $2 > 0))
+	       if (res.opts.want_kripke && (!$4->is_t() || $2 > 0))
 		 error(@2 + @4,
 		       "the acceptance for Kripke structure must be '0 t'");
 	       else

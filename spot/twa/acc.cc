@@ -51,6 +51,11 @@ namespace spot
     return os;
   }
 
+  std::ostream& operator<<(std::ostream& os, const acc_cond& acc)
+  {
+    return os << '(' << acc.num_sets() << ", " << acc.get_acceptance() << ')';
+  }
+
   namespace
   {
     void default_set_printer(std::ostream& os, int v)
@@ -411,9 +416,9 @@ namespace spot
 
   int acc_cond::is_rabin() const
   {
-    if (code_.is_ff())
+    if (code_.is_f())
       return num_ == 0 ? 0 : -1;
-    if ((num_ & 1) || code_.is_tt())
+    if ((num_ & 1) || code_.is_t())
       return -1;
 
     if (is_rs(code_, acc_op::Or, acc_op::And, all_sets()))
@@ -424,9 +429,9 @@ namespace spot
 
   int acc_cond::is_streett() const
   {
-    if (code_.is_tt())
+    if (code_.is_t())
       return num_ == 0 ? 0 : -1;
-    if ((num_ & 1) || code_.is_ff())
+    if ((num_ & 1) || code_.is_f())
       return -1;
 
     if (is_rs(code_, acc_op::And, acc_op::Or, all_sets()))
@@ -444,7 +449,7 @@ namespace spot
 	pairs.resize(num_);
 	return true;
       }
-    if (code_.is_tt()
+    if (code_.is_t()
 	|| code_.back().op != acc_op::Or)
       return false;
 
@@ -670,7 +675,7 @@ namespace spot
     if (sets == 0)
       {
 	max = true;
-	odd = is_tt();
+	odd = is_t();
 	return true;
       }
     acc_cond::mark_t u_inf;
@@ -857,7 +862,7 @@ namespace spot
   std::pair<bool, acc_cond::mark_t>
   acc_cond::unsat_mark() const
   {
-    if (is_tt())
+    if (is_t())
       return {false, 0U};
     if (!uses_fin_acceptance())
       return {true, 0U};
@@ -1105,7 +1110,7 @@ namespace spot
 
   acc_cond::acc_code acc_cond::acc_code::complement() const
   {
-    if (is_tt())
+    if (is_t())
       return acc_cond::acc_code::f();
     return complement_rec(&back());
   }
@@ -1165,7 +1170,7 @@ namespace spot
   acc_cond::acc_code
   acc_cond::acc_code::strip(acc_cond::mark_t rem, bool missing) const
   {
-    if (is_tt() || is_ff())
+    if (is_t() || is_f())
       return *this;
     return strip_rec(&back(), rem, missing);
   }
@@ -1173,7 +1178,7 @@ namespace spot
   acc_cond::mark_t
   acc_cond::acc_code::used_sets() const
   {
-    if (is_tt() || is_ff())
+    if (is_t() || is_f())
       return 0U;
     acc_cond::mark_t used_in_cond = 0U;
     auto pos = &back();
@@ -1201,7 +1206,7 @@ namespace spot
   std::pair<acc_cond::mark_t, acc_cond::mark_t>
   acc_cond::acc_code::used_inf_fin_sets() const
   {
-    if (is_tt() || is_ff())
+    if (is_t() || is_f())
       return {0U, 0U};
 
     acc_cond::mark_t used_fin = 0U;

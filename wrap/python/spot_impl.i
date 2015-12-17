@@ -485,14 +485,30 @@ namespace std {
     return new spot::acc_cond::mark_t(f.begin(), f.end());
   }
 
-  std::string __str__()
+  std::string __repr__()
   {
     std::ostringstream os;
     os << *self;
     return os.str();
   }
 
+  std::string __str__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+}
+
+%extend spot::acc_cond {
   std::string __repr__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+
+  std::string __str__()
   {
     std::ostringstream os;
     os << *self;

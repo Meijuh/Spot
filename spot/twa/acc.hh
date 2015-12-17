@@ -395,14 +395,14 @@ namespace spot
 	return !(*this == other);
       }
 
-      bool is_tt() const
+      bool is_t() const
       {
 	unsigned s = size();
 	return s == 0
 	  || ((*this)[s - 1].op == acc_op::Inf && (*this)[s - 2].mark == 0U);
       }
 
-      bool is_ff() const
+      bool is_f() const
       {
 	unsigned s = size();
 	return s > 1
@@ -557,12 +557,12 @@ namespace spot
 
       acc_code& operator&=(acc_code&& r)
       {
-	if (is_tt() || r.is_ff())
+	if (is_t() || r.is_f())
 	  {
 	    *this = std::move(r);
 	    return *this;
 	  }
-	if (is_ff() || r.is_tt())
+	if (is_f() || r.is_t())
 	  return *this;
 	unsigned s = size() - 1;
 	unsigned rs = r.size() - 1;
@@ -649,12 +649,12 @@ namespace spot
 
       acc_code& operator&=(const acc_code& r)
       {
-	if (is_tt() || r.is_ff())
+	if (is_t() || r.is_f())
 	  {
 	    *this = r;
 	    return *this;
 	  }
-	if (is_ff() || r.is_tt())
+	if (is_f() || r.is_t())
 	  return *this;
 	unsigned s = size() - 1;
 	unsigned rs = r.size() - 1;
@@ -754,9 +754,9 @@ namespace spot
 
       acc_code& operator|=(acc_code&& r)
       {
-	if (is_tt() || r.is_ff())
+	if (is_t() || r.is_f())
 	  return *this;
-	if (is_ff() || r.is_tt())
+	if (is_f() || r.is_t())
 	  {
 	    *this = std::move(r);
 	    return *this;
@@ -930,14 +930,24 @@ namespace spot
       return uses_fin_acceptance_;
     }
 
-    bool is_tt() const
+    bool is_t() const
     {
-      return code_.is_tt();
+      return code_.is_t();
     }
 
-    bool is_ff() const
+    bool is_all() const
     {
-      return code_.is_ff();
+      return num_ == 0 && is_t();
+    }
+
+    bool is_f() const
+    {
+      return code_.is_f();
+    }
+
+    bool is_none() const
+    {
+      return num_ == 0 && is_f();
     }
 
     bool is_buchi() const
@@ -1158,6 +1168,7 @@ namespace spot
     mark_t::value_t all_;
     acc_code code_;
     bool uses_fin_acceptance_ = false;
+
   };
 
   /// \brief Parse a string into an acc_code
@@ -1179,6 +1190,9 @@ namespace spot
   ///
   /// A spot::parse_error is thrown on syntax error.
   SPOT_API acc_cond::acc_code parse_acc_code(const char* input);
+
+  SPOT_API
+  std::ostream& operator<<(std::ostream& os, const acc_cond& acc);
 }
 
 namespace std

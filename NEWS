@@ -37,16 +37,21 @@ New in spot 1.99.6a (not yet released)
     shift_left() have been replaced by operators |=, &=, <<=, and for
     completeness the operators |, &, and << have been added.
 
-  * Several methods have been removed from the acc_cond class because
-    they were simply redundant with the methods of acc_cond::mark_t,
-    and more complex to use.
+  * Several methods have been removed from the acc_cond
+    class because they were simply redundant with the methods of
+    acc_cond::mark_t, and more complex to use.
 
-       acc_cond::marks(...)      -> use acc_cond::mark_t(...) directly
+       acc_cond::marks(...)      -> use acc_cond::mark_t(...)
        acc_cond::sets(m)         -> use m.sets()
-       acc_cond::has(m, u)       -> use m.has(u) directly
+       acc_cond::has(m, u)       -> use m.has(u)
        acc_cond::cup(l, r)       -> use l | r
        acc_cond::cap(l, r)       -> use l & r
        acc_cond::set_minus(l, r) -> use l - r
+
+    Additionally, the following methods have been renamed:
+
+       acc_cond::is_tt() -> acc_cond::is_t()
+       acc_cond::is_ff() -> acc_cond::is_f()
 
   Python:
 

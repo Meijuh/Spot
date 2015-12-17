@@ -312,7 +312,7 @@ namespace spot
 
       auto code = aut->get_acceptance();
 
-      if (code.is_tt())
+      if (code.is_t())
 	return nullptr;
 
       acc_cond::mark_t inf_pairs = 0U;
@@ -640,7 +640,7 @@ namespace spot
 	  auto c = acc.inf(m);
 	  for (unsigned i = 0; i < sz; ++i)
 	    {
-	      if (!code[i].is_tt())
+	      if (!code[i].is_t())
 		continue;
 	      add[i] = m;
 	      code[i] &= std::move(c);
