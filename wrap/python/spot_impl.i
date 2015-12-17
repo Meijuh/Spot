@@ -221,8 +221,9 @@ namespace swig
 
 // For spot::emptiness_check_instantiator::construct and any other
 // function that return errors via a "char **err" argument.
-%typemap(in, numinputs=0) char** OUTPUT (char* temp)
-  "$1 = &temp;";
+%typemap(in, numinputs=0) char** OUTPUT (char* temp) {
+  $1 = &temp;
+}
 %typemap(argout) char** OUTPUT {
   PyObject *obj = SWIG_FromCharPtr(*$1);
   if (!$result) {
@@ -239,12 +240,31 @@ namespace swig
       $result = PyList_New(1);
       PyList_SetItem($result, 0, o2);
     }
-    PyList_Append($result,obj);
+    PyList_Append($result, obj);
     Py_DECREF(obj);
   }
 
  };
 %apply char** OUTPUT { char** err };
+
+// This is mainly for acc_cond::is_parity()
+%typemap(in, numinputs=0) bool& (bool temp) {
+  $1 = &temp;
+ };
+%typemap(argout) bool& {
+  PyObject *obj = SWIG_From_bool(*$1);
+  if (!$result) {
+    $result = obj;
+  } else {
+    if (!PyList_Check($result)) {
+      PyObject *o2 = $result;
+      $result = PyList_New(1);
+      PyList_SetItem($result, 0, o2);
+    }
+    PyList_Append($result, obj);
+    Py_DECREF(obj);
+  }
+ };
 
 // Allow None to be passed for formula.  Some functions like
 // postprocessor::run() take an optional formula that defaults to

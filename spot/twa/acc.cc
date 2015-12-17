@@ -685,7 +685,10 @@ namespace spot
     odd = !u_inf.has(0);
     for (auto s: u_inf.sets())
       if ((s & 1) != odd)
-	return false;
+	{
+	  max = false;	     // just so the value is not uninitialized
+	  return false;
+	}
 
     auto max_code = acc_code::parity(true, odd, sets);
     if (max_code == code_)
