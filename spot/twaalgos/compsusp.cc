@@ -168,11 +168,10 @@ namespace spot
       dict->register_all_variables_of(right, res);
       dict->unregister_variable(bdd_var(v), res);
 
-      const acc_cond& la = left->acc();
-      const acc_cond& ra = right->acc();
-      res->set_generalized_buchi(la.num_sets() + ra.num_sets());
+      unsigned lsets = left->num_sets();
+      res->set_generalized_buchi(lsets + right->num_sets());
 
-      acc_cond::mark_t radd = ra.all_sets();
+      acc_cond::mark_t radd = right->acc().all_sets();
 
       pair_map seen;
       pair_queue todo;
@@ -246,9 +245,7 @@ namespace spot
 		      todo.push_back(d);
 		    }
 
-		  acc_cond::mark_t a =
-		    res->acc().join(la, li->acc(),
-				    ra, racc);
+		  acc_cond::mark_t a = li->acc() | (racc << lsets);
 		  res->new_edge(src, dest, bdd_exist(cond, v), a);
 
 		  if (ri)

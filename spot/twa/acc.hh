@@ -167,23 +167,23 @@ namespace spot
 	return id ^ r.id;
       }
 
-      mark_t operator<<(int i) const
+      mark_t operator<<(unsigned i) const
       {
 	return id << i;
       }
 
-      mark_t& operator<<=(int i)
+      mark_t& operator<<=(unsigned i)
       {
 	id <<= i;
 	return *this;
       }
 
-      mark_t operator>>(int i) const
+      mark_t operator>>(unsigned i) const
       {
 	return id >> i;
       }
 
-      mark_t& operator>>=(int i)
+      mark_t& operator>>=(unsigned i)
       {
 	id >>= i;
 	return *this;
@@ -1072,15 +1072,8 @@ namespace spot
 
     mark_t mark(unsigned u) const
     {
-      return mark_(u);
-    }
-
-    mark_t join(const acc_cond& la, mark_t lm,
-		const acc_cond& ra, mark_t rm) const
-    {
-      assert(la.num_sets() + ra.num_sets() == num_sets());
-      (void)ra;
-      return lm.id | (rm.id << la.num_sets());
+      assert(u < num_sets());
+      return 1U << u;
     }
 
     mark_t comp(mark_t l) const
@@ -1151,12 +1144,6 @@ namespace spot
     }
 
   protected:
-    mark_t::value_t mark_(unsigned u) const
-    {
-      assert(u < num_sets());
-      return 1U << u;
-    }
-
     mark_t::value_t all_sets_() const
     {
       if (num_ == 0)

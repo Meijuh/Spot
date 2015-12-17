@@ -126,7 +126,7 @@ namespace spot
     acc_cond::mark_t inf;
     acc_cond::mark_t fin;
     std::tie(inf, fin) = in->get_acceptance().used_inf_fin_sets();
-    assert((inf >> 1) == fin);
+    assert((inf >> 1U) == fin);
 
     scc_info si(in);
 
@@ -139,8 +139,8 @@ namespace spot
 	auto acc = si.acc_sets_of(s); // {0,1,2,3,4,6,7,9}
 	auto acc_fin = acc & fin;     // {0,  2,  4,6}
 	auto acc_inf = acc & inf;     // {  1,  3,    7,9}
-	auto fin_wo_inf = acc_fin - (acc_inf >> 1); // {4}
-	auto inf_wo_fin = acc_inf - (acc_fin << 1); // {9}
+	auto fin_wo_inf = acc_fin - (acc_inf >> 1U); // {4}
+	auto inf_wo_fin = acc_inf - (acc_fin << 1U); // {9}
 	sccfi.emplace_back(fin_wo_inf, inf_wo_fin, acc_fin == 0U);
       }
 
@@ -199,7 +199,7 @@ namespace spot
 		  continue;
 		// For any Fin set we see, we want to see the
 		// corresponding Inf set.
-		pend |= (t.acc & fin) << 1;
+		pend |= (t.acc & fin) << 1U;
 		pend -= t.acc & inf;
 		// Label this transition with all non-pending
 		// inf sets.  The strip will shift everything
@@ -212,7 +212,7 @@ namespace spot
 		    auto a = in->state_acc_sets(t.dst);
 		    if (a & scc_fin_wo_inf)
 		      continue;
-		    pend |= (a & fin) << 1;
+		    pend |= (a & fin) << 1U;
 		    pend -= a & inf;
 		  }
 		pend |= scc_inf_wo_fin;
@@ -250,7 +250,7 @@ namespace spot
 		    auto a = in->state_acc_sets(t.dst);
 		    if (a & scc_fin_wo_inf)
 		      continue;
-		    pend = (a & fin) << 1;
+		    pend = (a & fin) << 1U;
 		    pend -= a & inf;
 		  }
 		st2gba_state d(t.dst, pend | scc_inf_wo_fin);

@@ -96,8 +96,7 @@ namespace spot
 		  continue;
 		auto dst = new_state(l.dst, r.dst);
 		res->new_edge(top.second, dst, cond,
-			      res->acc().join(left->acc(), l.acc,
-					      right->acc(), r.acc));
+			      l.acc | (r.acc << left_num));
 		// If right is deterministic, we can abort immediately!
 	      }
 	}

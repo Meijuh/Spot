@@ -91,11 +91,11 @@ int main()
   ac3.set_generalized_buchi();
   std::cout << ac.num_sets() << " + "
 	    << ac2.num_sets() << " = " << ac3.num_sets() << '\n';
-  auto m5 = ac3.join(ac, m2, ac2, m3);
+  auto m5 = m2 | (m3 << ac.num_sets());
   check(ac3, m5);
-  auto m6 = ac3.join(ac, ac.comp(m2 & m3), ac2, m3);
+  auto m6 = ac.comp(m2 & m3) | (m3 << ac.num_sets());
   check(ac3, m6);
-  auto m7 = ac3.join(ac, ac.comp(m2 & m3), ac2, ac2.all_sets());
+  auto m7 = ac.comp(m2 & m3) | (ac.all_sets() << ac.num_sets());
   check(ac3, m7);
 
   const char* comma = "";

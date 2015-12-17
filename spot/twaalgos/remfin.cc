@@ -63,7 +63,7 @@ namespace spot
       // Let f=[F₁,F₂,...] and i=[I₁,I₂,...] be bitvectors where bit
       // Fᵢ (resp. Iᵢ) indicates that Fᵢ (resp. Iᵢ) has been visited
       // in the SCC.
-      acc_cond::mark_t f = (sets << 1) & inf_pairs;
+      acc_cond::mark_t f = (sets << 1U) & inf_pairs;
       acc_cond::mark_t i = sets & inf_pairs;
       // If we have i&!f = [0,0,...] that means that the cycle formed
       // by the entire SCC is not accepting.  However that does not
@@ -168,7 +168,7 @@ namespace spot
       acc_cond::mark_t inf;
       std::tie(inf, fin) = aut->get_acceptance().used_inf_fin_sets();
       assert(inf == (inf_pairs | inf_alone));
-      assert(fin == ((inf_pairs >> 1) | fin_alone));
+      assert(fin == ((inf_pairs >> 1U) | fin_alone));
 #endif
       ba_final_states.resize(aut->num_states(), false);
       ba_type = true;		// until proven otherwise
@@ -254,7 +254,7 @@ namespace spot
 	      // and for all Inf sets that have no matching Fin
 	      // sets in this SCC.
 	      acc_cond::mark_t sccsets = si.acc(n);
-	      acc_cond::mark_t f = (sccsets << 1) & inf_pairs;
+	      acc_cond::mark_t f = (sccsets << 1U) & inf_pairs;
 	      acc_cond::mark_t i = sccsets & (inf_pairs | inf_alone);
 	      i -= f;
 	      for (auto s: states)
@@ -264,7 +264,7 @@ namespace spot
 		    res->new_acc_edge(s, t.dst, t.cond, acc);
 		}
 
-	      auto rem = sccsets & ((inf_pairs >> 1) | fin_alone);
+	      auto rem = sccsets & ((inf_pairs >> 1U) | fin_alone);
 	      assert(rem != 0U);
 	      auto sets = rem.sets();
 
@@ -347,7 +347,7 @@ namespace spot
 		  o2 != acc_cond::acc_op::Inf ||
 		  m1.count() != 1 ||
 		  m2.count() != 1 ||
-		  m2 != (m1 << 1))
+		  m2 != (m1 << 1U))
 		return nullptr;
 	      inf_pairs |= m2;
 	    }

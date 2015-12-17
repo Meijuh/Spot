@@ -203,12 +203,8 @@ namespace spot
 
       acc_cond::mark_t acc() const
       {
-	return
-	  prod_->acc().join(prod_->left_acc(),
-			    left_->acc(),
-			    prod_->right_acc(),
-			    right_->acc());
-       }
+	return left_->acc() | (right_->acc() << prod_->left_acc().num_sets());
+      }
 
     protected:
       bdd current_cond_;
