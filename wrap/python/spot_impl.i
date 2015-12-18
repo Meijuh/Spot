@@ -34,6 +34,7 @@
 %include "std_list.i"
 %include "std_set.i"
 %include "std_map.i"
+%include "std_pair.i"
 %include "stdint.i"
 %include "exception.i"
 %include "typemaps.i"
@@ -356,6 +357,8 @@ namespace std {
 %feature("flatnested") spot::acc_cond::acc_code;
 %apply bool* OUTPUT {bool& max, bool& odd};
 %include <spot/twa/acc.hh>
+%template(pair_bool_mark) std::pair<bool, spot::acc_cond::mark_t>;
+
 %include <spot/twa/twa.hh>
 
 %include <spot/tl/apcollect.hh>

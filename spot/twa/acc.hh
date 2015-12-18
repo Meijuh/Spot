@@ -894,14 +894,23 @@ namespace spot
       friend std::ostream& operator<<(std::ostream& os, const acc_code& code);
     };
 
-    acc_cond(unsigned n_sets = 0, acc_code code = {})
+    acc_cond(unsigned n_sets = 0, const acc_code& code = {})
       : num_(0U), all_(0U), code_(code)
     {
       add_sets(n_sets);
+      uses_fin_acceptance_ = check_fin_acceptance();
+    }
+
+    acc_cond(const acc_code& code)
+      : num_(0U), all_(0U), code_(code)
+    {
+      add_sets(code.used_sets().max_set());
+      uses_fin_acceptance_ = check_fin_acceptance();
     }
 
     acc_cond(const acc_cond& o)
-      : num_(o.num_), all_(o.all_), code_(o.code_)
+      : num_(o.num_), all_(o.all_), code_(o.code_),
+        uses_fin_acceptance_(o.uses_fin_acceptance_)
     {
     }
 
