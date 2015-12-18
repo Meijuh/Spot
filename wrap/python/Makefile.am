@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche et Development de
-## l'Epita (LRDE).
+## Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche
+## et Development de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -25,6 +25,13 @@ SUBDIRS = . ajax tests
 AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_builddir) -I$(top_srcdir) \
 	      $(BUDDY_CPPFLAGS) -DSWIG_TYPE_TABLE=spot
 
+# Disable fastproxy, because IPython 2 bogusly ignores _repr_latex_
+# when -fastproxy is used.
+#   https://github.com/ipython/ipython/issues/7003
+# Once a fixed version of IPython hits Debian stable, we can remove
+# this.
+SWIGFLAGS = -c++ -python -py3 -O -nofastproxy
+
 EXTRA_DIST = spot_impl.i buddy.i
 python_PYTHON = $(srcdir)/spot_impl.py $(srcdir)/buddy.py spot.py
 pyexec_LTLIBRARIES = _spot_impl.la _buddy.la
@@ -40,7 +47,7 @@ _spot_impl_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
 _spot_impl_la_LIBADD = $(top_builddir)/spot/libspot.la
 
 $(srcdir)/spot_impl_wrap.cxx: $(srcdir)/spot_impl.i
-	$(SWIG) -c++ -python -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot_impl.i
+	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot_impl.i
 
 $(srcdir)/spot_impl.py: $(srcdir)/spot_impl.i
 	$(MAKE) $(AM_MAKEFLAGS) spot_impl_wrap.cxx
@@ -52,7 +59,7 @@ _buddy_la_SOURCES = $(srcdir)/buddy_wrap.cxx
 _buddy_la_LDFLAGS = -avoid-version -module $(BUDDY_LDFLAGS) $(SYMBOLIC_LDFLAGS)
 
 $(srcdir)/buddy_wrap.cxx: $(srcdir)/buddy.i
-	$(SWIG) -c++ -python $(BUDDY_CPPFLAGS) $(srcdir)/buddy.i
+	$(SWIG) $(SWIGFLAGS) $(BUDDY_CPPFLAGS) $(srcdir)/buddy.i
 
 $(srcdir)/buddy.py: $(srcdir)/buddy.i
 	$(MAKE) $(AM_MAKEFLAGS) buddy_wrap.cxx
