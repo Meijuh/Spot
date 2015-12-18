@@ -889,6 +889,38 @@ namespace spot
 	      std::function<void(std::ostream&, int)>
 	      set_printer = nullptr) const;
 
+
+      /// \brief Construct an acc_code from a string.
+      ///
+      /// The string can follow the following grammar:
+      ///
+      /// <pre>
+      ///   acc ::= "t"
+      ///         | "f"
+      ///         | "Inf" "(" num ")"
+      ///         | "Fin" "(" num ")"
+      ///         | "(" acc ")"
+      ///         | acc "&" acc
+      ///         | acc "|" acc
+      /// </pre>
+      ///
+      /// Where num is an integer and "&" has priority over "|".  Note that
+      /// "Fin(!x)" and "Inf(!x)" are not supported by this parser.
+      ///
+      /// Or the string can be the name of an acceptance condition, as
+      /// speficied in the HOA format.  (E.g. "Rabin 2", "parity max odd 3",
+      /// "generalized-Rabin 4 2 1", etc.).
+      ///
+      /// A spot::parse_error is thrown on syntax error.
+      acc_code(const char* input);
+
+      /// \brief Build an empty acceptance condition.
+      ///
+      /// This is the same as t().
+      acc_code()
+      {
+      }
+
       // Calls to_text
       SPOT_API
       friend std::ostream& operator<<(std::ostream& os, const acc_code& code);
@@ -1166,26 +1198,6 @@ namespace spot
     bool uses_fin_acceptance_ = false;
 
   };
-
-  /// \brief Parse a string into an acc_code
-  ///
-  /// The string should follow the following grammar:
-  ///
-  /// <pre>
-  ///   acc ::= "t"
-  ///         | "f"
-  ///         | "Inf" "(" num ")"
-  ///         | "Fin" "(" num ")"
-  ///         | "(" acc ")"
-  ///         | acc "&" acc
-  ///         | acc "|" acc
-  /// </pre>
-  ///
-  /// Where num is an integer and "&" has priority over "|".  Note that
-  /// "Fin(!x)" and "Inf(!x)" are not supported by this parser.
-  ///
-  /// A spot::parse_error is thrown on syntax error.
-  SPOT_API acc_cond::acc_code parse_acc_code(const char* input);
 
   SPOT_API
   std::ostream& operator<<(std::ostream& os, const acc_cond& acc);

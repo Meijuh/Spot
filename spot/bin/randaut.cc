@@ -347,7 +347,7 @@ main(int argc, char** argv)
 	  spot::acc_cond::acc_code code;
 	  if (opt_acceptance)
 	    {
-	      code = spot::parse_acc_code(opt_acceptance);
+	      code = spot::acc_cond::acc_code(opt_acceptance);
 	      accs = code.used_sets().max_set();
 	      if (opt_colored && accs == 0)
 		error(2, 0, "--colored requires at least one acceptance set; "

@@ -48,10 +48,11 @@ New in spot 1.99.6a (not yet released)
        acc_cond::cap(l, r)       -> use l & r
        acc_cond::set_minus(l, r) -> use l - r
 
-    Additionally, the following methods have been renamed:
+    Additionally, the following methods/functions have been renamed:
 
        acc_cond::is_tt() -> acc_cond::is_t()
        acc_cond::is_ff() -> acc_cond::is_f()
+       parse_acc_code()  -> acc_cond::acc_code(...)
 
   Python:
 

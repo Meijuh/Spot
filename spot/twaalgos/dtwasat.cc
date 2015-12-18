@@ -1313,7 +1313,7 @@ namespace spot
     if (!accstr.empty())
       {
 	user_supplied_acc = true;
-	target_acc = parse_acc_code(accstr.c_str());
+	target_acc = acc_cond::acc_code(accstr.c_str());
 	// Just in case we were given something like
 	//  Fin(1) | Inf(3)
 	// Rewrite it as

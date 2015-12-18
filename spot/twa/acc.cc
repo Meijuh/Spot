@@ -1544,7 +1544,7 @@ namespace spot
 
   }
 
-  acc_cond::acc_code parse_acc_code(const char* input)
+  acc_cond::acc_code::acc_code(const char* input)
   {
     skip_space(input);
     acc_cond::acc_code c;
@@ -1630,6 +1630,6 @@ namespace spot
 	s << "syntax error at '" << input << "', unexpected character.";
 	throw parse_error(s.str());
       }
-    return c;
+    std::swap(c, *this);
   }
 }

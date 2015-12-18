@@ -353,6 +353,7 @@ namespace std {
 %include <spot/twa/bddprint.hh>
 %include <spot/twa/fwd.hh>
 %implicitconv spot::acc_cond::mark_t;
+%implicitconv spot::acc_cond::acc_code;
 %feature("flatnested") spot::acc_cond::mark_t;
 %feature("flatnested") spot::acc_cond::acc_code;
 %apply bool* OUTPUT {bool& max, bool& odd};
