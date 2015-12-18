@@ -497,12 +497,16 @@ namespace spot
       static acc_code generalized_buchi(unsigned n)
       {
 	acc_cond::mark_t m = (1U << n) - 1;
+	if (n == 8 * sizeof(mark_t::value_t))
+	  m = mark_t(-1U);
 	return inf(m);
       }
 
       static acc_code generalized_co_buchi(unsigned n)
       {
 	acc_cond::mark_t m = (1U << n) - 1;
+	if (n == 8 * sizeof(mark_t::value_t))
+	  m = mark_t(-1U);
 	return fin(m);
       }
 
@@ -1036,14 +1040,6 @@ namespace spot
     // check whether the condition is logically equivalent to some
     // parity acceptance condition.
     bool is_parity(bool& max, bool& odd, bool equiv = false) const;
-
-    static acc_code generalized_buchi(unsigned n)
-    {
-      mark_t m((1U << n) - 1);
-      if (n == 8 * sizeof(mark_t::value_t))
-	m = mark_t(-1U);
-      return acc_code::inf(m);
-    }
 
     // Return (true, m) if there exist some acceptance mark m that
     // does not satisfy the acceptance condition.  Return (false, 0U)

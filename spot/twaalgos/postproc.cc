@@ -414,15 +414,18 @@ namespace spot
 	  {
 	    if (sat_states_ != -1)
 	      res = dtwa_sat_synthetize
-		(res, target_acc, acc_cond::generalized_buchi(target_acc),
+		(res, target_acc,
+		 acc_cond::acc_code::generalized_buchi(target_acc),
 		 sat_states_, state_based_);
 	    else if (sat_minimize_ == 1 || sat_minimize_ == -1)
 	      res = dtwa_sat_minimize
-		(res, target_acc, acc_cond::generalized_buchi(target_acc),
+		(res, target_acc,
+		 acc_cond::acc_code::generalized_buchi(target_acc),
 		 state_based_);
 	    else  // sat_minimize_ == 2
 	      res = dtwa_sat_minimize_dichotomy
-		(res, target_acc, acc_cond::generalized_buchi(target_acc),
+		(res, target_acc,
+		 acc_cond::acc_code::generalized_buchi(target_acc),
 		 state_based_);
 	  }
 

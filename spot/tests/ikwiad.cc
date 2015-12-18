@@ -1195,7 +1195,7 @@ checked_main(int argc, char** argv)
 	  tm.start("dtwasat");
 	  auto satminimized = dtwa_sat_minimize
 	    (ensure_digraph(a), opt_dtwasat,
-	     spot::acc_cond::generalized_buchi(opt_dtwasat));
+	     spot::acc_cond::acc_code::generalized_buchi(opt_dtwasat));
 	  tm.stop("dtwasat");
 	  if (satminimized)
 	    a = satminimized;
