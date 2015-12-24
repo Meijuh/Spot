@@ -164,9 +164,19 @@ namespace spot
 					false));
 
       twa_graph_ptr res = make_twa_graph(dict);
-      dict->register_all_variables_of(left, res);
-      dict->register_all_variables_of(right, res);
-      dict->unregister_variable(bdd_var(v), res);
+      {
+	// Copy all atomic propositions, except the one corresponding
+	// to the variable v used for synchronization.
+	int vn = bdd_var(v);
+	assert(dict->bdd_map[vn].type = bdd_dict::var);
+	formula vf = dict->bdd_map[vn].f;
+	for (auto a: left->ap())
+	  if (a != vf)
+	    res->register_ap(a);
+	for (auto a: right->ap())
+	  if (a != vf)
+	    res->register_ap(a);
+      }
 
       unsigned lsets = left->num_sets();
       res->set_generalized_buchi(lsets + right->num_sets());

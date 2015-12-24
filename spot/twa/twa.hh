@@ -597,9 +597,13 @@ namespace spot
     /// \return The BDD variable number.
     int register_ap(formula ap)
     {
-      aps_.push_back(ap);
-      int res = dict_->register_proposition(ap, this);
-      bddaps_ &= bdd_ithvar(res);
+      int res = dict_->has_registered_proposition(ap, this);
+      if (res < 0)
+	{
+	  aps_.push_back(ap);
+	  res = dict_->register_proposition(ap, this);
+	  bddaps_ &= bdd_ithvar(res);
+	}
       return res;
     }
 
@@ -720,7 +724,6 @@ namespace spot
 
     void copy_ap_of(const const_twa_ptr& a)
     {
-      get_dict()->register_all_propositions_of(a, this);
       for (auto f: a->ap())
 	this->register_ap(f);
     }

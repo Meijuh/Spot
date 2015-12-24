@@ -72,6 +72,7 @@ namespace spot
 	    SPOT_UNIMPLEMENTED();
 	  case op::ap:
 	    {
+	      res_->register_ap(f);
 	      if (negated_)
 		f = formula::Not(f);
 	      init_ = f;

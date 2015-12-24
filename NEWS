@@ -71,6 +71,9 @@ New in spot 1.99.6a (not yet released)
 
   Bug fixes:
 
+  * twa::ap() would contain duplicates when an atomic proposition
+    was registered several times.
+
 New in spot 1.99.6 (2015-12-04)
 
   Command-line tools:
