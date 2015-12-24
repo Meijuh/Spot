@@ -584,6 +584,9 @@ labels whenever that is possible.  The option is named =k= (i.e., use
 is used to describe a Kripke structure.
 
 ** Property bits
+   :PROPERTIES:
+   :CUSTOM_ID: property-bits
+   :END:
 
 The =HOA= format supports a number of optional =property:= tokens.
 These properties can be useful to speedup certain algorithms: for

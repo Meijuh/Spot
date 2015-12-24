@@ -339,6 +339,7 @@ namespace std {
   %template(liststr) list<std::string>;
   %template(vectorformula) vector<spot::formula>;
   %template(vectorunsigned) vector<unsigned>;
+  %template(vectorstring) vector<string>;
   %template(atomic_prop_set) set<spot::formula>;
   %template(relabeling_map) map<spot::formula, spot::formula>;
 }
@@ -465,6 +466,18 @@ namespace std {
   std::string __str__() { return spot::str_psl(*self); }
 }
 
+%extend spot::bdd_dict {
+  bool operator==(const spot::bdd_dict& b) const
+  {
+    return self == &b;
+  }
+
+  bool operator!=(const spot::bdd_dict& b) const
+  {
+    return self != &b;
+  }
+}
+
 %extend spot::twa {
   void set_name(std::string name)
   {
@@ -474,6 +487,17 @@ namespace std {
   std::string* get_name()
   {
     return self->get_named_prop<std::string>("automaton-name");
+  }
+
+  void set_state_names(std::vector<std::string> names)
+  {
+    self->set_named_prop("state-names",
+			 new std::vector<std::string>(std::move(names)));
+  }
+
+  std::vector<std::string>* get_state_names()
+  {
+    return self->get_named_prop<std::vector<std::string>>("state-names");
   }
 }
 

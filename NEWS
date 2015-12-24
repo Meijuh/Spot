@@ -64,15 +64,25 @@ New in spot 1.99.6a (not yet released)
     when calling for instance the Python version of twa_graph::new_edge().
     See https://spot.lrde.epita.fr/tut22.html for a demonstration.
 
+  * Automaton states can be named via the set_state_names() method.
+    See https://spot.lrde.epita.fr/ipynb/product.html for an example.
+
   Documentation:
 
   * There is a new page explaining how to compile example programs and
     and link them with Spot.  https://spot.lrde.epita.fr/compile.html
 
+  * Python bindings for manipulating acceptance conditions are
+    demonstrated by https://spot.lrde.epita.fr/ipynb/acc_cond.html,
+    and a Python implementation of the product of two automata is
+    illustrated by https://spot.lrde.epita.fr/ipynb/product.html
+
   Bug fixes:
 
   * twa::ap() would contain duplicates when an atomic proposition
     was registered several times.
+  * product() would incorrectly mark the product of two
+    sttuter-sensitive automata as stutter-sensitive as well.
 
 New in spot 1.99.6 (2015-12-04)
 

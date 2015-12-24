@@ -49,6 +49,7 @@ TESTS = \
   optionmap.py \
   parsetgba.py \
   piperead.ipynb \
+  product.ipynb \
   randaut.ipynb \
   randgen.py \
   randltl.ipynb \
