@@ -165,10 +165,9 @@ bench/            Benchmarks for ...
    spin13/        ... compositional suspension and other improvements,
    stutter/       ... stutter-invariance checking algorithms,
    wdba/          ... WDBA minimization (for obligation properties).
-wrap/             Wrappers for other languages.
-   python/        Python bindings for Spot and BuDDy
-      tests/      Tests for these bindings
-      ajax/       LTL-to-TGBA translator with web interface, using Ajax.
+python/           Python bindings for Spot and BuDDy
+   tests/         Tests for these bindings
+   ajax/          LTL-to-TGBA translator with web interface, using Javascript.
 spot-if/          Interfaces between Spot and other libraries.
    ltsmin/        Interface with DiVinE2 and SpinS.
 

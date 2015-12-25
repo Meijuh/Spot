@@ -1,2 +1,2 @@
-wrap/python/tests/*.ipynb
-wrap/python/tests/*.html
+python/tests/*.ipynb
+python/tests/*.html

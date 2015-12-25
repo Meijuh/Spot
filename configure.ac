@@ -220,15 +220,14 @@ AC_CONFIG_FILES([
   spot-if/ltsmin/defs
   spot-if/ltsmin/Makefile
   spot-if/Makefile
-  wrap/Makefile
-  wrap/python/ajax/Makefile
-  wrap/python/Makefile
-  wrap/python/tests/Makefile
+  python/ajax/Makefile
+  python/Makefile
+  python/tests/Makefile
   tools/x-to-1
 ])
 AC_CONFIG_FILES([doc/org/g++wrap], [chmod +x doc/org/g++wrap])
 AC_CONFIG_FILES([doc/dot], [chmod +x doc/dot])
-AC_CONFIG_FILES([wrap/python/tests/run], [chmod +x wrap/python/tests/run])
+AC_CONFIG_FILES([python/tests/run], [chmod +x python/tests/run])
 AC_OUTPUT
 
 case $VERSION:$enable_devel in

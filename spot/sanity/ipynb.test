@@ -33,7 +33,7 @@ my $top_srcdir = $ENV{top_srcdir} || "../../";
 my $top_srcdir_len = length($top_srcdir) + 1;
 
 my $tut = "$top_srcdir/doc/org/tut.org";
-my $dir = "$top_srcdir/wrap/python/tests";
+my $dir = "$top_srcdir/python/tests";
 unless (-f $tut)
 {
   print STDERR "$tut not found";
