@@ -138,6 +138,7 @@ spot/             Sources for libspot.
    bin/           User tools built using the Spot library.
       man/        Man pages for the above tools.
    graph/         Graph representations.
+   ltsmin/        Interface with DiVinE2 and SpinS.  (Not part of libspot.)
    kripke/        Kripke Structure interface.
    tl/            Temporal Logic formulas and algorithms.
    misc/          Miscellaneous support files.
@@ -168,8 +169,6 @@ bench/            Benchmarks for ...
 python/           Python bindings for Spot and BuDDy
    tests/         Tests for these bindings
    ajax/          LTL-to-TGBA translator with web interface, using Javascript.
-spot-if/          Interfaces between Spot and other libraries.
-   ltsmin/        Interface with DiVinE2 and SpinS.
 
 Third party software
 --------------------

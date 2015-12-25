@@ -203,6 +203,8 @@ AC_CONFIG_FILES([
   spot/bin/man/Makefile
   spot/graph/Makefile
   spot/kripke/Makefile
+  spot/ltsmin/defs
+  spot/ltsmin/Makefile
   spot/Makefile
   spot/misc/Makefile
   spot/parseaut/Makefile
@@ -217,9 +219,6 @@ AC_CONFIG_FILES([
   spot/twaalgos/gtec/Makefile
   spot/twaalgos/Makefile
   spot/twa/Makefile
-  spot-if/ltsmin/defs
-  spot-if/ltsmin/Makefile
-  spot-if/Makefile
   python/ajax/Makefile
   python/Makefile
   python/tests/Makefile
