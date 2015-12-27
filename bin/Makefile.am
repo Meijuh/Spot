@@ -22,7 +22,10 @@ SUBDIRS = . man
 AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) $(BUDDY_CPPFLAGS) \
               -I$(top_builddir)/lib -I$(top_srcdir)/lib
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
-LDADD = libcommon.a $(top_builddir)/lib/libgnu.la ../libspot.la
+LDADD =						\
+  libcommon.a					\
+  $(top_builddir)/lib/libgnu.la			\
+  $(top_builddir)/spot/libspot.la
 
 noinst_LIBRARIES = libcommon.a
 libcommon_a_SOURCES =				\

@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "spot/bin/common_sys.hh"
-#include "spot/bin/common_setup.hh"
-#include "spot/bin/common_finput.hh"
-#include "spot/bin/common_output.hh"
+#include "bin/common_sys.hh"
+#include "bin/common_setup.hh"
+#include "bin/common_finput.hh"
+#include "bin/common_output.hh"
 #include <spot/twaalgos/translate.hh>
 #include <spot/twaalgos/stutter.hh>
 #include <spot/twaalgos/stats.hh>

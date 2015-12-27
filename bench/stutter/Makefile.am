@@ -21,8 +21,10 @@ AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) $(BUDDY_CPPFLAGS) \
               -I$(top_builddir)/lib -I$(top_srcdir)/lib
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
-LDADD = $(top_builddir)/spot/bin/libcommon.a ../../lib/libgnu.la	\
-        ../../spot/libspot.la
+LDADD =						\
+  $(top_builddir)/bin/libcommon.a		\
+  $(top_builddir)/lib/libgnu.la			\
+  $(top_builddir)/spot/libspot.la
 
 bin_PROGRAMS = stutter_invariance_randomgraph \
 	       stutter_invariance_formulas

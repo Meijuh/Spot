@@ -58,7 +58,7 @@ org:
 
 org-man:
 	mkdir -p $(srcdir)/userdoc/man
-	$(top_srcdir)/tools/man2html.pl $(top_srcdir)/spot/bin/man $(srcdir)/userdoc/man
+	$(top_srcdir)/tools/man2html.pl $(top_srcdir)/bin/man $(srcdir)/userdoc/man
 
 ORG_FILES = \
   org/.dir-locals.el.in \

@@ -85,7 +85,7 @@ run()
   if test -n "$VALGRIND"; then
     exec 6>valgrind.err
     GLIBCPP_FORCE_NEW=1 \
-    ../../../libtool --mode=execute \
+    ../../libtool --mode=execute \
     $VALGRIND --tool=memcheck --leak-check=yes --log-fd=6 -q "$@" ||
       exitcode=$?
     cat valgrind.err 1>&2

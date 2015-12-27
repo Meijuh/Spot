@@ -32,7 +32,7 @@ modpath='../.libs:@top_builddir@/spot/.libs:@top_builddir@/buddy/spot/.libs'
 # Python 2.6.
 pypath='..:../.libs:@srcdir@/..:@srcdir@/../.libs:$PYTHONPATH'
 
-PATH="@abs_top_builddir@/spot/bin:$PATH"
+PATH="@abs_top_builddir@/bin:$PATH"
 export PATH
 
 test -z "$1" &&

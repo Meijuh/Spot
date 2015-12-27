@@ -42,10 +42,10 @@ check_SCRIPTS = defs
 TESTS = check.test finite.test finite2.test kripke.test
 EXTRA_DIST = $(TESTS) beem-peterson.4.dve finite.dve finite.pm
 
-kripke.test: $(top_builddir)/spot/tests/parse_print$(EXEEXT)
+kripke.test: $(top_builddir)/tests/parse_print$(EXEEXT)
 
-$(top_builddir)/spot/tests/parse_print$(EXEEXT):
-	cd $(top_builddir)/spot/tests && \
+$(top_builddir)/tests/parse_print$(EXEEXT):
+	cd $(top_builddir)/tests && \
 	$(MAKE) $(AM_MAKEFLAGS) parse_print$(EXEEXT)
 
 distclean-local:

@@ -181,6 +181,8 @@ fi)])
 
 AC_CONFIG_FILES([
   Makefile
+  bin/Makefile
+  bin/man/Makefile
   bench/Makefile
   bench/dtgbasat/Makefile
   bench/emptchk/Makefile
@@ -199,8 +201,6 @@ AC_CONFIG_FILES([
   doc/org/init.el
   elisp/Makefile
   lib/Makefile
-  spot/bin/Makefile
-  spot/bin/man/Makefile
   spot/graph/Makefile
   spot/kripke/Makefile
   spot/ltsmin/defs
@@ -213,8 +213,6 @@ AC_CONFIG_FILES([
   spot/sanity/Makefile
   spot/taalgos/Makefile
   spot/ta/Makefile
-  spot/tests/defs
-  spot/tests/Makefile
   spot/tl/Makefile
   spot/twaalgos/gtec/Makefile
   spot/twaalgos/Makefile
@@ -222,6 +220,8 @@ AC_CONFIG_FILES([
   python/ajax/Makefile
   python/Makefile
   python/tests/Makefile
+  tests/defs
+  tests/Makefile
   tools/x-to-1
 ])
 AC_CONFIG_FILES([doc/org/g++wrap], [chmod +x doc/org/g++wrap])

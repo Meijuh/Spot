@@ -135,8 +135,6 @@ Core directories
 ----------------
 
 spot/             Sources for libspot.
-   bin/           User tools built using the Spot library.
-      man/        Man pages for the above tools.
    graph/         Graph representations.
    ltsmin/        Interface with DiVinE2 and SpinS.  (Not part of libspot.)
    kripke/        Kripke Structure interface.
@@ -147,11 +145,13 @@ spot/             Sources for libspot.
    priv/          Private algorithms, used internally but not exported.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.
-   tests/         Tests for the whole library.
    twa/           TωA objects and cousins (Transition-based ω-Automata).
    twaalgos/      Algorithms on TωA.
       gtec/       Couvreur's Emptiness-Check.
    sanity/        Sanity tests for the whole project.
+bin/              Command-line tools built on top of libspot.
+   man/           Man pages for the above tools.
+tests/            Tests for libspot and the binaries.
 doc/              Documentation for Spot.
    org/           Source of userdoc/ as org-mode files.
    tl/            Documentation of the Temporal Logic operators.

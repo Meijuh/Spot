@@ -55,7 +55,7 @@ tmp=incltest.tmp
 # We used to loop over more directories before the source tree was
 # rearranged.  So there is only one left today, but we keep the loop
 # in case we want to add more in the future.
-for dir in "${INCDIR-..}"; do
+for dir in "${INCDIR-..}" "${INCDIR-..}/../bin" "${INCDIR-..}/../tests"; do
 
   find "$dir" \(    -name "${1-*}.hh" \
                  -o -name "${1-*}.hxx" \
@@ -329,7 +329,7 @@ done
 
 
 # Rules for Makefiles.
-for dir in "${INCDIR-..}"; do
+for dir in "${INCDIR-..}" "${INCDIR-..}/../bin" "${INCDIR-..}/../tests"; do
 
   find "$dir" -name "Makefile.am" -a -type f -a -print |
   while read file; do
