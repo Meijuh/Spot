@@ -30,7 +30,7 @@ three interfaces supported by Spot: shell commands, Python, or C++.
 
 * Examples in Python only
 
-In directory =wrap/python/tests=, the [[file:install.org][Spot tarball]] contains a small
+In directory =python/tests=, the [[file:install.org][Spot tarball]] contains a small
 collection of IPython notebooks.  As the name of the directory implies,
 these are part of the test suite for the Python bindings, however they
 can be interesting to look at if you want to see more code examples.
@@ -39,22 +39,22 @@ For convenience, the following links offer static HTML renderings of
 these notebooks, but we strongly suggest interactively evaluating the
 real notebooks instead.
 
-- [[https://spot.lrde.epita.fr/ipynb/formulas.html][formulas.ipynb]] covers the basics of LTL/PSL formula parsing and
+- [[https://spot.lrde.epita.fr/ipynb/formulas.html][=formulas.ipynb=]] covers the basics of LTL/PSL formula parsing and
   printing, with some light operations
-- [[https://spot.lrde.epita.fr/ipynb/automata.html][automata.ipynb]] covers translation from formulas to automata,
+- [[https://spot.lrde.epita.fr/ipynb/automata.html][=automata.ipynb=]] covers translation from formulas to automata,
   automata printing, and some lights transformations
-- [[https://spot.lrde.epita.fr/ipynb/automata-io.html][automata-io.ipynb]] shows how to save and read automata from files
-- [[https://spot.lrde.epita.fr/ipynb/piperead.html][piperead.ipynb]] shows how to save and read automata output from other
+- [[https://spot.lrde.epita.fr/ipynb/automata-io.html][=automata-io.ipynb=]] shows how to save and read automata from files
+- [[https://spot.lrde.epita.fr/ipynb/piperead.html][=piperead.ipynb=]] shows how to save and read automata output from other
   commands, using pipes
-- [[https://spot.lrde.epita.fr/ipynb/randaut.html][randaut.ipynb]] shows a simple case where the [[file:randaut.org][=randaut=]] commands
+- [[https://spot.lrde.epita.fr/ipynb/randaut.html][=randaut.ipynb=]] shows a simple case where the [[file:randaut.org][=randaut=]] commands
   generated random automata, which are displayed in a table before and
   after acceptance simplification
-- [[https://spot.lrde.epita.fr/ipynb/accparse.html][accparse.ipynb]] exercises the acceptance condition parser
-- [[https://spot.lrde.epita.fr/ipynb/acc_cond.html][acc_cond.ipynb]] documents the interface for manipulating acceptance
+- [[https://spot.lrde.epita.fr/ipynb/accparse.html][=accparse.ipynb=]] exercises the acceptance condition parser
+- [[https://spot.lrde.epita.fr/ipynb/acc_cond.html][=acc_cond.ipynb=]] documents the interface for manipulating acceptance
   conditions
-- [[https://spot.lrde.epita.fr/ipynb/product.html][product.ipynb]] shows how to re-implement the product of two automata
+- [[https://spot.lrde.epita.fr/ipynb/product.html][=product.ipynb=]] shows how to re-implement the product of two automata
   in Python
-- [[https://spot.lrde.epita.fr/ipynb/randltl.html][randltl.ipynb]] demonstrates a Python-version of [[file:randltl.org][=randltl=]]
-- [[https://spot.lrde.epita.fr/ipynb/decompose.html][decompose.ipynb]] illustrates the =decompose_strength()= function
-- [[https://spot.lrde.epita.fr/ipynb/testingaut.html][testingaut.ipynb]] shows the step necessary to build a testing
+- [[https://spot.lrde.epita.fr/ipynb/randltl.html][=randltl.ipynb=]] demonstrates a Python-version of [[file:randltl.org][=randltl=]]
+- [[https://spot.lrde.epita.fr/ipynb/decompose.html][=decompose.ipynb=]] illustrates the =decompose_strength()= function
+- [[https://spot.lrde.epita.fr/ipynb/testingaut.html][=testingaut.ipynb=]] shows the step necessary to build a testing
   automaton
