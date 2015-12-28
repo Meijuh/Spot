@@ -45,7 +45,7 @@ my $exit_status = 0;
 my %seen;
 while (<FD>)
 {
-    if (m:\]\[([\w-]+\.ipynb)\]\]:)
+    if (m:\]\[=([\w-]+\.ipynb)=\]\]:)
     {
 	# print "$1 documented";
 	$seen{$1} = 1;
