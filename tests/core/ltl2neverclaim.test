@@ -1,7 +1,7 @@
-#! /bin/sh
+#!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011, 2014, 2015 Laboratoire de Recherche et Developpement
-# de l'Epita (LRDE)
+# Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -18,25 +18,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+# Do some quick translations to make sure the neverclaims produced by
+# spot actually look correct!  We do that by parsing them via ltlcross.
+# ltl2neverclaim-lbtt.test does the same with LBTT if it is installed.
 
 . ./defs
-
-divine compile > output 2>&1
-
-if grep -i 'ltsmin ' output; then
-  :
-else
-  echo "divine not installed, or no ltsmin interface"
-  exit 77
-fi
-
 set -e
 
-run 0 ../modelcheck -gK $srcdir/finite.dve 'F("P.a > 5")' > output
-run 0 $top_builddir/tests/core/parse_print output | tr -d '"' > output2
-tr -d '"' < output >outputF
-cmp outputF output2
+ltl2tgba=../ikwiad
 
-../modelcheck -gK $srcdir/beem-peterson.4.dve '!G("pos[1] < 3")' > outputP
-$top_builddir/tests/core/ikwiad -e -KPoutputP '!G("pos[1] < 3")'
+randltl -n 100 p1 p2 p3 p4 p5 p6 --tree-size 5..15 |
+ltlcross \
+  "$ltl2tgba -t %f > %T" \
+  "$ltl2tgba -t -r4 -R3f %f > %T" \
+  "$ltl2tgba -N %f > %N" \
+  "$ltl2tgba -N -r4 -R3f %f > %N"

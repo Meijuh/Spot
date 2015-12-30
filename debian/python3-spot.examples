@@ -1,2 +1,2 @@
-python/tests/*.ipynb
-python/tests/*.html
+tests/python/*.ipynb
+tests/python/*.html

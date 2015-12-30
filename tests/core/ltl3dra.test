@@ -1,0 +1,37 @@
+#!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2015 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Do some quick translations to make sure the neverclaims produced by
+# spot actually look correct!  We do that by parsing them via ltlcross.
+# ltl2neverclaim-lbtt.test does the same with LBTT if it is installed.
+
+. ./defs
+set -e
+
+# Skip this test if ltl3dra is not installed.
+(ltl3dra -v) || exit 77
+
+# This used to crash ltlcross because the number of
+# acceptance sets generated was to high.
+ltlcross 'ltl2tgba' 'ltl3dra' -f '(<>((((p0) &&
+(!(<>(p2)))) || ((!(p0)) && (<>(p2)))) U ((<>(((p0) && (!([](((!(p1))
+&& ([](p3))) || ((p1) && (!([](p3)))))))) || ((!(p0)) && ([](((!(p1))
+&& ([](p3))) || ((p1) && (!([](p3))))))))) && (((p0) && (!(<>(p2))))
+|| ((!(p0)) && (<>(p2)))))))'

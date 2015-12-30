@@ -33,7 +33,7 @@ my $top_srcdir = $ENV{top_srcdir} || "../../";
 my $top_srcdir_len = length($top_srcdir) + 1;
 
 my $tut = "$top_srcdir/doc/org/tut.org";
-my $dir = "$top_srcdir/python/tests";
+my $dir = "$top_srcdir/tests/python";
 unless (-f $tut)
 {
   print STDERR "$tut not found";
@@ -58,10 +58,10 @@ while (<FD>)
 }
 close(FD);
 
-open(FD, "$dir/Makefile.am") or die $!;
+open(FD, "$dir/../Makefile.am") or die "$!";
 while (<FD>)
 {
-    if (m:\s([\w-]+\.ipynb):)
+    if (m:python/([\w-]+\.ipynb):)
     {
 	# print "$1 exist";
 	unless (exists $seen{$1})

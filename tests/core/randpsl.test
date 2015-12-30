@@ -1,7 +1,7 @@
-#! /bin/sh
+#!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011, 2014, 2015 Laboratoire de Recherche et Developpement
-# de l'Epita (LRDE)
+# Copyright (C) 2011, 2012, 2014, 2015 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -19,24 +19,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 . ./defs
-
-divine compile > output 2>&1
-
-if grep -i 'ltsmin ' output; then
-  :
-else
-  echo "divine not installed, or no ltsmin interface"
-  exit 77
-fi
 
 set -e
 
-run 0 ../modelcheck -gK $srcdir/finite.dve 'F("P.a > 5")' > output
-run 0 $top_builddir/tests/core/parse_print output | tr -d '"' > output2
-tr -d '"' < output >outputF
-cmp outputF output2
+# Generate 50 random unique PSL formula that do not simplify to LTL
+# formulae, and that have a size of at lease 12.
+randltl -n -1 --tree-size 30 --seed 12 --psl a b c |
+ltlfilt -r --size-min 12 --unique |
+ltlfilt -v --ltl -n 50 | tee formulas |
+ltlcross '../ikwiad -R3 -t %f >%T' '../ikwiad -x -R3 -t %f >%T' \
+  -F - -f '{{(p1)}[*]:{(p3) && {{!(p1)} xor {!(p3)}}}}'
 
-../modelcheck -gK $srcdir/beem-peterson.4.dve '!G("pos[1] < 3")' > outputP
-$top_builddir/tests/core/ikwiad -e -KPoutputP '!G("pos[1] < 3")'
+test `wc -l < formulas` = 50
