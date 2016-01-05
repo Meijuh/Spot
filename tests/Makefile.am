@@ -40,7 +40,7 @@ TESTS = $(TESTS_sanity) $(TESTS_tl) $(TESTS_graph) $(TESTS_kripke) \
   $(TESTS_twa) $(TESTS_python) $(TESTS_ltsmin)
 
 distclean-local:
-	rm -rf $(TESTS:.test=.dir)
+	find . -name '*.dir' -type d -print | xargs rm -rf
 
 
 ############################## CORE ##############################
