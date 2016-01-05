@@ -76,6 +76,18 @@ New in spot 1.99.6a (not yet released)
     and a Python implementation of the product of two automata is
     illustrated by https://spot.lrde.epita.fr/ipynb/product.html
 
+  Source code reorganisation:
+
+  * A lot of directories have been shuffled around in the
+    distribution:
+      src/                   ->  spot/    (see rational above)
+      iface/ltsmin/  (code)  ->  spot/ltsmin/
+      wrap/python/           ->  python/
+      src/tests/             ->  tests/core/
+      src/sanity/            ->  tests/sanity/
+      iface/ltsmin/  (tests) ->  tests/ltsmin/
+      wrap/python/tests      ->  tests/python/
+
   Bug fixes:
 
   * twa::ap() would contain duplicates when an atomic proposition
