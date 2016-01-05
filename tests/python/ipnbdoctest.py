@@ -32,7 +32,8 @@ except:
 try:
     from IPython.kernel import KernelManager
 except ImportError:
-    from IPython.zmq.blockingkernelmanager import BlockingKernelManager as KernelManager
+    from IPython.zmq.blockingkernelmanager \
+      import BlockingKernelManager as KernelManager
 
 # Until Debian ships IPython 3.0, we stick to the v3 format.
 from IPython.nbformat import v3 as nbformat
