@@ -84,7 +84,7 @@ override_dh_python3:
 	dh_python3 -p python3-spot
 override_dh_auto_build:
 	dh_auto_build
-	$(MAKE) -C tests/python nb-html
+	$(MAKE) -C tests nb-html
 
 fix-mathjax:
 	perl -pi -e 's|http://orgmode.org/mathjax/MathJax.js|file:///usr/share/javascript/mathjax/MathJax.js|' doc/userdoc/*.html
