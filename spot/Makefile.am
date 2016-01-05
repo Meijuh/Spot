@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2012, 2013, 2014, 2015 Laboratoire de Recherche
-## et Développement de l'Epita (LRDE).
+## Copyright (C) 2009, 2010, 2012, 2013, 2014, 2015, 2016 Laboratoire
+## de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -26,7 +26,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 # end, after building '.' (since the current directory contains
 # libspot.la needed by the tests)
 SUBDIRS = misc priv tl graph twa twaalgos ta taalgos kripke	\
-          parseaut parsetl . ltsmin sanity
+          parseaut parsetl . ltsmin
 
 lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =

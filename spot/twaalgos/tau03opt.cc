@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -49,7 +49,7 @@
 #include <spot/twaalgos/emptiness.hh>
 #include <spot/twaalgos/emptiness_stats.hh>
 #include <spot/twaalgos/tau03opt.hh>
-#include <spot/twaalgos/weight.hh>
+#include <spot/priv/weight.hh>
 #include <spot/twaalgos/ndfs_result.hxx>
 
 namespace spot

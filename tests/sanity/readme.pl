@@ -1,8 +1,8 @@
 #! /usr/bin/perl -w
 # -*- cperl; coding: utf-8 -*-
 #
-# Copyright (C) 2010, 2015 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2010, 2015, 2016 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -29,7 +29,8 @@ use strict;
 use warnings;
 
 local $\ = "\n";
-my $top_srcdir = $ENV{top_srcdir} || "../../";
+my $srcdir = $ENV{srcdir} || ".";
+my $top_srcdir = "$srcdir/../..";
 my $top_srcdir_len = length($top_srcdir) + 1;
 my $list_mode = ($#ARGV != -1 && $ARGV[0] eq "--list");
 

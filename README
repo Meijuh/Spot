@@ -148,13 +148,13 @@ spot/             Sources for libspot.
    twa/           TωA objects and cousins (Transition-based ω-Automata).
    twaalgos/      Algorithms on TωA.
       gtec/       Couvreur's Emptiness-Check.
-   sanity/        Sanity tests for the whole project.
 bin/              Command-line tools built on top of libspot.
    man/           Man pages for the above tools.
 tests/            Test suite.
    core/          Tests for libspot and the binaries.
    ltsmin/	  Tests for the DiVinE2/SpinS interface.
    python/        Tests for Python bindings.
+   sanity/        Tests for the coherence of the source base.
 doc/              Documentation for Spot.
    org/           Source of userdoc/ as org-mode files.
    tl/            Documentation of the Temporal Logic operators.

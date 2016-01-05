@@ -42,11 +42,12 @@ fi
 x="$x$x$x$x$x$x$x$x$x" # 9x
 x="$x$x$x$x$x$x$x$x$x" # 81x
 
-for dir in "${INCDIR-..}"; do
+for dir in "${srcdir-.}/../../spot" "${srcdir-.}/.."; do
 
   find "$dir" \(    -name "${1-*}.hh" \
                  -o -name "${1-*}.hxx" \
                  -o -name "${1-*}.cc" \
+                 -o -name "${1-*}.py" \
 		 -o -name "${1-*}.test" \) -a -type f -a -print |
   while read file; do
      if (expand $file | grep -q $x) 2>/dev/null; then

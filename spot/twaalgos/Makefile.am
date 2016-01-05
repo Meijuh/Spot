@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
+## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
 ## de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -134,8 +134,6 @@ libtwaalgos_la_SOURCES = \
   tau03opt.cc \
   totgba.cc \
   translate.cc \
-  weight.cc \
-  weight.hh \
   word.cc
 
 libtwaalgos_la_LIBADD = gtec/libgtec.la

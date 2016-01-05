@@ -1,7 +1,7 @@
 #! /usr/bin/perl -w
 # -*- cperl; coding: utf-8 -*-
 #
-# Copyright (C) 2010, 2015 Laboratoire de Recherche et Développement
+# Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -29,11 +29,10 @@ use strict;
 use warnings;
 
 local $\ = "\n";
-my $top_srcdir = $ENV{top_srcdir} || "../../";
-my $top_srcdir_len = length($top_srcdir) + 1;
+my $srcdir = $ENV{srcdir} || ".";
 
-my $tut = "$top_srcdir/doc/org/tut.org";
-my $dir = "$top_srcdir/tests/python";
+my $tut = "$srcdir/../../doc/org/tut.org";
+my $dir = "$srcdir/../../tests/python";
 unless (-f $tut)
 {
   print STDERR "$tut not found";
@@ -51,7 +50,7 @@ while (<FD>)
 	$seen{$1} = 1;
 	unless (-f "$dir/$1")
 	{
-	    print STDERR "notebook mentioned in tut.org does not exist";
+	    print STDERR "notebook $1 mentioned in tut.org does not exist";
 	    $exit_status = 1;
 	}
     }
@@ -72,5 +71,7 @@ while (<FD>)
     }
 }
 close(FD);
+
+die "No notebook found?" if scalar(keys %seen) == 0;
 
 exit $exit_status;

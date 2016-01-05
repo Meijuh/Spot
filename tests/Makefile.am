@@ -26,7 +26,7 @@ AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD = $(top_builddir)/spot/libspot.la
 
-TEST_EXTENTIONS = .test .py .ipynb
+TEST_EXTENTIONS = .test .py .ipynb .pl
 
 LOG_COMPILER = ./run
 TEST_LOG_COMPILER = ./run
@@ -36,8 +36,8 @@ check_SCRIPTS = run
 
 # We try to keep this somehow by strength.  Test basic things first,
 # because such failures will be easier to diagnose and fix.
-TESTS = $(TESTS_tl) $(TESTS_graph) $(TESTS_kripke) $(TESTS_twa) \
-	$(TESTS_python) $(TESTS_ltsmin)
+TESTS = $(TESTS_sanity) $(TESTS_tl) $(TESTS_graph) $(TESTS_kripke) \
+  $(TESTS_twa) $(TESTS_python) $(TESTS_ltsmin)
 
 distclean-local:
 	rm -rf $(TESTS:.test=.dir)
@@ -334,3 +334,14 @@ TESTS_ltsmin = \
 EXTRA_DIST += ltsmin/beem-peterson.4.dve ltsmin/finite.dve ltsmin/finite.pm
 
 ltlsmin/kripke.log: core/parse_print$(EXEEXT)
+
+
+############################## SANITY ##############################
+
+TESTS_sanity = \
+  sanity/80columns.test \
+  sanity/includes.test \
+  sanity/ipynb.pl \
+  sanity/private.test \
+  sanity/readme.pl \
+  sanity/style.test
