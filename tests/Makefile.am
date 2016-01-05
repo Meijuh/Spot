@@ -1,6 +1,7 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
-## Recherche et Développement de l'Epita (LRDE).
+
+## Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+## Laboratoire de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ## Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -25,17 +26,33 @@ AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD = $(top_builddir)/spot/libspot.la
 
-# These are the most used test programs, and they are also useful
-# to run manually outside the test suite.  Always build them.
-noinst_PROGRAMS = core/ikwiad core/randtgba
-
 TEST_EXTENTIONS = .test .py .ipynb
 
 LOG_COMPILER = ./run
 TEST_LOG_COMPILER = ./run
 LOG_DRIVER = $(TEST_LOG_DRIVER)
 # ensure run is rebuilt before the tests are run.
-check_SCRIPTS = run core/defs
+check_SCRIPTS = run
+
+# We try to keep this somehow by strength.  Test basic things first,
+# because such failures will be easier to diagnose and fix.
+TESTS = $(TESTS_tl) $(TESTS_graph) $(TESTS_kripke) $(TESTS_twa) \
+	$(TESTS_python) $(TESTS_ltsmin)
+
+distclean-local:
+	rm -rf $(TESTS:.test=.dir)
+
+
+############################## CORE ##############################
+
+check_SCRIPTS += core/defs
+
+core/defs: $(top_builddir)/config.status $(srcdir)/core/defs.in
+	$(top_builddir)/config.status --file core/defs
+
+# These are the most used test programs, and they are also useful
+# to run manually outside the test suite.  Always build them.
+noinst_PROGRAMS = core/ikwiad core/randtgba
 
 # Keep this sorted alphabetically.
 check_PROGRAMS = \
@@ -119,10 +136,6 @@ core_tunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DUNABBREV='"^ieFG"'
 core_tunenoform_SOURCES = core/equalsf.cc
 core_tunenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM -DUNABBREV='"^ieFG"'
 
-
-# Keep this sorted by STRENGTH.  Test basic things first,
-# because such failures will be easier to diagnose and fix.
-TESTS =  $(TESTS_tl) $(TESTS_graph) $(TESTS_kripke) $(TESTS_twa) $(TESTS_python)
 
 TESTS_tl = \
   core/bare.test \
@@ -255,8 +268,8 @@ TESTS_twa = \
   core/randpsl.test \
   core/cycles.test
 
-distclean-local:
-	rm -rf $(TESTS:.test=.dir)
+
+############################## PYTHON ##############################
 
 TESTS_python = \
   python/acc_cond.ipynb \
@@ -294,8 +307,30 @@ SUFFIXES = .ipynb .html
 .PHONY: nb-html
 nb-html: $(TESTS_python:.ipynb=.html)
 
-
 EXTRA_DIST = \
   $(TESTS) \
   python/ltl2tgba.py \
   python/ipnbdoctest.py
+
+
+############################## LTSMIN ##############################
+
+noinst_PROGRAMS += ltsmin/modelcheck
+
+ltsmin_modelcheck_SOURCES = ltsmin/modelcheck.cc
+ltsmin_modelcheck_LDADD = $(top_builddir)/spot/ltsmin/libspotltsmin.la
+
+check_SCRIPTS += ltsmin/defs
+
+ltsmin/defs: $(top_builddir)/config.status $(srcdir)/core/defs.in
+	$(top_builddir)/config.status --file ltsmin/defs:core/defs.in
+
+TESTS_ltsmin = \
+  ltsmin/check.test \
+  ltsmin/finite.test \
+  ltsmin/finite2.test \
+  ltsmin/kripke.test
+
+EXTRA_DIST += ltsmin/beem-peterson.4.dve ltsmin/finite.dve ltsmin/finite.pm
+
+ltlsmin/kripke.log: core/parse_print$(EXEEXT)

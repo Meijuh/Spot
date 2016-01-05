@@ -203,7 +203,6 @@ AC_CONFIG_FILES([
   lib/Makefile
   spot/graph/Makefile
   spot/kripke/Makefile
-  spot/ltsmin/defs
   spot/ltsmin/Makefile
   spot/Makefile
   spot/misc/Makefile
@@ -220,6 +219,7 @@ AC_CONFIG_FILES([
   python/ajax/Makefile
   python/Makefile
   tests/core/defs
+  tests/ltsmin/defs:tests/core/defs.in
   tests/Makefile
   tools/x-to-1
 ])
