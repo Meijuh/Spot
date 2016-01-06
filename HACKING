@@ -25,7 +25,7 @@ since the generated files they produce are distributed.)
   GNU Automake >= 1.11
   GNU Libtool >= 2.4
   GNU Flex (the version seems to matters, we used 2.5.35)
-  GNU Bison >= 2.7
+  GNU Bison >= 3.0
   GNU Emacs (preferably >= 24 but it may work with older versions)
   Groff (a.k.a. GNU troff) >= 1.20
   SWIG >= 3.0 (for its better C++11 support)
@@ -34,7 +34,7 @@ since the generated files they produce are distributed.)
     liblocale-gettext-perl or p5-locale-gettext in your distribution)
   A complete LaTeX distribution, including latexmk and extra fonts
     like dsfont.sty.
-  Python >= 3.2, IPython >= 2.3
+  Python >= 3.3, IPython >= 2.3
   GraphViz
 
 The following additional tools are used if they are present, or
@@ -119,20 +119,20 @@ the OS can find the library in the build tree.
 A consequence is that tools like gdb or valgrind, that expect to work
 on a binary, will be confused by the script.  Example:
 
-  % cd src/tgbatest
+  % cd bin
   % file ltl2tgba
   ltl2tgba: POSIX shell script text executable
   % gdb -q ltl2tgba
-  "/home/adl/git/spot/src/tgbatest/ltl2tgba": not in executable format: File format not recognized
+  "/home/adl/git/spot/bin/ltl2tgba/ltl2tgba": not in executable format: File format not recognized
   (gdb) quit
 
 The proper way to run any command on these fake binaries is via
 libtool:
 
   % ../../libtool --mode=execute file ltl2tgba
-  /home/adl/git/spot/src/tgbatest/.libs/lt-ltl2tgba: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, not stripped
+  /home/adl/git/spot/bin/.libs/lt-ltl2tgba: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, not stripped
   % ../../libtool --mode=execute gdb -q ltl2tgba
-  Reading symbols from /home/adl/git/spot/src/tgbatest/.libs/lt-ltl2tgba...done.
+  Reading symbols from /home/adl/git/spot/bin/.libs/lt-ltl2tgba...done.
   (gdb) quit
 
 You can see that libtool turns ltl2tgba into .libs/lt-ltl2tgba, but it
@@ -251,7 +251,7 @@ calls (this is hardly readable when chaining method calls).
 Besides cosmetics, some of these conventions are also here
 to prevent bugs and make it easier to devise safety checks.
 
-The directory src/sanity/ contains some scripts that are executed
+The directory tests/sanity/ contains some scripts that are executed
 during 'make check' or 'make installcheck' to check some of the
 conventions discussed below.
 
@@ -283,6 +283,10 @@ Encoding
     In emacs the simplest way to convert the file is to add a comment
     with -*- coding: utf-8 -*- at the top or bottom of the file.
 
+    There is some check in tests/sanity/ that will ensure that -*-
+    coding: utf-8 -*- is used for all C++ files, but try to use it for
+    all text files if they contain non-ascii characters.
+
 Includes
 --------
 
@@ -293,9 +297,9 @@ Includes
     #include <spot/misc/version.hh>
     #include <iostream>
 
-  * Use #include with double quotes to refer to private headers.
-    Those can be from Spot, or from third-party libraries that
-    we ship.  E.g.,
+  * Use #include with double quotes to refer to private headers that
+    are distributed with Spot.  Those can be from Spot itself, or from
+    third-party libraries that we ship.  E.g.,
 
     #include "utf8/utf8.hh"
     #include "spot/priv/trim.hh"
@@ -385,21 +389,6 @@ Formating
 
   * The above corresponds to the `gnu' indentation style under Emacs.
 
-  * Put return types and linkage specifiers on their own line in
-    function/method _definitions_:
-
-    static int
-    Foo::get_mumble()
-    {
-      return 2;
-    }
-
-    This makes it easier to grep functions in the code.
-
-    Function/method declaration are usually written on one line:
-
-    int get_bar(int i);
-
   * Put a space before the opening parenthesis in control statements
 
     if (test)
@@ -438,9 +427,9 @@ Formating
         ++x;
       }
 
-  * When an expression spans over several lines, split it before
-    operators.  If it's inside a parenthesis, the following lines
-    should be 1-indented w.r.t. the opening parenthesis.
+  * When an expression spans over several lines, prefer splitting it
+    before operators.  If it's inside a parenthesis, the following
+    lines should be 1-indented w.r.t. the opening parenthesis.
 
     if (foo_this_is_long && bar > win(x, y, z)
         && !remaining_condition)
