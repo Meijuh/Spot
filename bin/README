@@ -7,7 +7,7 @@ contains either some bibliographical references, some formal
 definitions or some examples that are too long for --help.  Having a
 few short examples at the end of --help is good.
 
-This directory also build some non-installed binaries, like spot-x,
+This directory also builds some non-installed binaries, like spot-x,
 whose purpose is just to generate a man-page with the same format as
 the other man pages (this includes keeping the version number
 up-to-date).
