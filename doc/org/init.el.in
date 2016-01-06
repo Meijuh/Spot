@@ -31,7 +31,7 @@
 (setq shell-file-name "@SHELL@")
 
 (setenv "PATH"
-	(concat "@abs_top_builddir@/spot/bin" path-separator (getenv "PATH")))
+	(concat "@abs_top_builddir@/bin" path-separator (getenv "PATH")))
 (setenv "PYTHONPATH"
 	(concat "@abs_top_builddir@/python/.libs:@abs_top_builddir@/python:@abs_top_srcdir@/python:"
 		(getenv "PYTHONPATH")))

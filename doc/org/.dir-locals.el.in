@@ -6,7 +6,7 @@
 	      (eval .
 		    (progn
 		      (setenv "PATH"
-			      (concat "@abs_top_builddir@/spot/bin"
+			      (concat "@abs_top_builddir@/bin"
 				      path-separator
 				      (getenv "PATH")))
 		      (setenv "PYTHONPATH"
