@@ -271,6 +271,7 @@ TESTS_twa = \
 
 ############################## PYTHON ##############################
 
+if USE_PYTHON
 TESTS_python = \
   python/acc_cond.ipynb \
   python/accparse.ipynb \
@@ -299,6 +300,7 @@ TESTS_python = \
   python/satmin.py \
   python/setxor.py \
   python/testingaut.ipynb
+endif
 
 SUFFIXES = .ipynb .html
 .ipynb.html:
