@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -46,7 +46,7 @@ const char argp_program_doc[] = "\
 Generate random connected automata.\n\n\
 The automata are built over the atomic propositions named by PROPS...\n\
 or, if N is a nonnegative number, using N arbitrary names.\n\
-If the density is set to D, and the number of states to Q, the degree\n\
+If the edge density is set to D, and the number of states to Q, the degree\n\
 of each state follows a normal distribution with mean 1+(Q-1)D and\n\
 variance (Q-1)D(1-D).  In particular, for D=0 all states have a single\n\
 successor, while for D=1 all states are interconnected.\v\
@@ -63,7 +63,7 @@ states, 1 to 3 acceptance sets, and three atomic propositions:\n\
 Build 3 random, complete, and deterministic Rabin automata\n\
 with 2 to 3 acceptance pairs, state-based acceptance, 8 states, \n\
 a high density of edges, and 3 to 4 atomic propositions:\n\
-  % randaut -n3 -D -H -Q8 -d.8 -S -A 'Rabin 2..3' 3..4\n\
+  % randaut -n3 -D -H -Q8 -e.8 -S -A 'Rabin 2..3' 3..4\n\
 ";
 
 enum {
@@ -86,7 +86,7 @@ static const argp_option options[] =
     { "colored", OPT_COLORED, nullptr, 0,
       "build an automaton in which each edge (or state if combined with "
       "-S) belong to a single acceptance set", 0 },
-    { "density", 'd', "FLOAT", 0, "density of the edges (0.2)", 0 },
+    { "density", 'e', "FLOAT", 0, "density of the edges (0.2)", 0 },
     { "deterministic", 'D', nullptr, 0,
       "build a complete, deterministic automaton ", 0 },
     { "unique", 'u', nullptr, 0,
@@ -206,7 +206,7 @@ parse_opt(int key, char* arg, struct argp_state* as)
       ba_options();
       ba_wanted = true;
       break;
-    case 'd':
+    case 'e':
       opt_density = to_float(arg);
       if (opt_density < 0.0 || opt_density > 1.0)
 	error(2, 0, "density should be between 0.0 and 1.0");

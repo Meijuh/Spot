@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2012, 2014, 2015 Laboratoire de Recherche
-# et Développement de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2012, 2014, 2015, 2016 Laboratoire de
+# Recherche et Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -26,10 +26,6 @@
 
 set -e
 
-autfilt=autfilt
-ltl2tgba=ltl2tgba
-randltl=randltl
-
 cat >input <<\EOF
 HOA: v1
 States: 3
@@ -48,10 +44,10 @@ State: 2
 --END--
 EOF
 
-run 0 $autfilt --hoa input > stdout
+run 0 autfilt --hoa input > stdout
 diff stdout input
 
-test `$autfilt -c --is-weak input` = 0
+test `autfilt -c --is-weak input` = 0
 
 # Transition merging
 cat >input <<\EOF
@@ -97,23 +93,23 @@ cat stdout
 run 0 autfilt -F stdout --isomorph expected
 
 # Likewise, with a randomly generated TGBA.
-run 0 randaut -Q 20 a b -d 0.2 -a 0.2 -A 2 --hoa | tee input
+run 0 randaut -Q 20 a b -e 0.2 -a 0.2 -A 2 --hoa | tee input
 
 # the first read-write can renumber the states
-run 0 $autfilt --hoa --merge-transitions input > stdout
+run 0 autfilt --hoa --merge-transitions input > stdout
 run 0 autfilt -F input --isomorph stdout
 
 # But this second output should be the same as the first
-run 0 $autfilt --hoa stdout > stdout2
+run 0 autfilt --hoa stdout > stdout2
 diff stdout stdout2
 
 # Find formula that can be translated into a 3-state automaton, and
 # exercise both %M and %m.  The nonexistant file should never be
 # open, because the input stream is infinite and autfilt should
 # stop after 10 automata.
-$randltl -n -1 a b |
-    $ltl2tgba -H -F - |
-    $autfilt -F- -F nonexistant --states=3 --edges=..10 --acc-sets=1.. \
+randltl -n -1 a b |
+    ltl2tgba -H -F - |
+    autfilt -F- -F nonexistant --states=3 --edges=..10 --acc-sets=1.. \
 	     --name='%M, %S states' --stats='<%m>, %e, %a' -n 10 > output
 cat >expected <<EOF
 <F(b | Ga), 3 states>, 5, 1
@@ -270,16 +266,16 @@ State: 9
 --END--
 EOF
 
-$autfilt --merge -Hm input --name="%E->%e edges, %T->%t transitions" > output
+autfilt --merge -Hm input --name="%E->%e edges, %T->%t transitions" > output
 diff output expected
 
 
-cat <<EOF | $ltl2tgba -x degen-skip=1 -F- --ba -H > tmp.hoa
+cat <<EOF | ltl2tgba -x degen-skip=1 -F- --ba -H > tmp.hoa
 a U b
 false
 !b && Xb && GFa
 EOF
-$autfilt <tmp.hoa --stats='"%M","%w"' > output
+autfilt <tmp.hoa --stats='"%M","%w"' > output
 cat >expected <<EOF
 "a U b","cycle{b}"
 "0",""
@@ -309,8 +305,8 @@ State: 3 "s3"
 --END--
 EOF
 
-$autfilt -H input |
-    SPOT_DOTDEFAULT=vcsn SPOT_DOTEXTRA='/* hello world */' $autfilt >output
+autfilt -H input |
+    SPOT_DOTDEFAULT=vcsn SPOT_DOTEXTRA='/* hello world */' autfilt >output
 
 cat >expected <<EOF
 digraph G {
@@ -341,10 +337,10 @@ EOF
 
 diff output expected
 
-test 1 = `$autfilt -H input --complete | $autfilt --is-complete --count`
+test 1 = `autfilt -H input --complete | autfilt --is-complete --count`
 
 
-$ltl2tgba --dot=a 'GFa & GFb' >output
+ltl2tgba --dot=a 'GFa & GFb' >output
 cat output
 cat >expected <<EOF
 digraph G {
@@ -363,7 +359,7 @@ digraph G {
 EOF
 diff output expected
 
-$ltl2tgba --dot=ban 'GFa & GFb' >output
+ltl2tgba --dot=ban 'GFa & GFb' >output
 cat output
 cat >expected <<EOF
 digraph G {
@@ -383,7 +379,7 @@ EOF
 diff output expected
 
 
-SPOT_DOTDEFAULT=bra $ltl2tgba --dot='e.f(Lato)' 'GFa & GFb' >output
+SPOT_DOTDEFAULT=bra ltl2tgba --dot='e.f(Lato)' 'GFa & GFb' >output
 cat output
 
 zero='<font color="#5DA5DA">⓿</font>'
@@ -510,7 +506,7 @@ digraph G {
 }
 EOF
 
-$autfilt --dot=bao in >out
+autfilt --dot=bao in >out
 diff out expected
 
 cat >expected2 <<EOF
@@ -535,7 +531,7 @@ EOF
 
 # This should remove the state names, and automatically use circled
 # states.
-$autfilt --dot=bao1 in | grep -v '>' >out
+autfilt --dot=bao1 in | grep -v '>' >out
 diff out expected2
 
 # Let's pretend that this is some used supplied input, as discussed in
@@ -571,7 +567,7 @@ EOF
 # status here, because the actual error messages are tested in
 # parseaut.test) and produce a valid output with the number of states
 # fixed, and the missing state definitions.
-$autfilt -H input >output1 && exit 1
+autfilt -H input >output1 && exit 1
 
 cat >expect1 <<EOF
 HOA: v1
@@ -605,13 +601,13 @@ EOF
 
 diff output1 expect1
 # Make sure the output is valid.
-$autfilt -H output1 > output1b
+autfilt -H output1 > output1b
 diff output1 output1b
 
 # Here is the scenario where the undefined states are actually states
 # we wanted to remove.  So we tell autfilt to fix the automaton using
 # --remove-dead-states
-$autfilt -H --remove-dead input >output2 && exit 1
+autfilt -H --remove-dead input >output2 && exit 1
 
 cat >expect2 <<EOF
 HOA: v1
@@ -633,7 +629,7 @@ EOF
 
 diff output2 expect2
 
-$autfilt -Hk expect2 >output2b
+autfilt -Hk expect2 >output2b
 
 cat >expect2b <<EOF
 HOA: v1
@@ -679,8 +675,8 @@ State: 5
 --END--
 EOF
 
-$autfilt -H --remove-unreach input >output3
-$autfilt -H --remove-dead input >>output3
+autfilt -H --remove-unreach input >output3
+autfilt -H --remove-dead input >>output3
 
 cat >expect3 <<EOF
 HOA: v1
@@ -720,7 +716,7 @@ EOF
 diff output3 expect3
 
 
-$autfilt -Hz input 2>stderr && exit 1
+autfilt -Hz input 2>stderr && exit 1
 grep 'print_hoa.*z' stderr
 
 cat >input4 <<EOF
@@ -736,13 +732,13 @@ State: 2 {0 1} [0] 2
 --END--
 EOF
 
-test `$autfilt --is-weak -c input4` = 1
-test `$autfilt --is-inherently-weak -c input4` = 1
-test `$autfilt --is-terminal -c input4` = 0
+test `autfilt --is-weak -c input4` = 1
+test `autfilt --is-inherently-weak -c input4` = 1
+test `autfilt --is-terminal -c input4` = 0
 
-$autfilt -H --small --high input4 >output4
-$autfilt -H --small input4 >output4b
-$autfilt -H --high input4 >output4c
+autfilt -H --small --high input4 >output4
+autfilt -H --small input4 >output4b
+autfilt -H --high input4 >output4c
 cat output4
 
 cat >expect4<<EOF
@@ -767,12 +763,12 @@ diff output4 expect4
 diff output4b expect4
 diff output4c expect4
 
-$autfilt -Hv --small input4 >output5
-test `$autfilt --is-weak -c output4` = 1
-test `$autfilt --is-terminal -c output4` = 0
+autfilt -Hv --small input4 >output5
+test `autfilt --is-weak -c output4` = 1
+test `autfilt --is-terminal -c output4` = 0
 
 sed 's/\[0\]/[t]/g' expect4 > output4d
-test `$autfilt --is-terminal -c output4d` = 1
+test `autfilt --is-terminal -c output4d` = 1
 
 
 cat >expect5<<EOF
@@ -818,7 +814,7 @@ State: 2 {0}
 --END--
 EOF
 
-run 0 $autfilt -Hk input6 >output6
+run 0 autfilt -Hk input6 >output6
 cat >expect6 <<EOF
 HOA: v1
 States: 3
@@ -856,9 +852,9 @@ State: 1
 [t] 1 {0 1}
 --END--
 EOF
-test `$autfilt -c --is-inherently-weak input7` = 1
-test `$autfilt -c --is-weak input7` = 0
-$autfilt --check input7 -H >output7
+test `autfilt -c --is-inherently-weak input7` = 1
+test `autfilt -c --is-weak input7` = 0
+autfilt --check input7 -H >output7
 cat >expected7 <<EOF
 HOA: v1
 States: 3
@@ -895,5 +891,5 @@ State: 1
 [t] 1 {0}
 --END--
 EOF
-test `$autfilt -c --is-inherently-weak input8` = 0
-test `$autfilt -c --is-weak input8` = 0
+test `autfilt -c --is-inherently-weak input8` = 0
+test `autfilt -c --is-weak input8` = 0
