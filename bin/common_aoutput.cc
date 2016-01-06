@@ -36,10 +36,7 @@
 #include <spot/twaalgos/strength.hh>
 
 automaton_format_t automaton_format = Dot;
-static const char* opt_dot = nullptr;
-static const char* opt_never = nullptr;
-static const char* hoa_opt = nullptr;
-static const char* opt_lbtt = nullptr;
+static const char* automaton_format_opt = nullptr;
 const char* opt_name = nullptr;
 static const char* opt_output = nullptr;
 static const char* stats = "";
@@ -230,11 +227,11 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
       break;
     case 'd':
       automaton_format = Dot;
-      opt_dot = arg;
+      automaton_format_opt = arg;
       break;
     case 'H':
       automaton_format = Hoa;
-      hoa_opt = arg;
+      automaton_format_opt = arg;
       break;
     case 'o':
       opt_output = arg;
@@ -246,8 +243,7 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
       automaton_format = Spin;
       if (type != spot::postprocessor::Monitor)
 	type = spot::postprocessor::BA;
-      if (arg)
-	opt_never = arg;
+      automaton_format_opt = arg;
       break;
     case OPT_CHECK:
       automaton_format = Hoa;
@@ -258,7 +254,7 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
       break;
     case OPT_LBTT:
       automaton_format = Lbtt;
-      opt_lbtt = arg;
+      automaton_format_opt = arg;
       // This test could be removed when more options are added,
       // because print_lbtt will raise an exception anyway.  The
       // error message is slightly better in the current way.
@@ -280,7 +276,30 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
   return 0;
 }
 
-
+void setup_default_output_format()
+{
+  if (auto val = getenv("SPOT_DEFAULT_FORMAT"))
+    {
+      static char const *const args[] =
+	{
+	  "dot", "hoa", "hoaf", nullptr
+	};
+      static automaton_format_t const format[] =
+	{
+	  Dot, Hoa, Hoa
+	};
+      auto eq = strchr(val, '=');
+      if (eq)
+	{
+	  val = strndup(val, eq - val);
+	  automaton_format_opt = eq + 1;
+	}
+      ARGMATCH_VERIFY(args, format);
+      automaton_format = XARGMATCH("SPOT_DEFAULT_FORMAT", val, args, format);
+      if (eq)
+	free(val);
+    }
+}
 
 automaton_printer::automaton_printer(stat_style input)
   : statistics(std::cout, stats, input),
@@ -340,16 +359,16 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
       // Do not output anything.
       break;
     case Dot:
-      spot::print_dot(*out, aut, opt_dot);
+      spot::print_dot(*out, aut, automaton_format_opt);
       break;
     case Lbtt:
-      spot::print_lbtt(*out, aut, opt_lbtt);
+      spot::print_lbtt(*out, aut, automaton_format_opt);
       break;
     case Hoa:
-      spot::print_hoa(*out, aut, hoa_opt) << '\n';
+      spot::print_hoa(*out, aut, automaton_format_opt) << '\n';
       break;
     case Spin:
-      spot::print_never_claim(*out, aut, opt_never);
+      spot::print_never_claim(*out, aut, automaton_format_opt);
       break;
     case Stats:
       statistics.set_output(*out);

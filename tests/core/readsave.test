@@ -306,7 +306,10 @@ State: 3 "s3"
 EOF
 
 autfilt -H input |
-    SPOT_DOTDEFAULT=vcsn SPOT_DOTEXTRA='/* hello world */' autfilt >output
+    SPOT_DEFAULT_FORMAT=dot \
+    SPOT_DOTDEFAULT=vcsn \
+    SPOT_DOTEXTRA='/* hello world */' \
+    autfilt >output
 
 cat >expected <<EOF
 digraph G {
@@ -340,7 +343,8 @@ diff output expected
 test 1 = `autfilt -H input --complete | autfilt --is-complete --count`
 
 
-ltl2tgba --dot=a 'GFa & GFb' >output
+# The SPOT_DEFAULT_FORMAT envvar should be ignored if --dot is given.
+SPOT_DEFAULT_FORMAT=hoa ltl2tgba --dot=a 'GFa & GFb' >output
 cat output
 cat >expected <<EOF
 digraph G {
@@ -607,7 +611,7 @@ diff output1 output1b
 # Here is the scenario where the undefined states are actually states
 # we wanted to remove.  So we tell autfilt to fix the automaton using
 # --remove-dead-states
-autfilt -H --remove-dead input >output2 && exit 1
+SPOT_DEFAULT_FORMAT=hoa autfilt --remove-dead input >output2 && exit 1
 
 cat >expect2 <<EOF
 HOA: v1
@@ -629,7 +633,7 @@ EOF
 
 diff output2 expect2
 
-autfilt -Hk expect2 >output2b
+SPOT_DEFAULT_FORMAT=hoa=k autfilt expect2 >output2b
 
 cat >expect2b <<EOF
 HOA: v1

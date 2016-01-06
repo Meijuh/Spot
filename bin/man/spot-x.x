@@ -1,5 +1,5 @@
 [NAME]
-spot-x \- Common fine-tuning options.
+spot-x \- Common fine-tuning options and environment variables.
 
 [SYNOPSIS]
 .B \-\-extra-options STRING
@@ -12,13 +12,40 @@ spot-x \- Common fine-tuning options.
 [ENVIRONMENT VARIABLES]
 
 .TP
+\fBSPOT_DEFAULT_FORMAT\fR
+Set to a value of \fBdot\fR or \fBhoa\fR to override the default
+format used to output automata.  Up to Spot 1.9.6 the default output
+format for automata used to be \fBdot\fR.  Starting with Spot 1.9.7,
+the default output format switched to \fBhoa\fR as it is more
+convenient when chaining tools in a pipe.  Set this variable to
+\fBdot\fR to get the old behavior.  Additional options may be
+passed to the printer by suffixing the output format with
+\fB=\fR and the options.  For instance running
+.in +4n
+.nf
+.ft C
+% SPOT_DEFAULT_OUTPUT=dot=bar autfilt ...
+.fi
+.in -4n
+is the same as running
+.in +4n
+.nf
+.ft C
+% autfilt --dot=bar ...
+.fi
+.in -4n
+but the use of the environment variable makes more sense if you set
+it up once for many commands.
+
+.TP
 \fBSPOT_DOTDEFAULT\fR
 Whenever the \f(CW--dot\fR option is used without argument (even
-implicitely), the contents of this variable is used as default
-argument.  If you have some default setting in \fBSPOT_DOTDEFAULT\fR
-but want to alter them temporarily for one call, use
-\f(CW--dot=.yyy\fR: the dot character will be replaced by the contents
-of the \f(CWSPOT_DOTDEFAULT\fR environment variable.
+implicitely via \fBSPOT_DEFAULT_FORMAT\fR), the contents of this
+variable is used as default argument.  If you have some default
+setting in \fBSPOT_DOTDEFAULT\fR but want to alter them temporarily
+for one call, use \f(CW--dot=.yyy\fR: the dot character will be
+replaced by the contents of the \f(CWSPOT_DOTDEFAULT\fR environment
+variable.
 
 .TP
 \fBSPOT_DOTEXTRA\fR
