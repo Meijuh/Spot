@@ -18,22 +18,31 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 #+begin_example
   -8, --utf8                 enable UTF-8 characters in output (ignored with
                              --lbtt or --spin)
-      --dot[=a|b|c|f(FONT)|h|n|N|r|R|s|t|v]
-                             GraphViz's format (default).  Add letters for (a)
-                             acceptance display, (b) acceptance sets as
-                             bullets,(c) circular nodes, (f(FONT)) use FONT,
-                             (h) horizontal layout, (v) vertical layout, (n)
-                             with name, (N) without name, (r) rainbow colors
-                             for acceptance set, (R) color acceptance set by
-                             Inf/Fin, (s) with SCCs, (t) force transition-based
-                             acceptance.
-  -H, --hoaf[=i|s|t|m|l]     Output the automaton in HOA format.  Add letters
+      --check[=PROP]         test for the additional property PROP and output
+                             the result in the HOA format (implies -H).  PROP
+                             may be any prefix of 'all' (default),
+                             'unambiguous', 'stutter-invariant', or
+                             'strength'.
+  -d, --dot[=1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v|+INT]
+                             GraphViz's format (default).  Add letters for (1)
+                             force numbered states, (a) acceptance display, (b)
+                             acceptance sets as bullets, (B) bullets except for
+                             Büchi/co-Büchi automata, (c) force circular
+                             nodes, (e) force elliptic nodes, (f(FONT)) use
+                             FONT, (h) horizontal layout, (v) vertical layout,
+                             (n) with name, (N) without name, (o) ordered
+                             transitions, (r) rainbow colors for acceptance
+                             sets, (R) color acceptance sets by Inf/Fin, (s)
+                             with SCCs, (t) force transition-based acceptance,
+                             (+INT) add INT to all set numbers
+  -H, --hoaf[=i|l|m|s|t|v]   Output the automaton in HOA format.  Add letters
                              to select (i) use implicit labels for complete
                              deterministic automata, (s) prefer state-based
                              acceptance when possible [default], (t) force
                              transition-based acceptance, (m) mix state and
-                             transition-based acceptance, (l) single-line
-                             output
+                             transition-based acceptance, (k) use state labels
+                             when possible, (l) single-line output, (v) verbose
+                             properties
       --lbtt[=t]             LBTT's format (add =t to force transition-based
                              acceptance even on Büchi automata)
       --name=FORMAT          set the name of the output automaton
@@ -55,11 +64,12 @@ can concatenate multiple automata (and even mix these three formats in
 the same stream), and the tools will be able to read and process them
 in sequence.
 
-The other possible outputs are [[http://www.graphviz.org/][GraphViz]] output (=--dot=), various
-statistics (=--stats=), or nothing at all (=--quiet=).  It may seem
-strange to ask a tool to not output anything, but it makes sense when
-only the exit status matters (for instance using [[file:autfilt.org][=autfilt=]] to check
-whether an input automaton has some property) or for timing purposes.
+The other possible outputs are [[http://www.graphviz.org/][GraphViz]] output (=-d= or =--dot=),
+various statistics (=--stats=), or nothing at all (=--quiet=).  It may
+seem strange to ask a tool to not output anything, but it makes sense
+when only the exit status matters (for instance using [[file:autfilt.org][=autfilt=]] to
+check whether an input automaton has some property) or for timing
+purposes.
 
 * HOA output
 
@@ -478,11 +488,11 @@ of Promela syntax.)
 
 * Dot output
 
-The =--dot= option (which usually is the default) causes automata to be
-output in GraphViz's format.
+The =-d= or =--dot= option causes automata to be output in GraphViz's
+format.
 
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba '(Ga -> Gb) W c'
+ltl2tgba '(Ga -> Gb) W c' -d
 #+END_SRC
 
 #+BEGIN_SRC sh :results verbatim :exports results

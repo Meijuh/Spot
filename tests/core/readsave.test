@@ -359,7 +359,7 @@ digraph G {
 EOF
 diff output expected
 
-ltl2tgba --dot=ban 'GFa & GFb' >output
+ltl2tgba -dban 'GFa & GFb' >output
 cat output
 cat >expected <<EOF
 digraph G {

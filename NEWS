@@ -2,8 +2,9 @@ New in spot 1.99.6a (not yet released)
 
   Command-line tools:
 
-  * randaut's short option for --density used to be -d.  It has been renamed
-    to -e so that -d means --dot in all tools.
+  * Tools that output automata now accept -d as a shorthand for --dot.
+    randaut's short option for specifying edge-density used to be -d:
+    it has been renamed to -e.
 
   * autfilt has a new option: --is-inherently-weak.
 

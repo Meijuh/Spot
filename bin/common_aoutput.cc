@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -73,8 +73,7 @@ ARGMATCH_VERIFY(check_args, check_types);
 unsigned opt_check = 0U;
 
 enum {
-  OPT_DOT = 1,
-  OPT_LBTT,
+  OPT_LBTT = 1,
   OPT_NAME,
   OPT_STATS,
   OPT_CHECK,
@@ -84,7 +83,7 @@ static const argp_option options[] =
   {
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Output format:", 3 },
-    { "dot", OPT_DOT, "1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v|+INT",
+    { "dot", 'd', "1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v|+INT",
       OPTION_ARG_OPTIONAL,
       "GraphViz's format (default).  Add letters for "
       "(1) force numbered states, "
@@ -229,9 +228,16 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
     case '8':
       spot::enable_utf8();
       break;
+    case 'd':
+      automaton_format = Dot;
+      opt_dot = arg;
+      break;
     case 'H':
       automaton_format = Hoa;
       hoa_opt = arg;
+      break;
+    case 'o':
+      opt_output = arg;
       break;
     case 'q':
       automaton_format = Quiet;
@@ -243,19 +249,12 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
       if (arg)
 	opt_never = arg;
       break;
-    case 'o':
-      opt_output = arg;
-      break;
     case OPT_CHECK:
       automaton_format = Hoa;
       if (arg)
 	opt_check |= XARGMATCH("--check", arg, check_args, check_types);
       else
 	opt_check |= check_all;
-      break;
-    case OPT_DOT:
-      automaton_format = Dot;
-      opt_dot = arg;
       break;
     case OPT_LBTT:
       automaton_format = Lbtt;
