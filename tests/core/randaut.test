@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -22,41 +22,38 @@
 
 set -e
 
-randaut=randaut
-autfilt=autfilt
-
-$randaut --spin -Q4 a b | ../ikwiad -H -XN - >out
+randaut --spin -Q4 a b | ../ikwiad -H -XN - >out
 grep 'States: 4' out
 grep 'AP: 2' out
 grep 'state-acc' out
 grep 'Acceptance: 1' out
 
-$randaut -n 3 --hoa -Q5..9 -A1..3 3 >out
+randaut -n 3 --hoa -Q5..9 -A1..3 3 >out
 test `grep -c 'States: [5-9]$' out` = 3
 test `grep -c 'Acceptance: [1-3] ' out` = 3
 test `grep -c 'AP: 3 ' out` = 3
 
 
-$randaut --spin -A2 3 2>stderr && exit 1
+randaut --spin -A2 3 2>stderr && exit 1
 grep 'spin.*incompatible' stderr
 
-$randaut --spin -A0 3  # should work
+randaut --spin -A0 3  # should work
 
-$randaut --ba -A2 3 2>stderr && exit 1
+randaut --ba -A2 3 2>stderr && exit 1
 grep 'ba.*incompatible' stderr
 
-$randaut --ba -A0 3 2>stderr && exit 1
+randaut --ba -A0 3 2>stderr && exit 1
 grep 'ba.*incompatible' stderr
 
-$randaut --states 10..20 2 -n 100 -H > aut.hoa
-a=`$autfilt --states=..14 -c <aut.hoa`
-b=`$autfilt aut.hoa --states=15.. -c`
+randaut --states 10..20 2 -n 100 -H > aut.hoa
+a=`autfilt --states=..14 -c <aut.hoa`
+b=`autfilt aut.hoa --states=15.. -c`
 test `expr $a + $b` = 100
 
 # The count of SCCs and edges might change if the
 # algorithm or its default values are changed.  Do
 # not hesitate to adjust the expected values below.
-$randaut -n 5 --name='%F-%L-%s-%c-%e' -H a | grep '^name' >out
+randaut -n 5 --name='%F-%L-%s-%c-%e' -H a | grep '^name' >out
 cat >expected<<EOF
 name: "0-0-10-1-30"
 name: "0-1-10-1-29"
@@ -66,27 +63,27 @@ name: "0-4-10-1-27"
 EOF
 diff out expected
 
-$randaut -n 5 --stats='name: "%F-%L-%s-%c-%e"' a >out2
+randaut -n 5 --stats='name: "%F-%L-%s-%c-%e"' a >out2
 diff out2 expected
 
-$randaut -n 5 --dot=@ a 2>stderr && exit 1
+randaut -n 5 --dot=@ a 2>stderr && exit 1
 grep 'randaut: unknown option.*@' stderr
 
-$randaut -n -1 -Q2 2 -H | $autfilt -H --is-deterministic -n 3 -o out.hoa
-$randaut -n -1 -Q2 2 -H | $autfilt -H -v --is-deterministic -n 4 -o '>>out.hoa'
-$autfilt -H out.hoa -o 'out-det%d.hoa'
-$autfilt -H out.hoa -o '>>out-det%d.hoa'
-test 8 = `$autfilt -c out-det0.hoa`
-test 6 = `$autfilt -c out-det1.hoa`
+randaut -n -1 -Q2 2 -H | autfilt -H --is-deterministic -n 3 -o out.hoa
+randaut -n -1 -Q2 2 -H | autfilt -H -v --is-deterministic -n 4 -o '>>out.hoa'
+autfilt -H out.hoa -o 'out-det%d.hoa'
+autfilt -H out.hoa -o '>>out-det%d.hoa'
+test 8 = `autfilt -c out-det0.hoa`
+test 6 = `autfilt -c out-det1.hoa`
 
-$autfilt -H out.hoa -o foo -c 2>stderr && exit 1
+autfilt -H out.hoa -o foo -c 2>stderr && exit 1
 grep 'autfilt: options --output and --count are incompatible' stderr
 
 (
-    $randaut -n 2 -Q5 -A4 -H 2
-    $randaut -A 'random 4' -n 2 -Q5 -H 2
-    $randaut -A 'parity rand rand 2..4' -n3 -Q5 -H 2
-    $randaut -A 'generalized-Rabin 3 1..2 2..3 0' -n3 -Q5 -H 2
+    randaut -n 2 -Q5 -A4 -H 2
+    randaut -A 'random 4' -n 2 -Q5 -H 2
+    randaut -A 'parity rand rand 2..4' -n3 -Q5 -H 2
+    randaut -A 'generalized-Rabin 3 1..2 2..3 0' -n3 -Q5 -H 2
 ) | grep -E '(acc-name:|Acceptance:)' > output
 cat output
 
@@ -113,12 +110,12 @@ $a: 8 (Fin(0) & (Inf(1)&Inf(2))) | (Fin(3) & (Inf(4)&Inf(5)&Inf(6))) | Fin(7)
 EOF
 diff output expected
 
-$randaut --spin -A 'random 2' 2 2>stderr && exit 1
+randaut --spin -A 'random 2' 2 2>stderr && exit 1
 grep 'randaut: --spin.*--acceptance' stderr
-$randaut --ba --acceptance='random 2' 2 2>stderr && exit 1
+randaut --ba --acceptance='random 2' 2 2>stderr && exit 1
 grep 'randaut: --acceptance.*--ba' stderr
 
-$randaut -n 10 2..4 -H | grep AP: > output
+randaut -n 10 2..4 -H | grep AP: > output
 cat output
 cat >expected <<EOF
 AP: 3 "p0" "p1" "p2"
@@ -134,17 +131,17 @@ AP: 3 "p0" "p1" "p2"
 EOF
 diff output expected
 
-$randaut -A3 --colored 2 -H | grep 'properties:.*colored'
-$randaut -S -A'parity min even 3' --colored 2 -H | grep 'properties:.*colored'
+randaut -A3 --colored 2 -H | grep 'properties:.*colored'
+randaut -S -A'parity min even 3' --colored 2 -H | grep 'properties:.*colored'
 
-$randaut --colored 2 2>stderr && exit 1
+randaut --colored 2 2>stderr && exit 1
 grep 'randaut: --colored requires' stderr
-$randaut -A0..2 --colored 2 2>stderr && exit 1
+randaut -A0..2 --colored 2 2>stderr && exit 1
 grep 'randaut: --colored requires' stderr
-$randaut -S -A'parity min even 0..3' -q -n10 --colored 2 2>stderr && exit 1
+randaut -S -A'parity min even 0..3' -q -n10 --colored 2 2>stderr && exit 1
 grep 'randaut: --colored requires' stderr
 
-$randaut -Q0 1 2>stderr && exit 1
+randaut -Q0 1 2>stderr && exit 1
 grep '0 states' stderr
 
 :
