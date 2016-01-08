@@ -35,7 +35,7 @@
 #include <spot/twaalgos/isunamb.hh>
 #include <spot/twaalgos/strength.hh>
 
-automaton_format_t automaton_format = Dot;
+automaton_format_t automaton_format = Hoa;
 static const char* automaton_format_opt = nullptr;
 const char* opt_name = nullptr;
 static const char* opt_output = nullptr;
@@ -82,7 +82,7 @@ static const argp_option options[] =
     { nullptr, 0, nullptr, 0, "Output format:", 3 },
     { "dot", 'd', "1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v|+INT",
       OPTION_ARG_OPTIONAL,
-      "GraphViz's format (default).  Add letters for "
+      "GraphViz's format.  Add letters for "
       "(1) force numbered states, "
       "(a) acceptance display, (b) acceptance sets as bullets, "
       "(B) bullets except for Büchi/co-Büchi automata, "
@@ -95,7 +95,7 @@ static const argp_option options[] =
       "(t) force transition-based acceptance, "
       "(+INT) add INT to all set numbers", 0 },
     { "hoaf", 'H', "i|l|m|s|t|v", OPTION_ARG_OPTIONAL,
-      "Output the automaton in HOA format.  Add letters to select "
+      "Output the automaton in HOA format (default).  Add letters to select "
       "(i) use implicit labels for complete deterministic automata, "
       "(s) prefer state-based acceptance when possible [default], "
       "(t) force transition-based acceptance, "

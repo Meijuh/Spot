@@ -24,8 +24,8 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
                              'unambiguous', 'stutter-invariant', or
                              'strength'.
   -d, --dot[=1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v|+INT]
-                             GraphViz's format (default).  Add letters for (1)
-                             force numbered states, (a) acceptance display, (b)
+                             GraphViz's format.  Add letters for (1) force
+                             numbered states, (a) acceptance display, (b)
                              acceptance sets as bullets, (B) bullets except for
                              Büchi/co-Büchi automata, (c) force circular
                              nodes, (e) force elliptic nodes, (f(FONT)) use
@@ -35,14 +35,14 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
                              sets, (R) color acceptance sets by Inf/Fin, (s)
                              with SCCs, (t) force transition-based acceptance,
                              (+INT) add INT to all set numbers
-  -H, --hoaf[=i|l|m|s|t|v]   Output the automaton in HOA format.  Add letters
-                             to select (i) use implicit labels for complete
-                             deterministic automata, (s) prefer state-based
-                             acceptance when possible [default], (t) force
-                             transition-based acceptance, (m) mix state and
-                             transition-based acceptance, (k) use state labels
-                             when possible, (l) single-line output, (v) verbose
-                             properties
+  -H, --hoaf[=i|l|m|s|t|v]   Output the automaton in HOA format (default).  Add
+                             letters to select (i) use implicit labels for
+                             complete deterministic automata, (s) prefer
+                             state-based acceptance when possible [default],
+                             (t) force transition-based acceptance, (m) mix
+                             state and transition-based acceptance, (k) use
+                             state labels when possible, (l) single-line
+                             output, (v) verbose properties
       --lbtt[=t]             LBTT's format (add =t to force transition-based
                              acceptance even on Büchi automata)
       --name=FORMAT          set the name of the output automaton
@@ -57,12 +57,12 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 #+end_example
 
 The main three output formats (that can also been used as input to
-some of the tools) are [[http://adl.github.io/hoaf/][HOAF]] (activated by =-H= or =--hoaf=), [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]]
-(activated by =--lbtt=), or Spin [[http://spinroot.com/spin/Man/never.html][never claims]] (activated by =-s= or
-=--spin=).  These three formats also support *streaming*, i.e., you
-can concatenate multiple automata (and even mix these three formats in
-the same stream), and the tools will be able to read and process them
-in sequence.
+some of the tools) are [[http://adl.github.io/hoaf/][HOA]] (used by default, or with =-H= or
+=--hoaf=), [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]] (activated by =--lbtt=), or Spin [[http://spinroot.com/spin/Man/never.html][never claims]]
+(activated by =-s= or =--spin=).  These three formats also support
+*streaming*, i.e., you can concatenate multiple automata (and even mix
+these three formats in the same stream), and the tools will be able to
+read and process them in sequence.
 
 The other possible outputs are [[http://www.graphviz.org/][GraphViz]] output (=-d= or =--dot=),
 various statistics (=--stats=), or nothing at all (=--quiet=).  It may
@@ -73,16 +73,20 @@ purposes.
 
 * HOA output
 
+Details about supported features of the HOA format can be found on a
+[[file:hoa.org][separate page]].
+
 The [[http://adl.github.io/hoaf/][HOA]] output should be the preferred format to use if you want to
-pass automata between different tools.  This format can be requested
-using the =-H= option.  (Details about supported features of the HOA
-format can be found on a [[file:hoa.org][separate page]].)
+pass automata between different tools.  Since Spot 1.99.7, it is the
+default output format, but you can explicitely request it using the
+=-H= parameter and this allows passing additional options to the HOA
+printer.
 
 Here is an example where [[file:ltl2tgba.org][=ltl2tgba=]] is used to construct two automata:
 one for =a U b= and one for =(Ga -> Gb) W c=.
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-ltl2tgba -H 'a U b' '(Ga -> Gb) W c'
+ltl2tgba 'a U b' '(Ga -> Gb) W c'
 #+END_SRC
 #+RESULTS:
 #+BEGIN_SRC hoa
@@ -904,13 +908,13 @@ edges should be $20.8\times100=2080$.
 
 * Naming automata
 
-Automata can be given names.  This name can be output in GraphViz
-output when =--dot=n= is given, and is also part of the HOA format (as
-activated by =-H=).
+Automata can be given names.  This name can be output in the
+HOA format, but also in GraphViz output when =--dot=n= is given.
 
-By default, =ltl2tgba= will use the input format as name.  Other tools
-have no default name.  This name can be changed using the =--name= option,
-that takes a format string similar to the one of =--stats=.
+By default, =ltl2tgba= will use the input formula as name.  Other
+tools have no default name.  This name can be changed using the
+=--name= option, that takes a format string similar to the one of
+=--stats=.
 
 #+NAME: oaut-name
 #+BEGIN_SRC sh :results verbatim :exports code
@@ -959,9 +963,9 @@ using =autfilt -n5=.
 
 #+BEGIN_SRC sh :results verbatim :exports both
 randltl -n -1 a b |
-ltl2tgba -H -F- |
+ltl2tgba -F- |
 autfilt --states=3 --stats='!(%M)' |
-ltl2tgba -H -F- |
+ltl2tgba -F- |
 autfilt --states=3 --stats=%M -n5
 #+END_SRC
 
@@ -1018,7 +1022,7 @@ automaton is deterministic.  We can generate 20 random automata, and
 output them in two files depending on their determinism:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut -n 20 -Q2 -d1 1 -H -o out-det%d.hoa
+randaut -n 20 -Q2 -e1 1 -o out-det%d.hoa
 autfilt -c out-det0.hoa    # Count of non-deterministic automata
 autfilt -c out-det1.hoa    # Count of deterministic automata
 #+END_SRC
@@ -1036,7 +1040,7 @@ deterministic automata, it may look like we produced more
 than 20 automata:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut -D -n 20 -Q2 -d1 1 -H -o out-det%d.hoa
+randaut -D -n 20 -Q2 -e1 1 -o out-det%d.hoa
 autfilt -c out-det0.hoa    # Count of non-deterministic automata
 autfilt -c out-det1.hoa    # Count of deterministic automata
 #+END_SRC
@@ -1051,6 +1055,6 @@ previous execution, while =out-det1.hoa= has been overwritten.
 In the case where you want to append to a file instead of overwriting
 it, prefix the output filename with =>>= as in
 
-: randaut -D -n 20 -Q2 1 -H -o '>>out-det%d.hoa'
+: randaut -D -n 20 -Q2 1 -o '>>out-det%d.hoa'
 
 (You need the quotes so that the shell does not interpret '>>'.)

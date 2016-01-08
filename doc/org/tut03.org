@@ -170,7 +170,6 @@ The Python equivalent is similar:
 : GFb is not F
 : GFc is G
 
-
 * Transforming formulas
 
 ** C++

@@ -49,11 +49,10 @@ write will work with any of those formats.
 * Shell
 
 This is very simple: [[file:autfilt.org][=autfilt=]] can read automata in any of the
-supported formats, so all we have to do is to request the HOA output
-with =-H=:
+supported formats, and outputs it in the HOA format by default:
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-autfilt -H tut20.never
+autfilt tut20.never
 #+END_SRC
 
 #+RESULTS:

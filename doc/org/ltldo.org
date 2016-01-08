@@ -129,7 +129,7 @@ the [[http://adl.github.io/hoaf/][HOA format]].  Spin has no support for HOA, bu
 converts the never claim produced by =spin= into this format.
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-ltldo -f a -f GFa 'spin -f %s>%O' -H
+ltldo -f a -f GFa 'spin -f %s>%O'
 #+END_SRC
 
 #+RESULTS:
@@ -167,9 +167,9 @@ State: 1 {0}
 Again, using the shorthands defined below, the previous command can be
 simplified to just this:
 
-#+BEGIN_SRC sh :results verbatim :exports code
-ltldo spin -f a -f GFa -H
-#+END_SRC
+#+BEGIN_EXAMPLE sh
+  ltldo spin -f a -f GFa
+#+END_EXAMPLE
 
 * Syntax for specifying tools to call
 
@@ -303,36 +303,45 @@ the following words, then the string on the right is appended.
 
   lbt          <%L>%O
   ltl2ba       -f %s>%O
-  ltl2dstar    %L %D
+  ltl2dstar    --output-format=hoa %L %O
   ltl2tgba     -H %f>%O
   ltl3ba       -f %s>%O
-  ltl3dra      -f %f>%O
+  ltl3dra      -f %s>%O
   modella      %L %O
   spin         -f %s>%O
+
+Any {name} and directory component is skipped for the purpose of
+matching those prefixes.  So for instance
+  '{DRA} ~/mytools/ltl2dstar-0.5.2'
+will changed into
+  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %L %O'
 #+end_example
 
-So for instance you can type just
+Therefore you can type just
 
 #+BEGIN_SRC sh :results verbatim :exports code
-ltldo ltl2ba -f a
+ltldo ltl2ba -f a -d
 #+END_SRC
 
-to obtain a Dot output (this is the default output format for =ltldo=)
-for the neverclaim produced by =ltl2ba -f a=.
+to obtain a Dot output (as requested with =-d=) for the neverclaim
+produced by =ltl2ba -f a=.
 
 #+BEGIN_SRC sh :results verbatim :exports results
 SPOT_DOTEXTRA= ltldo ltl2ba -f a --dot=
 #+END_SRC
 #+RESULTS:
-: digraph G {
-:   rankdir=LR
-:   I [label="", style=invis, width=0]
-:   I -> 0
-:   0 [label="0", peripheries=2]
-:   0 -> 1 [label="a"]
-:   1 [label="1", peripheries=2]
-:   1 -> 1 [label="1"]
-: }
+#+begin_example
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 1 [label="a"]
+  1 [label="1", peripheries=2]
+  1 -> 1 [label="1"]
+}
+#+end_example
 
 The =ltl2ba= argument passed to =ltldo= was interpreted as if you had
 typed ={ltl2ba}ltl2ba -f %s>%O=.
@@ -385,7 +394,7 @@ ltldo spin -f '[]!Error' -s
 : }
 
 (We need the =-s= option to obtain a never claim, instead of the
-default GraphViz output.)
+default HOA output.)
 
 What happened is that =ltldo= renamed the atomic propositions in the
 formula before calling =spin=.  So =spin= actually received the
@@ -407,7 +416,7 @@ automaton uses the atomic proposition =Error=, but its name contains a
 reference to =p0=.
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-ltldo 'ltl3ba -H' -f '[]!Error' -H
+ltldo 'ltl3ba -H' -f '[]!Error'
 #+END_SRC
 #+RESULTS:
 #+BEGIN_SRC hoa
@@ -430,7 +439,7 @@ If this is a problem, you can always force a new name with the
 =--name= option:
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-ltldo 'ltl3ba -H' -f '[]!Error' -H --name='BA for %f'
+ltldo 'ltl3ba -H' -f '[]!Error' --name='BA for %f'
 #+END_SRC
 
 #+RESULTS:

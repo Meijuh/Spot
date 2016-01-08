@@ -7,7 +7,6 @@ The task is to read an LTL formula, relabel all (possibly complex)
 atomic propositions, and provide =#define= statements for each of
 these renamings, writing everything in Spin's syntax.
 
-
 * Shell
 
 #+BEGIN_SRC sh :results verbatim :exports both
@@ -48,7 +47,6 @@ accept_all:
 	skip
 }
 #+end_example
-
 
 * Python
 
@@ -108,7 +106,6 @@ destructor.
 : #define p1 (var < 4)
 : #define p2 (var > 10)
 : (p0) U ((p1) || (p2))
-
 
 * Additional comments
 

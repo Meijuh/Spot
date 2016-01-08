@@ -21,10 +21,12 @@ different kind of interface (not demonstrated here) to iterate over
 automata that are constructed on-the-fly and where such a loop would
 be impossible.
 
-First let's create an example automaton in HOA format.
+First let's create an example automaton in HOA format.  We use =-U= to
+request unambiguous automata, as this allows us to demonstrate how
+property bits are used.
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-ltl2tgba -U -H 'Fa | G(Fb&Fc)' | tee tut21.hoa
+ltl2tgba -U 'Fa | G(Fb&Fc)' | tee tut21.hoa
 #+END_SRC
 #+RESULTS:
 #+BEGIN_SRC hoa

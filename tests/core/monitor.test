@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -31,7 +31,7 @@ expect()
    diff output.out output.exp
 }
 
-expect ltl2tgba --monitor a <<EOF
+expect ltl2tgba -d --monitor a <<EOF
 digraph G {
   rankdir=LR
   node [shape="circle"]

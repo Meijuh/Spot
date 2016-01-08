@@ -27,8 +27,9 @@ process them in batch.  (The only restriction is that inside a file an
 automaton in LBTT's format may not follow an automaton in
 =ltl2dstar='s format.)
 
-The output format can be controlled using [[file:oaut.org][the common output options]]
-(like =--spin=, =--lbtt=, =--dot=, =--hoaf=...).
+By default the output uses the HOA format.  This can be changed using
+[[file:oaut.org][the common output options]] like =--spin=, =--lbtt=, =--dot=,
+=--hoaf=...
 
 #+BEGIN_SRC sh :results silent :exports both
 cat >example.hoa <<EOF
@@ -53,6 +54,7 @@ SPOT_DOTEXTRA= autfilt example.hoa --dot=
 #+RESULTS:
 : digraph G {
 :   rankdir=LR
+:   node [shape="circle"]
 :   I [label="", style=invis, width=0]
 :   I -> 0
 :   0 [label="0"]
@@ -102,7 +104,7 @@ statistics.
 
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut --hoa -n 10 -A0..2 -Q10..20 -e0.05 2 |
+randaut -n 10 -A0..2 -Q10..20 -e0.05 2 |
 autfilt --stats='%s states, %e edges, %a acc-sets, %c SCCs, det=%d'
 #+END_SRC
 
@@ -127,17 +129,20 @@ autfilt --help | sed -n '/^  %%/,/^$/p' | sed '$d'
 #+RESULTS:
 #+begin_example
   %%                         a single %
-  %A, %a                     number of acceptance pairs or sets
+  %A, %a                     number of acceptance sets
   %C, %c                     number of SCCs
   %d                         1 if the output is deterministic, 0 otherwise
   %E, %e                     number of edges
   %F                         name of the input file
+  %G, %g                     acceptance condition (in HOA syntax)
+  %L                         location in the input file
+  %M, %m                     name of the automaton
   %n                         number of nondeterministic states in output
   %p                         1 if the output is complete, 0 otherwise
-  %r                         conversion time (including post-processings, but
-                             not parsing) in seconds
+  %r                         processing time (excluding parsing) in seconds
   %S, %s                     number of states
   %T, %t                     number of transitions
+  %w                         one word accepted by the output automaton
 #+end_example
 
 When a letter is available both as uppercase and lowercase, the
@@ -166,6 +171,10 @@ autfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
       --is-complete          keep complete automata
       --is-deterministic     keep deterministic automata
       --is-empty             keep automata with an empty language
+      --is-inherently-weak   keep only inherently weak automata
+      --is-terminal          keep only terminal automata
+      --is-unambiguous       keep only unambiguous automata
+      --is-weak              keep only weak automata
       --states=RANGE         keep automata whose number of states are in RANGE
   -u, --unique               do not output the same automaton twice (same in
                              the sense that they are isomorphic)
@@ -193,14 +202,14 @@ This set of options controls the desired type of output automaton:
 autfilt --help | sed -n '/Output automaton type:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
-:   -B, --ba                   BÃ¼chi Automaton (with state-based acceptance)
+:   -B, --ba                   Büchi Automaton (with state-based acceptance)
 :   -C, --complete             output a complete automaton
-:       --generic              Any acceptance is allowed (default)
+:       --generic              any acceptance is allowed (default)
 :   -M, --monitor              Monitor (accepts all finite prefixes of the given
 :                              property)
 :   -S, --state-based-acceptance, --sbacc
 :                              define the acceptance using states
-:       --tgba                 Transition-based Generalized BÃ¼chi Automaton
+:       --tgba                 Transition-based Generalized Büchi Automaton
 
 These options specify any simplification goal:
 
@@ -251,6 +260,9 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
                              deterministic automata)
       --complement-acceptance   complement the acceptance condition (without
                              touching the automaton)
+      --decompose-strength=t|w|s   extract the (t) terminal, (w) weak, or (s)
+                             strong part of an automaton (letters may be
+                             combined to combine more strengths in the output)
       --destut               allow less stuttering
       --dnf-acceptance       put the acceptance condition in Disjunctive Normal
                              Form
@@ -279,8 +291,8 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
                              quantification, or by assigning them 0 or 1
       --remove-dead-states   remove states that are unreachable, or that cannot
                              belong to an infinite path
-      --remove-fin           rewrite the automaton without using Fin acceptance
-
+      --remove-fin           rewrite the automaton without using Fin
+                             acceptance
       --remove-unreachable-states
                              remove states that are unreachable from the
                              initial state

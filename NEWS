@@ -2,6 +2,15 @@ New in spot 1.99.6a (not yet released)
 
   Command-line tools:
 
+  * BACKWARD INCOMPATIBILE CHANGE: All tools that output automata now
+    use the HOA format by default instead of the GraphViz output.
+    This makes it easier to pipe several commands.
+
+    If you have an old script that relies on GraphViz being the default
+    output and that you do not want to update it, use
+       export SPOT_DEFAULT_FORMAT=dot
+    to get the old behavior back.
+
   * Tools that output automata now accept -d as a shorthand for --dot.
     randaut's short option for specifying edge-density used to be -d:
     it has been renamed to -e.

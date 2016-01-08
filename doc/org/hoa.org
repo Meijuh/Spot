@@ -33,7 +33,7 @@ When an HOA file is loaded by Spot, it is stored into the
 data-structure used by Spot to represent ω-Automata.  This structure
 is called Transition-based ω-Automaton, henceforth abbreviated TωA.
 Such a TωA can be saved back as an HOA file.  If you run a command
-such as =autfilt -H input.hoa >output.hoa= this is exactly what
+such as =autfilt input.hoa >output.hoa= this is exactly what
 happens: the file =input.hoa= is parsed to create a TωA, and this TωA
 is then printed in the HOA format into =output.hoa=.
 
@@ -221,7 +221,7 @@ State: 2
 [0]  2 {0 1}
 --END--
 EOF_HOA
-autfilt -H sba.hoa
+autfilt sba.hoa
 #+END_SRC
 
 so the HOA output of =autfilt= automatically uses state-based acceptance:
@@ -432,7 +432,7 @@ Rabin pair, and reordering the remaining pair to fit the syntax
 corresponding to =Rabin 1=.
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-autfilt -H <<EOF
+autfilt <<EOF
 HOA: v1
 States: 3
 Start: 0
@@ -499,7 +499,7 @@ actually spot the terms that have been grouped together internally by
 looking at the spacing around operators =&= and =|=.  For instance:
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-randaut -A"Fin(0)|Fin(1)|Fin(2)&Fin(3)&Inf(4)&Inf(5)" -H 0 | grep Acceptance:
+randaut -A"Fin(0)|Fin(1)|Fin(2)&Fin(3)&Inf(4)&Inf(5)" 0 | grep Acceptance:
 #+END_SRC
 
 #+RESULTS:
@@ -708,7 +708,7 @@ State: 2 "so am I"
 [0]  2 {0 1}
 --END--
 EOF
-autfilt -H hw.hoa
+autfilt hw.hoa
 #+END_SRC
 
 #+RESULTS: hello-world
@@ -747,7 +747,7 @@ Here is for instance the result when =autfilt= is instructed to
 simplify the automaton:
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-autfilt -H --small hw.hoa
+autfilt --small hw.hoa
 #+END_SRC
 
 #+RESULTS:
@@ -780,7 +780,7 @@ construct the new name by simply copying the one of the original
 automaton.
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-autfilt -H --small hw.hoa --name=%M
+autfilt --small hw.hoa --name=%M
 #+END_SRC
 
 #+RESULTS:
@@ -825,7 +825,7 @@ randomize the order of their transitions and states before printing
 them in HOA format.
 
 #+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
-genltl --and-gf=1..3 | ltl2tgba -B -F- -H | autfilt --randomize -H
+genltl --and-gf=1..3 | ltl2tgba -B -F- | autfilt --randomize
 #+END_SRC
 
 #+RESULTS:

@@ -128,10 +128,10 @@ tools:
   - '=modella -r12 -g -e %L %O='
   - '=/path/to/script4lbtt.py %L %O=' (script supplied by [[http://web.archive.org/web/20070214050826/http://estragon.ti.informatik.uni-kiel.de/~fritz/][ltl2nba]] for
     its interface with LBTT)
-  - '=ltl2tgba -s %s >%O=' (smaller output, Büchi automaton)
-  - '=ltl2tgba -s -D %s >%O=' (more deterministic output, Büchi automaton)
-  - '=ltl2tgba -H %s >%O=' (smaller output, TGBA)
-  - '=ltl2tgba -H -D %s >%O=' (more deterministic output, TGBA)
+  - '=ltl2tgba -s %f >%O=' (smaller output, Büchi automaton)
+  - '=ltl2tgba -s -D %f >%O=' (more deterministic output, Büchi automaton)
+  - '=ltl2tgba -H %f >%O=' (smaller output, TGBA)
+  - '=ltl2tgba -H -D %f >%O=' (more deterministic output, TGBA)
   - '=lbt <%L >%O='
   - '~ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD
     --output-format=hoa %L %O~' deterministic Rabin output in HOA, as

@@ -4,16 +4,21 @@
 #+HTML_LINK_UP: tools.html
 
 This tool converts automata into transition-based generalized Büchi
-automata, a.k.a., TGBA.
+automata, a.k.a., TGBA.  It can also produce Büchi automata on request
+(=-B=).  It's usage is almost similar to [[file:ltl2tgba.org][=ltl2tgba=]] except that
+instead of supplying a formula to translate, you should specify a
+filename containing the automaton to convert.
 
 In earlier version (before Spot 1.99.4) =dstar2tgba= was only able to
-read automata written in [[http://www.ltl2dstar.de/docs/ltl2dstar.html][the format output by =ltl2dstar=]], hence its
-name.   However nowadays it can read automata in any of the supported
-formats ([[file:hoa.org][HOA]], LBTT's format, ltl2dstar's format, and never claims).
+read automata written in [[http://www.ltl2dstar.de/docs/ltl2dstar.html][the format output by =ltl2dstar=]].  However
+nowadays it can read automata in any of the supported formats ([[file:hoa.org][HOA]],
+LBTT's format, ltl2dstar's format, and never claims).  Also
+=dstar2tgba= used to be the only tool being able to read ltl2dstar's
+format, but today this format can also be read by any of the tool that
+read automata.  So in practice, running =dstar2tgba some files...=
+produces the same result as running =autfilt --tgba --high --small
+some files...=.
 
-It's usage is almost similar to [[file:ltl2tgba.org][=ltl2tgba=]] except that instead of
-supplying a formula to translate, you should specify a filename
-containing the automaton to convert.
 
 * Two quick examples
 
@@ -127,7 +132,7 @@ For instance here is the conversion to a Büchi automaton (=-B=):
 
 #+NAME: fagfb2ba
 #+BEGIN_SRC sh :results verbatim :exports code
-dstar2tgba -B fagfb
+dstar2tgba -B fagfb -d
 #+END_SRC
 #+RESULTS: fagfb2ba
 #+begin_example
@@ -172,18 +177,18 @@ dstar2tgba -s fagfb
 never {
 T0_init:
   if
-  :: ((b)) -> goto accept_S0
+  :: (b) -> goto accept_S0
   :: ((a) && (!(b))) -> goto T0_init
   fi;
 accept_S0:
   if
-  :: ((b)) -> goto accept_S0
-  :: ((!(b))) -> goto T0_S2
+  :: (b) -> goto accept_S0
+  :: (!(b)) -> goto T0_S2
   fi;
 T0_S2:
   if
-  :: ((b)) -> goto accept_S0
-  :: ((!(b))) -> goto T0_S2
+  :: (b) -> goto accept_S0
+  :: (!(b)) -> goto T0_S2
   fi;
 }
 #+end_example
@@ -252,7 +257,7 @@ the default:
 
 #+NAME: gfagfb2ba
 #+BEGIN_SRC sh :results verbatim :exports code
-dstar2tgba gfagfb
+dstar2tgba gfagfb -d
 #+END_SRC
 #+RESULTS: gfagfb2ba
 #+begin_example
@@ -309,9 +314,10 @@ The =dstar2tgba= tool implements a 4-step process:
   3. postprocess the resulting TGBA (simplifying the automaton, a degeneralizing it into a BA or Monitor if requested)
   4. output the resulting automaton
 
-BTW, the above scenario is also exactly what you can with [[file:autfilt.org][=autfilt=]] if
-you run it as =autfilt --tgba --high --small=.  (This is true only since version
-1.99.4, since both tools can now read the same file formats.)
+BTW, the above scenario is also exactly what you get with [[file:autfilt.org][=autfilt=]] if
+you run it as =autfilt --tgba --high --small=.  (This is true only
+since version 1.99.4, since both tools can now read the same file
+formats.)
 
 ** Controlling output
 
@@ -324,13 +330,13 @@ dstar2tgba --help | sed -n '/Output automaton type:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 
 #+RESULTS:
-:   -B, --ba                   BÃ¼chi Automaton (implies -S)
+:   -B, --ba                   Büchi Automaton (implies -S)
 :   -C, --complete             output a complete automaton
 :   -M, --monitor              Monitor (accepts all finite prefixes of the given
 :                              property)
 :   -S, --state-based-acceptance, --sbacc
 :                              define the acceptance using states
-:       --tgba                 Transition-based Generalized BÃ¼chi Automaton
+:       --tgba                 Transition-based Generalized Büchi Automaton
 :                              (default)
 
 And these may be refined by a simplification goal, should the
@@ -370,10 +376,11 @@ dstar2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
       --check[=PROP]         test for the additional property PROP and output
                              the result in the HOA format (implies -H).  PROP
                              may be any prefix of 'all' (default),
-                             'unambiguous', or 'stutter-invariant'.
-      --dot[=1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v]
-                             GraphViz's format (default).  Add letters for (1)
-                             force numbered states, (a) acceptance display, (b)
+                             'unambiguous', 'stutter-invariant', or 'strength'.
+
+  -d, --dot[=1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v|+INT]
+                             GraphViz's format.  Add letters for (1) force
+                             numbered states, (a) acceptance display, (b)
                              acceptance sets as bullets, (B) bullets except for
                              Büchi/co-Büchi automata, (c) force circular
                              nodes, (e) force elliptic nodes, (f(FONT)) use
@@ -381,14 +388,16 @@ dstar2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
                              (n) with name, (N) without name, (o) ordered
                              transitions, (r) rainbow colors for acceptance
                              sets, (R) color acceptance sets by Inf/Fin, (s)
-                             with SCCs, (t) force transition-based acceptance.
-  -H, --hoaf[=i|s|t|m|l]     Output the automaton in HOA format.  Add letters
-                             to select (i) use implicit labels for complete
-                             deterministic automata, (s) prefer state-based
-                             acceptance when possible [default], (t) force
-                             transition-based acceptance, (m) mix state and
-                             transition-based acceptance, (l) single-line
-                             output
+                             with SCCs, (t) force transition-based acceptance,
+                             (+INT) add INT to all set numbers
+  -H, --hoaf[=i|l|m|s|t|v]   Output the automaton in HOA format (default).  Add
+                             letters to select (i) use implicit labels for
+                             complete deterministic automata, (s) prefer
+                             state-based acceptance when possible [default],
+                             (t) force transition-based acceptance, (m) mix
+                             state and transition-based acceptance, (k) use
+                             state labels when possible, (l) single-line
+                             output, (v) verbose properties
       --lbtt[=t]             LBTT's format (add =t to force transition-based
                              acceptance even on Büchi automata)
       --name=FORMAT          set the name of the output automaton

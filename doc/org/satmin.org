@@ -105,7 +105,7 @@ We can draw it:
 
 #+NAME: gfaexxb3
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -D -x sat-minimize "GF(a <-> XXb)"
+ltl2tgba -D -x sat-minimize "GF(a <-> XXb)" -d
 #+END_SRC
 #+RESULTS: gfaexxb3
 #+begin_example
@@ -154,16 +154,17 @@ result will of course be slightly bigger.
 
 #+NAME: gfaexxb4
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -BD -x sat-minimize "GF(a <-> XXb)"
+ltl2tgba -BD -x sat-minimize "GF(a <-> XXb)" -d
 #+END_SRC
 #+RESULTS: gfaexxb4
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
@@ -208,7 +209,7 @@ In that case, SAT-based minimization is simply skipped.  For instance:
 ltl2tgba -D -x sat-minimize "Ga R (F!b & (c U b))" --stats='states=%s, det=%d'
 #+END_SRC
 #+RESULTS:
-: states=4, det=0
+: states=5, det=1
 
 The question, of course, is whether there exist a deterministic
 automaton for this formula, in other words: is this a recurrence
@@ -573,7 +574,7 @@ smaller than the output.   Let's take this small TGBA as input:
 
 #+NAME: autfiltsm6
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba 'GFa & GFb' -H > output2.hoa
+ltl2tgba 'GFa & GFb' >output2.hoa
 autfilt output2.hoa --dot=.a
 #+END_SRC
 

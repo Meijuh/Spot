@@ -14,25 +14,29 @@ option.
 Formulas to translate may be specified using [[file:ioltl.org][common input options for
 LTL/PSL formulas]].
 
-#+BEGIN_SRC sh :results verbatim :exports code
+#+BEGIN_SRC sh :results verbatim :exports both
 ltl2tgba -f 'Fa & GFb'
 #+END_SRC
-#+BEGIN_SRC sh :results verbatim :exports results
-SPOT_DOTEXTRA= ltl2tgba -f 'Fa & GFb' --dot=
-#+END_SRC
+
 #+RESULTS:
 #+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 1
-  0 [label="0"]
-  0 -> 0 [label="b\n{0}"]
-  0 -> 0 [label="!b"]
-  1 [label="1"]
-  1 -> 0 [label="a"]
-  1 -> 1 [label="!a"]
-}
+HOA: v1
+name: "Fa & GFb"
+States: 2
+Start: 1
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[1] 0 {0}
+[!1] 0
+State: 1
+[0] 0
+[!0] 1
+--END--
 #+end_example
 
 Actually, because =ltl2tgba= is often used with a single formula
@@ -42,11 +46,14 @@ assumed to be a formula to translate (this differs from [[file:ltlfilt.org][=ltl
 where such parameters are assumed to be filenames).
 
 =ltl2tgba= honors the [[file:oaut.org][common options for selecting the output format]].
-The default output format, as shown above, is [[http://www.graphviz.org/][GraphViz]]'s format.  This
-can converted into a picture, or into vectorial format using =dot= or
-=dotty=.  Typically, you could get a =pdf= of this TGBA using
+The default output format, as shown above, is the [[file:hoa.org][HOA]] format, as this
+can easily be piped to other tools.
+
+To convert the automaton into a picture, or into vectorial format, use
+=--dot= or =-d= to request [[http://www.graphviz.org/][GraphViz output]] and process the result with
+=dot= or =dotty=.  Typically, you could get a =pdf= of this TGBA using
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba "Fa & GFb" | dot -Tpdf > tgba.pdf
+ltl2tgba "Fa & GFb" -d | dot -Tpdf > tgba.pdf
 #+END_SRC
 #+RESULTS:
 
@@ -55,12 +62,13 @@ we use some [[file:oaut.org][environment variables]] to produce a more colorful
 output by default)
 #+NAME: dotex
 #+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba "Fa & GFb"
+ltl2tgba "Fa & GFb" -d
 #+END_SRC
 #+RESULTS: dotex
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
@@ -99,7 +107,7 @@ Here is a TGBA with multiple acceptance sets (we omit the call to
 
 #+NAME: dotex2
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba "GFa & GFb"
+ltl2tgba "GFa & GFb" -d
 #+END_SRC
 #+RESULTS: dotex2
 #+begin_example
@@ -134,7 +142,7 @@ A Büchi automaton for the previous formula can be obtained with the
 
 #+NAME: dotex2ba
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -B 'GFa & GFb'
+ltl2tgba -B 'GFa & GFb' -d
 #+END_SRC
 #+RESULTS: dotex2ba
 #+begin_example
@@ -220,7 +228,7 @@ as above, for comparison.
 
 #+NAME: dotex2gba
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -S 'GFa & GFb'
+ltl2tgba -S 'GFa & GFb' -d
 #+END_SRC
 
 #+RESULTS: dotex2gba
@@ -282,27 +290,30 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
       --check[=PROP]         test for the additional property PROP and output
                              the result in the HOA format (implies -H).  PROP
                              may be any prefix of 'all' (default),
-                             'unambiguous', or 'stutter-invariant'.
-      --dot[=1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v]
-                             GraphViz's format (default).  Add letters for (1)
-                             force numbered states, (a) acceptance display, (b)
+                             'unambiguous', 'stutter-invariant', or
+                             'strength'.
+  -d, --dot[=1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v|+INT]
+                             GraphViz's format.  Add letters for (1) force
+                             numbered states, (a) acceptance display, (b)
                              acceptance sets as bullets, (B) bullets except for
-                             BÃ¼chi/co-BÃ¼chi automata, (c) force circular
+                             Büchi/co-Büchi automata, (c) force circular
                              nodes, (e) force elliptic nodes, (f(FONT)) use
                              FONT, (h) horizontal layout, (v) vertical layout,
                              (n) with name, (N) without name, (o) ordered
                              transitions, (r) rainbow colors for acceptance
                              sets, (R) color acceptance sets by Inf/Fin, (s)
-                             with SCCs, (t) force transition-based acceptance.
-  -H, --hoaf[=i|s|t|m|l]     Output the automaton in HOA format.  Add letters
-                             to select (i) use implicit labels for complete
-                             deterministic automata, (s) prefer state-based
-                             acceptance when possible [default], (t) force
-                             transition-based acceptance, (m) mix state and
-                             transition-based acceptance, (l) single-line
-                             output
+                             with SCCs, (t) force transition-based acceptance,
+                             (+INT) add INT to all set numbers
+  -H, --hoaf[=i|l|m|s|t|v]   Output the automaton in HOA format (default).  Add
+                             letters to select (i) use implicit labels for
+                             complete deterministic automata, (s) prefer
+                             state-based acceptance when possible [default],
+                             (t) force transition-based acceptance, (m) mix
+                             state and transition-based acceptance, (k) use
+                             state labels when possible, (l) single-line
+                             output, (v) verbose properties
       --lbtt[=t]             LBTT's format (add =t to force transition-based
-                             acceptance even on BÃ¼chi automata)
+                             acceptance even on Büchi automata)
       --name=FORMAT          set the name of the output automaton
   -o, --output=FORMAT        send output to a file named FORMAT instead of
                              standard output.  The first automaton sent to a
@@ -319,7 +330,7 @@ if your system can display UTF-8 correctly.
 
 #+NAME: dotex2ba8
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -B8 "GFa & GFb"
+ltl2tgba -B8 "GFa & GFb" -d
 #+END_SRC
 #+RESULTS: dotex2ba8
 #+begin_example
@@ -442,7 +453,7 @@ flagrant is =Ga|Gb|Gc=:
 
 #+NAME: gagbgc1
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba 'Ga|Gb|Gc'
+ltl2tgba 'Ga|Gb|Gc' -d
 #+END_SRC
 #+RESULTS: gagbgc1
 #+begin_example
@@ -476,7 +487,7 @@ $txt
 
 #+NAME: gagbgc2
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -D 'Ga|Gb|Gc'
+ltl2tgba -D 'Ga|Gb|Gc' -d
 #+END_SRC
 #+RESULTS: gagbgc2
 #+begin_example
@@ -544,7 +555,7 @@ $\bar ab$.
 
 #+NAME: ambig1
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -B 'GFa -> GFb'
+ltl2tgba -B 'GFa -> GFb' -d
 #+END_SRC
 #+RESULTS: ambig1
 #+begin_example
@@ -583,7 +594,7 @@ is only one run that recognizes this example word:
 
 #+NAME: ambig2
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -B -U 'GFa -> GFb'
+ltl2tgba -B -U 'GFa -> GFb' -d
 #+END_SRC
 
 #+RESULTS: ambig2
@@ -713,6 +724,7 @@ ltl2tgba --help | sed -n '/^ *%/p'
   %e                         number of edges
   %f                         the formula, in Spot's syntax
   %F                         name of the input file
+  %g                         acceptance condition (in HOA syntax)
   %L                         location in the input file
   %m                         name of the automaton
   %n                         number of nondeterministic states in output
@@ -771,13 +783,14 @@ deterministic monitor for the given formula.
 
 #+NAME: monitor1
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -M '(Xa & Fb) | Gc'
+ltl2tgba -M '(Xa & Fb) | Gc' -d
 #+END_SRC
 
 #+RESULTS: monitor1
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
@@ -805,13 +818,14 @@ $txt
 
 #+NAME: monitor2
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -MD '(Xa & Fb) | Gc'
+ltl2tgba -MD '(Xa & Fb) | Gc' -d
 #+END_SRC
 
 #+RESULTS: monitor2
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]

@@ -11,50 +11,61 @@ supply.
 
 #+NAME: randaut1
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut a b
+randaut a b --dot
 #+END_SRC
 #+RESULTS: randaut1
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label="0"]
+  0 [label=<0>]
   0 -> 8 [label=<!a &amp; !b>]
+  0 -> 3 [label=<!a &amp; !b>]
   0 -> 4 [label=<!a &amp; !b>]
-  1 [label="1"]
-  1 -> 2 [label=<a &amp; !b>]
-  1 -> 7 [label=<!a &amp; !b>]
-  1 -> 4 [label=<!a &amp; b>]
-  2 [label="2"]
-  2 -> 2 [label=<!a &amp; !b>]
+  1 [label=<1>]
+  1 -> 7 [label=<a &amp; b>]
+  1 -> 0 [label=<a &amp; b>]
+  1 -> 6 [label=<a &amp; !b>]
+  2 [label=<2>]
+  2 -> 4 [label=<!a &amp; !b>]
   2 -> 0 [label=<a &amp; !b>]
   2 -> 5 [label=<a &amp; !b>]
-  3 [label="3"]
-  3 -> 6 [label=<!a &amp; b>]
-  4 [label="4"]
-  4 -> 8 [label=<a &amp; !b>]
-  4 -> 2 [label=<!a &amp; b>]
-  4 -> 3 [label=<a &amp; b>]
+  2 -> 9 [label=<!a &amp; b>]
+  3 [label=<3>]
+  3 -> 2 [label=<a &amp; b>]
+  3 -> 9 [label=<a &amp; !b>]
+  3 -> 3 [label=<a &amp; !b>]
+  4 [label=<4>]
+  4 -> 0 [label=<!a &amp; !b>]
   4 -> 7 [label=<!a &amp; b>]
-  5 [label="5"]
-  5 -> 9 [label=<!a &amp; !b>]
+  5 [label=<5>]
   5 -> 3 [label=<a &amp; !b>]
+  5 -> 1 [label=<!a &amp; b>]
   5 -> 7 [label=<!a &amp; !b>]
-  6 [label="6"]
-  6 -> 7 [label=<!a &amp; !b>]
-  6 -> 1 [label=<!a &amp; b>]
-  7 [label="7"]
-  7 -> 3 [label=<!a &amp; !b>]
-  8 [label="8"]
-  8 -> 8 [label=<!a &amp; b>]
-  9 [label="9"]
-  9 -> 0 [label=<!a &amp; b>]
-  9 -> 6 [label=<!a &amp; b>]
+  5 -> 9 [label=<!a &amp; b>]
+  5 -> 5 [label=<!a &amp; !b>]
+  6 [label=<6>]
+  6 -> 8 [label=<a &amp; b>]
+  6 -> 5 [label=<a &amp; !b>]
+  6 -> 2 [label=<a &amp; !b>]
+  7 [label=<7>]
+  7 -> 8 [label=<!a &amp; !b>]
+  7 -> 9 [label=<a &amp; b>]
+  7 -> 0 [label=<!a &amp; b>]
+  7 -> 1 [label=<!a &amp; !b>]
+  7 -> 4 [label=<a &amp; b>]
+  8 [label=<8>]
+  8 -> 1 [label=<a &amp; b>]
+  8 -> 3 [label=<!a &amp; b>]
+  9 [label=<9>]
+  9 -> 1 [label=<!a &amp; b>]
+  9 -> 3 [label=<a &amp; !b>]
 }
 #+end_example
 
@@ -84,7 +95,7 @@ In particular =-e0= will cause all states to have 1 successors, and
 
 #+NAME: randaut2
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -Q3 -e0 2
+randaut -Q3 -e0 2 --dot
 #+END_SRC
 
 #+RESULTS: randaut2
@@ -115,7 +126,7 @@ $txt
 
 #+NAME: randaut3
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -Q3 -e1 2
+randaut -Q3 -e1 2 --dot
 #+END_SRC
 
 #+RESULTS: randaut3
@@ -168,7 +179,7 @@ randaut --help | sed -n '/^ \(ACCEPTANCE\|RANGE\)/,/^$/p'
  RANGE may have one of the following forms: 'INT', 'INT..INT', or '..INT'.
  In the latter case, the missing number is assumed to be 1.
 
- ACCEPTANCE may be either a RANGE (in which case generalized BÃ¼chi is
+ ACCEPTANCE may be either a RANGE (in which case generalized Büchi is
  assumed), or an arbitrary acceptance formula such as 'Fin(0)|Inf(1)&Fin(2)' in
  the same syntax as in the HOA format, or one of the following patterns:
    none
@@ -211,7 +222,7 @@ ans =-s= (or =--spin=) implies =-B=.
 
 #+NAME: randaut4
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -Q3 -e0.5 -A3 -a0.5 2
+randaut -Q3 -e0.5 -A3 -a0.5 2 --dot
 #+END_SRC
 
 #+RESULTS: randaut4
@@ -247,7 +258,7 @@ $txt
 
 #+NAME: randaut5
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -Q3 -e0.4 -B -a0.7 2
+randaut -Q3 -e0.4 -B -a0.7 2 --dot
 #+END_SRC
 
 #+RESULTS: randaut5
@@ -411,7 +422,7 @@ therefore deterministic and complete.
 
 #+NAME: randaut6
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -D -Q3 -e0.6 -A2 -a0.5 2
+randaut -D -Q3 -e0.6 -A2 -a0.5 2 --dot
 #+END_SRC
 
 #+RESULTS: randaut6
@@ -463,6 +474,5 @@ automatically implies =--ba=.
 
 Use option =-n= to specify a number of automata to build.  A negative
 value will cause an infinite number of automata to be produced.  This
-generation of multiple automata is probably useful only with =--hoaf=,
-when piped to another tool that can read this format and process
-automata in batches.
+generation of multiple automata is useful when piped to another tool
+that can process automata in batches.
