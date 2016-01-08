@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015  Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006  Laboratoire d'Informatique
 // de Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -81,6 +81,7 @@
 #include <spot/misc/optionmap.hh>
 #include <spot/misc/random.hh>
 #include <spot/misc/escape.hh>
+#include <spot/misc/trival.hh>
 
 #include <spot/tl/formula.hh>
 
@@ -331,6 +332,9 @@ namespace swig
 %include <spot/misc/random.hh>
 %include <spot/misc/escape.hh>
 
+%implicitconv spot::trival;
+%include <spot/misc/trival.hh>
+
 %implicitconv std::vector<spot::formula>;
 
 %include <spot/tl/formula.hh>
@@ -439,7 +443,36 @@ namespace std {
 %include <spot/taalgos/minimize.hh>
 
 
-#undef ltl
+%extend spot::trival {
+  std::string __repr__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+
+  std::string __str__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+
+  spot::trival __neg__()
+  {
+    return !*self;
+  }
+
+  spot::trival __and__(spot::trival other)
+  {
+    return *self && other;
+  }
+
+  spot::trival __or__(spot::trival other)
+  {
+    return *self || other;
+  }
+}
 
 %exception spot::formula::__getitem__ {
   try {

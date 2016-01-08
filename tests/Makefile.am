@@ -36,8 +36,8 @@ check_SCRIPTS = run
 
 # We try to keep this somehow by strength.  Test basic things first,
 # because such failures will be easier to diagnose and fix.
-TESTS = $(TESTS_sanity) $(TESTS_tl) $(TESTS_graph) $(TESTS_kripke) \
-  $(TESTS_twa) $(TESTS_python) $(TESTS_ltsmin)
+TESTS = $(TESTS_sanity) $(TESTS_misc) $(TESTS_tl) $(TESTS_graph) \
+  $(TESTS_kripke) $(TESTS_twa) $(TESTS_python) $(TESTS_ltsmin)
 
 distclean-local:
 	find . -name '*.dir' -type d -print | xargs rm -rf
@@ -85,6 +85,7 @@ check_PROGRAMS = \
   core/reductaustr \
   core/syntimpl \
   core/taatgba \
+  core/trival \
   core/tgbagraph \
   core/tostring \
   core/tunabbrev \
@@ -131,6 +132,7 @@ core_reductaustr_SOURCES = core/equalsf.cc
 core_reductaustr_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC_TAUSTR
 core_syntimpl_SOURCES = core/syntimpl.cc
 core_tostring_SOURCES = core/tostring.cc
+core_trival_SOURCES = core/trival.cc
 core_tunabbrev_SOURCES = core/equalsf.cc
 core_tunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DUNABBREV='"^ieFG"'
 core_tunenoform_SOURCES = core/equalsf.cc
@@ -180,11 +182,14 @@ TESTS_graph = \
 TESTS_kripke = \
   core/kripke.test
 
+TESTS_misc = \
+  core/bitvect.test \
+  core/intvcomp.test \
+  core/trival.test
+
 TESTS_twa = \
   core/acc.test \
   core/acc2.test \
-  core/intvcomp.test \
-  core/bitvect.test \
   core/ltlcross3.test \
   core/taatgba.test \
   core/renault.test \
@@ -299,7 +304,8 @@ TESTS_python = \
   python/remfin.py \
   python/satmin.py \
   python/setxor.py \
-  python/testingaut.ipynb
+  python/testingaut.ipynb \
+  python/trival.py
 endif
 
 SUFFIXES = .ipynb .html
