@@ -43,6 +43,7 @@ namespace spot
       last_support_conditions_input_->destroy();
     delete iter_cache_;
     release_named_properties();
+    get_dict()->unregister_all_my_variables(this);
   }
 
   bdd

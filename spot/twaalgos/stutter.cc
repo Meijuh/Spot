@@ -215,11 +215,6 @@ namespace spot
 	acc_.set_generalized_buchi();
       }
 
-      virtual ~tgbasl()
-      {
-	get_dict()->unregister_all_my_variables(this);
-      }
-
       virtual const state* get_init_state() const override
       {
 	return new state_tgbasl(a_->get_init_state(), bddfalse);

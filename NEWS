@@ -2,7 +2,7 @@ New in spot 1.99.6a (not yet released)
 
   Command-line tools:
 
-  * BACKWARD INCOMPATIBILE CHANGE: All tools that output automata now
+  * BACKWARD INCOMPATIBLE CHANGE: All tools that output automata now
     use the HOA format by default instead of the GraphViz output.
     This makes it easier to pipe several commands.
 
@@ -40,6 +40,10 @@ New in spot 1.99.6a (not yet released)
     non-installed version of Spot.  Similarly, iface/ltsmin/ has been
     renamed to spot/ltsmin/, so that installed and non-installed
     directories can be used similarly.
+
+  * twa::~twa() is now calling
+      get_dict()->unregister_all_my_variable(this);
+    so this does not need to be done in any subclass.
 
   * is_inherently_weak_automaton() is a new function, and
     check_strength() has been modified to also check inherently weak

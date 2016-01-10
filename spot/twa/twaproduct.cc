@@ -315,7 +315,6 @@ namespace spot
 
   twa_product::~twa_product()
   {
-    get_dict()->unregister_all_my_variables(this);
     // Prevent these states from being destroyed by ~tgba(): they
     // will be destroyed before when the pool is destructed.
     if (last_support_conditions_input_)
