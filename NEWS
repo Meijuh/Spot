@@ -111,6 +111,8 @@ New in spot 1.99.6a (not yet released)
 
   Bug fixes:
 
+  * twa_graph would incorrectly replace named-states during
+    purge_dead_states and purge_unreachable_states.
   * twa::ap() would contain duplicates when an atomic proposition
     was registered several times.
   * product() would incorrectly mark the product of two

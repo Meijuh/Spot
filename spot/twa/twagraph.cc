@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement de
 // l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -190,7 +190,7 @@ namespace spot
     if (current == todo.size())
       return;			// No unreachable state.
     init_number_ = todo[init_number_];
-    g_.defrag_states(std::move(todo), current);
+    defrag_states(std::move(todo), current);
   }
 
   void twa_graph::purge_dead_states()
@@ -266,6 +266,25 @@ namespace spot
     if (current == num_states)
       return;			// No useless state.
     init_number_ = useful[init_number_];
-    g_.defrag_states(std::move(useful), current);
+    defrag_states(std::move(useful), current);
+  }
+
+  void twa_graph::defrag_states(std::vector<unsigned>&& newst,
+				unsigned used_states)
+  {
+    auto* names = get_named_prop<std::vector<std::string>>("state-names");
+    if (names)
+      {
+	unsigned size = names->size();
+	for (unsigned s = 0; s < size; ++s)
+	  {
+	    unsigned dst = newst[s];
+	    if (dst == s || dst == -1U)
+	      continue;
+	    (*names)[dst] = std::move((*names)[s]);
+	  }
+	names->resize(used_states);
+      }
+    g_.defrag_states(std::move(newst), used_states);
   }
 }

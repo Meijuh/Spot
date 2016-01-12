@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -479,6 +479,8 @@ namespace spot
       return std::equal(trans1.begin() + 1, trans1.end(),
                         trans2.begin() + 1);
     }
+
+    void defrag_states(std::vector<unsigned>&& newst, unsigned used_states);
   };
 
   inline twa_graph_ptr make_twa_graph(const bdd_dict_ptr& dict)

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -84,7 +84,29 @@ static void f1()
   spot::print_dot(std::cout, tg);
 }
 
+// Test purge with named states.
+static void f2()
+{
+  auto d = spot::make_bdd_dict();
+  auto tg = make_twa_graph(d);
+
+  auto s1 = tg->new_state();
+  auto s2 = tg->new_state();
+  auto s3 = tg->new_state();
+  (void) s1;
+  (void) s2;
+  std::vector<std::string>* names;
+  names = new std::vector<std::string>({"s1", "s2", "s3"});
+
+  tg->set_named_prop<std::vector<std::string>>("state-names", names);
+  tg->set_init_state(s3);
+  spot::print_dot(std::cout, tg);
+  tg->purge_unreachable_states();
+  spot::print_dot(std::cout, tg);
+}
+
 int main()
 {
   f1();
+  f2();
 }
