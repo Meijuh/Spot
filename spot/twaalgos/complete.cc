@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -114,7 +114,7 @@ namespace spot
 	      }
 	    // In case the automaton use state-based acceptance, propagate
 	    // the acceptance of the first edge to the one we add.
-	    if (!aut->prop_state_acc())
+	    if (aut->prop_state_acc() != true)
 	      acc = 0U;
 	    aut->new_edge(i, sink, missingcond, acc);
 	  }

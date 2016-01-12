@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -63,7 +63,10 @@ namespace spot
   /// This procedure only works if \a aut is deterministic, or if the
   /// equivalent formula \a f is given.  The stutter-invariant property
   /// of the automaton is updated and also returned.
-  SPOT_API bool
+  ///
+  /// If no formula is given and the automaton is not deterministic,
+  /// the result will be returned as trival::maybe().
+  SPOT_API trival
   check_stutter_invariance(const twa_graph_ptr& aut,
 			   formula f = nullptr);
 }

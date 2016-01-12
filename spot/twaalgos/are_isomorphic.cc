@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -113,9 +113,16 @@ namespace spot
   isomorphism_checker::isomorphism_checker(const const_twa_graph_ptr ref)
   {
     ref_ = make_twa_graph(ref, twa::prop_set::all());
-    ref_deterministic_ = ref_->prop_deterministic();
-    if (!ref_deterministic_)
+    trival prop_det = ref_->prop_deterministic();
+    if (prop_det)
       {
+	ref_deterministic_ = true;
+      }
+    else
+      {
+	// Count the number of state even if we know that the
+	// automaton is non-deterministic, as this can be used to
+	// decide if two automata are non-isomorphic.
         nondet_states_ = spot::count_nondet_states(ref_);
         ref_deterministic_ = (nondet_states_ == 0);
       }
@@ -125,10 +132,10 @@ namespace spot
   bool
   isomorphism_checker::is_isomorphic_(const const_twa_graph_ptr aut)
   {
-    bool autdet = aut->prop_deterministic();
+    trival autdet = aut->prop_deterministic();
     if (ref_deterministic_)
       {
-        if (autdet || spot::is_deterministic(aut))
+        if (autdet || (!autdet && spot::is_deterministic(aut)))
 	  return are_isomorphic_det(ref_, aut);
       }
     else

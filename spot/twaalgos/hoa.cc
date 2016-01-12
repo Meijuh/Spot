@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2014, 2015, 2016 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -159,8 +159,8 @@ namespace spot
 	is_colored = colored && (!has_state_acc || nodeadend);
 	// If the automaton declares that it is deterministic or
 	// state-based, make sure that it really is.
-	assert(!aut->prop_deterministic() || deterministic);
-	assert(!aut->prop_state_acc() || state_acc);
+	assert(deterministic || aut->prop_deterministic() != true);
+	assert(state_acc || aut->prop_state_acc() != true);
       }
 
       void number_all_ap()
@@ -433,16 +433,15 @@ namespace spot
     // in the case of deterministic automata.
     if (aut->prop_unambiguous() && (verbose || !md.is_deterministic))
       prop(" unambiguous");
-    assert(!(aut->prop_stutter_invariant() && aut->prop_stutter_sensitive()));
     if (aut->prop_stutter_invariant())
       prop(" stutter-invariant");
-    if (aut->prop_stutter_sensitive())
+    if (!aut->prop_stutter_invariant())
       prop(" stutter-sensitive");
     if (aut->prop_terminal())
       prop(" terminal");
-    if (aut->prop_weak() && (verbose || !aut->prop_terminal()))
+    if (aut->prop_weak() && (verbose || aut->prop_terminal() != true))
       prop(" weak");
-    if (aut->prop_inherently_weak() && (verbose || !aut->prop_weak()))
+    if (aut->prop_inherently_weak() && (verbose || aut->prop_weak() != true))
       prop(" inherently-weak");
     os << nl;
 

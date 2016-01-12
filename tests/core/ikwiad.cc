@@ -1,9 +1,9 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
-// Laboratoire de Recherche et Développement de l'Epita (LRDE).
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire
-// d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
-// Coopératifs (SRC), Université Pierre et Marie Curie.
+// Copyright (C) 2007-2016 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
+// Copyright (C) 2003-2007 Laboratoire d'Informatique de Paris 6
+// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -937,7 +937,7 @@ checked_main(int argc, char** argv)
 
 	  if (nra2nba)
 	    a = spot::to_generalized_buchi(daut->aut);
-	  assume_sba = a->is_sba();
+	  assume_sba = a->is_sba().is_true();
 	}
       else
 	{
@@ -1025,7 +1025,7 @@ checked_main(int argc, char** argv)
       if (scc_filter)
 	{
 	  tm.start("SCC-filter");
-	  if (a->prop_state_acc() & !scc_filter_all)
+	  if (a->prop_state_acc().is_true() & !scc_filter_all)
 	    a = spot::scc_filter_states(ensure_digraph(a));
 	  else
 	    a = spot::scc_filter(ensure_digraph(a), scc_filter_all);

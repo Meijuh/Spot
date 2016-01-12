@@ -74,6 +74,15 @@ New in spot 1.99.6a (not yet released)
        acc_cond::is_ff() -> acc_cond::is_f()
        parse_acc_code()  -> acc_cond::acc_code(...)
 
+
+  * Automata property bits (those that tell whether the automaton is
+    deterministic, weak, stutter-invariant, etc.) are now stored using
+    three-valued logic: in addition to "maybe"/"yes" they can now also
+    represent "no".  This is some preparation for the upcomming
+    support of the HOA v1.1 format, but it also saves some time in
+    some algorithms (e.g, is_deterministic() can now return
+    immediately on automata marked as not deterministic).
+
   Python:
 
   * Iterating over the transitions leaving a state (the

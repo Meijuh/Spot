@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -63,8 +63,9 @@ namespace spot
   bool
   is_deterministic(const const_twa_graph_ptr& aut)
   {
-    if (aut->prop_deterministic())
-      return true;
+    trival d = aut->prop_deterministic();
+    if (d.is_known())
+      return d.is_true();
     return !count_nondet_states_aux<false>(aut);
   }
 

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE)
+// Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -84,10 +84,12 @@ namespace spot
 	delete si;
       if (set)
 	{
-	  if (terminal)
-	    aut->prop_terminal(is_term && is_weak);
-	  aut->prop_weak(is_weak);
-	  aut->prop_inherently_weak(is_inweak);
+	  if (terminal && is_term && is_weak)
+	    aut->prop_terminal(true);
+	  if (is_weak)
+	    aut->prop_weak(true);
+	  if (is_inweak)
+	    aut->prop_inherently_weak(true);
 	}
       if (inweak)
 	return is_inweak;
@@ -98,25 +100,30 @@ namespace spot
   bool
   is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* si)
   {
-    return (aut->prop_terminal() ||
-	    is_type_automaton<true>(std::const_pointer_cast<twa_graph>(aut),
-				    si));
+    trival v = aut->prop_terminal();
+    if (v.is_known())
+      return v.is_true();
+    return is_type_automaton<true>(std::const_pointer_cast<twa_graph>(aut), si);
   }
 
   bool
   is_weak_automaton(const const_twa_graph_ptr& aut, scc_info* si)
   {
-    return (aut->prop_weak() ||
-	    is_type_automaton<false>(std::const_pointer_cast<twa_graph>(aut),
-				     si));
+    trival v = aut->prop_weak();
+    if (v.is_known())
+      return v.is_true();
+    return is_type_automaton<false>(std::const_pointer_cast<twa_graph>(aut),
+				    si);
   }
 
   bool
   is_inherently_weak_automaton(const const_twa_graph_ptr& aut, scc_info* si)
   {
-    return (aut->prop_inherently_weak() ||
-	    is_type_automaton<false, true>
-	    (std::const_pointer_cast<twa_graph>(aut), si));
+    trival v = aut->prop_inherently_weak();
+    if (v.is_known())
+      return v.is_true();
+    return is_type_automaton<false, true>
+      (std::const_pointer_cast<twa_graph>(aut), si);
   }
 
   void check_strength(const twa_graph_ptr& aut, scc_info* si)

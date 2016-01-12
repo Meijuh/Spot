@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -146,7 +146,8 @@ namespace spot
       return a;
     // If the automaton is weak, using transition-based acceptance
     // won't help, so let's preserve it.
-    if ((state_based_ || a->prop_inherently_weak()) && a->prop_state_acc())
+    if ((state_based_ || a->prop_inherently_weak().is_true())
+	&& a->prop_state_acc().is_true())
       return scc_filter_states(a, arg);
     else
       return scc_filter(a, arg);
@@ -253,7 +254,9 @@ namespace spot
       {
 	bool reject_bigger = (PREF_ == Small) && (level_ == Medium);
 	dba = minimize_obligation(a, f, nullptr, reject_bigger);
-	if (dba && dba->prop_inherently_weak() && dba->prop_deterministic())
+	if (dba
+	    && dba->prop_inherently_weak().is_true()
+	    && dba->prop_deterministic().is_true())
 	  {
 	    // The WDBA is a BA, so no degeneralization is required.
 	    // We just need to add an acceptance set if there is none.
@@ -272,7 +275,7 @@ namespace spot
     // at hard levels if we want a small output.
     if (!dba || (level_ == High && PREF_ == Small))
       {
-	if (((SBACC_ && a->prop_state_acc())
+	if (((SBACC_ && a->prop_state_acc().is_true())
 	     || (type_ == BA && a->is_sba()))
 	    && !tba_determinisation_)
 	  {

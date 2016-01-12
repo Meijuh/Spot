@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2013, 2014, 2015 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -34,6 +34,7 @@
 #include <spot/misc/casts.hh>
 #include <spot/misc/hash.hh>
 #include <spot/tl/formula.hh>
+#include <spot/misc/trival.hh>
 
 namespace spot
 {
@@ -757,14 +758,13 @@ namespace spot
     // holds, but false means the property is unknown.
     struct bprop
     {
-      bool state_based_acc:1;	// State-based acceptance.
-      bool inherently_weak:1;	// Inherently Weak automaton.
-      bool weak:1;		// Weak automaton.
-      bool terminal:1;		// Terminal automaton.
-      bool deterministic:1;	// Deterministic automaton.
-      bool unambiguous:1;	// Unambiguous automaton.
-      bool stutter_invariant:1;	// Stutter invariant language.
-      bool stutter_sensitive:1;	// Stutter sensitive language.
+      trival::repr_t state_based_acc:2;   // State-based acceptance.
+      trival::repr_t inherently_weak:2;   // Inherently Weak automaton.
+      trival::repr_t weak:2;	       // Weak automaton.
+      trival::repr_t terminal:2;	       // Terminal automaton.
+      trival::repr_t deterministic:2;     // Deterministic automaton.
+      trival::repr_t unambiguous:2;       // Unambiguous automaton.
+      trival::repr_t stutter_invariant:2; // Stutter invariant language.
     };
     union
     {
@@ -810,104 +810,92 @@ namespace spot
       named_prop_.clear();
     }
 
-    bool prop_state_acc() const
+    trival prop_state_acc() const
     {
       return is.state_based_acc;
     }
 
-    void prop_state_acc(bool val)
+    void prop_state_acc(trival val)
     {
-      is.state_based_acc = val;
+      is.state_based_acc = val.val();
     }
 
-    bool is_sba() const
+    trival is_sba() const
     {
       return prop_state_acc() && acc().is_buchi();
     }
 
-    bool prop_inherently_weak() const
+    trival prop_inherently_weak() const
     {
       return is.inherently_weak;
     }
 
-    void prop_inherently_weak(bool val)
+    void prop_inherently_weak(trival val)
     {
-      is.inherently_weak = val;
+      is.inherently_weak = val.val();
+      if (!val)
+	is.terminal = is.weak = val.val();
     }
 
-    bool prop_terminal() const
+    trival prop_terminal() const
     {
       return is.terminal;
     }
 
-    void prop_terminal(bool val)
+    void prop_terminal(trival val)
     {
+      is.terminal = val.val();
       if (val)
-	is.inherently_weak = is.weak = is.terminal = true;
-      else
-	is.terminal = false;
+	is.inherently_weak = is.weak = val.val();
     }
 
-    bool prop_weak() const
+    trival prop_weak() const
     {
       return is.weak;
     }
 
-    void prop_weak(bool val)
+    void prop_weak(trival val)
     {
+      is.weak = val.val();
       if (val)
-	is.inherently_weak = is.weak = true;
-      else
-	is.weak = false;
+	is.inherently_weak = val.val();
+      if (!val)
+	is.terminal = val.val();
     }
 
-    bool prop_deterministic() const
+    trival prop_deterministic() const
     {
       return is.deterministic;
     }
 
-    void prop_deterministic(bool val)
+    void prop_deterministic(trival val)
     {
+      is.deterministic = val.val();
       if (val)
-	{
-	  // deterministic implies unambiguous
-	  is.deterministic = true;
-	  is.unambiguous = true;
-	}
-      else
-	{
-	  is.deterministic = false;
-	}
+	// deterministic implies unambiguous
+	is.unambiguous = val.val();
     }
 
-    bool prop_unambiguous() const
+    trival prop_unambiguous() const
     {
       return is.unambiguous;
     }
 
-    void prop_unambiguous(bool val)
+    void prop_unambiguous(trival val)
     {
-      is.unambiguous = val;
+      is.unambiguous = val.val();
+      if (!val)
+	is.deterministic = val.val();
     }
 
-    bool prop_stutter_invariant() const
+    trival prop_stutter_invariant() const
     {
       return is.stutter_invariant;
     }
 
-    bool prop_stutter_sensitive() const
+    void prop_stutter_invariant(trival val)
     {
-      return is.stutter_sensitive;
-    }
-
-    void prop_stutter_invariant(bool val)
-    {
-      is.stutter_invariant = val;
-    }
-
-    void prop_stutter_sensitive(bool val)
-    {
-      is.stutter_sensitive = val;
+      is.stutter_invariant = val.val();
     }
 
     struct prop_set
@@ -941,32 +929,26 @@ namespace spot
 	  prop_unambiguous(other->prop_unambiguous());
 	}
       if (p.stutter_inv)
-	{
-	  prop_stutter_invariant(other->prop_stutter_invariant());
-	  prop_stutter_sensitive(other->prop_stutter_sensitive());
-	}
+	prop_stutter_invariant(other->prop_stutter_invariant());
     }
 
     void prop_keep(prop_set p)
     {
       if (!p.state_based)
-	prop_state_acc(false);
+	prop_state_acc(trival::maybe());
       if (!p.inherently_weak)
 	{
-	  prop_terminal(false);
-	  prop_weak(false);
-	  prop_inherently_weak(false);
+	  prop_terminal(trival::maybe());
+	  prop_weak(trival::maybe());
+	  prop_inherently_weak(trival::maybe());
 	}
       if (!p.deterministic)
 	{
-	  prop_deterministic(false);
-	  prop_unambiguous(false);
+	  prop_deterministic(trival::maybe());
+	  prop_unambiguous(trival::maybe());
 	}
       if (!p.stutter_inv)
-	{
-	  prop_stutter_invariant(false);
-	  prop_stutter_sensitive(false);
-	}
+	prop_stutter_invariant(trival::maybe());
     }
 
   };

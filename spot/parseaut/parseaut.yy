@@ -1,6 +1,6 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-** de l'Epita (LRDE).
+** Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+** Développement de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -132,7 +132,7 @@ extern "C" int strverscmp(const char *s1, const char *s2);
       bool accept_all_seen = false;
       bool aliased_states = false;
 
-      bool deterministic = false;
+      spot::trival deterministic = spot::trival::maybe();
       bool complete = false;
       bool trans_acc_seen = false;
 
@@ -457,12 +457,25 @@ header: format-version header-items
 	      auto& a = res.aut_or_ks;
 	      auto& p = res.props;
 	      auto e = p.end();
-	      a->prop_stutter_invariant(p.find("stutter-invariant") != e);
-	      a->prop_stutter_sensitive(p.find("stutter-sensitive") != e);
-	      a->prop_inherently_weak(p.find("inherently-weak") != e);
-	      a->prop_weak(p.find("weak") != e);
-	      a->prop_terminal(p.find("terminal") != e);
-	      a->prop_unambiguous(p.find("unambiguous") != e);
+	      if (p.find("stutter-invariant") != e)
+		{
+		  a->prop_stutter_invariant(true);
+		  auto i = p.find("stutter-sensitive");
+		  if (i != e)
+		    error(i->second,
+			  "automaton cannot be both stutter-invariant"
+			  "and stutter-sensitive");
+		}
+	      if (p.find("stutter-sensitive") != e)
+		a->prop_stutter_invariant(false);
+	      if (p.find("inherently-weak") != e)
+		a->prop_inherently_weak(true);
+	      if (p.find("weak") != e)
+		a->prop_weak(true);
+	      if (p.find("terminal") != e)
+		a->prop_terminal(true);
+	      if (p.find("unambiguous") != e)
+		a->prop_unambiguous(true);
 	    }
 	}
 
@@ -952,8 +965,9 @@ state: state-name labeled-edges
        }
      | error
        {
-	 // Assume the worse.
-	 res.deterministic = false;
+	 // Assume the worse.  This skips the tests about determinism
+	 // we might perform on the state.
+	 res.deterministic = spot::trival::maybe();
 	 res.complete = false;
        }
 
@@ -1242,8 +1256,8 @@ dstar_header: dstar_sizes
 	res.h->aut->new_states(res.states);;
 	res.info_states.resize(res.states);
       }
-    res.h->aut->prop_state_acc(true);
-    res.h->aut->prop_deterministic(true);
+    res.acc_style = State_Acc;
+    res.deterministic = true;
     // res.h->aut->prop_complete();
     fill_guards(res);
     res.cur_guard = res.guards.end();
@@ -1394,8 +1408,7 @@ never: "never"
 	   }
 	 res.namer = res.h->aut->create_namer<std::string>();
 	 res.h->aut->set_buchi();
-	 res.h->aut->prop_state_acc(true);
-	 res.acc_state = State_Acc;
+	 res.acc_style = State_Acc;
 	 res.pos_acc_sets = res.h->aut->acc().all_sets();
        }
        '{' nc-states '}'
@@ -1658,8 +1671,7 @@ lbtt-header-states: LBTT
 lbtt-header: lbtt-header-states INT_S
            {
 	     res.acc_mapper = new spot::acc_mapper_int(res.h->aut, $2);
-	     res.h->aut->prop_state_acc(true);
-	     res.acc_state = State_Acc;
+	     res.acc_style = State_Acc;
 	   }
            | lbtt-header-states INT
            {

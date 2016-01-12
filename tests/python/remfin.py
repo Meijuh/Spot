@@ -43,7 +43,7 @@ assert(aut1.get_name() == "test me")
 # The method is the same as the function
 
 a = spot.translate('true', 'low', 'any')
-assert(a.prop_deterministic() == False)
-assert(a.prop_unambiguous() == False)
+assert(a.prop_deterministic().is_maybe())
+assert(a.prop_unambiguous().is_maybe())
 assert(a.is_deterministic() == True)
 assert(a.is_unambiguous() == True)

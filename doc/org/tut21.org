@@ -37,8 +37,7 @@ Start: 0
 AP: 3 "a" "b" "c"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels trans-acc unambiguous
-properties: stutter-invariant
+properties: trans-labels explicit-labels trans-acc stutter-invariant
 --BODY--
 State: 0
 [0] 1
@@ -121,29 +120,22 @@ corresponding BDD variable number, and then use for instance
     if (auto name = aut->get_named_prop<std::string>("automaton-name"))
        out << "Name: " << *name << '\n';
 
-    // For the following prop_*() methods, true means "it's sure", false
-    // means "I don't know".  These properties correspond to bits stored
-    // in the automaton, so they can be queried in constant time.  They
-    // are only set whenever they can be determined at a cheap cost: for
-    // instance any algorithm that always produce deterministic automata
-    // would set the deterministic bit on its output.  In this example,
-    // the properties that are set come from the "properties:" line of
-    // the input file.
-    out << "Deterministic: "
-        << (aut->prop_deterministic() ? "yes\n" : "maybe\n");
-    out << "Unambiguous: "
-        << (aut->prop_unambiguous() ? "yes\n" : "maybe\n");
-    out << "State-Based Acc: "
-        << (aut->prop_state_acc() ? "yes\n" : "maybe\n");
-    out << "Terminal: "
-        << (aut->prop_terminal() ? "yes\n" : "maybe\n");
-    out << "Weak: "
-        << (aut->prop_weak() ? "yes\n" : "maybe\n");
-    out << "Inherently Weak: "
-        << (aut->prop_inherently_weak() ? "yes\n" : "maybe\n");
-    out << "Stutter Invariant: "
-        << (aut->prop_stutter_invariant() ? "yes\n" :
-            aut->prop_stutter_sensitive() ? "no\n" : "maybe\n");
+    // For the following prop_*() methods, the return value is an
+    // instance of the spot::trival class that can represent
+    // yes/maybe/no.  These properties correspond to bits stored in the
+    // automaton, so they can be queried in constant time.  They are
+    // only set whenever they can be determined at a cheap cost: for
+    // instance an algorithm that always produces deterministic automata
+    // would set the deterministic property on its output.  In this
+    // example, the properties that are set come from the "properties:"
+    // line of the input file.
+    out << "Deterministic: " << aut->prop_deterministic() << '\n';
+    out << "Unambiguous: " << aut->prop_unambiguous() << '\n';
+    out << "State-Based Acc: " << aut->prop_state_acc() << '\n';
+    out << "Terminal: " << aut->prop_terminal() << '\n';
+    out << "Weak: " << aut->prop_weak() << '\n';
+    out << "Inherently Weak: " << aut->prop_inherently_weak() << '\n';
+    out << "Stutter Invariant: " << aut->prop_stutter_invariant() << '\n';
 
     // States are numbered from 0 to n-1
     unsigned n = aut->num_states();
@@ -175,8 +167,8 @@ Number of edges: 10
 Initial state: 0
 Atomic propositions: a (=0) b (=1) c (=2)
 Name: Fa | G(Fb & Fc)
-Deterministic: maybe
-Unambiguous: yes
+Deterministic: no
+Unambiguous: maybe
 State-Based Acc: maybe
 Terminal: maybe
 Weak: maybe
@@ -226,12 +218,6 @@ Here is the very same example, but written in Python:
   import spot
 
 
-  def maybe_yes(pos, neg=False):
-      if neg:
-          return "no"
-      return "yes" if pos else "maybe"
-
-
   def custom_print(aut):
       bdict = aut.get_dict()
       print("Acceptance:", aut.get_acceptance())
@@ -249,14 +235,13 @@ Here is the very same example, but written in Python:
       name = aut.get_name()
       if name:
           print("Name: ", name)
-      print("Deterministic:", maybe_yes(aut.prop_deterministic()))
-      print("Unambiguous:", maybe_yes(aut.prop_unambiguous()))
-      print("State-Based Acc:", maybe_yes(aut.prop_state_acc()))
-      print("Terminal:", maybe_yes(aut.prop_terminal()))
-      print("Weak:", maybe_yes(aut.prop_weak()))
-      print("Inherently Weak:", maybe_yes(aut.prop_inherently_weak()))
-      print("Stutter Invariant:", maybe_yes(aut.prop_stutter_invariant(),
-                                            aut.prop_stutter_sensitive()))
+      print("Deterministic:", aut.prop_deterministic())
+      print("Unambiguous:", aut.prop_unambiguous())
+      print("State-Based Acc:", aut.prop_state_acc())
+      print("Terminal:", aut.prop_terminal())
+      print("Weak:", aut.prop_weak())
+      print("Inherently Weak:", aut.prop_inherently_weak())
+      print("Stutter Invariant:", aut.prop_stutter_invariant())
 
       for s in range(0, aut.num_states()):
           print("State {}:".format(s))
@@ -280,8 +265,8 @@ Number of states:  4
 Initial states:  0
 Atomic propositions: a (=0) b (=1) c (=2)
 Name:  Fa | G(Fb & Fc)
-Deterministic: maybe
-Unambiguous: yes
+Deterministic: no
+Unambiguous: maybe
 State-Based Acc: maybe
 Terminal: maybe
 Weak: maybe

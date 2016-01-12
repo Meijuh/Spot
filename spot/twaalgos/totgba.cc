@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -164,7 +164,7 @@ namespace spot
     bs2num[s] = out->new_state();
     todo.push_back(s);
 
-    bool sbacc = in->prop_state_acc();
+    bool sbacc = in->prop_state_acc().is_true();
 
     // States of the original automaton are marked with s.pend == -1U.
     const acc_cond::mark_t orig_copy(-1U);

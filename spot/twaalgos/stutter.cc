@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -410,10 +410,10 @@ namespace spot
       }
     if (num_states != a->num_states())
       a->prop_keep({true,	// state_based
-	            false,	// inherently_weak
-	            false,	// deterministic
-	            false,      // stutter inv.
-	           });
+                    false,	// inherently_weak
+                    false,	// deterministic
+                    false,      // stutter inv.
+                   });
     a->merge_edges();
     return a;
   }
@@ -430,10 +430,10 @@ namespace spot
   closure(twa_graph_ptr&& a)
   {
     a->prop_keep({false,	// state_based
-	          false,	// inherently_weak
-	          false,	// deterministic
-	          false,        // stutter inv.
-	         });
+                  false,	// inherently_weak
+                  false,	// deterministic
+                  false,        // stutter inv.
+                 });
 
     unsigned n = a->num_states();
     std::vector<unsigned> todo;
@@ -612,12 +612,12 @@ namespace spot
       }
   }
 
-  bool
+  trival
   check_stutter_invariance(const twa_graph_ptr& aut, formula f)
   {
-    bool is_stut = aut->prop_stutter_invariant();
-    if (is_stut)
-      return is_stut;
+    trival is_stut = aut->prop_stutter_invariant();
+    if (is_stut.is_known())
+      return is_stut.is_true();
 
     twa_graph_ptr neg = nullptr;
     if (f)
@@ -630,14 +630,13 @@ namespace spot
 	// know how to complement it.
 	aut->prop_deterministic(is_deterministic(aut));
 	if (!aut->prop_deterministic())
-	  return false;
+	  return trival::maybe();
 	neg = remove_fin(dtwa_complement(aut));
       }
 
     is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),
 				   std::move(neg), aut->ap_var());
     aut->prop_stutter_invariant(is_stut);
-    aut->prop_stutter_sensitive(!is_stut);
     return is_stut;
   }
 }

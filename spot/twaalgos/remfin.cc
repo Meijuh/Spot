@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -227,7 +227,7 @@ namespace spot
       res->new_states(nst);
       res->set_buchi();
       res->set_init_state(aut->get_init_state_number());
-      bool deterministic = aut->prop_deterministic();
+      trival deterministic = aut->prop_deterministic();
 
       std::vector<unsigned> state_map(aut->num_states());
       for (unsigned n = 0; n < scc_max; ++n)
@@ -307,7 +307,7 @@ namespace spot
     static twa_graph_ptr
     rabin_to_buchi_maybe(const const_twa_graph_ptr& aut)
     {
-      if (!aut->prop_state_acc())
+      if (!aut->prop_state_acc().is_true())
 	return nullptr;
 
       auto code = aut->get_acceptance();
@@ -508,7 +508,7 @@ namespace spot
       return std::const_pointer_cast<twa_graph>(aut);
 
     // FIXME: we should check whether the automaton is weak.
-    if (aut->prop_inherently_weak() && is_deterministic(aut))
+    if (aut->prop_inherently_weak().is_true() && is_deterministic(aut))
       return remove_fin_det_weak(aut);
 
     if (auto maybe = streett_to_generalized_buchi_maybe(aut))
@@ -668,7 +668,7 @@ namespace spot
     res->set_acceptance(aut->num_sets() + extra_sets, new_code);
     res->set_init_state(aut->get_init_state_number());
 
-    bool sbacc = aut->prop_state_acc();
+    bool sbacc = aut->prop_state_acc().is_true();
     scc_info si(aut);
     unsigned nscc = si.scc_count();
     std::vector<unsigned> state_map(nst);

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
 // Laboratoire de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
@@ -2182,16 +2182,18 @@ namespace spot
 
     acc.set_generalized_buchi();
 
-    a->prop_inherently_weak(f2.is_syntactic_persistence());
-    a->prop_stutter_invariant(f2.is_syntactic_stutter_invariant());
+    if (f2.is_syntactic_persistence())
+      a->prop_inherently_weak(true);
+    if (f2.is_syntactic_stutter_invariant())
+      a->prop_stutter_invariant(true);
     if (orig_f.is_syntactic_guarantee())
       {
 	a->prop_terminal(true);
 	assert(a->num_sets() <= 1);
       }
 
-    // Currently the unambiguous option work only with LTL.
-    a->prop_unambiguous(f2.is_ltl_formula() && unambiguous);
+    if (unambiguous)
+      a->prop_unambiguous();
 
     // Set the following to true to preserve state names.
     a->release_formula_namer(namer, false);
