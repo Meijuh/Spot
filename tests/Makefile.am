@@ -87,6 +87,7 @@ check_PROGRAMS = \
   core/reduccmp \
   core/reduceu \
   core/reductaustr \
+  core/safra \
   core/syntimpl \
   core/taatgba \
   core/trival \
@@ -134,6 +135,7 @@ core_reduceu_SOURCES = core/equalsf.cc
 core_reduceu_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC -DEVENT_UNIV
 core_reductaustr_SOURCES = core/equalsf.cc
 core_reductaustr_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC_TAUSTR
+core_safra_SOURCES = core/safra.cc
 core_syntimpl_SOURCES = core/syntimpl.cc
 core_tostring_SOURCES = core/tostring.cc
 core_trival_SOURCES = core/trival.cc
@@ -256,6 +258,7 @@ TESTS_twa = \
   core/randtgba.test \
   core/isomorph.test \
   core/uniq.test \
+  core/safra.test \
   core/sbacc.test \
   core/stutter-tgba.test \
   core/strength.test \

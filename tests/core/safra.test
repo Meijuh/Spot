@@ -173,7 +173,7 @@ a M G(F!b | X!a)
 G!a R XFb
 EOF
 run 0 ../safra --hoa double_b.hoa -H > out.hoa
-ltl2tgba=../../bin/ltl2tgba
-../../bin/ltlcross -F formulae \
+ltl2tgba=ltl2tgba
+ltlcross -F formulae \
     "../safra -f %f -H > %O" \
     "$ltl2tgba -f %f -H > %O"

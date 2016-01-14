@@ -24,9 +24,10 @@
 #include <unordered_map>
 
 #include "safra.hh"
-#include "twaalgos/degen.hh"
-#include "twaalgos/sccfilter.hh"
-#include "twaalgos/simulation.hh"
+#include "spot/twaalgos/degen.hh"
+#include "spot/twaalgos/sccfilter.hh"
+#include "spot/twaalgos/simulation.hh"
+#include "spot/twaalgos/complete.hh"
 
 namespace spot
 {
@@ -167,6 +168,8 @@ namespace spot
   }
 
 }
+
+std::vector<bool> find_scc_paths(const scc_info& scc);
 
 unsigned
 safra_state::find_scc_brace_id(unsigned scc_id, const scc_info& scc)
@@ -459,23 +462,6 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
     return nodes_ < other.nodes_;
   }
 
-  // All edge going into an accepting SCC are marked as accepting
-  // This helps safra make fewer trees as we immediately see the accepting
-  // edge and don't create useless states
-  void
-  emit_accepting_scc(twa_graph_ptr& aut, scc_info& scc)
-  {
-    for (auto& e: aut->edges())
-      {
-        unsigned src_scc = scc.scc_of(e.src);
-        unsigned dst_scc = scc.scc_of(e.dst);
-        if (src_scc == dst_scc)
-          continue;
-        if (scc.is_accepting_scc(dst_scc))
-          e.acc |= 1;
-      }
-  }
-
   std::vector<bool>
   find_scc_paths(const scc_info& scc)
   {
@@ -504,12 +490,17 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
 
   twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& a, bool bisimulation,
-                       bool pretty_print, bool scc_opt, bool use_bisimulation)
+                       bool pretty_print, bool scc_opt, bool use_bisimulation,
+                       bool complete)
   {
     // Degeneralize
-    twa_graph_ptr aut = spot::scc_filter(spot::degeneralize_tba(a));
+    twa_graph_ptr aut = spot::degeneralize_tba(a);
     std::map<int, bdd> implications;
-    aut = simulation(aut, &implications);
+    if (use_bisimulation)
+      {
+        aut = spot::scc_filter(aut);
+        aut = simulation(aut, &implications);
+      }
     scc_info scc = scc_info(aut);
     std::vector<bool> is_connected = find_scc_paths(scc);
 
@@ -620,6 +611,8 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
       res = simulation(res);
     if (pretty_print)
       res->set_named_prop("state-names", print_debug(seen));
+    if (complete)
+      spot::complete_here(res);
     return res;
   }
 }

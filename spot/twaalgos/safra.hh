@@ -22,9 +22,9 @@
 #include <set>
 #include <map>
 
-#include "misc/bddlt.hh"
-#include "twa/twagraph.hh"
-#include "twaalgos/sccinfo.hh"
+#include <spot/misc/bddlt.hh>
+#include <spot/twa/twagraph.hh>
+#include <spot/twaalgos/sccinfo.hh>
 
 namespace spot
 {
@@ -98,5 +98,6 @@ namespace spot
                        bool bisimulation = false,
                        bool pretty_print = false,
                        bool scc_opt = false,
-                       bool use_bisimulation = false);
+                       bool use_bisimulation = false,
+                       bool complete = false);
 }

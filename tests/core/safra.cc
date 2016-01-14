@@ -20,17 +20,18 @@
 #include <iostream>
 #include <cstring>
 
-#include "tl/parse.hh" // spot::parse_infix_psl
-#include "tl/formula.hh" // spot::formula
-#include "parseaut/public.hh"
-#include "twa/twagraph.hh"
-#include "twaalgos/degen.hh"
-#include "twaalgos/dot.hh" // print_dot
-#include "twaalgos/hoa.hh" // print_hoa
-#include "twaalgos/safra.hh"
-#include "twaalgos/translate.hh"
+#include "spot/tl/parse.hh" // spot::parse_infix_psl
+#include "spot/tl/formula.hh" // spot::formula
+#include "spot/parseaut/public.hh"
+#include "spot/twa/twagraph.hh"
+#include "spot/twaalgos/degen.hh"
+#include "spot/twaalgos/dot.hh" // print_dot
+#include "spot/twaalgos/hoa.hh" // print_hoa
+#include "spot/twaalgos/safra.hh"
+#include "spot/twaalgos/translate.hh"
 
 
+int help();
 int help()
 {
   std::cerr << "safra [OPTIONS]\n";
@@ -53,6 +54,7 @@ int main(int argc, char* argv[])
   bool out_dot = true;
   bool out_hoa = false;
   bool pretty_print = false;
+  bool complete = false;
 
   char* input = nullptr;
   if (argc <= 2)
@@ -82,6 +84,8 @@ int main(int argc, char* argv[])
         pretty_print = true;
       else if (!strncmp(argv[i], "-b", 2))
         sim = true;
+      else if (!strncmp(argv[i], "-c", 2))
+        complete = true;
       else if (!strncmp(argv[i], "--scc_opt", 9))
         scc_opt = true;
       else if (!strncmp(argv[i], "--bisim_opt", 10))
@@ -108,7 +112,7 @@ int main(int argc, char* argv[])
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
       res = spot::tgba_determinisation(tmp, sim, pretty_print, scc_opt,
-                                       use_bisim);
+                                       use_bisim, complete);
     }
   else if (in_hoa)
     {
@@ -116,7 +120,7 @@ int main(int argc, char* argv[])
       if (aut->format_errors(std::cerr))
         return 2;
       res = tgba_determinisation(aut->aut, sim, pretty_print, scc_opt,
-                                 use_bisim);
+                                 use_bisim, complete);
     }
   res->merge_edges();
 
