@@ -374,8 +374,8 @@ cat >input<<EOF
     Start: 0
     acc-name: generalized-Buchi 2
     Acceptance: 2 (Inf(0) & Inf(1))
-    properties: implicit-labels explicit-labels /* ? */ complete
-    properties: trans-acc state-acc /* ? */
+    properties: !foo implicit-labels explicit-labels /* ? */ complete
+    properties: trans-acc state-acc /* ? */ !complete foo
     AP: 2 "a" "b"
     --BODY--
     State: 0 "foo" { 0 }
@@ -415,6 +415,7 @@ cat >input<<EOF
     acc-name: generalized-Buchi 2
     Acceptance: 2 (Inf(0) & Inf(1))
     properties: implicit-labels trans-acc
+    properties: deterministic !unambiguous
     AP: 2 "a" "b"
     --BODY--
     State: 0 "foo" { 0 }
@@ -430,16 +431,22 @@ cat >input<<EOF
 EOF
 
 expecterr input <<EOF
-input:7.17-31: 'properties: implicit-labels' is incompatible with...
-input:7.33-47: ... 'properties: explicit-labels'.
+input:8.45-53: 'properties: !complete' contradicts...
+input:7.62-69: ... 'properties: complete' previously given here.
+input:8.55-57: 'properties: foo' contradicts...
+input:7.17-20: ... 'properties: !foo' previously given here.
+input:7.22-36: 'properties: implicit-labels' is incompatible with...
+input:7.38-52: ... 'properties: explicit-labels'.
 input:8.17-25: 'properties: trans-acc' is incompatible with...
 input:8.27-35: ... 'properties: state-acc'.
 input:16.7: too many transitions for this state, ignoring this one
 input:28.33-44: 'properties: state-labels' is incompatible with...
 input:28.17-31: ... 'properties: implicit-labels'.
-input:50.20-24: state-based acceptance used despite...
+input:48.17-29: 'properties: deterministic' contradicts...
+input:48.31-42: ... 'properties: !unambiguous' given here
+input:51.20-24: state-based acceptance used despite...
 input:47.33-41: ... declaration of transition-based acceptance.
-input:58.7-9: transition label used although the automaton was...
+input:59.7-9: transition label used although the automaton was...
 input:47.17-31: ... declared with 'properties: implicit-labels' here
 EOF
 
@@ -1814,6 +1821,24 @@ State: 9
 [0&!1] 9
 [0&!1] 5
 --END--
+HOA: v1
+States: 1
+Start: 0
+AP: 0
+Acceptance: 0 t
+properties: !inherently-weak !weak terminal
+--BODY--
+State: 0 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 0
+Acceptance: 0 t
+properties: !inherently-weak weak
+--BODY--
+State: 0 0
+--END--
 EOF
 
 expecterr input <<EOF
@@ -1821,6 +1846,12 @@ input:3.1-8: initial state 0 has no definition
 input:13.9: state 2 has no definition
 input:17.7: state 5 has no definition
 input:14.9: state 8 has no definition
+input:36.36-43: 'properties: terminal' contradicts...
+input:36.13-28: ... 'properties: !inherently-weak' given here
+input:36.36-43: 'properties: terminal' contradicts...
+input:36.30-34: ... 'properties: !weak' given here
+input:45.30-33: 'properties: weak' contradicts...
+input:45.13-28: ... 'properties: !inherently-weak' given here
 EOF
 
 

@@ -97,7 +97,16 @@ extern "C" int strverscmp(const char *s1, const char *s2);
       std::vector<state_info> info_states; // States declared and used.
       std::vector<std::pair<spot::location, unsigned>> start; // Initial states;
       std::unordered_map<std::string, bdd> alias;
-      std::unordered_map<std::string, spot::location> props;
+      struct prop_info
+      {
+	spot::location loc;
+	bool val;
+	operator bool() const
+	{
+	  return val;
+	};
+      };
+      std::unordered_map<std::string, prop_info> props;
       spot::location states_loc;
       spot::location ap_loc;
       spot::location state_label_loc;
@@ -137,6 +146,14 @@ extern "C" int strverscmp(const char *s1, const char *s2);
       bool trans_acc_seen = false;
 
       std::map<std::string, spot::location> labels;
+
+      prop_info prop_is_true(const std::string& p)
+      {
+	auto i = props.find(p);
+	if (i == props.end())
+	  return prop_info{spot::location(), false};
+	return i->second;
+      }
 
       ~result_()
       {
@@ -323,52 +340,52 @@ header: format-version header-items
 	    }
 	  // Process properties.
 	  {
-	    auto explicit_labels = res.props.find("explicit-labels");
-	    auto implicit_labels = res.props.find("implicit-labels");
+	    auto explicit_labels = res.prop_is_true("explicit-labels");
+	    auto implicit_labels = res.prop_is_true("implicit-labels");
 
-	    if (implicit_labels != res.props.end() && res.opts.want_kripke)
-	      error(implicit_labels->second,
-		    "Kripke structure may not use implicit labels");
-
-	    if (implicit_labels != res.props.end())
+	    if (implicit_labels)
 	      {
-		if (explicit_labels == res.props.end())
+		if (res.opts.want_kripke)
+		  error(implicit_labels.loc,
+			"Kripke structure may not use implicit labels");
+
+		if (explicit_labels)
 		  {
-		    res.label_style = Implicit_Labels;
+		    error(implicit_labels.loc,
+			  "'properties: implicit-labels' is incompatible "
+			  "with...");
+		    error(explicit_labels.loc,
+			  "... 'properties: explicit-labels'.");
 		  }
 		else
 		  {
-		    error(implicit_labels->second,
-			  "'properties: implicit-labels' is incompatible "
-			  "with...");
-		    error(explicit_labels->second,
-			  "... 'properties: explicit-labels'.");
+		    res.label_style = Implicit_Labels;
 		  }
 	      }
 
-	    auto trans_labels = res.props.find("trans-labels");
-	    auto state_labels = res.props.find("state-labels");
+	    auto trans_labels = res.prop_is_true("trans-labels");
+	    auto state_labels = res.prop_is_true("state-labels");
 
-	    if (trans_labels != res.props.end() && res.opts.want_kripke)
-	      error(trans_labels->second,
-		    "Kripke structure may not use transition labels");
-
-	    if (trans_labels != res.props.end())
+	    if (trans_labels)
 	      {
-		if (state_labels == res.props.end())
+		if (res.opts.want_kripke)
+		  error(trans_labels.loc,
+			"Kripke structure may not use transition labels");
+
+		if (state_labels)
+		  {
+		    error(trans_labels.loc,
+			  "'properties: trans-labels' is incompatible with...");
+		    error(state_labels.loc,
+			  "... 'properties: state-labels'.");
+		  }
+		else
 		  {
 		    if (res.label_style != Implicit_Labels)
 		      res.label_style = Trans_Labels;
 		  }
-		else
-		  {
-		    error(trans_labels->second,
-			  "'properties: trans-labels' is incompatible with...");
-		    error(state_labels->second,
-			  "... 'properties: state-labels'.");
-		  }
 	      }
-	    else if (state_labels != res.props.end())
+	    else if (state_labels)
 	      {
 		if (res.label_style != Implicit_Labels)
 		  {
@@ -376,9 +393,9 @@ header: format-version header-items
 		  }
 		else
 		  {
-		    error(state_labels->second,
+		    error(state_labels.loc,
 			  "'properties: state-labels' is incompatible with...");
-		    error(implicit_labels->second,
+		    error(implicit_labels.loc,
 			  "... 'properties: implicit-labels'.");
 		  }
 	      }
@@ -387,35 +404,35 @@ header: format-version header-items
 	      error(@$,
 		    "Kripke structure should use 'properties: state-labels'");
 
-	    auto state_acc = res.props.find("state-acc");
-	    auto trans_acc = res.props.find("trans-acc");
-	    if (trans_acc != res.props.end())
+	    auto state_acc = res.prop_is_true("state-acc");
+	    auto trans_acc = res.prop_is_true("trans-acc");
+	    if (trans_acc)
 	      {
-		if (state_acc == res.props.end())
+		if (state_acc)
 		  {
-		    res.acc_style = Trans_Acc;
+		    error(trans_acc.loc,
+			  "'properties: trans-acc' is incompatible with...");
+		    error(state_acc.loc,
+			  "... 'properties: state-acc'.");
 		  }
 		else
 		  {
-		    error(trans_acc->second,
-			  "'properties: trans-acc' is incompatible with...");
-		    error(state_acc->second,
-			  "... 'properties: state-acc'.");
+		    res.acc_style = Trans_Acc;
 		  }
 	      }
-	    else if (state_acc != res.props.end())
+	    else if (state_acc)
 	      {
 		res.acc_style = State_Acc;
 	      }
 	  }
 	  {
 	    unsigned ss = res.start.size();
-	    auto det = res.props.find("deterministic");
+	    auto det = res.prop_is_true("deterministic");
 	    if (ss > 1)
 	      {
-		if (det != res.props.end())
+		if (det)
 		  {
-		    error(det->second,
+		    error(det.loc,
 			  "deterministic automata should have at most "
 			  "one initial state");
 		  }
@@ -427,12 +444,12 @@ header: format-version header-items
 		// wrong, or unless we are building a Kripke structure.
 		res.deterministic = !res.opts.want_kripke;
 	      }
-	    auto complete = res.props.find("complete");
+	    auto complete = res.prop_is_true("complete");
 	    if (ss < 1)
 	      {
-		if (complete != res.props.end())
+		if (complete)
 		  {
-		    error(complete->second,
+		    error(complete.loc,
 			  "complete automata should have at least "
 			  "one initial state");
 		  }
@@ -447,9 +464,8 @@ header: format-version header-items
 	    // if ap_count == 0, then a Kripke structure could be
 	    // declared complete, although that probably doesn't
 	    // matter.
-	    if (res.opts.want_kripke && complete != res.props.end()
-		&& res.ap_count > 0)
-	      error(complete->second,
+	    if (res.opts.want_kripke && complete && res.ap_count > 0)
+	      error(complete.loc,
 		    "Kripke structure may not be complete");
 	  }
 	  if (res.opts.trust_hoa)
@@ -457,25 +473,68 @@ header: format-version header-items
 	      auto& a = res.aut_or_ks;
 	      auto& p = res.props;
 	      auto e = p.end();
-	      if (p.find("stutter-invariant") != e)
+	      auto si = p.find("stutter-invariant");
+	      if (si != e)
 		{
-		  a->prop_stutter_invariant(true);
+		  a->prop_stutter_invariant(si->second.val);
 		  auto i = p.find("stutter-sensitive");
-		  if (i != e)
-		    error(i->second,
+		  if (i != e && si->second.val == i->second.val)
+		    error(i->second.loc,
 			  "automaton cannot be both stutter-invariant"
 			  "and stutter-sensitive");
 		}
-	      if (p.find("stutter-sensitive") != e)
-		a->prop_stutter_invariant(false);
-	      if (p.find("inherently-weak") != e)
-		a->prop_inherently_weak(true);
-	      if (p.find("weak") != e)
-		a->prop_weak(true);
-	      if (p.find("terminal") != e)
-		a->prop_terminal(true);
-	      if (p.find("unambiguous") != e)
-		a->prop_unambiguous(true);
+	      else
+		{
+		  auto ss = p.find("stutter-sensitive");
+		  if (ss != e)
+		    a->prop_stutter_invariant(!ss->second.val);
+		}
+	      auto iw = p.find("inherently-weak");
+	      auto w = p.find("weak");
+	      auto t = p.find("terminal");
+	      if (iw != e)
+		{
+		  a->prop_inherently_weak(iw->second.val);
+		  if (w != e && !iw->second.val && w->second.val)
+		    {
+		      error(w->second.loc, "'properties: weak' contradicts...");
+		      error(iw->second.loc,
+			    "... 'properties: !inherently-weak' given here");
+		    }
+		  if (t != e && !iw->second.val && t->second.val)
+		    {
+		      error(t->second.loc,
+			    "'properties: terminal' contradicts...");
+		      error(iw->second.loc,
+			    "... 'properties: !inherently-weak' given here");
+		    }
+		}
+	      if (w != e)
+		{
+		  a->prop_weak(w->second.val);
+		  if (t != e && !w->second.val && t->second.val)
+		    {
+		      error(t->second.loc,
+			    "'properties: terminal' contradicts...");
+		      error(w->second.loc,
+			    "... 'properties: !weak' given here");
+		    }
+		}
+	      if (t != e)
+		a->prop_terminal(t->second.val);
+	      auto u = p.find("unambiguous");
+	      if (u != e)
+		{
+		  a->prop_unambiguous(u->second.val);
+		  auto d = p.find("deterministic");
+		  if (d != e && !u->second.val && d->second.val)
+		    {
+		      error(d->second.loc,
+			    "'properties: deterministic' contradicts...");
+		      error(u->second.loc,
+			    "... 'properties: !unambiguous' given here");
+		    }
+		}
 	    }
 	}
 
@@ -654,8 +713,33 @@ acc-spec: | acc-spec BOOLEAN
 	    }
 properties: | properties IDENTIFIER
 	      {
-		res.props.emplace(*$2, @2);
+		auto pos = res.props.emplace(*$2, result_::prop_info{@2, true});
+		if (!pos.first->second.val)
+		  {
+		    std::ostringstream out(std::ios_base::ate);
+		    error(@2, std::string("'properties: ")
+			  + *$2 + "' contradicts...");
+		    error(pos.first->second.loc,
+			  std::string("... 'properties: !") + *$2
+			  + "' previously given here.");
+		  }
 		delete $2;
+	      }
+            | properties '!' IDENTIFIER
+	      {
+		auto loc = @2 + @3;
+		auto pos =
+		  res.props.emplace(*$3, result_::prop_info{loc, false});
+		if (pos.first->second.val)
+		  {
+		    std::ostringstream out(std::ios_base::ate);
+		    error(loc, std::string("'properties: !")
+			  + *$3 + "' contradicts...");
+		    error(pos.first->second.loc,
+			  std::string("... 'properties: ") + *$3
+			  + "' previously given here.");
+		  }
+		delete $3;
 	      }
 header-spec: | header-spec BOOLEAN
              | header-spec INT
@@ -918,22 +1002,20 @@ states: | states state
 	      if (res.deterministic && !det)
 		{
 		  res.deterministic = false;
-		  auto p = res.props.find("deterministic");
-		  if (p != res.props.end())
+		  if (auto p = res.prop_is_true("deterministic"))
 		    {
 		      error(@2, "automaton is not deterministic...");
-		      error(p->second,
+		      error(p.loc,
 			    "... despite 'properties: deterministic'");
 		    }
 		}
 	      if (res.complete && available != bddfalse)
 		{
 		  res.complete = false;
-		  auto p = res.props.find("complete");
-		  if (p != res.props.end())
+		  if (auto p = res.prop_is_true("complete"))
 		    {
 		      error(@2, "automaton is not complete...");
-		      error(p->second, "... despite 'properties: complete'");
+		      error(p.loc, "... despite 'properties: complete'");
 		    }
 		}
 	    }
@@ -950,7 +1032,7 @@ state: state-name labeled-edges
 	       {
 		 error(@2, "these transitions have implicit labels but the"
 		       " automaton is...");
-		 error(res.props["state-labels"], "... declared with "
+		 error(res.props["state-labels"].loc, "... declared with "
 		       "'properties: state-labels'");
 		 // Do not repeat this message.
 		 res.label_style = Mixed_Labels;
@@ -1019,11 +1101,11 @@ state-label_opt:       { res.has_state_label = false; }
 		     error(@$,
 			   "state label used although the automaton was...");
 		     if (res.label_style == Trans_Labels)
-		       error(res.props["trans-labels"],
+		       error(res.props["trans-labels"].loc,
 			     "... declared with 'properties: trans-labels'"
 			     " here");
 		     else
-		       error(res.props["implicit-labels"],
+		       error(res.props["implicit-labels"].loc,
 			     "... declared with 'properties: implicit-labels'"
 			     " here");
 		     // Do not show this error anymore.
@@ -1045,11 +1127,11 @@ trans-label: label
 		       error(@$, "transition label used although the "
 			     "automaton was...");
 		       if (res.label_style == State_Labels)
-			 error(res.props["state-labels"],
+			 error(res.props["state-labels"].loc,
 			       "... declared with 'properties: state-labels' "
 			       "here");
 		       else
-			 error(res.props["implicit-labels"],
+			 error(res.props["implicit-labels"].loc,
 			       "... declared with 'properties: implicit-labels'"
 			       " here");
 		       // Do not show this error anymore.
@@ -1094,7 +1176,7 @@ state-acc_opt:
 		 if (res.acc_style == Trans_Acc)
 		   {
 		     error(@$, "state-based acceptance used despite...");
-		     error(res.props["trans-acc"],
+		     error(res.props["trans-acc"].loc,
 			   "... declaration of transition-based acceptance.");
 		     res.acc_style = Mixed_Acc;
 		   }
@@ -1110,7 +1192,7 @@ trans-acc_opt:
 		 if (res.acc_style == State_Acc)
 		   {
 		     error(@$, "trans-based acceptance used despite...");
-		     error(res.props["state-acc"],
+		     error(res.props["state-acc"].loc,
 			   "... declaration of state-based acceptance.");
 		     res.acc_style = Mixed_Acc;
 		   }
