@@ -41,6 +41,12 @@ TESTS = $(TESTS_sanity) $(TESTS_misc) $(TESTS_tl) $(TESTS_graph) \
 
 distclean-local:
 	find . -name '*.dir' -type d -print | xargs rm -rf
+## This is crazy: Even if the python test suite passes without
+## reporting an error, it can non-deterministically leave a coredump
+## behind.  This happens with ipython 4.0.1 on ArchLinux; ipython
+## somehow recovers from this so the only annoyance is that it can
+## leave a coredump behind.
+	rm -f python/core
 
 
 ############################## CORE ##############################
