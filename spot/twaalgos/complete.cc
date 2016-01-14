@@ -45,27 +45,38 @@ namespace spot
       }
     else
       {
-	// Loop over the states and seek a state that has only self
-	// loops, and that is not accepting.  This will be our sink
-	// state.  Note that we do not even have to ensure that the
-	// state is complete as we will complete the whole automaton
-	// in a second pass.
+	// Loop over the states and search a state that has only self
+	// loop labeled by the same non-accepting mark.  This will be
+	// our sink state.  Note that we do not even have to ensure
+	// that the state is complete as we will complete the whole
+	// automaton in a second pass.
 	for (unsigned i = 0; i < n; ++i)
 	  {
-	    bool selfloop = true;
-	    acc_cond::mark_t accsum = 0U;
+	    bool sinkable = true;
+	    bool first = true;
+	    acc_cond::mark_t commonacc = 0U;
 	    for (auto& t: aut->out(i))
 	      {
 		if (t.dst != i)	// Not a self-loop
 		  {
-		    selfloop = false;
+		    sinkable = false;
 		    break;
 		  }
-		accsum |= t.acc;
+		if (first)
+		  {
+		    commonacc = t.acc;
+		    first = false;
+		  }
+		else if (t.acc != commonacc)
+		  {
+		    sinkable = false;
+		    break;
+		  }
 	      }
-	    if (selfloop && !aut->acc().accepting(accsum))
+	    if (sinkable && !aut->acc().accepting(commonacc))
 	      {
 		// We have found a sink!
+		um.second = commonacc;
 		sink = i;
 		break;
 	      }
@@ -74,8 +85,7 @@ namespace spot
 
     unsigned t = aut->num_edges();
 
-    // If the automaton is empty,
-    // pretend that state
+    // If the automaton is empty, pretend that state 0 is a sink.
     if (t == 0)
       sink = init;
 

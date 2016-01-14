@@ -130,6 +130,8 @@ New in spot 1.99.6a (not yet released)
     was registered several times.
   * product() would incorrectly mark the product of two
     sttuter-sensitive automata as stutter-sensitive as well.
+  * complete() could incorrectly reuse an existing (but accepting!)
+    state as a sink.
 
 New in spot 1.99.6 (2015-12-04)
 
