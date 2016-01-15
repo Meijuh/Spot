@@ -4,22 +4,27 @@ New in spot 1.99.6a (not yet released)
 
   * BACKWARD INCOMPATIBLE CHANGE: All tools that output automata now
     use the HOA format by default instead of the GraphViz output.
-    This makes it easier to pipe several commands.
+    This makes it easier to pipe several commands together.
 
     If you have an old script that relies on GraphViz being the default
     output and that you do not want to update it, use
        export SPOT_DEFAULT_FORMAT=dot
     to get the old behavior back.
 
-  * Tools that output automata now accept -d as a shorthand for --dot.
+  * Tools that output automata now accept -d as a shorthand for --dot
+    since requesting the GraphViz (a.k.a. dot) output by hand is now
+    more frequent.
     randaut's short option for specifying edge-density used to be -d:
     it has been renamed to -e.
 
   * The SPOT_DEFAULT_FORMAT environment variable can be set to 'dot'
-    or 'hoa' to force a default output format for automata.  Options
-    may also be added, as in SPOT_DEFAULT_FORMAT='hoa=iv'.
+    or 'hoa' to force a default output format for automata.  Additional
+    options may also be added, as in SPOT_DEFAULT_FORMAT='hoa=iv'.
 
   * autfilt has a new option: --is-inherently-weak.
+
+  * The --check=strength option of all tools that produce automata
+    will also test if an automaton is inherently weak.
 
   Library:
 
@@ -32,7 +37,9 @@ New in spot 1.99.6a (not yet released)
     /usr/include/spot/... (the default when using the Debian packages)
     or /usr/local/include/spot/... (the default when compiling from
     source), then it is no longuer necessary to add
-    -I/usr/include/spot or -I/usr/local/include/spot when compiling.
+    -I/usr/include/spot or -I/usr/local/include/spot when compiling,
+    as /usr/include and /usr/local/include are usually searched by
+    default.
 
     Inside the source distribution, the subdirectory src/ has been
     renamed to spot/, so that the root of the source tree can also be
@@ -74,7 +81,7 @@ New in spot 1.99.6a (not yet released)
        acc_cond::is_ff() -> acc_cond::is_f()
        parse_acc_code()  -> acc_cond::acc_code(...)
 
-  * Automata property bits (those that tell whether the automaton is
+  * Automata property flags (those that tell whether the automaton is
     deterministic, weak, stutter-invariant, etc.) are now stored using
     three-valued logic: in addition to "maybe"/"yes" they can now also
     represent "no".  This is some preparation for the upcomming
