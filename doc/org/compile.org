@@ -143,9 +143,10 @@ it every time you want to run a binary that depends on Spot.
 * Case 4: You compiled Spot yourself, but did not install it
 
 We do not recommand this, but it is possible to compile programs
-that uses an unstalled version of Spot.
+that uses an uninstalled version of Spot.
 
-So you would just compile Spot in some directory (lets call it =/dir/spot-X.Y/=) with
+So you would just compile Spot in some directory (let's call it
+=/dir/spot-X.Y/=) with
 #+BEGIN_SRC sh
 ./configure
 make
@@ -161,9 +162,13 @@ There are at least two traps with this scenario:
    normally not installed, so in the other scenarios you cannot use
    them.  In this setup however, you might use them by mistake.  Also
    that directory contains =*.cc= files implementing all the features
-   of the library.  Clearly those should be considered as private as
+   of the library.  Clearly those file should be considered private as
    well.
-2. Spot uses [[http://www.gnu.org/software/libtool/][GNU Libtool]] to make it easy to build shared and static
+2. The subdirectory =/dir/spot-X.Y/buddy/src= contains a few header
+   files (for the BDD library) that would normally be installed
+   directly in =/usr/local/include=, so this directory has to be
+   searched for as well.
+3. Spot uses [[http://www.gnu.org/software/libtool/][GNU Libtool]] to make it easy to build shared and static
    libraries portably.  All the process of compiling, linking, and
    installing libraries is done through the concept of /Libtool
    archive/ (some file with a =*.la= extension) that is an abstraction
@@ -176,12 +181,12 @@ There are at least two traps with this scenario:
 
 So compiling against a non-installed Spot would look like this:
 #+BEGIN_SRC sh
-/dir/spot-{{SPOTVERSION}}/libtool link g++ -std=c++11 -I/dir/spot-{{SPOTVERSION} hello.cc /dir/spot-{{SPOTVERSION}/spot/libspot.la -o hello
+/dir/spot-X.Y/libtool link g++ -std=c++11 -I/dir/spot-X.Y -I/dir/spot-X.Y/buddy/src hello.cc /dir/spot-X.Y/spot/libspot.la -o hello
 #+END_SRC
 
 Using =libtool link g++= instead of =g++= will cause =libtool= to
 edit the =g++= command line, and replace
-=/dir/spot-{{SPOTVERSION}/spot/libspot.la= by whatever options are
+=/dir/spot-X.Y/spot/libspot.la= by whatever options are
 needed to link against the library represented by this /Libtool
 archive/.  Furthermore the resulting =hello= executable will not be a
 binary, but a shell script that defines some necessary environment
@@ -193,17 +198,17 @@ development tools.  For instance running =gdb hello= will not work as
 expected.  You would need to run =libtool execute gdb hello= to obtain
 the desired result.  See the [[http://www.gnu.org/software/libtool/manual/][GNU Libtool manual]] for more details.
 
-
 * Other libraries
 
 If your program has to handle BDDs directly (for instance if you are
 [[file:tut22.org][creating an automaton]] explicitely), or if your system does not support
 one library requiring another, you will need to link with the =bddx=
-library.   This should be as simple as adding =-lbddx= after =-lspot=
-in any of the above commands.  This is not necessary when =libtool=
-is used to link against =libspot.la=, because Libtool already handles
-such dependencies.
+library.  This should be as simple as adding =-lbddx= after =-lspot=
+in the first three cases.
 
+In the fourth case where =libtool= is used to link against
+=libspot.la= linking against =libbddx.la= is not necessary because
+Libtool already handles such dependencies.
 
 * Additional suggestions
 
