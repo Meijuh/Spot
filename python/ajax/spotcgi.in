@@ -364,7 +364,7 @@ def print_stats(automaton, detinfo = False, ta = False):
             unbufprint(", acceptance condition: Büchi")
         else:
             unbufprint(", acceptance condition: " + str(acc))
-            if acc.is_tt():
+            if acc.is_t():
                 unbufprint(" (all cycles are accepting)")
     unbufprint("</p>\n")
     # Decide whether we will render the automaton or not.
