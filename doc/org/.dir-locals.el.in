@@ -32,6 +32,9 @@
 		   :base-extension "org"
 		   :publishing-directory "../userdoc/"
 		   :recursive t
+		   :exclude "setup.org"
+		   :auto-sitemap t
+		   :sitemap-title "Sitemap for Spot"
 		   :publishing-function org-publish-org-to-html
 		   ; Org 8
 		   :html-head "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"

@@ -53,6 +53,9 @@
 	:base-extension "org"
 	:publishing-directory "@abs_top_srcdir@/doc/userdoc/"
 	:recursive t
+	:exclude "setup.org"
+	:auto-sitemap t
+	:sitemap-title "Sitemap for Spot"
 	:publishing-function
 	,(if (require 'org-publish nil t) 'org-publish-org-to-html ; Org 7
 	   'org-html-publish-to-html)                              ; Org 8
