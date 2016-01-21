@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -179,7 +179,7 @@ static const argp_option options[] =
       "if both Inf(x) and Fin(x) appear in the acceptance condition, replace "
       "Fin(x) by a new Fin(y) and adjust the automaton", 0 },
     { "sat-minimize", OPT_SAT_MINIMIZE, "options", OPTION_ARG_OPTIONAL,
-      "minimize the automaton using a SAT solver (only work for deterministic"
+      "minimize the automaton using a SAT solver (only works for deterministic"
       " automata)", 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Filtering options:", 6 },

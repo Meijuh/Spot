@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -356,7 +356,7 @@ namespace spot
 	     scc_info* given_si)
   {
     twa_graph_ptr res;
-    // acc_filter_simplify only work for generalized Büchi
+    // acc_filter_simplify only works for generalized Büchi
     if (aut->acc().is_generalized_buchi())
       {
 	if (remove_all_useless)

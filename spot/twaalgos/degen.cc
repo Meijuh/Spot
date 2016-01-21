@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -196,7 +196,7 @@ namespace spot
     {
       if (!a->acc().is_generalized_buchi())
 	throw std::runtime_error
-	  ("degeneralize() can only work with generalized Büchi acceptance");
+	  ("degeneralize() can only works with generalized Büchi acceptance");
 
       bool use_scc = use_lvl_cache || use_cust_acc_orders || use_z_lvl;
 

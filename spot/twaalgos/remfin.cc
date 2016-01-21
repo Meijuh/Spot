@@ -133,7 +133,7 @@ namespace spot
     // Specialized conversion from Rabin acceptance to Büchi acceptance.
     // Is able to detect SCCs that are Büchi-type (i.e., they can be
     // converted to Büchi acceptance without chaning their structure).
-    // Currently only work with state-based acceptance.
+    // Currently only works with state-based acceptance.
     //
     // See "Deterministic ω-automata vis-a-vis Deterministic Büchi
     // Automata", S. Krishnan, A. Puri, and R. Brayton (ISAAC'94) for

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -1294,7 +1294,7 @@ namespace spot
 
     if (!is_deterministic(a))
       throw std::runtime_error
-	("SAT-based minimization only work with deterministic automata");
+	("SAT-based minimization only works with deterministic automata");
 
     bool dicho = om.get("dichotomy", 0);
     int states = om.get("states", -1);
