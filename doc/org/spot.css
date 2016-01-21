@@ -49,3 +49,5 @@ img{max-width:100%}
 .org-hoa-header-uppercase{font-weight:bold;color:#00adad}
 .org-hoa-header-lowercase{color:#00adad}
 .org-hoa-ap-number{color:#d70079}
+.implem{background:#f1f0a6;padding:0.5ex 1ex 0.5ex 1ex;margin:1ex;border-color:#ffe35e;border-style:solid none}
+.implem:before{background:#ffe35e;content:"Implementation detail";padding:.5ex;position:relative;top:0;left:0;font-weight:bold}

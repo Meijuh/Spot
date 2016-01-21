@@ -1,0 +1,960 @@
+# -*- coding: utf-8 -*-
+#+TITLE: Concepts
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: index.html
+
+This page documents some of the concepts used in Spot, and whose
+knowledge is usually assumed throughout the documentation.  The
+presentation is informal on purpose.
+
+* Atomic proposition (AP)
+   :PROPERTIES:
+   :CUSTOM_ID: ap
+   :END:
+
+An /atomic proposition/ is a named Boolean variable that represents a
+simple property that must be true or false.  It usually represents
+some property of a system.  For instance =light_on= and =door_open=
+could be the names of two atomic propositions that are respectively
+true if the light is on and the door open, and false otherwise.
+
+Atomic propositions are used to construct temporal logic formulas (see
+below) to specify properties of the system: for instance we might want
+to state that /whenever the the door is open, the light should be on/.
+We could write that as the [[#ltl][LTL formula]] =G(door_open -> light_on)= in
+which =G= is a temporal operator that means /always/.
+
+Atomic propositions are also used to form the [[#boolean][Boolean formulas]] that
+label the edges of automata.
+
+* Boolean formula
+   :PROPERTIES:
+   :CUSTOM_ID: boolean
+   :END:
+
+A /Boolean formula/ is formed from [[#ap][atomic propositions]], the Boolean
+constants true and false, and standard Boolean operators like /and/,
+/or/, /implies/, /xor/, etc.
+
+* Binary Decision Diagrams (BDD)
+   :PROPERTIES:
+   :CUSTOM_ID: bdd
+   :END:
+
+A Binary Decision Diagram is a data structure for efficient
+manipulation of [[#boolean][Boolean formulas]].
+
+BDDs correspond to a kind of /if-then-else normal form/ for Boolean
+formulas.  If we fix the order in which the atomic propositions will
+be tested, that normal form is unique.  BDDs are stored as directed
+acyclic graphs with sharing of subformulas.
+
+For further information about BDDs, read for instance [[http://configit.com/configit_wordpress/wp-content/uploads/2013/07/bdd-eap.pdf][Henrik Reif
+Andersen's lecture notes]].
+
+In Spot, BDDs are one way to represent Boolean formulas, and in
+particular, they are used to labels the edges of [[#buchi][automata]]. Spot uses a
+customized version of [[http://sourceforge.net/projects/buddy/][the BuDDy library]] for manipulating BDDs.
+
+* ω-word
+   :PROPERTIES:
+   :CUSTOM_ID: word
+   :END:
+
+An ω-word (omega-word) is a word of infinite length.  In our context,
+each letter is used to describe the state of a system at a given time,
+and the sequence of letters shows the evolution of the system as the
+(discrete) time is incremented.
+
+If the set $AP$ of [[#ap][atomic propositions]] is fixed, an ω-word over $AP$
+is an infinite sequence of subsets of $AP$. In other words, there are
+$2^{|AP|}$ possible letters to choose from, and these letters denote
+the set of atomic propositions that are true at a given instant.
+
+For instance if $AP=\{a,b,c\}$, the infinite sequence
+\[\{a,b\};\{a\};\{a,b\};\{a\};\{a,b\};\{a\};\ldots\] is an example of
+ω-word over $AP$.  This particular ω-word can be interpreted as the
+following scenario: atomic proposition $a$ is always true, $b$ is true
+at each other instant, and $c$ is always false.
+
+Note that instead of using sets of atomic propositions, it is equivalent
+to write that word using [[https://en.wikipedia.org/wiki/Canonical_normal_form#Minterms][minterms]] over $AP$:
+\[(a\land b\land \bar c);(a\land \bar b\land \bar c);
+  (a\land b\land \bar c);(a\land \bar b\land \bar c);
+  (a\land b\land \bar c);(a\land \bar b\land \bar c);\ldots\]
+
+* ω-Automaton
+   :PROPERTIES:
+   :CUSTOM_ID: automaton
+   :END:
+
+An ω-automaton is used to represent sets of ω-word.
+
+Those look like the classical [[https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton][Nondeterministic Finite Automata]] in the
+sense that they also have states and transitions.  However ω-automata
+recognize [[#word][ω-words]] instead of finite words.  In this context, the
+notion of /final state/ makes no sense, and is replaced by the notion
+of [[#acceptance-condition][acceptance condition]]: a run of the automaton (i.e., an infinite
+sequence alternating states and edges in a way that is compatible with
+the structure of the automaton) is /accepting/ if it satisfies the
+constraint given by the acceptance condition.
+
+In Spot, ω-automata have their edges labeled by [[#boolean][Boolean formulas]]
+represented using [[#bdd][BDDs]].  An ω-word is accepted by an ω-automaton if
+there exists an accepting run whose labels (those Boolean formulas)
+are compatible with the minterms used as letters in the word.
+
+The /language/ of an automaton is the set of ω-words it accepts.
+
+There are many kinds of ω-Automata and they mostly differ by their
+[[#acceptance-condition][acceptance condition]].  The different types of acceptance condition,
+and whether the automata are deterministic or can affect their
+expressive power.
+
+One of the simplest and most common type of ω-Automata is the [[#buchi][Büchi
+automaton]] described next.
+
+* Büchi automaton
+   :PROPERTIES:
+   :CUSTOM_ID: buchi
+   :END:
+
+A Büchi automaton is a simple kind of [[#automaton][ω-Automaton]] in which a run is
+accepting iff it visits some /accepting state/ infinitely often.
+Those accepting states are often denoted using a double circle.
+
+For instance here is a Büchi automaton that accepts only words in
+which $a$ is always true, and $b$ is true infinitely often.
+
+#+NAME: buchi-example1
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'G(a) & GF(b)' -B -d
+#+END_SRC
+
+#+BEGIN_SRC dot :file concept-buchi1.png :cmdline -Tpng :var txt=buchi-example1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-buchi1.png]]
+
+
+The above automaton would accept the [[#word][ω-word we used previously as an
+example]].
+
+
+As a more concrete example, here is a (complete) Büchi automaton for
+the [[#ltl][LTL formula]] =G(door_open -> light_on)= that specifies that
+=light_on= should be true whenever =door_open= is true.
+
+#+NAME: buchi-example2
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'G(door_open -> light_on)' -d -C
+#+END_SRC
+
+#+BEGIN_SRC dot :file concept-buchi2.png :cmdline -Tpng :var txt=buchi-example2 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-buchi.png]]
+
+The =1= displayed on the edge that loops on state =1= should be
+read as /true/, i.e., the Boolean formula that accepts
+any valuation of the atomic propositions.
+
+The above automaton is complete: any possible ω-word over
+$AP=\{\mathit{door\_open}, \mathit{light\_on}\}$ is recognized by some
+run.  But not all those runs are accepting.  In fact, there is only one
+run that is accepting: the one that loops continuously on state 0.
+
+All the remaining runs eventually reach state 1 and stay there.  Those
+runs recognize scenarios where at some point the door is open and the
+light is off.  There is an infinite number of those runs: they differ
+by the number of times they loop on state 0.  But since those runs
+reach state 1, it means they visited state 0 only a finite number of
+times, so they do not validate the acceptance condition.
+
+
+There can be multiple accepting states, but it is enough to visit one
+infinitely often.  For instance the following Büchi automaton accept
+all runs in which at all point $a$ is true iff $b$ is true at the next
+instant.
+
+#+NAME: buchi-example3
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'G(a <-> Xb)' -B -d
+#+END_SRC
+#+BEGIN_SRC dot :file concept-buchi3.png :cmdline -Tpng :var txt=buchi-example3 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-buchi3.png]]
+
+* Transitions vs. Edges
+   :PROPERTIES:
+   :CUSTOM_ID: trans-edge
+   :END:
+
+Since automata are labeled by Boolean formulas instead of letters it
+is sometimes useful to think of the formula-labeled *edges* of an
+automaton as a way to aggregate several letter-labeled *transitions*.
+
+Whenever the distinction is important, for instance when giving the
+size of an automaton, we use the terms *edge* and *transition* to
+distinguish whether we are looking at the automaton as a graph, or
+whether we are actually considering all possible letters that may
+have been aggregated in an edge.
+
+Here is a simple example:
+#+NAME: te1
+#+BEGIN_SRC sh :results verbatim :exports none
+cat >concept-te.hoa <<EOF
+HOA: v1
+Acceptance: 0 t
+Start: 0
+States: 2
+AP: 2 "a" "b"
+--BODY--
+State: 0 0 0 1 1
+State: 1 1 0 0 0
+--END--
+EOF
+autfilt --merge concept-te.hoa -d
+#+END_SRC
+#+BEGIN_SRC dot :file concept-te1.png :cmdline -Tpng :var txt=te1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-te1.png]]
+
+#+NAME: size
+#+BEGIN_SRC sh :exports none
+autfilt --merge --stats=$arg concept-te.hoa
+#+END_SRC
+
+The above automaton has call_size(arg="%e")[:results raw] edges and
+call_size(arg="%t")[:results raw] transitions.
+
+This is because those formula-labeled edges actually simplify the
+following transition structure:
+
+#+NAME: te2
+#+BEGIN_SRC sh :results verbatim :exports none
+autfilt concept-te.hoa -d
+#+END_SRC
+#+BEGIN_SRC dot :file concept-te2.png :cmdline -Tpng :var txt=te2 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-te2.png]]
+
+The above is actually a different automaton from the point of view of
+Spot: it is an automaton with call_size(arg="%t")[:results raw] edges
+and as many transitions.
+
+Spot has some function to merge those "parallel transitions" into
+larger edges.  Limiting the number of edges helps most of the
+algorithms that have to explore automata, since they have less
+successors to consider.
+
+The distinction between *edge* and *transition* is something we try
+maintain in the various interfaces of Spot.  For instance the
+[[file:oaut.org::#stats][=--stats= option]] has =%e= or =%t= to count either edges or
+transitions.  The method used to add new edge into an automaton is
+called =new_edge(...)=, not =new_transition(...)=, because it takes a
+[[#bdd][BDD]] (representing a Boolean formula) as label.  However that naming
+convention is recent in the history of Spot.  Spot versions up to
+1.2.6 used to call everything /transition/ (and what we now call
+/transition/ was sometime called /sub-transition/), and traces of this
+history may still be present: do not hesitate to file bug reports if
+you uncover some confusing use of these terms.
+
+* Acceptance sets & generalized Büchi acceptance
+   :PROPERTIES:
+   :CUSTOM_ID: acceptance-set
+   :END:
+
+As a rather straightforward generalization of the Büchi acceptance,
+let us consider that instead of one set of accepting states, we might
+have multiple sets of states.  We call these sets /acceptance sets/.
+The /generalized Büchi/ acceptance condition states that a run is
+accepting iff it visits at least one state of each acceptance set.
+
+The Büchi convention of representing accepting states using a
+double circle is not going to work in the generalized Büchi case.  So
+instead we label each state with the numbers of each acceptance set it
+belongs to.
+
+In the automaton below, there are two acceptance sets denoted with ⓿
+and ❶: all states labeled with ⓿ belong to acceptance set 0, and all
+states labeled with ❶ belong to set 1.  Here each acceptance set
+contains a single state.
+
+#+NAME: gen-buchi-example1
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'GFa & GFb' | autfilt -S --sat-minimize -d
+#+END_SRC
+
+#+BEGIN_SRC dot :file concept-gba1.png :cmdline -Tpng :var txt=gen-buchi-example1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-gba1.png]]
+
+The accepting runs are only those that visit infinitely often both
+states, so that means this automaton accepts all words in which $a$
+and $b$ are infinitely often true (not necessarily at the same time).
+
+A state can of course belong to multiple acceptance sets, and an
+acceptance set may contain multiple states.  For instance the
+following automaton has the same language as the previous one (despite
+its more complex look).
+
+#+NAME: gen-buchi-example2
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'GFa & GFb' -S -d
+#+END_SRC
+
+#+BEGIN_SRC dot :file concept-gba2.png :cmdline -Tpng :var txt=gen-buchi-example2 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-gba2.png]]
+
+
+Speaking of size... Let us note that using a generalized Büchi
+acceptance condition makes it possible to build smaller automata than
+what we can do with Büchi acceptance.  We have seen that the above
+language (infinitely often $a$ and infinitely often $b$) can be built
+with a 2-state generalized-Büchi automaton, but the smallest
+equivalent Büchi automaton has three state:
+
+#+NAME: gen-buchi-example-ba
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'GFa & GFb' -B -d
+#+END_SRC
+
+#+BEGIN_SRC dot :file concept-gba-vs-ba.png :cmdline -Tpng :var txt=gen-buchi-example-ba :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-gba-vs-ba.png]]
+
+Finally, let us point the obvious fact that a Büchi automaton is a
+particular case of generalized-Büchi acceptance with a single
+acceptance set.  Depending on the context, it might be useful to
+represent Büchi automaton using double circles (as above), or numbered
+acceptance sets (as below).  Spot's output routines have options for
+both.
+
+#+NAME: gen-buchi-example-ba2
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'GFa & GFb' -B -d.b
+#+END_SRC
+
+#+BEGIN_SRC dot :file concept-gba-vs-ba2.png :cmdline -Tpng :var txt=gen-buchi-example-ba2 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-gba-vs-ba2.png]]
+
+* Transition-based, vs. Acceptance-based acceptance
+   :PROPERTIES:
+   :CUSTOM_ID: trans-acc
+   :END:
+
+So far we have discussed examples of /state-based acceptance/:
+acceptance sets are sets of states, runs are accepting if these visit
+infinitely often some state in each acceptance set, etc.
+
+When /transition-based acceptance/ is used, acceptance sets are now
+sets of /edges/ (or set of /transitions/ if you prefer), and runs are
+accepting if the edges they visit satisfy the acceptance condition.
+
+Here is an example of Transition-based Generalized Büchi Automaton
+(TGBA).
+
+#+NAME: tgba-example1
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'GF(a & X(a U b))' -d
+#+END_SRC
+#+BEGIN_SRC dot :file concept-tgba1.png :cmdline -Tpng :var txt=tgba-example1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-tgba1.png]]
+
+This automaton accept all ω-words that infinitely often match the
+pattern $a^+;b$ (that is: a positive number of letters where $a$ is
+true are followed by one letter where $b$ is true).
+
+Using transition-based acceptance allows for more compact automata.
+The typical example is the LTL formula =GFa= (infinitely often $a$)
+that can be represented using a one-state transition-based Büchi
+automaton:
+#+NAME: tgba-example2
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'GFa' -d
+#+END_SRC
+#+BEGIN_SRC dot :file concept-tgba2.png :cmdline -Tpng :var txt=tgba-example2 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-tgba2.png]]
+
+While the same property require a 2-state Büchi automaton using
+state-based acceptance:
+
+#+NAME: tgba-example3
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba 'GFa' -B -d
+#+END_SRC
+#+BEGIN_SRC dot :file concept-tba-vs-ba.png :cmdline -Tpng :var txt=tgba-example3 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-tba-vs-ba.png]]
+
+
+#+BEGIN_implem
+Internally, instead of representing /acceptance sets/ as actual sets
+of edges, Spot labels each edge of the automaton by a bit-vector that
+lists the acceptance sets an edge belongs to.
+
+There is a flag inside each automaton that tells Spot if an automaton
+uses state-based or transition-based acceptance.  However, regardless
+of the value of this flag, membership to acceptance sets is always
+stored on transitions.  In the case of an automaton with state-based
+acceptance, the convention is that all transition leaving a state will
+carry the acceptance-set membership of that state.  Doing so allows us
+to interpret an automaton state-based acceptance as if it was an
+automaton with transition-based acceptance whenever needed.
+#+END_implem
+
+* Acceptance condition
+   :PROPERTIES:
+   :CUSTOM_ID: acceptance-condition
+   :END:
+
+Older versions of Spot (up to 1.2.6), used to support only
+Transition-based Generalized Büchi Automata (TGBA).  This of course
+included support for non-generalized or state-based Büchi.
+
+Today, Spot can work with more general forms of acceptance condition.
+An acceptance condition actually consists of two pieces: some
+acceptance sets, and a formula that tells how to use these acceptance
+sets.
+
+Acceptance formulas are positive Boolean formula over atoms of the
+form =t=, =f=, =Inf(n)=, or =Fin(n)=, where =n= is a non-negative
+integer denoting an acceptance set.
+
+- =t= denotes the true acceptance condition: any run is accepting
+- =f= denotes the false acceptance condition: no run is accepting
+- =Inf(n)= means that a run is accepting if it visits infinitely
+  often the acceptance set =n=
+- =Fin(n)= means that a run is accepting if it visits finitely
+  often the acceptance set =n=
+
+The above atoms can be combined using only the operator =&= and =|=
+(with obvious semantics), and parentheses for grouping.  Note that
+there is no negation, but an acceptance condition can be negated
+swapping =t= and =f=, =&= and =|=, and =Fin(n)= and =Inf(n)=.
+
+For instance the formula =Inf(0)&Inf(1)= specifies that accepting runs
+should visit infinitely often the acceptance 0, and infinitely often
+the acceptance set 1.  This corresponds the generalized Büchi
+acceptance with two sets.
+
+The opposite acceptance condition =Fin(0)|Fin(1)= is known as
+/generalized co-Büchi acceptance/ (with two sets).  Accepting runs
+have to visit finitely often set 0 /or/ finitely often set 1.
+
+
+A /Rabin acceptance condition/ with 3 pairs corresponds to the
+following formula: =(Fin(0)&Inf(1)) | (Fin(2)&Inf(3)) |
+(Fin(4)&Inf(5))=
+
+The following table gives an overview of how some classical acceptance
+condition are encoded.  The first column gives a name that is more
+human readable (those names are defined in the [[#hoa][HOA]] format and are also
+recognized by Spot).  The second column give the encoding as a
+formula.  Everything here is case-sensitive.
+
+#+BEGIN_SRC python :results verbatim raw :exports results
+  import spot
+  # org-mode recognize | as a table delemiter even in ~|~ or =|= but the
+  # documented workaround to use \vert{} does not work in ~\vert{}~ or =\vert{}=.
+  # So until we have a better solution, let's leave the =...= mode to display
+  # \vert{} characters.
+  def line(arg):
+    return ('| {} | {} |\n'
+            .format(arg, '={}='.format(spot.acc_code(arg)).replace(' | ','|')
+                                                          .replace('|','= \\vert{} =')))
+  return "".join(map(line,
+                     ["none", "all", "Buchi", "generalized-Buchi 2",
+                      "generalized-Buchi 3", "co-Buchi",
+                      "generalized-co-Buchi 2", "generalized-co-Buchi 3",
+                      "Rabin 1", "Rabin 2", "Rabin 3", "Streett 1",
+                      "Streett 2", "Streett 3",
+                      "generalized-Rabin 3 1 0 2", "parity min odd 5",
+                      "parity max even 5"]))
+#+END_SRC
+
+#+RESULTS:
+| none                      | =f=                                                                                 |
+| all                       | =t=                                                                                 |
+| Buchi                     | =Inf(0)=                                                                            |
+| generalized-Buchi 2       | =Inf(0)&Inf(1)=                                                                     |
+| generalized-Buchi 3       | =Inf(0)&Inf(1)&Inf(2)=                                                              |
+| co-Buchi                  | =Fin(0)=                                                                            |
+| generalized-co-Buchi 2    | =Fin(0)= \vert{} =Fin(1)=                                                           |
+| generalized-co-Buchi 3    | =Fin(0)= \vert{} =Fin(1)= \vert{} =Fin(2)=                                          |
+| Rabin 1                   | =Fin(0) & Inf(1)=                                                                   |
+| Rabin 2                   | =(Fin(0) & Inf(1))= \vert{} =(Fin(2) & Inf(3))=                                     |
+| Rabin 3                   | =(Fin(0) & Inf(1))= \vert{} =(Fin(2) & Inf(3))= \vert{} =(Fin(4) & Inf(5))=         |
+| Streett 1                 | =Fin(0)= \vert{} =Inf(1)=                                                           |
+| Streett 2                 | =(Fin(0)= \vert{} =Inf(1)) & (Fin(2)= \vert{} =Inf(3))=                             |
+| Streett 3                 | =(Fin(0)= \vert{} =Inf(1)) & (Fin(2)= \vert{} =Inf(3)) & (Fin(4)= \vert{} =Inf(5))= |
+| generalized-Rabin 3 1 0 2 | =(Fin(0) & Inf(1))= \vert{} =Fin(2)= \vert{} =(Fin(3) & (Inf(4)&Inf(5)))=           |
+| parity min odd 5          | =Fin(0) & (Inf(1)= \vert{} =(Fin(2) & (Inf(3)= \vert{} =Fin(4))))=                  |
+| parity max even 5         | =Inf(4)= \vert{} =(Fin(3) & (Inf(2)= \vert{} =(Fin(1) & Inf(0))))=                  |
+
+
+* ω-Automaton with generalized acceptance
+   :PROPERTIES:
+   :CUSTOM_ID: automaton-generalized
+   :END:
+
+Spot's automata support arbitrary acceptance conditions as discussed
+above.  When displaying automata, it is convenient to display the
+acceptance condition as well.  For instance here is a Rabin automaton
+produced by =ltl2dstar= for the LTL formula =GFa | FGb=, but displayed
+by Spot:
+
+#+NAME: twa-example1
+#+BEGIN_SRC sh :results verbatim :exports none
+ltlfilt -l -f 'GFa | FGb' | ltl2dstar --output-format=hoa - - | autfilt --merge -d.a
+#+END_SRC
+#+BEGIN_SRC dot :file concept-twa1.png :cmdline -Tpng :var txt=twa-example1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-twa1.png]]
+
+* Never claims
+   :PROPERTIES:
+   :CUSTOM_ID: neverclaim
+   :END:
+
+   Never claims are used by [[http://spinroot.com/][Spin]] to represent Büchi automata; they are
+   part of the Promela language.
+
+   Here are two never claims using different syntaxes to represent a
+   Büchi automaton for the LTL formula =p0 | GFp1= (that is: $p_0$ or
+   infinitely often $p_1$).  The graphical representation of that
+   automaton follows.
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltl2tgba -s 'p0 | GFp1' > tmp.$$
+ltl2tgba -s6 'p0 | GFp1' | pr -m -t tmp.$$ -
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+never { /* p0 | GFp1 */		    never { /* p0 | GFp1 */
+T0_init:			    T0_init:
+  if				      do
+  :: (p0) -> goto accept_all	      :: atomic { (p0) -> assert(!(p0))
+  :: (!(p0)) -> goto accept_S2	      :: (!(p0)) -> goto accept_S2
+  fi;				      od;
+accept_S2:			    accept_S2:
+  if				      do
+  :: (p1) -> goto accept_S2	      :: (p1) -> goto accept_S2
+  :: (!(p1)) -> goto T0_S3	      :: (!(p1)) -> goto T0_S3
+  fi;				      od;
+T0_S3:				    T0_S3:
+  if				      do
+  :: (p1) -> goto accept_S2	      :: (p1) -> goto accept_S2
+  :: (!(p1)) -> goto T0_S3	      :: (!(p1)) -> goto T0_S3
+  fi;				      od;
+accept_all:			    accept_all:
+  skip				      skip
+}				    }
+#+end_example
+
+#+NAME: never-ex1
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba -Bd 'p0 | GFp1'
+#+END_SRC
+#+BEGIN_SRC dot :file concept-never1.png :cmdline -Tpng :var txt=never-ex1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-never1.png]]
+
+The two different types of never claims differ only in a few syntactic
+elements: =do..od= instead of =if..fi=, =assert= instead of =goto
+accept_all=, etc.  Older Spin releases used to output the first one, while
+newer Spin releases (starting with Spin 6.2.4) use the second syntax
+as they help Spin to produce more precise counterexamples.
+
+Spot can read and write never claims in both syntaxes, but it cannot
+parse never claim that use other features (such as variables) of the
+Promela language.
+
+* LBTT's format
+   :PROPERTIES:
+   :CUSTOM_ID: lbtt
+   :END:
+
+This format was originally introduced by [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][LBT]], a tool for translating
+LTL to (state-based) generalized Büchi automata, and then used by
+[[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], a tool for testing LTL-to-Büchi translators.
+
+For instance the Büchi automaton we used as an example for never
+claims can be encoded as follows:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltl2tgba --ba --lbtt 'p0 | GFp1'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+4 1
+0 1 -1
+1 p0
+2 ! p0
+-1
+1 0 0 -1
+1 t
+-1
+2 0 0 -1
+2 p1
+3 ! p1
+-1
+3 0 -1
+2 p1
+3 ! p1
+-1
+#+end_example
+
+[[file:concept-never1.png]]
+
+The format has been extended in two ways.  First, LBTT extended it to
+support transition-based acceptance.  This is indicated by a =t= on
+the first line:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltl2tgba --lbtt 'p0 | GFp1'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+3 1t
+0 1
+1 -1 p0
+2 -1 ! p0
+-1
+1 0
+1 0 -1 t
+-1
+2 0
+2 0 -1 p1
+2 -1 ! p1
+-1
+#+end_example
+
+#+NAME: lbtt-ex2
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba -d 'p0 | GFp1'
+#+END_SRC
+#+BEGIN_SRC dot :file concept-lbtt2.png :cmdline -Tpng :var txt=lbtt-ex2 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-lbtt2.png]]
+
+We call this format the LBTT format because of this extension.
+
+A second, but independent extension, was done in [[http://ltl2dstar.de/][=ltl2dstar=]], allowing
+atomic propositions that are different from =p0=, =p1=, =p2=, etc.
+
+Both extensions are supported by Spot.
+
+* DSTAR format
+   :PROPERTIES:
+   :CUSTOM_ID: dstar
+   :END:
+
+The DSTAR format is the native format of [[http://ltl2dstar.de/][=ltl2dstar=]].  It allows
+representing Deterministic STreett And Rabin automata, hence the
+name.
+
+Spot can read the DSTAR format, but it does not output it.  Adding
+output for this format would not be difficult, but it would also not
+be very useful: for all intents and purposes, the [[#hoa][HOA]] format should be
+preferred.  =ltl2dstar= can now also output HOA directly.
+
+Here is one Rabin automaton in the DSTAR format:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+echo '| F G p0 G F p1' | ltl2dstar --output-format=native - -
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+DRA v2 explicit
+Comment: "Union{Safra[NBA=2],Safra[NBA=2]}"
+States: 4
+Acceptance-Pairs: 2
+Start: 0
+AP: 2 "p0" "p1"
+---
+State: 0
+Acc-Sig: -0
+0
+1
+2
+3
+State: 1
+Acc-Sig: +0
+0
+1
+2
+3
+State: 2
+Acc-Sig: -0 +1
+0
+1
+2
+3
+State: 3
+Acc-Sig: +0 +1
+0
+1
+2
+3
+#+end_example
+
+#+NAME: dstar-example1
+#+BEGIN_SRC sh :results verbatim :exports none
+echo '| F G p0 G F p1' | ltl2dstar --output-format=native - - | autfilt -d.a
+#+END_SRC
+#+BEGIN_SRC dot :file concept-dstar.png :cmdline -Tpng :var txt=dstar-example1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-dstar.png]]
+
+
+* Hanoi Omega-Automaton format (HOA)
+   :PROPERTIES:
+   :CUSTOM_ID: hoa
+   :END:
+
+The [[http://adl.github.io/hoaf/][HOA format]] inherits several features from the [[:dstar][DSTAR format]], but
+extends it in many ways, including support for non-deterministic
+automata and for arbitrary acceptance conditions.
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltldo ltl2dstar -f 'FGp0 | GFp1' --name=%f
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+HOA: v1
+name: "FGp0 | GFp1"
+States: 4
+Start: 0
+AP: 2 "p0" "p1"
+acc-name: Rabin 2
+Acceptance: 4 (Fin(0) & Inf(1)) | (Fin(2) & Inf(3))
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0 {0}
+[!0&!1] 0
+[0&!1] 1
+[!0&1] 2
+[0&1] 3
+State: 1 {1}
+[!0&!1] 0
+[0&!1] 1
+[!0&1] 2
+[0&1] 3
+State: 2 {0 3}
+[!0&!1] 0
+[0&!1] 1
+[!0&1] 2
+[0&1] 3
+State: 3 {1 3}
+[!0&!1] 0
+[0&!1] 1
+[!0&1] 2
+[0&1] 3
+--END--
+#+end_example
+
+#+NAME: hoa1
+#+BEGIN_SRC sh :results verbatim :exports none
+ltldo ltl2dstar -f 'FGp0 | GFp1' -d.a
+#+END_SRC
+#+BEGIN_SRC dot :file concept-hoa.png :cmdline -Tpng :var txt=hoa1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-hoa.png]]
+
+
+Since this file format is the only one able to represent the range of
+ω-automata supported by Spot, and it its default output format.
+
+However note that Spot does not (yet?) support all automata that can
+be expressed using the HOA format.  For instance it has no support for
+alternating automata, or for the =Alphabet:=-based automata introduced
+in v1.1 of HOA (only =AP:=-based automata are supported).
+
+The present support for the HOA format in Spot, is discussed on [[file:hoa.org][a
+separate page]].
+
+* Linear-time Temporal Logic (LTL)
+   :PROPERTIES:
+   :CUSTOM_ID: ltl
+   :END:
+
+The Linear-time Temporal Logic (LTL) extends propositional logic with
+operators that refer to the future.  Some definitions of LTL also
+include past operators, but Spot only supports future operators.  The
+view of the time is discrete: a scenario can be seen as a succession
+of steps in which each [[#ap][atomic proposition]] can have a different value.
+
+The following basic operators are supported:
+
+| LTL formula | meaning                                                                                        |
+|-------------+------------------------------------------------------------------------------------------------|
+| =f=         | the formula =f= is true immediately                                                            |
+| =X f=       | =f= will be true in the next step                                                              |
+| =F f=       | =f= will become true eventually (it could be true immediately, or on the future)               |
+| =G f=       | =f= is always true from now on                                                                 |
+| =f U g=     | =f= has to be true until =g= becomes true (and =g= /will/ become true)                         |
+| =f W g=     | =f= has to be true until =g= becomes true (=f= should stay true if =g= never becomes true)     |
+| =f R g=     | =g= has to be true until =f&g= becomes true (=g= should stay true if =f&g= never becomes true) |
+| =f M g=     | =g= has to be true until =f&g= becomes true (and =f&g= /will/ become true)                     |
+
+For instance the LTL formula =G(request -> F(response))= specifies that
+whenever =request= atomic proposition is true, there exists a later
+instant (possibly the same) where =response= is true.
+
+Spot supports [[file:ioltl.org][several syntaxes for writing LTL formulas]].  For example
+some people prefer to write =<>= and =[]= instead of =F= and =G=, =R=
+is written =V= in some tools, etc.
+
+For more discussion about the temporal operators and their semantics,
+see the [[https://spot.lrde.epita.fr/tl.pdf][tl.pdf]] document.
+
+* Property Specification Language (PSL)
+   :PROPERTIES:
+   :CUSTOM_ID: psl
+   :END:
+
+Spot supports the linear fragment of PSL, this basically extends LTL
+with semi-extended regular expressions.  Those regular expressions can
+express finite languages and PSL introduces operators to use these
+finite languages as a prefix of a PSL formula.
+
+| PSL formula  | meaning                                                                 |
+|--------------+-------------------------------------------------------------------------|
+| ={e}<>->f    | =f= should hold on the last instant of some one prefix that matches =e= |
+| ={e}[]->f    | =f= should hold on the last instant of all prefixes that match =e=      |
+
+In the above table =e= is a semi-extended expression, and =f= is a PSL (or LTL) formula.
+
+Semi-extended regular expressions can be formed using Boolean
+expressions over [[#ap][atomic propositions]] and the following
+operators:
+
+| SERE               | meaning                                                                           |
+|--------------------+-----------------------------------------------------------------------------------|
+| =e1;e2=            | =e1= followed by =e2= (concatenation)                                             |
+| =e1:e2=            | =e1= fused with =e2=: =e2= has to start matching on the last letter matching =e1= |
+| =e1 \vert\vert e2= | =e1= or =e2= have to match (union)                                                |
+| =e1 && e2=         | =e1= and =e2= have to match (intersection)                                        |
+| =e1 & e2=          | =e2= should match a prefix of what =e1= matches, or vice-versa                    |
+| =e[*]=             | =e= should be matched a finite number of times (Kleene star)                      |
+| =e[*2..3]=         | same as =(e;e)\vert\vert(e;e;e)=                                                  |
+| =e[+]=             | =e= should be matched a finite number of times, and at least once                 |
+
+
+For example the formula ={(1;1)[*]}[]->a= can be interpreted as follows:
+- the SERE =(1;1)[*]= matches all prefixes of even length (here =1=
+  stands for the true formula, so it matches anything)
+- the part =...[]->a= requests that =a= should be true at the end of each
+  matched prefix.
+
+Therefore this formula ensures that =a= is true at every even instant
+(if we consider the first instant to be odd).  This is the canonical
+example of formula that can be expressed in PSL but not in LTL.
+
+A few other operators and syntactic sugar are supported.  For more
+discussion about the temporal operators and their semantics, see the
+[[https://spot.lrde.epita.fr/tl.pdf][tl.pdf]] document.
+
+* Translation of temporal logic to automata
+   :PROPERTIES:
+   :CUSTOM_ID: ltl2tgba
+   :END:
+
+Spot can translate any LTL or PSL formula into Büchi automata, or generalized Büchi automata.
+
+Internally the translator produces [[#trans-acc][Transition-based Generalized Büchi Automata (TGBA)]] but that
+automaton can then be simplified using several algorithms depending on what options were given.
+
+Here is for instance a translation of ={(1;1)[*]}[]->a= discussed [[#psl][above]].
+
+#+NAME: ltl2tgba1
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba '{(1;1)[*]}[]->a' -d
+#+END_SRC
+#+BEGIN_SRC dot :file concept-ltl2tgba.png :cmdline -Tpng :var txt=ltl2tgba1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:concept-ltl2tgba.png]]
+
+
+[[file:tut10.org][Another page shows how to translate an LTL formula into a never claim]]
+from the command-line, Python, or C++.
+
+* Architecture of Spot
+   :PROPERTIES:
+   :CUSTOM_ID: architecture
+   :END:
+
+The Spot project can be broken down into several main parts:
+
+  - =libbddx=: a customized version of [[http://sourceforge.net/projects/buddy/][the BuDDy library]], for manipulating [[#bdd][BDDs]].
+  - =libspot=: the main library, containing a C++11 implementation of all the
+    data structures and algorithms.  This depends on =libddx=.
+  - [[file:tools.org][command-line tools]]: built upon the =libspot= library, exporting some of its
+    features to shell users
+  - Python bindings for =libbddx= and =libspot=: those make it possible to write
+    python scripts for specific tasks, and allow interactive use of the library
+    via environments such a [[http://ipython.org][IPython/Jupyter]].

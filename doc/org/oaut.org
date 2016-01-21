@@ -845,6 +845,9 @@ export SPOT_DOTEXTRA='node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee
 #+END_SRC
 
 * Statistics
+  :PROPERTIES:
+  :CUSTOM_ID: stats
+  :END:
 
 The =--stats= option takes format string parameter to specify what and
 how statistics should be output.

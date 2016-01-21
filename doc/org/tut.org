@@ -11,6 +11,9 @@ to see illustrated here.
 If you have difficulties compiling the C++ examples, check out [[file:compile.org][these
 instructions]].
 
+Reading the [[file:concepts.org][concepts page]] might help if you are not familiar with some
+of the objects manipulated here.
+
 * Examples with Shell, Python, and C++
 
 All the following pages show how to perform the same task using the

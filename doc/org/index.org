@@ -6,16 +6,17 @@
 Spot is a C++11 library for ω-automata manipulation and model
 checking.  It has the following notable features:
 
-- Support for LTL (several syntaxes supported) and the linear fragment
-  of PSL.
-- Support for ω-automata with arbitrary acceptance condition.
-- Support for transition-based acceptance (state-based acceptance is
+- Support for [[file:concepts.org::#ltl][LTL]] (several syntaxes supported) and
+  [[file:concepts.org::#psl][the linear fragment of PSL]].
+- Support for ω-automata with [[file:concepts.org::#acceptance-condition][arbitrary acceptance condition]].
+- Support for [[file:concepts.org::#trans-acc][transition-based acceptance]] (state-based acceptance is
   supported by a reduction to transition-based acceptance).
 - The automaton parser can read a stream of automata written in any of
   four syntaxes ([[file:hoa.org][HOA]], [[http://spinroot.com/spin/Man/never.html][never claims]], [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]], [[http://www.ltl2dstar.de/docs/ltl2dstar.html][DSTAR]]).
 - Several algorithms for formula manipulation including: simplifying
   formulas, testing implication or equivalence, testing
-  stutter-invariance, removing some operators by rewriting, ...
+  stutter-invariance, removing some operators by rewriting, translation
+  to automata...
 - Several algorithms for automata manipulation including: product,
   emptiness checks, simulation-based reductions, minimization of
   weak-DBA, removal of useless SCCs, acceptance-condition

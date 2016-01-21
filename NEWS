@@ -1,6 +1,10 @@
 New in spot 1.99.7a (not yet released)
 
-  Nothing yet.
+  Documentation:
+
+  * There is a new page giving informal illustrations (and extra
+    pointers) for some concepts used in Spot.
+    See https://spot.lrde.epita.fr/concepts.html
 
 New in spot 1.99.7 (2016-01-15)
 

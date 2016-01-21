@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche et
-## Développement de l'Epita (LRDE).
+## Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de
+## Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -68,6 +68,7 @@ ORG_FILES = \
   org/autfilt.org \
   org/csv.org \
   org/compile.org \
+  org/concepts.org \
   org/dstar2tgba.org \
   org/genltl.org \
   org/hoa.org \
