@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015  Laboratoire de
+# Copyright (C) 2014, 2015, 2016  Laboratoire de
 # Recherche et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -188,9 +188,7 @@ class formula:
         # can still be used outside of IPython if IPython is not
         # installed.
         from IPython.display import SVG
-        ostr = ostringstream()
-        print_dot_psl(ostr, self)
-        return SVG(_ostream_to_svg(ostr))
+        return SVG(_str_to_svg(self.to_str('d')))
 
     def to_str(self, format='spot', parenth=False):
         if format == 'spot' or format == 'f':
@@ -207,6 +205,10 @@ class formula:
             return str_latex_psl(self, parenth)
         elif format == 'sclatex' or format == 'X':
             return str_sclatex_psl(self, parenth)
+        elif format == 'dot' or format == 'd':
+            ostr = ostringstream()
+            print_dot_psl(ostr, self)
+            return ostr.str().encode('utf-8')
         else:
             raise ValueError("unknown string format: " + format)
 
