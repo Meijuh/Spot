@@ -881,8 +881,8 @@ finite languages as a prefix of a PSL formula.
 
 | PSL formula  | meaning                                                                 |
 |--------------+-------------------------------------------------------------------------|
-| ={e}<>->f    | =f= should hold on the last instant of some one prefix that matches =e= |
-| ={e}[]->f    | =f= should hold on the last instant of all prefixes that match =e=      |
+| ={e}<>->f=   | =f= should hold on the last instant of some one prefix that matches =e= |
+| ={e}[]->f=   | =f= should hold on the last instant of all prefixes that match =e=      |
 
 In the above table =e= is a semi-extended expression, and =f= is a PSL (or LTL) formula.
 
@@ -890,16 +890,16 @@ Semi-extended regular expressions can be formed using Boolean
 expressions over [[#ap][atomic propositions]] and the following
 operators:
 
-| SERE               | meaning                                                                           |
-|--------------------+-----------------------------------------------------------------------------------|
-| =e1;e2=            | =e1= followed by =e2= (concatenation)                                             |
-| =e1:e2=            | =e1= fused with =e2=: =e2= has to start matching on the last letter matching =e1= |
-| =e1 \vert\vert e2= | =e1= or =e2= have to match (union)                                                |
-| =e1 && e2=         | =e1= and =e2= have to match (intersection)                                        |
-| =e1 & e2=          | =e2= should match a prefix of what =e1= matches, or vice-versa                    |
-| =e[*]=             | =e= should be matched a finite number of times (Kleene star)                      |
-| =e[*2..3]=         | same as =(e;e)\vert\vert(e;e;e)=                                                  |
-| =e[+]=             | =e= should be matched a finite number of times, and at least once                 |
+| SERE                 | meaning                                                                           |
+|----------------------+-----------------------------------------------------------------------------------|
+| =e1;e2=              | =e1= followed by =e2= (concatenation)                                             |
+| =e1:e2=              | =e1= fused with =e2=: =e2= has to start matching on the last letter matching =e1= |
+| =e1= \vert\vert =e2= | =e1= or =e2= have to match (union)                                                |
+| =e1 && e2=           | =e1= and =e2= have to match (intersection)                                        |
+| =e1 & e2=            | =e2= should match a prefix of what =e1= matches, or vice-versa                    |
+| =e[*]=               | =e= should be matched a finite number of times (Kleene star)                      |
+| =e[*2..3]=           | same as =(e;e)= \vert\vert =(e;e;e)=                                              |
+| =e[+]=               | =e= should be matched a finite number of times, and at least once                 |
 
 
 For example the formula ={(1;1)[*]}[]->a= can be interpreted as follows:
@@ -929,7 +929,7 @@ automaton can then be simplified using several algorithms depending on what opti
 Here is for instance a translation of ={(1;1)[*]}[]->a= discussed [[#psl][above]].
 
 #+NAME: ltl2tgba1
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba '{(1;1)[*]}[]->a' -d
 #+END_SRC
 #+BEGIN_SRC dot :file concept-ltl2tgba.png :cmdline -Tpng :var txt=ltl2tgba1 :exports results
