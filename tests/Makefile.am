@@ -302,6 +302,7 @@ TESTS_python = \
   python/optionmap.py \
   python/parsetgba.py \
   python/piperead.ipynb \
+  python/prodexpt.py \
   python/product.ipynb \
   python/randaut.ipynb \
   python/randgen.py \

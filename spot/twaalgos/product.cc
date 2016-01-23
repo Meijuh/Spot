@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -49,7 +49,9 @@ namespace spot
       std::unordered_map<product_state, unsigned, product_state_hash> s2n;
       std::deque<std::pair<product_state, unsigned>> todo;
 
-      assert(left->get_dict() == right->get_dict());
+      if (left->get_dict() != right->get_dict())
+	throw std::runtime_error("product: left and right automata should "
+				 "share their bdd_dict");
       auto res = make_twa_graph(left->get_dict());
       res->copy_ap_of(left);
       res->copy_ap_of(right);

@@ -574,7 +574,7 @@ def _postproc_translate_options(obj, default_type, *args):
     obj.set_level(optm_)
 
 
-def translate(formula, *args):
+def translate(formula, *args, dict=_bdd_dict):
     """Translate a formula into an automaton.
 
     Keep in mind that 'Deterministic' expresses just a preference that
@@ -592,7 +592,7 @@ def translate(formula, *args):
 
     The default corresponds to 'tgba', 'small' and 'high'.
     """
-    a = translator(_bdd_dict)
+    a = translator(dict)
     _postproc_translate_options(a, postprocessor.TGBA, *args)
     if type(formula) == str:
         formula = parse_formula(formula)

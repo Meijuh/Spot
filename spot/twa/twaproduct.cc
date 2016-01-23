@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -283,6 +283,9 @@ namespace spot
     : twa(left->get_dict()), left_(left), right_(right),
       pool_(sizeof(state_product))
   {
+    if (left->get_dict() != right->get_dict())
+      throw std::runtime_error("twa_product: left and right automata should "
+			       "share their bdd_dict");
     assert(get_dict() == right_->get_dict());
 
     // If one of the side is a Kripke structure, it is easier to deal

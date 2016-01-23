@@ -1,5 +1,10 @@
 New in spot 1.99.7a (not yet released)
 
+  Library:
+
+  * Building products with different dictionaries now raise an
+    exception instead of using an assertion that could be disabled.
+
   Documentation:
 
   * There is a new page giving informal illustrations (and extra
