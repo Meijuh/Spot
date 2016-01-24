@@ -43,7 +43,7 @@ PATH="@abs_top_builddir@/bin:$PATH"
 export PATH
 
 test -z "$1" &&
-    PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec @PYTHON@
+    PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec $PREFIXCMD @PYTHON@
 srcdir="@srcdir@"
 
 case $1 in
