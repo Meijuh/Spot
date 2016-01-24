@@ -11,3 +11,4 @@ buddy.py*
 *.pyc
 */spotimg
 ajax/*.py
+spot/*.py
