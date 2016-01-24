@@ -25,7 +25,7 @@ if sys.hexversion < 0x03030000:
     sys.exit("This module requires Python 3.3 or newer")
 
 
-from spot_impl import *
+from spot.impl import *
 import subprocess
 import os
 import signal

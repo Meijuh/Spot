@@ -26,7 +26,8 @@
 #include <cstddef>
 %}
 
-%module(director="1") spot_impl
+
+%module(package="spot", director="1") impl
 
 %include "std_shared_ptr.i"
 %include "std_vector.i"

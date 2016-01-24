@@ -24,15 +24,20 @@
 # Darwin needs some help in figuring out where non-installed libtool
 # libraries are (on this platform libtool encodes the expected final
 # path of dependent libraries in each library).
-modpath='@abs_top_builddir@/python/.libs'
-modpath=$modpath:'@top_builddir@/spot/.libs':'@top_builddir@/buddy/spot/.libs'
+modpath='@abs_top_builddir@/python/.libs:@abs_top_builddir@/python/spot/.libs'
+modpath=$modpath:'@top_builddir@/spot/.libs:@top_builddir@/buddy/spot/.libs'
 
 # We need access to both the *.py files, and the *.so.  We used to
 # rely on a module called ltihooks.py to teach the import function how
 # to load a Libtool library, but it started to cause issues with
 # Python 2.6.
-pypath='@abs_top_builddir@/python':'@abs_top_builddir@/python/.libs'
-pypath=$pypath:'@abs_top_srcdir@/python':'@abs_top_srcdir@/python/.libs'
+pypath=
+for i in python python/spot; do
+    for j in '@abs_top_builddir@' '@abs_top_srcdir@'; do
+	pypath=$j/$i:$j/$i/.libs:$pypath
+    done
+done
+pypath=${pypath%:}
 
 PATH="@abs_top_builddir@/bin:$PATH"
 export PATH
