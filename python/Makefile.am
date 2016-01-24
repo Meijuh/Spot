@@ -32,15 +32,17 @@ AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_builddir) -I$(top_srcdir) \
 # this.
 SWIGFLAGS = -c++ -python -py3 -O -nofastproxy
 
-EXTRA_DIST = spot/impl.i buddy.i
+EXTRA_DIST = buddy.i spot/impl.i spot/ltsmin.i
 python_PYTHON = \
   $(srcdir)/spot/__init__.py \
   $(srcdir)/spot/impl.py \
+  $(srcdir)/spot/ltsmin.py \
   $(srcdir)/buddy.py
-pyexec_LTLIBRARIES = spot/_impl.la _buddy.la
+pyexec_LTLIBRARIES = _buddy.la spot/_impl.la spot/_ltsmin.la
 
 MAINTAINERCLEANFILES = \
   $(srcdir)/spot/impl_wrap.cxx $(srcdir)/spot/impl.py \
+  $(srcdir)/spot/ltsmin_wrap.cxx $(srcdir)/spot/ltsmin.py \
   $(srcdir)/buddy_wrap.cxx $(srcdir)/buddy.py
 
 ## spot
@@ -54,6 +56,20 @@ $(srcdir)/spot/impl_wrap.cxx: $(srcdir)/spot/impl.i
 
 $(srcdir)/spot/impl.py: $(srcdir)/spot/impl.i
 	$(MAKE) $(AM_MAKEFLAGS) spot/impl_wrap.cxx
+
+
+## spot-ltsmin
+
+spot__ltsmin_la_SOURCES = $(srcdir)/spot/ltsmin_wrap.cxx
+spot__ltsmin_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
+spot__ltsmin_la_LIBADD = $(top_builddir)/spot/libspot.la \
+                       $(top_builddir)/spot/ltsmin/libspotltsmin.la
+
+$(srcdir)/spot/ltsmin_wrap.cxx: $(srcdir)/spot/ltsmin.i
+	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot/ltsmin.i
+
+$(srcdir)/spot/ltsmin.py: $(srcdir)/spot/ltsmin.i
+	$(MAKE) $(AM_MAKEFLAGS) spot/ltsmin_wrap.cxx
 
 
 ## buddy

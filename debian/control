@@ -30,7 +30,7 @@ Package: libspot-dev
 Architecture: any
 Section: libdevel
 Suggests: spot-doc
-Depends: libspot0 (>= ${source:Version}), libspot0 (<< ${source:Version}.1~), libspotltsmin0 (>= ${source:Version}) , libspotltsmin0 (<< ${source:Version}.1~), ${misc:Depends}, libbddx-dev
+Depends: libspot0 (>= ${source:Version}), libspot0 (<< ${source:Version}.1~), libspotltsmin0 (>= ${source:Version}), libspotltsmin0 (<< ${source:Version}.1~), ${misc:Depends}, libbddx-dev
 Description: headers for the Spot model checking library
  C++ headers for the Spot library.
 
@@ -70,7 +70,7 @@ Description: documentation for Spot
 Package: python3-spot
 Architecture: any
 Section: python
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}, libspot0 (>= ${source:Version}), libspot0 (<< ${source:Version}.1~)
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}, libspot0 (>= ${source:Version}), libspot0 (<< ${source:Version}.1~), libspotltsmin0 (>= ${source:Version}), libspotltsmin0 (<< ${source:Version}.1~)
 Suggests: ipython3
 Description: python3 binding for spot
  Spot allows manipulation of omega-automata as well

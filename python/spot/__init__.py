@@ -872,5 +872,5 @@ def sat_minimize(aut, acc=None, colored=False,
         args += ',max-states=' + str(max_states)
     if dichotomy:
         args += ',dichotomy';
-    from spot_impl import sat_minimize as sm
+    from spot.impl import sat_minimize as sm
     return sm(aut, args, state_based)

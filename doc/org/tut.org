@@ -59,5 +59,7 @@ real notebooks instead.
   in Python
 - [[https://spot.lrde.epita.fr/ipynb/randltl.html][=randltl.ipynb=]] demonstrates a Python-version of [[file:randltl.org][=randltl=]]
 - [[https://spot.lrde.epita.fr/ipynb/decompose.html][=decompose.ipynb=]] illustrates the =decompose_strength()= function
-- [[https://spot.lrde.epita.fr/ipynb/testingaut.html][=testingaut.ipynb=]] shows the step necessary to build a testing
+- [[https://spot.lrde.epita.fr/ipynb/testingaut.html][=testingaut.ipynb=]] shows the steps necessary to build a testing
   automaton
+- [[https://spot.lrde.epita.fr/ipynb/ltsmin.html][=ltsmin.ipynb=]] minimal test for loading a DiVinE model using
+  the LTSmin interface.

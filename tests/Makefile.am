@@ -298,6 +298,7 @@ TESTS_python = \
   python/ltl2tgba.test \
   python/ltlparse.py \
   python/ltlsimple.py \
+  python/ltsmin.ipynb \
   python/minato.py \
   python/optionmap.py \
   python/parsetgba.py \
@@ -314,6 +315,8 @@ TESTS_python = \
   python/testingaut.ipynb \
   python/trival.py
 endif
+
+CLEANFILES = python/finite.dve2C python/finite.dve.cpp
 
 SUFFIXES = .ipynb .html
 .ipynb.html:

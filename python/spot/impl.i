@@ -143,6 +143,9 @@
 
 #include <spot/parseaut/public.hh>
 
+#include <spot/kripke/kripke.hh>
+#include <spot/kripke/fairkripke.hh>
+
 #include <spot/ta/ta.hh>
 #include <spot/ta/tgta.hh>
 #include <spot/ta/taexplicit.hh>
@@ -433,6 +436,9 @@ namespace std {
 %include <spot/twaalgos/relabel.hh>
 
 %include <spot/parseaut/public.hh>
+
+%include <spot/kripke/fairkripke.hh>
+%include <spot/kripke/kripke.hh>
 
 %include <spot/ta/ta.hh>
 %include <spot/ta/tgta.hh>

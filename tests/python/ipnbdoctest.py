@@ -185,6 +185,10 @@ def run_cell(kc, cell):
             out.ename = content['ename']
             out.evalue = content['evalue']
             out.traceback = content['traceback']
+
+            # sys.exit(77) is used to Skip the test.
+            if out.ename == 'SystemExit' and out.evalue == '77':
+                sys.exit(77)
         else:
             print("unhandled iopub msg:", msg_type)
 
