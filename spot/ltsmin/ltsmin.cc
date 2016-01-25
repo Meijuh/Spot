@@ -1122,4 +1122,41 @@ namespace spot
   ltsmin_model::~ltsmin_model()
   {
   }
+
+
+  int ltsmin_model::state_size() const
+  {
+    return iface->get_state_size();
+  }
+
+  const char* ltsmin_model::state_variable_name(int var) const
+  {
+    return iface->get_state_variable_name(var);
+  }
+
+  int ltsmin_model::state_variable_type(int var) const
+  {
+    return iface->get_state_variable_type(var);
+  }
+
+  int ltsmin_model::type_count() const
+  {
+    return iface->get_type_count();
+  }
+
+  const char* ltsmin_model::type_name(int type) const
+  {
+    return iface->get_type_name(type);
+  }
+
+  int ltsmin_model::type_value_count(int type)
+  {
+    return iface->get_type_value_count(type);
+  }
+
+  const char* ltsmin_model::type_value_name(int type, int val)
+  {
+    return iface->get_type_value_name(type, val);
+  }
+
 }

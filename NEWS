@@ -8,7 +8,9 @@ New in spot 1.99.7a (not yet released)
   * The load_ltsmin() function has been split in two.  Now you should
     first call ltsmin_model::load(filename) to create an ltlmin_model,
     and then call the ltsmin_model::kripke(...) method to create an
-    automaton that can be iterated on the fly.
+    automaton that can be iterated on the fly.  The intermediate
+    object can be queried about the supported variables and their
+    types.
 
   Python:
 

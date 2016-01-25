@@ -71,12 +71,39 @@ import spot
 def load(filename):
   return model.load(filename)
 
-def _kripke(self, ap_set, dict=spot._bdd_dict,
-            dead=spot.formula_ap('dead'),
-            compress=2):
-  s = spot.atomic_prop_set()
-  for ap in ap_set:
-    s.insert(spot.formula_ap(ap))
-  return self.kripke_raw(s, dict, dead, compress)
-model.kripke = _kripke
+@spot._extend(model)
+class model:
+  def kripke(self, ap_set, dict=spot._bdd_dict,
+	      dead=spot.formula_ap('dead'),
+	      compress=2):
+    s = spot.atomic_prop_set()
+    for ap in ap_set:
+      s.insert(spot.formula_ap(ap))
+    return self.kripke_raw(s, dict, dead, compress)
+
+  def info(self):
+    res = {}
+    ss = self.state_size()
+    res['state_size'] = ss
+    res['variables'] = [(self.state_variable_name(i),
+			 self.state_variable_type(i)) for i in range(ss)]
+    tc = self.type_count()
+    res['types'] = [(self.type_name(i),
+		     [self.type_value_name(i, j)
+		      for j in range(self.type_value_count(i))])
+		     for i in range(tc)]
+    return res
+
+  def __repr__(self):
+    res = "ltsmin model with the following variables:\n";
+    info = self.info()
+    for (var, t) in info['variables']:
+      res += '  ' + var + ': ';
+      type, vals = info['types'][t]
+      if vals:
+        res += str(vals)
+      else:
+        res += type
+      res += '\n';
+    return res
 %}

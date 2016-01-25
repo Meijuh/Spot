@@ -70,6 +70,22 @@ namespace spot
 		      bdd_dict_ptr dict,
 		      formula dead = formula::tt(),
 		      int compress = 0) const;
+
+    /// Number of variables in a state
+    int state_size() const;
+    /// Name of each variable
+    const char* state_variable_name(int var) const;
+    /// Type of each variable
+    int state_variable_type(int var) const;
+    /// Number of different types
+    int type_count() const;
+    /// Name of each type
+    const char* type_name(int type) const;
+    /// Count of enumerated values for a type
+    int type_value_count(int type);
+    /// Name of each enumerated value for a type
+    const char* type_value_name(int type, int val);
+
   private:
     ltsmin_model(std::shared_ptr<const spins_interface> iface) : iface(iface)
       {
