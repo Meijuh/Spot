@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
-// et Developpement de l'Epita (LRDE)
+// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -216,8 +216,15 @@ checked_main(int argc, char **argv)
   if (output != DotFormula)
     {
       tm.start("loading ltsmin model");
-      model = spot::load_ltsmin(argv[1], dict, &ap, deadf,
-				compress_states, true);
+      try
+	{
+	  model = spot::ltsmin_model::load(argv[1]).kripke(&ap, dict, deadf,
+							   compress_states);
+	}
+      catch (std::runtime_error& e)
+	{
+	  std::cerr << e.what() << '\n';
+	}
       tm.stop("loading ltsmin model");
 
       if (!model)

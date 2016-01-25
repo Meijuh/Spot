@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -24,40 +24,56 @@
 
 namespace spot
 {
+  struct spins_interface;
 
-  // \brief Load an ltsmin model, either from divine or promela.
-  //
-  // The filename given can be either a *.pm/*.pml/*.prom promela
-  // source or a *.spins dynamic library compiled with "spins file".
-  // If a promela source is supplied, this function will call spins to
-  // update the *.spins library only if it is not newer.
-  //
-  // Similarly the divine models can be specified as *.dve source or
-  // *.dve or *.dve2C libraries.
-  //
-  // The dead parameter is used to control the behavior of the model
-  // on dead states (i.e. the final states of finite sequences).
-  // If DEAD is "false", it means we are not
-  // interested in finite sequences of the system, and dead state
-  // will have no successor.  If DEAD is
-  // "true", we want to check finite sequences as well as infinite
-  // sequences, but do not need to distinguish them.  In that case
-  // dead state will have a loop labeled by true.  If DEAD is any
-  // other string, this is the name a property that should be true
-  // when looping on a dead state, and false otherwise.
-  //
-  // This function returns 0 on error.
-  //
-  // \a file the name of the *.prom source file or the dynamic library
-  // \a to_observe the list of atomic propositions that should be observed
-  //               in the model
-  // \a dict the BDD dictionary to use
-  // \a dead an atomic proposition or constant to use for looping on
-  //         dead states
-  // \a verbose whether to output verbose messages
-  SPOT_API kripke_ptr
-  load_ltsmin(const std::string& file, const bdd_dict_ptr& dict,
-	      const atomic_prop_set* to_observe,
-	      formula dead = formula::tt(),
-	      int compress = 0, bool verbose = true);
+  class SPOT_API ltsmin_model final
+  {
+  public:
+    ~ltsmin_model();
+
+    // \brief Load an ltsmin model, either from divine or promela.
+    //
+    // The filename given can be either a *.pm/*.pml/*.prom promela
+    // source or a *.spins dynamic library compiled with "spins file".
+    // If a promela source is supplied, this function will call spins to
+    // update the *.spins library only if it is not newer.
+    //
+    // Similarly the divine models can be specified as *.dve source or
+    // *.dve or *.dve2C libraries.
+    //
+    static ltsmin_model load(const std::string& file);
+
+    // \brief Generate a Kripke structure on-the-fly
+    //
+    // The dead parameter is used to control the behavior of the model
+    // on dead states (i.e. the final states of finite sequences).
+    // If DEAD is "false", it means we are not
+    // interested in finite sequences of the system, and dead state
+    // will have no successor.  If DEAD is
+    // "true", we want to check finite sequences as well as infinite
+    // sequences, but do not need to distinguish them.  In that case
+    // dead state will have a loop labeled by true.  If DEAD is any
+    // other string, this is the name a property that should be true
+    // when looping on a dead state, and false otherwise.
+    //
+    // This function returns 0 on error.
+    //
+    // \a to_observe the list of atomic propositions that should be observed
+    //               in the model
+    // \a dict the BDD dictionary to use
+    // \a dead an atomic proposition or constant to use for looping on
+    //         dead states
+    // \a compress whether to compress the states.  Use 0 to disable, 1
+    // to enable compression, 2 to enable a faster compression that only
+    // work if all variables are smaller than 2^28.
+    kripke_ptr kripke(const atomic_prop_set* to_observe,
+		      bdd_dict_ptr dict,
+		      formula dead = formula::tt(),
+		      int compress = 0) const;
+  private:
+    ltsmin_model(std::shared_ptr<const spins_interface> iface) : iface(iface)
+      {
+      }
+    std::shared_ptr<const spins_interface> iface;
+  };
 }

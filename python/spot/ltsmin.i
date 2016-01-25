@@ -47,20 +47,36 @@ using namespace spot;
 %import(module="spot.impl") <spot/kripke/fairkripke.hh>
 %import(module="spot.impl") <spot/kripke/kripke.hh>
 
+%exception {
+  try {
+    $action
+  }
+  catch (const std::runtime_error& e)
+  {
+    SWIG_exception(SWIG_RuntimeError, e.what());
+  }
+}
+
 namespace std {
   %template(atomic_prop_set) set<spot::formula>;
 }
 
+%rename(model) spot::ltsmin_model;
+%rename(kripke_raw) spot::ltsmin_model::kripke;
 %include <spot/ltsmin/ltsmin.hh>
 
 %pythoncode %{
 import spot
 
-def load(filename, ap_set, dict=spot._bdd_dict,
-         dead=spot.formula_ap('dead'),
-         compress=2, debug=False):
+def load(filename):
+  return model.load(filename)
+
+def _kripke(self, ap_set, dict=spot._bdd_dict,
+            dead=spot.formula_ap('dead'),
+            compress=2):
   s = spot.atomic_prop_set()
   for ap in ap_set:
     s.insert(spot.formula_ap(ap))
-  return load_ltsmin(filename, dict, s, dead, compress, debug)
+  return self.kripke_raw(s, dict, dead, compress)
+model.kripke = _kripke
 %}

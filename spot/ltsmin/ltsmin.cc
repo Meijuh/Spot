@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -53,21 +53,33 @@ namespace spot
     typedef void (*TransitionCB)(void *ctx,
 				 transition_info_t *transition_info,
 				 int *dst);
+  }
 
-    struct spins_interface
+  struct spins_interface
+  {
+    lt_dlhandle handle;	// handle to the dynamic library
+    void (*get_initial_state)(void *to);
+    int (*have_property)();
+    int (*get_successors)(void* m, int *in, TransitionCB, void *arg);
+    int (*get_state_size)();
+    const char* (*get_state_variable_name)(int var);
+    int (*get_state_variable_type)(int var);
+    int (*get_type_count)();
+    const char* (*get_type_name)(int type);
+    int (*get_type_value_count)(int type);
+    const char* (*get_type_value_name)(int type, int value);
+
+    ~spins_interface()
     {
-      lt_dlhandle handle;	// handle to the dynamic library
-      void (*get_initial_state)(void *to);
-      int (*have_property)();
-      int (*get_successors)(void* m, int *in, TransitionCB, void *arg);
-      int (*get_state_size)();
-      const char* (*get_state_variable_name)(int var);
-      int (*get_state_variable_type)(int var);
-      int (*get_type_count)();
-      const char* (*get_type_name)(int type);
-      int (*get_type_value_count)(int type);
-      const char* (*get_type_value_name)(int type, int value);
-    };
+      if (handle)
+	lt_dlclose(handle);
+      lt_dlexit();
+    }
+  };
+
+  namespace
+  {
+    typedef std::shared_ptr<const spins_interface> spins_interface_ptr;
 
     ////////////////////////////////////////////////////////////////////////
     // STATE
@@ -322,14 +334,15 @@ namespace spot
     };
 
 
-    int
+    void
     convert_aps(const atomic_prop_set* aps,
-		const spins_interface* d,
+		spins_interface_ptr d,
 		bdd_dict_ptr dict,
 		formula dead,
 		prop_set& out)
     {
       int errors = 0;
+      std::ostringstream err;
 
       int state_size = d->get_state_size();
       typedef std::map<std::string, var_info> val_map_t;
@@ -367,8 +380,7 @@ namespace spot
 	    ++s;
 	  if (!*s)
 	    {
-	      std::cerr << "Proposition `" << str
-			<< "' cannot be parsed." << std::endl;
+	      err << "Proposition `" << str << "' cannot be parsed.\n";
 	      ++errors;
 	      continue;
 	    }
@@ -393,8 +405,7 @@ namespace spot
 
 	  if (name == name_p)
 	    {
-	      std::cerr << "Proposition `" << str
-			<< "' cannot be parsed." << std::endl;
+	      err << "Proposition `" << str << "' cannot be parsed.\n";
 	      free(name);
 	      ++errors;
 	      continue;
@@ -415,9 +426,9 @@ namespace spot
 
 	      if (ni == val_map.end())
 		{
-		  std::cerr << "No variable `" << name
-			    << "' found in model (for proposition `"
-			    << str << "')." << std::endl;
+		  err << "No variable `" << name
+		      << "' found in model (for proposition `"
+		      << str << "').\n";
 		  free(name);
 		  ++errors;
 		  continue;
@@ -429,14 +440,12 @@ namespace spot
 	      enum_map_t::const_iterator ei = enum_map[type_num].find(lastdot);
 	      if (ei == enum_map[type_num].end())
 		{
-		  std::cerr << "No state `" << lastdot
-			    << "' known for variable `"
-			    << name << "'." << std::endl;
-		  std::cerr << "Possible states are:";
-		  for (ei = enum_map[type_num].begin();
-		       ei != enum_map[type_num].end(); ++ei)
-		    std::cerr << ' ' << ei->first;
-		  std::cerr << '\n';
+		  err << "No state `" << lastdot << "' known for variable `"
+		      << name << "'.\n";
+		  err << "Possible states are:";
+		  for (auto& ej: enum_map[type_num])
+		    err << ' ' << ej.first;
+		  err << '\n';
 
 		  free(name);
 		  ++errors;
@@ -446,16 +455,16 @@ namespace spot
 	      // At this point, *s should be 0.
 	      if (*s)
 		{
-		  std::cerr << "Trailing garbage `" << s
-			    << "' at end of proposition `"
-			    << str << "'." << std::endl;
+		  err << "Trailing garbage `" << s
+		      << "' at end of proposition `"
+		      << str << "'.\n";
 		  free(name);
 		  ++errors;
 		  continue;
 		}
 
 	      // Record that X.Y must be equal to Z.
-	      int v = dict->register_proposition(*ap, d);
+	      int v = dict->register_proposition(*ap, d.get());
 	      one_prop p = { ni->second.num, OP_EQ, ei->second, v };
 	      out.push_back(p);
 	      free(name);
@@ -515,9 +524,9 @@ namespace spot
 	      break;
 	    default:
 	    report_error:
-	      std::cerr << "Unexpected `" << s
-			<< "' while parsing atomic proposition `" << str
-			<< "'." << std::endl;
+	      err << "Unexpected `" << s
+		  << "' while parsing atomic proposition `" << str
+		  << "'.\n";
 	      ++errors;
 	      free(name);
 	      continue;
@@ -534,8 +543,7 @@ namespace spot
 	      val = strtol(s, &s_end, 10);
 	      if (s == s_end)
 		{
-		  std::cerr << "Failed to parse `" << s
-			    << "' as an integer." << std::endl;
+		  err << "Failed to parse `" << s << "' as an integer.\n";
 		  ++errors;
 		  free(name);
 		  continue;
@@ -555,14 +563,13 @@ namespace spot
 	      enum_map_t::const_iterator ei = enum_map[type_num].find(st);
 	      if (ei == enum_map[type_num].end())
 		{
-		  std::cerr << "No state `" << st
-			    << "' known for variable `"
-			    << name << "'." << std::endl;
-		  std::cerr << "Possible states are:";
+		  err << "No state `" << st << "' known for variable `"
+		      << name << "'.\n";
+		  err << "Possible states are:";
 		  for (ei = enum_map[type_num].begin();
 		       ei != enum_map[type_num].end(); ++ei)
-		    std::cerr << ' ' << ei->first;
-		  std::cerr << '\n';
+		    err << ' ' << ei->first;
+		  err << '\n';
 
 		  free(name);
 		  ++errors;
@@ -578,11 +585,11 @@ namespace spot
 	    ++s;
 	  if (*s)
 	    {
-	      std::cerr << "Unexpected `" << s
-			<< "' while parsing atomic proposition `" << str
-			<< "'." << std::endl;
-		  ++errors;
-		  continue;
+	      err << "Unexpected `" << s
+		  << "' while parsing atomic proposition `" << str
+		  << "'.\n";
+	      ++errors;
+	      continue;
 	    }
 
 
@@ -591,7 +598,8 @@ namespace spot
 	  out.push_back(p);
 	}
 
-      return errors;
+      if (errors)
+	throw std::runtime_error(err.str());
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -601,7 +609,7 @@ namespace spot
     {
     public:
 
-      spins_kripke(const spins_interface* d, const bdd_dict_ptr& dict,
+      spins_kripke(spins_interface_ptr d, const bdd_dict_ptr& dict,
 		   const spot::prop_set* ps, formula dead,
 		   int compress)
 	: kripke(dict),
@@ -679,13 +687,9 @@ namespace spot
 	    delete[] uncompressed_;
 	    delete[] compressed_;
 	  }
-	lt_dlclose(d_->handle);
+	dict_->unregister_all_my_variables(d_.get());
 
-	dict_->unregister_all_my_variables(d_);
-
-	delete d_;
 	delete ps_;
-	lt_dlexit();
 
 	if (state_condition_last_state_)
 	  state_condition_last_state_->destroy();
@@ -918,7 +922,7 @@ namespace spot
       }
 
     private:
-      const spins_interface* d_;
+      spins_interface_ptr d_;
       int state_size_;
       bdd_dict_ptr dict_;
       const char** vname_;
@@ -950,8 +954,8 @@ namespace spot
 
     // Call spins to compile "foo.prom" as "foo.prom.spins" if the latter
     // does not exist already or is older.
-    static bool
-    compile_model(std::string& filename, std::string& ext, bool verbose)
+    static void
+    compile_model(std::string& filename, std::string& ext)
     {
       std::string command;
       std::string compiled_ext;
@@ -968,22 +972,14 @@ namespace spot
 	}
       else
 	{
-	  if (verbose)
-	    std::cerr << "Unknown extension `" << ext
-		      << ("'.  Use `.prom', `.pm', `.pml', `.dve', `.dve2C' or"
-			  "`.prom.spins'.") << std::endl;
-	  return false;
+	  throw std::runtime_error(std::string("Unknown extension '")
+				   + ext + "'.  Use '.prom', '.pm', '.pml', "
+				   "'.dve', '.dve2C', or '.prom.spins'.");
 	}
 
       struct stat s;
       if (stat(filename.c_str(), &s) != 0)
-	{
-	  if (verbose)
-	    {
-	      std::cerr << "Cannot open " << filename << std::endl;
-	      return true;
-	    }
-	}
+	throw std::runtime_error(std::string("Cannot open ") + filename);
 
       std::string old = filename;
       filename += compiled_ext;
@@ -998,26 +994,19 @@ namespace spot
       if (stat(filename.c_str(), &d) == 0)
 	if (s.st_mtime < d.st_mtime)
 	  // The .spins or .dve2C is up-to-date, no need to recompile it.
-	  return false;
+	  return;
 
       int res = system(command.c_str());
       if (res)
-	{
-	  if (verbose)
-	    std::cerr << "Execution of `" << command.c_str()
-		      << "' returned exit code " << WEXITSTATUS(res)
-		      << ".\n";
-	  return true;
-	}
-      return false;
+	throw std::runtime_error(std::string("Execution of '")
+				 + command.c_str() + "' returned exit code "
+				 + std::to_string(WEXITSTATUS(res)));
     }
 
   }
 
-  kripke_ptr
-  load_ltsmin(const std::string& file_arg, const bdd_dict_ptr& dict,
-	      const atomic_prop_set* to_observe,
-	      const formula dead, int compress, bool verbose)
+  ltsmin_model
+  ltsmin_model::load(const std::string& file_arg)
   {
     std::string file;
     if (file_arg.find_first_of("/\\") != std::string::npos)
@@ -1027,33 +1016,20 @@ namespace spot
 
     std::string ext = file.substr(file.find_last_of("."));
     if (ext != ".spins" && ext != ".dve2C")
-      {
-        if (compile_model(file, ext, verbose))
-          {
-            if (verbose)
-              std::cerr << "Failed to compile `" << file_arg
-              << "'." << std::endl;
-            return nullptr;
-          }
-      }
+      compile_model(file, ext);
 
     if (lt_dlinit())
-      {
-	if (verbose)
-	  std::cerr << "Failed to initialize libltdl." << std::endl;
-	return nullptr;
-      }
+      throw std::runtime_error("Failed to initialize libltldl.");
 
     lt_dlhandle h = lt_dlopen(file.c_str());
     if (!h)
       {
-	if (verbose)
-	  std::cerr << "Failed to load `" << file << "'." << std::endl;
 	lt_dlexit();
-	return nullptr;
+	throw std::runtime_error(std::string("Failed to load '")
+				 + file + "'.");
       }
 
-    spins_interface* d = new spins_interface;
+    auto d = std::make_shared<spins_interface>();
     d->handle = h;
 
     // SpinS interface.
@@ -1112,36 +1088,38 @@ namespace spot
 	  && d->get_type_name
 	  && d->get_type_value_count
 	  && d->get_type_value_name))
-      {
-	if (verbose)
-	  std::cerr << "Failed to resolve some symbol while loading `"
-		    << file << "'\n";
-	delete d;
-	lt_dlexit();
-	return nullptr;
-      }
+      throw std::runtime_error(std::string("Failed resolve some symbol"
+					   "while loading '") + file + "'.");
 
     if (d->have_property && d->have_property())
-      {
-        if (verbose)
-          std::cerr << "Model with an embedded property are not supported."
-        	    << std::endl;
-        delete d;
-        lt_dlexit();
-        return nullptr;
-      }
+      throw std::runtime_error("Models with embedded properties "
+			       "are not supported.");
 
+    return { d };
+  }
+
+
+  kripke_ptr
+  ltsmin_model::kripke(const atomic_prop_set* to_observe,
+		       bdd_dict_ptr dict,
+		       const formula dead, int compress) const
+  {
     spot::prop_set* ps = new spot::prop_set;
-    int errors = convert_aps(to_observe, d, dict, dead, *ps);
-    if (errors)
+    try
+      {
+	convert_aps(to_observe, iface, dict, dead, *ps);
+      }
+    catch (std::runtime_error)
       {
 	delete ps;
-	dict->unregister_all_my_variables(d);
-	delete d;
-	lt_dlexit();
-	return nullptr;
+	dict->unregister_all_my_variables(iface.get());
+	throw;
       }
 
-    return std::make_shared<spins_kripke>(d, dict, ps, dead, compress);
+    return std::make_shared<spins_kripke>(iface, dict, ps, dead, compress);
+  }
+
+  ltsmin_model::~ltsmin_model()
+  {
   }
 }

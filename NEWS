@@ -5,6 +5,16 @@ New in spot 1.99.7a (not yet released)
   * Building products with different dictionaries now raise an
     exception instead of using an assertion that could be disabled.
 
+  * The load_ltsmin() function has been split in two.  Now you should
+    first call ltsmin_model::load(filename) to create an ltlmin_model,
+    and then call the ltsmin_model::kripke(...) method to create an
+    automaton that can be iterated on the fly.
+
+  Python:
+
+  * The ltsmin interface has been binded in Python.  See
+    https://spot.lrde.epita.fr/ipynb/ltsmin.html for a short example.
+
   Documentation:
 
   * There is a new page giving informal illustrations (and extra
