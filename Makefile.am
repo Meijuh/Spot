@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
-## et Développement de l'Epita (LRDE).
+## Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
+## Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -47,6 +47,7 @@ DEBIAN =					\
   debian/libbddx0.install			\
   debian/libbddx-dev.install			\
   debian/libspot0.install			\
+  debian/libspotltsmin0.install			\
   debian/libspot-dev.install			\
   debian/python3-spot.examples			\
   debian/python3-spot.install			\
