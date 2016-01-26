@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2015 Laboratoire de Recherche et Developpement
-# de l'Epita
+# Copyright (C) 2013, 2015, 2016 Laboratoire de Recherche et
+# Developpement de l'Epita
 #
 # This file is part of Spot, a model checking library.
 #
@@ -186,6 +186,12 @@ State: 1
 State: 2
 --END--
 EOF
+
+
+# Thus should be marked as unambiguous.  Report from Joachim Klein.
+ltl2tgba --lbt-input -B -U -x wdba-minimize=0 "U p0 & p1 X ! p0" |
+    grep 'properties:.*unambiguous'
+
 
 # Make sure we preserve the "unambiguous" property if it is given.
 run 0 $autfilt -H --is-unambiguous input >output

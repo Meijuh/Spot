@@ -23,6 +23,11 @@ New in spot 1.99.7a (not yet released)
     pointers) for some concepts used in Spot.
     See https://spot.lrde.epita.fr/concepts.html
 
+  Bugs:
+
+  * Using ltl2tgba -U would fail to output the unambiguous property
+    (regression introduced in 1.99.7)
+
 New in spot 1.99.7 (2016-01-15)
 
   Command-line tools:

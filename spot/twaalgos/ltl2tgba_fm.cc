@@ -2193,7 +2193,7 @@ namespace spot
       }
 
     if (unambiguous)
-      a->prop_unambiguous();
+      a->prop_unambiguous(true);
 
     // Set the following to true to preserve state names.
     a->release_formula_namer(namer, false);
