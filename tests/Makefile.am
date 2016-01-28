@@ -316,7 +316,7 @@ TESTS_python = \
   python/trival.py
 endif
 
-CLEANFILES = python/finite.dve2C python/finite.dve.cpp
+CLEANFILES = python/test1.dve python/test1.dve2C python/test1.dve.cpp
 
 SUFFIXES = .ipynb .html
 .ipynb.html:

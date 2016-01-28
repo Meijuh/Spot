@@ -71,6 +71,8 @@ def setup(**kwargs):
         the font to use in the GraphViz output (default: 'Lato')
     show_default : str
         default options for show()
+    max_states : int
+        maximum number of states in GraphViz output (default: 50)
     """
     import os
 
@@ -80,7 +82,8 @@ def setup(**kwargs):
                                            kwargs.get('fillcolor', '#ffffaa'))
 
     bullets = 'B' if kwargs.get('bullets', True) else ''
-    d = 'rf({})'.format(kwargs.get('font', 'Lato')) + bullets
+    max_states = '<' + str(kwargs.get('max_states', 50))
+    d = 'rf({})'.format(kwargs.get('font', 'Lato')) + bullets + max_states
     global _show_default
     _show_default = kwargs.get('show_default', None)
     os.environ['SPOT_DOTDEFAULT'] = d

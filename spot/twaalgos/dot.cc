@@ -57,6 +57,7 @@ namespace spot
       const_twa_graph_ptr aut_;
       std::vector<std::string>* sn_ = nullptr;
       std::vector<std::pair<unsigned, unsigned>>* sprod_ = nullptr;
+      std::set<unsigned>* incomplete_;
       std::string* name_ = nullptr;
       acc_cond::mark_t inf_sets_ = 0U;
       acc_cond::mark_t fin_sets_ = 0U;
@@ -83,8 +84,20 @@ namespace spot
 	};
       const char*const* palette = palette9;
       int palette_mod = 9;
+      unsigned max_states_ = -1U;
+      bool max_states_given_ = false;
 
     public:
+
+      unsigned max_states()
+      {
+	return max_states_;
+      }
+
+      bool max_states_given()
+      {
+	return max_states_given_;
+      }
 
       void
       parse_opts(const char* options)
@@ -95,7 +108,7 @@ namespace spot
 	    {
 	    case '.':
 	      {
-	        // Copy the value in a string, so future calls to
+		// Copy the value in a string, so future calls to
 		// parse_opts do not fail if the environment has
 		// changed.  (This matters particularly in an ipython
 		// notebook, where it is tempting to redefine
@@ -120,6 +133,25 @@ namespace spot
 		if (options == end)
 		  throw std::runtime_error
 		    ("missing number after '+' in print_dot() options");
+		options = end;
+		break;
+	      }
+	    case '<':
+	      {
+		char* end;
+		max_states_ = strtoul(options, &end, 10);
+		if (options == end)
+		  throw std::runtime_error
+		    ("missing number after '<' in print_dot() options");
+		if (max_states_ == 0)
+		  {
+		    max_states_ = -1U;
+		    max_states_given_ = false;
+		  }
+		else
+		  {
+		    max_states_given_ = true;
+		  }
 		options = end;
 		break;
 	      }
@@ -445,6 +477,9 @@ namespace spot
 	      os_ << ", peripheries=2";
 	    os_ << "]\n";
 	  }
+	if (incomplete_ && incomplete_->find(s) != incomplete_->end())
+	  os_ << "  u" << s << " [label=\"...\", shape=none, width=0, height=0"
+	    "]\n  " << s << " -> u" << s << " [style=dashed]\n";
       }
 
       void
@@ -497,6 +532,8 @@ namespace spot
 		  sprod_ = nullptr;
 	      }
 	  }
+	incomplete_ =
+	  aut->get_named_prop<std::set<unsigned>>("incomplete-states");
 	if (opt_name_)
 	  name_ = aut_->get_named_prop<std::string>("automaton-name");
 	mark_states_ = (!opt_force_acc_trans_
@@ -566,8 +603,8 @@ namespace spot
   {
     dotty_output d(os, options);
     auto aut = std::dynamic_pointer_cast<const twa_graph>(g);
-    if (!aut)
-      aut = copy(g, twa::prop_set::all(), true);
+    if (!aut || (d.max_states_given() && aut->num_states() >= d.max_states()))
+      aut = copy(g, twa::prop_set::all(), true, d.max_states() - 1);
     d.print(aut);
     return os;
   }

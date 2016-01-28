@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2014, 2015 Laboratoire de Recherche et
-// Developpement de l Epita (LRDE).
+// Copyright (C) 2010, 2012, 2014, 2015, 2016 Laboratoire de Recherche
+// et Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -84,7 +84,16 @@ namespace spot
 	    case 'v':
 	      opt_horizontal_ = false;
 	      break;
+	    case '0':
 	    case '1':
+	    case '2':
+	    case '3':
+	    case '4':
+	    case '5':
+	    case '6':
+	    case '7':
+	    case '8':
+	    case '9':
 	    case 'a':
 	    case 'b':
 	    case 'B':
@@ -96,6 +105,8 @@ namespace spot
 	    case 'R':
 	    case 's':
 	    case 't':
+	    case '+':
+	    case '<':
 	      // All these options are implemented by dotty() on TGBA,
 	      // but are not implemented here.  We simply ignore them,
 	      // because raising an exception if they are in

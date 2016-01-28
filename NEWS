@@ -12,10 +12,22 @@ New in spot 1.99.7a (not yet released)
     object can be queried about the supported variables and their
     types.
 
+  * print_dot() now accepts an option of the form "<N" to specify
+    a maximum number of states to output.  Incomplete states are
+    then marked appropriately.  For a quick example, compare
+       ltl2tgba -D 'Ga | Gb | Gc' -d'<3'
+    with
+       ltl2tgba -D 'Ga | Gb | Gc' -d
+
   Python:
 
   * The ltsmin interface has been binded in Python.  See
     https://spot.lrde.epita.fr/ipynb/ltsmin.html for a short example.
+
+  * spot.setup() sets de maximum number of states to display in
+    automata to 50 by default, as more states is likely to be
+    unreadable (and slow to process by GraphViz).  This can be
+    overridden by calling spot.setup(max_states=N).
 
   Documentation:
 

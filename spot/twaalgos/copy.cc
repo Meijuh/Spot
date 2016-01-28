@@ -27,13 +27,15 @@
 namespace spot
 {
   twa_graph_ptr
-  copy(const const_twa_ptr& aut, twa::prop_set p, bool preserve_names)
+  copy(const const_twa_ptr& aut, twa::prop_set p,
+       bool preserve_names, unsigned max_states)
   {
     twa_graph_ptr out = make_twa_graph(aut->get_dict());
     out->copy_acceptance_of(aut);
     out->copy_ap_of(aut);
     out->prop_copy(aut, p);
     std::vector<std::string>* names = nullptr;
+    std::set<unsigned>* incomplete = nullptr;
     if (preserve_names)
       {
 	names = new std::vector<std::string>;
@@ -69,9 +71,27 @@ namespace spot
 	unsigned src2;
 	std::tie(src1, src2) = *todo.front();
 	todo.pop_front();
-
 	for (auto* t: aut->succ(src1))
-	  out->new_edge(src2, new_state(t->dst()), t->cond(), t->acc());
+	  {
+	    if (SPOT_UNLIKELY(max_states < out->num_states()))
+	      {
+		// If we have reached the max number of state, never try
+		// to create a new one.
+		auto i = seen.find(t->dst());
+		if (i == seen.end())
+		  {
+		    if (!incomplete)
+		      incomplete = new std::set<unsigned>;
+		    incomplete->insert(src2);
+		    continue;
+		  }
+		out->new_edge(src2, i->second, t->cond(), t->acc());
+	      }
+	    else
+	      {
+		out->new_edge(src2, new_state(t->dst()), t->cond(), t->acc());
+	      }
+	  }
       }
 
 
@@ -84,6 +104,8 @@ namespace spot
 	ptr->destroy();
       }
 
+    if (incomplete)
+      out->set_named_prop("incomplete-states", incomplete);
     return out;
   }
 }

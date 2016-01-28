@@ -33,5 +33,6 @@ namespace spot
   ///
   /// This works for using the abstract interface for automata
   SPOT_API twa_graph_ptr
-  copy(const const_twa_ptr& aut, twa::prop_set p, bool preserve_names = false);
+  copy(const const_twa_ptr& aut, twa::prop_set p,
+       bool preserve_names = false, unsigned max_states = -1U);
 }
