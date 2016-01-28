@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -25,7 +25,6 @@
 #include <spot/misc/common.hh>
 #include <spot/twa/fwd.hh>
 #include <spot/twa/twa.hh>
-#include <vector>
 
 namespace spot
 {
@@ -34,6 +33,5 @@ namespace spot
   ///
   /// This works for using the abstract interface for automata
   SPOT_API twa_graph_ptr
-  copy(const const_twa_ptr& aut, twa::prop_set p,
-       bool preserve_names = false);
+  copy(const const_twa_ptr& aut, twa::prop_set p, bool preserve_names = false);
 }

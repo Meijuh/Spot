@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2014, 2015 Laboratoire de Recherche
+// Copyright (C) 2009, 2011, 2012, 2014, 2015, 2016 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -22,73 +22,68 @@
 
 #include <spot/twaalgos/copy.hh>
 #include <spot/twa/twagraph.hh>
-#include <sstream>
-#include <string>
-#include <map>
-#include <spot/twaalgos/reachiter.hh>
-#include <spot/twaalgos/dot.hh>
+#include <deque>
 
 namespace spot
 {
-  namespace
-  {
-    class copy_iter: public tgba_reachable_iterator_depth_first
-    {
-    public:
-      copy_iter(const const_twa_ptr& a, twa::prop_set p,
-		bool preserve_names)
-	: tgba_reachable_iterator_depth_first(a),
-	  out_(make_twa_graph(a->get_dict()))
-      {
-	out_->copy_acceptance_of(a);
-	out_->copy_ap_of(a);
-	out_->prop_copy(a, p);
-	if (preserve_names)
-	  {
-	    names_ = new std::vector<std::string>;
-	    out_->set_named_prop("state-names", names_);
-	  }
-      }
-
-      twa_graph_ptr
-      result()
-      {
-	return out_;
-      }
-
-      virtual void
-      process_state(const state* s, int n, twa_succ_iterator*)
-      {
-	unsigned ns = out_->new_state();
-	if (names_)
-	  names_->emplace_back(aut_->format_state(s));
-	assert(ns == static_cast<unsigned>(n) - 1);
-	(void)ns;
-	(void)n;
-      }
-
-      virtual void
-      process_link(const state*, int in,
-		   const state*, int out,
-		   const twa_succ_iterator* si)
-      {
-	out_->new_edge
-	  (in - 1, out - 1, si->cond(),
-	   si->acc());
-      }
-
-    protected:
-      twa_graph_ptr out_;
-      std::vector<std::string>* names_ = nullptr;
-    };
-
-  } // anonymous
-
   twa_graph_ptr
   copy(const const_twa_ptr& aut, twa::prop_set p, bool preserve_names)
   {
-    copy_iter di(aut, p, preserve_names);
-    di.run();
-    return di.result();
+    twa_graph_ptr out = make_twa_graph(aut->get_dict());
+    out->copy_acceptance_of(aut);
+    out->copy_ap_of(aut);
+    out->prop_copy(aut, p);
+    std::vector<std::string>* names = nullptr;
+    if (preserve_names)
+      {
+	names = new std::vector<std::string>;
+	out->set_named_prop("state-names", names);
+      }
+
+    // States already seen.
+    state_map<unsigned> seen;
+    // States to process
+    std::deque<state_map<unsigned>::const_iterator> todo;
+
+    auto new_state = [&](const state* s) -> unsigned
+      {
+	auto p = seen.emplace(s, 0);
+	if (p.second)
+	  {
+	    p.first->second = out->new_state();
+	    todo.push_back(p.first);
+	    if (names)
+	      names->push_back(aut->format_state(s));
+	  }
+	else
+	  {
+	    s->destroy();
+	  }
+	return p.first->second;
+      };
+
+    out->set_init_state(new_state(aut->get_init_state()));
+    while (!todo.empty())
+      {
+	const state* src1;
+	unsigned src2;
+	std::tie(src1, src2) = *todo.front();
+	todo.pop_front();
+
+	for (auto* t: aut->succ(src1))
+	  out->new_edge(src2, new_state(t->dst()), t->cond(), t->acc());
+      }
+
+
+    auto s = seen.begin();
+    while (s != seen.end())
+      {
+	// Advance the iterator before deleting the "key" pointer.
+	const state* ptr = s->first;
+	++s;
+	ptr->destroy();
+      }
+
+    return out;
   }
 }
