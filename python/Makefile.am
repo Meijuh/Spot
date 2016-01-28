@@ -22,6 +22,8 @@
 
 SUBDIRS = . ajax
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_builddir) -I$(top_srcdir) \
 	      $(BUDDY_CPPFLAGS) -DSWIG_TYPE_TABLE=spot
 
@@ -33,12 +35,12 @@ AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_builddir) -I$(top_srcdir) \
 SWIGFLAGS = -c++ -python -py3 -O -nofastproxy
 
 EXTRA_DIST = buddy.i spot/impl.i spot/ltsmin.i
-python_PYTHON = \
-  $(srcdir)/spot/__init__.py \
-  $(srcdir)/spot/impl.py \
-  $(srcdir)/spot/ltsmin.py \
-  $(srcdir)/buddy.py
-pyexec_LTLIBRARIES = _buddy.la spot/_impl.la spot/_ltsmin.la
+nobase_python_PYTHON = \
+  spot/__init__.py \
+  spot/impl.py \
+  spot/ltsmin.py \
+  buddy.py
+nobase_pyexec_LTLIBRARIES = _buddy.la spot/_impl.la spot/_ltsmin.la
 
 MAINTAINERCLEANFILES = \
   $(srcdir)/spot/impl_wrap.cxx $(srcdir)/spot/impl.py \
@@ -47,38 +49,38 @@ MAINTAINERCLEANFILES = \
 
 ## spot
 
-spot__impl_la_SOURCES = $(srcdir)/spot/impl_wrap.cxx
+spot__impl_la_SOURCES = spot/impl_wrap.cxx
 spot__impl_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
 spot__impl_la_LIBADD = $(top_builddir)/spot/libspot.la
 
-$(srcdir)/spot/impl_wrap.cxx: $(srcdir)/spot/impl.i
+spot/impl_wrap.cxx: spot/impl.i
 	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot/impl.i
 
-$(srcdir)/spot/impl.py: $(srcdir)/spot/impl.i
+spot/impl.py: spot/impl.i
 	$(MAKE) $(AM_MAKEFLAGS) spot/impl_wrap.cxx
 
 
 ## spot-ltsmin
 
-spot__ltsmin_la_SOURCES = $(srcdir)/spot/ltsmin_wrap.cxx
+spot__ltsmin_la_SOURCES = spot/ltsmin_wrap.cxx
 spot__ltsmin_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
 spot__ltsmin_la_LIBADD = $(top_builddir)/spot/libspot.la \
                        $(top_builddir)/spot/ltsmin/libspotltsmin.la
 
-$(srcdir)/spot/ltsmin_wrap.cxx: $(srcdir)/spot/ltsmin.i
+spot/ltsmin_wrap.cxx: spot/ltsmin.i
 	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot/ltsmin.i
 
-$(srcdir)/spot/ltsmin.py: $(srcdir)/spot/ltsmin.i
+spot/ltsmin.py: spot/ltsmin.i
 	$(MAKE) $(AM_MAKEFLAGS) spot/ltsmin_wrap.cxx
 
 
 ## buddy
 
-_buddy_la_SOURCES = $(srcdir)/buddy_wrap.cxx
+_buddy_la_SOURCES = buddy_wrap.cxx
 _buddy_la_LDFLAGS = -avoid-version -module $(BUDDY_LDFLAGS) $(SYMBOLIC_LDFLAGS)
 
-$(srcdir)/buddy_wrap.cxx: $(srcdir)/buddy.i
+buddy_wrap.cxx: buddy.i
 	$(SWIG) $(SWIGFLAGS) $(BUDDY_CPPFLAGS) $(srcdir)/buddy.i
 
-$(srcdir)/buddy.py: $(srcdir)/buddy.i
+buddy.py: buddy.i
 	$(MAKE) $(AM_MAKEFLAGS) buddy_wrap.cxx
