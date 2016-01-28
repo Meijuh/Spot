@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Developpement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -319,7 +319,7 @@ namespace spot
 
       ~explicit_tau03_search_heap()
         {
-          hash_type::const_iterator s = h.begin();
+          auto s = h.begin();
           while (s != h.end())
             {
               // Advance the iterator before deleting the "key" pointer.
@@ -331,7 +331,7 @@ namespace spot
 
       color_ref get_color_ref(const state*& s)
         {
-          hash_type::iterator it = h.find(s);
+          auto it = h.find(s);
           if (it == h.end())
             return color_ref(nullptr, nullptr);
           if (s != it->first)
@@ -356,8 +356,7 @@ namespace spot
 
       bool has_been_visited(const state* s) const
         {
-          hash_type::const_iterator it = h.find(s);
-          return (it != h.end());
+          return h.find(s) != h.end();
         }
 
       enum { Has_Size = 1 };
@@ -366,11 +365,7 @@ namespace spot
           return h.size();
         }
     private:
-
-      typedef std::unordered_map<const state*,
-				 std::pair<color, acc_cond::mark_t>,
-				 state_ptr_hash, state_ptr_equal> hash_type;
-      hash_type h;
+      state_map<std::pair<color, acc_cond::mark_t>> h;
     };
 
   } // anonymous

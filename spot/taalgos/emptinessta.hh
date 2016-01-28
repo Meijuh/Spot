@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2012, 2013, 2014 Laboratoire de Recherche et
-// Dévelopment de l'Epita (LRDE).
+// Copyright (C) 2008, 2012, 2013, 2014, 2016 Laboratoire de Recherche
+// et Dévelopment de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -86,8 +86,7 @@ namespace spot
   /// See the paper cited above.
   class SPOT_API ta_check : public ec_statistics
   {
-    typedef std::unordered_map<const state*, int,
-			       state_ptr_hash, state_ptr_equal> hash_type;
+    typedef state_map<int> hash_type;
   public:
     ta_check(const const_ta_product_ptr& a, option_map o = option_map());
     virtual

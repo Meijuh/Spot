@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2011, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2011, 2013, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -90,9 +90,7 @@ namespace spot
   protected:
     const_twa_ptr aut_;	///< The spot::tgba to explore.
 
-    typedef std::unordered_map<const state*, int,
-			       state_ptr_hash, state_ptr_equal> seen_map;
-    seen_map seen;		///< States already seen.
+    state_map<int> seen;	///< States already seen.
   };
 
   /// \ingroup twa_generic
@@ -160,9 +158,7 @@ namespace spot
   protected:
     const_twa_ptr aut_;		///< The spot::tgba to explore.
 
-    typedef std::unordered_map<const state*, int,
-			       state_ptr_hash, state_ptr_equal> seen_map;
-    seen_map seen;		///< States already seen.
+    state_map<int> seen;	///< States already seen.
     struct stack_item
     {
       const state* src;

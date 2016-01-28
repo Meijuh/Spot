@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -74,9 +74,7 @@ namespace spot
     trace
       << "PASS 1" << std::endl;
 
-    std::unordered_map<const state*,
-		       std::set<const state*, state_ptr_less_than>,
-		       state_ptr_hash, state_ptr_equal> liveset;
+    state_map<std::set<const state*, state_ptr_less_than>> liveset;
 
     std::stack<spot::state*> livelock_roots;
 

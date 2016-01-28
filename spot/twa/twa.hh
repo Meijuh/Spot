@@ -172,9 +172,20 @@ namespace spot
     }
   };
 
+  /// \brief Unordered set of abstract states
+  ///
+  /// Destroying each state if needed is the user's responsibility.
+  ///
+  /// \see state_unicity_table
   typedef std::unordered_set<const state*,
 			     state_ptr_hash, state_ptr_equal> state_set;
 
+  /// \brief Unordered map of abstract states
+  ///
+  /// Destroying each state if needed is the user's responsibility.
+  template<class val>
+  using state_map = std::unordered_map<const state*, val,
+				       state_ptr_hash, state_ptr_equal>;
 
   /// \ingroup twa_essentials
   /// \brief Render state pointers unique via a hash table.
@@ -270,7 +281,7 @@ namespace spot
   /// (shared_ptr<const state*>).
   ///
   /// This is meant to be used as a comparison functor for
-  /// un \c unordered_map whose key are of type \c shared_state.
+  /// an \c unordered_map whose key are of type \c shared_state.
   ///
   /// For instance here is how one could declare
   /// a map of \c shared_state
@@ -280,6 +291,8 @@ namespace spot
   ///                      state_shared_ptr_hash,
   ///                      state_shared_ptr_equal> seen;
   /// \endcode
+  ///
+  /// \see shared_state_set
   struct state_shared_ptr_equal
   {
     bool
@@ -307,6 +320,8 @@ namespace spot
   ///                      state_shared_ptr_hash,
   ///                      state_shared_ptr_equal> seen;
   /// \endcode
+  ///
+  /// \see shared_state_set
   struct state_shared_ptr_hash
   {
     size_t
@@ -317,6 +332,7 @@ namespace spot
     }
   };
 
+  /// Unordered set of shared states
   typedef std::unordered_set<shared_state,
 			     state_shared_ptr_hash,
 			     state_shared_ptr_equal> shared_state_set;

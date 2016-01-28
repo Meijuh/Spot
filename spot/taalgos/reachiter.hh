@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -88,9 +88,7 @@ namespace spot
 
     const_ta_ptr t_automata_; ///< The spot::ta to explore.
 
-    typedef std::unordered_map<const state*, int,
-			       state_ptr_hash, state_ptr_equal> seen_map;
-    seen_map seen; ///< States already seen.
+    state_map<int> seen; ///< States already seen.
   };
 
   /// \ingroup ta_generic

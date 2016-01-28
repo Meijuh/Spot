@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2012, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -34,7 +34,7 @@ namespace spot
   }
   ta_reachable_iterator::~ta_reachable_iterator()
   {
-    seen_map::const_iterator s = seen.begin();
+    auto s = seen.begin();
     while (s != seen.end())
       {
         // Advance the iterator before deleting the "key" pointer.
@@ -81,7 +81,7 @@ namespace spot
         for (si->first(); !si->done(); si->next())
           {
             const state* current = si->dst();
-            seen_map::const_iterator s = seen.find(current);
+            auto s = seen.find(current);
             bool ws = want_state(current);
             if (s == seen.end())
               {

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -438,10 +438,8 @@ namespace spot
 
     class explicit_se05_search_heap
     {
-      typedef std::unordered_set<const state*,
-				 state_ptr_hash, state_ptr_equal> hcyan_type;
-      typedef std::unordered_map<const state*, color,
-				 state_ptr_hash, state_ptr_equal> hash_type;
+      typedef state_set hcyan_type;
+      typedef state_map<color> hash_type;
     public:
       enum { Safe = 1 };
 

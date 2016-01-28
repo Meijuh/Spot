@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -455,9 +455,7 @@ namespace spot
     std::string in;
     acc_cond::mark_t all_acc = 0U;
     bool all_acc_seen = false;
-    typedef std::unordered_map<const state*, std::set<int>,
-			       state_ptr_hash, state_ptr_equal> state_map;
-    state_map seen;
+    state_map<std::set<int>> seen;
 
     if (prefix.empty())
       {
@@ -493,7 +491,7 @@ namespace spot
 	  {
 	    // Keep track of the serial associated to each state so we
 	    // can note duplicate states and make the replay easier to read.
-	    state_map::iterator o = seen.find(s);
+	    auto o = seen.find(s);
 	    std::ostringstream msg;
 	    if (o != seen.end())
 	      {
@@ -648,7 +646,7 @@ namespace spot
 	return false;
       }
 
-    state_map::const_iterator o = seen.begin();
+    auto o = seen.begin();
     while (o != seen.end())
       {
 	// Advance the iterator before deleting the "key" pointer.
@@ -674,9 +672,7 @@ namespace spot
     const twa_run::steps* l;
     acc_cond::mark_t seen_acc = 0U;
 
-    typedef std::unordered_map<const state*, unsigned,
-			       state_ptr_hash, state_ptr_equal> state_map;
-    state_map seen;
+    state_map<unsigned> seen;
 
     if (prefix.empty())
         l = &cycle;

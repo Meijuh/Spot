@@ -358,11 +358,6 @@ namespace spot
 
       std::map<path, int> pathid;
       int nvars = 0;
-      //typedef std::unordered_map<const state*, int,
-      //state_ptr_hash, state_ptr_equal> state_map;
-      //typedef std::unordered_map<int, const state*> int_map;
-      //state_map state_to_int;
-      //      int_map int_to_state;
       unsigned cand_size;
       unsigned int cand_nacc;
       acc_cond::acc_code cand_acc;

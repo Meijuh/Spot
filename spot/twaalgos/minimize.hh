@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -41,7 +41,7 @@ namespace spot
         author	  = {Deian Tabakov and Moshe Y. Vardi},
         title	  = {Optimized Temporal Monitors for SystemC{$^*$}},
         booktitle = {Proceedings of the 10th International Conferance
-     		     on Runtime Verification},
+                     on Runtime Verification},
         pages	  = {436--451},
         year	  = 2010,
         volume	  = {6418},

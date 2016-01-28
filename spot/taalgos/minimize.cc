@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -39,10 +39,8 @@
 
 namespace spot
 {
-  typedef std::unordered_set<const state*,
-			     state_ptr_hash, state_ptr_equal> hash_set;
-  typedef std::unordered_map<const state*, unsigned,
-			     state_ptr_hash, state_ptr_equal> hash_map;
+  typedef state_set hash_set;
+  typedef state_map<unsigned> hash_map;
   typedef std::list<hash_set*> partition_t;
 
   namespace

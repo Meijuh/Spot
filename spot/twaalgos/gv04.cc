@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2011, 2013, 2014, 2015 Laboratoire de
+// Copyright (C) 2008, 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de
 // recherche et développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -55,13 +55,10 @@ namespace spot
     struct gv04: public emptiness_check, public ec_statistics
     {
       // Map of visited states.
-      typedef std::unordered_map<const state*, size_t,
-				 state_ptr_hash, state_ptr_equal> hash_type;
-      hash_type h;
+      state_map<size_t> h;
 
       // Stack of visited states on the path.
-      typedef std::vector<stack_entry> stack_type;
-      stack_type stack;
+      std::vector<stack_entry> stack;
 
       int top;			// Top of SCC stack.
       int dftop;		// Top of DFS stack.
@@ -75,9 +72,9 @@ namespace spot
 
       ~gv04()
       {
-	for (stack_type::iterator i = stack.begin(); i != stack.end(); ++i)
-	  a_->release_iter(i->lasttr);
-	hash_type::const_iterator s = h.begin();
+	for (auto i: stack)
+	  a_->release_iter(i.lasttr);
+	auto s = h.begin();
 	while (s != h.end())
 	  {
 	    // Advance the iterator before deleting the "key" pointer.
@@ -129,7 +126,7 @@ namespace spot
 		      << a_->format_state(s_prime)
 		      << (acc ? " (with accepting link)" : "");
 
-		hash_type::const_iterator i = h.find(s_prime);
+		auto i = h.find(s_prime);
 
 		if (i == h.end())
 		  {
@@ -341,7 +338,7 @@ namespace spot
 	    filter(const state* s)
 	    {
 	      // Do not escape the SCC
-	      hash_type::const_iterator j = data.h.find(s);
+	      auto j = data.h.find(s);
 	      if (// This state was never visited so far.
 		  j == data.h.end()
 		  // Or it was discarded

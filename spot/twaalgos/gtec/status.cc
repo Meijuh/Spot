@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2014, 2016 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -32,7 +32,7 @@ namespace spot
 
   couvreur99_check_status::~couvreur99_check_status()
   {
-    hash_type::iterator i = h.begin();
+    auto i = h.begin();
     while (i != h.end())
       {
 	// Advance the iterator before deleting the key.

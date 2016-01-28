@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -160,9 +160,7 @@ namespace spot
 
       // * h: a hash of all visited nodes, with their order,
       //   (it is called "Hash" in Couvreur's paper)
-      typedef std::unordered_map<const state*, int,
-				 state_ptr_hash, state_ptr_equal> hash_type;
-      hash_type h; ///< Heap of visited states.
+      state_map<int> h; ///< Heap of visited states.
 
       // * num: the number of visited nodes.  Used to set the order of each
       //   visited node,

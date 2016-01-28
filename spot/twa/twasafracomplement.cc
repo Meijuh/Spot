@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -719,8 +719,7 @@ namespace spot
     //////////////////////////////
     namespace test
     {
-      typedef std::unordered_map<const state*, int,
-				 state_ptr_hash, state_ptr_equal> stnum_t;
+      typedef state_map<int> stnum_t;
 
       void print_safra_tree(const safra_tree* this_node,
                             stnum_t& node_names,

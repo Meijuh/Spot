@@ -397,12 +397,8 @@ namespace spot
 
     class explicit_tau03_opt_search_heap
     {
-      typedef std::unordered_map<const state*, std::pair<weight,
-							 acc_cond::mark_t>,
-				 state_ptr_hash, state_ptr_equal> hcyan_type;
-      typedef std::unordered_map<const state*, std::pair<color,
-							 acc_cond::mark_t>,
-				 state_ptr_hash, state_ptr_equal> hash_type;
+      typedef state_map<std::pair<weight, acc_cond::mark_t>> hcyan_type;
+      typedef state_map<std::pair<color, acc_cond::mark_t>> hash_type;
     public:
       class color_ref
       {

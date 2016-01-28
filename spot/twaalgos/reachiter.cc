@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2013, 2014, 2015 Laboratoire de Recherche
+// Copyright (C) 2009, 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -35,7 +35,7 @@ namespace spot
 
   tgba_reachable_iterator::~tgba_reachable_iterator()
   {
-    seen_map::const_iterator s = seen.begin();
+    auto s = seen.begin();
     while (s != seen.end())
       {
 	// Advance the iterator before deleting the "key" pointer.
@@ -65,7 +65,7 @@ namespace spot
 	  do
 	    {
 	      const state* current = si->dst();
-	      seen_map::const_iterator s = seen.find(current);
+	      auto s = seen.find(current);
 	      bool ws = want_state(current);
 	      if (s == seen.end())
 		{
@@ -154,7 +154,7 @@ namespace spot
 
   tgba_reachable_iterator_depth_first::~tgba_reachable_iterator_depth_first()
   {
-    seen_map::const_iterator s = seen.begin();
+    auto s = seen.begin();
     while (s != seen.end())
       {
 	// Advance the iterator before deleting the "key" pointer.
