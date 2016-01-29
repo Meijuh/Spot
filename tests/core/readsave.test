@@ -538,6 +538,26 @@ EOF
 autfilt --dot=bao1 in | grep -v '>' >out
 diff out expected2
 
+cat >expected3 <<EOF
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  I [label="", style=invis, width=0]
+  0 [label="6", peripheries=2]
+  u0 [label="...", shape=none, width=0, height=0]
+  1 [label="0", peripheries=2]
+  2 [label="1", peripheries=2]
+  3 [label="2", peripheries=2]
+  4 [label="3", peripheries=2]
+  u4 [label="...", shape=none, width=0, height=0]
+}
+EOF
+
+# States should be circled even if <5 causes all states to be named,
+# because the names are smaller then 2 characters anyway.
+ltl2tgba --det 'Ga | Gb | Gc' -d'<5' | grep -v '>' >out
+diff out expected3
+
 # Let's pretend that this is some used supplied input, as discussed in
 # the comments of https://github.com/adl/hoaf/issues/39
 

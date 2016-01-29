@@ -223,6 +223,7 @@ digraph G {
 }
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 2
   0 [label="s1"]
@@ -231,6 +232,7 @@ digraph G {
 }
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="s3"]

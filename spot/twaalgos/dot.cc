@@ -33,6 +33,7 @@
 #include <spot/twaalgos/sccinfo.hh>
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
 #include <ctype.h>
 
 
@@ -541,9 +542,18 @@ namespace spot
 	if (opt_shape_ == ShapeAuto)
 	  {
 	    if (sn_ || sprod_ || aut->num_states() > 100)
-	      opt_shape_ = ShapeEllipse;
+	      {
+		opt_shape_ = ShapeEllipse;
+		// If all state names are short, prefer circles.
+		if (sn_ && std::all_of(sn_->begin(), sn_->end(),
+				       [](const std::string& s)
+				       { return s.size() <= 2; }))
+		  opt_shape_ = ShapeCircle;
+	      }
 	    else
-	      opt_shape_ = ShapeCircle;
+	      {
+		opt_shape_ = ShapeCircle;
+	      }
 	  }
 	auto si =
 	  std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);
