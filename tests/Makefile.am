@@ -313,7 +313,8 @@ TESTS_python = \
   python/satmin.py \
   python/setxor.py \
   python/testingaut.ipynb \
-  python/trival.py
+  python/trival.py \
+  python/word.ipynb
 endif
 
 CLEANFILES = python/test1.dve python/test1.dve2C python/test1.dve.cpp

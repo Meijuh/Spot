@@ -63,6 +63,7 @@
 %shared_ptr(spot::taa_tgba_formula)
 %shared_ptr(spot::twa_safra_complement)
 %shared_ptr(spot::twa_run)
+%shared_ptr(spot::twa_word)
 %shared_ptr(spot::emptiness_check_result)
 %shared_ptr(spot::emptiness_check)
 %shared_ptr(spot::emptiness_check_instantiator)
@@ -140,6 +141,7 @@
 #include <spot/twaalgos/hoa.hh>
 #include <spot/twaalgos/dtwasat.hh>
 #include <spot/twaalgos/relabel.hh>
+#include <spot/twaalgos/word.hh>
 
 #include <spot/parseaut/public.hh>
 
@@ -411,7 +413,9 @@ namespace std {
 %include <spot/twaalgos/copy.hh>
 %include <spot/twaalgos/complete.hh>
 %include <spot/twaalgos/complement.hh>
+%feature("flatnested") spot::twa_run::step;
 %include <spot/twaalgos/emptiness.hh>
+%template(list_step) std::list<spot::twa_run::step>;
 %include <spot/twaalgos/gtec/gtec.hh>
 %include <spot/twaalgos/lbtt.hh>
 %include <spot/twaalgos/ltl2taa.hh>
@@ -434,6 +438,9 @@ namespace std {
 %include <spot/twaalgos/hoa.hh>
 %include <spot/twaalgos/dtwasat.hh>
 %include <spot/twaalgos/relabel.hh>
+%include <spot/twaalgos/word.hh>
+%template(list_bdd) std::list<bdd>;
+
 
 %include <spot/parseaut/public.hh>
 
@@ -605,6 +612,29 @@ namespace std {
 }
 
 %extend spot::twa_run {
+  std::string __repr__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+
+  std::string __str__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+}
+
+%extend spot::twa_word {
+  std::string __repr__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+
   std::string __str__()
   {
     std::ostringstream os;
