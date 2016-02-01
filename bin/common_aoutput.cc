@@ -80,7 +80,7 @@ static const argp_option options[] =
   {
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Output format:", 3 },
-    { "dot", 'd', "1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v|+INT|<INT",
+    { "dot", 'd', "1|a|b|B|c|e|f(FONT)|h|k|n|N|o|r|R|s|t|v|+INT|<INT",
       OPTION_ARG_OPTIONAL,
       "GraphViz's format.  Add letters for "
       "(1) force numbered states, "
@@ -88,11 +88,13 @@ static const argp_option options[] =
       "(B) bullets except for Büchi/co-Büchi automata, "
       "(c) force circular nodes, (e) force elliptic nodes, "
       "(f(FONT)) use FONT, (h) horizontal layout, "
-      "(v) vertical layout, (n) with name, (N) without name, "
+      "(k) use state labels when possible, "
+      "(n) with name, (N) without name, "
       "(o) ordered transitions, "
       "(r) rainbow colors for acceptance sets, "
       "(R) color acceptance sets by Inf/Fin, (s) with SCCs, "
       "(t) force transition-based acceptance, "
+      "(v) vertical layout, "
       "(+INT) add INT to all set numbers, "
       "(<INT) display at most INT states", 0 },
     { "hoaf", 'H', "i|l|m|s|t|v", OPTION_ARG_OPTIONAL,

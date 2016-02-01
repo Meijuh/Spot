@@ -344,7 +344,8 @@ test 1 = `autfilt -H input --complete | autfilt --is-complete --count`
 
 
 # The SPOT_DEFAULT_FORMAT envvar should be ignored if --dot is given.
-SPOT_DEFAULT_FORMAT=hoa ltl2tgba --dot=a 'GFa & GFb' >output
+# --dot=k should be ignored when not applicable.
+SPOT_DEFAULT_FORMAT=hoa ltl2tgba --dot=ak 'GFa & GFb' >output
 cat output
 cat >expected <<EOF
 digraph G {
@@ -859,6 +860,49 @@ EOF
 
 diff output6 expect6
 
+run 0 autfilt -dk input6 >output6d
+cat >expect6d <<EOF
+digraph G {
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label="0\nb"]
+  0 -> 2 [label=""]
+  0 -> 1 [label=""]
+  0 -> 1 [label=""]
+  1 [label="1\na"]
+  1 -> 0 [label=""]
+  1 -> 1 [label=""]
+  2 [label="2\na", peripheries=2]
+  2 -> 2 [label=""]
+  2 -> 0 [label=""]
+  2 -> 1 [label=""]
+}
+EOF
+diff output6d expect6d
+
+run 0 autfilt -dbark input6 >output6d2
+cat >expect6d2 <<EOF
+digraph G {
+  rankdir=LR
+  label=<Inf(<font color="#5DA5DA">⓿</font>)>
+  labelloc="t"
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label=<0<br/>b>]
+  0 -> 2 [label=<>]
+  0 -> 1 [label=<>]
+  0 -> 1 [label=<>]
+  1 [label=<1<br/>a>]
+  1 -> 0 [label=<>]
+  1 -> 1 [label=<>]
+  2 [label=<2<br/><font color="#5DA5DA">⓿</font><br/>a>]
+  2 -> 2 [label=<>]
+  2 -> 0 [label=<>]
+  2 -> 1 [label=<>]
+}
+EOF
+diff output6d2 expect6d2
 
 cat >input7 <<EOF
 HOA: v1

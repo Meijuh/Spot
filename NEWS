@@ -19,6 +19,10 @@ New in spot 1.99.7a (not yet released)
     with
        ltl2tgba -D 'Ga | Gb | Gc' -d
 
+  * print_dot() now has option "k" to use state-based labels when
+    possible.  This is similar to the "k" option already supported
+    by print_hoa(), and is useful when printing Kripke structures.
+
   Python:
 
   * The ltsmin interface has been binded in Python.  See

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
 // et Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -39,7 +39,7 @@ namespace spot
   /// supported: 'v' for vertical output, 'h' for horizontal output,
   /// 't' force transition-based acceptance, 'N' hide the name of the
   /// automaton, 'n' shows the name, 'c' uses circle-shaped states,
-  /// 'a' shows the acceptance.
+  /// 'a' shows the acceptance, 'k' uses state-based labels if possible.
   SPOT_API std::ostream&
   print_dot(std::ostream& os,
 		  const const_twa_ptr& g,

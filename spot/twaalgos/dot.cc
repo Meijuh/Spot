@@ -55,6 +55,7 @@ namespace spot
       bool mark_states_ = false;
       bool opt_scc_ = false;
       bool opt_html_labels_ = false;
+      bool opt_state_labels_ = false;
       const_twa_graph_ptr aut_;
       std::vector<std::string>* sn_ = nullptr;
       std::vector<std::pair<unsigned, unsigned>>* sprod_ = nullptr;
@@ -192,6 +193,9 @@ namespace spot
 	    case 'h':
 	      opt_horizontal_ = true;
 	      break;
+	    case 'k':
+	      opt_state_labels_ = true;
+	      break;
 	    case 'n':
 	      opt_name_ = true;
 	      break;
@@ -319,6 +323,21 @@ namespace spot
 	  os_ << '}';
       }
 
+      std::string
+      state_label(unsigned s) const
+      {
+	bdd label = bddfalse;
+	for (auto& t: aut_->out(s))
+	  {
+	    label = t.cond;
+	    break;
+	  }
+	if (label == bddfalse
+	    && incomplete_ && incomplete_->find(s) != incomplete_->end())
+	  return "...";
+	return bdd_format_formula(aut_->get_dict(), label);
+      }
+
       void
       start()
       {
@@ -440,6 +459,8 @@ namespace spot
 		    os_ << "\\n";
 		    output_set(acc);
 		  }
+		if (opt_state_labels_)
+		  escape_str(os_ << "\\n", state_label(s));
 		os_ << '"';
 	      }
 	    else
@@ -456,6 +477,8 @@ namespace spot
 		    os_ << "<br/>";
 		    output_html_set(acc);
 		  }
+		if (opt_state_labels_)
+		  escape_html(os_ << "<br/>", state_label(s));
 		os_ << '>';
 	      }
 	    os_ << "]\n";
@@ -470,6 +493,8 @@ namespace spot
 	      os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
 	    else
 	      os_ << s;
+	    if (opt_state_labels_)
+	      escape_str(os_ << "\\n", state_label(s));
 	    os_ << '"';
 	    // Use state_acc_sets(), not state_is_accepting() because
 	    // on co-Büchi automata we want to mark the rejecting
@@ -486,8 +511,10 @@ namespace spot
       void
       process_link(const twa_graph::edge_storage_t& t, int number)
       {
-	std::string label = bdd_format_formula(aut_->get_dict(), t.cond);
 	os_ << "  " << t.src << " -> " << t.dst;
+	std::string label;
+	if (!opt_state_labels_)
+	  label = bdd_format_formula(aut_->get_dict(), t.cond);
 	if (!opt_html_labels_)
 	  {
 	    os_ << " [label=\"";
@@ -495,7 +522,8 @@ namespace spot
 	    if (!mark_states_)
 	      if (auto a = t.acc)
 		{
-		  os_ << "\\n";
+		  if (!opt_state_labels_)
+		    os_ << "\\n";
 		  output_set(a);
 		}
 	    os_ << '"';
@@ -507,7 +535,8 @@ namespace spot
 	    if (!mark_states_)
 	      if (auto a = t.acc)
 		{
-		  os_ << "<br/>";
+		  if (!opt_state_labels_)
+		    os_ << "<br/>";
 		  output_html_set(a);
 		}
 	    os_ << '>';
@@ -533,6 +562,27 @@ namespace spot
 		  sprod_ = nullptr;
 	      }
 	  }
+	if (opt_state_labels_)
+	  {
+	    // Verify that we can use state labels for this automaton.
+	    unsigned n = aut->num_states();
+	    for (unsigned s = 0; s < n; ++s)
+	      {
+		bool first = true;
+		bdd cond = bddfalse;
+		for (auto& t: aut->out(s))
+		  if (first)
+		    {
+		      cond = t.cond;
+		      first = false;
+		    }
+		  else if (t.cond != cond)
+		    {
+		      opt_state_labels_ = false;
+		      break;
+		    }
+	      }
+	  }
 	incomplete_ =
 	  aut->get_named_prop<std::set<unsigned>>("incomplete-states");
 	if (opt_name_)
@@ -541,11 +591,12 @@ namespace spot
 			&& aut_->prop_state_acc().is_true());
 	if (opt_shape_ == ShapeAuto)
 	  {
-	    if (sn_ || sprod_ || aut->num_states() > 100)
+	    if (sn_ || sprod_ || aut->num_states() > 100 || opt_state_labels_)
 	      {
 		opt_shape_ = ShapeEllipse;
 		// If all state names are short, prefer circles.
-		if (sn_ && std::all_of(sn_->begin(), sn_->end(),
+		if (!opt_state_labels_ &&
+		    sn_ && std::all_of(sn_->begin(), sn_->end(),
 				       [](const std::string& s)
 				       { return s.size() <= 2; }))
 		  opt_shape_ = ShapeCircle;
