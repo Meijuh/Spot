@@ -243,7 +243,7 @@ checked_main(int argc, char **argv)
       if (output == Kripke)
       {
         tm.start("kripke output");
-	spot::print_hoa(std::cout, model, "k");
+	spot::print_hoa(std::cout, model);
         tm.stop("kripke output");
         goto safe_exit;
       }

@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 	}
       if (!paut->ks)
 	break;
-      print_hoa(std::cout, paut->ks, "k");
+      print_hoa(std::cout, paut->ks);
     }
   return return_value;
 }

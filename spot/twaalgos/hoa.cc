@@ -33,6 +33,7 @@
 #include <spot/misc/minato.hh>
 #include <spot/twa/formula2bdd.hh>
 #include <spot/tl/formula.hh>
+#include <spot/kripke/kripke.hh>
 
 namespace spot
 {
@@ -575,15 +576,28 @@ namespace spot
 
   std::ostream&
   print_hoa(std::ostream& os,
-		const const_twa_ptr& aut,
-		const char* opt)
+	    const const_twa_ptr& aut,
+	    const char* opt)
   {
 
     auto a = std::dynamic_pointer_cast<const twa_graph>(aut);
     if (!a)
       a = make_twa_graph(aut, twa::prop_set::all());
 
-    return print_hoa(os, a, opt);
+    // for Kripke structures, automatically append "k" to the options.
+    char* tmpopt = nullptr;
+    if (std::dynamic_pointer_cast<const kripke>(aut))
+      {
+	unsigned n = opt ? strlen(opt) : 0;
+	tmpopt = new char[n + 2];
+	if (opt)
+	  strcpy(tmpopt, opt);
+	tmpopt[n] = 'k';
+	tmpopt[n + 1] = 0;
+      }
+    print_hoa(os, a, tmpopt ? tmpopt : opt);
+    delete[] tmpopt;
+    return os;
   }
 
 }
