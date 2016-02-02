@@ -386,7 +386,7 @@ namespace spot
 				bdd cond, bool acc = true)
     {
       if (acc)
-	return g_.new_edge(src, dst, cond, acc_.all_sets());
+	return g_.new_edge(src, dst, cond, this->acc().all_sets());
       else
 	return g_.new_edge(src, dst, cond);
     }
@@ -459,7 +459,7 @@ namespace spot
       for (auto& t: g_.out(s))
 	// Stop at the first edge, since the remaining should be
 	// labeled identically.
-	return acc_.accepting(t.acc);
+	return acc().accepting(t.acc);
       return false;
     }
 

@@ -210,9 +210,8 @@ namespace spot
 	: twa(a->get_dict()), a_(a), aps_(atomic_propositions)
       {
 	get_dict()->register_all_propositions_of(&a_, this);
-	assert(acc_.num_sets() == 0);
-	acc_.add_sets(a_->num_sets());
-	acc_.set_generalized_buchi();
+	assert(num_sets() == 0);
+	set_generalized_buchi(a_->num_sets());
       }
 
       virtual const state* get_init_state() const override

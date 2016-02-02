@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -196,7 +196,7 @@ namespace spot
     {
       auto p = acc_map_.emplace(f, 0);
       if (p.second)
-	p.first->second = acc_cond::mark_t({acc_.add_set()});
+	p.first->second = acc_cond::mark_t({acc().add_set()});
       t->acceptance_conditions |= p.first->second;
     }
 

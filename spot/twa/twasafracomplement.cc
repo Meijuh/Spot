@@ -1061,18 +1061,18 @@ namespace spot
     assert(safra_ || !"safra construction fails");
 
 #if TRANSFORM_TO_TBA
-    the_acceptance_cond_ = acc_.mark(acc_.add_set());
+    the_acceptance_cond_ = set_buchi();
 #endif
 
 #if TRANSFORM_TO_TGBA
     unsigned nb_acc =
       static_cast<safra_tree_automaton*>(safra_)->get_nb_acceptance_pairs();
 
+    set_generalized_buchi(nb_acc);
     acceptance_cond_vec_.reserve(nb_acc);
     for (unsigned i = 0; i < nb_acc; ++i)
-      acceptance_cond_vec_.push_back(acc_.mark(acc_.add_set()));
+      acceptance_cond_vec_.emplace_back(acc_cond::mark_t{i});
 #endif
-    acc_.set_generalized_buchi();
   }
 
   tgba_safra_complement::~tgba_safra_complement()

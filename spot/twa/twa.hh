@@ -721,7 +721,7 @@ namespace spot
     /// Check whether the language of the automaton is empty.
     virtual bool is_empty() const;
 
-  protected:
+  private:
     acc_cond acc_;
 
     void set_num_sets_(unsigned num)

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE)
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Laboratoire de Recherche et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -63,7 +63,7 @@ namespace spot
   {
     const spot::set_state* s = down_cast<const spot::set_state*>(state);
     assert(s);
-    return new taa_succ_iterator(s->get_state(), acc_);
+    return new taa_succ_iterator(s->get_state(), acc());
   }
 
   bdd

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -36,7 +36,7 @@ namespace spot
   /// This type and its cousins are listed \ref ta_essentials "here".
   /// This is an abstract interface.  Its implementations are \ref
   /// ta_representation "concrete representations".  The
-  /// algorithms that work on spot::ta are \ref tgba_algorithms
+  /// algorithms that work on spot::ta are \ref ta_algorithms
   /// "listed separately".
 
   /// \addtogroup ta_essentials Essential TA types
