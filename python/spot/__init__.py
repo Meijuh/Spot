@@ -860,3 +860,7 @@ def sat_minimize(aut, acc=None, colored=False,
         args += ',dichotomy';
     from spot.impl import sat_minimize as sm
     return sm(aut, args, state_based)
+
+def parse_word(word, dic=_bdd_dict):
+    from spot.impl import parse_word as pw
+    return pw(word, dic)

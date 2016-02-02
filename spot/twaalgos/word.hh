@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -28,7 +28,8 @@ namespace spot
   /// \brief An infinite word stored as a lasso.
   struct SPOT_API twa_word final
   {
-    twa_word(const twa_run_ptr run);
+    twa_word(const bdd_dict_ptr& dict);
+    twa_word(const twa_run_ptr& run);
     ~twa_word()
     {
       dict_->unregister_all_my_variables(this);
@@ -45,10 +46,26 @@ namespace spot
       return dict_;
     }
 
+    twa_graph_ptr as_automaton() const;
+
     SPOT_API
     friend std::ostream& operator<<(std::ostream& os, const twa_word& w);
   private:
     bdd_dict_ptr dict_;
   };
 
+  typedef std::shared_ptr<twa_word> twa_word_ptr;
+
+  inline twa_word_ptr make_twa_word(const bdd_dict_ptr& dict)
+  {
+    return std::make_shared<twa_word>(dict);
+  }
+
+  inline twa_word_ptr make_twa_word(const twa_run_ptr& run)
+  {
+    return std::make_shared<twa_word>(run);
+  }
+
+  SPOT_API
+  twa_word_ptr parse_word(const std::string& word, const bdd_dict_ptr& dict);
 }

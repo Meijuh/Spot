@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,10 +20,13 @@
 #include <spot/twaalgos/word.hh>
 #include <spot/twa/bddprint.hh>
 #include <spot/twa/bdddict.hh>
+#include <spot/tl/parse.hh>
+#include <spot/tl/simplify.hh>
+#include <spot/tl/apcollect.hh>
 
 namespace spot
 {
-  twa_word::twa_word(const twa_run_ptr run)
+  twa_word::twa_word(const twa_run_ptr& run)
     : dict_(run->aut->get_dict())
   {
     for (auto& i: run->prefix)
@@ -31,6 +34,11 @@ namespace spot
     for (auto& i: run->cycle)
       cycle.push_back(i.label);
     dict_->register_all_variables_of(run->aut, this);
+  }
+
+  twa_word::twa_word(const bdd_dict_ptr& dict)
+    : dict_(dict)
+  {
   }
 
   void
@@ -104,5 +112,144 @@ namespace spot
       }
     os << '}';
     return os;
+  }
+
+  namespace
+  {
+    static void word_parse_error(const std::string& word,
+				 size_t i, parse_error_list pel)
+    {
+      for (auto& err: pel)
+	{
+	  err.first.begin.column += i;
+	  err.first.end.column += i;
+	}
+      std::ostringstream os;
+      format_parse_errors(os, word, pel);
+      throw parse_error(os.str());
+    }
+
+    static void word_parse_error(const std::string& word, size_t i,
+				 const std::string& message)
+    {
+      if (i == std::string::npos)
+	i = word.size();
+      std::ostringstream s;
+      s << ">>> " << word << '\n';
+      for (auto j = i + 4; j > 0; --j)
+	s << ' ';
+      s << '^' << '\n';
+      s << message << '\n';
+      throw parse_error(s.str());
+    }
+
+    static size_t skip_next_formula(const std::string& word, size_t begin)
+    {
+      bool quoted = false;
+      auto size = word.size();
+      for (auto j = begin; j < size; ++j)
+	{
+	  auto c = word[j];
+	  if (!quoted && (c == ';' || c == '}'))
+	    return j;
+	  if (c == '"')
+	    quoted = !quoted;
+	  else if (quoted && c == '\\')
+	    ++j;
+	}
+      if (quoted)
+	word_parse_error(word, word.size(), "Unclosed string");
+      return std::string::npos;
+    }
+  }
+
+  twa_word_ptr parse_word(const std::string& word, const bdd_dict_ptr& dict)
+  {
+    atomic_prop_set aps;
+    parse_error_list pel;
+    tl_simplifier tls(dict);
+    twa_word_ptr tw = make_twa_word(dict);
+    size_t i = 0;
+    auto ind = i;
+
+    auto extract_bdd =
+      [&](typename twa_word::seq_t& seq)
+      {
+	auto sub = word.substr(i, ind - i);
+	formula f = spot::parse_infix_boolean(sub, pel);
+	if (!pel.empty())
+	  word_parse_error(word, i, pel);
+	atomic_prop_collect(f, &aps);
+	seq.push_back(tls.as_bdd(f));
+	if (word[ind] == '}')
+	  return true;
+	// Skip blanks after semi-colon
+	i = word.find_first_not_of(' ', ind + 1);
+	return false;
+      };
+
+    // Parse the prefix part. Can be empty.
+    while (word.substr(i, 6) != std::string("cycle{"))
+      {
+	ind = skip_next_formula(word, i);
+	if (ind == std::string::npos)
+	  word_parse_error(word, word.size(),
+			   "A twa_word must contain a cycle");
+	if (word[ind] == '}')
+	  word_parse_error(word, ind, "Expected ';' delimiter :"
+			   "'}' stands for ending a cycle");
+	// Exract formula, convert it to bdd and add it to the prefix sequence
+	extract_bdd(tw->prefix);
+	if (i == std::string::npos)
+	  word_parse_error(word, ind + 1, "Missing cycle in formula");
+      }
+    // Consume "cycle{"
+    i += 6;
+    while (true)
+      {
+	ind = skip_next_formula(word, i);
+	if (ind == std::string::npos)
+	  word_parse_error(word, word.size(),
+			   "Missing ';' or '}' after formula");
+	// Extract formula, convert it to bdd and add it to the cycle sequence
+	// Break if an '}' is encountered
+	if (extract_bdd(tw->cycle))
+	  break;
+	if (i == std::string::npos)
+	  word_parse_error(word, ind + 1,
+			   "Missing end of cycle character : '}'");
+      }
+    if (ind != word.size() - 1)
+      word_parse_error(word, ind + 1, "Input should be finished after cycle");
+    for (auto ap: aps)
+      dict->register_proposition(ap, tw.get());
+    return tw;
+  }
+
+  twa_graph_ptr twa_word::as_automaton() const
+  {
+    twa_graph_ptr aut = make_twa_graph(dict_);
+
+    aut->prop_weak(true);
+    aut->prop_deterministic(true);
+
+    size_t i = 0;
+    aut->new_states(prefix.size() + cycle.size());
+    for (auto b: prefix)
+      {
+	aut->new_edge(i, i + 1, b);
+	++i;
+      }
+    size_t j = i;
+    auto b = cycle.begin();
+    auto end = --cycle.end();
+    for (; b != end; ++b)
+      {
+	aut->new_edge(i, i + 1, *b);
+	++i;
+      }
+    // Close the loop
+    aut->new_edge(i, j, *b);
+    return aut;
   }
 }
