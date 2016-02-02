@@ -97,7 +97,9 @@ namespace spot
     /// \brief Destructor.
     ///
     /// Note that client code should call
-    /// <code>s->destroy();</code> instead of <code>delete s;</code>.
+    /// \code s->destroy(); \endcode
+    /// instead of
+    /// \code delete s; \endcode .
     virtual ~state()
     {
     }
@@ -416,6 +418,11 @@ namespace spot
 
   namespace internal
   {
+    /// \brief Helper structure to iterate over the successor of a
+    /// state using the on-the-flay interface.
+    ///
+    /// This one emulates an STL-like iterator over the
+    /// twa_succ_iterator interface.
     struct SPOT_API succ_iterator
     {
     protected:
@@ -453,11 +460,11 @@ namespace spot
   /// \defgroup twa TωA (Transition-based ω-Automata)
   ///
   /// Spot is centered around the spot::twa type.  This type and its
-  /// cousins are listed \ref tgba_essentials "here".  This is an
+  /// cousins are listed \ref twa_essentials "here".  This is an
   /// abstract interface.  Its implementations are either \ref
-  /// tgba_representation "concrete representations", or \ref
-  /// tgba_on_the_fly_algorithms "on-the-fly algorithms".  Other
-  /// algorithms that work on spot::twa are \ref tgba_algorithms
+  /// twa_representation "concrete representations", or \ref
+  /// twa_on_the_fly_algorithms "on-the-fly algorithms".  Other
+  /// algorithms that work on spot::twa are \ref twa_algorithms
   /// "listed separately".
 
   /// \addtogroup twa_essentials Essential TωA types
@@ -479,7 +486,7 @@ namespace spot
   /// restriction w.r.t. the format is that this class does
   /// not support alternating automata
   ///
-  /// Previous version of Spot supported a type of automata called
+  /// Previous versions of Spot supported a type of automata called
   /// TGBA, which are TωA in which the acceptance condition is a set
   /// of sets of transitions that must be intersected infinitely
   /// often.
@@ -500,12 +507,18 @@ namespace spot
   {
   protected:
     twa(const bdd_dict_ptr& d);
-    // Any iterator returned via release_iter.
+    /// Any iterator returned via release_iter.
     mutable twa_succ_iterator* iter_cache_;
+    /// BDD dictionary used by the automaton.
     bdd_dict_ptr dict_;
   public:
 
 #ifndef SWIG
+    /// \brief Helper class to iterate over the successor of a state
+    /// using the on-the-fly interface
+    ///
+    /// This one emulates an STL-like container with begin()/end()
+    /// methods so that it can be iterated using a ranged-for.
     class succ_iterable
     {
     protected:
@@ -562,7 +575,12 @@ namespace spot
     /// \brief Build an iterable over the successors of \a s.
     ///
     /// This is meant to be used as
-    /// <code>for (auto i: aut->succ(s)) { /* i->dst() */ }</code>.
+    /// \code
+    /// for (auto i: aut->succ(s))
+    ///   {
+    ///     /* i->dst() */
+    ///   }
+    /// \endcode
     succ_iterable
     succ(const state* s) const
     {
@@ -639,6 +657,7 @@ namespace spot
       return aps_;
     }
 
+    /// The list of atomic propositions as a conjunction.
     bdd ap_var() const
     {
       return bddaps_;
@@ -686,6 +705,8 @@ namespace spot
 				 const const_twa_ptr& t) const;
 
 
+    /// The acceptance condition of the automaton.
+    /// @{
     const acc_cond& acc() const
     {
       return acc_;
@@ -695,7 +716,9 @@ namespace spot
     {
       return acc_;
     }
+    /// @}
 
+    /// Check whether the language of the automaton is empty.
     virtual bool is_empty() const;
 
   protected:
@@ -712,16 +735,22 @@ namespace spot
     }
 
   public:
+    /// Number of acceptance sets used by the automaton.
     unsigned num_sets() const
     {
       return acc_.num_sets();
     }
 
+    /// Acceptance formula used by the automaton.
     const acc_cond::acc_code& get_acceptance() const
     {
       return acc_.get_acceptance();
     }
 
+    /// \brief Set the acceptance condition of the automaton.
+    ///
+    /// \param num the number of acceptance sets used
+    /// \param c the acceptance formula
     void set_acceptance(unsigned num, const acc_cond::acc_code& c)
     {
       set_num_sets_(num);
@@ -730,7 +759,7 @@ namespace spot
 	prop_state_acc(true);
     }
 
-    /// \brief Copy the acceptance condition of another tgba.
+    /// Copy the acceptance condition of another TωA.
     void copy_acceptance_of(const const_twa_ptr& a)
     {
       acc_ = a->acc();
@@ -739,12 +768,25 @@ namespace spot
 	prop_state_acc(true);
     }
 
+    /// Copy the atomic propositions of another TωA
     void copy_ap_of(const const_twa_ptr& a)
     {
       for (auto f: a->ap())
 	this->register_ap(f);
     }
 
+    /// \brief Set generalized Büchi acceptance
+    ///
+    /// \param num the number of acceptance sets to used
+    ///
+    /// The acceptance formula of the form
+    /// \code
+    /// Inf(0)&Inf(1)&...&Inf(num-1)
+    /// \endcode
+    /// is generated.
+    ///
+    /// In the case where \a num is null, the state-acceptance
+    /// property is automatically turned on.
     void set_generalized_buchi(unsigned num)
     {
       set_num_sets_(num);
@@ -753,6 +795,21 @@ namespace spot
 	prop_state_acc(true);
     }
 
+    /// \brief Set Büchi acceptance.
+    ///
+    /// This declares a single acceptance set, and \c Inf(0)
+    /// acceptance.  The returned mark \c {0} can be used to tag
+    /// accepting transition.
+    ///
+    /// Note that this does not make the automaton as using
+    /// state-based acceptance.  If you want to create a Büchi
+    /// automaton with state-based acceptance, call
+    /// \code
+    /// prop_state_acc(true)
+    /// \endcode
+    /// in addition.
+    ///
+    /// \see prop_state_acc
     acc_cond::mark_t set_buchi()
     {
       set_generalized_buchi(1);
@@ -770,8 +827,7 @@ namespace spot
 
   protected:
 
-    // Boolean properties.  Beware: true means that the property
-    // holds, but false means the property is unknown.
+    /// Helper structure used to store property flags.
     struct bprop
     {
       trival::repr_t state_based_acc:2;   // State-based acceptance.
@@ -799,15 +855,49 @@ namespace spot
   public:
 
 #ifndef SWIG
+    /// \brief Declare a named property
+    ///
+    /// Arbitrary object can be attached to automata.  Those are called
+    /// named properties.  They are used for instance to name all the
+    /// state of an automaton.
+    ///
+    /// This function attaches the object \a val to the current automaton,
+    /// under the name \a s.
+    ///
+    /// When the automaton is destroyed, the \a destructor function will
+    /// be called to destroy the attached object.
     void set_named_prop(std::string s,
 			void* val, std::function<void(void*)> destructor);
 
+    /// \brief Declare a named property
+    ///
+    /// Arbitrary object can be attached to automata.  Those are called
+    /// named properties.  They are used for instance to name all the
+    /// state of an automaton.
+    ///
+    /// This function attaches the object \a val to the current automaton,
+    /// under the name \a s.
+    ///
+    /// The object will be automatically destroyed when the automaton
+    /// is destroyed.
     template<typename T>
     void set_named_prop(std::string s, T* val)
     {
       set_named_prop(s, val, [](void *p) { delete static_cast<T*>(p); });
     }
 
+    /// \brief Retrieve a named property
+    ///
+    /// Because named property can be object of any type, retrieving
+    /// the object requires knowing its type.
+    ///
+    /// \param s the name of the object to retrieve
+    /// \tparam T the type of the object to retrieve
+    ///
+    /// Note that the return is a pointer to \c T, so the type should
+    /// not include the pointer.
+    ///
+    /// Returns a nullptr if no such named property exists.
     template<typename T>
     T* get_named_prop(std::string s) const
     {
@@ -818,6 +908,10 @@ namespace spot
     }
 #endif
 
+    /// \brief Destroy all named properties.
+    ///
+    /// This is used by the automaton destructor, but it could be used
+    /// by any algorithm that want to get rid of all named properties.
     void release_named_properties()
     {
       // Destroy all named properties.
@@ -826,26 +920,55 @@ namespace spot
       named_prop_.clear();
     }
 
+    /// \brief Whether the automaton uses state-based acceptance.
+    ///
+    /// From the point of view of Spot, this means that all
+    /// transitions leaving a state belong to the same acceptance
+    /// sets.  Then it is equivalent to pretend that the state is in
+    /// the acceptance set.
     trival prop_state_acc() const
     {
       return is.state_based_acc;
     }
 
+    /// \brief Set the state-based-acceptance property.
+    ///
+    /// If this property is set to true, then all transitions leaving
+    /// a state must belong to the same acceptance sets.
     void prop_state_acc(trival val)
     {
       is.state_based_acc = val.val();
     }
 
+    /// \brief Whether this is a state-based Büchi automaton.
+    ///
+    /// An SBA has a Büchi acceptance, and should have its
+    /// state-based acceptance property set.
     trival is_sba() const
     {
       return prop_state_acc() && acc().is_buchi();
     }
 
+    /// \brief Whether the automaton is inherently weak.
+    ///
+    /// An automaton is inherently weak if accepting cycles and
+    /// rejecting cycles are never mixed in the same strongly
+    /// connected component.
+    ///
+    /// \see prop_weak()
+    /// \see prop_terminal()
     trival prop_inherently_weak() const
     {
       return is.inherently_weak;
     }
 
+    /// \brief Set the "inherently weak" proeprty.
+    ///
+    /// Setting "inherently weak" to false automatically
+    /// disables "terminal" and "weak".
+    ///
+    /// \see prop_weak()
+    /// \see prop_terminal()
     void prop_inherently_weak(trival val)
     {
       is.inherently_weak = val.val();
@@ -853,11 +976,27 @@ namespace spot
 	is.terminal = is.weak = val.val();
     }
 
+    /// \brief Whether the automaton is terminal.
+    ///
+    /// An automaton is terminal if it is weak, no non-accepting cycle
+    /// can be reached from an accepting cycle, and the accepting
+    /// strongly components are complete (i.e., any suffix is accepted
+    /// as soon as we enter an accepting component).
+    ///
+    /// \see prop_weak()
+    /// \see prop_inherently_weak()
     trival prop_terminal() const
     {
       return is.terminal;
     }
 
+    /// \brief Set the terminal property.
+    ///
+    /// Marking an automaton as "terminal" automatically marks it as
+    /// "weak" and "inherently weak".
+    ///
+    /// \see prop_weak()
+    /// \see prop_inherently_weak()
     void prop_terminal(trival val)
     {
       is.terminal = val.val();
@@ -865,11 +1004,26 @@ namespace spot
 	is.inherently_weak = is.weak = val.val();
     }
 
+    /// \brief Whether the automaton is weak.
+    ///
+    /// An automaton is weak if inside each strongly connected
+    /// component, all transitions belong to the same acceptance sets.
+    ///
+    /// \see prop_terminal()
+    /// \see prop_inherently_weak()
     trival prop_weak() const
     {
       return is.weak;
     }
 
+    /// \brief Set the weak property.
+    ///
+    /// Marking an automaton as "weak" automatically marks it as
+    /// "inherently weak".  Marking an automaton as "not weak"
+    /// automatically marks are as "not terminal".
+    ///
+    /// \see prop_terminal()
+    /// \see prop_inherently_weak()
     void prop_weak(trival val)
     {
       is.weak = val.val();
@@ -879,11 +1033,28 @@ namespace spot
 	is.terminal = val.val();
     }
 
+    /// \brief Whether the automaton is deterministic.
+    ///
+    /// An automaton is deterministic if the conjunction between the
+    /// labels of two transitions leaving a state is always false.
+    ///
+    /// Note that this method may return trival::maybe() when it is
+    /// unknown whether the automaton is deterministic or not.  If you
+    /// need a true/false answer, prefer the is_deterministic() function.
+    ///
+    /// \see prop_unambiguous()
+    /// \see is_deterministic()
     trival prop_deterministic() const
     {
       return is.deterministic;
     }
 
+    /// \brief Set the deterministic property.
+    ///
+    /// Setting the "deterministic" property automatically
+    /// sets the "unambiguous" property.
+    ///
+    /// \see prop_unambiguous()
     void prop_deterministic(trival val)
     {
       is.deterministic = val.val();
@@ -892,11 +1063,30 @@ namespace spot
 	is.unambiguous = val.val();
     }
 
+    /// \brief Whether the automaton is unambiguous
+    ///
+    /// An automaton is unambiguous if any accepted word is recognized
+    /// by exactly one accepting path in the automaton.  Any word
+    /// (accepted or not) may be recognized by several rejecting paths
+    /// in the automaton.
+    ///
+    /// Note that this method may return trival::maybe() when it is
+    /// unknown whether the automaton is unambiguous or not.  If you
+    /// need a true/false answer, prefer the is_unambiguous() function.
+    ///
+    /// \see prop_deterministic()
+    /// \see is_unambiguous()
     trival prop_unambiguous() const
     {
       return is.unambiguous;
     }
 
+    /// \brief Sets the unambiguous property
+    ///
+    /// Marking an automaton as "non unambiguous" automatically
+    /// marks it as "non deterministic".
+    ///
+    /// \see prop_deterministic()
     void prop_unambiguous(trival val)
     {
       is.unambiguous = val.val();
@@ -904,31 +1094,100 @@ namespace spot
 	is.deterministic = val.val();
     }
 
+    /// \brief Whether the automaton is stutter-invariant.
+    ///
+    /// An automaton is stutter-invariant iff any accepted word
+    /// remains accepted after removing a finite number of duplicate
+    /// letters, or after duplicating finite number of letters.
+    ///
+    /// Note that this method may return trival::maybe() when it is
+    /// unknown whether the automaton is stutter-invariant or not.  If
+    /// you need a true/false answer, prefer one using of the the
+    /// is_stutter_invariant() function.
+    ///
+    /// \see is_stutter_invariant
     trival prop_stutter_invariant() const
     {
       return is.stutter_invariant;
     }
 
+    /// \brief Set the stutter-invariant property
     void prop_stutter_invariant(trival val)
     {
       is.stutter_invariant = val.val();
     }
 
+    /// \brief A structure for selecting a set of automaton properties
+    /// to copy.
+    ///
+    /// When an algorithm copies an automaton before making some
+    /// modification on that automaton, it should use a \c prop_set
+    /// structure to indicate which properties should be copied from
+    /// the original automaton.
+    ///
+    /// This structure does not list all supported properties, because
+    /// properties are copied by groups of related properties.  For
+    /// instance if an algorithm breaks the "inherent_weak"
+    /// properties, it usually also breaks the "weak" and "terminal"
+    /// properties.
+    ///
+    /// Set the flags to true to copy the value of the original
+    /// property, and to false to ignore the original property
+    /// (leaving the property of the new automaton to its default
+    /// value, which is trival::maybe()).
+    ///
+    /// This can be used for instance as:
+    /// \code
+    ///    aut->prop_copy(other_aut, {true, false, false, true});
+    /// \endcode
+    /// This would copy the "state-based acceptance" and
+    /// "stutter invariant" properties from \c other_aut to \c code.
+    ///
+    /// The reason there is no default value for these flags is that
+    /// whenever we add a new property that do not fall into any of
+    /// these groups, we will be forced to review all algorithm to
+    /// decide if the property should be preserved or not.
+    ///
+    /// \see make_twa_graph_ptr
+    /// \see prop_copy
     struct prop_set
     {
-      bool state_based;
-      bool inherently_weak;	// and weak
-      bool deterministic;	// and unambiguous
-      bool stutter_inv;		// and stutter_sensitive
+      bool state_based;		///< preserve state-based acceptnace
+      bool inherently_weak;	///< preserve inherently weak, weak, & terminal
+      bool deterministic;	///< preserve deterministic and unambiguous
+      bool stutter_inv;		///< preserve stutter invariance
 
+      /// \brief An all-true \c prop_set
+      ///
+      /// Use that only in algorithms that copy an automaton without
+      /// performing any modification.
+      ///
+      /// If an algorithm X does modifications, but preserves all the
+      /// properties currently implemented, use an explicit
+      ///
+      /// \code
+      ///    {true, true, true, true}
+      /// \endcode
+      ///
+      /// instead of calling \c all().  This way, the day a new
+      /// property is added, we will still be forced to review
+      /// algorithm X, in case that new property is not preserved.
       static prop_set all()
       {
 	return { true, true, true, true };
       }
     };
 
-    // There is no default value here on purpose.  This way any time we
-    // add a new property we have to update every call to prop_copy().
+    /// \brief Copy the properties of another automaton.
+    ///
+    /// Copy the property speciefied with \a p from \a other to the
+    /// current automaton.
+    ///
+    /// There is no default value for \a p on purpose.  This way any
+    /// time we add a new property we have to update every call to
+    /// prop_copy().
+    ///
+    /// \see prop_set
     void prop_copy(const const_twa_ptr& other, prop_set p)
     {
       if (p.state_based)
@@ -948,6 +1207,11 @@ namespace spot
 	prop_stutter_invariant(other->prop_stutter_invariant());
     }
 
+    /// \brief Keep only a subset of properties of the current
+    /// automaton.
+    ///
+    /// All properties part of a group set to \c false in \a p are reset
+    /// to their default value of trival::maybe().
     void prop_keep(prop_set p)
     {
       if (!p.state_based)
