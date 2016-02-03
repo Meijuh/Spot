@@ -115,8 +115,12 @@ open NEVER, ">never.$$";
 print NEVER create_2n_automaton (@ARGV);
 close NEVER;
 
-system "spin -a -N never.$$ \"$model\"";
-unlink "never.$$";
+# Make a local copy of the model.  Recent versions of Spin (at least
+# Spin 6.4.3) have problem compiling models that are in
+# subdirectories; this was not the case in the past.
+system "cp \"$model\" model.$$";
+system "spin -a -N never.$$ model.$$";
+unlink "never.$$", "model.$$";
 system "gcc -DCHECK$reduce -O -o pan pan.c 2>/dev/null";
 
 # Match Büchi states to propositions
@@ -124,12 +128,12 @@ my $buechitrans = 'BUG';
 open PAN, "./pan -d|";
 while (<PAN>)
 {
-  last if /^proctype :never/;
+  last if /^proctype :never/ || /^claim never/;
 }
 while (<PAN>)
 {
   next
-    unless (/\s+state\s+\d+\s+-\(tr\s+(\d+)\s*\)->.* line \d+ =>/o);
+    unless (/^\s+state\s+\d+\s+-\(tr\s+(\d+)\s*\)->.*\d+ =>/o);
   # We are assuming that transition are output by -d in the same order
   # as we specified them in the neverclaim.
   my $prop = shift @prop_list;
