@@ -20,6 +20,17 @@
 
 PML2TGBA = $(PERL) $(srcdir)/pml2tgba.pl
 
+all-local: $(top_builddir)/tests/core/ikwiad$(EXEEXT) \
+  $(top_builddir)/tests/core/randtgba$(EXEEXT)
+
+$(top_builddir)/tests/core/ikwiad$(EXEEXT):
+	cd $(top_builddir)/tests/ && \
+	$(MAKE) $(AM_MAKEFLAGS) core/ikwiad$(EXEEXT)
+
+$(top_builddir)/tests/core/randtgba$(EXEEXT):
+	cd $(top_builddir)/tests/ && \
+	$(MAKE) $(AM_MAKEFLAGS) core/randtgba$(EXEEXT)
+
 noinst_SCRIPTS = defs
 dist_noinst_SCRIPTS = \
   pml2tgba.pl \

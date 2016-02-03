@@ -56,10 +56,6 @@ check_SCRIPTS += core/defs
 core/defs: $(top_builddir)/config.status $(srcdir)/core/defs.in
 	$(top_builddir)/config.status --file core/defs
 
-# These are the most used test programs, and they are also useful
-# to run manually outside the test suite.  Always build them.
-noinst_PROGRAMS = core/ikwiad core/randtgba
-
 # Keep this sorted alphabetically.
 check_PROGRAMS = \
   core/acc \
@@ -73,6 +69,7 @@ check_PROGRAMS = \
   core/graph \
   core/kind \
   core/length \
+  core/ikwiad \
   core/intvcomp \
   core/intvcmp2 \
   core/kripkecat \
@@ -84,6 +81,7 @@ check_PROGRAMS = \
   core/nequals \
   core/nenoform \
   core/ngraph \
+  core/randtgba \
   core/readsat \
   core/reduc \
   core/reduccmp \
@@ -334,7 +332,7 @@ EXTRA_DIST = \
 
 ############################## LTSMIN ##############################
 
-noinst_PROGRAMS += ltsmin/modelcheck
+check_PROGRAMS += ltsmin/modelcheck
 
 ltsmin_modelcheck_SOURCES = ltsmin/modelcheck.cc
 ltsmin_modelcheck_LDADD = $(top_builddir)/spot/ltsmin/libspotltsmin.la

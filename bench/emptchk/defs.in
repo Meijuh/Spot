@@ -32,7 +32,7 @@ test -f "$srcdir/defs.in" || {
    exit 1
 }
 
-RANDTGBA='@top_builddir@/src/tgbatest/randtgba@EXEEXT@'
-LTL2TGBA='@top_builddir@/src/tests/ikwiad@EXEEXT@'
+RANDTGBA='@top_builddir@/tests/core/randtgba@EXEEXT@'
+LTL2TGBA='@top_builddir@/tests/core/ikwiad@EXEEXT@'
 FORMULAE=$srcdir/formulae.ltl
 ALGORITHMS=$srcdir/algorithms

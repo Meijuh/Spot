@@ -264,7 +264,7 @@ This directory contains:
  MORE STATISTICS
 =================
 
-  The ltl-*.sh tests use src/tgbatest/randtgba to output statistics,
+  The ltl-*.sh tests use spot/tests/randtgba to output statistics,
   but randtgba is able to output a lot more data than what we have
   shown above.  Try removing the `-1' option from the script, or toying
   with randtgba itself.
@@ -275,5 +275,5 @@ This directory contains:
   (The `bsh=' argument gives the hash table size in bytes; see also
   http://spot.lip6.fr/wiki/EmptinessCheckOptions)
 
-  Besides randtgba, two other tools that you might find handy we
-  experimenting are src/bin/randltl and src/tests/ikwiad.
+  Besides randtgba, two other tools that you might find handy when
+  experimenting are bin/randltl and tests/core/ikwiad.
