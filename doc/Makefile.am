@@ -34,7 +34,12 @@ doc:
 
 fast-doc:
 	$(MAKE) Doxyfile
-	$(DOXYGEN)
+## Doxygen 1.8.x will easily segfault during the parallel runs of dot.
+## 1.8.11 is supposed to be fixed, but until this version reaches all
+## our build hosts, let's try to run doxygen a second time when the
+## first attempt fails.
+## https://bugzilla.gnome.org/show_bug.cgi?id=756241
+	$(DOXYGEN) || $(DOXYGEN)
 	touch $(srcdir)/stamp
 
 $(srcdir)/stamp: $(srcdir)/Doxyfile.in $(top_srcdir)/configure.ac
