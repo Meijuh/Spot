@@ -61,7 +61,6 @@ DEBIAN =					\
 debian/changelog: configure.ac
 	$(top_builddir)/config.status --file debian/changelog
 
-ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog	\
 	     tools/help2man tools/man2html.pl			\
 	     tools/test-driver-teamcity $(UTF8) $(DEBIAN)	\
