@@ -75,8 +75,8 @@ State: [f] 5
 --END--
 EOF
 
-run 0 ../parse_print input1 > input1.out
-run 0 ../parse_print input1.out > input1.out2
+run 0 ../kripkecat input1 > input1.out
+run 0 ../kripkecat input1.out > input1.out2
 
 
 cat >input2 <<EOF
@@ -123,7 +123,7 @@ Acc-Sig: +0
 2
 EOF
 
-../parse_print input2 2>output2.err && exit 1
+../kripkecat input2 2>output2.err && exit 1
 cat output2.err
 cat >expected2<<EOF
 input2:9.1: state 1 has no definition

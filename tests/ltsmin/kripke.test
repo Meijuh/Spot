@@ -34,7 +34,7 @@ fi
 set -e
 
 run 0 ../modelcheck -gK $srcdir/finite.dve 'F("P.a > 5")' > output
-run 0 ../../core/parse_print output | tr -d '"' > output2
+run 0 ../../core/kripkecat output | tr -d '"' > output2
 tr -d '"' < output >outputF
 cmp outputF output2
 

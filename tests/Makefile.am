@@ -75,6 +75,7 @@ check_PROGRAMS = \
   core/length \
   core/intvcomp \
   core/intvcmp2 \
+  core/kripkecat \
   core/ltlprod \
   core/ltl2dot \
   core/ltl2text \
@@ -83,7 +84,6 @@ check_PROGRAMS = \
   core/nequals \
   core/nenoform \
   core/ngraph \
-  core/parse_print \
   core/readsat \
   core/reduc \
   core/reduccmp \
@@ -108,9 +108,9 @@ core_graph_SOURCES = core/graph.cc
 core_ikwiad_SOURCES = core/ikwiad.cc
 core_intvcomp_SOURCES = core/intvcomp.cc
 core_intvcmp2_SOURCES = core/intvcmp2.cc
+core_kripkecat_SOURCES = core/kripkecat.cc
 core_ltlprod_SOURCES  = core/ltlprod.cc
 core_ngraph_SOURCES = core/ngraph.cc
-core_parse_print_SOURCES = core/parse_print_test.cc
 core_randtgba_SOURCES = core/randtgba.cc
 core_readsat_SOURCES = core/readsat.cc
 core_taatgba_SOURCES = core/taatgba.cc
@@ -352,7 +352,7 @@ TESTS_ltsmin = \
 
 EXTRA_DIST += ltsmin/beem-peterson.4.dve ltsmin/finite.dve ltsmin/finite.pm
 
-ltlsmin/kripke.log: core/parse_print$(EXEEXT)
+ltlsmin/kripke.log: core/kripkecat$(EXEEXT)
 
 
 ############################## SANITY ##############################
