@@ -31,7 +31,7 @@
 #include <spot/twa/formula2bdd.hh>
 #include <spot/twaalgos/copy.hh>
 #include <spot/twaalgos/sccinfo.hh>
-#include <spot/kripke/kripke.hh>
+#include <spot/kripke/fairkripke.hh>
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
@@ -665,7 +665,7 @@ namespace spot
   {
     dotty_output d(os, options);
     // Enable automatic state labels for Kripke structure.
-    if (std::dynamic_pointer_cast<const kripke>(g))
+    if (std::dynamic_pointer_cast<const fair_kripke>(g))
       d.parse_opts("k");
     auto aut = std::dynamic_pointer_cast<const twa_graph>(g);
     if (!aut || (d.max_states_given() && aut->num_states() >= d.max_states()))

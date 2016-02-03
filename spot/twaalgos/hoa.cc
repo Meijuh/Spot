@@ -33,7 +33,7 @@
 #include <spot/misc/minato.hh>
 #include <spot/twa/formula2bdd.hh>
 #include <spot/tl/formula.hh>
-#include <spot/kripke/kripke.hh>
+#include <spot/kripke/fairkripke.hh>
 
 namespace spot
 {
@@ -586,7 +586,7 @@ namespace spot
 
     // for Kripke structures, automatically append "k" to the options.
     char* tmpopt = nullptr;
-    if (std::dynamic_pointer_cast<const kripke>(aut))
+    if (std::dynamic_pointer_cast<const fair_kripke>(aut))
       {
 	unsigned n = opt ? strlen(opt) : 0;
 	tmpopt = new char[n + 2];
