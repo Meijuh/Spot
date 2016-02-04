@@ -184,28 +184,28 @@ safra_state::find_scc_brace_id(unsigned scc_id, const scc_info& scc)
 
 void
 safra_state::compute_succs(const const_twa_graph_ptr& aut,
-                           const std::vector<bdd_id_t>& bddnums,
-                           std::unordered_map<bdd,
-                                           std::pair<unsigned, unsigned>,
-                                           bdd_hash>& deltas,
-                            succs_t& res,
-                            const scc_info& scc,
-                            const std::map<int, bdd>& implications,
-                            const std::vector<bool>& is_connected,
-                            bool scc_opt,
-                            bool use_bisimulation) const
+                           succs_t& res,
+                           const scc_info& scc,
+                           const std::map<int, bdd>& implications,
+                           const std::vector<bool>& is_connected,
+                           std::unordered_map<bdd, unsigned, bdd_hash>& bdd2num,
+                           std::vector<bdd>& all_bdds,
+                           bool scc_opt,
+                           bool use_bisimulation) const
 {
   // Given a bdd returns index of associated safra_state in res
-  std::map<unsigned, unsigned> bdd2num;
-  for (auto& node: nodes_)
+  std::map<unsigned, unsigned> bdd_idx2node_idx;
+  for (auto& ap: all_bdds)
     {
-      for (auto& t: aut->out(node.first))
+      for (auto& node: nodes_)
         {
-          // deltas precalculate all transitions in edge t
-          auto p = deltas[t.cond];
-          for (unsigned j = p.first; j < p.second; ++j)
+          for (auto& t: aut->out(node.first))
             {
-              auto i = bdd2num.insert(std::make_pair(bddnums[j], res.size()));
+              if (!bdd_implies(ap, t.cond))
+                continue;
+              unsigned bdd_idx = bdd2num[ap];
+              auto i = bdd_idx2node_idx.insert(std::make_pair(bdd_idx,
+                                                              res.size()));
               unsigned idx;
               if (!i.second)
                 // No new state added, so get pre-existing state whichi is an
@@ -215,8 +215,7 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
                 {
                   // Each new node starts out with same number of nodes as src
                   idx = res.size();
-                  res.emplace_back(safra_state(nb_braces_.size()),
-                                   bddnums[j]);
+                  res.emplace_back(safra_state(nb_braces_.size()), bdd_idx);
                 }
               safra_state& ss = res[idx].first;
               // Check if we are leaving the SCC, if so we delete all the
@@ -245,7 +244,7 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
                 assert(ss.nb_braces_.size() == ss.is_green_.size());
               }
           }
-      }
+    }
     for (auto& s: res)
       {
         safra_state& tmp = s.first;
@@ -254,7 +253,7 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
         tmp.ungreenify_last_brace();
         s.first.color_ = tmp.finalize_construction();
       }
-  }
+}
 
   void
   safra_state::merge_redundant_states(const std::map<int, bdd>& implications,
@@ -572,8 +571,8 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
         safra_state curr = todo.front();
         unsigned src_num = seen.find(curr)->second;
         todo.pop_front();
-        curr.compute_succs(aut, bddnums, deltas, succs, scc, implications,
-                           is_connected, scc_opt, use_bisimulation);
+        curr.compute_succs(aut, succs, scc, implications, is_connected,
+                           bdd2num, num2bdd, scc_opt, use_bisimulation);
         for (auto s: succs)
           {
             auto i = seen.find(s.first);

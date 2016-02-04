@@ -54,17 +54,16 @@ namespace spot
                 bool acceptance_scc = false);
     // Given a certain transition_label, compute all the successors of that
     // label, and return that new node.
-    void compute_succs(const const_twa_graph_ptr& aut,
-                          const std::vector<bdd_id_t>& bddnums,
-                          std::unordered_map<bdd,
-                                             std::pair<unsigned, unsigned>,
-                                             bdd_hash>& deltas,
-                           succs_t& res,
-                           const scc_info& scc,
-                           const std::map<int, bdd>& implications,
-                           const std::vector<bool>& is_connected,
-                           bool scc_opt = false,
-                           bool use_bisimulation = false) const;
+    void
+    compute_succs(const const_twa_graph_ptr& aut,
+                  succs_t& res,
+                  const scc_info& scc,
+                  const std::map<int, bdd>& implications,
+                  const std::vector<bool>& is_connected,
+                  std::unordered_map<bdd, unsigned, bdd_hash>& bdd2num,
+                  std::vector<bdd>& all_bdds,
+                  bool scc_opt,
+                  bool use_bisimulation) const;
     // scc_id has to be an accepting SCC.  This function tries to find a node
     // who lives in that SCC and if it does, we return the brace_id of that SCC.
     unsigned find_scc_brace_id(unsigned scc_id, const scc_info& scc);
