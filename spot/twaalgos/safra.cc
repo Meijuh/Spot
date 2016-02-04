@@ -197,27 +197,15 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
   std::map<unsigned, unsigned> bdd_idx2node_idx;
   for (auto& ap: all_bdds)
     {
+      unsigned bdd_idx = bdd2num[ap];
+      res.emplace_back(safra_state(nb_braces_.size()), bdd_idx);
+      safra_state& ss = res.back().first;
       for (auto& node: nodes_)
         {
           for (auto& t: aut->out(node.first))
             {
               if (!bdd_implies(ap, t.cond))
                 continue;
-              unsigned bdd_idx = bdd2num[ap];
-              auto i = bdd_idx2node_idx.insert(std::make_pair(bdd_idx,
-                                                              res.size()));
-              unsigned idx;
-              if (!i.second)
-                // No new state added, so get pre-existing state whichi is an
-                // index in the vector of safra states (res)
-                idx = i.first->second;
-              else
-                {
-                  // Each new node starts out with same number of nodes as src
-                  idx = res.size();
-                  res.emplace_back(safra_state(nb_braces_.size()), bdd_idx);
-                }
-              safra_state& ss = res[idx].first;
               // Check if we are leaving the SCC, if so we delete all the
               // braces as no cycles can be found with that node
               if (scc_opt && scc.scc_of(node.first) != scc.scc_of(t.dst))
@@ -227,32 +215,28 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
                     // constructed
                     unsigned scc_id = ss.find_scc_brace_id(scc.scc_of(t.dst),
                                                            scc);
-                      // If SCC is present in node use the same id
-                      if (scc_id != -1U)
-                        ss.update_succ({ scc_id }, t.dst,
-                                       { /* empty */ });
-                      // Create a new SCC
-                      else
-                        ss.update_succ({ /* no braces */ }, t.dst,
-                                       { 0 });
-                    }
-                  else
-                    // When entering non accepting SCC don't create any braces
-                    ss.update_succ({ /* no braces */ }, t.dst, { /* empty */ });
+                    // If SCC is present in node use the same id
+                    if (scc_id != -1U)
+                      ss.update_succ({ scc_id }, t.dst,
+                                     { /* empty */ });
+                    // Create a new SCC
+                    else
+                      ss.update_succ({ /* no braces */ }, t.dst,
+                                     { 0 });
+                  }
                 else
-                  ss.update_succ(node.second, t.dst, t.acc);
-                assert(ss.nb_braces_.size() == ss.is_green_.size());
-              }
-          }
+                  // When entering non accepting SCC don't create any braces
+                  ss.update_succ({ /* no braces */ }, t.dst, { /* empty */ });
+              else
+                ss.update_succ(node.second, t.dst, t.acc);
+              assert(ss.nb_braces_.size() == ss.is_green_.size());
+            }
+        }
+      if (use_bisimulation)
+        ss.merge_redundant_states(implications, scc, is_connected);
+      ss.ungreenify_last_brace();
+      ss.color_ = ss.finalize_construction();
     }
-    for (auto& s: res)
-      {
-        safra_state& tmp = s.first;
-        if (use_bisimulation)
-          tmp.merge_redundant_states(implications, scc, is_connected);
-        tmp.ungreenify_last_brace();
-        s.first.color_ = tmp.finalize_construction();
-      }
 }
 
   void
@@ -575,6 +559,9 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
                            bdd2num, num2bdd, scc_opt, use_bisimulation);
         for (auto s: succs)
           {
+            // Don't construct sink state as complete does a better job at this
+            if (s.first.nodes_.size() == 0)
+              continue;
             auto i = seen.find(s.first);
 	    unsigned dst_num;
 	    if (i != seen.end())
