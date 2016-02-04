@@ -182,6 +182,55 @@ safra_state::find_scc_brace_id(unsigned scc_id, const scc_info& scc)
   return -1U;
 }
 
+safra_state
+safra_state::compute_succ(const const_twa_graph_ptr& aut,
+                          const bdd& ap,
+                          const scc_info& scc,
+                          const std::map<int, bdd>& implications,
+                          const std::vector<bool>& is_connected,
+                          bool scc_opt,
+                          bool use_bisimulation) const
+{
+  safra_state ss = safra_state(nb_braces_.size());
+  for (auto& node: nodes_)
+    {
+      for (auto& t: aut->out(node.first))
+        {
+          if (!bdd_implies(ap, t.cond))
+            continue;
+          // Check if we are leaving the SCC, if so we delete all the
+          // braces as no cycles can be found with that node
+          if (scc_opt && scc.scc_of(node.first) != scc.scc_of(t.dst))
+            if (scc.is_accepting_scc(scc.scc_of(t.dst)))
+              {
+                // Find scc_id in the safra state currently being
+                // constructed
+                unsigned scc_id = ss.find_scc_brace_id(scc.scc_of(t.dst),
+                                                       scc);
+                // If SCC is present in node use the same id
+                if (scc_id != -1U)
+                  ss.update_succ({ scc_id }, t.dst,
+                                 { /* empty */ });
+                // Create a new SCC
+                else
+                  ss.update_succ({ /* no braces */ }, t.dst,
+                                 { 0 });
+              }
+            else
+              // When entering non accepting SCC don't create any braces
+              ss.update_succ({ /* no braces */ }, t.dst, { /* empty */ });
+          else
+            ss.update_succ(node.second, t.dst, t.acc);
+          assert(ss.nb_braces_.size() == ss.is_green_.size());
+        }
+    }
+  if (use_bisimulation)
+    ss.merge_redundant_states(implications, scc, is_connected);
+  ss.ungreenify_last_brace();
+  ss.color_ = ss.finalize_construction();
+  return ss;
+}
+
 void
 safra_state::compute_succs(const const_twa_graph_ptr& aut,
                            succs_t& res,
@@ -193,49 +242,13 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
                            bool scc_opt,
                            bool use_bisimulation) const
 {
-  // Given a bdd returns index of associated safra_state in res
-  std::map<unsigned, unsigned> bdd_idx2node_idx;
   for (auto& ap: all_bdds)
     {
+      safra_state ss = compute_succ(aut, ap, scc, implications, is_connected,
+                                    scc_opt, use_bisimulation);
       unsigned bdd_idx = bdd2num[ap];
-      res.emplace_back(safra_state(nb_braces_.size()), bdd_idx);
-      safra_state& ss = res.back().first;
-      for (auto& node: nodes_)
-        {
-          for (auto& t: aut->out(node.first))
-            {
-              if (!bdd_implies(ap, t.cond))
-                continue;
-              // Check if we are leaving the SCC, if so we delete all the
-              // braces as no cycles can be found with that node
-              if (scc_opt && scc.scc_of(node.first) != scc.scc_of(t.dst))
-                if (scc.is_accepting_scc(scc.scc_of(t.dst)))
-                  {
-                    // Find scc_id in the safra state currently being
-                    // constructed
-                    unsigned scc_id = ss.find_scc_brace_id(scc.scc_of(t.dst),
-                                                           scc);
-                    // If SCC is present in node use the same id
-                    if (scc_id != -1U)
-                      ss.update_succ({ scc_id }, t.dst,
-                                     { /* empty */ });
-                    // Create a new SCC
-                    else
-                      ss.update_succ({ /* no braces */ }, t.dst,
-                                     { 0 });
-                  }
-                else
-                  // When entering non accepting SCC don't create any braces
-                  ss.update_succ({ /* no braces */ }, t.dst, { /* empty */ });
-              else
-                ss.update_succ(node.second, t.dst, t.acc);
-              assert(ss.nb_braces_.size() == ss.is_green_.size());
-            }
-        }
-      if (use_bisimulation)
-        ss.merge_redundant_states(implications, scc, is_connected);
-      ss.ungreenify_last_brace();
-      ss.color_ = ss.finalize_construction();
+      res.emplace_back(ss, bdd_idx);
+
     }
 }
 

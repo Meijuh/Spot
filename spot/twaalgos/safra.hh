@@ -64,7 +64,16 @@ namespace spot
                   std::vector<bdd>& all_bdds,
                   bool scc_opt,
                   bool use_bisimulation) const;
-    // scc_id has to be an accepting SCC.  This function tries to find a node
+    // Compute successor for transition ap
+    safra_state
+    compute_succ(const const_twa_graph_ptr& aut,
+                 const bdd& ap,
+                 const scc_info& scc,
+                 const std::map<int, bdd>& implications,
+                 const std::vector<bool>& is_connected,
+                 bool scc_opt,
+                 bool use_bisimulation) const;
+   // scc_id has to be an accepting SCC.  This function tries to find a node
     // who lives in that SCC and if it does, we return the brace_id of that SCC.
     unsigned find_scc_brace_id(unsigned scc_id, const scc_info& scc);
     // The outermost brace of each node cannot be green
