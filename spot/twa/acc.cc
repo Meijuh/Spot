@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -564,10 +564,7 @@ namespace spot
     codes.reserve(n_accs);
     for (unsigned i = 0; i < n_accs; ++i)
       {
-	if (drand() < 0.5)
-	  codes.push_back(inf({i}));
-	else
-	  codes.push_back(fin({i}));
+	codes.push_back(drand() < 0.5 ? inf({i}) : fin({i}));
 	if (reuse > 0.0 && drand() < reuse)
 	  --i;
       }
@@ -1277,6 +1274,19 @@ namespace spot
   namespace
   {
 
+    static void
+    syntax_error(const char* input, const char* message)
+    {
+      std::ostringstream s;
+      s << "syntax error at ";
+      if (*input)
+	s << '\'' << input << "': ";
+      else
+	s << "end of acceptance: ";
+      s << message;
+      throw parse_error(s.str());
+    }
+
     /// acc ::= term | term "|" acc
     /// term := "t" | "f" | "Inf" "(" num ")"
     ///       | "Fin" "(" num ") " | "(" acc ")
@@ -1294,9 +1304,9 @@ namespace spot
     {
       if (*input != c)
 	{
-	  std::ostringstream s;
-	  s << "syntax error at '" << input << "', was expecting " << c << '.';
-	  throw parse_error(s.str());
+	  char msg[20];
+	  sprintf(msg, "was expecting %c '.'", c);
+	  syntax_error(input, msg);
 	}
       ++input;
       skip_space(input);
@@ -1328,11 +1338,7 @@ namespace spot
       unsigned long n = strtoul(input, &end, 10);
       unsigned num = n;
       if (errno || num != n)
-	{
-	  std::ostringstream s;
-	  s << "syntax error at '" << input << "': invalid number.";
-	  throw parse_error(s.str());
-	}
+	syntax_error(input, "invalid number.");
       input = end;
       return n;
     }
@@ -1347,14 +1353,9 @@ namespace spot
       min = strtol(str, &end, 10);
       if (end == str || errno)
 	{
-	  // No leading number.  It's OK as long as the string is not
-	  // empty.
-	  if (!*end || errno)
-	    {
-	      std::ostringstream s;
-	      s << "syntax error at '" << str << "': invalid range.";
-	      throw parse_error(s.str());
-	    }
+	  // No leading number.  It's OK as long as '..' or ':' are next.
+	  if (errno || (*end != ':' && *end != '.'))
+	    syntax_error(str, "invalid range.");
 	  min = 1;
 	}
       if (!*end || (*end != ':' && *end != '.'))
@@ -1374,22 +1375,12 @@ namespace spot
 	  char* end2;
 	  max = strtol(end, &end2, 10);
 	  if (end == end2 || errno)
-	    {
-	      std::ostringstream s;
-	      s << "syntax error at '" << str
-		<< "': invalid range (missing end?)";
-	      throw parse_error(s.str());
-	    }
+	    syntax_error(str, "invalid range (missing end?)");
 	  end = end2;
 	}
 
       if (min < 0 || max < 0)
-	{
-	  std::ostringstream s;
-	  s << "invalid range '" << str
-	    << "': values must be positive";
-	  throw parse_error(s.str());
-	}
+	syntax_error(str, "values in range must be positive.");
 
       str = end;
 
@@ -1417,18 +1408,9 @@ namespace spot
       char* end;
       double n = strtod(input, &end);
       if (errno)
-	{
-	  std::ostringstream s;
-	  s << "syntax error at '" << input << "': can't convert to double";
-	  throw parse_error(s.str());
-	}
+	syntax_error(input, "cannot convert to double.");
       if (!(n >= 0.0 && n <= 1.0))
-	{
-	  std::ostringstream s;
-	  s << "syntax error at '" << input
-	    << "': value should be between 0 and 1.";
-	  throw parse_error(s.str());
-	}
+	syntax_error(input, "value should be between 0 and 1.");
       input = end;
       return n;
     }
@@ -1466,9 +1448,7 @@ namespace spot
 	}
       else
 	{
-	  std::ostringstream s;
-	  s << "syntax error at '" << input << "', unexpected character.";
-	  throw parse_error(s.str());
+	  syntax_error(input, "unexpected character.");
 	}
 
       skip_space(input);
@@ -1507,10 +1487,9 @@ namespace spot
 	  input += 6;
 	  return drand() < 0.5;
 	}
-      std::ostringstream s;
-      s << "syntax error at '" << input
-	<< "': expecting 'min' or 'max'";
-      throw parse_error(s.str());
+      syntax_error(input, "expecting 'min', 'max', or 'rand'.");
+      SPOT_UNREACHABLE();
+      return false;
     }
 
     static bool odd_or_even(const char*& input)
@@ -1536,10 +1515,9 @@ namespace spot
 	  input += 6;
 	  return drand() < 0.5;
 	}
-      std::ostringstream s;
-      s << "syntax error at '" << input
-	<< "': expecting 'odd' or 'even'";
-      throw parse_error(s.str());
+      syntax_error(input, "expecting 'odd', 'even', or 'rand'.");
+      SPOT_UNREACHABLE();
+      return false;
     }
 
   }
@@ -1614,9 +1592,10 @@ namespace spot
 	input += 6;
 	unsigned n = parse_range(input);
 	skip_space(input);
+	auto setreuse = input;
 	double reuse = (*input) ? parse_proba(input) : 0.0;
 	if (reuse >= 1.0)
-	  throw parse_error("probability for set reuse should be <1.");
+	  syntax_error(setreuse, "probability for set reuse should be <1.");
 	c = acc_cond::acc_code::random(n, reuse);
       }
     else
@@ -1625,11 +1604,8 @@ namespace spot
       }
     skip_space(input);
     if (*input)
-      {
-	std::ostringstream s;
-	s << "syntax error at '" << input << "', unexpected character.";
-	throw parse_error(s.str());
-      }
+      syntax_error(input, "unexpected character.");
+
     std::swap(c, *this);
   }
 }

@@ -141,6 +141,19 @@ grep 'randaut: --colored requires' stderr
 randaut -S -A'parity min even 0..3' -q -n10 --colored 2 2>stderr && exit 1
 grep 'randaut: --colored requires' stderr
 
+randaut -A'parity foo' 2 -q 2>stderr && exit 1
+grep 'randaut:.*foo.*min.*max.*rand' stderr
+randaut -A'parity ' 2 -q 2>stderr && exit 1
+grep 'randaut:.*end of acceptance.*min.*max.*rand' stderr
+randaut -A'parity min foo' 2 -q 2>stderr && exit 1
+grep 'randaut:.*foo.*odd.*even.*rand' stderr
+randaut -A'parity min' 2 -q 2>stderr && exit 1
+grep 'randaut:.*end of acceptance.*odd.*even.*rand' stderr
+randaut -A'parity min rand foo' 2 -q 2>stderr && exit 1
+grep 'randaut:.*foo.*invalid range' stderr
+randaut -A'parity min rand  ' 2 -q 2>stderr && exit 1
+grep 'randaut:.*end of acceptance.*invalid range' stderr
+
 randaut -Q0 1 2>stderr && exit 1
 grep '0 states' stderr
 
