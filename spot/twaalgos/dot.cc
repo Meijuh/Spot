@@ -59,6 +59,8 @@ namespace spot
       bool opt_state_labels_ = false;
       const_twa_graph_ptr aut_;
       std::vector<std::string>* sn_ = nullptr;
+      std::map<unsigned, unsigned>* highlight_edges_ = nullptr;
+      std::map<unsigned, unsigned>* highlight_states_ = nullptr;
       std::vector<std::pair<unsigned, unsigned>>* sprod_ = nullptr;
       std::set<unsigned>* incomplete_;
       std::string* name_ = nullptr;
@@ -482,8 +484,6 @@ namespace spot
 		  escape_html(os_ << "<br/>", state_label(s));
 		os_ << '>';
 	      }
-	    os_ << "]\n";
-
 	  }
 	else
 	  {
@@ -502,8 +502,16 @@ namespace spot
 	    // states.
 	    if (mark_states_ && aut_->state_acc_sets(s))
 	      os_ << ", peripheries=2";
-	    os_ << "]\n";
 	  }
+	if (highlight_states_)
+	  {
+	    auto iter = highlight_states_->find(s);
+	    if (iter != highlight_states_->end())
+	      os_ << ", style=bold, color=\""
+		  << palette[iter->second % palette_mod]
+		  << '"';
+	  }
+	os_ << "]\n";
 	if (incomplete_ && incomplete_->find(s) != incomplete_->end())
 	  os_ << "  u" << s << " [label=\"...\", shape=none, width=0, height=0"
 	    "]\n  " << s << " -> u" << s << " [style=dashed]\n";
@@ -543,7 +551,16 @@ namespace spot
 	    os_ << '>';
 	  }
 	if (opt_numbered_trans)
-	  os_ << ",taillabel=\"" << number << '"';
+	  os_ << ", taillabel=\"" << number << '"';
+	if (highlight_edges_)
+	  {
+	    auto idx = aut_->get_graph().index_of_edge(t);
+	    auto iter = highlight_edges_->find(idx);
+	    if (iter != highlight_edges_->end())
+	      os_ << ", style=bold, color=\""
+		  << palette[iter->second % palette_mod]
+		  << '"';
+	  }
 	os_ << "]\n";
       }
 
@@ -584,6 +601,10 @@ namespace spot
 		    }
 	      }
 	  }
+	highlight_edges_ =
+	  aut->get_named_prop<std::map<unsigned, unsigned>>("highlight-edges");
+	highlight_states_ =
+	  aut->get_named_prop<std::map<unsigned, unsigned>>("highlight-states");
 	incomplete_ =
 	  aut->get_named_prop<std::set<unsigned>>("incomplete-states");
 	if (opt_name_)

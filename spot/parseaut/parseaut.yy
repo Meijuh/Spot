@@ -117,6 +117,8 @@ extern "C" int strverscmp(const char *s1, const char *s2);
       int plus;
       int minus;
       std::vector<std::string>* state_names = nullptr;
+      std::map<unsigned, unsigned>* highlight_edges = nullptr;
+      std::map<unsigned, unsigned>* highlight_states = nullptr;
       std::map<unsigned, unsigned> states_map;
       std::set<int> ap_set;
       unsigned cur_state;
@@ -206,6 +208,8 @@ extern "C" int strverscmp(const char *s1, const char *s2);
 %token BODY "--BODY--"
 %token END "--END--"
 %token STATE "State:";
+%token SPOT_HIGHLIGHT_EDGES "spot.highlight.edges:";
+%token SPOT_HIGHLIGHT_STATES "spot.highlight.states:";
 %token <str> IDENTIFIER "identifier";  // also used by neverclaim
 %token <str> HEADERNAME "header name";
 %token <str> ANAME "alias name";
@@ -665,6 +669,12 @@ header-item: "States:" INT
 	       res.aut_or_ks->set_named_prop("automaton-name", $2);
 	     }
            | "properties:" properties
+	   | "spot.highlight.edges:"
+	     { res.highlight_edges = new std::map<unsigned, unsigned>; }
+             highlight-edges
+	   | "spot.highlight.states:"
+	     { res.highlight_states = new std::map<unsigned, unsigned>; }
+             highlight-states
            | HEADERNAME header-spec
 	     {
 	       char c = (*$1)[0];
@@ -741,6 +751,16 @@ properties: | properties IDENTIFIER
 		  }
 		delete $3;
 	      }
+
+highlight-edges: | highlight-edges INT INT
+              {
+		res.highlight_edges->emplace($2, $3);
+	      }
+highlight-states: | highlight-states INT INT
+              {
+		res.highlight_states->emplace($2, $3);
+	      }
+
 header-spec: | header-spec BOOLEAN
              | header-spec INT
              | header-spec STRING
@@ -2202,6 +2222,10 @@ namespace spot
       return r.h;
     if (r.state_names)
       r.aut_or_ks->set_named_prop("state-names", r.state_names);
+    if (r.highlight_edges)
+      r.aut_or_ks->set_named_prop("highlight-edges", r.highlight_edges);
+    if (r.highlight_states)
+      r.aut_or_ks->set_named_prop("highlight-states", r.highlight_states);
     fix_acceptance(r);
     fix_initial_state(r);
     fix_properties(r);
