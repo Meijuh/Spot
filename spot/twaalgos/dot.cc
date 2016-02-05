@@ -71,6 +71,7 @@ namespace spot
       bool opt_bullet_but_buchi = false;
       bool opt_all_bullets = false;
       bool opt_ordered_edges_ = false;
+      bool opt_numbered_edges_ = false;
       bool opt_want_state_names_ = true;
       unsigned opt_shift_sets_ = 0;
       std::string opt_font_;
@@ -160,6 +161,9 @@ namespace spot
 		options = end;
 		break;
 	      }
+	    case '#':
+	      opt_numbered_edges_ = true;
+	      break;
 	    case '1':
 	      opt_want_state_names_ = false;
 	      break;
@@ -550,8 +554,17 @@ namespace spot
 		}
 	    os_ << '>';
 	  }
-	if (opt_ordered_edges_)
-	  os_ << ", taillabel=\"" << number << '"';
+	if (opt_ordered_edges_ || opt_numbered_edges_)
+	  {
+	    os_ << ", taillabel=\"";
+	    if (opt_ordered_edges_)
+	      os_ << number;
+	    if (opt_ordered_edges_ && opt_numbered_edges_)
+	      os_ << ' ';
+	    if (opt_numbered_edges_)
+	      os_ << '#' << aut_->get_graph().index_of_edge(t);
+	    os_ << '"';
+	  }
 	if (highlight_edges_)
 	  {
 	    auto idx = aut_->get_graph().index_of_edge(t);

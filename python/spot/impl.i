@@ -546,6 +546,32 @@ namespace std {
   {
     return self->get_named_prop<std::vector<std::string>>("state-names");
   }
+
+  twa* highlight_state(unsigned state, unsigned color)
+  {
+    auto hs =
+      self->get_named_prop<std::map<unsigned, unsigned>>("highlight-states");
+    if (!hs)
+      {
+	hs = new std::map<unsigned, unsigned>;
+	self->set_named_prop("highlight-states", hs);
+      }
+    (*hs)[state] = color;
+    return self;
+  }
+
+  twa* highlight_edge(unsigned edge, unsigned color)
+  {
+    auto ht =
+      self->get_named_prop<std::map<unsigned, unsigned>>("highlight-edges");
+    if (!ht)
+      {
+	ht = new std::map<unsigned, unsigned>;
+	self->set_named_prop("highlight-edges", ht);
+      }
+    (*ht)[edge] = color;
+    return self;
+  }
 }
 
 

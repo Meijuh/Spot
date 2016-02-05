@@ -147,6 +147,15 @@ class twa:
         from IPython.display import SVG
         return SVG(self._repr_svg_(opt))
 
+    def highlight_states(self, states, color):
+        for state in states:
+            self.highlight_state(state, color)
+        return self
+
+    def highlight_edges(self, edges, color):
+        for edge in edges:
+            self.highlight_edge(edge, color)
+        return self
 
 @_extend(twa)
 class twa:

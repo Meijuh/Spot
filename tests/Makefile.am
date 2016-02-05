@@ -291,6 +291,7 @@ TESTS_python = \
   python/bddnqueen.py \
   python/decompose.ipynb \
   python/formulas.ipynb \
+  python/highlighting.ipynb \
   python/implies.py \
   python/interdep.py \
   python/ltl2tgba.test \

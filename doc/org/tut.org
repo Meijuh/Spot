@@ -64,3 +64,5 @@ real notebooks instead.
 - [[https://spot.lrde.epita.fr/ipynb/ltsmin.html][=ltsmin.ipynb=]] minimal test for loading a DiVinE model using
   the LTSmin interface.
 - [[https://spot.lrde.epita.fr/ipynb/ltsmin.html][=word.ipynb=]] example for the =twa_run= and =twa_word= classes.
+- [[https://spot.lrde.epita.fr/ipynb/ltsmin.html][=highlighting.ipynb=]] shows how to highlight states or edges in
+  automata.

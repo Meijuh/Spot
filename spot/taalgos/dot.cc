@@ -107,6 +107,7 @@ namespace spot
 	    case 't':
 	    case '+':
 	    case '<':
+	    case '#':
 	      // All these options are implemented by dotty() on TGBA,
 	      // but are not implemented here.  We simply ignore them,
 	      // because raising an exception if they are in
