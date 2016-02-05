@@ -75,6 +75,7 @@ namespace spot
       bool opt_want_state_names_ = true;
       unsigned opt_shift_sets_ = 0;
       std::string opt_font_;
+      std::string opt_node_color_;
 
       const char* const palette9[9] =
 	{
@@ -181,18 +182,31 @@ namespace spot
 	    case 'c':
 	      opt_shape_ = ShapeCircle;
 	      break;
+	    case 'C':
+	      if (*options != '(')
+		throw std::runtime_error
+		  ("invalid node color specification for print_dot()");
+	      {
+		auto* end = strchr(++options, ')');
+		if (!end)
+		  throw std::runtime_error
+		    ("invalid node color specification for print_dot()");
+		opt_node_color_ = std::string(options, end - options);
+		options = end + 1;
+	      }
+	      break;
 	    case 'e':
 	      opt_shape_ = ShapeEllipse;
 	      break;
 	    case 'f':
 	      if (*options != '(')
 		throw std::runtime_error
-		  (std::string("invalid font specification for dotty()"));
+		  ("invalid font specification for print_dot()");
 	      {
 		auto* end = strchr(++options, ')');
 		if (!end)
 		  throw std::runtime_error
-		    (std::string("invalid font specification for dotty()"));
+		    ("invalid font specification for print_dot()");
 		opt_font_ = std::string(options, end - options);
 		options = end + 1;
 	      }
@@ -406,6 +420,9 @@ namespace spot
 	  case ShapeAuto:
 	    SPOT_UNREACHABLE();
 	  }
+	if (!opt_node_color_.empty())
+	  os_ << "  node [style=\"filled\", fillcolor=\""
+	      << opt_node_color_ << "\"]\n";
 	if (!opt_font_.empty())
 	  os_ << "  fontname=\"" << opt_font_
 	      << "\"\n  node [fontname=\"" << opt_font_
@@ -511,9 +528,13 @@ namespace spot
 	  {
 	    auto iter = highlight_states_->find(s);
 	    if (iter != highlight_states_->end())
-	      os_ << ", style=bold, color=\""
-		  << palette[iter->second % palette_mod]
-		  << '"';
+	      {
+		os_ << ", style=\"bold";
+		if (!opt_node_color_.empty())
+		  os_ << ",filled";
+		os_ << "\", color=\"" << palette[iter->second % palette_mod]
+		    << '"';
+	      }
 	  }
 	os_ << "]\n";
 	if (incomplete_ && incomplete_->find(s) != incomplete_->end())

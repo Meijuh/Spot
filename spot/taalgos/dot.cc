@@ -65,6 +65,19 @@ namespace spot
 	    case 'c':
 	      opt_circles_ = true;
 	      break;
+	    case 'C':
+	      if (*options != '(')
+		throw std::runtime_error
+		  ("invalid node color specification for print_dot()");
+	      {
+		auto* end = strchr(++options, ')');
+		if (!end)
+		  throw std::runtime_error
+		    ("invalid node color specification for print_dot()");
+		opt_node_color_ = std::string(options, end - options);
+		options = end + 1;
+	      }
+	      break;
 	    case 'h':
 	      opt_horizontal_ = true;
 	      break;
@@ -136,6 +149,9 @@ namespace spot
 	  os_ << "  rankdir=LR\n";
 	if (opt_circles_)
 	  os_ << "  node [shape=\"circle\"]\n";
+	if (!opt_node_color_.empty())
+	  os_ << "  node [style=\"filled\", fillcolor=\""
+	      << opt_node_color_ << "\"]\n";
 	if (!opt_font_.empty())
 	  os_ << "  fontname=\"" << opt_font_
 	      << "\"\n  node [fontname=\"" << opt_font_
@@ -238,6 +254,7 @@ namespace spot
       bool opt_circles_ = false;
       bool opt_hide_sets_ = false;
       std::string opt_font_;
+      std::string opt_node_color_;
     };
 
   }

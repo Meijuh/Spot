@@ -20,8 +20,8 @@
 		      (setenv "DYLD_LIBRARY_PATH"
 			      (concat "@abs_top_builddir@/python/.libs:@abs_top_builddir@/spot/.libs:@abs_top_builddir@/buddy/spot/.libs:"
 				      (getenv "DYLD_LIBRARY_PATH")))
-		      (setenv "SPOT_DOTDEFAULT" "Brf(Lato)")
-		      (setenv "SPOT_DOTEXTRA" "node[style=filled, fillcolor=\"#ffffa0\"] edge[arrowhead=vee, arrowsize=.7]")
+		      (setenv "SPOT_DOTDEFAULT" "Brf(Lato)C(#ffffa0)")
+		      (setenv "SPOT_DOTEXTRA" "edge[arrowhead=vee, arrowsize=.7]")
 		      (org-babel-do-load-languages 'org-babel-load-languages
 						   '((sh . t)
 						     (python . t)

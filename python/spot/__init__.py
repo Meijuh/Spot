@@ -76,14 +76,14 @@ def setup(**kwargs):
     """
     import os
 
-    s = ('size="{}" node[style=filled,fillcolor="{}"] '
-         'edge[arrowhead=vee, arrowsize=.7]')
-    os.environ['SPOT_DOTEXTRA'] = s.format(kwargs.get('size', '10.2,5'),
-                                           kwargs.get('fillcolor', '#ffffaa'))
+    s = ('size="{}" edge[arrowhead=vee, arrowsize=.7]')
+    os.environ['SPOT_DOTEXTRA'] = s.format(kwargs.get('size', '10.2,5'))
 
     bullets = 'B' if kwargs.get('bullets', True) else ''
     max_states = '<' + str(kwargs.get('max_states', 50))
-    d = 'rf({})'.format(kwargs.get('font', 'Lato')) + bullets + max_states
+    d = 'rf({})C({}){}'.format(kwargs.get('font', 'Lato'),
+                               kwargs.get('fillcolor', '#ffffaa'),
+                               bullets + max_states)
     global _show_default
     _show_default = kwargs.get('show_default', None)
     os.environ['SPOT_DOTDEFAULT'] = d

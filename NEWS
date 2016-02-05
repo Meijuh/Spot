@@ -12,19 +12,25 @@ New in spot 1.99.7a (not yet released)
     object can be queried about the supported variables and their
     types.
 
-  * print_dot() now accepts an option of the form "<N" to specify
-    a maximum number of states to output.  Incomplete states are
-    then marked appropriately.  For a quick example, compare
-       ltl2tgba -D 'Ga | Gb | Gc' -d'<3'
-    with
-       ltl2tgba -D 'Ga | Gb | Gc' -d
-
-  * print_dot() now has option "k" to use state-based labels when
-    possible.  This is similar to the "k" option already supported
-    by print_hoa(), and is useful when printing Kripke structures.
+  * print_dot() now accepts several new options:
+    - use "<N" to specify a maximum number of states to output.
+      Incomplete states are then marked appropriately.  For a quick
+      example, compare
+	ltl2tgba -D 'Ga | Gb | Gc' -d'<3'
+      with
+        ltl2tgba -D 'Ga | Gb | Gc' -d
+    - use "C(color)" to specify the color to use for filling states.
+    - use "#" to display the internal number of each transition
+    - use "k" to use state-based labels when possible.  This is
+      similar to the "k" option already supported by print_hoa(), and
+      is useful when printing Kripke structures.
 
   * Option "k" is automatically passed used by print_dot() and
     print_hoa() when printing Kripke structures.
+
+  * print_dot() also honnor two new automaton properties called
+    "highlight-edges" and "highlight-states".  These are used to color
+    a subset of edges or transitions.
 
   Python:
 
@@ -35,6 +41,10 @@ New in spot 1.99.7a (not yet released)
     automata to 50 by default, as more states is likely to be
     unreadable (and slow to process by GraphViz).  This can be
     overridden by calling spot.setup(max_states=N).
+
+  * Automata now have methods to color selected states and
+    transitions.  See
+    https://spot.lrde.epita.fr/ipynb/highlighting.html for an example.
 
   Documentation:
 

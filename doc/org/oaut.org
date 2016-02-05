@@ -579,10 +579,11 @@ acceptance condition to be shown as well.  Option =b= causes sets to
 be ouput as bullets (e.g., ⓿ instead of ={0}=); option =r= (for
 rainbow) causes sets to be displayed in different colors, while option
 =R= also uses colors, but it chooses them depending on whether a set
-is used with Fin-acceptance, Inf-acceptance, or both.  Finally option
-=f(FONT)= is used to select a fontname: it is often necessary when =b=
-is used to ensure the characters ⓿, ❶, etc. are all selected from the
-same font.
+is used with Fin-acceptance, Inf-acceptance, or both.  Option
+=C(COLOR)= can be used to color all states using =COLOR=, and the
+option =f(FONT)= is used to select a fontname: it is often necessary
+when =b= is used to ensure the characters ⓿, ❶, etc. are all selected
+from the same font.
 
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba --dot=vcsna '(Ga -> Gb) W c'
@@ -840,8 +841,8 @@ The dot output can also be customized via two environment variables:
   variables set:
 
 #+BEGIN_SRC sh :results verbatim :exports code
-export SPOT_DOTDEFAULT='Brf(Lato)'
-export SPOT_DOTEXTRA='node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]'
+export SPOT_DOTDEFAULT='Brf(Lato)C(#ffffa0)'
+export SPOT_DOTEXTRA='edge[arrowhead=vee, arrowsize=.7]'
 #+END_SRC
 
 * Statistics
