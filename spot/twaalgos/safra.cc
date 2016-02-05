@@ -240,15 +240,44 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
                            std::unordered_map<bdd, unsigned, bdd_hash>& bdd2num,
                            std::vector<bdd>& all_bdds,
                            bool scc_opt,
-                           bool use_bisimulation) const
+                           bool use_bisimulation,
+                           bool use_stutter) const
 {
   for (auto& ap: all_bdds)
     {
-      safra_state ss = compute_succ(aut, ap, scc, implications, is_connected,
-                                    scc_opt, use_bisimulation);
+      safra_state ss = *this;
+
+      if (use_stutter && aut->prop_stutter_invariant())
+        {
+          std::vector<color_t> colors;
+          unsigned int counter = 0;
+          std::map<safra_state, unsigned int> safra2id;
+          bool stop = false;
+          while (!stop)
+            {
+              auto pair = safra2id.insert({ss, counter++});
+              // insert should never fail
+              assert(pair.second);
+              ss = ss.compute_succ(aut, ap, scc, implications, is_connected,
+                                   scc_opt, use_bisimulation);
+              colors.push_back(ss.color_);
+              stop = safra2id.find(ss) != safra2id.end();
+            }
+          // Add color of final transition that loops back
+          colors.push_back(ss.color_);
+          unsigned int loop_start = safra2id[ss];
+          for (auto& min: safra2id)
+            {
+              if (min.second >= loop_start && ss < min.first)
+                ss = min.first;
+            }
+          ss.color_ = *std::min_element(colors.begin(), colors.end());
+        }
+      else
+        ss = compute_succ(aut, ap, scc, implications, is_connected,
+                          scc_opt, use_bisimulation);
       unsigned bdd_idx = bdd2num[ap];
       res.emplace_back(ss, bdd_idx);
-
     }
 }
 
@@ -455,6 +484,18 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
   bool
   safra_state::operator<(const safra_state& other) const
   {
+    if (nodes_ == other.nodes_)
+      {
+        for (auto& n: nodes_)
+          {
+            auto it = other.nodes_.find(n.first);
+            assert(it != other.nodes_.end());
+            if (nesting_cmp(n.second, it->second))
+              return true;
+          }
+        return false;
+      }
+
     return nodes_ < other.nodes_;
   }
 
@@ -487,7 +528,7 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
   twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& a, bool bisimulation,
                        bool pretty_print, bool scc_opt, bool use_bisimulation,
-                       bool complete)
+                       bool complete, bool use_stutter)
   {
     // Degeneralize
     twa_graph_ptr aut = spot::degeneralize_tba(a);
@@ -569,11 +610,12 @@ safra_state::compute_succs(const const_twa_graph_ptr& aut,
         unsigned src_num = seen.find(curr)->second;
         todo.pop_front();
         curr.compute_succs(aut, succs, scc, implications, is_connected,
-                           bdd2num, num2bdd, scc_opt, use_bisimulation);
+                           bdd2num, num2bdd, scc_opt, use_bisimulation,
+                           use_stutter);
         for (auto s: succs)
           {
             // Don't construct sink state as complete does a better job at this
-            if (s.first.nodes_.size() == 0)
+            if (s.first.nodes_.empty())
               continue;
             auto i = seen.find(s.first);
 	    unsigned dst_num;

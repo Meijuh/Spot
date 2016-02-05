@@ -63,7 +63,8 @@ namespace spot
                   std::unordered_map<bdd, unsigned, bdd_hash>& bdd2num,
                   std::vector<bdd>& all_bdds,
                   bool scc_opt,
-                  bool use_bisimulation) const;
+                  bool use_bisimulation,
+                  bool use_stutter) const;
     // Compute successor for transition ap
     safra_state
     compute_succ(const const_twa_graph_ptr& aut,
@@ -107,5 +108,6 @@ namespace spot
                        bool pretty_print = false,
                        bool scc_opt = false,
                        bool use_bisimulation = false,
-                       bool complete = false);
+                       bool complete = false,
+                       bool use_stutter = false);
 }
