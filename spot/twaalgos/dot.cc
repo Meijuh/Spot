@@ -70,7 +70,7 @@ namespace spot
       bool opt_bullet = false;
       bool opt_bullet_but_buchi = false;
       bool opt_all_bullets = false;
-      bool opt_numbered_trans = false;
+      bool opt_ordered_edges_ = false;
       bool opt_want_state_names_ = true;
       unsigned opt_shift_sets_ = 0;
       std::string opt_font_;
@@ -206,7 +206,7 @@ namespace spot
 	      opt_name_ = false;
 	      break;
 	    case 'o':
-	      opt_numbered_trans = true;
+	      opt_ordered_edges_ = true;
 	      break;
 	    case 'r':
 	      opt_html_labels_ = true;
@@ -550,7 +550,7 @@ namespace spot
 		}
 	    os_ << '>';
 	  }
-	if (opt_numbered_trans)
+	if (opt_ordered_edges_)
 	  os_ << ", taillabel=\"" << number << '"';
 	if (highlight_edges_)
 	  {
