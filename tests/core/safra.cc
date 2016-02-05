@@ -33,20 +33,19 @@
 #include <spot/twaalgos/simulation.hh>
 
 
-int help();
-int help()
+static void help()
 {
-  std::cerr << "safra [OPTIONS]\n";
-  std::cerr << "\t-f ltl_formula\tinput string is an ltl formulae\n";
-  std::cerr << "\t--hoa file.hoa\tinput file has hoa format\n";
-  std::cerr << "\t-p\tpretty print states\n";
-  std::cerr << "\t-H\toutput hoa format\n";
-  std::cerr << "\t-b\treduce result using bisimulation\n";
-  std::cerr << "\t--scc_opt\tUse an SCC-based Safra\n";
-  std::cerr << "\t--bisim_opt\tUse Simulation info to reduce macro-states "
-               "size\n";
-  std::cerr << "\t--stutter\tStutter-invarience optimisation\n";
-  return 1;
+  std::cerr <<
+    "safra [OPTIONS]\n"
+    "\t-f ltl_formula\tinput string is an ltl formulae\n"
+    "\t--hoa file.hoa\tinput file has hoa format\n"
+    "\t-p\tpretty print states\n"
+    "\t-H\toutput hoa format\n"
+    "\t-b\treduce result using bisimulation\n"
+    "\t--scc_opt\tUse an SCC-based Safra\n"
+    "\t--bisim_opt\tUse Simulation info to reduce macro-states size\n"
+    "\t--stutter\tStutter-invarience optimisation\n";
+  exit(1);
 }
 
 int main(int argc, char* argv[])
@@ -64,21 +63,21 @@ int main(int argc, char* argv[])
 
   char* input = nullptr;
   if (argc <= 2)
-    return help();
+    help();
   for (int i = 1; i < argc; ++i)
     {
       if (!strncmp(argv[i], "--hoa", 5))
         {
           in_hoa = true;
           if (i + 1 >= argc)
-            return help();
+            help();
           input = argv[++i];
         }
       else if (!strncmp(argv[i], "-f", 2))
         {
           in_ltl = true;
           if (i + 1 >= argc)
-            return help();
+            help();
           input = argv[++i];
         }
       else if (!strncmp(argv[i], "-H", 2))
