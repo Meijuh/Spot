@@ -700,25 +700,6 @@ autfilt --remove-ap=a=1 aut-ex1.hoa --dot=.a
 #+END_SRC
 
 #+RESULTS: autfilt-ex6c
-#+begin_example
-digraph G {
-  rankdir=LR
-  label=<(Fin(<font color="#F17CB0">❶</font>) &amp; Fin(<font color="#B276B2">❸</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>)) | Inf(<font color="#F17CB0">❶</font>)>
-  labelloc="t"
-  fontname="Lato"
-  node [fontname="Lato"]
-  edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0"]
-  0 -> 0 [label=<1<br/><font color="#B276B2">❸</font>>]
-  0 -> 1 [label=<1<br/><font color="#F17CB0">❶</font><font color="#B276B2">❸</font>>]
-  1 [label="1"]
-  1 -> 0 [label=<b<br/><font color="#B276B2">❸</font>>]
-  1 -> 1 [label=<b<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
-}
-#+end_example
 
 #+BEGIN_SRC dot :file autfilt-ex6c.png :cmdline -Tpng :var txt=autfilt-ex6c :exports results
 $txt
@@ -729,4 +710,9 @@ $txt
 
 #+BEGIN_SRC sh :results silent :exports results
 rm -f example.hoa aut-ex1.hoa
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba 'a U b U c' | autfilt --accept-word 'b; cycle{c}' -q  &&
+echo "word accepted"
 #+END_SRC

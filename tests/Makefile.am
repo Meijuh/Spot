@@ -277,7 +277,8 @@ TESTS_twa = \
   core/ltlcross2.test \
   core/complementation.test \
   core/randpsl.test \
-  core/cycles.test
+  core/cycles.test \
+  core/acc_word.test
 
 
 ############################## PYTHON ##############################

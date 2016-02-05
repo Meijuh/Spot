@@ -1,5 +1,11 @@
 New in spot 1.99.8a (not yet released)
 
+  Command-line tools:
+
+  * autfilt has a new option: --accept-word=WORD, that filters automata
+    that accept WORD.  This option can be used several times, and will
+    filter automata that accept all words.
+
   Library:
 
   * twa::ap_var() renamed to twa::ap_vars().
