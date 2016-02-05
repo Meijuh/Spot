@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,7 +23,7 @@
 #include <utility>
 #include <unordered_map>
 
-#include "safra.hh"
+#include "spot/twaalgos/determinize.hh"
 #include "spot/twaalgos/degen.hh"
 #include "spot/twaalgos/sccfilter.hh"
 #include "spot/twaalgos/simulation.hh"

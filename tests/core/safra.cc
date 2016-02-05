@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -27,7 +27,7 @@
 #include "spot/twaalgos/degen.hh"
 #include "spot/twaalgos/dot.hh" // print_dot
 #include "spot/twaalgos/hoa.hh" // print_hoa
-#include "spot/twaalgos/safra.hh"
+#include "spot/twaalgos/determinize.hh"
 #include "spot/twaalgos/translate.hh"
 
 
