@@ -25,10 +25,8 @@ namespace spot
 {
   SPOT_API twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& aut,
-                       bool bisimulation = false,
                        bool pretty_print = false,
                        bool scc_opt = false,
                        bool use_bisimulation = false,
-                       bool complete = false,
                        bool use_stutter = false);
 }

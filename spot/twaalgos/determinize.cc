@@ -32,7 +32,7 @@
 #include <spot/twaalgos/degen.hh>
 #include <spot/twaalgos/sccfilter.hh>
 #include <spot/twaalgos/simulation.hh>
-#include <spot/twaalgos/complete.hh>
+
 
 namespace spot
 {
@@ -607,9 +607,9 @@ namespace spot
   }
 
   twa_graph_ptr
-  tgba_determinisation(const const_twa_graph_ptr& a, bool bisimulation,
-                       bool pretty_print, bool scc_opt, bool use_bisimulation,
-                       bool complete, bool use_stutter)
+  tgba_determinisation(const const_twa_graph_ptr& a,
+                       bool pretty_print, bool scc_opt,
+		       bool use_bisimulation, bool use_stutter)
   {
     // Degeneralize
     twa_graph_ptr aut = spot::degeneralize_tba(a);
@@ -729,12 +729,8 @@ namespace spot
     res->prop_deterministic(true);
     res->prop_state_acc(false);
 
-    if (bisimulation)
-      res = simulation(res);
     if (pretty_print)
       res->set_named_prop("state-names", print_debug(seen));
-    if (complete)
-      spot::complete_here(res);
     return res;
   }
 }

@@ -20,15 +20,17 @@
 #include <iostream>
 #include <cstring>
 
-#include "spot/tl/parse.hh" // spot::parse_infix_psl
-#include "spot/tl/formula.hh" // spot::formula
-#include "spot/parseaut/public.hh"
-#include "spot/twa/twagraph.hh"
-#include "spot/twaalgos/degen.hh"
-#include "spot/twaalgos/dot.hh" // print_dot
-#include "spot/twaalgos/hoa.hh" // print_hoa
-#include "spot/twaalgos/determinize.hh"
-#include "spot/twaalgos/translate.hh"
+#include <spot/tl/parse.hh> // spot::parse_infix_psl
+#include <spot/tl/formula.hh> // spot::formula
+#include <spot/parseaut/public.hh>
+#include <spot/twa/twagraph.hh>
+#include <spot/twaalgos/degen.hh>
+#include <spot/twaalgos/dot.hh> // print_dot
+#include <spot/twaalgos/hoa.hh> // print_hoa
+#include <spot/twaalgos/determinize.hh>
+#include <spot/twaalgos/translate.hh>
+#include <spot/twaalgos/complete.hh>
+#include <spot/twaalgos/simulation.hh>
 
 
 int help();
@@ -117,18 +119,23 @@ int main(int argc, char* argv[])
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
-      res = spot::tgba_determinisation(tmp, sim, pretty_print, scc_opt,
-                                       use_bisim, complete, use_stutter);
+      res = spot::tgba_determinisation(tmp, pretty_print, scc_opt,
+                                       use_bisim, use_stutter);
     }
   else if (in_hoa)
     {
       auto aut = spot::parse_aut(input, dict);
       if (aut->format_errors(std::cerr))
         return 2;
-      res = tgba_determinisation(aut->aut, sim, pretty_print, scc_opt,
-                                 use_bisim, complete, use_stutter);
+      res = tgba_determinisation(aut->aut, pretty_print, scc_opt,
+                                 use_bisim, use_stutter);
     }
-  res->merge_edges();
+  if (sim)
+    res = simulation(res);
+  else
+    res->merge_edges();
+  if (complete)
+    spot::complete_here(res);
 
   if (out_hoa)
     {
