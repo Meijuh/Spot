@@ -70,8 +70,8 @@ namespace spot
                   const std::vector<bool>& is_connected,
                   std::unordered_map<bdd, unsigned, bdd_hash>& bdd2num,
                   std::vector<bdd>& all_bdds,
-                  bool scc_opt,
-                  bool use_bisimulation,
+                  bool use_scc,
+                  bool use_simulation,
                   bool use_stutter) const;
     // Compute successor for transition ap
     safra_state
@@ -80,8 +80,8 @@ namespace spot
                  const scc_info& scc,
                  const std::map<int, bdd>& implications,
                  const std::vector<bool>& is_connected,
-                 bool scc_opt,
-                 bool use_bisimulation) const;
+                 bool use_scc,
+                 bool use_simulation) const;
     // scc_id has to be an accepting SCC.  This function tries to find a node
     // who lives in that SCC and if it does, we return the brace_id of that SCC.
     unsigned find_scc_brace_id(unsigned scc_id, const scc_info& scc);
@@ -268,8 +268,8 @@ namespace spot
 			    const scc_info& scc,
 			    const std::map<int, bdd>& implications,
 			    const std::vector<bool>& is_connected,
-			    bool scc_opt,
-			    bool use_bisimulation) const
+			    bool use_scc,
+			    bool use_simulation) const
   {
     safra_state ss = safra_state(nb_braces_.size());
     for (auto& node: nodes_)
@@ -280,7 +280,7 @@ namespace spot
 	      continue;
 	    // Check if we are leaving the SCC, if so we delete all the
 	    // braces as no cycles can be found with that node
-	    if (scc_opt && scc.scc_of(node.first) != scc.scc_of(t.dst))
+	    if (use_scc && scc.scc_of(node.first) != scc.scc_of(t.dst))
 	      if (scc.is_accepting_scc(scc.scc_of(t.dst)))
 		{
 		  // Find scc_id in the safra state currently being
@@ -304,7 +304,7 @@ namespace spot
 	    assert(ss.nb_braces_.size() == ss.is_green_.size());
 	  }
       }
-    if (use_bisimulation)
+    if (use_simulation)
       ss.merge_redundant_states(implications, scc, is_connected);
     ss.ungreenify_last_brace();
     ss.color_ = ss.finalize_construction();
@@ -320,8 +320,8 @@ namespace spot
 			     std::unordered_map<bdd, unsigned, bdd_hash>&
 			     bdd2num,
 			     std::vector<bdd>& all_bdds,
-			     bool scc_opt,
-			     bool use_bisimulation,
+			     bool use_scc,
+			     bool use_simulation,
 			     bool use_stutter) const
   {
     for (auto& ap: all_bdds)
@@ -340,7 +340,7 @@ namespace spot
 		// insert should never fail
 		assert(pair.second);
 		ss = ss.compute_succ(aut, ap, scc, implications, is_connected,
-				     scc_opt, use_bisimulation);
+				     use_scc, use_simulation);
 		colors.push_back(ss.color_);
 		stop = safra2id.find(ss) != safra2id.end();
 	      }
@@ -356,7 +356,7 @@ namespace spot
 	  }
 	else
 	  ss = compute_succ(aut, ap, scc, implications, is_connected,
-			    scc_opt, use_bisimulation);
+			    use_scc, use_simulation);
 	unsigned bdd_idx = bdd2num[ap];
 	res.emplace_back(ss, bdd_idx);
       }
@@ -608,13 +608,13 @@ namespace spot
 
   twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& a,
-                       bool pretty_print, bool scc_opt,
-		       bool use_bisimulation, bool use_stutter)
+                       bool pretty_print, bool use_scc,
+		       bool use_simulation, bool use_stutter)
   {
     // Degeneralize
     twa_graph_ptr aut = spot::degeneralize_tba(a);
     std::map<int, bdd> implications;
-    if (use_bisimulation)
+    if (use_simulation)
       {
         aut = spot::scc_filter(aut);
         aut = simulation(aut, &implications);
@@ -674,8 +674,8 @@ namespace spot
     // Required to create new edges from 2 safra-state
     power_set seen;
     auto init_state = aut->get_init_state_number();
-    bool start_accepting = scc.is_accepting_scc(scc.scc_of(init_state)) ||
-      !scc_opt;
+    bool start_accepting =
+      !use_scc || scc.is_accepting_scc(scc.scc_of(init_state));
     safra_state init(init_state, true, start_accepting);
     unsigned num = res->new_state();
     res->set_init_state(num);
@@ -691,7 +691,7 @@ namespace spot
         unsigned src_num = seen.find(curr)->second;
         todo.pop_front();
         curr.compute_succs(aut, succs, scc, implications, is_connected,
-                           bdd2num, num2bdd, scc_opt, use_bisimulation,
+                           bdd2num, num2bdd, use_scc, use_simulation,
                            use_stutter);
         for (auto s: succs)
           {

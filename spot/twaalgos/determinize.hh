@@ -23,10 +23,59 @@
 
 namespace spot
 {
+  /// \ingroup twa_algorithms
+  /// \brief Determinize a TGBA
+  ///
+  /// The main algorithm works only with automata using Büchi acceptance
+  /// (preferably transition-based).  If generalized Büchi is input, it
+  /// will be automatically degeneralized first.
+  ///
+  /// The output will be a deterministic automaton using parity acceptance.
+  ///
+  /// This procedure is based on an algorithm by Roman Redziejowski
+  /// (Fundamenta Informaticae 119, 3-4 (2012)).  Redziejowski's
+  /// algorithm is similar to Piterman's improvement of Safra's
+  /// algorithm, except it is presented on transition-based acceptance
+  /// and use simpler notations.  We implement three additional
+  /// optimizations (they can be individually disabled) based on
+  ///
+  ///   - knowledge about SCCs of the input automaton
+  ///   - knowledge about simulation relations in the input automaton
+  ///   - knowledge about stutter-invariance of the input automaton
+  ///
+  /// The last optimization is an idea described by Joachim Klein &
+  /// Christel Baier (CIAA'07) and implemented in ltl2dstar.  In fact,
+  /// ltl2dstar even has a finer version (letter-based stuttering)
+  /// that is not implemented here.
+  ///
+  /// \param aut the automaton to determinize
+  ///
+  /// \param pretty_print whether to decorate states with names
+  ///                     showing the paths they track (this only
+  ///                     makes sense if the input has Büchi
+  ///                     acceptance already, otherwise the input
+  ///                     automaton will be degeneralized and the
+  ///                     names will refer to the states in the
+  ///                     degeneralized automaton).
+  ///
+  /// \param use_scc whether to simplify the construction based on
+  ///                the SCCs in the input automaton.
+  ///
+  /// \param use_simulation whether to simplify the construction based
+  ///                       on simulation relations between states in
+  ///                       the original automaton.
+  ///
+  /// \param use_stutter whether to simplify the construction when the
+  ///                    input automaton is known to be
+  ///                    stutter-invariant.  (The stutter-invariant
+  ///                    flag of the input automaton is used, so it
+  ///                    might be worth to call
+  ///                    spot::check_stutter_invariance() first if
+  ///                    possible.)
   SPOT_API twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& aut,
                        bool pretty_print = false,
-                       bool scc_opt = false,
-                       bool use_bisimulation = false,
-                       bool use_stutter = false);
+                       bool use_scc = true,
+                       bool use_simulation = true,
+                       bool use_stutter = true);
 }
