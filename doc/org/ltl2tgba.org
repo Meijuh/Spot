@@ -3,11 +3,22 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 
-This tool translates LTL or PSL formulas into two kinds of Büchi
-automata, or to monitors.  The default is to output Transition-based
-Generalized Büchi Automata (hereinafter abbreviated TGBA), but more
-traditional Büchi automata (BA) may be requested using the =-B=
-option.
+This tool translates LTL or PSL formulas into different types of
+automata.
+
+The inner algorithm produces Transition-based Generalized Büchi
+Automata, hence the name of the tools, but =ltl2tgba= has grown and
+now offers several options to adjust the type of automaton output.
+Those options will be covered in more detail below, but here is
+a quick summary:
+
+- =--tgba= (the default) outputs Transition-based Generalized
+Büchi Automata
+- =--ba= (or =-B=) outputs state-based Büchi automata
+- =--monitor= (or =-M=) outputs Monitors
+- =--generic --deterministic= (or =-GD=) will do whatever it takes to
+  produce a deterministic automaton, and may output generalized Büchi,
+  or parity acceptance.
 
 * TGBA and BA
 
@@ -448,6 +459,13 @@ Note that options =--deterministic= and =--small= express
 /preferences/.  They certainly do /not/ guarantee that the output will
 be deterministic, or will be the smallest automaton possible.
 
+In particular, for properties more complex than obligations, it is
+possible that no deterministic TGBA exist, and even if it exists,
+=ltl2tgba= might not find it: so a non-deterministic automaton can be
+returned in this case.  If you absolutely want a deterministic
+automaton, [[#generic][read on about the =--generic= option below]].
+
+
 An example formula where the difference between =-D= and =--small= is
 flagrant is =Ga|Gb|Gc=:
 
@@ -696,6 +714,49 @@ generate automata for large family of pattern formulas, it makes sense
 to experiment with the different settings on a small version of the
 pattern, and select the lowest setting that satisfies your
 expectations.
+
+* Deterministic automata with =--generic=
+   :PROPERTIES:
+   :CUSTOM_ID: generic
+   :END:
+
+   The =--generic= (or =-G=) option allows =ltl2tgba= to use more
+   complex acceptance.  Combined with =--deterministic= (or =-D=) this
+   allows the use of a determinization algorithm that produce automata
+   with parity acceptance.
+
+   For instance =FGa= is the typical formula for which not
+   deterministic TGBA exists.
+
+#+NAME: ltl2tgba-fga
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba "FGa" -D -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-fga.png :cmdline -Tpng :var txt=ltl2tgba-fga :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-fga.png]]
+
+   But with =--generic=, =ltl2tgba= will output the following Rabin automaton:
+
+#+NAME: ltl2tgba-fga-D
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba "FGa" -G -D -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-fga-D.png :cmdline -Tpng :var txt=ltl2tgba-fga-D :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-fga-D.png]]
+
+Note that determinization algorithm implemented actually outputs
+parity acceptance, but =Fin(0)&Inf(1)= can be interpreted either as
+=Rabin 1= or =parity min odd 2=.
 
 * Translating multiple formulas for statistics
 

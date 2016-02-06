@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1040,6 +1040,12 @@ namespace spot
     // check whether the condition is logically equivalent to some
     // parity acceptance condition.
     bool is_parity(bool& max, bool& odd, bool equiv = false) const;
+    bool is_parity() const
+    {
+      bool max;
+      bool min;
+      return is_parity(max, min);
+    }
 
     // Return (true, m) if there exist some acceptance mark m that
     // does not satisfy the acceptance condition.  Return (false, 0U)

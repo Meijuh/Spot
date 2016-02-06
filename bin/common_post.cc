@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -32,8 +32,7 @@ bool level_set = false;
 bool pref_set = false;
 
 enum {
-  OPT_GENERIC = 1,
-  OPT_HIGH,
+  OPT_HIGH = 1,
   OPT_LOW,
   OPT_MEDIUM,
   OPT_SMALL,
@@ -44,6 +43,8 @@ static const argp_option options[] =
   {
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
+    { "generic", 'G', nullptr, 0,
+      "any acceptance condition is allowed", 0 },
     { "tgba", OPT_TGBA, nullptr, 0,
       "Transition-based Generalized Büchi Automaton (default)", 0 },
     { "ba", 'B', nullptr, 0,
@@ -57,7 +58,9 @@ static const argp_option options[] =
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
     { "small", OPT_SMALL, nullptr, 0, "prefer small automata (default)", 0 },
-    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
+    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata "
+      "(combine with --generic to be sure to obtain a deterministic "
+      "automaton)", 0 },
     { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
       "or deterministic", 0 },
     /**************************************************/
@@ -73,7 +76,7 @@ static const argp_option options_disabled[] =
   {
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
-    { "generic", OPT_GENERIC, nullptr, 0,
+    { "generic", 'G', nullptr, 0,
       "any acceptance is allowed (default)", 0 },
     { "tgba", OPT_TGBA, nullptr, 0,
       "Transition-based Generalized Büchi Automaton", 0 },
@@ -88,7 +91,9 @@ static const argp_option options_disabled[] =
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
     { "small", OPT_SMALL, nullptr, 0, "prefer small automata", 0 },
-    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
+    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata "
+      "(combine with --generic to be sure to obtain a deterministic "
+      "automaton)", 0 },
     { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
       "or deterministic", 0 },
     /**************************************************/
@@ -120,14 +125,14 @@ parse_opt_post(int key, char*, struct argp_state*)
       pref = spot::postprocessor::Deterministic;
       pref_set = true;
       break;
+    case 'G':
+      type = spot::postprocessor::Generic;
+      break;
     case 'M':
       type = spot::postprocessor::Monitor;
       break;
     case 'S':
       sbacc = spot::postprocessor::SBAcc;
-      break;
-    case OPT_GENERIC:
-      type = spot::postprocessor::Generic;
       break;
     case OPT_HIGH:
       level = spot::postprocessor::High;

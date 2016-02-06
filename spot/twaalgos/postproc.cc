@@ -33,6 +33,7 @@
 #include <spot/twaalgos/totgba.hh>
 #include <spot/twaalgos/sbacc.hh>
 #include <spot/twaalgos/sepsets.hh>
+#include <spot/twaalgos/determinize.hh>
 
 namespace spot
 {
@@ -175,27 +176,25 @@ namespace spot
     if (type_ == BA || SBACC_)
       state_based_ = true;
 
-    bool tgb_used = false;
     if (type_ != Generic && !a->acc().is_generalized_buchi())
       {
 	a = to_generalized_buchi(a);
-	tgb_used = true;
+	if (PREF_ == Any && level_ == Low)
+	  a = do_scc_filter(a, true);
       }
 
-    if (PREF_ == Any && level_ == Low)
-      if (type_ == Generic
-	  || type_ == TGBA
-	  || (type_ == BA && a->is_sba())
-	  || (type_ == Monitor && a->num_sets() == 0))
-	{
-	  if (tgb_used)
-	    a = do_scc_filter(a, true);
-	  if (COMP_)
-	    a = complete(a);
-	  if (SBACC_)
-	    a = sbacc(a);
-	  return a;
-	}
+    if (PREF_ == Any && level_ == Low
+	&& (type_ == Generic
+	    || type_ == TGBA
+	    || (type_ == BA && a->is_sba())
+	    || (type_ == Monitor && a->num_sets() == 0)))
+      {
+	if (COMP_)
+	  a = complete(a);
+	if (SBACC_)
+	  a = sbacc(a);
+	return a;
+      }
 
     int original_acc = a->num_sets();
 
@@ -365,14 +364,26 @@ namespace spot
 	  }
       }
 
+    if (PREF_ == Deterministic && type_ == Generic && !dba)
+      {
+	dba = tgba_determinize(to_generalized_buchi(sim));
+	if (level_ != Low)
+	  dba = simulation(dba);
+	sim = nullptr;
+      }
+
     // Now dba contains either the result of WDBA-minimization (in
     // that case dba_is_wdba=true), or some deterministic automaton
     // that is either the result of the simulation or of the
-    // TBA-determinization (dba_is_wdba=false in both cases).  If the
-    // dba is a WDBA, we do not have to run SAT-minimization.  A
-    // negative value in sat_minimize_ can for its use for debugging.
+    // TBA-determinization (dba_is_wdba=false in both cases), or a
+    // parity automaton coming from tgba_determinize().  If the dba is
+    // a WDBA, we do not have to run SAT-minimization.  A negative
+    // value in sat_minimize_ can force its use for debugging.
     if (sat_minimize_ && dba && (!dba_is_wdba || sat_minimize_ < 0))
       {
+	if (type_ == Generic)
+	  throw std::runtime_error
+	    ("postproc() no yet updated to mix sat-minimize and Generic");
 	unsigned target_acc;
 	if (type_ == BA)
 	  target_acc = 1;
@@ -393,10 +404,8 @@ namespace spot
 	    // because the input TBA might be smaller.
 	    if (state_based_)
 	      in = degeneralize(dba);
-	    else if (dba->num_sets() != 1)
-	      in = degeneralize_tba(dba);
 	    else
-	      in = dba;
+	      in = degeneralize_tba(dba);
 	  }
 	else
 	  {
