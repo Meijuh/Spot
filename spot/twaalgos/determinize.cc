@@ -607,9 +607,9 @@ namespace spot
   }
 
   twa_graph_ptr
-  tgba_determinisation(const const_twa_graph_ptr& a,
-                       bool pretty_print, bool use_scc,
-		       bool use_simulation, bool use_stutter)
+  tgba_determinize(const const_twa_graph_ptr& a,
+		   bool pretty_print, bool use_scc,
+		   bool use_simulation, bool use_stutter)
   {
     // Degeneralize
     twa_graph_ptr aut = spot::degeneralize_tba(a);

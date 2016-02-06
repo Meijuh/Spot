@@ -118,16 +118,16 @@ int main(int argc, char* argv[])
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
-      res = spot::tgba_determinisation(tmp, pretty_print, scc_opt,
-                                       use_bisim, use_stutter);
+      res = spot::tgba_determinize(tmp, pretty_print, scc_opt,
+				   use_bisim, use_stutter);
     }
   else if (in_hoa)
     {
       auto aut = spot::parse_aut(input, dict);
       if (aut->format_errors(std::cerr))
         return 2;
-      res = tgba_determinisation(aut->aut, pretty_print, scc_opt,
-                                 use_bisim, use_stutter);
+      res = tgba_determinize(aut->aut, pretty_print, scc_opt,
+			     use_bisim, use_stutter);
     }
   if (sim)
     res = simulation(res);

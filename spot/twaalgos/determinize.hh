@@ -73,9 +73,9 @@ namespace spot
   ///                    spot::check_stutter_invariance() first if
   ///                    possible.)
   SPOT_API twa_graph_ptr
-  tgba_determinisation(const const_twa_graph_ptr& aut,
-                       bool pretty_print = false,
-                       bool use_scc = true,
-                       bool use_simulation = true,
-                       bool use_stutter = true);
+  tgba_determinize(const const_twa_graph_ptr& aut,
+		   bool pretty_print = false,
+		   bool use_scc = true,
+		   bool use_simulation = true,
+		   bool use_stutter = true);
 }
