@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -311,6 +311,11 @@ namespace spot
     ///              debugging informations will be output on failure
     /// \return true iff the run could be completed
     bool replay(std::ostream& os, bool debug = false) const;
+
+    /// \brief Highlight the accepting run on the automaton.
+    ///
+    /// Note that this works only if the automaton is a twa_graph_ptr.
+    void highlight(unsigned color);
 
     /// \brief Return a twa_graph_ptr corresponding to \a run
     ///

@@ -21,6 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <sstream>
+#include <memory>
 #include <spot/twaalgos/emptiness.hh>
 #include <spot/twaalgos/bfssteps.hh>
 #include <spot/twaalgos/gtec/gtec.hh>
@@ -656,6 +657,52 @@ namespace spot
       }
 
     return true;
+  }
+
+  /// Note that this works only if the automaton is a twa_graph_ptr.
+  void twa_run::highlight(unsigned color)
+  {
+    auto a = std::dynamic_pointer_cast<twa_graph>
+      (std::const_pointer_cast<twa>(aut));
+    if (!a)
+      throw std::runtime_error("highlight() only work for twa_graph");
+
+    auto h = new std::map<unsigned, unsigned>; // highlighted edges
+
+    unsigned src = a->get_init_state_number();
+    auto l = prefix.empty() ? &cycle : &prefix;
+    auto e = l->end();
+    for (auto i = l->begin(); i != e;)
+      {
+	bdd label = i->label;
+	acc_cond::mark_t acc = i->acc;
+	unsigned dst;
+	++i;
+	if (i != e)
+	  {
+	    dst = a->state_number(i->s);
+	  }
+	else if (l == &prefix)
+	  {
+	    l = &cycle;
+	    i = l->begin();
+	    e = l->end();
+	    dst = a->state_number(i->s);
+	  }
+	else
+	  {
+	    dst = a->state_number(l->begin()->s);
+	  }
+
+	for (auto& t: a->out(src))
+	  if (t.dst == dst && t.cond == label && t.acc == acc)
+	    {
+	      (*h)[a->get_graph().index_of_edge(t)] = color;
+	      break;
+	    }
+	src = dst;
+      }
+    a->set_named_prop("highlight-edges", h);
   }
 
   twa_graph_ptr
