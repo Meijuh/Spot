@@ -82,9 +82,6 @@ namespace spot
                  const std::vector<bool>& is_connected,
                  bool use_scc,
                  bool use_simulation) const;
-    // scc_id has to be an accepting SCC.  This function tries to find a node
-    // who lives in that SCC and if it does, we return the brace_id of that SCC.
-    unsigned find_scc_brace_id(unsigned scc_id, const scc_info& scc);
     // The outermost brace of each node cannot be green
     void ungreenify_last_brace();
     // When a nodes a implies a node b, remove the node a.
@@ -251,17 +248,6 @@ namespace spot
 
   std::vector<bool> find_scc_paths(const scc_info& scc);
 
-  unsigned
-  safra_state::find_scc_brace_id(unsigned scc_id, const scc_info& scc)
-  {
-    for (auto& n: nodes_)
-      {
-	if (scc_id == scc.scc_of(n.first))
-	  return n.second.front();
-      }
-    return -1U;
-  }
-
   safra_state
   safra_state::compute_succ(const const_twa_graph_ptr& aut,
 			    const bdd& ap,
@@ -282,20 +268,8 @@ namespace spot
 	    // braces as no cycles can be found with that node
 	    if (use_scc && scc.scc_of(node.first) != scc.scc_of(t.dst))
 	      if (scc.is_accepting_scc(scc.scc_of(t.dst)))
-		{
-		  // Find scc_id in the safra state currently being
-		  // constructed
-		  unsigned scc_id = ss.find_scc_brace_id(scc.scc_of(t.dst),
-							 scc);
-		  // If SCC is present in node use the same id
-		  if (scc_id != -1U)
-		    ss.update_succ({ scc_id }, t.dst,
-				   { /* empty */ });
-		  // Create a new SCC
-		  else
-		    ss.update_succ({ /* no braces */ }, t.dst,
-				   { 0 });
-		}
+                // Entering accepting SCC so add brace
+                ss.update_succ({ /* no braces */ }, t.dst, { 0 });
 	      else
 		// When entering non accepting SCC don't create any braces
 		ss.update_succ({ /* no braces */ }, t.dst, { /* empty */ });
