@@ -345,7 +345,7 @@ checked_main(int argc, char **argv)
 		run = run->reduce();
 		tm.stop("reducing accepting run");
 		tm.start("printing accepting run");
-		std::cout << run;
+		std::cout << *run;
 		tm.stop("printing accepting run");
 	      }
 	  }
