@@ -593,7 +593,7 @@ def translate(formula, *args, dict=_bdd_dict):
     may not be satisfied.
 
     The optional arguments should be strings among the following:
-    - at most one in 'TGBA', 'BA', or 'Monitor'
+    - at most one in 'TGBA', 'BA', or 'Monitor', 'generic'
       (type of automaton to build)
     - at most one in 'Small', 'Deterministic', 'Any'
       (preferred characteristics of the produced automaton)
