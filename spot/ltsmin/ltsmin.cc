@@ -904,6 +904,8 @@ namespace spot
 	    if (!format_filter_[i])
 	      {
 		++i;
+		if (i == state_size_)
+		  break;
 		continue;
 	      }
 	    res << vname_[i] << '=' << vars[i];
