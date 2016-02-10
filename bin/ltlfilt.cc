@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -258,13 +258,23 @@ static bool ap = false;
 static unsigned ap_n = 0;
 static int opt_max_count = -1;
 static long int match_count = 0;
-static spot::exclusive_ap excl_ap;
-static std::unique_ptr<output_file> output_define = nullptr;
+
+
+// We want all these variables to be destroyed when we exit main, to
+// make sure it happens before all other global variables (like the
+// atomic propositions maps) are destroyed.  Otherwise we risk
+// accessing deleted stuff.
+static struct opt_t
+{
+  spot::exclusive_ap excl_ap;
+  std::unique_ptr<output_file> output_define = nullptr;
+  spot::formula implied_by = nullptr;
+  spot::formula imply = nullptr;
+  spot::formula equivalent_to = nullptr;
+}* opt;
+
 static std::string unabbreviate;
 
-static spot::formula implied_by = nullptr;
-static spot::formula imply = nullptr;
-static spot::formula equivalent_to = nullptr;
 
 static spot::formula
 parse_formula_arg(const std::string& input)
@@ -317,7 +327,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       bsize_max = to_int(arg);
       break;
     case OPT_DEFINE:
-      output_define.reset(new output_file(arg ? arg : "-"));
+      opt->output_define.reset(new output_file(arg ? arg : "-"));
       break;
     case OPT_DROP_ERRORS:
       error_style = drop_errors;
@@ -327,13 +337,13 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_EQUIVALENT_TO:
       {
-	if (equivalent_to)
+	if (opt->equivalent_to)
 	  error(2, 0, "only one --equivalent-to option can be given");
-	equivalent_to = parse_formula_arg(arg);
+	opt->equivalent_to = parse_formula_arg(arg);
 	break;
       }
     case OPT_EXCLUSIVE_AP:
-      excl_ap.add_group(arg);
+      opt->excl_ap.add_group(arg);
       break;
     case OPT_GUARANTEE:
       guarantee = obligation = true;
@@ -345,14 +355,14 @@ parse_opt(int key, char* arg, struct argp_state*)
       {
 	spot::formula i = parse_formula_arg(arg);
 	// a→c∧b→c ≡ (a∨b)→c
-	implied_by = spot::formula::Or({implied_by, i});
+	opt->implied_by = spot::formula::Or({opt->implied_by, i});
 	break;
       }
     case OPT_IMPLY:
       {
 	// a→b∧a→c ≡ a→(b∧c)
 	spot::formula i = parse_formula_arg(arg);
-	imply = spot::formula::And({imply, i});
+	opt->imply = spot::formula::And({opt->imply, i});
 	break;
       }
     case OPT_LTL:
@@ -536,8 +546,8 @@ namespace
       if (!unabbreviate.empty())
 	f = spot::unabbreviate(f, unabbreviate.c_str());
 
-      if (!excl_ap.empty())
-	f = excl_ap.constrain(f);
+      if (!opt->excl_ap.empty())
+	f = opt->excl_ap.constrain(f);
 
       bool matched = true;
 
@@ -568,9 +578,10 @@ namespace
 	  matched &= (bsize_max < 0) || (l <= bsize_max);
 	}
 
-      matched &= !implied_by || simpl.implication(implied_by, f);
-      matched &= !imply || simpl.implication(f, imply);
-      matched &= !equivalent_to || simpl.are_equivalent(f, equivalent_to);
+      matched &= !opt->implied_by || simpl.implication(opt->implied_by, f);
+      matched &= !opt->imply || simpl.implication(f, opt->imply);
+      matched &= !opt->equivalent_to
+	|| simpl.are_equivalent(f, opt->equivalent_to);
       matched &= !stutter_insensitive || spot::is_stutter_invariant(f);
 
       // Match obligations and subclasses using WDBA minimization.
@@ -601,7 +612,7 @@ namespace
 
       if (matched)
 	{
-	  if (output_define
+	  if (opt->output_define
 	      && output_format != count_output
 	      && output_format != quiet_output)
 	    {
@@ -610,7 +621,7 @@ namespace
 	      for (auto& p: relmap)
 		m.emplace(str_psl(p.first), p.second);
 	      for (auto& p: m)
-		stream_formula(output_define->ostream()
+		stream_formula(opt->output_define->ostream()
 			       << "#define " << p.first << " (",
 			       p.second, filename, linenum) << ")\n";
 	    }
@@ -633,6 +644,11 @@ main(int argc, char** argv)
 
   try
     {
+      // This will ensure that all objects stored in this struct are
+      // destroyed before global variables.
+      opt_t o;
+      opt = &o;
+
       if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
 	exit(err);
 

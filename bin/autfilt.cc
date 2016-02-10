@@ -249,7 +249,7 @@ static bool randomize_st = false;
 static bool randomize_tr = false;
 static int opt_seed = 0;
 
-// We want all these variable to be destroyed when we exit main, to
+// We want all these variables to be destroyed when we exit main, to
 // make sure it happens before all other global variables (like the
 // atomic propositions maps) are destroyed.  Otherwise we risk
 // accessing deleted stuff.
@@ -263,6 +263,8 @@ static struct opt_t
   std::unique_ptr<spot::isomorphism_checker>
                          isomorphism_checker = nullptr;
   std::unique_ptr<unique_aut_t> uniq = nullptr;
+  spot::exclusive_ap excl_ap;
+  spot::remove_ap rem_ap;
 }* opt;
 
 static bool opt_merge = false;
@@ -291,8 +293,6 @@ static char* opt_decompose_strength = nullptr;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
-static spot::exclusive_ap excl_ap;
-static spot::remove_ap rem_ap;
 static bool opt_simplify_exclusive_ap = false;
 static bool opt_rem_dead = false;
 static bool opt_rem_unreach = false;
@@ -361,7 +361,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_EXCLUSIVE_AP:
-      excl_ap.add_group(arg);
+      opt->excl_ap.add_group(arg);
       break;
     case OPT_INSTUT:
       if (!arg || (arg[0] == '1' && arg[1] == 0))
@@ -474,7 +474,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 	}
       break;
     case OPT_REM_AP:
-      rem_ap.add_ap(arg);
+      opt->rem_ap.add_ap(arg);
       break;
     case OPT_REM_DEAD:
       opt_rem_dead = true;
@@ -619,11 +619,11 @@ namespace
       if (opt_mask_acc)
 	aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
 
-      if (!excl_ap.empty())
-	aut = excl_ap.constrain(aut, opt_simplify_exclusive_ap);
+      if (!opt->excl_ap.empty())
+	aut = opt->excl_ap.constrain(aut, opt_simplify_exclusive_ap);
 
-      if (!rem_ap.empty())
-	aut = rem_ap.strip(aut);
+      if (!opt->rem_ap.empty())
+	aut = opt->rem_ap.strip(aut);
 
       if (opt_destut)
 	aut = spot::closure(std::move(aut));

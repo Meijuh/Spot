@@ -132,10 +132,18 @@ static const struct argp_child children[] =
     { nullptr, 0, nullptr, 0 }
   };
 
+// We want all these variables to be destroyed when we exit main, to
+// make sure it happens before all other global variables (like the
+// atomic propositions maps) are destroyed.  Otherwise we risk
+// accessing deleted stuff.
+static struct opt_t
+{
+  spot::atomic_prop_set aprops;
+}* opt;
+
 static const char* opt_acceptance = nullptr;
 typedef spot::twa_graph::graph_t::edge_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
-static spot::atomic_prop_set aprops;
 static range ap_count_given = {-1, -2}; // Must be two different negative val
 static int opt_seed = 0;
 static const char* opt_seed_str = "0";
@@ -246,15 +254,16 @@ parse_opt(int key, char* arg, struct argp_state* as)
       // non-options.  So if as->argc == as->next we know this is the
       // last non-option argument, and if aprops.empty() we know this
       // is the also the first one.
-      if (aprops.empty() && as->argc == as->next && looks_like_a_range(arg))
+      if (opt->aprops.empty()
+	  && as->argc == as->next && looks_like_a_range(arg))
 	{
 	  ap_count_given = parse_range(arg);
 	  // Create the set once if the count is fixed.
 	  if (ap_count_given.min == ap_count_given.max)
-	    aprops = spot::create_atomic_prop_set(ap_count_given.min);
+	    opt->aprops = spot::create_atomic_prop_set(ap_count_given.min);
 	  break;
 	}
-      aprops.insert(spot::formula::ap(arg));
+      opt->aprops.insert(spot::formula::ap(arg));
       break;
 
     default:
@@ -274,46 +283,52 @@ main(int argc, char** argv)
   const argp ap = { options, parse_opt, "N|PROP...", argp_program_doc,
 		    children, nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
-    exit(err);
-
-  // running 'randaut 0' is one way to generate automata using no
-  // atomic propositions so do not complain in that case.
-  if (aprops.empty() && ap_count_given.max < 0)
-    error(2, 0, "No atomic proposition supplied?   Run '%s --help' for usage.",
-	  program_name);
-
-  if (generic_wanted && automaton_format == Spin)
-    error(2, 0, "--spin implies --ba so should not be used with --acceptance");
-  if (generic_wanted && ba_wanted)
-    error(2, 0, "--acceptance and --ba may not be used together");
-
-  if (automaton_format == Spin && opt_acc_sets.max > 1)
-    error(2, 0, "--spin is incompatible with --acceptance=%d..%d",
-	  opt_acc_sets.min, opt_acc_sets.max);
-  if (ba_wanted && opt_acc_sets.min != 1 && opt_acc_sets.max != 1)
-    error(2, 0, "--ba is incompatible with --acceptance=%d..%d",
-	  opt_acc_sets.min, opt_acc_sets.max);
-  if (ba_wanted && generic_wanted)
-    error(2, 0, "--ba is incompatible with --acceptance=%s", opt_acceptance);
-
-  if (automaton_format == Spin)
-    ba_options();
-
-  if (opt_colored && opt_acc_sets.min == -1 && !generic_wanted)
-    error(2, 0, "--colored requires at least one acceptance set; "
-	  "use --acceptance");
-  if (opt_colored && opt_acc_sets.min == 0)
-    error(2, 0, "--colored requires at least one acceptance set; "
-	  "fix the range of --acceptance");
-
-  if (opt_acc_sets.min == -1)
-    opt_acc_sets.min = 0;
-
-
-
   try
     {
+      // This will ensure that all objects stored in this struct are
+      // destroyed before global variables.
+      opt_t o;
+      opt = &o;
+
+      if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
+	exit(err);
+
+      // running 'randaut 0' is one way to generate automata using no
+      // atomic propositions so do not complain in that case.
+      if (opt->aprops.empty() && ap_count_given.max < 0)
+	error(2, 0,
+	      "No atomic proposition supplied?   Run '%s --help' for usage.",
+	      program_name);
+
+      if (generic_wanted && automaton_format == Spin)
+	error(2, 0,
+	      "--spin implies --ba so should not be used with --acceptance");
+      if (generic_wanted && ba_wanted)
+	error(2, 0, "--acceptance and --ba may not be used together");
+
+      if (automaton_format == Spin && opt_acc_sets.max > 1)
+	error(2, 0, "--spin is incompatible with --acceptance=%d..%d",
+	      opt_acc_sets.min, opt_acc_sets.max);
+      if (ba_wanted && opt_acc_sets.min != 1 && opt_acc_sets.max != 1)
+	error(2, 0, "--ba is incompatible with --acceptance=%d..%d",
+	      opt_acc_sets.min, opt_acc_sets.max);
+      if (ba_wanted && generic_wanted)
+	error(2, 0,
+	      "--ba is incompatible with --acceptance=%s", opt_acceptance);
+
+      if (automaton_format == Spin)
+	ba_options();
+
+      if (opt_colored && opt_acc_sets.min == -1 && !generic_wanted)
+	error(2, 0, "--colored requires at least one acceptance set; "
+	      "use --acceptance");
+      if (opt_colored && opt_acc_sets.min == 0)
+	error(2, 0, "--colored requires at least one acceptance set; "
+	      "fix the range of --acceptance");
+
+      if (opt_acc_sets.min == -1)
+	opt_acc_sets.min = 0;
+
       spot::srand(opt_seed);
       auto d = spot::make_bdd_dict();
 
@@ -333,7 +348,7 @@ main(int argc, char** argv)
 	      && ap_count_given.min != ap_count_given.max)
 	    {
 	      int c = spot::rrand(ap_count_given.min, ap_count_given.max);
-	      aprops = spot::create_atomic_prop_set(c);
+	      opt->aprops = spot::create_atomic_prop_set(c);
 	    }
 
 	  int size = opt_states.min;
@@ -355,7 +370,7 @@ main(int argc, char** argv)
 	    }
 
 	  auto aut =
-	    spot::random_graph(size, opt_density, &aprops, d,
+	    spot::random_graph(size, opt_density, &opt->aprops, d,
 			       accs, opt_acc_prob, 0.5,
 			       opt_deterministic, opt_state_acc,
 			       opt_colored);

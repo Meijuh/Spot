@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -130,7 +130,15 @@ const struct argp_child children[] =
     { nullptr, 0, nullptr, 0 }
   };
 
-spot::atomic_prop_set aprops;
+// We want all these variables to be destroyed when we exit main, to
+// make sure it happens before all other global variables (like the
+// atomic propositions maps) are destroyed.  Otherwise we risk
+// accessing deleted stuff.
+static struct opt_t
+{
+  spot::atomic_prop_set aprops;
+}* opt;
+
 static int output = OUTPUTLTL;
 static char* opt_pL = nullptr;
 static char* opt_pS = nullptr;
@@ -202,18 +210,18 @@ parse_opt(int key, char* arg, struct argp_state* as)
       // non-options.  So if as->argc == as->next we know this is the
       // last non-option argument, and if aprops.empty() we know this
       // is the also the first one.
-      if (aprops.empty() && as->argc == as->next)
+      if (opt->aprops.empty() && as->argc == as->next)
 	{
 	  char* endptr;
 	  int res = strtol(arg, &endptr, 10);
 	  if (!*endptr && res >= 0) // arg is a number
 	    {
 	      ap_count_given = true;
-	      aprops = spot::create_atomic_prop_set(res);
+	      opt->aprops = spot::create_atomic_prop_set(res);
 	      break;
 	    }
 	}
-      aprops.insert(spot::default_environment::instance().require(arg));
+      opt->aprops.insert(spot::default_environment::instance().require(arg));
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -229,20 +237,26 @@ main(int argc, char** argv)
   const argp ap = { options, parse_opt, "N|PROP...", argp_program_doc,
 		    children, nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
-    exit(err);
-
-  // running 'randltl 0' is one way to generate formulas using no
-  // atomic propositions so do not complain in that case.
-  if (aprops.empty() && !ap_count_given)
-    error(2, 0, "No atomic proposition supplied?   Run '%s --help' for usage.",
-	  program_name);
-
-  spot::srand(opt_seed);
   try
     {
+      // This will ensure that all objects stored in this struct are
+      // destroyed before global variables.
+      opt_t o;
+      opt = &o;
+
+      if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
+	exit(err);
+
+      // running 'randltl 0' is one way to generate formulas using no
+      // atomic propositions so do not complain in that case.
+      if (opt->aprops.empty() && !ap_count_given)
+	error(2, 0, "No atomic proposition supplied?  "
+	      "Run '%s --help' for usage.", program_name);
+
+      spot::srand(opt_seed);
+
       spot::randltlgenerator rg
-	(aprops,
+	(opt->aprops,
 	 [&] (){
 	  spot::option_map opts;
 	  opts.set("output", output);

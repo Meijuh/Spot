@@ -52,10 +52,12 @@ New in spot 1.99.7a (not yet released)
     pointers) for some concepts used in Spot.
     See https://spot.lrde.epita.fr/concepts.html
 
-  Bugs:
+  Bug fixes:
 
   * Using ltl2tgba -U would fail to output the unambiguous property
     (regression introduced in 1.99.7)
+  * ltlfilt, autfilt, randltl, and randaut could easily crash when
+    compiled statically (i.e., with configure --disable-shared).
 
 New in spot 1.99.7 (2016-01-15)
 
