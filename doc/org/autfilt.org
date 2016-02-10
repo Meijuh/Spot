@@ -204,7 +204,7 @@ autfilt --help | sed -n '/Output automaton type:/,/^$/p' | sed '1d;$d'
 #+RESULTS:
 :   -B, --ba                   Büchi Automaton (with state-based acceptance)
 :   -C, --complete             output a complete automaton
-:       --generic              any acceptance is allowed (default)
+:   -G, --generic              any acceptance is allowed (default)
 :   -M, --monitor              Monitor (accepts all finite prefixes of the given
 :                              property)
 :   -S, --state-based-acceptance, --sbacc
@@ -240,8 +240,49 @@ defaults to =--high= (unless specified otherwise).  If a simplification
 level is given without specifying any goal, then the goal default to =--small=.
 
 So if you want to reduce the size of the automaton, try =--small= and
-if you want to try to make (or keep) it deterministic (there is to
-guaranty of result, this is only a preference) try =--deterministic=.
+if you want to try to make (or keep) it deterministic use
+=--deterministic=.
+
+Note that the =--deterministic= flag has two possible behaviors
+depending on the constraints on the acceptance conditions:
+- When =autfilt= is configured to work with generic acceptance (the
+  =--generic= option, which is the default), then the
+  =--deterministic= flag will do whatever it takes to output a
+  deterministic automaton, and this includes changing the acceptance
+  condition if needed (see below).
+- If options =--tgba= or =--ba= are used, the =--deterministic= option
+  is taken as a /preference/: =autfilt= will try to favor determinism
+  in the output, but it may not always succeed and may output
+  non-deterministic automata.  Note that if =autfilt --deterministic
+  --tgba= fails to output a deterministic automaton, it does not
+  necessarily implies that a deterministic TGBA does not exist: it
+  just implies that =autfilt= could not find it.
+
+
+** Determinization
+
+Spot has basically two ways to determinize automata, and that it uses
+when =--deterministic= is passed.
+
+- Automata that express obligation properties (this can be decided),
+  can be *determinized and minimized* into weak Büchi automata, as
+  discussed by [[http://www.daxc.de/eth/paper/atva07.pdf][Dax at al. (ATVA'07)]].
+
+- Büchi automata (preferably with transition-based acceptance) can be
+  determinized into parity automata using a Safra-like procedure close
+  to the one presented by [[http://www.romanredz.se/papers/FI2012.pdf][Redziejowski (Fund. Inform. 119)]], with a few
+  additional tricks.  This procedure does not necessarily produce a
+  minimal automaton.
+
+When =--deterministic= is used, the first of these two procedures is
+attempted on any supplied automaton.  (It's even attempted for
+deterministic automata, because that might reduce them.)
+
+If that first procedure failed, and the input automaton is not
+deterministic and =--generic= (the default for =autfilt=) is used,
+then the second procedure is used.  In this case, automata will be
+first converted to transition-based Büchi automata if their condition
+is more complex.
 
 * Transformations
 
