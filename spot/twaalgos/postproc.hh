@@ -32,17 +32,20 @@ namespace spot
   /// easy interface.
   ///
   /// This class is a shell around scc_filter(),
-  /// minimize_obligation(), simulation(), iterated_simulations(), and
-  /// degeneralize().  These different algorithms will be combined
-  /// depending on the various options set with set_type(),
-  /// set_pref(), and set_level().
+  /// minimize_obligation(), simulation(), iterated_simulations(),
+  /// degeneralize(), to_generalized_buchi() and tgba_determinize().
+  /// These different algorithms will be combined depending on the
+  /// various options set with set_type(), set_pref(), and
+  /// set_level().
   ///
   /// This helps hiding some of the logic required to combine these
   /// simplifications efficiently (e.g., there is no point calling
   /// degeneralize() or any simulation when minimize_obligation()
   /// succeeded.)
   ///
-  /// Use set_pref() method to specify whether you favor
+  /// Use set_type() to select desired output type.
+  ///
+  /// Use the set_pref() method to specify whether you favor
   /// deterministic automata or small automata.  If you don't care,
   /// less post processing will be done.
   ///
@@ -55,6 +58,8 @@ namespace spot
   /// when minimized_obligation failed to produce an automaton smaller
   /// than its input.  pref=Small,level=Low will only run
   /// simulation().
+  ///
+  ///
   class SPOT_API postprocessor
   {
   public:
@@ -65,6 +70,22 @@ namespace spot
     postprocessor(const option_map* opt = nullptr);
 
     enum output_type { TGBA, BA, Monitor, Generic };
+
+    /// \brief Select the desired output type.
+    ///
+    /// \c TGBA requires transition-based generalized Büchi acceptance
+    /// while \c BA requests state-based Büchi acceptance.  In both
+    /// cases, automata with more complex acceptance conditions will
+    /// be converted into these simpler acceptance.  \c Monitor
+    /// requests an automaton with the "all paths are accepting
+    /// condition": this is less expressive, and may output automata
+    /// that recognize a larger language than the input.  Finally \c
+    /// Generic remove all constraints about the acceptance condition.
+    /// Using \c Generic can be needed to force the determinization of
+    /// some automata (e.g., not all TGBA can be degeneralized, using
+    /// \c Generic will allow parity acceptance to be used instead).
+    ///
+    /// If set_type() is not called, the default \c output_type is \c TGBA.
     void
     set_type(output_type type)
     {
@@ -82,6 +103,35 @@ namespace spot
     };
     typedef int output_pref;
 
+    /// \brief Select the desired characteristics of the output automaton.
+    ///
+    /// Use \c Any if you do not care about any feature of the output
+    /// automaton: less processing will be done.
+    ///
+    /// \c Small and \c Deterministic are exclusive choices and indicate
+    /// whether a smaller non-deterministic automaton should be preferred
+    /// over a deterministic automaton.  These are preferences.  The \c Small
+    /// option does not guarantee that the resulting automaton will be minimal.
+    /// The \c Deterministic option may not manage to produce a deterministic
+    /// automaton if the target acceptance set with set_type() is TGBA or BA
+    /// (and even if such automaton exists).
+    ///
+    /// Use
+    /// \code
+    /// set_type(postprocessor::Generic);
+    /// set_pref(postprocessor::Deterministic);
+    /// \endcode
+    /// if you absolutely want a deterministic automaton.
+    ///
+    /// The above options can be combined with \c Complete and \c
+    /// SBAcc, to request a complete automaton, and an automaton with
+    /// state-based acceptance.
+    ///
+    /// Note: the postprocessor::Unambiguous option is not actually
+    /// supported by spot::postprocessor; it is only honored by
+    /// spot::translator.
+    ///
+    /// If set_pref() is not called, the default \c output_type is \c Small.
     void
     set_pref(output_pref pref)
     {
@@ -89,6 +139,20 @@ namespace spot
     }
 
     enum optimization_level { Low, Medium, High };
+    /// \brief Set the optimization level
+    ///
+    /// At \c Low level, very few simplifications are performed on the
+    /// automaton.  Use this level if you need a result that matches
+    /// the other constraints, but want it fast.
+    ///
+    /// At \c High level, several simplifications are chained, but
+    /// also the result of different algorithms may be compared to
+    /// pick the best result.  This might be slow.
+    ///
+    /// At \c Medium level, several simplifications are chained, but
+    /// only one such "pipeline" is used.
+    ///
+    /// If set_level() is not called, the default \c output_type is \c High.
     void
     set_level(optimization_level level)
     {
