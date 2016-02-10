@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -91,6 +91,12 @@ has an accepting self-loop, then level L is replaced by the accepting \
 level, as it might favor finding accepting cycles earlier.  If \
 degen-lowinit is non-zero, then level L is always used without looking \
 for the presence of an accepting self-loop.") },
+    { DOC("det-scc", "Set to 0 to disable scc-based optimizations in \
+the determinization algorithm.") },
+    { DOC("det-simul", "Set to 0 to disable simulation-based optimizations in \
+the determinization algorithm.") },
+    { DOC("det-stutter", "Set to 0 to disable optimizations based on \
+the stutter-invariance in the determinization algorithm.") },
     { DOC("simul", "Set to 0 to disable simulation-based reductions. \
 Set to 1 to use only direct simulation. Set to 2 to use only reverse \
 simulation. Set to 3 to iterate both direct and reverse simulations. \

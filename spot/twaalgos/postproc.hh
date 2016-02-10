@@ -172,24 +172,27 @@ namespace spot
     twa_graph_ptr do_scc_filter(const twa_graph_ptr& a, bool arg);
     twa_graph_ptr do_scc_filter(const twa_graph_ptr& a);
 
-    output_type type_;
-    int pref_;
-    optimization_level level_;
+    output_type type_ = TGBA;
+    int pref_ = Small;
+    optimization_level level_ = High;
     // Fine-tuning options fetched from the option_map.
-    bool degen_reset_;
-    bool degen_order_;
-    int degen_cache_;
-    bool degen_lskip_;
-    bool degen_lowinit_;
-    int simul_;
-    int scc_filter_;
-    int ba_simul_;
-    bool tba_determinisation_;
-    int sat_minimize_;
-    int sat_acc_;
-    int sat_states_;
-    bool state_based_;
-    bool wdba_minimize_;
+    bool degen_reset_ = true;
+    bool degen_order_ = false;
+    int degen_cache_ = true;
+    bool degen_lskip_ = true;
+    bool degen_lowinit_ = false;
+    bool det_scc_ = true;
+    bool det_simul_ = true;
+    bool det_stutter_ = true;
+    int simul_ = -1;
+    int scc_filter_ = -1;
+    int ba_simul_ = -1;
+    bool tba_determinisation_ = false;
+    int sat_minimize_ = 0;
+    int sat_acc_ = 0;
+    int sat_states_ = 0;
+    bool state_based_ = false;
+    bool wdba_minimize_ = true;
   };
   /// @}
 }

@@ -729,7 +729,7 @@ expectations.
    deterministic TGBA exists.
 
 #+NAME: ltl2tgba-fga
-#+BEGIN_SRC sh :results verbatim :exports none
+#+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba "FGa" -D -d.a
 #+END_SRC
 
@@ -743,7 +743,7 @@ ltl2tgba "FGa" -D -d.a
    But with =--generic=, =ltl2tgba= will output the following Rabin automaton:
 
 #+NAME: ltl2tgba-fga-D
-#+BEGIN_SRC sh :results verbatim :exports none
+#+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba "FGa" -G -D -d.a
 #+END_SRC
 
@@ -757,6 +757,40 @@ ltl2tgba "FGa" -G -D -d.a
 Note that determinization algorithm implemented actually outputs
 parity acceptance, but =Fin(0)&Inf(1)= can be interpreted either as
 =Rabin 1= or =parity min odd 2=.
+
+
+The [[./man/spot-x.7.html][=spot-x=]](7) man page lists a few =-x= options (=det-scc=,
+=det-simul=, =det-stutter=) of the determinization algorithm that are
+enable by default, but that you may want to disable for experimental
+purpose.
+
+For instance the following deterministic automaton
+
+#+NAME: ltl2tgba-det1
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "F(a W FGb)" -G -D -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-det1.png :cmdline -Tpng :var txt=ltl2tgba-det1 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-det1.png]]
+
+would be larger if SCC-based optimizations were disabled:
+
+#+NAME: ltl2tgba-det2
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "F(a W FGb)" -x '!det-scc' -G -D -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-det2.png :cmdline -Tpng :var txt=ltl2tgba-det2 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-det2.png]]
 
 * Translating multiple formulas for statistics
 
