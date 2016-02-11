@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
-# de Recherche et Développement de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+# Laboratoire de Recherche et Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -99,6 +99,8 @@ run 0 ../checkpsl check.txt
 
 # Make sure False has one acceptance set when generating Büchi automata
 test 1 -eq `ltl2tgba -B false --stats %a`
+
+test "`echo 1,2,a,4 | ltl2tgba -F-/3 --stats='%<,%f,%>'`" = "1,2,a,4"
 
 # In particular, Spot 0.9 would incorrectly reject the sequence:
 # (a̅b;a̅b;a̅b̅);(a̅b;a̅b;a̅b̅);(a̅b;a̅b;a̅b̅);... in 'G!{(b;1)*;a}'

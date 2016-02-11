@@ -88,6 +88,8 @@ public:
 	declare('S', &haut_states_);
 	declare('T', &haut_trans_);
       }
+    declare('<', &csv_prefix_);
+    declare('>', &csv_suffix_);
     declare('F', &filename_);
     declare('L', &location_);
     if (input != ltl_input)
@@ -107,9 +109,12 @@ public:
   print(const spot::const_parsed_aut_ptr& haut,
 	const spot::const_twa_graph_ptr& aut,
 	spot::formula f,
-	const char* filename, int loc, double run_time)
+	const char* filename, int loc, double run_time,
+	const char* csv_prefix, const char* csv_suffix)
   {
     filename_ = filename ? filename : "";
+    csv_prefix_ = csv_prefix ? csv_prefix : "";
+    csv_suffix_ = csv_suffix ? csv_suffix : "";
     if (loc >= 0 && has('L'))
       {
 	std::ostringstream os;
@@ -205,6 +210,8 @@ private:
   spot::printable_value<unsigned> haut_trans_;
   spot::printable_value<unsigned> haut_acc_;
   spot::printable_value<unsigned> haut_scc_;
+  spot::printable_value<const char*> csv_prefix_;
+  spot::printable_value<const char*> csv_suffix_;
 };
 
 
@@ -229,7 +236,9 @@ public:
 	int loc = -1,
 	// Time and input automaton for statistics
 	double time = 0.0,
-	const spot::const_parsed_aut_ptr& haut = nullptr);
+	const spot::const_parsed_aut_ptr& haut = nullptr,
+	const char* csv_prefix = nullptr,
+	const char* csv_suffix = nullptr);
 
   void add_stat(char c, const spot::printable* p);
 };

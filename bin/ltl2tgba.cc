@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -52,6 +52,12 @@ static const argp_option options[] =
     /**************************************************/
     { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the formula, in Spot's syntax", 4 },
+    { "%<", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "the part of the line before the formula if it "
+      "comes from a column extracted from a CSV file", 4 },
+    { "%>", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "the part of the line after the formula if it "
+      "comes from a column extracted from a CSV file", 4 },
     /**************************************************/
     { "unambiguous", 'U', nullptr, 0, "output unambiguous automata", 2 },
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
@@ -135,7 +141,8 @@ namespace
       auto aut = trans.run(&f);
       const double translation_time = sw.stop();
 
-      printer.print(aut, f, filename, linenum, translation_time, nullptr);
+      printer.print(aut, f, filename, linenum, translation_time, nullptr,
+		    prefix, suffix);
       return 0;
     }
   };

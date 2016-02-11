@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -63,6 +63,12 @@ static const argp_option more_o_format[] =
       "tool used for translation", 0 },
     { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "formula translated", 0 },
+    { "%<", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "the part of the line before the formula if it "
+      "comes from a column extracted from a CSV file", 4 },
+    { "%>", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "the part of the line after the formula if it "
+      "comes from a column extracted from a CSV file", 4 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
@@ -284,7 +290,7 @@ namespace
 	      cmdname = translators[t].name;
 	      roundval = round;
 	      printer.print(aut, f, filename, linenum, translation_time,
-			    nullptr);
+			    nullptr, prefix, suffix);
 	    };
 	}
       spot::cleanup_tmpfiles();

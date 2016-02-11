@@ -1,5 +1,10 @@
 New in spot 1.99.7a (not yet released)
 
+  Command-line tools:
+
+  * ltl2tgba and ltldo now support %< and %> in the string passed
+    to --stats when reading formulas from a CSV file.
+
   Library:
 
   * Building products with different dictionaries now raise an

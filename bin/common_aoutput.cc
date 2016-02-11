@@ -326,7 +326,9 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
 			 int loc,
 			 // Time and input automaton for statistics
 			 double time,
-			 const spot::const_parsed_aut_ptr& haut)
+			 const spot::const_parsed_aut_ptr& haut,
+			 const char* csv_prefix,
+			 const char* csv_suffix)
 {
   if (opt_check)
     {
@@ -342,7 +344,7 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
   if (opt_name)
     {
       name.str("");
-      namer.print(haut, aut, f, filename, loc, time);
+      namer.print(haut, aut, f, filename, loc, time, csv_prefix, csv_suffix);
       aut->set_named_prop("automaton-name", new std::string(name.str()));
     }
 
@@ -350,7 +352,8 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
   if (opt_output)
     {
       outputname.str("");
-      outputnamer.print(haut, aut, f, filename, loc, time);
+      outputnamer.print(haut, aut, f, filename, loc, time,
+			csv_prefix, csv_suffix);
       std::string fname = outputname.str();
       auto p = outputfiles.emplace(fname, nullptr);
       if (p.second)
@@ -379,7 +382,8 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
       break;
     case Stats:
       statistics.set_output(*out);
-      statistics.print(haut, aut, f, filename, loc, time) << '\n';
+      statistics.print(haut, aut, f, filename, loc, time,
+		       csv_prefix, csv_suffix) << '\n';
       break;
     }
   flush_cout();
