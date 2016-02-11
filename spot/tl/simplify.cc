@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
-// et Developpement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1645,7 +1645,7 @@ namespace spot
 		  return b;
 		// if !a => b, then a U b = Fb
 		if (c_->implication_neg(a, b, false))
-		  return formula::F(b);
+		  return recurse(formula::F(b));
 		// if a => b, then a U (b U c) = (b U c)
 		// if a => b, then a U (b W c) = (b W c)
 		if (b.is(op::U, op::W) && c_->implication(a, b[0]))
