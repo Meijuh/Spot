@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
+## Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
 ## de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -34,8 +34,7 @@ twa_HEADERS = \
   taatgba.hh \
   twa.hh \
   twagraph.hh \
-  twaproduct.hh \
-  twasafracomplement.hh
+  twaproduct.hh
 
 noinst_LTLIBRARIES = libtwa.la
 libtwa_la_SOURCES = \
@@ -46,5 +45,4 @@ libtwa_la_SOURCES = \
   taatgba.cc \
   twa.cc \
   twagraph.cc \
-  twaproduct.cc \
-  twasafracomplement.cc
+  twaproduct.cc

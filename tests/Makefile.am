@@ -60,7 +60,6 @@ core/defs: $(top_builddir)/config.status $(srcdir)/core/defs.in
 check_PROGRAMS = \
   core/acc \
   core/bitvect \
-  core/complement \
   core/checkpsl \
   core/checkta \
   core/consterm \
@@ -101,7 +100,6 @@ core_acc_SOURCES = core/acc.cc
 core_bitvect_SOURCES  = core/bitvect.cc
 core_checkpsl_SOURCES = core/checkpsl.cc
 core_checkta_SOURCES = core/checkta.cc
-core_complement_SOURCES = core/complementation.cc
 core_emptchk_SOURCES  = core/emptchk.cc
 core_graph_SOURCES = core/graph.cc
 core_ikwiad_SOURCES = core/ikwiad.cc
