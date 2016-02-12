@@ -5,6 +5,33 @@ New in spot 1.99.7a (not yet released)
   * ltl2tgba and ltldo now support %< and %> in the string passed
     to --stats when reading formulas from a CSV file.
 
+  * ltl2tgba now also support the --generic option (already supported
+    by ltldo and autfilt) to lift any restriction on the acceptance
+    condition produced.  This option now has a short version: -G.
+
+  * ltl2tgba and autfilt have learnt how to determinize automata.
+    For this to work, --generic acceptance should be enabled (this
+    is the default for autfilt, but not for ltl2tgba).
+
+    "ltl2tgba -G -D" will now always outpout a deterministic automaton.
+    It can be an automaton with transition-based parity acceptance in
+    case Spot could not find a deterministic automaton with (maybe
+    generalized) Büchi acceptance.
+
+    "ltl2tgba -D" is unchanged (the --tgba acceptance is the default),
+    and will output a deterministic automaton with (generalized) Büchi
+    acceptance only if one could be found.  Otherwise a
+    non-deterministic automaton is output, but this does NOT mean that
+    no deterministic Büchi automaton exist for this formula.  It only
+    means Spot could not find it.
+
+    "autfilt -D" will determinize any automaton, because --generic
+    acceptance is the default for autfilt.
+
+    "autfilt -D --tgba" will behave like "ltl2tgba -D", i.e., it may
+    fail to find a deterministic automaton (even if one exists) and
+    return a nondeterministic automaton.
+
   Library:
 
   * Building products with different dictionaries now raise an
@@ -36,6 +63,10 @@ New in spot 1.99.7a (not yet released)
   * print_dot() also honnor two new automaton properties called
     "highlight-edges" and "highlight-states".  These are used to color
     a subset of edges or transitions.
+
+  * There is a new tgba_determinize() function.  Despite its name, it
+    in facts works on transition-based Büchi automaton, and will first
+    degeneralize any automaton with generalized Büchi acceptance.
 
   Python:
 
