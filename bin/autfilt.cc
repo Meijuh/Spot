@@ -79,6 +79,7 @@ enum {
   OPT_DESTUT,
   OPT_DNF_ACC,
   OPT_EDGES,
+  OPT_EQUIVALENT_TO,
   OPT_EXCLUSIVE_AP,
   OPT_GENERIC,
   OPT_INSTUT,
@@ -210,6 +211,9 @@ static const argp_option options[] =
     { "included-in", OPT_INCLUDED_IN, "FILENAME", 0,
       "keep automata whose languages are included in that of the "
       "automaton from FILENAME", 0 },
+    { "equivalent-to", OPT_EQUIVALENT_TO, "FILENAME", 0,
+      "keep automata thare are equivalent (language-wise) to the automaton "
+      "in FILENAME", 0 },
     { "invert-match", 'v', nullptr, 0, "select non-matching automata", 0 },
     { "states", OPT_STATES, "RANGE", 0,
       "keep automata whose number of states are in RANGE", 0 },
@@ -264,6 +268,8 @@ static struct opt_t
   spot::twa_graph_ptr product_or = nullptr;
   spot::twa_graph_ptr intersect = nullptr;
   spot::twa_graph_ptr included_in = nullptr;
+  spot::twa_graph_ptr equivalent_pos = nullptr;
+  spot::twa_graph_ptr equivalent_neg = nullptr;
   spot::twa_graph_ptr are_isomorphic = nullptr;
   std::unique_ptr<spot::isomorphism_checker>
                          isomorphism_checker = nullptr;
@@ -379,6 +385,13 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_EXCLUSIVE_AP:
       opt->excl_ap.add_group(arg);
+      break;
+    case OPT_EQUIVALENT_TO:
+      if (opt->equivalent_pos)
+	error(2, 0, "only one --equivalent-to option can be given");
+      opt->equivalent_pos = read_automaton(arg, opt->dict);
+      opt->equivalent_neg =
+	spot::dtwa_complement(ensure_deterministic(opt->equivalent_pos));
       break;
     case OPT_INSTUT:
       if (!arg || (arg[0] == '1' && arg[1] == 0))
@@ -627,6 +640,10 @@ namespace
 	matched &= !spot::product(aut, opt->intersect)->is_empty();
       if (opt->included_in)
 	matched &= spot::product(aut, opt->included_in)->is_empty();
+      if (opt->equivalent_pos)
+	matched &= spot::product(aut, opt->equivalent_neg)->is_empty()
+	  && spot::product(dtwa_complement(ensure_deterministic(aut)),
+			   opt->equivalent_pos)->is_empty();
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)

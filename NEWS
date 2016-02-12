@@ -40,6 +40,9 @@ New in spot 1.99.7a (not yet released)
   * autfilt has a new option, --included-in, to filter automata whose
     language are included in the language of a given automaton.
 
+  * autfilt has a new option, --equivalent-to, to filter automata
+    that are equivalent (language-wise) to a given automaton.
+
   Library:
 
   * Building products with different dictionaries now raise an

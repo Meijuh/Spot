@@ -37,3 +37,28 @@ run 1 autfilt -q gfa.hoa --included-in fga.hoa
 run 0 autfilt -q gab.hoa --included-in fga.hoa --included-in fgb.hoa
 run 1 autfilt -q ga.hoa --included-in fga.hoa --included-in fgb.hoa
 run 0 autfilt -q false.hoa --included-in fga.hoa
+
+run 1 autfilt -q gfa.hoa --equivalent-to fga.hoa
+run 1 autfilt -q fga.hoa --equivalent-to gfa.hoa
+
+run 0 autfilt -D fga.hoa > fgaD.hoa
+grep deterministic fga.hoa && exit 1
+grep deterministic fgaD.hoa
+run 0 autfilt -q fga.hoa --equivalent-to fgaD.hoa
+run 0 autfilt -q fgaD.hoa --equivalent-to fga.hoa
+
+
+# lets test that
+#   (a U b) + !(a U b) == true
+
+ltl2tgba 'a U b' > a1.hoa
+ltl2tgba '!(a U b)' | autfilt --product-or a1.hoa > out.hoa
+ltl2tgba true | autfilt out.hoa --equivalent-to -
+
+
+# This should fails if we replace !(a U b) by !(a U c).
+ltl2tgba '!(a U c)' | autfilt --product-or a1.hoa > out.hoa
+ltl2tgba true | autfilt out.hoa --equivalent-to - && exit 1
+
+:
+
