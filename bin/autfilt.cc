@@ -562,17 +562,6 @@ namespace
       if (opt_complement_acc)
 	aut->set_acceptance(aut->acc().num_sets(),
 			    aut->get_acceptance().complement());
-      if (opt_complement)
-	{
-	  if (!spot::is_deterministic(aut))
-	    {
-	      std::cerr << filename << ':'
-			<< haut->loc << (": --complement currently supports "
-					 "only deterministic automata\n");
-	      exit(2);
-	    }
-	  aut = spot::dtwa_complement(aut);
-	}
       if (opt_rem_fin)
 	aut = remove_fin(aut);
       if (opt_dnf_acc)
@@ -656,6 +645,20 @@ namespace
 	  aut = spot::sat_minimize(aut, opt_sat_minimize, sbacc);
 	  if (!aut)
 	    return 0;
+	}
+
+      if (opt_complement)
+	{
+	  if (!spot::is_deterministic(aut))
+	    {
+	      // let's determinize that automaton
+	      spot::postprocessor p;
+	      p.set_type(spot::postprocessor::Generic);
+	      p.set_pref(spot::postprocessor::Deterministic);
+	      p.set_level(level);
+	      aut = p.run(aut);
+	    }
+	  aut = spot::dtwa_complement(aut);
 	}
 
       aut = post.run(aut, nullptr);

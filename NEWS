@@ -32,6 +32,11 @@ New in spot 1.99.7a (not yet released)
     fail to find a deterministic automaton (even if one exists) and
     return a nondeterministic automaton.
 
+  * "autfilt --complement" now also works for non-deterministic
+    automata but will output a deterministic automaton.
+    "autfilt --complement --tgba" will likely output a
+    nondeterministic TGBA.
+
   Library:
 
   * Building products with different dictionaries now raise an

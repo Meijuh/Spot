@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Laboratoire de Recherche et Développement de
+# Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -93,6 +93,25 @@ State: 3
 EOF
 diff out expected
 
-
-$ltl2tgba -H 'FGa' | $autfilt --complement 2>out && exit 1
-grep 'deterministic' out
+# The complement of a nondeterministic automaton is currently done via
+# a determinization.
+$ltl2tgba -H 'FGa' | $autfilt --complement >out
+cat >expected <<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: parity min even 2
+Acceptance: 2 Inf(0) | Fin(1)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[0] 1 {1}
+[!0] 0
+State: 1
+[0] 1 {1}
+[!0] 0 {0}
+--END--
+EOF
+diff out expected
