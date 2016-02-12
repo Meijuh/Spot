@@ -255,6 +255,7 @@ TESTS_twa = \
   core/randaut.test \
   core/randtgba.test \
   core/isomorph.test \
+  core/included.test \
   core/uniq.test \
   core/safra.test \
   core/sbacc.test \

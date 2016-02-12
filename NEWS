@@ -37,6 +37,9 @@ New in spot 1.99.7a (not yet released)
     "autfilt --complement --tgba" will likely output a
     nondeterministic TGBA.
 
+  * autfilt has a new option, --included-in, to filter automata whose
+    language are included in the language of a given automaton.
+
   Library:
 
   * Building products with different dictionaries now raise an

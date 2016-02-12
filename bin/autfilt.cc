@@ -82,6 +82,7 @@ enum {
   OPT_EXCLUSIVE_AP,
   OPT_GENERIC,
   OPT_INSTUT,
+  OPT_INCLUDED_IN,
   OPT_INTERSECT,
   OPT_IS_COMPLETE,
   OPT_IS_DETERMINISTIC,
@@ -206,6 +207,9 @@ static const argp_option options[] =
     { "intersect", OPT_INTERSECT, "FILENAME", 0,
       "keep automata whose languages have an non-empty intersection with"
       " the automaton from FILENAME", 0 },
+    { "included-in", OPT_INCLUDED_IN, "FILENAME", 0,
+      "keep automata whose languages are included in that of the "
+      "automaton from FILENAME", 0 },
     { "invert-match", 'v', nullptr, 0, "select non-matching automata", 0 },
     { "states", OPT_STATES, "RANGE", 0,
       "keep automata whose number of states are in RANGE", 0 },
@@ -259,6 +263,7 @@ static struct opt_t
   spot::twa_graph_ptr product_and = nullptr;
   spot::twa_graph_ptr product_or = nullptr;
   spot::twa_graph_ptr intersect = nullptr;
+  spot::twa_graph_ptr included_in = nullptr;
   spot::twa_graph_ptr are_isomorphic = nullptr;
   std::unique_ptr<spot::isomorphism_checker>
                          isomorphism_checker = nullptr;
@@ -298,6 +303,18 @@ static bool opt_rem_dead = false;
 static bool opt_rem_unreach = false;
 static bool opt_sep_sets = false;
 static const char* opt_sat_minimize = nullptr;
+
+static spot::twa_graph_ptr
+ensure_deterministic(const spot::twa_graph_ptr& aut)
+{
+  if (spot::is_deterministic(aut))
+    return aut;
+  spot::postprocessor p;
+  p.set_type(spot::postprocessor::Generic);
+  p.set_pref(spot::postprocessor::Deterministic);
+  p.set_level(level);
+  return p.run(aut);
+}
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -370,6 +387,16 @@ parse_opt(int key, char* arg, struct argp_state*)
 	opt_instut = 2;
       else
 	error(2, 0, "unknown argument for --instut: %s", arg);
+      break;
+    case OPT_INCLUDED_IN:
+      {
+	auto aut = ensure_deterministic(read_automaton(arg, opt->dict));
+	aut = spot::dtwa_complement(aut);
+	if (!opt->included_in)
+	  opt->included_in = aut;
+	else
+	  opt->included_in = spot::product_or(opt->included_in, aut);
+      }
       break;
     case OPT_INTERSECT:
       opt->intersect = read_automaton(arg, opt->dict);
@@ -598,6 +625,8 @@ namespace
 	matched &= aut->is_empty();
       if (opt->intersect)
 	matched &= !spot::product(aut, opt->intersect)->is_empty();
+      if (opt->included_in)
+	matched &= spot::product(aut, opt->included_in)->is_empty();
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)
@@ -648,18 +677,7 @@ namespace
 	}
 
       if (opt_complement)
-	{
-	  if (!spot::is_deterministic(aut))
-	    {
-	      // let's determinize that automaton
-	      spot::postprocessor p;
-	      p.set_type(spot::postprocessor::Generic);
-	      p.set_pref(spot::postprocessor::Deterministic);
-	      p.set_level(level);
-	      aut = p.run(aut);
-	    }
-	  aut = spot::dtwa_complement(aut);
-	}
+	aut = spot::dtwa_complement(ensure_deterministic(aut));
 
       aut = post.run(aut, nullptr);
 
