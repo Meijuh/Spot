@@ -25,7 +25,7 @@
 # libraries are (on this platform libtool encodes the expected final
 # path of dependent libraries in each library).
 modpath='@abs_top_builddir@/python/.libs:@abs_top_builddir@/python/spot/.libs'
-modpath=$modpath:'@top_builddir@/spot/.libs:@top_builddir@/buddy/spot/.libs'
+modpath=$modpath:'@top_builddir@/spot/.libs:@top_builddir@/buddy/src/.libs'
 
 # We need access to both the *.py files, and the *.so.  We used to
 # rely on a module called ltihooks.py to teach the import function how
