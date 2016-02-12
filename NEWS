@@ -65,8 +65,8 @@ New in spot 1.99.7a (not yet released)
       similar to the "k" option already supported by print_hoa(), and
       is useful when printing Kripke structures.
 
-  * Option "k" is automatically passed used by print_dot() and
-    print_hoa() when printing Kripke structures.
+  * Option "k" is automatically used by print_dot() and print_hoa()
+    when printing Kripke structures.
 
   * print_dot() also honnor two new automaton properties called
     "highlight-edges" and "highlight-states".  These are used to color
