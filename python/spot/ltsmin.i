@@ -106,4 +106,80 @@ class model:
         res += type
       res += '\n';
     return res
+
+# Load IPython specific support if we can.
+try:
+    # Load only if we are running IPython.
+    __IPYTHON__
+
+    from IPython.core.magic import (Magics, magics_class, line_cell_magic)
+    from IPython.core.magic_arguments \
+        import (argument, magic_arguments, parse_argstring)
+    import os
+    import tempfile
+    import sys
+    import shutil
+    try:
+        import ipywidgets as widgets
+    except ImportError:
+        pass
+
+    # This class provides support for %%dve model description
+    @magics_class
+    class EditDVE(Magics):
+
+        @line_cell_magic
+        def dve(self, line, cell=None):
+            try:
+                # DiViNe prefers when files are in the current directory
+                # so write cell into local file
+                t = tempfile.NamedTemporaryFile(dir=os.getcwd())
+                filename = t.name + '.dve'
+                f = open(filename,"w")
+                f.write(cell)
+                f.close()
+
+                # Then compile and unlink temporary files
+                import subprocess
+                out=""
+                self.shell.user_ns[line] = None
+                out = subprocess.check_call(['divine', 'compile',
+                                       '--ltsmin', filename])
+                os.unlink(filename)
+                os.unlink(filename + '.cpp')
+                self.shell.user_ns[line] = load(filename + '2C')
+                os.unlink(filename + '2C')
+            except Exception as error:
+                try:
+                    os.unlink(filename)
+                    os.unlink(filename + '.cpp')
+                finally:
+                    if out != "":
+                        raise RuntimeError(out) from error
+                    raise error
+
+        @line_cell_magic
+        def require(self, line, cell=None):
+            if line != "divine":
+                print ("Unknown" + line, file=sys.stderr)
+                sys.exit(77)
+            if cell != None:
+                print ("No support for Cell magic command")
+                sys.exit(77)
+            if shutil.which("divine") == None:
+                print ("divine not available", file=sys.stderr)
+                sys.exit(77)
+            import subprocess
+            out = subprocess.check_output(['divine', 'compile',
+                                           '--help'], stderr=subprocess.STDOUT)
+            if b'LTSmin' not in out:
+                print ("divine available but no support for LTSmin",
+		       file=sys.stderr)
+                sys.exit(77)
+
+    ip = get_ipython()
+    ip.register_magics(EditDVE)
+
+except (ImportError, NameError):
+    pass
 %}
