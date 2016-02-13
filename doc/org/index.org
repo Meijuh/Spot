@@ -20,7 +20,7 @@ checking.  It has the following notable features:
 - Several algorithms for automata manipulation including: product,
   emptiness checks, simulation-based reductions, minimization of
   weak-DBA, removal of useless SCCs, acceptance-condition
-  transformations, etc.
+  transformations, determinization, etc.
 - In addition to the C++ interface, most of its algorithms are usable
   via [[file:tools.org][command-line tools]], and via Python bindings.
 - One command-line tool, called [[file:ltlcross.org][=ltlcross=]], is a rewrite of
