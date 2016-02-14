@@ -619,7 +619,7 @@ namespace spot
     ///
     /// Atomic propositions and acceptance conditions are represented
     /// as BDDs.  The dictionary allows to map BDD variables back to
-    /// formulae, and vice versa.  This is useful when dealing with
+    /// formulas, and vice versa.  This is useful when dealing with
     /// several automata (which may use the same BDD variable for
     /// different formula), or simply when printing.
     bdd_dict_ptr get_dict() const
@@ -1233,27 +1233,27 @@ namespace spot
 
   };
 
-  /// \addtogroup twa_representation TGBA representations
+  /// \addtogroup twa_representation TωA representations
   /// \ingroup twa
 
-  /// \addtogroup twa_algorithms TGBA algorithms
+  /// \addtogroup twa_algorithms TωA algorithms
   /// \ingroup twa
 
-  /// \addtogroup twa_on_the_fly_algorithms TGBA on-the-fly algorithms
+  /// \addtogroup twa_on_the_fly_algorithms TωA on-the-fly algorithms
   /// \ingroup twa_algorithms
 
-  /// \addtogroup twa_io Input/Output of TGBA
+  /// \addtogroup twa_io Input/Output of TωA
   /// \ingroup twa_algorithms
 
-  /// \addtogroup twa_ltl Translating LTL formulae into TGBA
+  /// \addtogroup twa_ltl Translating LTL formulas into TωA
   /// \ingroup twa_algorithms
 
   /// \addtogroup twa_generic Algorithm patterns
   /// \ingroup twa_algorithms
 
-  /// \addtogroup twa_reduction TGBA simplifications
+  /// \addtogroup twa_reduction TωA simplifications
   /// \ingroup twa_algorithms
 
-  /// \addtogroup twa_misc Miscellaneous algorithms on TGBA
+  /// \addtogroup twa_misc Miscellaneous algorithms on TωA
   /// \ingroup twa_algorithms
 }
