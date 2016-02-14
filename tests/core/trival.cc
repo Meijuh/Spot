@@ -35,8 +35,8 @@ int main()
   assert(v2 == false);
   assert(true == v3);
   assert(v4 == spot::trival::maybe());
-  assert(v3);
-  assert(!v2);
+  assert((bool)v3);
+  assert(!(bool)v2);
   assert(!(bool)!v1);
   assert(!(bool)v1);
   assert(!(bool)!v3);
