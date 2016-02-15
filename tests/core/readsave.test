@@ -1005,3 +1005,5 @@ digraph G {
 }
 EOF
 diff output9 expected9
+
+test 2 = `ltl2tgba 'GFa' 'a U b' 'a U b U c'| autfilt --ap=2..3 --count`

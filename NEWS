@@ -50,6 +50,9 @@ New in spot 1.99.7a (not yet released)
 
   * ltlfilt's option --ap=N can now take a RANGE as parameter.
 
+  * autfilt now has a --ap=RANGE option to filter automata by number
+    of atomic propositions.
+
   Library:
 
   * Building products with different dictionaries now raise an

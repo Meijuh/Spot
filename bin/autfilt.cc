@@ -69,6 +69,7 @@ Exit status:\n\
 // Keep this list sorted
 enum {
   OPT_ACC_SETS = 256,
+  OPT_AP_N,
   OPT_ARE_ISOMORPHIC,
   OPT_CLEAN_ACC,
   OPT_CNF_ACC,
@@ -185,6 +186,8 @@ static const argp_option options[] =
       " automata)", 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Filtering options:", 6 },
+    { "ap", OPT_AP_N, "RANGE", 0,
+      "match automata with a number of atomic propositions in RANGE", 0 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
     { "isomorphic", 0, nullptr, OPTION_ALIAS | OPTION_HIDDEN, nullptr, 0 },
@@ -289,6 +292,7 @@ static bool opt_invert = false;
 static range opt_states = { 0, std::numeric_limits<int>::max() };
 static range opt_edges = { 0, std::numeric_limits<int>::max() };
 static range opt_accsets = { 0, std::numeric_limits<int>::max() };
+static range opt_ap_n = { 0, std::numeric_limits<int>::max() };
 static int opt_max_count = -1;
 static bool opt_destut = false;
 static char opt_instut = 0;
@@ -350,6 +354,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 	if (opt)
 	  error(2, 0, "failed to parse --options near '%s'", opt);
       }
+      break;
+    case OPT_AP_N:
+      opt_ap_n = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_ACC_SETS:
       opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
@@ -618,6 +625,7 @@ namespace
       matched &= opt_states.contains(aut->num_states());
       matched &= opt_edges.contains(aut->num_edges());
       matched &= opt_accsets.contains(aut->acc().num_sets());
+      matched &= opt_ap_n.contains(aut->ap().size());
       if (opt_is_complete)
 	matched &= is_complete(aut);
       if (opt_is_deterministic)
