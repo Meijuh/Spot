@@ -174,7 +174,7 @@ namespace spot
       return res;
     }
 
-    struct wdba_search_acc_loop : public bfs_steps
+    struct wdba_search_acc_loop final : public bfs_steps
     {
       wdba_search_acc_loop(const const_twa_ptr& det_a,
 			   unsigned scc_n, scc_info& sm,
@@ -185,7 +185,7 @@ namespace spot
       }
 
       virtual const state*
-      filter(const state* s)
+      filter(const state* s) override
       {
 	s = seen(s);
 	if (sm.scc_of(std::static_pointer_cast<const twa_graph>(a_)
@@ -195,7 +195,7 @@ namespace spot
       }
 
       virtual bool
-      match(twa_run::step&, const state* to)
+      match(twa_run::step&, const state* to) override
       {
 	return to == dest;
       }

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
+// Copyright (C) 2013, 2014, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -29,7 +29,7 @@
 namespace spot
 {
   /// Compute a counter example from a spot::couvreur99_check_status
-  class SPOT_API couvreur99_check_result:
+  class SPOT_API couvreur99_check_result final:
     public emptiness_check_result,
     public acss_statistics
   {
@@ -38,11 +38,11 @@ namespace spot
 			    std::shared_ptr<const couvreur99_check_status>& ecs,
 			    option_map o = option_map());
 
-    virtual twa_run_ptr accepting_run();
+    virtual twa_run_ptr accepting_run() override;
 
     void print_stats(std::ostream& os) const;
 
-    virtual unsigned acss_states() const;
+    virtual unsigned acss_states() const override;
 
   protected:
     /// Called by accepting_run() to find a cycle which traverses all

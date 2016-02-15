@@ -55,7 +55,7 @@ namespace spot
       }
 
       virtual int
-      extend(int n)
+      extend(int n) override
       {
 	assert(priv_);
 	int b = priv_->allocate_variables(n);

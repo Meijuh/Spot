@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2013, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012, 2013, 2014, 2015, 2016 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,7 +29,7 @@ namespace spot
   namespace
   {
     /// \brief Recursively translate a formula into a TAA.
-    class ltl2taa_visitor
+    class ltl2taa_visitor final
     {
     public:
       ltl2taa_visitor(const taa_tgba_formula_ptr& res,
@@ -40,7 +40,6 @@ namespace spot
       {
       }
 
-      virtual
       ~ltl2taa_visitor()
       {
       }

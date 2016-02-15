@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -165,7 +165,7 @@ namespace
     }
 
     virtual void
-    print(std::ostream& os, const char*) const
+    print(std::ostream& os, const char*) const override
     {
       stream_escapable_formula(os, val_->f, val_->filename, val_->line);
     }

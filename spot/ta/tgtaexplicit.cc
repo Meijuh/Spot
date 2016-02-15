@@ -44,12 +44,6 @@ namespace spot
     return ta_->succ_iter(state);
   }
 
-  bdd_dict_ptr
-  tgta_explicit::get_dict() const
-  {
-    return ta_->get_dict();
-  }
-
   std::string
   tgta_explicit::format_state(const spot::state* s) const
   {

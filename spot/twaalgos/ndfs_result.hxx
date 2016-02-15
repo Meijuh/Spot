@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de recherche et
-// développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de recherche
+// et développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005, 2006 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -76,8 +76,8 @@ namespace spot
     struct stats_interface<T, 1>
       : public acss_statistics
     {
-      unsigned
-      acss_states() const
+      virtual unsigned
+      acss_states() const override
       {
 	// all visited states are in the state space search
 	return static_cast<const T*>(this)->h_.size();
@@ -88,7 +88,7 @@ namespace spot
 
 
   template <typename ndfs_search, typename heap>
-  class ndfs_result:
+  class ndfs_result final:
     public emptiness_check_result,
     // Conditionally inherit from acss_statistics or ars_statistics.
     public stats_interface<ndfs_result<ndfs_search, heap>, heap::Has_Size>
@@ -104,7 +104,7 @@ namespace spot
     {
     }
 
-    virtual twa_run_ptr accepting_run()
+    virtual twa_run_ptr accepting_run() override
     {
       const stack_type& stb = ms_->get_st_blue();
       const stack_type& str = ms_->get_st_red();

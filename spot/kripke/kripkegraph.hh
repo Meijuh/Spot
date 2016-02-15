@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE)
+// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -39,7 +39,7 @@ namespace spot
     {
     }
 
-    virtual int compare(const spot::state* other) const
+    virtual int compare(const spot::state* other) const override
     {
       auto o = down_cast<const kripke_graph_state*>(other);
       assert(o);
@@ -52,19 +52,19 @@ namespace spot
       return 0;
     }
 
-    virtual size_t hash() const
+    virtual size_t hash() const override
     {
       return
 	reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
     }
 
     virtual kripke_graph_state*
-    clone() const
+    clone() const override
     {
       return const_cast<kripke_graph_state*>(this);
     }
 
-    virtual void destroy() const
+    virtual void destroy() const override
     {
     }
 
@@ -104,30 +104,30 @@ namespace spot
     {
     }
 
-    virtual void recycle(const typename Graph::state_storage_t* s)
+    void recycle(const typename Graph::state_storage_t* s)
     {
       cond_ = s->cond();
       t_ = s->succ;
     }
 
-    virtual bool first()
+    virtual bool first() override
     {
       p_ = t_;
       return p_;
     }
 
-    virtual bool next()
+    virtual bool next() override
     {
       p_ = g_->edge_storage(p_).next_succ;
       return p_;
     }
 
-    virtual bool done() const
+    virtual bool done() const override
     {
       return !p_;
     }
 
-    virtual kripke_graph_state* dst() const
+    virtual kripke_graph_state* dst() const override
     {
       assert(!done());
       return const_cast<kripke_graph_state*>
@@ -138,7 +138,7 @@ namespace spot
 
   /// \class kripke_graph
   /// \brief Kripke Structure.
-  class SPOT_API kripke_graph : public kripke
+  class SPOT_API kripke_graph final : public kripke
   {
   public:
     typedef digraph<kripke_graph_state, void> graph_t;
@@ -180,7 +180,7 @@ namespace spot
       return init_number_;
     }
 
-    virtual const kripke_graph_state* get_init_state() const
+    virtual const kripke_graph_state* get_init_state() const override
     {
       if (num_states() == 0)
 	const_cast<graph_t&>(g_).new_state();
@@ -190,7 +190,7 @@ namespace spot
     /// \brief Allow to get an iterator on the state we passed in
     /// parameter.
     virtual kripke_graph_succ_iterator<graph_t>*
-    succ_iter(const spot::state* st) const
+    succ_iter(const spot::state* st) const override
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
       assert(s);
@@ -235,13 +235,13 @@ namespace spot
       return ss.str();
     }
 
-    virtual std::string format_state(const state* st) const
+    virtual std::string format_state(const state* st) const override
     {
       return format_state(state_number(st));
     }
 
     /// \brief Get the condition on the state
-    virtual bdd state_condition(const state* s) const
+    virtual bdd state_condition(const state* s) const override
     {
       return down_cast<const kripke_graph_state*>(s)->cond();
     }

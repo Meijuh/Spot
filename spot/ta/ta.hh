@@ -201,20 +201,10 @@ namespace spot
     ~ta_succ_iterator()
     {
     }
-
-    virtual bool first() = 0;
-    virtual bool next() = 0;
-    virtual bool done() const = 0;
-
-    virtual const state* dst() const = 0;
-
     /// \brief Get the changeset on the transition leading to current successor.
     ///
     /// This is a boolean function of atomic propositions.
     virtual bdd cond() const = 0;
-
-    acc_cond::mark_t acc() const = 0;
-
   };
 
 #ifndef SWIG

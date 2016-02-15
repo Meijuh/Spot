@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -60,11 +60,11 @@ namespace spot
     }
 
     virtual int
-    compare(const state* other) const;
+    compare(const state* other) const override;
     virtual size_t
-    hash() const;
+    hash() const override;
     virtual state_ta_product*
-    clone() const;
+    clone() const override;
 
   private:
     const state* ta_state_; ///< State from the ta automaton.
@@ -82,22 +82,17 @@ namespace spot
     ~ta_succ_iterator_product();
 
     // iteration
-    bool first();
-    bool next();
-    bool done() const;
+    virtual bool first() override;
+    virtual bool next() override;
+    virtual bool done() const override;
 
     // inspection
-    state_ta_product*
-    dst() const;
-    bdd
-    cond() const;
-
-    acc_cond::mark_t
-    acc() const;
+    virtual state_ta_product* dst() const override;
+    virtual bdd cond() const override;
+    virtual acc_cond::mark_t acc() const override;
 
     /// \brief Return true if the changeset of the current transition is empty
-    bool
-    is_stuttering_transition() const;
+    bool is_stuttering_transition() const;
 
   protected:
     //@{
@@ -129,7 +124,7 @@ namespace spot
   /// \ingroup ta_emptiness_check
   /// \brief A lazy product between a Testing automaton and a Kripke structure.
   /// (States are computed on the fly.)
-  class SPOT_API ta_product: public ta
+  class SPOT_API ta_product final: public ta
   {
   public:
     /// \brief Constructor.
@@ -142,39 +137,39 @@ namespace spot
     ~ta_product();
 
     virtual ta::const_states_set_t
-    get_initial_states_set() const;
+    get_initial_states_set() const override;
 
     virtual ta_succ_iterator_product*
-    succ_iter(const spot::state* s) const;
+    succ_iter(const spot::state* s) const override;
 
     virtual ta_succ_iterator_product*
-    succ_iter(const spot::state* s, bdd changeset) const;
+    succ_iter(const spot::state* s, bdd changeset) const override;
 
-    virtual bdd_dict_ptr
+    bdd_dict_ptr
     get_dict() const;
 
     virtual std::string
-    format_state(const spot::state* s) const;
+    format_state(const spot::state* s) const override;
 
     virtual bool
-    is_accepting_state(const spot::state* s) const;
+    is_accepting_state(const spot::state* s) const override;
 
     virtual bool
-    is_livelock_accepting_state(const spot::state* s) const;
+    is_livelock_accepting_state(const spot::state* s) const override;
 
     virtual bool
-    is_initial_state(const spot::state* s) const;
+    is_initial_state(const spot::state* s) const override;
 
     /// \brief Return true if the state \a s has no succeseurs
     /// in the TA automaton (the TA component of the product automaton)
-    virtual bool
+    bool
     is_hole_state_in_ta_component(const spot::state* s) const;
 
     virtual bdd
-    get_state_condition(const spot::state* s) const;
+    get_state_condition(const spot::state* s) const override;
 
     virtual void
-    free_state(const spot::state* s) const;
+    free_state(const spot::state* s) const override;
 
     const const_ta_ptr&
     get_ta() const

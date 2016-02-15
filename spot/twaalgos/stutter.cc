@@ -40,7 +40,7 @@ namespace spot
 {
   namespace
   {
-    class state_tgbasl: public state
+    class state_tgbasl final: public state
     {
     public:
       state_tgbasl(const state* s, bdd cond) : s_(s), cond_(cond)
@@ -54,7 +54,7 @@ namespace spot
       }
 
       virtual int
-      compare(const state* other) const
+      compare(const state* other) const override
       {
         const state_tgbasl* o =
           down_cast<const state_tgbasl*>(other);
@@ -66,13 +66,13 @@ namespace spot
       }
 
       virtual size_t
-      hash() const
+      hash() const override
       {
         return wang32_hash(s_->hash()) ^ wang32_hash(cond_.id());
       }
 
       virtual
-      state_tgbasl* clone() const
+      state_tgbasl* clone() const override
       {
         return new state_tgbasl(*this);
       }
@@ -94,7 +94,7 @@ namespace spot
       bdd cond_;
     };
 
-    class twasl_succ_iterator : public twa_succ_iterator
+    class twasl_succ_iterator final : public twa_succ_iterator
     {
     public:
       twasl_succ_iterator(twa_succ_iterator* it, const state_tgbasl* state,
@@ -111,8 +111,8 @@ namespace spot
 
       // iteration
 
-      bool
-      first()
+      virtual bool
+      first() override
       {
         loop_ = false;
         done_ = false;
@@ -125,8 +125,8 @@ namespace spot
         return true;
       }
 
-      bool
-      next()
+      virtual bool
+      next() override
       {
         if (cond_ != bddfalse)
           {
@@ -148,32 +148,32 @@ namespace spot
           }
       }
 
-      bool
-      done() const
+      virtual bool
+      done() const override
       {
         return it_->done() && done_;
       }
 
       // inspection
 
-      state_tgbasl*
-      dst() const
+      virtual state_tgbasl*
+      dst() const override
       {
         if (loop_)
           return new state_tgbasl(state_->real_state(), state_->cond());
         return new state_tgbasl(it_->dst(), one_);
       }
 
-      bdd
-      cond() const
+      virtual bdd
+      cond() const override
       {
         if (loop_)
           return state_->cond();
         return one_;
       }
 
-      acc_cond::mark_t
-      acc() const
+      virtual acc_cond::mark_t
+      acc() const override
       {
         if (loop_)
           return 0U;

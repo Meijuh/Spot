@@ -109,7 +109,7 @@ namespace spot
     /// \param disable_heuristic_for_livelock_detection disable the heuristic
     /// used in the first pass to detect livelock-accepting runs,
     /// this heuristic is described in the paper cited above
-    virtual bool
+    bool
     check(bool disable_second_pass = false,
 	  bool disable_heuristic_for_livelock_detection = false);
 
@@ -117,11 +117,11 @@ namespace spot
     /// a livelock-accepting run
     /// Return false if the product automaton accepts no livelock-accepting run,
     /// otherwise true
-    virtual bool
+    bool
     livelock_detection(const const_ta_product_ptr& t);
 
     /// Print statistics, if any.
-    virtual std::ostream&
+    std::ostream&
     print_stats(std::ostream& os) const;
 
   protected:

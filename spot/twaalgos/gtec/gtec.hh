@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -146,12 +146,13 @@ namespace spot
   {
   public:
     couvreur99_check(const const_twa_ptr& a, option_map o = option_map());
+
     virtual ~couvreur99_check();
 
     /// Check whether the automaton's language is empty.
-    virtual emptiness_check_result_ptr check();
+    virtual emptiness_check_result_ptr check() override;
 
-    virtual std::ostream& print_stats(std::ostream& os) const;
+    virtual std::ostream& print_stats(std::ostream& os) const override;
 
     /// \brief Return the status of the emptiness-check.
     ///
@@ -190,7 +191,7 @@ namespace spot
     couvreur99_check_shy(const const_twa_ptr& a, option_map o = option_map());
     virtual ~couvreur99_check_shy();
 
-    virtual emptiness_check_result_ptr check();
+    virtual emptiness_check_result_ptr check() override;
 
   protected:
     struct successor {

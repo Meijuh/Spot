@@ -53,9 +53,9 @@ namespace spot
 
     /// TGBA interface.
     virtual ~taa_tgba();
-    virtual spot::state* get_init_state() const final;
-    virtual twa_succ_iterator* succ_iter(const spot::state* state) const final;
-    virtual std::string format_state(const spot::state* state) const = 0;
+    virtual spot::state* get_init_state() const override final;
+    virtual twa_succ_iterator* succ_iter(const spot::state* state)
+      const override final;
 
   protected:
 
@@ -81,9 +81,9 @@ namespace spot
     {
     }
 
-    virtual int compare(const spot::state*) const;
-    virtual size_t hash() const;
-    virtual set_state* clone() const;
+    virtual int compare(const spot::state*) const override;
+    virtual size_t hash() const override;
+    virtual set_state* clone() const override;
 
     virtual ~set_state()
     {
@@ -103,13 +103,13 @@ namespace spot
     taa_succ_iterator(const taa_tgba::state_set* s, const acc_cond& acc);
     virtual ~taa_succ_iterator();
 
-    virtual bool first();
-    virtual bool next();
-    virtual bool done() const;
+    virtual bool first() override;
+    virtual bool next() override;
+    virtual bool done() const override;
 
-    virtual set_state* dst() const;
-    virtual bdd cond() const;
-    virtual acc_cond::mark_t acc() const;
+    virtual set_state* dst() const override;
+    virtual bdd cond() const override;
+    virtual acc_cond::mark_t acc() const override;
 
   private:
     /// Those typedefs are used to generate all possible successors in
@@ -206,7 +206,7 @@ namespace spot
     /// Otherwise a string composed of each string corresponding to
     /// each state->get_state() in the spot::set_state is returned,
     /// e.g. like {string_1,...,string_n}.
-    virtual std::string format_state(const spot::state* s) const
+    virtual std::string format_state(const spot::state* s) const override
     {
       const spot::set_state* se = down_cast<const spot::set_state*>(s);
       assert(se);
@@ -311,7 +311,8 @@ namespace spot
     ~taa_tgba_string()
       {}
   protected:
-    virtual std::string label_to_string(const std::string& label) const;
+    virtual std::string label_to_string(const std::string& label)
+      const override;
   };
 
   typedef std::shared_ptr<taa_tgba_string> taa_tgba_string_ptr;
@@ -335,7 +336,8 @@ namespace spot
     ~taa_tgba_formula()
       {}
   protected:
-    virtual std::string label_to_string(const label_t& label) const;
+    virtual std::string label_to_string(const label_t& label)
+      const override;
   };
 
   typedef std::shared_ptr<taa_tgba_formula> taa_tgba_formula_ptr;

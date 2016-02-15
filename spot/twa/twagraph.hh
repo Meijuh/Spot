@@ -42,7 +42,7 @@ namespace spot
     {
     }
 
-    virtual int compare(const spot::state* other) const
+    virtual int compare(const spot::state* other) const override
     {
       auto o = down_cast<const twa_graph_state*>(other);
       assert(o);
@@ -55,19 +55,19 @@ namespace spot
       return 0;
     }
 
-    virtual size_t hash() const
+    virtual size_t hash() const override
     {
       return
 	reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
     }
 
     virtual twa_graph_state*
-    clone() const
+    clone() const override
     {
       return const_cast<twa_graph_state*>(this);
     }
 
-    virtual void destroy() const
+    virtual void destroy() const override
     {
     }
   };
@@ -121,41 +121,41 @@ namespace spot
     {
     }
 
-    virtual void recycle(edge t)
+    void recycle(edge t)
     {
       t_ = t;
     }
 
-    virtual bool first()
+    virtual bool first() override
     {
       p_ = t_;
       return p_;
     }
 
-    virtual bool next()
+    virtual bool next() override
     {
       p_ = g_->edge_storage(p_).next_succ;
       return p_;
     }
 
-    virtual bool done() const
+    virtual bool done() const override
     {
       return !p_;
     }
 
-    virtual const twa_graph_state* dst() const
+    virtual const twa_graph_state* dst() const override
     {
       assert(!done());
       return &g_->state_data(g_->edge_storage(p_).dst);
     }
 
-    virtual bdd cond() const
+    virtual bdd cond() const override
     {
       assert(!done());
       return g_->edge_data(p_).cond;
     }
 
-    virtual acc_cond::mark_t acc() const
+    virtual acc_cond::mark_t acc() const override
     {
       assert(!done());
       return g_->edge_data(p_).acc;
@@ -267,7 +267,7 @@ namespace spot
       return init_number_;
     }
 
-    virtual const twa_graph_state* get_init_state() const
+    virtual const twa_graph_state* get_init_state() const override
     {
       if (num_states() == 0)
 	const_cast<graph_t&>(g_).new_state();
@@ -275,7 +275,7 @@ namespace spot
     }
 
     virtual twa_succ_iterator*
-    succ_iter(const state* st) const
+    succ_iter(const state* st) const override
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
       assert(s);
@@ -313,7 +313,7 @@ namespace spot
       return ss.str();
     }
 
-    virtual std::string format_state(const state* st) const
+    virtual std::string format_state(const state* st) const override
     {
       return format_state(state_number(st));
     }

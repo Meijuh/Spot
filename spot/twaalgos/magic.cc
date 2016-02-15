@@ -87,7 +87,7 @@ namespace spot
       /// check() can be called several times (until it returns a null
       /// pointer) to enumerate all the visited accepting paths. The method
       /// visits only a finite set of accepting paths.
-      virtual emptiness_check_result_ptr check()
+      virtual emptiness_check_result_ptr check() override
       {
 	auto t = std::static_pointer_cast<magic_search_>
 	  (this->emptiness_check::shared_from_this());
@@ -114,7 +114,7 @@ namespace spot
         return nullptr;
       }
 
-      virtual std::ostream& print_stats(std::ostream &os) const
+      virtual std::ostream& print_stats(std::ostream &os) const override
       {
         os << states() << " distinct nodes visited" << std::endl;
         os << transitions() << " transitions explored" << std::endl;
@@ -128,7 +128,7 @@ namespace spot
         return os;
       }
 
-      virtual bool safe() const
+      virtual bool safe() const override
       {
 	return heap::Safe;
       }
@@ -319,7 +319,7 @@ namespace spot
         return false;
       }
 
-      class result_from_stack: public emptiness_check_result,
+      class result_from_stack final: public emptiness_check_result,
         public acss_statistics
       {
       public:
@@ -328,7 +328,7 @@ namespace spot
         {
         }
 
-        virtual twa_run_ptr accepting_run()
+        virtual twa_run_ptr accepting_run() override
         {
           assert(!ms_->st_blue.empty());
           assert(!ms_->st_red.empty());
@@ -366,7 +366,7 @@ namespace spot
           return run;
         }
 
-        unsigned acss_states() const
+        virtual unsigned acss_states() const override
         {
           return 0;
         }
@@ -376,7 +376,7 @@ namespace spot
 
 #     define FROM_STACK "ar:from_stack"
 
-      class magic_search_result: public emptiness_check_result
+      class magic_search_result final: public emptiness_check_result
       {
       public:
         magic_search_result(const std::shared_ptr<magic_search_>& m,
@@ -389,7 +389,7 @@ namespace spot
             computer = new ndfs_result<magic_search_<heap>, heap>(ms);
         }
 
-        virtual void options_updated(const option_map& old)
+        virtual void options_updated(const option_map& old) override
         {
           if (old[FROM_STACK] && !options()[FROM_STACK])
             {
@@ -408,12 +408,12 @@ namespace spot
           delete computer;
         }
 
-        virtual twa_run_ptr accepting_run()
+        virtual twa_run_ptr accepting_run() override
         {
           return computer->accepting_run();
         }
 
-        virtual const unsigned_statistics* statistics() const
+        virtual const unsigned_statistics* statistics() const override
         {
           return computer->statistics();
         }

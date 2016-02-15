@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -170,7 +170,7 @@ namespace spot
     const state* substart = ecs_->cycle_seed;
     do
       {
-	struct scc_bfs: bfs_steps
+	struct scc_bfs final: bfs_steps
 	{
 	  const couvreur99_check_status* ecs;
 	  couvreur99_check_result* r;
@@ -186,7 +186,7 @@ namespace spot
 	  }
 
 	  virtual const state*
-	  filter(const state* s)
+	  filter(const state* s) override
 	  {
 	    auto i = ecs->h.find(s);
 	    s->destroy();
@@ -201,7 +201,7 @@ namespace spot
 	  }
 
 	  virtual bool
-	  match(twa_run::step& st, const state* s)
+	  match(twa_run::step& st, const state* s) override
 	  {
 	    acc_cond::mark_t less_acc =
 	      acc_to_traverse - st.acc;

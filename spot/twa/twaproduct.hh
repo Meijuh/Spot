@@ -49,7 +49,7 @@ namespace spot
     {
     }
 
-    virtual void destroy() const;
+    virtual void destroy() const override;
 
     const state*
     left() const
@@ -63,9 +63,9 @@ namespace spot
       return right_;
     }
 
-    virtual int compare(const state* other) const;
-    virtual size_t hash() const;
-    virtual state_product* clone() const;
+    virtual int compare(const state* other) const override;
+    virtual size_t hash() const override;
+    virtual state_product* clone() const override;
 
   private:
     const state* left_;		///< State from the left automaton.
@@ -74,7 +74,7 @@ namespace spot
     fixed_size_pool* pool_;
 
     virtual ~state_product();
-    state_product(const state_product& o); // No implementation.
+    state_product(const state_product& o) = delete;
   };
 
 
@@ -90,14 +90,15 @@ namespace spot
 
     virtual ~twa_product();
 
-    virtual const state* get_init_state() const;
+    virtual const state* get_init_state() const override;
 
     virtual twa_succ_iterator*
-    succ_iter(const state* state) const;
+    succ_iter(const state* state) const override;
 
-    virtual std::string format_state(const state* state) const;
+    virtual std::string format_state(const state* state) const override;
 
-    virtual state* project_state(const state* s, const const_twa_ptr& t) const;
+    virtual state* project_state(const state* s, const const_twa_ptr& t)
+      const override;
 
     const acc_cond& left_acc() const;
     const acc_cond& right_acc() const;
@@ -120,7 +121,7 @@ namespace spot
   public:
     twa_product_init(const const_twa_ptr& left, const const_twa_ptr& right,
 		      const state* left_init, const state* right_init);
-    virtual const state* get_init_state() const;
+    virtual const state* get_init_state() const override;
   protected:
     const state* left_init_;
     const state* right_init_;
@@ -135,11 +136,11 @@ namespace spot
 
   /// \brief on-the-fly TGBA product with forced initial states
   inline twa_product_ptr otf_product_at(const const_twa_ptr& left,
-					 const const_twa_ptr& right,
-					 const state* left_init,
-					 const state* right_init)
+					const const_twa_ptr& right,
+					const state* left_init,
+					const state* right_init)
   {
     return std::make_shared<twa_product_init>(left, right,
-					       left_init, right_init);
+					      left_init, right_init);
   }
 }

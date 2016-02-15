@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -167,7 +167,7 @@ namespace spot
   /// constant and all Boolean operators supported by Spot.
   ///
   /// By default each operator has equal chance to be selected.
-  class SPOT_API random_boolean: public random_formula
+  class SPOT_API random_boolean final: public random_formula
   {
   public:
     /// Create a random Boolean formula generator using atomic
@@ -207,7 +207,7 @@ namespace spot
   /// constant and all SERE operators supported by Spot.
   ///
   /// By default each operator has equal chance to be selected.
-  class SPOT_API random_sere: public random_formula
+  class SPOT_API random_sere final: public random_formula
   {
   public:
     /// Create a random SERE genere using atomic propositions from \a ap.

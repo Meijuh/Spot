@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013, 2014, 2015 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2012, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -44,10 +44,10 @@ namespace spot
     /// proposition was already declared.
     bool declare(const std::string& prop_str);
 
-    virtual formula require(const std::string& prop_str);
+    virtual formula require(const std::string& prop_str) override;
 
     /// Get the name of the environment.
-    virtual const std::string& name() const;
+    virtual const std::string& name() const override;
 
     typedef std::map<const std::string, formula> prop_map;
 

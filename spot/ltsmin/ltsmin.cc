@@ -258,7 +258,7 @@ namespace spot
     ////////////////////////////////////////////////////////////////////////
     // SUCC_ITERATOR
 
-    class spins_succ_iterator: public kripke_succ_iterator
+    class spins_succ_iterator final: public kripke_succ_iterator
     {
     public:
 
@@ -280,28 +280,24 @@ namespace spot
 	delete cc_;
       }
 
-      virtual
-      bool first()
+      virtual bool first() override
       {
 	it_ = cc_->transitions.begin();
 	return it_ != cc_->transitions.end();
       }
 
-      virtual
-      bool next()
+      virtual bool next() override
       {
 	++it_;
 	return it_ != cc_->transitions.end();
       }
 
-      virtual
-      bool done() const
+      virtual bool done() const override
       {
 	return it_ == cc_->transitions.end();
       }
 
-      virtual
-      state* dst() const
+      virtual state* dst() const override
       {
 	return (*it_)->clone();
       }
@@ -605,7 +601,7 @@ namespace spot
     ////////////////////////////////////////////////////////////////////////
     // KRIPKE
 
-    class spins_kripke: public kripke
+    class spins_kripke final: public kripke
     {
     public:
 
@@ -615,7 +611,7 @@ namespace spot
 	: kripke(dict),
 	  d_(d),
 	  state_size_(d_->get_state_size()),
-	  dict_(dict), ps_(ps),
+	  ps_(ps),
 	  compress_(compress == 0 ? nullptr
 		    : compress == 1 ? int_array_array_compress
 		    : int_array_array_compress2),
@@ -696,8 +692,7 @@ namespace spot
 	delete state_condition_last_cc_; // Might be 0 already.
       }
 
-      virtual
-      state* get_init_state() const
+      virtual state* get_init_state() const override
       {
 	if (compress_)
 	  {
@@ -848,8 +843,7 @@ namespace spot
 
 
       virtual
-      spins_succ_iterator*
-      succ_iter(const state* st) const
+      spins_succ_iterator* succ_iter(const state* st) const override
       {
 	// This may also compute successors in state_condition_last_cc
 	bdd scond = compute_state_condition(st);
@@ -882,14 +876,13 @@ namespace spot
       }
 
       virtual
-      bdd
-      state_condition(const state* st) const
+      bdd state_condition(const state* st) const override
       {
 	return compute_state_condition(st);
       }
 
       virtual
-      std::string format_state(const state *st) const
+      std::string format_state(const state *st) const override
       {
 	const int* vars = get_vars(st);
 
@@ -917,16 +910,9 @@ namespace spot
 	return res.str();
       }
 
-      virtual
-      spot::bdd_dict_ptr get_dict() const
-      {
-	return dict_;
-      }
-
     private:
       spins_interface_ptr d_;
       int state_size_;
-      bdd_dict_ptr dict_;
       const char** vname_;
       bool* format_filter_;
       const spot::prop_set* ps_;

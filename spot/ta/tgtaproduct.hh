@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -35,10 +35,10 @@ namespace spot
     tgta_product(const const_kripke_ptr& left,
 		 const const_tgta_ptr& right);
 
-    virtual const state* get_init_state() const;
+    virtual const state* get_init_state() const override;
 
     virtual twa_succ_iterator*
-    succ_iter(const state* local_state) const;
+    succ_iter(const state* local_state) const override;
   };
 
   inline twa_ptr product(const const_kripke_ptr& left,
@@ -48,7 +48,7 @@ namespace spot
   }
 
   /// \brief Iterate over the successors of a product computed on the fly.
-  class SPOT_API tgta_succ_iterator_product : public twa_succ_iterator
+  class SPOT_API tgta_succ_iterator_product final : public twa_succ_iterator
   {
   public:
     tgta_succ_iterator_product(const state_product* s,

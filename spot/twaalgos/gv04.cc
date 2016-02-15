@@ -85,7 +85,7 @@ namespace spot
       }
 
       virtual emptiness_check_result_ptr
-      check()
+      check() override
       {
 	top = dftop = -1;
 	violation = false;
@@ -226,7 +226,7 @@ namespace spot
       }
 
       virtual std::ostream&
-      print_stats(std::ostream& os) const
+      print_stats(std::ostream& os) const override
       {
 	os << h.size() << " unique states visited\n";
 	os << transitions() << " transitions explored\n";
@@ -264,7 +264,7 @@ namespace spot
 	}
 
 	virtual unsigned
-	acss_states() const
+	acss_states() const override
 	{
 	  // Gross!
 	  const_cast<result*>(this)->update_lowlinks();
@@ -282,7 +282,7 @@ namespace spot
 	}
 
 	virtual twa_run_ptr
-	accepting_run()
+	accepting_run() override
 	{
 	  auto res = std::make_shared<twa_run>(automaton());
 
@@ -335,7 +335,7 @@ namespace spot
 	    }
 
 	    virtual const state*
-	    filter(const state* s)
+	    filter(const state* s) override
 	    {
 	      // Do not escape the SCC
 	      auto j = data.h.find(s);
@@ -357,13 +357,13 @@ namespace spot
 	    }
 
 	    virtual bool
-	    match(twa_run::step& step, const state*)
+	    match(twa_run::step& step, const state*) override
 	    {
 	      return step.acc != 0U;
 	    }
 	  };
 
-	  struct second_bfs: first_bfs
+	  struct second_bfs final: first_bfs
 	  {
 	    const state* target;
 	    second_bfs(result* r, int scc_root, const state* target)
@@ -372,7 +372,7 @@ namespace spot
 	    }
 
 	    virtual bool
-	    match(twa_run::step&, const state* s)
+	    match(twa_run::step&, const state* s) override
 	    {
 	      return s == target;
 	    }

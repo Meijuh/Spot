@@ -54,8 +54,8 @@ namespace spot
     fair_kripke_succ_iterator(const bdd& cond, acc_cond::mark_t acc_cond);
     virtual ~fair_kripke_succ_iterator();
 
-    virtual bdd cond() const;
-    virtual acc_cond::mark_t acc() const;
+    virtual bdd cond() const override;
+    virtual acc_cond::mark_t acc() const override;
   protected:
     bdd cond_;
     acc_cond::mark_t acc_cond_;

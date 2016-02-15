@@ -102,8 +102,8 @@ namespace spot
   public:
     tgba_reachable_iterator_breadth_first(const const_twa_ptr& a);
 
-    virtual void add_state(const state* s);
-    virtual const state* next_state();
+    virtual void add_state(const state* s) override;
+    virtual const state* next_state() override;
 
   protected:
     std::deque<const state*> todo; ///< A queue of states yet to explore.
@@ -189,8 +189,8 @@ namespace spot
     /// the stack after process_link() has been called.
     bool on_stack(int sn) const;
   protected:
-    virtual void push(const state* s, int sn);
-    virtual void pop();
+    virtual void push(const state* s, int sn) override;
+    virtual void pop() override;
 
     std::unordered_set<int> stack_;
   };

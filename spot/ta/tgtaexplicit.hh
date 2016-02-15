@@ -34,7 +34,7 @@ namespace spot
 
   /// Explicit representation of a spot::tgta.
   /// \ingroup ta_representation
-  class SPOT_API tgta_explicit : public tgta
+  class SPOT_API tgta_explicit final : public tgta
   {
   public:
     tgta_explicit(const const_twa_ptr& tgba,
@@ -42,21 +42,18 @@ namespace spot
 		  state_ta_explicit* artificial_initial_state);
 
     // tgba interface
-    virtual spot::state* get_init_state() const;
+    virtual spot::state* get_init_state() const override;
 
     virtual twa_succ_iterator*
-    succ_iter(const spot::state* local_state) const;
-
-    virtual bdd_dict_ptr
-    get_dict() const;
+    succ_iter(const spot::state* local_state) const override;
 
     const_ta_explicit_ptr get_ta() const { return ta_; }
     ta_explicit_ptr get_ta() { return ta_; }
 
-    virtual std::string format_state(const spot::state* s) const;
+    virtual std::string format_state(const spot::state* s) const override;
 
     virtual twa_succ_iterator*
-    succ_iter_by_changeset(const spot::state* s, bdd change_set) const;
+    succ_iter_by_changeset(const spot::state* s, bdd change_set) const override;
   protected:
     ta_explicit_ptr ta_;
   };
