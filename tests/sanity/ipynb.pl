@@ -44,13 +44,18 @@ my $exit_status = 0;
 my %seen;
 while (<FD>)
 {
-    if (m:\]\[=([\w-]+\.ipynb)=\]\]:)
+    if (m:/([\w-]+)\.html\]\[=([\w-]+\.ipynb)=\]\]:)
     {
 	# print "$1 documented";
-	$seen{$1} = 1;
-	unless (-f "$dir/$1")
+	$seen{$2} = 1;
+	unless (-f "$dir/$2")
 	{
-	    print STDERR "notebook $1 mentioned in tut.org does not exist";
+	    print STDERR "notebook $2 mentioned in tut.org does not exist";
+	    $exit_status = 1;
+	}
+	if ("$1.ipynb" ne "$2")
+	{
+	    print STDERR "in tut.org, notebook $2 links to $1.html";
 	    $exit_status = 1;
 	}
     }
