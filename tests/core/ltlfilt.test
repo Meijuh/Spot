@@ -1,6 +1,6 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+# Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -138,6 +138,32 @@ EOF
 checkopt -v --ltl <<EOF
 !({a;b[*];c}!)
 !{a:b[*]:c}
+EOF
+
+checkopt -v --ap=3 <<EOF
+GFa | FGb
+F(GFa | Gb)
+F(b W GFa)
+GFa | Gb
+b W GFa
+a U Fb
+G(a & Xb)
+Xa
+F(a & !Xa & Xb)
+EOF
+
+checkopt --ap=2..3 <<EOF
+GFa | FGb
+F(GFa | Gb)
+F(b W GFa)
+GFa | Gb
+b W GFa
+!({a;b[*];c}!)
+!{a:b[*]:c}
+a U Fb
+G(a & Xb)
+F(a & !Xa & Xb)
+a & (b | c)
 EOF
 
 checkopt -v --stutter-invariant <<EOF

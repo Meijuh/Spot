@@ -194,8 +194,8 @@ static const argp_option options[] =
     { "stutter-insensitive", OPT_STUTTER_INSENSITIVE, nullptr, 0,
       "match stutter-insensitive LTL formulas", 0 },
     { "stutter-invariant", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
-    { "ap", OPT_AP_N, "N", 0,
-      "match formulas which use exactly N atomic propositions", 0 },
+    { "ap", OPT_AP_N, "RANGE", 0,
+      "match formulas with a number of atomic propositions in RANGE", 0 },
     { "invert-match", 'v', nullptr, 0, "select non-matching formulas", 0},
     { "unique", 'u', nullptr, 0,
       "drop formulas that have already been output (not affected by -v)", 0 },
@@ -264,8 +264,7 @@ static relabeling_mode relabeling = NoRelabeling;
 static spot::relabeling_style style = spot::Abc;
 static bool remove_x = false;
 static bool stutter_insensitive = false;
-static bool ap = false;
-static unsigned ap_n = 0;
+static range ap_n = { -1, -1 };
 static int opt_max_count = -1;
 static long int match_count = 0;
 
@@ -433,8 +432,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 	unabbreviate += spot::default_unabbrev_string;
       break;
     case OPT_AP_N:
-      ap = true;
-      ap_n = to_int(arg);
+      ap_n = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_SYNTACTIC_SAFETY:
       syntactic_safety = true;
@@ -578,7 +576,14 @@ namespace
       matched &= !syntactic_recurrence || f.is_syntactic_recurrence();
       matched &= !syntactic_persistence || f.is_syntactic_persistence();
       matched &= !syntactic_si || f.is_syntactic_stutter_invariant();
-      matched &= !ap || atomic_prop_collect(f)->size() == ap_n;
+      if (matched && (ap_n.min > 0 || ap_n.max >= 0))
+	{
+	  auto s = atomic_prop_collect(f);
+	  int n = s->size();
+	  delete s;
+	  matched &= (ap_n.min <= 0) || (n >= ap_n.min);
+	  matched &= (ap_n.max < 0) || (n <= ap_n.max);
+	}
 
       if (matched && (size.min > 0 || size.max >= 0))
 	{

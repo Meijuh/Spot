@@ -48,6 +48,8 @@ New in spot 1.99.7a (not yet released)
     --bsize=RANGE.  The old names are still supported for backward
     compatibility, but they are not documented anymore.
 
+  * ltlfilt's option --ap=N can now take a RANGE as parameter.
+
   Library:
 
   * Building products with different dictionaries now raise an
