@@ -342,11 +342,51 @@ namespace spot
   /// \ingroup twa_essentials
   /// \brief Iterate over the successors of a state.
   ///
-  /// This class provides the basic functionalities required to
-  /// iterate over the successors of a state, as well as querying
-  /// transition labels.  Because transitions are never explicitely
-  /// encoded, labels (conditions and acceptance conditions) can only
-  /// be queried while iterating over the successors.
+  /// This class provides the basic functionality required to iterate
+  /// over the set of edges leaving a given state.  Instance of
+  /// twa_succ_iterator should normally not be created directly.
+  /// Instead, they are created by passing a "source" state to
+  /// twa::succ_iter(), which will create the instance of
+  /// twa_succ_iterator to iterate over the successors of that state.
+  ///
+  /// This twa_succ_iterator class offers two types of services,
+  /// offered by two groups of methods.  The methods first(), next(),
+  /// and done() allow iteration over the set of outgoing edges.
+  /// The methods cond(), acc(), dst(), allow inspecting the current
+  /// edge.
+  ///
+  /// The twa_succ_iterator is usually subclassed so that iteration
+  /// methods and accessor methods can be implemented differently in
+  /// different automata.  In particular, this interface allows
+  /// computing the set of successor on the fly if needed.
+  ///
+  /// The iterator can be used to iterate over all successors in a
+  /// loop as follows:
+  ///
+  /// \code
+  ///     for (i->first(); !i->done(); i->next())
+  ///       {
+  ///         // use i->cond(), i->acc(), i->dst()
+  ///       }
+  /// \endcode
+  ///
+  /// If there are n successors, there will be 1 call to first(), n
+  /// calls to next() and n+1 calls to done(), so a total of 2(n+1)
+  /// calls to virtual methods just to handle the iteration.  For this
+  /// reason, we usually favor the following more efficient way of
+  /// performing the same loop:
+  ///
+  /// \code
+  ///     if (i->first())
+  ///       do
+  ///         {
+  ///           // use i->cond(), i->acc(), i->dst()
+  ///         }
+  ///       while(i->next());
+  /// \endcode
+  ///
+  /// This loops uses the return value of first() and next() to save
+  /// n+1 calls to done().
   class SPOT_API twa_succ_iterator
   {
   public:
@@ -356,19 +396,22 @@ namespace spot
     }
 
     /// \name Iteration
-    //@{
+    ///@{
 
     /// \brief Position the iterator on the first successor (if any).
     ///
-    /// This method can be called several times to make multiple
-    /// passes over successors.
+    /// This method can be called several times in order to make
+    /// multiple passes over successors.
     ///
     /// \warning One should always call \c done() (or better: check
     /// the return value of first()) to ensure there is a successor,
     /// even after \c first().  A common trap is to assume that there
     /// is at least one successor: this is wrong.
     ///
-    /// \return whether there is actually a successor
+    /// \return true iff there is at least one successor
+    ///
+    /// If first() returns false, it is invalid to call next(),
+    /// cond(), acc(), or dst().
     virtual bool first() = 0;
 
     /// \brief Jump to the next successor (if any).
@@ -376,7 +419,11 @@ namespace spot
     /// \warning Again, one should always call \c done() (or better:
     /// check the return value of next()) ensure there is a successor.
     ///
-    /// \return whether there is actually a successor
+    /// \return true if the iterator moved to a new successor, false
+    /// if the iterator could not move to a new successor.
+    ///
+    /// If next() returns false, it is invalid to call next() again,
+    /// or to call cond(), acc() or dst().
     virtual bool next() = 0;
 
     /// \brief Check whether the iteration is finished.
@@ -384,42 +431,48 @@ namespace spot
     /// This function should be called after any call to \c first()
     /// or \c next() and before any enquiry about the current state.
     ///
-    /// The usual way to do this is with a \c for loop.
+    /// The typical use case of done() is in a \c for loop such as:
     ///
     ///     for (s->first(); !s->done(); s->next())
     ///       ...
+    ///
+    /// \return false iff the iterator is pointing to a successor.
+    ///
+    /// It is incorrect to call done() if first() hasn't been called
+    /// before.  If done() returns true, it is invalid to call
+    /// next(), cond(), acc(), or dst().
     virtual bool done() const = 0;
 
-    //@}
+    ///@}
 
     /// \name Inspection
-    //@{
+    ///@{
 
-    /// \brief Get the state of the current successor.
+    /// \brief Get the destination state of the current edge.
     ///
-    /// Note that the same state may occur at different points
-    /// in the iteration.  These actually correspond to the same
-    /// destination.  It just means there were several transitions,
-    /// with different conditions, leading to the same state.
+    /// Each call to dst() (even several times on the same edge)
+    /// creates a new state that has to be destroyed (see
+    /// state::destroy()).  by the caller after it is no longer used.
     ///
-    /// The returned state should be destroyed (see state::destroy)
-    /// by the caller after it is no longer used.
+    /// Note that the same state may occur at different points in the
+    /// iteration, as different outgoing edges (usually with different
+    /// labels or acceptance membership) may go to the same state.
     virtual const state* dst() const = 0;
-    /// \brief Get the condition on the transition leading to this successor.
+    /// \brief Get the condition on the edge leading to this successor.
     ///
     /// This is a boolean function of atomic propositions.
     virtual bdd cond() const = 0;
-    /// \brief Get the acceptance conditions on the transition leading
-    /// to this successor.
+    /// \brief Get the acceptance mark of the edge leading to this
+    /// successor.
     virtual acc_cond::mark_t acc() const = 0;
 
-    //@}
+    ///@}
   };
 
   namespace internal
   {
     /// \brief Helper structure to iterate over the successor of a
-    /// state using the on-the-flay interface.
+    /// state using the on-the-fly interface.
     ///
     /// This one emulates an STL-like iterator over the
     /// twa_succ_iterator interface.
@@ -478,31 +531,49 @@ namespace spot
   /// w is just a non-utf8 replacement for ω that should not be
   /// capitalized.
   ///
-  /// TωAs are transition-based automata, meanings that not-only
-  /// do they have labels on arcs, they also have an acceptance
-  /// condition defined in term of sets of transitions.
-  /// The acceptance condition can be anything supported by
-  /// the HOA format (http://adl.github.io/hoaf/).  The only
-  /// restriction w.r.t. the format is that this class does
-  /// not support alternating automata
+  /// TωAs are transition-based automata, meanings that not-only do
+  /// they have labels on edges, but they also have an acceptance
+  /// condition defined in term of sets of transitions.  The
+  /// acceptance condition can be anything supported by the HOA format
+  /// (http://adl.github.io/hoaf/).  The only restriction w.r.t. the
+  /// format is that this class does not support alternating automata.
   ///
   /// Previous versions of Spot supported a type of automata called
   /// TGBA, which are TωA in which the acceptance condition is a set
-  /// of sets of transitions that must be intersected infinitely
-  /// often.
+  /// of sets of transitions that must be visited infinitely often.
   ///
   /// In this version, TGBAs are now represented by TωAs for which
-  /// <code>aut->acc().is_generalized_buchi())</code> returns true.
   ///
-  /// Browsing such automaton can be achieved using two functions:
-  /// \c get_init_state, and \c succ.  The former returns
-  /// the initial state while the latter lists the
-  /// successor states of any state.
+  ///     aut->acc().is_generalized_buchi()
+  ///
+  /// returns true.
+  ///
+  /// Browsing a TωA is usually achieved using two methods: \c
+  /// get_init_state(), and succ().  The former returns the initial
+  /// state while the latter allows iterating over the outgoing edges
+  /// of any given state.
   ///
   /// Note that although this is a transition-based automata, we never
-  /// represent transitions in the API!  Transition data are
+  /// represent edges in the API.  Information about edges can be
   /// obtained by querying the iterator over the successors of a
   /// state.
+  ///
+  /// The interface presented here is what we call the on-the-fly
+  /// interface of automata, because the TωA class can be subclassed
+  /// to implement an object that computes its successors on-the-fly.
+  /// The down-side is that all these methods are virtual, so you you
+  /// pay the cost of virtual calls when iterating over automata
+  /// constructed on-the-fly.  Also the interface assumes that each
+  /// successor state is a new object whose memory management is the
+  /// responsibility of the caller, who should then call
+  /// state::destroy() to release it.
+  ///
+  /// If you want to work with a TωA that is explicitly stored as a
+  /// graph in memory, use the spot::twa_graph subclass instead.  A
+  /// twa_graph object can be used as a spot::twa (using the
+  /// on-the-fly interface, even though nothing needs to be
+  /// constructed), but it also offers a faster interface that do not
+  /// use virtual methods.
   class SPOT_API twa: public std::enable_shared_from_this<twa>
   {
   protected:
@@ -568,6 +639,8 @@ namespace spot
     /// The iterator has been allocated with \c new.  It is the
     /// responsability of the caller to \c delete it when no
     /// longer needed.
+    ///
+    /// \see succ()
     virtual twa_succ_iterator*
     succ_iter(const state* local_state) const = 0;
 
@@ -575,11 +648,25 @@ namespace spot
     /// \brief Build an iterable over the successors of \a s.
     ///
     /// This is meant to be used as
+    ///
     /// \code
-    /// for (auto i: aut->succ(s))
-    ///   {
-    ///     /* i->dst() */
-    ///   }
+    ///    for (auto i: aut->succ(s))
+    ///      {
+    ///        // use i->cond(), i->acc(), i->dst()
+    ///      }
+    /// \endcode
+    ///
+    /// and the above loop is in fact syntactic sugar for
+    ///
+    /// \code
+    ///    twa_succ_iterator* i = aut->succ_iter(s);
+    ///    if (i->first())
+    ///      do
+    ///        {
+    ///          // use i->cond(), i->acc(), i->dst()
+    ///        }
+    ///      while (i->next());
+    ///    aut->release_iter(i);
     /// \endcode
     succ_iterable
     succ(const state* s) const
@@ -605,7 +692,7 @@ namespace spot
     /// \return A formula which must be verified for all successors
     ///  of \a state.
     ///
-    /// This can be as simple as \c bddtrue, or more completely
+    /// This can be as simple as \c bddtrue, or more precisely
     /// the disjunction of the condition of all successors.  This
     /// is used as an hint by \c succ_iter() to reduce the number
     /// of successor to compute in a product.
@@ -617,19 +704,37 @@ namespace spot
 
     /// \brief Get the dictionary associated to the automaton.
     ///
-    /// Atomic propositions and acceptance conditions are represented
-    /// as BDDs.  The dictionary allows to map BDD variables back to
-    /// formulas, and vice versa.  This is useful when dealing with
-    /// several automata (which may use the same BDD variable for
-    /// different formula), or simply when printing.
+    /// Automata are labeled by Boolean formulas over atomic
+    /// propositions.  These Boolean formula are represented as BDDs.
+    /// The dictionary allows to map BDD variables back to atomic
+    /// propositions, and vice versa.
+    ///
+    /// Usually automata that are involved in the same computations
+    /// should share their dictionaries so that operations between
+    /// BDDs of the two automata work naturally.
+    ///
+    /// It is however possible to declare automata that use different
+    /// sets of atomic propositions with different dictionaries.  That
+    /// way a BDD variable associated to some atomic proposition in
+    /// one automaton might be reused for another atomic proposition
+    /// in the other automaton.
     bdd_dict_ptr get_dict() const
     {
       return dict_;
     }
 
-    /// \brief Register an atomic proposition designated by formula \a ap.
+    ///@{
+    /// \brief Register an atomic proposition designated by \a ap.
     ///
-    /// \return The BDD variable number.
+    /// This is the preferred way to declare that an automaton is using
+    /// a given atomic proposition.
+    ///
+    /// This adds the atomic proposition to the list of atomic
+    /// proposition of the automaton, and also register it to the
+    /// bdd_dict.
+    ///
+    /// \return The BDD variable number assigned for this atomic
+    /// proposition.
     int register_ap(formula ap)
     {
       int res = dict_->has_registered_proposition(ap, this);
@@ -642,22 +747,20 @@ namespace spot
       return res;
     }
 
-    /// \brief Register an atomic proposition designated by string \a ap.
-    ///
-    /// \return The BDD variable number.
-    int register_ap(std::string name)
+    int register_ap(std::string ap)
     {
-      return register_ap(formula::ap(name));
+      return register_ap(formula::ap(ap));
     }
+    ///@}
 
-    /// \brief Get the vector of atomic propositions used by this
+    /// \brief The vector of atomic propositions registered by this
     /// automaton.
     const std::vector<formula>&  ap() const
     {
       return aps_;
     }
 
-    /// The list of atomic propositions as a conjunction.
+    /// \brief The set of atomic propositions as a conjunction.
     bdd ap_var() const
     {
       return bddaps_;
@@ -665,9 +768,11 @@ namespace spot
 
     /// \brief Format the state as a string for printing.
     ///
-    /// This formating is the responsability of the automata
-    /// that owns the state.
-    virtual std::string format_state(const state* state) const = 0;
+    /// Formating is the responsability of the automata that owns the
+    /// state, so that state objects could be implemented as very
+    /// small objects, maybe sharing data with other state objects via
+    /// data structure stored in the automaton.
+    virtual std::string format_state(const state* s) const = 0;
 
     /// \brief Return a possible annotation for the transition
     /// pointed to by the iterator.
@@ -681,8 +786,7 @@ namespace spot
     /// Implementing this method is optional; the default annotation
     /// is the empty string.
     ///
-    /// This method is used for instance in print_dot(),
-    /// and replay_twa_run().
+    /// This method is used for instance in replay_twa_run().
     ///
     /// \param t a non-done twa_succ_iterator for this automaton
     virtual std::string
@@ -704,9 +808,8 @@ namespace spot
     virtual state* project_state(const state* s,
 				 const const_twa_ptr& t) const;
 
-
-    /// The acceptance condition of the automaton.
-    /// @{
+    ///@{
+    /// \brief The acceptance condition of the automaton.
     const acc_cond& acc() const
     {
       return acc_;
@@ -716,7 +819,7 @@ namespace spot
     {
       return acc_;
     }
-    /// @}
+    ///@}
 
     /// Check whether the language of the automaton is empty.
     virtual bool is_empty() const;
@@ -824,8 +927,6 @@ namespace spot
     mutable bdd last_support_conditions_output_;
     std::vector<formula> aps_;
     bdd bddaps_;
-
-  protected:
 
     /// Helper structure used to store property flags.
     struct bprop
