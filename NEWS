@@ -43,6 +43,13 @@ New in spot 1.99.7a (not yet released)
   * autfilt has a new option, --equivalent-to, to filter automata
     that are equivalent (language-wise) to a given automaton.
 
+  * ltlcross has a new option --determinize to instruct it to
+    complement non-deterministic automata via determinization.  This
+    option is not enabled by default as it can potentially be slow and
+    generate large automata.  When --determinize is given, option
+    --product=0 is implied, since the tests based on products with
+    random state-space are pointless for deterministic automata.
+
   * ltlfilt's option --size-min=N, --size-max=N, --bsize-min=N, and
     --bsize-max=N have been reimplemented as --size=RANGE and
     --bsize=RANGE.  The old names are still supported for backward

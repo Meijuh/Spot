@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -59,6 +59,7 @@
 #include <spot/twaalgos/stats.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/isunamb.hh>
+#include <spot/twaalgos/postproc.hh>
 #include <spot/misc/escape.hh>
 #include <spot/misc/hash.hh>
 #include <spot/misc/random.hh>
@@ -107,6 +108,9 @@ static const argp_option options[] =
       "will not be translated)", 0 },
     { "no-complement", OPT_NOCOMP, nullptr, 0,
       "do not complement deterministic automata to perform extra checks", 0 },
+    { "determinize", 'D', nullptr, 0,
+      "determinize non-deterministic automata so that they"
+      "can be complemented; also implicitly sets --products=0", 0 },
     { "stop-on-error", OPT_STOP_ERR, nullptr, 0,
       "stop on first execution error or failure to pass"
       " sanity checks (timeouts are OK)", 0 },
@@ -195,6 +199,7 @@ static bool want_stats = false;
 static bool allow_dups = false;
 static bool no_checks = false;
 static bool no_complement = false;
+static bool determinize = false;
 static bool stop_on_error = false;
 static int seed = 0;
 static unsigned products = 1;
@@ -398,6 +403,10 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
+    case 'D':
+      determinize = true;
+      products = 0;
+      break;
     case ARGP_KEY_ARG:
       translators.push_back(arg);
       break;
@@ -812,7 +821,6 @@ namespace
   typedef
   std::unordered_set<spot::formula> fset_t;
 
-
   class processor: public job_processor
   {
     spot::bdd_dict_ptr dict = spot::make_bdd_dict();
@@ -1059,35 +1067,87 @@ namespace
 	  std::cerr << "Performing sanity checks and gathering statistics..."
 		    << std::endl;
 
-	  if (verbose)
-	    std::cerr << "info: getting rid of any Fin acceptance...\n";
+	  auto printsize = [](const spot::const_twa_graph_ptr& aut)
+	    {
+	      std::cerr << aut->num_states() << " st.,"
+                        << aut->num_edges() << " ed.,"
+                        << aut->num_sets() << " sets";
+	    };
+
+	  if (determinize && !no_complement)
+	    {
+	      bool print_first = verbose;
+	      auto tmp = [&](std::vector<spot::twa_graph_ptr>& from,
+			     std::vector<spot::twa_graph_ptr>& to, unsigned i,
+			     char prefix)
+		{
+		  if (!to[i])
+		    {
+		      if (print_first)
+			{
+			  std::cerr << "info: complementing non-deterministic "
+			    "automata via determinization...\n";
+			  print_first = false;
+			}
+		      spot::postprocessor p;
+		      p.set_type(spot::postprocessor::Generic);
+		      p.set_pref(spot::postprocessor::Deterministic);
+		      p.set_level(spot::postprocessor::Low);
+		      to[i] = dtwa_complement(p.run(from[i]));
+		      if (verbose)
+			{
+			  std::cerr << "info:   " << prefix << i << "\t(";
+			  printsize(from[i]);
+			  std::cerr << ") -> (";
+			  printsize(to[i]);
+			  std::cerr << ")\tComp(" << prefix << i << ")\n";
+			}
+		    }
+		};
+	      for (unsigned i = 0; i < m; ++i)
+		{
+		  tmp(pos, comp_pos, i, 'P');
+		  tmp(neg, comp_neg, i, 'N');
+		}
+	    }
+
+	  bool print_first = verbose;
+	  auto tmp = [&](std::vector<spot::twa_graph_ptr>& x, unsigned i,
+			 const char* prefix, const char* suffix)
+	    {
+	      if (!x[i])
+		return;
+	      cleanup_acceptance_here(x[i]);
+	      if (x[i]->acc().uses_fin_acceptance())
+		{
+		  if (verbose)
+		    {
+		      if (print_first)
+			{
+			  std::cerr <<
+			    "info: getting rid of any Fin acceptance...\n";
+			  print_first = false;
+			}
+		      std::cerr << "info:\t" << prefix << i
+				<< suffix << "\t(";
+		      printsize(x[i]);
+		      std::cerr << ") ->";
+		    }
+		  x[i] = remove_fin(x[i]);
+		  if (verbose)
+		    {
+		      std::cerr << " (";
+		      printsize(x[i]);
+		      std::cerr << ")\n";
+		    }
+		}
+	    };
 	  for (unsigned i = 0; i < m; ++i)
 	    {
-#define DO(x, prefix, suffix) if (x[i])					\
-		{							\
-		  cleanup_acceptance_here(x[i]);			\
-		  if (x[i]->acc().uses_fin_acceptance())		\
-		    {							\
-	              auto st = x[i]->num_states();			\
-	              auto tr = x[i]->num_edges();		\
-	              auto ac = x[i]->acc().num_sets();			\
-		      x[i] = remove_fin(x[i]);				\
-		      if (verbose)					\
-			std::cerr << "info:\t" prefix << i		\
-				  << suffix << "\t("			\
-				  << st << " st., "			\
-				  << tr << " ed., "			\
-				  << ac << " sets) -> ("		\
-				  << x[i]->num_states() << " st., "	\
-				  << x[i]->num_edges() << " ed., " \
-				  << x[i]->acc().num_sets() << " sets)\n"; \
-		    }							\
-		}
-	      DO(pos, "     P", " ");
-	      DO(neg, "     N", " ");
-	      DO(comp_pos, "Comp(P", ")");
-	      DO(comp_neg, "Comp(N", ")");
-#undef DO
+	      tmp(pos, i, "     P", " ");
+	      tmp(neg, i, "     N", " ");
+	      tmp(comp_pos, i, "Comp(P", ")");
+	      tmp(comp_neg, i, "Comp(N", ")");
 	    }
 
 	  // intersection test

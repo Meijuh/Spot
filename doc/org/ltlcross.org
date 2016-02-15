@@ -19,8 +19,8 @@ The main differences are:
   - more precise time measurement (LBTT was only precise to
     1/100 of a second, reporting most times as "0.00s"),
   - support for any type of acceptance condition,
-  - additional intersection checks with the complement of any
-    deterministic automaton produced by a translator.
+  - additional intersection checks with the complement, allowing
+    to check equivalence of automata more precisely.
 
 Although =ltlcross= performs the same sanity checks as LBTT, it does
 not implement any of the interactive features of LBTT.  In our almost
@@ -52,7 +52,7 @@ Each translator should be specified as a string that use some of the
 following character sequences:
 
 #+BEGIN_SRC sh :results verbatim :exports results
-ltlcross --help | sed -n '/character sequences:/,/^$/p' | sed '1d;$d'
+  ltlcross --help | sed -n '/character sequences:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :   %%                         a single %
@@ -570,6 +570,9 @@ ltlcross -f a -f Ga '{small} ltl2tgba -s --small %f >%O' '{deter} ltl2tgba -s --
 : "(!(G(a)))","deter","ok",0,0.0396312,2,3,4,1,2,1,1,0,0,0,0,1,0,0,400,8442,2
 
 * Detecting problems
+   :PROPERTIES:
+   :CUSTOM_ID: checks
+   :END:
 
 If a translator exits with a non-zero status code, or fails to output
 an automaton =ltlcross= can read, and error will be displayed and the
@@ -613,22 +616,29 @@ positive and negative formulas by the ith translator).
     The cycle part is denoted by =cycle{...}=.
 
   - Complemented intersection check.  If $P_i$ and $P_j$ are
-    deterministic, we =ltlcross= builds their complements, $Comp(P_i)$
+    deterministic, =ltlcross= builds their complements, $Comp(P_i)$
     and $Comp(P_j)$, and then ensures that $Comp(P_i)\otimes
     Comp(P_j)$ is empty.  If only one of them is deterministic,
     for instance $P_i$, we check that $P_j\otimes Comp(P_i)$ for all
     $j \ne i$; likewise if it's $N_i$ that is deterministic.
 
-    This check is only done for deterministic automata, because
-    complementation is cheap is that case.  When validating a
-    translator with =ltlcross=, we highly recommend to include a
-    translator with good deterministic output to augment test
-    coverage.  Using '=ltl2tgba -lD %f >%O=' will produce
-    deterministic automata for all obligation properties and many
-    recurrence properties.  Using '=ltl2dstar
-    --ltl2nba=spin:pathto/ltl2tgba@-Ds %L %O=' will systematically
-    produce a deterministic Rabin automaton (that =ltlcross= can
-    complement easily).
+    By default this check is only done for deterministic automata,
+    because complementation is relatively cheap is that case (at least
+    it is cheap for simple acceptance conditions).  Using option
+    =--determinize=, =ltlcross= can be instructed to perform
+    complementation of non-deterministic automata as well, ensuring
+    precise equivalence checks between all automata.  However be aware
+    that this determinization + complementation may generate large
+    automata.
+
+    When validating a translator with =ltlcross= without using the
+    =--determinize= option we highly recommend to include a translator
+    with good deterministic output to augment test coverage.  Using
+    '=ltl2tgba -lD %f >%O=' will produce deterministic automata for
+    all obligation properties and many recurrence properties.  Using
+    '=ltl2dstar --ltl2nba=spin:pathto/ltl2tgba@-Ds %L %O=' will
+    systematically produce a deterministic Rabin automaton (that
+    =ltlcross= can complement easily).
 
   - Cross-comparison checks: for some state-space $S$,
     all $P_i\otimes S$ are either all empty, or all non-empty.
@@ -642,6 +652,13 @@ positive and negative formulas by the ith translator).
     the state-space is also printed.  This number is of no use by
     itself, except to explain why you may get multiple disagreement
     between the same sets of automata.
+
+    These products tests may sometime catch errors that were not
+    captured by the first two tests if one non-deterministic automaton
+    recognize less words than what it should.  If the input automata
+    are deterministic or the =--determinize= option is used, this test
+    is redundant and can be disabled.  (In fact, the =--determinize=
+    option implies option =--product=0= to do so.)
 
   - Consistency check:
 
@@ -657,6 +674,13 @@ positive and negative formulas by the ith translator).
     If =--products=N= is used with =N= greater than one, the number of
     the state-space in which the inconsistency was detected is also
     printed.
+
+    This test may catch errors that were not captured by the first two
+    tests if one non-deterministic automaton recognize less words than
+    what it should.  If the input automata are deterministic or the
+    =--determinize= option is used, this test is redundant and can be
+    disabled.  (In fact, the =--determinize= option implies option
+    =--product=0= to do so.)
 
 The above checks are similar to those that are performed by [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]],
 except for the complemented intersection check, which is only done in
@@ -909,3 +933,136 @@ be used to gather statistics about a specific set of formulas.
 #  LocalWords:  nxqfd hS vNItGg acc scc nondetstates nondeterministic
 #  LocalWords:  cvs LaTeX datacols len ith otimes ltlcheck eval setq
 #  LocalWords:  setenv concat getenv
+** =--verbose=
+
+The verbose option can be useful to troubleshoot problems or simply
+follow the list of transformations and tests performed by =ltlcross=.
+
+For instance here is what happens if we try to cross check =ltl2tgba=
+and =ltl3ba= on the formula =FGa=.
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltlcross -f 'FGa' ltl2tgba ltl3ba --determinize --verbose
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltlcross -f 'FGa' ltl2tgba ltl3ba --determinize --verbose 2>&1
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+F(G(a))
+Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-vfVUzt'
+Running [P1]: ltl3ba -f '<>([](a))'>'lcr-o1-IiXGfZ'
+Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-T02eWu'
+Running [N1]: ltl3ba -f '!(<>([](a)))'>'lcr-o1-0DpXF0'
+Performing sanity checks and gathering statistics...
+info: complementing non-deterministic automata via determinization...
+info:   P0	(2 st.,3 ed.,1 sets) -> (2 st.,4 ed.,2 sets)	Comp(P0)
+info:   P1	(2 st.,3 ed.,1 sets) -> (2 st.,4 ed.,2 sets)	Comp(P1)
+info: getting rid of any Fin acceptance...
+info:	Comp(P0)	(2 st.,4 ed.,2 sets) -> (3 st.,7 ed.,2 sets)
+info:	Comp(N0)	(1 st.,2 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
+info:	Comp(P1)	(2 st.,4 ed.,2 sets) -> (4 st.,9 ed.,2 sets)
+info:	Comp(N1)	(2 st.,4 ed.,1 sets) -> (3 st.,6 ed.,1 sets)
+info: check_empty P0*N0
+info: check_empty Comp(N0)*Comp(P0)
+info: check_empty P0*N1
+info: check_empty P1*N0
+info: check_empty P1*N1
+info: check_empty Comp(N1)*Comp(P1)
+
+No problem detected.
+#+end_example
+
+First =FGa= and its negations =!FGa= are translated with the two
+tools, resulting in four automata: to positive automata =P0= and =P1=
+for =FGa=, and two negative automata =N0= and =N1=.
+
+=ltlcross= then proceeds to compute the complement of these four
+automata.  Since =P0= and =P1= are nondeterministic and the
+=--determinize= option was given, a first pass determinize and
+complete these two automata, creating =Comp(P0)= and =Comp(P1)=.
+
+Apparently =N0= and =N1= are already deterministic, so their
+complement could be obtained by just complementing their acceptance
+condition (this is not written -- we only deduce so because they do
+not appear in the list of automata that had to be determinized).
+
+Now that =ltlcross= has four complemented automata, it has to make
+sure they use only =Inf= acceptance because that is what our emptiness
+check procedure can handle.  So there is a new pass over all automata,
+rewriting them to get rid of any =Fin= acceptance.
+
+After this preparatory work, it is time for actually comparing these
+automata.  Together, the tests =P0*N0= and =Comp(N0)*Comp(P0)= ensure
+that the automaton =N0= is really the complement of =P0=.  Similarly
+=P1*N1= and =Comp(N1)*Comp(P1)= ensure that =N1= is the complement of
+=P1=.  Finally =P0*N1= and =P1*N0= ensure that =P1= is equivalent to
+=P0= and =N1= is equivalent to =N0=.
+
+
+
+Note that if we had not used the =--determinize= option, the procedure
+would look slightly more complex:
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltlcross -f 'FGa' ltl2tgba ltl3ba --verbose
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltlcross -f 'FGa' ltl2tgba ltl3ba --verbose 2>&1
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+F(G(a))
+Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-YvMdzU'
+Running [P1]: ltl3ba -f '<>([](a))'>'lcr-o1-Ixj7RI'
+Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-uBbTbx'
+Running [N1]: ltl3ba -f '!(<>([](a)))'>'lcr-o1-eo0fzl'
+Performing sanity checks and gathering statistics...
+info: getting rid of any Fin acceptance...
+info:	Comp(N0)	(1 st.,2 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
+info:	Comp(N1)	(2 st.,4 ed.,1 sets) -> (3 st.,6 ed.,1 sets)
+info: check_empty P0*N0
+info: check_empty P0*N1
+info: check_empty Comp(N0)*N1
+info: check_empty P1*N0
+info: check_empty Comp(N1)*N0
+info: check_empty P1*N1
+info: building state-space #0/1 of 200 states with seed 0
+info: state-space has 4136 edges
+info: building product between state-space and P0 (2 st., 3 ed.)
+info:   product has 400 st., 8298 ed.
+info:               2 SCCs
+info: building product between state-space and P1 (2 st., 3 ed.)
+info:   product has 400 st., 8298 ed.
+info:               2 SCCs
+info: building product between state-space and N0 (1 st., 2 ed.)
+info:   product has 200 st., 4136 ed.
+info:               1 SCCs
+info: building product between state-space and N1 (2 st., 4 ed.)
+info:   product has 400 st., 8272 ed.
+info:               1 SCCs
+info: cross_check {P0,P1}, state-space #0/1
+info: cross_check {N0,N1}, state-space #0/1
+info: consistency_check (P0,N0), state-space #0/1
+info: consistency_check (P1,N1), state-space #0/1
+
+No problem detected.
+#+end_example
+
+In this case, =ltlcross= does not have any complement automaton for
+=P0= and =P1=, so it cannot make sure that =P0= and =P1= are
+equivalent.  If we imagine for instance that =P0= has an empty
+language, we can see that the six =check_empty= tests would still
+succeed.
+
+So =ltlcross= builds a random state-space of 200 states, synchronize
+it with the four automata, and then performs additional checks
+(=cross_check= and =consistency_check=) on these products as described
+[[#checks][earlier]].  While these additional checks do not make a proof that =P0=
+and =P1= are equivalent, they can catch some problems, and would
+easily catch the case of an automaton with an empty language by
+mistake.
