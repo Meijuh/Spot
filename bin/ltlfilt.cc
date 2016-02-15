@@ -33,6 +33,7 @@
 #include "common_cout.hh"
 #include "common_conv.hh"
 #include "common_r.hh"
+#include "common_range.hh"
 
 #include <spot/misc/hash.hh>
 #include <spot/tl/simplify.hh>
@@ -59,6 +60,7 @@ enum {
   OPT_AP_N = 256,
   OPT_BOOLEAN,
   OPT_BOOLEAN_TO_ISOP,
+  OPT_BSIZE,
   OPT_BSIZE_MAX,
   OPT_BSIZE_MIN,
   OPT_DEFINE,
@@ -79,6 +81,7 @@ enum {
   OPT_REMOVE_WM,
   OPT_REMOVE_X,
   OPT_SAFETY,
+  OPT_SIZE,
   OPT_SIZE_MAX,
   OPT_SIZE_MIN,
   OPT_SKIP_ERRORS,
@@ -166,13 +169,21 @@ static const argp_option options[] =
       "match guarantee formulas (even pathological)", 0 },
     { "obligation", OPT_OBLIGATION, nullptr, 0,
       "match obligation formulas (even pathological)", 0 },
-    { "size-max", OPT_SIZE_MAX, "INT", 0,
+    { "size", OPT_SIZE, "RANGE", 0,
+      "match formulas with size in RANGE", 0},
+    // backward compatibility
+    { "size-max", OPT_SIZE_MAX, "INT", OPTION_HIDDEN,
       "match formulas with size <= INT", 0 },
-    { "size-min", OPT_SIZE_MIN, "INT", 0,
+    // backward compatibility
+    { "size-min", OPT_SIZE_MIN, "INT", OPTION_HIDDEN,
       "match formulas with size >= INT", 0 },
-    { "bsize-max", OPT_BSIZE_MAX, "INT", 0,
+    { "bsize", OPT_BSIZE, "RANGE", 0,
+      "match formulas with Boolean size in RANGE", 0 },
+    // backward compatibility
+    { "bsize-max", OPT_BSIZE_MAX, "INT", OPTION_HIDDEN,
       "match formulas with Boolean size <= INT", 0 },
-    { "bsize-min", OPT_BSIZE_MIN, "INT", 0,
+    // backward compatibility
+    { "bsize-min", OPT_BSIZE_MIN, "INT", OPTION_HIDDEN,
       "match formulas with Boolean size >= INT", 0 },
     { "implied-by", OPT_IMPLIED_BY, "FORMULA", 0,
       "match formulas implied by FORMULA", 0 },
@@ -188,6 +199,7 @@ static const argp_option options[] =
     { "invert-match", 'v', nullptr, 0, "select non-matching formulas", 0},
     { "unique", 'u', nullptr, 0,
       "drop formulas that have already been output (not affected by -v)", 0 },
+    RANGE_DOC_FULL,
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Output options:", -20 },
     { "count", 'c', nullptr, 0, "print only a count of matched formulas", 0 },
@@ -245,10 +257,8 @@ static bool syntactic_si = false;
 static bool safety = false;
 static bool guarantee = false;
 static bool obligation = false;
-static int size_min = -1;
-static int size_max = -1;
-static int bsize_min = -1;
-static int bsize_max = -1;
+static range size = { -1, -1 };
+static range bsize = { -1, -1 };
 enum relabeling_mode { NoRelabeling = 0, ApRelabeling, BseRelabeling };
 static relabeling_mode relabeling = NoRelabeling;
 static spot::relabeling_style style = spot::Abc;
@@ -320,11 +330,14 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_BOOLEAN_TO_ISOP:
       boolean_to_isop = true;
       break;
+    case OPT_BSIZE:
+      bsize = parse_range(arg, 0, std::numeric_limits<int>::max());
+      break;
     case OPT_BSIZE_MIN:
-      bsize_min = to_int(arg);
+      bsize.min = to_int(arg);
       break;
     case OPT_BSIZE_MAX:
-      bsize_max = to_int(arg);
+      bsize.max = to_int(arg);
       break;
     case OPT_DEFINE:
       opt->output_define.reset(new output_file(arg ? arg : "-"));
@@ -398,11 +411,14 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_SAFETY:
       safety = obligation = true;
       break;
+    case OPT_SIZE:
+      size = parse_range(arg, 0, std::numeric_limits<int>::max());
+      break;
     case OPT_SIZE_MIN:
-      size_min = to_int(arg);
+      size.min = to_int(arg);
       break;
     case OPT_SIZE_MAX:
-      size_max = to_int(arg);
+      size.max = to_int(arg);
       break;
     case OPT_SKIP_ERRORS:
       error_style = skip_errors;
@@ -564,18 +580,18 @@ namespace
       matched &= !syntactic_si || f.is_syntactic_stutter_invariant();
       matched &= !ap || atomic_prop_collect(f)->size() == ap_n;
 
-      if (matched && (size_min > 0 || size_max >= 0))
+      if (matched && (size.min > 0 || size.max >= 0))
 	{
 	  int l = spot::length(f);
-	  matched &= (size_min <= 0) || (l >= size_min);
-	  matched &= (size_max < 0) || (l <= size_max);
+	  matched &= (size.min <= 0) || (l >= size.min);
+	  matched &= (size.max < 0) || (l <= size.max);
 	}
 
-      if (matched && (bsize_min > 0 || bsize_max >= 0))
+      if (matched && (bsize.min > 0 || bsize.max >= 0))
 	{
 	  int l = spot::length_boolone(f);
-	  matched &= (bsize_min <= 0) || (l >= bsize_min);
-	  matched &= (bsize_max < 0) || (l <= bsize_max);
+	  matched &= (bsize.min <= 0) || (l >= bsize.min);
+	  matched &= (bsize.max < 0) || (l <= bsize.max);
 	}
 
       matched &= !opt->implied_by || simpl.implication(opt->implied_by, f);

@@ -43,6 +43,11 @@ New in spot 1.99.7a (not yet released)
   * autfilt has a new option, --equivalent-to, to filter automata
     that are equivalent (language-wise) to a given automaton.
 
+  * ltlfilt's option --size-min=N, --size-max=N, --bsize-min=N, and
+    --bsize-max=N have been reimplemented as --size=RANGE and
+    --bsize=RANGE.  The old names are still supported for backward
+    compatibility, but they are not documented anymore.
+
   Library:
 
   * Building products with different dictionaries now raise an

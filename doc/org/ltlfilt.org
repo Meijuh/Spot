@@ -253,20 +253,19 @@ ltlfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 #+begin_example
+      --ap=N                 match formulas which use exactly N atomic
+                             propositions
       --boolean              match Boolean formulas
-      --bsize-max=INT        match formulas with Boolean size <= INT
-      --bsize-min=INT        match formulas with Boolean size >= INT
+      --bsize=RANGE          match formulas with Boolean size in RANGE
       --equivalent-to=FORMULA   match formulas equivalent to FORMULA
       --eventual             match pure eventualities
       --guarantee            match guarantee formulas (even pathological)
       --implied-by=FORMULA   match formulas implied by FORMULA
       --imply=FORMULA        match formulas implying FORMULA
       --ltl                  match only LTL formulas (no PSL operator)
-      --nox                  match X-free formulas
       --obligation           match obligation formulas (even pathological)
       --safety               match safety formulas (even pathological)
-      --size-max=INT         match formulas with size <= INT
-      --size-min=INT         match formulas with size >= INT
+      --size=RANGE           match formulas with size in RANGE
       --stutter-insensitive, --stutter-invariant
                              match stutter-insensitive LTL formulas
       --syntactic-guarantee  match syntactic-guarantee formulas
@@ -274,6 +273,9 @@ ltlfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
       --syntactic-persistence   match syntactic-persistence formulas
       --syntactic-recurrence match syntactic-recurrence formulas
       --syntactic-safety     match syntactic-safety formulas
+      --syntactic-stutter-invariant, --nox
+                             match stutter-invariant formulas syntactically
+                             (LTL-X or siPSL)
       --universal            match purely universal formulas
   -u, --unique               drop formulas that have already been output (not
                              affected by -v)
@@ -388,6 +390,61 @@ ltlfilt -f 'F(a & X(!a & Gb))' --remove-x | ltlfilt --equivalent-to 'F(a & X(!a 
 : F(a & ((a & (a U (!a & Gb)) & ((!b U !a) | (b U !a))) | (!a & (!a U (a & !a & Gb)) & ((!b U a) | (b U a))) | (b & (b U (!a & Gb & !b)) & ((!a U !b) | (a U !b))) | (!b & (!b U (!a & b & Gb)) & ((!a U b) | (a U b))) | (!a & Gb & (G!a | Ga) & (Gb | G!b))))
 
 It is therefore equivalent (otherwise the output would have been empty).
+
+
+The difference between =--size= and =--bsize= lies in the way Boolean
+subformula are counted.  With =--size= the size of the formula is
+exactly the number of atomic propositions and operators used.  For
+instance the following command generates 10 random formulas with size
+5 (the reason [[file:randltl.org][=randltl=]] uses =--tree-size=8= is because the "tree" of
+the formula generated randomly can be reduced by trivial
+simplifications such as =!!f= being rewritten to =f=, yielding
+formulas of smaller sizes).
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randltl -n -1 --tree-size=8 a b | ltlfilt --size=5 -n 10
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+!F!Ga
+X!(a U b)
+!G(a & b)
+(b W a) W 0
+b R X!b
+GF!Xa
+Xb & Ga
+a xor !Fb
+a xor FXb
+!(0 R Fb)
+#+end_example
+
+With =--bsize=, any Boolean subformula is counted as "1" in the total
+size.  So =F(a & b & c)= would have Boolean-size 2.  This type of size
+is probably a better way to classify formulas that are going to be
+translated as automata, since transitions are labeled by Boolean
+formulas: the complexity of the Boolean subformulas has little
+influence on the overall translation.  Here are 10 random formula with
+Boolean-size 5:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randltl -n -1 --tree-size=12 a b | ltlfilt --bsize=5 -n 10
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Gb xor Fa
+FX!Fa
+!(Fb U b)
+(a -> !b) & XFb
+X(b & Xb)
+0 R (a U !b)
+XXa R !b
+(!a & !(!a xor b)) xor (0 R b)
+GF(1 U b)
+(a U b) R b
+#+end_example
+
 
 * Using =--format=
 

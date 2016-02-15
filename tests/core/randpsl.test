@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011, 2012, 2014, 2015 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2011, 2012, 2014, 2015, 2016 Laboratoire de Recherche
+# et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -24,9 +24,9 @@
 set -e
 
 # Generate 50 random unique PSL formula that do not simplify to LTL
-# formulae, and that have a size of at lease 12.
+# formulae, and that have a size of at least 12.
 randltl -n -1 --tree-size 30 --seed 12 --psl a b c |
-ltlfilt -r --size-min 12 --unique |
+ltlfilt -r --size 12.. --unique |
 ltlfilt -v --ltl -n 50 | tee formulas |
 ltlcross '../ikwiad -R3 -t %f >%T' '../ikwiad -x -R3 -t %f >%T' \
   -F - -f '{{(p1)}[*]:{(p3) && {{!(p1)} xor {!(p3)}}}}'
