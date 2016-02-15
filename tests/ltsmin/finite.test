@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2011, 2013, 2014, 2016 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -53,6 +53,6 @@ run 0 ../modelcheck -ddead -E $srcdir/finite.dve \
 run 0 ../modelcheck -ddead -e $srcdir/finite.dve \
   '!(G(dead -> ("P.a==2" | "P.b==3")))'
 
-# This used to segfault because of a bug in
-# twa_product::transition_annotation.
+# This used to segfault because of a bug in a
+# function that do not exist anymore.
 run 0 ../modelcheck -gp $srcdir/finite.dve true

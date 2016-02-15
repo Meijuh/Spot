@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2014, 2015 Laboratoire de Recherche et Developpement de
-// l'EPITA (LRDE).
+// Copyright (C) 2011, 2014, 2015, 2016 Laboratoire de Recherche et
+// Developpement de l'EPITA (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -67,12 +67,6 @@ namespace spot
     if (t.get() == this)
       return s->clone();
     return nullptr;
-  }
-
-  std::string
-  twa::transition_annotation(const twa_succ_iterator*) const
-  {
-    return "";
   }
 
   bool

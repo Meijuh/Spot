@@ -774,24 +774,6 @@ namespace spot
     /// data structure stored in the automaton.
     virtual std::string format_state(const state* s) const = 0;
 
-    /// \brief Return a possible annotation for the transition
-    /// pointed to by the iterator.
-    ///
-    /// You may decide to use annotations when building a tgba class
-    /// that represents the state space of a model, for instance to
-    /// indicate how the tgba transitions relate to the original model
-    /// (e.g. the annotation could be the name of a PetriNet
-    /// transition, or the line number of some textual formalism).
-    ///
-    /// Implementing this method is optional; the default annotation
-    /// is the empty string.
-    ///
-    /// This method is used for instance in replay_twa_run().
-    ///
-    /// \param t a non-done twa_succ_iterator for this automaton
-    virtual std::string
-    transition_annotation(const twa_succ_iterator* t) const;
-
     /// \brief Project a state on an automaton.
     ///
     /// This converts \a s, into that corresponding spot::state for \a

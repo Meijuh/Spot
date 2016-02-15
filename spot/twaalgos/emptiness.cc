@@ -434,20 +434,6 @@ namespace spot
     return res;
   }
 
-  namespace
-  {
-    static void
-    print_annotation(std::ostream& os,
-		     const const_twa_ptr& a,
-		     const twa_succ_iterator* i)
-    {
-      std::string s = a->transition_annotation(i);
-      if (s == "")
-	return;
-      os << ' ' << s;
-    }
-  }
-
   bool twa_run::replay(std::ostream& os, bool debug) const
   {
     const state* s = aut->get_init_state();
@@ -579,9 +565,7 @@ namespace spot
 		  do
 		    {
 		      const state* s2 = j->dst();
-		      os << "  *";
-		      print_annotation(os, aut, j);
-		      os << " label="
+		      os << "  * label="
 			 << bdd_format_formula(aut->get_dict(),
 					       j->cond())
 			 << " and acc="
@@ -598,9 +582,7 @@ namespace spot
 	  }
 	if (debug)
 	  {
-	    os << "transition";
-	    print_annotation(os, aut, j);
-	    os << " with label="
+	    os << "transition with label="
 	       << bdd_format_formula(aut->get_dict(), label)
 	       << " and acc=" << aut->acc().format(acc)
 	       << std::endl;
@@ -608,7 +590,6 @@ namespace spot
 	else
 	  {
 	    os << "  |  ";
-	    print_annotation(os, aut, j);
 	    bdd_print_formula(os, aut->get_dict(), label);
 	    os << '\t';
 	    aut->acc().format(acc);

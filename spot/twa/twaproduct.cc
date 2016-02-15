@@ -402,21 +402,6 @@ namespace spot
     return right_->project_state(s2->right(), t);
   }
 
-  std::string
-  twa_product::transition_annotation(const twa_succ_iterator* t) const
-  {
-    const twa_succ_iterator_product_common* i =
-      down_cast<const twa_succ_iterator_product_common*>(t);
-    assert(i);
-    std::string left = left_->transition_annotation(i->left_);
-    std::string right = right_->transition_annotation(i->right_);
-    if (left == "")
-      return right;
-    if (right == "")
-      return left;
-    return "<" + left + ", " + right + ">";
-  }
-
   //////////////////////////////////////////////////////////////////////
   // twa_product_init
 

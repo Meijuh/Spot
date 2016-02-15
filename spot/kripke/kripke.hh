@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2013, 2014 Laboratoire de Recherche et
-// Developpement de l'Epita
+// Copyright (C) 2009, 2010, 2013, 2014, 2016 Laboratoire de Recherche
+// et Developpement de l'Epita
 //
 // This file is part of Spot, a model checking library.
 //
@@ -81,7 +81,6 @@ namespace spot
   ///   - kripke::succ_iter()
   ///   - kripke::state_condition()
   ///   - kripke::format_state()
-  ///   - and optionally kripke::transition_annotation()
   ///
   /// The other methods of the tgba interface (like those dealing with
   /// acceptance conditions) are supplied by this kripke class and

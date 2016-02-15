@@ -302,9 +302,7 @@ namespace spot
     ///
     /// This is similar to <code>os << run;</code>, except that the
     /// run is actually replayed on the automaton while it is printed.
-    /// Doing so makes it possible to display transition annotations
-    /// (returned by spot::twa::transition_annotation()).  The output
-    /// will stop if the run cannot be completed.
+    /// The output will stop if the run cannot be completed.
     ///
     /// \param os the stream on which the replay should be traced
     /// \param debug if set the output will be more verbose and extra
