@@ -413,7 +413,13 @@ namespace spot
       // build Initial states set:
       auto tgba_init_state = tgba_->get_init_state();
 
-      bdd tgba_condition = tgba_->support_conditions(tgba_init_state);
+      bdd tgba_condition = [&]()
+	{
+	  bdd cond = bddfalse;
+	  for (auto i: tgba_->succ(tgba_init_state))
+	    cond |= i->cond();
+	  return cond;
+	}();
 
       bool is_acc = false;
       if (degeneralized)

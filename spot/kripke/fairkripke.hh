@@ -100,8 +100,5 @@ namespace spot
     /// \brief The set of acceptance conditions that label the state \a s.
     virtual acc_cond::mark_t
       state_acceptance_conditions(const state* s) const = 0;
-
-  protected:
-    virtual bdd compute_support_conditions(const state* s) const;
   };
 }

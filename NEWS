@@ -82,7 +82,8 @@ New in spot 1.99.7a (not yet released)
   * The twa_safra_complement class has been removed.  Use
     tgba_determinize() and dtwa_complement() instead.
 
-  * The twa::transition_annotation() method has been removed.
+  * The twa::transition_annotation() and
+    twa::compute_support_conditions() methods have been removed.
 
   Python:
 

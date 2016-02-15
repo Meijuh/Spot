@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2014 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2014, 2016 Laboratoire de Recherche et
 // Developpement de l'Epita
 //
 // This file is part of Spot, a model checking library.
@@ -47,11 +47,4 @@ namespace spot
     // this function on a state without successor.
     return acc_cond_;
   }
-
-  bdd
-  fair_kripke::compute_support_conditions(const state* s) const
-  {
-    return state_condition(s);
-  }
-
 }

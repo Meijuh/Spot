@@ -236,12 +236,6 @@ namespace spot
 		+ bdd_format_formula(a_->get_dict(), s->cond()));
       }
 
-    protected:
-      virtual bdd compute_support_conditions(const state*) const override
-      {
-	return bddtrue;
-      }
-
     private:
       const_twa_ptr a_;
       bdd aps_;

@@ -103,9 +103,6 @@ namespace spot
     const acc_cond& right_acc() const;
 
   protected:
-    virtual bdd compute_support_conditions(const state* state) const;
-
-  protected:
     const_twa_ptr left_;
     const_twa_ptr right_;
     bool left_kripke_;

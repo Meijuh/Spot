@@ -202,9 +202,6 @@ namespace spot
 
     virtual ~twa_graph()
     {
-      // Prevent this state from being destroyed by ~twa(),
-      // as the state will be destroyed when g_ is destroyed.
-      last_support_conditions_input_ = nullptr;
     }
 
 #ifndef SWIG
@@ -424,14 +421,6 @@ namespace spot
     auto is_dead_edge(const graph_t::edge_storage_t& t) const
       SPOT_RETURN(g_.is_dead_edge(t));
 #endif
-
-    virtual bdd compute_support_conditions(const state* s) const
-    {
-      bdd sum = bddfalse;
-      for (auto& t: out(state_number(s)))
-	sum |= t.cond;
-      return sum;
-    }
 
     /// Iterate over all edges, and merge those with compatible
     /// extremities and acceptance.

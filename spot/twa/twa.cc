@@ -30,8 +30,7 @@ namespace spot
 {
   twa::twa(const bdd_dict_ptr& d)
     : iter_cache_(nullptr),
-      dict_(d),
-      last_support_conditions_input_(nullptr)
+      dict_(d)
   {
     props = 0U;
     bddaps_ = bddtrue;
@@ -39,25 +38,9 @@ namespace spot
 
   twa::~twa()
   {
-    if (last_support_conditions_input_)
-      last_support_conditions_input_->destroy();
     delete iter_cache_;
     release_named_properties();
     get_dict()->unregister_all_my_variables(this);
-  }
-
-  bdd
-  twa::support_conditions(const state* state) const
-  {
-    if (!last_support_conditions_input_
-	|| last_support_conditions_input_->compare(state) != 0)
-      {
-	last_support_conditions_output_ = compute_support_conditions(state);
-	if (last_support_conditions_input_)
-	  last_support_conditions_input_->destroy();
-	last_support_conditions_input_ = state->clone();
-      }
-    return last_support_conditions_output_;
   }
 
   state*

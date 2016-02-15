@@ -318,13 +318,6 @@ namespace spot
 
   twa_product::~twa_product()
   {
-    // Prevent these states from being destroyed by ~tgba(): they
-    // will be destroyed before when the pool is destructed.
-    if (last_support_conditions_input_)
-      {
-	last_support_conditions_input_->destroy();
-	last_support_conditions_input_ = nullptr;
-      }
   }
 
   const state*
@@ -357,16 +350,6 @@ namespace spot
       return new twa_succ_iterator_product_kripke(li, ri, this, p);
     else
       return new twa_succ_iterator_product(li, ri, this, p);
-  }
-
-  bdd
-  twa_product::compute_support_conditions(const state* in) const
-  {
-    const state_product* s = down_cast<const state_product*>(in);
-    assert(s);
-    bdd lsc = left_->support_conditions(s->left());
-    bdd rsc = right_->support_conditions(s->right());
-    return lsc & rsc;
   }
 
   const acc_cond& twa_product::left_acc() const

@@ -687,21 +687,6 @@ namespace spot
 	iter_cache_ = i;
     }
 
-    /// \brief Get a formula that must hold whatever successor is taken.
-    ///
-    /// \return A formula which must be verified for all successors
-    ///  of \a state.
-    ///
-    /// This can be as simple as \c bddtrue, or more precisely
-    /// the disjunction of the condition of all successors.  This
-    /// is used as an hint by \c succ_iter() to reduce the number
-    /// of successor to compute in a product.
-    ///
-    /// Sub classes should implement compute_support_conditions(),
-    /// this function is just a wrapper that will cache the
-    /// last return value for efficiency.
-    bdd support_conditions(const state* state) const;
-
     /// \brief Get the dictionary associated to the automaton.
     ///
     /// Automata are labeled by Boolean formulas over atomic
@@ -901,12 +886,7 @@ namespace spot
       return acc_.mark(0);
     }
 
-  protected:
-    /// Do the actual computation of tgba::support_conditions().
-    virtual bdd compute_support_conditions(const state* state) const = 0;
-    mutable const state* last_support_conditions_input_;
   private:
-    mutable bdd last_support_conditions_output_;
     std::vector<formula> aps_;
     bdd bddaps_;
 

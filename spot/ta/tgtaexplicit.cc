@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2014, 2015 Laboratoire de Recherche
-// et Developpement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2014, 2015, 2016 Laboratoire de
+// Recherche et Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -42,14 +42,6 @@ namespace spot
   tgta_explicit::succ_iter(const spot::state* state) const
   {
     return ta_->succ_iter(state);
-  }
-
-  bdd
-  tgta_explicit::compute_support_conditions(const spot::state* in) const
-  {
-    const state_ta_explicit* s = down_cast<const state_ta_explicit*>(in);
-    assert(s);
-    return ta_->get_tgba()->support_conditions(s->get_tgba_state());
   }
 
   bdd_dict_ptr

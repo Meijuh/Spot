@@ -58,8 +58,6 @@ namespace spot
     virtual std::string format_state(const spot::state* state) const = 0;
 
   protected:
-    virtual bdd compute_support_conditions(const spot::state* state)
-      const final;
 
     typedef std::vector<taa_tgba::state_set*> ss_vec;
 
