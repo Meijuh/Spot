@@ -3,7 +3,6 @@
 Makefile
 Makefile.in
 *.la
-spot_impl.py*
 buddy.py*
 *.lo
 *.loT
@@ -11,4 +10,5 @@ buddy.py*
 *.pyc
 */spotimg
 ajax/*.py
-spot/*.py
+spot/impl.py
+spot/ltsmin.py

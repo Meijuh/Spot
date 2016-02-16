@@ -37,6 +37,7 @@ SWIGFLAGS = -c++ -python -py3 -O -nofastproxy
 EXTRA_DIST = buddy.i spot/impl.i spot/ltsmin.i
 nobase_python_PYTHON = \
   spot/__init__.py \
+  spot/aux.py \
   spot/impl.py \
   spot/ltsmin.py \
   buddy.py

@@ -26,27 +26,18 @@ if sys.hexversion < 0x03030000:
 
 
 from spot.impl import *
+from spot.aux import \
+     extend as _extend, \
+     str_to_svg as _str_to_svg, \
+     ostream_to_svg as _ostream_to_svg
 import subprocess
 import os
 import signal
-from functools import lru_cache
 
 
-def _extend(*classes):
-    """
-    Decorator that extends all the given classes with the contents
-    of the class currently being defined.
-    """
-    def wrap(this):
-        for cls in classes:
-            for (name, val) in this.__dict__.items():
-                if name not in ('__dict__', '__weakref__') \
-                   and not (name == '__doc__' and val is None):
-                    setattr(cls, name, val)
-        return classes[0]
-    return wrap
-
+# The parrameters used by default when show() is called on an automaton.
 _show_default = None
+
 
 def setup(**kwargs):
     """Configure Spot for fancy display.
@@ -106,23 +97,6 @@ if 'op_ff' not in globals():
 
 # Global BDD dict so that we do not have to create one in user code.
 _bdd_dict = make_bdd_dict()
-
-
-# Add a small LRU cache so that when we display automata into a
-# interactive widget, we avoid some repeated calls to dot for
-# identical inputs.
-@lru_cache(maxsize=64)
-def _str_to_svg(str):
-    dotty = subprocess.Popen(['dot', '-Tsvg'],
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE)
-    dotty.stdin.write(str)
-    res = dotty.communicate()
-    return res[0].decode('utf-8')
-
-
-def _ostream_to_svg(ostr):
-    return _str_to_svg(ostr.str().encode('utf-8'))
 
 
 @_extend(twa, ta)
