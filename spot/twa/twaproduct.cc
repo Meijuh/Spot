@@ -318,6 +318,10 @@ namespace spot
 
   twa_product::~twa_product()
   {
+    // Make sure we delete the iterator cache before erasing the two
+    // automata (by reference counting).
+    delete iter_cache_;
+    iter_cache_ = nullptr;
   }
 
   const state*

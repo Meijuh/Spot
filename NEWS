@@ -132,6 +132,8 @@ New in spot 1.99.7a (not yet released)
   * ltlfilt, autfilt, randltl, and randaut could easily crash when
     compiled statically (i.e., with configure --disable-shared).
   * "1 U (a | Fb)" was not always simplified to "F(a | b)".
+  * destroying the operands of an otf_product() before the product
+    itself could crash.
 
 New in spot 1.99.7 (2016-01-15)
 

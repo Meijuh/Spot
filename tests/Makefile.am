@@ -303,6 +303,7 @@ TESTS_python = \
   python/ltsmin.ipynb \
   python/minato.py \
   python/optionmap.py \
+  python/otfcrash.py \
   python/parsetgba.py \
   python/piperead.ipynb \
   python/prodexpt.py \
