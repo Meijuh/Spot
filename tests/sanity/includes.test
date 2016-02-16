@@ -25,7 +25,7 @@
 
 set -e
 
-rm -f failures
+rm -f failures.inc
 
 
 INCDIR=${srcdir-.}/../../spot
@@ -45,15 +45,15 @@ for file in `find "$INCDIR" \( -name "${1-*}.hh" \
    else
      echo "Missing, or incorrect include guard." >&2
      echo "FAIL: $file"
-     echo "  $file" >> failures
+     echo "  $file" >> failures.inc
      continue
    fi
    echo "PASS: $file"
 done
 
-if test -f failures; then
+if test -f failures.inc; then
    echo "Failed files:"
-   cat failures
-   rm failures
+   cat failures.inc
+   rm failures.inc
    exit 1;
 fi

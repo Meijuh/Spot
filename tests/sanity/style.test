@@ -32,7 +32,7 @@ diag()
   echo ============================================================
 }
 
-rm -f failures
+rm -f failures.style
 
 GREP=grep
 
@@ -324,7 +324,7 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
     esac
 
 
-    $fail && echo "$file" >>failures
+    $fail && echo "$file" >>failures.style
 
   done || : # Make sure sh does not abort when read exits with false.
 done
@@ -346,14 +346,14 @@ for dir in "${INCDIR-..}" "${INCDIR-..}/../bin" "${INCDIR-..}/../tests"; do
     $GREP '\.libs/' $tmp &&
 	diag "Don't reference files in .libs/, use Libtool instead."
 
-    $fail && echo "$file" >>failures
+    $fail && echo "$file" >>failures.style
   done || : # Make sure sh does not abort when read exits with false.
 done
 
-if test -f failures; then
+if test -f failures.style; then
    echo "The following files contain style errors:"
-   cat failures
-   rm failures
+   cat failures.style
+   rm failures.style
    exit 1;
 fi
 
