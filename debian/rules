@@ -86,6 +86,10 @@ override_dh_auto_build:
 	dh_auto_build
 	$(MAKE) -C tests nb-html
 
+# https://mail.scipy.org/pipermail/ipython-user/2015-August/014016.html
+override_dh_compress:
+	dh_compress -X.ipynb
+
 fix-mathjax:
 	perl -pi -e 's|http://orgmode.org/mathjax/MathJax.js|file:///usr/share/javascript/mathjax/MathJax.js|' doc/userdoc/*.html
 	perl -pi -e 's|https://cdn.mathjax.org/mathjax/latest/MathJax.js|file:///usr/share/javascript/mathjax/MathJax.js|' tests/python/*.html
