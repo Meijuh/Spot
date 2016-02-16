@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 //
 // This file is part of Spot, a model checking library.
@@ -373,6 +373,7 @@ namespace spot
   ta_product::is_hole_state_in_ta_component(const spot::state* s) const
   {
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
+    assert(stp);
     ta_succ_iterator* ta_succ_iter = get_ta()->succ_iter(stp->get_ta_state());
     bool is_hole_state = ta_succ_iter->done();
     delete ta_succ_iter;

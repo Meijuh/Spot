@@ -35,7 +35,11 @@ EOF
    Wdocumentation \
    Wmissing-declarations \
    Wnoexcept \
-   Woverloaded-virtual
+   Woverloaded-virtual \
+   Wmisleading-indentation \
+   Wlogical-op \
+   Wduplicated-cond \
+   Wnull-dereference
   do
     CXXFLAGS="$cf_save_CXXFLAGS $ac_cv_prog_gxx_warn_flags -$cf_opt"
     if AC_TRY_EVAL(ac_compile); then

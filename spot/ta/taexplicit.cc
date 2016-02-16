@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -362,7 +362,7 @@ namespace spot
       {
         auto* s = const_cast<state_ta_explicit*>
 	  (down_cast<const state_ta_explicit*>(*it));
-
+	assert(s);
         s->free_transitions();
         s->get_tgba_state()->destroy();
         delete s;
@@ -383,6 +383,7 @@ namespace spot
   ta_explicit::add_to_initial_states_set(state* state, bdd condition)
   {
     state_ta_explicit* s = down_cast<state_ta_explicit*>(state);
+    assert(s);
     s->set_initial_state(true);
     if (condition == bddfalse)
       condition = get_state_condition(s);
