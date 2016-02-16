@@ -284,6 +284,7 @@ TESTS_twa = \
 
 if USE_PYTHON
 TESTS_python = \
+  python/_aux.ipynb \
   python/acc_cond.ipynb \
   python/accparse.ipynb \
   python/accparse2.py \

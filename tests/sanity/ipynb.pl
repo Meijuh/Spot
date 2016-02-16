@@ -65,9 +65,8 @@ close(FD);
 open(FD, "$dir/../Makefile.am") or die "$!";
 while (<FD>)
 {
-    if (m:python/([\w-]+\.ipynb):)
+    if (m:python/([^_][\w-]*\.ipynb):)
     {
-	# print "$1 exist";
 	unless (exists $seen{$1})
 	{
 	    print STDERR "notebook $1 is not mentioned in tut.org";

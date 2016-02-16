@@ -23,6 +23,7 @@ Auxiliary functions for Spot's Python bindings
 
 from functools import lru_cache
 import subprocess
+import sys
 
 
 def extend(*classes):
@@ -50,9 +51,16 @@ def str_to_svg(str):
     """
     dot = subprocess.Popen(['dot', '-Tsvg'],
                            stdin=subprocess.PIPE,
-                           stdout=subprocess.PIPE)
-    res = dot.communicate(str)
-    return res[0].decode('utf-8')
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+    stdout, stderr = dot.communicate(str)
+    if stderr:
+        print("Calling 'dot' for the conversion to SVG produced the message:\n"
+              + stderr.decode('utf-8'), file=sys.stderr)
+    ret = dot.wait()
+    if ret:
+        raise subprocess.CalledProcessError(ret, 'dot')
+    return stdout.decode('utf-8')
 
 
 def ostream_to_svg(ostr):
