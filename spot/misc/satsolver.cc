@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -91,7 +91,7 @@ namespace spot
     if (filename[0] == '-' && filename[1] == 0)
       in = &std::cin;
     else
-      in = new std::fstream(filename, std::ios_base::in);
+      in = new std::ifstream(filename);
 
     int c;
     while ((c = in->get()) != EOF)
@@ -131,9 +131,8 @@ namespace spot
   void satsolver::start()
   {
     cnf_tmp_ = create_tmpfile("sat-", ".cnf");
-    cnf_stream_ = new std::fstream(cnf_tmp_->name(),
-				   std::ios_base::trunc | std::ios_base::out);
-    cnf_stream_->exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    cnf_stream_ = new std::ofstream(cnf_tmp_->name(), std::ios_base::trunc);
+    cnf_stream_->exceptions(std::ofstream::failbit | std::ofstream::badbit);
   }
 
   satsolver::~satsolver()
