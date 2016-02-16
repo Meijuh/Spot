@@ -4,14 +4,7 @@ import tempfile
 import shutil
 import sys
 
-# this test requires divine with --ltsmin support
-if shutil.which("divine") == None:
-    sys.exit(77)
-import subprocess
-out = subprocess.check_output(['divine', 'compile',
-                               '--help'], stderr=subprocess.STDOUT)
-if b'LTSmin' not in out:
-    sys.exit(77)
+spot.ltsmin.require('divine')
 
 # the test case actually starts here
 with tempfile.NamedTemporaryFile(dir='.', suffix='.dve') as fp:

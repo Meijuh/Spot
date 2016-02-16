@@ -24,7 +24,8 @@ Auxiliary functions for Spot's Python bindings
 from functools import lru_cache
 import subprocess
 import sys
-
+import os
+import errno
 
 def extend(*classes):
     """
@@ -68,3 +69,14 @@ def ostream_to_svg(ostr):
     Encode an ostringstream as utf-8 and send it to dot for cocnversion to SVG.
     """
     return str_to_svg(ostr.str().encode('utf-8'))
+
+
+def rm_f(filename):
+    """
+    Remove filename if it exists.
+    """
+    try:
+        os.remove(filename)
+    except OSError as e:
+        if e.errno != errno.ENOENT:
+            raise

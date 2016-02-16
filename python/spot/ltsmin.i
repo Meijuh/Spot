@@ -67,6 +67,9 @@ namespace std {
 
 %pythoncode %{
 import spot
+import spot.aux
+import sys
+import subprocess
 
 def load(filename):
   return model.load(filename)
@@ -107,75 +110,65 @@ class model:
       res += '\n';
     return res
 
+def require(tool):
+    """
+    Exit with status code 77 if the required tool is not installed.
+
+    This function is mostly useful in Spot test suite, where 77 is a
+    code used to indicate that some test should be skipped.
+    """
+    if tool != "divine":
+        raise ValueError("unsupported argument for require(): " + tool)
+    import shutil
+    if shutil.which("divine") == None:
+        print ("divine not available", file=sys.stderr)
+        sys.exit(77)
+    out = subprocess.check_output(['divine', 'compile',
+                                   '--help'], stderr=subprocess.STDOUT)
+    if b'LTSmin' not in out:
+        print ("divine available but no support for LTSmin",
+	       file=sys.stderr)
+        sys.exit(77)
+
+
 # Load IPython specific support if we can.
 try:
     # Load only if we are running IPython.
     __IPYTHON__
 
-    from IPython.core.magic import (Magics, magics_class, line_cell_magic)
-    from IPython.core.magic_arguments \
-        import (argument, magic_arguments, parse_argstring)
+    from IPython.core.magic import Magics, magics_class, cell_magic
     import os
     import tempfile
-    import sys
-    import shutil
-    try:
-        import ipywidgets as widgets
-    except ImportError:
-        pass
 
-    # This class provides support for %%dve model description
     @magics_class
     class EditDVE(Magics):
 
-        @line_cell_magic
-        def dve(self, line, cell=None):
-            try:
-                # DiViNe prefers when files are in the current directory
-                # so write cell into local file
-                t = tempfile.NamedTemporaryFile(dir=os.getcwd())
-                filename = t.name + '.dve'
-                f = open(filename,"w")
-                f.write(cell)
-                f.close()
+        @cell_magic
+        def dve(self, line, cell):
+            if not line:
+               raise ValueError("missing variable name for %%dve")
+            # DiViNe prefers when files are in the current directory
+            # so write cell into local file
+            with tempfile.NamedTemporaryFile(dir='.', suffix='.dve') as t:
+                t.write(cell.encode('utf-8'))
+                t.flush()
 
-                # Then compile and unlink temporary files
-                import subprocess
-                out=""
-                self.shell.user_ns[line] = None
-                out = subprocess.check_call(['divine', 'compile',
-                                       '--ltsmin', filename])
-                os.unlink(filename)
-                os.unlink(filename + '.cpp')
-                self.shell.user_ns[line] = load(filename + '2C')
-                os.unlink(filename + '2C')
-            except Exception as error:
                 try:
-                    os.unlink(filename)
-                    os.unlink(filename + '.cpp')
+                    p = subprocess.Popen(['divine', 'compile',
+                                          '--ltsmin', t.name],
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.STDOUT,
+                                         universal_newlines=True)
+                    out = p.communicate()
+                    if out[0]:
+                       print(out[0], file=sys.stderr)
+                    ret = p.wait()
+                    if ret:
+                       raise subprocess.CalledProcessError(ret, 'divine')
+                    self.shell.user_ns[line] = load(t.name + '2C')
                 finally:
-                    if out != "":
-                        raise RuntimeError(out) from error
-                    raise error
-
-        @line_cell_magic
-        def require(self, line, cell=None):
-            if line != "divine":
-                print ("Unknown" + line, file=sys.stderr)
-                sys.exit(77)
-            if cell != None:
-                print ("No support for Cell magic command")
-                sys.exit(77)
-            if shutil.which("divine") == None:
-                print ("divine not available", file=sys.stderr)
-                sys.exit(77)
-            import subprocess
-            out = subprocess.check_output(['divine', 'compile',
-                                           '--help'], stderr=subprocess.STDOUT)
-            if b'LTSmin' not in out:
-                print ("divine available but no support for LTSmin",
-		       file=sys.stderr)
-                sys.exit(77)
+                    spot.aux.rm_f(t.name + '.cpp')
+                    spot.aux.rm_f(t.name + '2C')
 
     ip = get_ipython()
     ip.register_magics(EditDVE)
