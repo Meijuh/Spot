@@ -289,11 +289,12 @@ if USE_PYTHON
 TESTS_ipython = \
   python/acc_cond.ipynb \
   python/accparse.ipynb \
-  python/automata.ipynb \
   python/automata-io.ipynb \
+  python/automata.ipynb \
   python/decompose.ipynb \
   python/formulas.ipynb \
   python/highlighting.ipynb \
+  python/ltsmin.ipynb \
   python/piperead.ipynb \
   python/product.ipynb \
   python/randaut.ipynb \
@@ -313,7 +314,6 @@ TESTS_python = \
   python/ltl2tgba.test \
   python/ltlparse.py \
   python/ltlsimple.py \
-  python/ltsmin.ipynb \
   python/minato.py \
   python/optionmap.py \
   python/otfcrash.py \
