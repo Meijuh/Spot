@@ -283,18 +283,31 @@ TESTS_twa = \
 ############################## PYTHON ##############################
 
 if USE_PYTHON
-TESTS_python = \
-  python/_aux.ipynb \
+
+# TESTS_ipython contains notebooks that we also want to publish as
+# part of the documentation.
+TESTS_ipython = \
   python/acc_cond.ipynb \
   python/accparse.ipynb \
-  python/accparse2.py \
-  python/alarm.py \
   python/automata.ipynb \
   python/automata-io.ipynb \
-  python/bddnqueen.py \
   python/decompose.ipynb \
   python/formulas.ipynb \
   python/highlighting.ipynb \
+  python/piperead.ipynb \
+  python/product.ipynb \
+  python/randaut.ipynb \
+  python/randltl.ipynb \
+  python/testingaut.ipynb
+
+# TESTS_python contains all tests.  It may includes notebooks we
+# do not consider part of the documentation: those have to start
+# with a _.
+TESTS_python = \
+  python/_aux.ipynb \
+  python/accparse2.py \
+  python/alarm.py \
+  python/bddnqueen.py \
   python/implies.py \
   python/interdep.py \
   python/ltl2tgba.test \
@@ -305,19 +318,15 @@ TESTS_python = \
   python/optionmap.py \
   python/otfcrash.py \
   python/parsetgba.py \
-  python/piperead.ipynb \
   python/prodexpt.py \
-  python/product.ipynb \
-  python/randaut.ipynb \
   python/randgen.py \
-  python/randltl.ipynb \
   python/relabel.py \
   python/remfin.py \
   python/satmin.py \
   python/setxor.py \
-  python/testingaut.ipynb \
   python/trival.py \
-  python/word.ipynb
+  python/word.ipynb \
+  $(TESTS_ipython)
 endif
 
 CLEANFILES = python/test1.dve python/test1.dve2C python/test1.dve.cpp
@@ -327,7 +336,7 @@ SUFFIXES = .ipynb .html
 	$(IPYTHON) nbconvert $< --to html --stdout >$@
 
 .PHONY: nb-html
-nb-html: $(TESTS_python:.ipynb=.html)
+nb-html: $(TESTS_ipython:.ipynb=.html)
 
 EXTRA_DIST = \
   $(TESTS) \
