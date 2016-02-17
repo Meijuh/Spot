@@ -102,6 +102,32 @@ New in spot 1.99.7a (not yet released)
   * The twa::transition_annotation() and
     twa::compute_support_conditions() methods have been removed.
 
+  * The interface for all functions parsing formulas (LTL, PSL, SERE,
+    etc.) has been changed to use an interface similar to the one used
+    for parsing automata.  These function now return a parsed_formula
+    object that includes both a formula and a list of syntax errors.
+
+    Typically a function written as
+
+       spot::formula read(std::string input)
+       {
+	  spot::parse_error_list pel;
+	  spot::formula f = spot::parse_infix_psl(input, pel);
+	  if (spot::format_parse_errors(std::cerr, input, pel))
+	    exit(2);
+	  return f;
+       }
+
+    should be updated to
+
+       spot::formula read(std::string input)
+       {
+	  spot::parsed_formula pf = spot::parse_infix_psl(input);
+	  if (pf.format_errors(std::cerr))
+	    exit(2);
+	  return pf.f;
+       }
+
   Python:
 
   * The ltsmin interface has been binded in Python.  It also

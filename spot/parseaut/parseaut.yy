@@ -1633,10 +1633,9 @@ nc-formula: nc-formula-or-ident
        auto i = res.fcache.find(*$1);
        if (i == res.fcache.end())
 	 {
-	   spot::parse_error_list pel;
-	   auto f = spot::parse_infix_boolean(*$1, pel, *res.env,
-						   debug_level(), true);
-	   for (auto& j: pel)
+	   auto pf = spot::parse_infix_boolean(*$1, *res.env, debug_level(),
+					       true);
+	   for (auto& j: pf.errors)
 	     {
 	       // Adjust the diagnostic to the current position.
 	       spot::location here = @1;
@@ -1647,8 +1646,9 @@ nc-formula: nc-formula-or-ident
 	       res.h->errors.emplace_back(here, j.second);
 	     }
            bdd cond = bddfalse;
-	   if (f)
-	     cond = spot::formula_to_bdd(f, res.h->aut->get_dict(), res.h->aut);
+	   if (pf.f)
+	     cond = spot::formula_to_bdd(pf.f,
+					 res.h->aut->get_dict(), res.h->aut);
 	   $$ = (res.fcache[*$1] = cond).id();
 	 }
        else
@@ -1814,16 +1814,15 @@ lbtt-acc:               { $$ = 0U; }
 	}
 lbtt-guard: STRING
           {
-	    spot::parse_error_list pel;
-	    auto f = spot::parse_prefix_ltl(*$1, pel, *res.env);
-	    if (!f || !pel.empty())
+	    auto pf = spot::parse_prefix_ltl(*$1, *res.env);
+	    if (!pf.f || !pf.errors.empty())
 	      {
 		std::string s = "failed to parse guard: ";
 		s += *$1;
 		error(@$, s);
 	      }
-	    if (!pel.empty())
-	      for (auto& j: pel)
+	    if (!pf.errors.empty())
+	      for (auto& j: pf.errors)
 		{
 		  // Adjust the diagnostic to the current position.
 		  spot::location here = @1;
@@ -1833,13 +1832,13 @@ lbtt-guard: STRING
 		  here.begin.column += j.first.begin.column - 1;
 		  res.h->errors.emplace_back(here, j.second);
 		}
-	    if (!f)
+	    if (!pf.f)
 	      {
 		res.cur_label = bddtrue;
 	      }
 	    else
 	      {
-		if (!f.is_boolean())
+		if (!pf.f.is_boolean())
 		  {
 		    error(@$,
 			  "non-Boolean transition label (replaced by true)");
@@ -1848,7 +1847,7 @@ lbtt-guard: STRING
 		else
 		  {
 		    res.cur_label =
-		      formula_to_bdd(f, res.h->aut->get_dict(), res.h->aut);
+		      formula_to_bdd(pf.f, res.h->aut->get_dict(), res.h->aut);
 		  }
 	      }
 	    delete $1;

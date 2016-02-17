@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -45,20 +45,18 @@ main(int argc, char** argv)
   int exit_return = 0;
 
   {
-    spot::parse_error_list p1;
-    auto ftmp1 = spot::parse_infix_psl(argv[2], p1);
+    auto ftmp1 = spot::parse_infix_psl(argv[2]);
 
-    if (spot::format_parse_errors(std::cerr, argv[2], p1))
+    if (ftmp1.format_errors(std::cerr))
       return 2;
 
-    spot::parse_error_list p2;
-    auto ftmp2 = spot::parse_infix_psl(argv[3], p2);
+    auto ftmp2 = spot::parse_infix_psl(argv[3]);
 
-    if (spot::format_parse_errors(std::cerr, argv[3], p2))
+    if (ftmp2.format_errors(std::cerr))
       return 2;
 
-    spot::formula f1 = spot::negative_normal_form(ftmp1);
-    spot::formula f2 = spot::negative_normal_form(ftmp2);
+    spot::formula f1 = spot::negative_normal_form(ftmp1.f);
+    spot::formula f2 = spot::negative_normal_form(ftmp2.f);
 
     std::string f1s = spot::str_psl(f1);
     std::string f2s = spot::str_psl(f2);

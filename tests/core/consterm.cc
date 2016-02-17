@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2015 Laboratoire de Recherche et
-// Dévelopement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2015, 2016 Laboratoire de Recherche
+// et Dévelopement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -58,12 +58,11 @@ main(int argc, char **argv)
       std::getline(ss, form, ',');
       ss >> expected;
 
-      spot::parse_error_list p1;
-      auto f1 = spot::parse_infix_sere(form, p1);
-      if (spot::format_parse_errors(std::cerr, form, p1))
+      auto pf1 = spot::parse_infix_sere(form);
+      if (pf1.format_errors(std::cerr))
 	return 2;
 
-      bool b = f1.accepts_eword();
+      bool b = pf1.f.accepts_eword();
       std::cout << form << ',' << b << '\n';
       if (b != expected)
 	{

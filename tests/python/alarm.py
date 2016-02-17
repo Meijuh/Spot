@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2012, 2014, 2015  Laboratoire de Recherche et Développement
-# de l'Epita
+# Copyright (C) 2012, 2014, 2015, 2016 Laboratoire de Recherche et
+# Développement de l'Epita
 #
 # This file is part of Spot, a model checking library.
 #
@@ -43,8 +43,7 @@ P_Rbt2.moins || P_Rbt2.stop))-> G((F "map[0]==1") && (F "map[1]==1")
 "map[9]==3")))"""
 
 e = spot.default_environment.instance()
-p = spot.empty_parse_error_list()
-f = spot.parse_infix_psl(f, p, e)
+pf = spot.parse_infix_psl(f, e)
 d = spot.make_bdd_dict()
 
 spot.unblock_signal(signal.SIGALRM)
@@ -58,9 +57,9 @@ if child != 0:
     # If the child returns, before we get the alarm it's a bug.
     exit(1)
 
-# This is expected to take WAY more that 2s.
+# This is expected to take WAY more than 2s.
 print("Before")
-spot.ltl_to_tgba_fm(f, d, True)
+spot.ltl_to_tgba_fm(pf.f, d, True)
 print("After")
 
 exit(1)

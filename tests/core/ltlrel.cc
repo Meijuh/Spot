@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Developement
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et Developement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -38,11 +38,10 @@ main(int argc, char **argv)
     syntax(argv[0]);
 
   {
-    spot::parse_error_list p1;
-    auto f1 = spot::parse_infix_psl(argv[1], p1);
-
-    if (spot::format_parse_errors(std::cerr, argv[1], p1))
+    auto pf1 = spot::parse_infix_psl(argv[1]);
+    if (pf1.format_errors(std::cerr))
       return 2;
+    auto f1 = pf1.f;
 
     spot::relabeling_map* m = new spot::relabeling_map;
     auto f2 = spot::relabel_bse(f1, spot::Pnn, m);

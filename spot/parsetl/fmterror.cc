@@ -72,11 +72,10 @@ namespace spot
 			    const parse_error_list& error_list)
     {
       bool printed = false;
-      parse_error_list::const_iterator it;
-      for (it = error_list.begin(); it != error_list.end(); ++it)
+      for (auto it: error_list)
 	{
-	  os << ">>> " << ltl_string << std::endl;
-	  const location& l = it->first;
+	  os << ">>> " << ltl_string << '\n';
+	  const location& l = it.first;
 
 	  unsigned n = 1;
 	  for (; n < 4 + l.begin.column; ++n)
@@ -86,7 +85,7 @@ namespace spot
 	  ++n;
 	  for (; n < 4 + l.end.column; ++n)
 	    os << '^';
-	  os << std::endl << it->second << std::endl << std::endl;
+	  os << '\n' << it.second << "\n\n";
 	  printed = true;
 	}
       return printed;
@@ -94,19 +93,17 @@ namespace spot
   }
 
   bool
-  format_parse_errors(std::ostream& os,
-		      const std::string& ltl_string,
-		      const parse_error_list& error_list)
+  parsed_formula::format_errors(std::ostream& os)
   {
-    if (utf8::is_valid(ltl_string.begin(), ltl_string.end()))
+    if (utf8::is_valid(input.begin(), input.end()))
       {
-	parse_error_list fixed = error_list;
-	fix_utf8_locations(ltl_string, fixed);
-	return format_parse_errors_aux(os, ltl_string, fixed);
+	parse_error_list fixed = errors;
+	fix_utf8_locations(input, fixed);
+	return format_parse_errors_aux(os, input, fixed);
       }
     else
       {
-	return format_parse_errors_aux(os, ltl_string, error_list);
+	return format_parse_errors_aux(os, input, errors);
       }
   }
 }

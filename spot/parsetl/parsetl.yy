@@ -1,5 +1,5 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
+** Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
 ** de Recherche et Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ** Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -120,25 +120,24 @@ using namespace spot;
 	  return nullptr;
 	}
 
-      spot::parse_error_list suberror;
-      formula f;
+      spot::parsed_formula pf;
       switch (type)
 	{
 	case parser_sere:
-	  f = spot::parse_infix_sere(str, suberror, env, debug, true);
+	  pf = spot::parse_infix_sere(str, env, debug, true);
 	  break;
 	case parser_bool:
-	  f = spot::parse_infix_boolean(str, suberror, env, debug, true);
+	  pf = spot::parse_infix_boolean(str, env, debug, true);
 	  break;
 	case parser_ltl:
-	  f = spot::parse_infix_psl(str, suberror, env, debug, true);
+	  pf = spot::parse_infix_psl(str, env, debug, true);
 	  break;
 	}
 
-      if (suberror.empty())
-	return f;
+      if (pf.errors.empty())
+	return pf.f;
 
-      f = env.require(str);
+      auto f = env.require(str);
       if (!f)
 	{
 	  std::string s = "atomic proposition `";
@@ -993,69 +992,65 @@ tlyy::parser::error(const location_type& location, const std::string& message)
 
 namespace spot
 {
-  formula
+  parsed_formula
   parse_infix_psl(const std::string& ltl_string,
-		  parse_error_list& error_list,
 		  environment& env,
 		  bool debug, bool lenient)
   {
-    formula result = nullptr;
+    parsed_formula result(ltl_string);
     flex_set_buffer(ltl_string,
 		    tlyy::parser::token::START_LTL,
 		    lenient);
-    tlyy::parser parser(error_list, env, result);
+    tlyy::parser parser(result.errors, env, result.f);
     parser.set_debug_level(debug);
     parser.parse();
     flex_unset_buffer();
     return result;
   }
 
-  formula
+  parsed_formula
   parse_infix_boolean(const std::string& ltl_string,
-		      parse_error_list& error_list,
 		      environment& env,
 		      bool debug, bool lenient)
   {
-    formula result = nullptr;
+    parsed_formula result(ltl_string);
     flex_set_buffer(ltl_string,
 		    tlyy::parser::token::START_BOOL,
 		    lenient);
-    tlyy::parser parser(error_list, env, result);
+    tlyy::parser parser(result.errors, env, result.f);
     parser.set_debug_level(debug);
     parser.parse();
     flex_unset_buffer();
     return result;
   }
 
-  formula
+  parsed_formula
   parse_prefix_ltl(const std::string& ltl_string,
-		   parse_error_list& error_list,
 		   environment& env,
 		   bool debug)
   {
-    formula result = nullptr;
+    parsed_formula result(ltl_string);
     flex_set_buffer(ltl_string,
 		    tlyy::parser::token::START_LBT,
 		    false);
-    tlyy::parser parser(error_list, env, result);
+    tlyy::parser parser(result.errors, env, result.f);
     parser.set_debug_level(debug);
     parser.parse();
     flex_unset_buffer();
     return result;
   }
 
-  formula
+  parsed_formula
   parse_infix_sere(const std::string& sere_string,
-		   parse_error_list& error_list,
 		   environment& env,
 		   bool debug,
 		   bool lenient)
   {
-    formula result = nullptr;
+    parsed_formula result(sere_string);
     flex_set_buffer(sere_string,
 		    tlyy::parser::token::START_SERE,
 		    lenient);
-    tlyy::parser parser(error_list, env, result);
+    tlyy::parser parser(result.errors, env, result.f);
     parser.set_debug_level(debug);
     parser.parse();
     flex_unset_buffer();
@@ -1065,19 +1060,17 @@ namespace spot
   formula
   parse_formula(const std::string& ltl_string, environment& env)
   {
-    parse_error_list pel;
-    formula f = parse_infix_psl(ltl_string, pel, env);
+    parsed_formula pf = parse_infix_psl(ltl_string, env);
     std::ostringstream s;
-    if (format_parse_errors(s, ltl_string, pel))
+    if (pf.format_errors(s))
       {
-	parse_error_list pel2;
-	formula g = parse_prefix_ltl(ltl_string, pel2, env);
-	if (pel2.empty())
-	  return g;
+	parsed_formula pg = parse_prefix_ltl(ltl_string, env);
+	if (pg.errors.empty())
+	  return pg.f;
 	else
 	  throw parse_error(s.str());
       }
-    return f;
+    return pf.f;
   }
 }
 

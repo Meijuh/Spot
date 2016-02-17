@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2012, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2012, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -55,12 +55,13 @@ main(int argc, char** argv)
 
   {
     spot::environment& env(spot::default_environment::instance());
-    spot::parse_error_list pel;
-    auto f = spot::parse_infix_psl(argv[formula_index], pel, env, debug);
 
-    exit_code =
-      spot::format_parse_errors(std::cerr, argv[formula_index], pel);
-
+    auto f = [&]()
+    {
+      auto pf = spot::parse_infix_psl(argv[formula_index], env, debug);
+      exit_code = pf.format_errors(std::cerr);
+      return pf.f;
+    }();
 
     if (f)
       {

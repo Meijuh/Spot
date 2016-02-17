@@ -435,19 +435,18 @@ for g in form.getlist('g'):
 formula = form.getfirst('f', '')
 
 env = spot.default_environment.instance()
-pel = spot.empty_parse_error_list()
-f = spot.parse_infix_psl(formula, pel, env)
+pf = spot.parse_infix_psl(formula, env)
 
-if pel:
+if pf.errors:
     # Try the LBT parser in case someone is throwing LBT formulas at us.
-    pel2 = spot.empty_parse_error_list()
-    g = spot.parse_prefix_ltl(formula, pel2, env)
-    if pel2:
+    pg = spot.parse_prefix_ltl(formula, env)
+    if pg.errors:
         unbufprint('<div class="parse-error">')
-        err = spot.format_parse_errors(spot.get_cout(), formula, pel)
+        err = pf.format_errors(spot.get_cout())
         unbufprint('</div>')
+        f = pf.f
     else:
-        f = g
+        f = pg.f
 
 # Do not continue if we could not parse anything sensible.
 if not f:

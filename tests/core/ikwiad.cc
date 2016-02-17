@@ -908,11 +908,11 @@ checked_main(int argc, char** argv)
 	case TransTAA:
 	case TransCompo:
 	  {
-	    spot::parse_error_list pel;
 	    tm.start("parsing formula");
-	    f = spot::parse_infix_psl(input, pel, env, debug_opt);
+	    auto pf = spot::parse_infix_psl(input, env, debug_opt);
 	    tm.stop("parsing formula");
-	    exit_code = spot::format_parse_errors(std::cerr, input, pel);
+	    exit_code = pf.format_errors(std::cerr);
+	    f = pf.f;
 	  }
 	  break;
 	}

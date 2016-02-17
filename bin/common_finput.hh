@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -44,8 +44,7 @@ extern const struct argp finput_argp;
 
 int parse_opt_finput(int key, char* arg, struct argp_state* state);
 
-spot::formula
-parse_formula(const std::string& s, spot::parse_error_list& error_list);
+spot::parsed_formula parse_formula(const std::string& s);
 
 
 class job_processor

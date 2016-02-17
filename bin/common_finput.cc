@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -76,14 +76,14 @@ parse_opt_finput(int key, char* arg, struct argp_state*)
   return 0;
 }
 
-spot::formula
-parse_formula(const std::string& s, spot::parse_error_list& pel)
+spot::parsed_formula
+parse_formula(const std::string& s)
 {
   if (lbt_input)
-    return spot::parse_prefix_ltl(s, pel);
+    return spot::parse_prefix_ltl(s);
   else
     return spot::parse_infix_psl
-      (s, pel, spot::default_environment::instance(), false, lenient);
+      (s, spot::default_environment::instance(), false, lenient);
 }
 
 job_processor::job_processor()
@@ -108,17 +108,16 @@ job_processor::process_string(const std::string& input,
 			      const char* filename,
 			      int linenum)
 {
-  spot::parse_error_list pel;
-  auto f = parse_formula(input, pel);
+  auto pf = parse_formula(input);
 
-  if (!f || !pel.empty())
+  if (!pf.f || !pf.errors.empty())
     {
       if (filename)
 	error_at_line(0, 0, filename, linenum, "parse error:");
-      spot::format_parse_errors(std::cerr, input, pel);
+      pf.format_errors(std::cerr);
       return 1;
     }
-  return process_formula(f, filename, linenum);
+  return process_formula(pf.f, filename, linenum);
 }
 
 int

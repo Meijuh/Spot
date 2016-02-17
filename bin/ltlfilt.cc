@@ -288,11 +288,10 @@ static std::string unabbreviate;
 static spot::formula
 parse_formula_arg(const std::string& input)
 {
-  spot::parse_error_list pel;
-  spot::formula f = parse_formula(input, pel);
-  if (spot::format_parse_errors(std::cerr, input, pel))
+  spot::parsed_formula pf = parse_formula(input);
+  if (pf.format_errors(std::cerr))
     error(2, 0, "parse error when parsing an argument");
-  return f;
+  return pf.f;
 }
 
 static int
@@ -482,20 +481,19 @@ namespace
     process_string(const std::string& input,
 		    const char* filename = nullptr, int linenum = 0)
     {
-      spot::parse_error_list pel;
-      spot::formula f = parse_formula(input, pel);
+      spot::parsed_formula pf = parse_formula(input);
 
-      if (!f || pel.size() > 0)
+      if (!pf.f || !pf.errors.empty())
 	  {
 	    if (!ignore_errors)
 	      {
 		if (filename)
 		  error_at_line(0, 0, filename, linenum, "parse error:");
-		spot::format_parse_errors(std::cerr, input, pel);
+		pf.format_errors(std::cerr);
 	      }
 
 	    if (error_style == skip_errors)
-	      std::cout << input << std::endl;
+	      std::cout << input << '\n';
 	    else
 	      assert(error_style == drop_errors);
 	    check_cout();
@@ -503,7 +501,7 @@ namespace
 	  }
       try
 	{
-	  return process_formula(f, filename, linenum);
+	  return process_formula(pf.f, filename, linenum);
 	}
       catch (const std::runtime_error& e)
 	{

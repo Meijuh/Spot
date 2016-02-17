@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -85,11 +85,11 @@ main(int argc, char** argv)
       if (s.empty() || s[0] == '#') // Skip comments
 	continue;
 
-      spot::parse_error_list pe;
-      auto f = spot::parse_infix_psl(s, pe);
+      auto pf = spot::parse_infix_psl(s);
 
-      if (spot::format_parse_errors(std::cerr, s, pe))
+      if (pf.format_errors(std::cerr))
 	return 2;
+      auto f = pf.f;
 
 
       {

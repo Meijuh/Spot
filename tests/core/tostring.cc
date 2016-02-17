@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2012, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2012, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -40,11 +40,10 @@ main(int argc, char **argv)
     syntax(argv[0]);
 
   {
-    spot::parse_error_list p1;
-    auto f1 = spot::parse_infix_psl(argv[1], p1);
-
-    if (spot::format_parse_errors(std::cerr, argv[1], p1))
+    auto pf1 = spot::parse_infix_psl(argv[1]);
+    if (pf1.format_errors(std::cerr))
       return 2;
+    auto f1 = pf1.f;
 
     // The string generated from an abstract tree should be parsable
     // again.
@@ -52,10 +51,10 @@ main(int argc, char **argv)
     std::string f1s = spot::str_psl(f1);
     std::cout << f1s << '\n';
 
-    auto f2 = spot::parse_infix_psl(f1s, p1);
-
-    if (spot::format_parse_errors(std::cerr, f1s, p1))
+    auto pf2 = spot::parse_infix_psl(f1s);
+    if (pf2.format_errors(std::cerr))
       return 2;
+    auto f2 = pf2.f;
 
     // This second abstract tree should be equal to the first.
 

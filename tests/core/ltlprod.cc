@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2012, 2014, 2015 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2012, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -46,17 +46,15 @@ main(int argc, char** argv)
   {
     spot::environment& env(spot::default_environment::instance());
 
-    spot::parse_error_list pel1;
-    auto f1 = spot::parse_infix_psl(argv[1], pel1, env);
-
-    if (spot::format_parse_errors(std::cerr, argv[1], pel1))
+    auto pf1 = spot::parse_infix_psl(argv[1], env);
+    if (pf1.format_errors(std::cerr))
       return 2;
+    auto f1 = pf1.f;
 
-    spot::parse_error_list pel2;
-    auto f2 = spot::parse_infix_psl(argv[2], pel2, env);
-
-    if (spot::format_parse_errors(std::cerr, argv[2], pel2))
+    auto pf2 = spot::parse_infix_psl(argv[2], env);
+    if (pf2.format_errors(std::cerr))
       return 2;
+    auto f2 = pf2.f;
 
     auto dict = spot::make_bdd_dict();
     {

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016 Laboratoire
 // de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -860,15 +860,14 @@ main(int argc, char** argv)
 		break;
 	      else if (input == "")
 		break;
-              spot::parse_error_list pel;
-              auto f = spot::parse_infix_psl(input, pel, env);
-              if (spot::format_parse_errors(std::cerr, input, pel))
+              auto pf = spot::parse_infix_psl(input, env);
+              if (pf.format_errors(std::cerr))
 		{
 		  exit_code = 1;
 		  break;
 		}
-              formula = spot::ltl_to_tgba_fm(f, dict, true);
-              auto* tmp = spot::atomic_prop_collect(f);
+              formula = spot::ltl_to_tgba_fm(pf.f, dict, true);
+              auto* tmp = spot::atomic_prop_collect(pf.f);
               for (auto i: *tmp)
 		apf->insert(i);
               delete tmp;

@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2012, 2014, 2015 Laboratoire de Recherche et
+# Copyright (C) 2009, 2010, 2012, 2014, 2015, 2016 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -24,22 +24,21 @@ import sys
 import spot
 
 e = spot.default_environment.instance()
-p = spot.empty_parse_error_list()
 
 l = ['GFa', 'a U (((b)) xor c)', '!(FFx <=> Fx)', 'a \/ a \/ b \/ a \/ a'];
 
 for str1 in l:
-    f = spot.parse_infix_psl(str1, p, e, False)
-    if spot.format_parse_errors(spot.get_cout(), str1, p):
+    pf = spot.parse_infix_psl(str1, e, False)
+    if pf.format_errors(spot.get_cout()):
         sys.exit(1)
-    str2 = str(f)
-    del f
+    str2 = str(pf.f)
+    del pf
     sys.stdout.write(str2 + "\n")
     # Try to reparse the stringified formula
-    f = spot.parse_infix_psl(str2, p, e)
-    if spot.format_parse_errors(spot.get_cout(), str2, p):
+    pf = spot.parse_infix_psl(str2, e)
+    if pf.format_errors(spot.get_cout()):
         sys.exit(1)
-    sys.stdout.write(str(f) + "\n")
-    del f
+    sys.stdout.write(str(pf.f) + "\n")
+    del pf
 
 assert spot.fnode_instances_check()

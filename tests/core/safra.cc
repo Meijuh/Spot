@@ -111,13 +111,12 @@ int main(int argc, char* argv[])
   spot::twa_graph_ptr res;
   if (in_ltl)
     {
-      spot::parse_error_list pel;
-      spot::formula f = spot::parse_infix_psl(input, pel);
-      if (spot::format_parse_errors(std::cerr, input, pel))
+      auto pf = spot::parse_infix_psl(input);
+      if (pf.format_errors(std::cerr))
         return 2;
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
-      auto tmp = trans.run(f);
+      auto tmp = trans.run(pf.f);
       res = spot::tgba_determinize(tmp, pretty_print, scc_opt,
 				   use_bisim, use_stutter);
     }

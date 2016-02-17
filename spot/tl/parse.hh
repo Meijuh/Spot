@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -45,10 +45,40 @@ namespace spot
   struct parse_error_list {};
 #endif
 
+  /// \brief The result of a formula parser.
+  struct SPOT_API parsed_formula final
+  {
+    /// \brief The parsed formula.
+    ///
+    /// This could be formula(nullptr) in case of a serious parse error.
+    formula f = nullptr;
+
+    /// The input text, before parsing.
+    std::string input;
+
+    /// \brief Syntax errors that occurred during parsing.
+    ///
+    /// Note that the parser does not print any diagnostic.
+    /// Deciding how to output those errors is up to you.
+    ///
+    /// \see format_errors
+    parse_error_list errors;
+
+    parsed_formula(const std::string& str = "")
+      : input(str)
+    {
+    }
+
+    /// \brief Format diagnostics.
+    ///
+    /// \param os Where diagnostics should be output.
+    /// \return \c true iff any diagnostic was output.
+    bool format_errors(std::ostream& os);
+  };
+
+
   /// \brief Build a formula from an LTL string.
   /// \param ltl_string The string to parse.
-  /// \param error_list A list that will be filled with
-  ///        parse errors that occured during parsing.
   /// \param env The environment into which parsing should take place.
   /// \param debug When true, causes the parser to trace its execution.
   /// \param lenient When true, parenthesized blocks that cannot be
@@ -57,59 +87,56 @@ namespace spot
   /// \return A formula built from \a ltl_string, or
   ///         formula(nullptr) if the input was unparsable.
   ///
-  /// Note that the parser usually tries to recover from errors.  It can
-  /// return a non zero value even if it encountered error during the
-  /// parsing of \a ltl_string.  If you want to make sure \a ltl_string
-  /// was parsed succesfully, check \a error_list for emptiness.
+  ///
+  /// Note that the parser usually tries to recover from errors.  The
+  /// field parsed_formula::f in the returned object can be a non-zero
+  /// value even if it encountered error during the parsing of \a
+  /// ltl_string.  If you want to make sure \a ltl_string was parsed
+  /// succesfully, check \a parsed_formula::errors for emptiness.
   ///
   /// \warning This function is not reentrant.
   SPOT_API
-  formula parse_infix_psl(const std::string& ltl_string,
-			  parse_error_list& error_list,
-			  environment& env =
-			  default_environment::instance(),
-			  bool debug = false,
-			  bool lenient = false);
+  parsed_formula parse_infix_psl(const std::string& ltl_string,
+				 environment& env =
+				 default_environment::instance(),
+				 bool debug = false,
+				 bool lenient = false);
 
   /// \brief Build a Boolean formula from a string.
   /// \param ltl_string The string to parse.
-  /// \param error_list A list that will be filled with
-  ///        parse errors that occured during parsing.
   /// \param env The environment into which parsing should take place.
   /// \param debug When true, causes the parser to trace its execution.
   /// \param lenient When true, parenthesized blocks that cannot be
   ///                parsed as subformulas will be considered as
   ///                atomic propositions.
-  /// \return A formula built from \a ltl_string, or
-  ///         formula(nullptr) if the input was unparsable.
+  /// \return A parsed_formula
   ///
-  /// Note that the parser usually tries to recover from errors.  It can
-  /// return a non zero value even if it encountered error during the
-  /// parsing of \a ltl_string.  If you want to make sure \a ltl_string
-  /// was parsed succesfully, check \a error_list for emptiness.
+  /// Note that the parser usually tries to recover from errors.  The
+  /// field parsed_formula::f in the returned object can be a non-zero
+  /// value even if it encountered error during the parsing of \a
+  /// ltl_string.  If you want to make sure \a ltl_string was parsed
+  /// succesfully, check \a parsed_formula::errors for emptiness.
   ///
   /// \warning This function is not reentrant.
   SPOT_API
-  formula parse_infix_boolean(const std::string& ltl_string,
-			      parse_error_list& error_list,
-			      environment& env =
-			      default_environment::instance(),
-			      bool debug = false,
-			      bool lenient = false);
+  parsed_formula parse_infix_boolean(const std::string& ltl_string,
+				     environment& env =
+				     default_environment::instance(),
+				     bool debug = false,
+				     bool lenient = false);
 
   /// \brief Build a formula from an LTL string in LBT's format.
   /// \param ltl_string The string to parse.
-  /// \param error_list A list that will be filled with
-  ///        parse errors that occured during parsing.
   /// \param env The environment into which parsing should take place.
   /// \param debug When true, causes the parser to trace its execution.
   /// \return A formula built from \a ltl_string, or
   ///         formula(nullptr) if the input was unparsable.
   ///
-  /// Note that the parser usually tries to recover from errors.  It can
-  /// return an non zero value even if it encountered error during the
-  /// parsing of \a ltl_string.  If you want to make sure \a ltl_string
-  /// was parsed succesfully, check \a error_list for emptiness.
+  /// Note that the parser usually tries to recover from errors.  The
+  /// field parsed_formula::f in the returned object can be a non-zero
+  /// value even if it encountered error during the parsing of \a
+  /// ltl_string.  If you want to make sure \a ltl_string was parsed
+  /// succesfully, check \a parsed_formula::errors for emptiness.
   ///
   /// The LBT syntax, also used by the lbtt and scheck tools, is
   /// extended to support W, and M operators (as done in lbtt), and
@@ -117,11 +144,10 @@ namespace spot
   ///
   /// \warning This function is not reentrant.
   SPOT_API
-  formula parse_prefix_ltl(const std::string& ltl_string,
-			   parse_error_list& error_list,
-			   environment& env =
-			   default_environment::instance(),
-			   bool debug = false);
+  parsed_formula parse_prefix_ltl(const std::string& ltl_string,
+				  environment& env =
+				  default_environment::instance(),
+				  bool debug = false);
 
   /// \brief A simple wrapper to parse_infix_psl() and parse_prefix_ltl().
   ///
@@ -135,8 +161,6 @@ namespace spot
 
   /// \brief Build a formula from a string representing a SERE.
   /// \param sere_string The string to parse.
-  /// \param error_list A list that will be filled with
-  ///        parse errors that occured during parsing.
   /// \param env The environment into which parsing should take place.
   /// \param debug When true, causes the parser to trace its execution.
   /// \param lenient When true, parenthesized blocks that cannot be
@@ -145,37 +169,19 @@ namespace spot
   /// \return A formula built from \a sere_string, or
   ///         formula(0) if the input was unparsable.
   ///
-  /// Note that the parser usually tries to recover from errors.  It can
-  /// return an non zero value even if it encountered error during the
-  /// parsing of \a ltl_string.  If you want to make sure \a ltl_string
-  /// was parsed succesfully, check \a error_list for emptiness.
+  /// Note that the parser usually tries to recover from errors.  The
+  /// field parsed_formula::f in the returned object can be a non-zero
+  /// value even if it encountered error during the parsing of \a
+  /// ltl_string.  If you want to make sure \a ltl_string was parsed
+  /// succesfully, check \a parsed_formula::errors for emptiness.
   ///
   /// \warning This function is not reentrant.
   SPOT_API
-  formula parse_infix_sere(const std::string& sere_string,
-			   parse_error_list& error_list,
-			   environment& env =
-			   default_environment::instance(),
-			   bool debug = false,
-			   bool lenient = false);
-
-  /// \brief Format diagnostics produced by spot::parse
-  ///        or spot::ratexp
-  ///
-  /// If the string is utf8 encoded, spot::fix_utf8_locations()
-  /// will be used to report correct utf8 locations (assuming the
-  /// output is utf8 aware).  Nonetheless, the supplied \a
-  /// error_list will not be modified.
-  ///
-  /// \param os Where diagnostics should be output.
-  /// \param input_string The string that were parsed.
-  /// \param error_list The error list filled by spot::parse
-  ///        or spot::parse_sere while parsing \a input_string.
-  /// \return \c true iff any diagnostic was output.
-  SPOT_API
-  bool format_parse_errors(std::ostream& os,
-			   const std::string& input_string,
-			   const parse_error_list& error_list);
+  parsed_formula parse_infix_sere(const std::string& sere_string,
+				  environment& env =
+				  default_environment::instance(),
+				  bool debug = false,
+				  bool lenient = false);
 
   /// \brief Fix location of diagnostics assuming the input is utf8.
   ///

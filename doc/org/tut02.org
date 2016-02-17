@@ -85,10 +85,10 @@ destructor.
   int main()
   {
     std::string input = "\"Proc@Here\" U (\"var > 10\" | \"var < 4\")";
-    spot::parse_error_list pel;
-    spot::formula f = spot::parse_infix_psl(input, pel);
-    if (spot::format_parse_errors(std::cerr, input, pel))
+    spot::parsed_formula pf = spot::parse_infix_psl(input);
+    if (pf.format_errors(std::cerr))
       return 1;
+    spot::formula f = pf.f;
     spot::relabeling_map m;
     f = spot::relabel(f, spot::Pnn, &m);
     for (auto& i: m)

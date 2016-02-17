@@ -192,9 +192,9 @@ checked_main(int argc, char **argv)
 
   tm.start("parsing formula");
   {
-    spot::parse_error_list pel;
-    f = spot::parse_infix_psl(argv[2], pel, env, false);
-    exit_code = spot::format_parse_errors(std::cerr, argv[2], pel);
+    auto pf = spot::parse_infix_psl(argv[2], env, false);
+    exit_code = pf.format_errors(std::cerr);
+    f = pf.f;
   }
   tm.stop("parsing formula");
 

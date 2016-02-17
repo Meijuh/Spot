@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*_
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016 Laboratoire
 // de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2006, 2007 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -178,17 +178,17 @@ main(int argc, char** argv)
 	  }
 	while (input == "");
 
-	spot::parse_error_list p1;
-	f1 = spot::parse_infix_psl(input, p1);
-	if (spot::format_parse_errors(std::cerr, input, p1))
+	auto pf1 = spot::parse_infix_psl(input);
+	if (pf1.format_errors(std::cerr))
 	  return 2;
+	f1 = pf1.f;
       }
     else
       {
-	spot::parse_error_list p1;
-	f1 = spot::parse_infix_psl(argv[2], p1);
-	if (spot::format_parse_errors(std::cerr, argv[2], p1))
+	auto pf1 = spot::parse_infix_psl(argv[2]);
+	if (pf1.format_errors(std::cerr))
 	  return 2;
+	f1 = pf1.f;
       }
 
     if (argc == 4)
@@ -199,10 +199,10 @@ main(int argc, char** argv)
 	    exit(2);
 	  }
 
-	spot::parse_error_list p2;
-	f2 = spot::parse_infix_psl(argv[3], p2);
-	if (spot::format_parse_errors(std::cerr, argv[3], p2))
+	auto pf2 = spot::parse_infix_psl(argv[3]);
+	if (pf2.format_errors(std::cerr))
 	  return 2;
+	f2 = pf2.f;
       }
 
     {

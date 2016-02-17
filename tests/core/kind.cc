@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2015 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2015, 2016 Laboratoire de Recherche et
 // Developement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -59,9 +59,10 @@ main(int argc, char **argv)
       std::getline(ss, expected);
 
       spot::parse_error_list p1;
-      auto f1 = spot::parse_infix_psl(form, p1);
-      if (spot::format_parse_errors(std::cerr, form, p1))
+      auto pf1 = spot::parse_infix_psl(form);
+      if (pf1.format_errors(std::cerr))
 	return 2;
+      auto f1 = pf1.f;
 
       std::ostringstream so;
       spot::print_formula_props(so, f1, true);

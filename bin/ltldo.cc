@@ -237,19 +237,18 @@ namespace
 		   const char* filename,
 		   int linenum)
     {
-      spot::parse_error_list pel;
-      spot::formula f = parse_formula(input, pel);
+      spot::parsed_formula pf = parse_formula(input);
 
-      if (!f || !pel.empty())
+      if (!pf.f || !pf.errors.empty())
 	{
 	  if (filename)
 	    error_at_line(0, 0, filename, linenum, "parse error:");
-	  spot::format_parse_errors(std::cerr, input, pel);
+	  pf.format_errors(std::cerr);
 	  return 1;
 	}
 
       inputf = input;
-      process_formula(f, filename, linenum);
+      process_formula(pf.f, filename, linenum);
       return 0;
     }
 

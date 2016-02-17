@@ -692,20 +692,6 @@ bool fnode_instances_check()
   return spot::fnode::instances_check();
 }
 
-spot::parse_error_list
-empty_parse_error_list()
-{
-  parse_error_list l;
-  return l;
-}
-
-spot::parse_aut_error_list
-empty_parse_aut_error_list()
-{
-  parse_aut_error_list l;
-  return l;
-}
-
 spot::twa_graph_ptr
 ensure_digraph(const spot::twa_ptr& a)
 {
