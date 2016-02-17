@@ -38,6 +38,7 @@
 		"@abs_top_srcdir@/python:"
 		"@abs_top_builddir@/python/spot/.libs:"
 		"@abs_top_builddir@/python/spot:"
+		"@abs_top_builddir@/spot/ltsmin/.libs"
 		"@abs_top_srcdir@/python/spot:"
 		(getenv "PYTHONPATH")))
 (setenv "DYLD_LIBRARY_PATH"

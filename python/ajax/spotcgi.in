@@ -195,15 +195,10 @@ if ('SERVER_SOFTWARE' in os.environ and
     # Add the build and source directories first in the search path.
     # If we are not in the right place, python will find the installed
     # libraries later.
-    sys.path.insert(0, '@srcdir@/../.libs')
     sys.path.insert(0, '@srcdir@/..')
     sys.path.insert(0, '../.libs')
+    sys.path.insert(0, '../spot/.libs')
     sys.path.insert(0, '..')
-    # Darwin needs some help in figuring out where non-installed libtool
-    # libraries are (on this platform libtool encodes the expected final
-    # path of dependent libraries in each library).
-    m = '../.libs:@top_builddir@/spot/.libs:@top_builddir@/buddy/src/.libs'
-    os.environ['DYLD_LIBRARY_PATH'] = m
 
 try:
     # execfile('ltl2tgba.opt') no longuer work with Python 3.
