@@ -1,2 +1,2 @@
-tests/python/[^_]*.ipynb
+tests/python/[!_]*.ipynb
 tests/python/*.html
