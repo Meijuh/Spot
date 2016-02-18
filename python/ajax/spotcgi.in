@@ -436,6 +436,7 @@ formula = form.getfirst('f', '')
 
 env = spot.default_environment.instance()
 pf = spot.parse_infix_psl(formula, env)
+f = pf.f
 
 if pf.errors:
     # Try the LBT parser in case someone is throwing LBT formulas at us.
@@ -444,7 +445,6 @@ if pf.errors:
         unbufprint('<div class="parse-error">')
         err = pf.format_errors(spot.get_cout())
         unbufprint('</div>')
-        f = pf.f
     else:
         f = pg.f
 
