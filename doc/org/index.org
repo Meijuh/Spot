@@ -40,10 +40,13 @@ The latest version is *{{{LASTRELEASE}}}* and was released on
 - [[http://spot.lrde.epita.fr/doxygen/][Doxygen documentation]], generated automatically from the source code.
 - [[https://spot.lrde.epita.fr/tl.pdf][Definition of the temporal operators supported by Spot]].
 
-* On-line LTL/PSL translator
+* Try Spot On-line
 
 - [[http://spot.lrde.epita.fr/trans.html][Our on-line translator]] provides a convenient way to translate LTL or
-  PSL formulas into automata, without installing Spot.
+  PSL formulas into automata.
+- [[http://spot-sandbox.lrde.epita.fr/][spot-sandbox]] is a Jupyter notebook with a complete installation of
+  Spot that allows you to try the [[file:tools.org][command-line tools]] (using a shell
+  interface) as well as the Python bindings (in an IPython notebook).
 
 * License
 
