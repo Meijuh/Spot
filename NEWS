@@ -1,9 +1,6 @@
-New in spot 1.99.7a (not yet released)
+New in spot 1.99.8 (2016-02-18)
 
   Command-line tools:
-
-  * ltl2tgba and ltldo now support %< and %> in the string passed
-    to --stats when reading formulas from a CSV file.
 
   * ltl2tgba now also support the --generic option (already supported
     by ltldo and autfilt) to lift any restriction on the acceptance
@@ -49,6 +46,9 @@ New in spot 1.99.7a (not yet released)
     generate large automata.  When --determinize is given, option
     --product=0 is implied, since the tests based on products with
     random state-space are pointless for deterministic automata.
+
+  * ltl2tgba and ltldo now support %< and %> in the string passed
+    to --stats when reading formulas from a CSV file.
 
   * ltlfilt's option --size-min=N, --size-max=N, --bsize-min=N, and
     --bsize-max=N have been reimplemented as --size=RANGE and
