@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2014 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2014, 2016 Laboratoire de Recherche et
 // Développement de l'EPITA.
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -236,6 +236,7 @@ extern const bdd bddtrue;
   bool __ge__(bdd* b) { return self->id() >= b->id(); }
   bool __gt__(bdd* b) { return self->id() > b->id(); }
 
+  size_t __hash__() { return self->id(); }
 
   std::string
   __str__(void)
