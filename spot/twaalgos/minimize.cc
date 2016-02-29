@@ -660,7 +660,7 @@ namespace spot
     if (product(min_aut_f, aut_neg_f)->is_empty())
       {
 	// Complement the minimized WDBA.
-	assert(min_aut_f->prop_weak());
+	assert((bool)min_aut_f->prop_weak());
 	auto neg_min_aut_f = remove_fin(dtwa_complement(min_aut_f));
 	if (product(aut_f, neg_min_aut_f)->is_empty())
 	  // Finally, we are now sure that it was safe

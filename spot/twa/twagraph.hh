@@ -434,7 +434,7 @@ namespace spot
 
     acc_cond::mark_t state_acc_sets(unsigned s) const
     {
-      assert(prop_state_acc() || num_sets() == 0);
+      assert((bool)prop_state_acc() || num_sets() == 0);
       for (auto& t: g_.out(s))
 	// Stop at the first edge, since the remaining should be
 	// labeled identically.
@@ -444,7 +444,7 @@ namespace spot
 
     bool state_is_accepting(unsigned s) const
     {
-      assert(prop_state_acc() || num_sets() == 0);
+      assert((bool)prop_state_acc() || num_sets() == 0);
       for (auto& t: g_.out(s))
 	// Stop at the first edge, since the remaining should be
 	// labeled identically.

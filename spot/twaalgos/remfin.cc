@@ -153,7 +153,7 @@ namespace spot
 	     acc_cond::mark_t inf_alone,
 	     acc_cond::mark_t fin_alone)
     {
-      assert(aut->prop_state_acc());
+      assert((bool)aut->prop_state_acc());
 
       scc_info si(aut);
       // For state-based Rabin automata, we check each SCC for
