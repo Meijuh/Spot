@@ -1,5 +1,5 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+** Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
 ** de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
@@ -208,10 +208,12 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 			  lbtt_t = false;
 			  if (end)
 			    while (int c = *end++)
-			      if (c == 's')
-			        lbtt_s = true;
-			      else // c == 't'
-			        lbtt_t = true;
+			      {
+			         if (c == 's')
+			           lbtt_s = true;
+			         else // c == 't'
+			           lbtt_t = true;
+			      }
   		          if (!lbtt_t)
 			    lbtt_s = true;
 			  if (lbtt_states == 0)
