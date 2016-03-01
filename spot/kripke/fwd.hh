@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
+// Copyright (C) 2014, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -28,8 +28,8 @@ namespace spot
   typedef std::shared_ptr<const fair_kripke> const_fair_kripke_ptr;
 
   class kripke;
+  typedef std::shared_ptr<kripke> kripke_ptr;
   typedef std::shared_ptr<const kripke> const_kripke_ptr;
-  typedef std::shared_ptr<kripke> tgba_kripke_ptr;
 
   class kripke_explicit;
   typedef std::shared_ptr<const kripke_explicit> const_kripke_explicit_ptr;
