@@ -366,7 +366,7 @@ $txt
 #+RESULTS:
 [[file:concept-gba-vs-ba2.png]]
 
-* Transition-based, vs. Acceptance-based acceptance
+* Transition-based, vs. State-based acceptance
    :PROPERTIES:
    :CUSTOM_ID: trans-acc
    :END:
@@ -530,7 +530,6 @@ formula.  Everything here is case-sensitive.
 | generalized-Rabin 3 1 0 2 | =(Fin(0) & Inf(1))= \vert{} =Fin(2)= \vert{} =(Fin(3) & (Inf(4)&Inf(5)))=           |
 | parity min odd 5          | =Fin(0) & (Inf(1)= \vert{} =(Fin(2) & (Inf(3)= \vert{} =Fin(4))))=                  |
 | parity max even 5         | =Inf(4)= \vert{} =(Fin(3) & (Inf(2)= \vert{} =(Fin(1) & Inf(0))))=                  |
-
 
 * ω-Automaton with generalized acceptance
    :PROPERTIES:
@@ -761,7 +760,6 @@ $txt
 
 #+RESULTS:
 [[file:concept-dstar.png]]
-
 
 * Hanoi Omega-Automaton format (HOA)
    :PROPERTIES:
