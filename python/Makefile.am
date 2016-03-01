@@ -54,7 +54,7 @@ spot__impl_la_SOURCES = spot/impl_wrap.cxx
 spot__impl_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
 spot__impl_la_LIBADD = $(top_builddir)/spot/libspot.la
 
-spot/impl_wrap.cxx: spot/impl.i
+${srcdir}/spot/impl_wrap.cxx: spot/impl.i
 	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot/impl.i
 
 spot/impl.py: spot/impl.i
@@ -68,7 +68,7 @@ spot__ltsmin_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
 spot__ltsmin_la_LIBADD = $(top_builddir)/spot/libspot.la \
                        $(top_builddir)/spot/ltsmin/libspotltsmin.la
 
-spot/ltsmin_wrap.cxx: spot/ltsmin.i
+${srcdir}/spot/ltsmin_wrap.cxx: spot/ltsmin.i
 	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot/ltsmin.i
 
 spot/ltsmin.py: spot/ltsmin.i
@@ -80,7 +80,7 @@ spot/ltsmin.py: spot/ltsmin.i
 _buddy_la_SOURCES = buddy_wrap.cxx
 _buddy_la_LDFLAGS = -avoid-version -module $(BUDDY_LDFLAGS) $(SYMBOLIC_LDFLAGS)
 
-buddy_wrap.cxx: buddy.i
+${srcdir}/buddy_wrap.cxx: buddy.i
 	$(SWIG) $(SWIGFLAGS) $(BUDDY_CPPFLAGS) $(srcdir)/buddy.i
 
 buddy.py: buddy.i
