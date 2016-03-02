@@ -99,6 +99,7 @@ ORG_FILES = \
   org/tut21.org \
   org/tut22.org \
   org/tut30.org \
+  org/upgrade2.org \
   org/satmin.org \
   org/satmin.tex \
   org/setup.org \

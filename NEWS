@@ -4,6 +4,12 @@ New in spot 1.99.8a (not yet released)
 
   * twa::ap_var() renamed to twa::ap_vars().
 
+  Documentation:
+
+  * The page https://spot.lrde.epita.fr/upgrade2.html should help
+    people migrating old C++ code written for Spot 1.2.x, and update
+    it for Spot 2.0.
+
 New in spot 1.99.8 (2016-02-18)
 
   Command-line tools:

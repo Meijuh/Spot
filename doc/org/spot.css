@@ -34,6 +34,12 @@ img{max-width:100%}
 #table-of-contents{border:1px solid #ffd300}
 #org-div-home-and-up{visibility:hidden}
 }
+
+thead tr {background: #ffe35e;}
+tbody:nth-child(odd) tr:nth-child(even) {background: #fff0a6;}
+tbody:nth-child(odd) tr:nth-child(odd) {background: #fff7cf;}
+tbody:nth-child(even) tr:nth-child(even) {background: #fff3bc;}
+tbody:nth-child(even) tr:nth-child(odd) {background: #fffbe0;}
 .org-keyword{font-weight:bold}
 .org-builtin{font-weight:bold}
 .org-preprocessor{font-weight:bold}
@@ -49,5 +55,7 @@ img{max-width:100%}
 .org-hoa-header-uppercase{font-weight:bold;color:#00adad}
 .org-hoa-header-lowercase{color:#00adad}
 .org-hoa-ap-number{color:#d70079}
-.implem{background:#f1f0a6;padding:0.5ex 1ex 0.5ex 1ex;margin:1ex;border-color:#ffe35e;border-style:solid none}
+.implem{background:#fff0a6;padding:0.5ex 1ex 0.5ex 1ex;margin:1ex;border-color:#ffe35e;border-style:solid none}
 .implem:before{background:#ffe35e;content:"Implementation detail";padding:.5ex;position:relative;top:0;left:0;font-weight:bold}
+.caveat{background:#ef99c9;padding:0.5ex 1ex 0.5ex 1ex;margin:1ex;border-color:#d70079;border-style:solid none}
+.caveat:before{background:#d70079;content:"Caveat";padding:.5ex;position:relative;top:0;left:0;font-weight:bold}

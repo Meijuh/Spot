@@ -6,6 +6,9 @@
 This example demonstrates how to create an automaton and then print it.
 
 * C++
+  :PROPERTIES:
+  :CUSTOM_ID: cpp
+  :END:
 
 #+BEGIN_SRC C++ :results verbatim :exports both :wrap SRC hoa
   #include <iostream>

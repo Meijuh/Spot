@@ -35,10 +35,12 @@ The latest version is *{{{LASTRELEASE}}}* and was released on
 
 * Documentation
 
+- [[file:concepts.org][Basic concepts]].
 - [[file:tools.org][Command-line tools]].
 - [[file:tut.org][Code examples]].
 - [[http://spot.lrde.epita.fr/doxygen/][Doxygen documentation]], generated automatically from the source code.
 - [[https://spot.lrde.epita.fr/tl.pdf][Definition of the temporal operators supported by Spot]].
+- [[file:upgrade2.org][Help for upgrading existing code written for Spot 1.2.x to Spot 2]].
 
 * Try Spot On-line
 
