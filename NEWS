@@ -1,6 +1,8 @@
 New in spot 1.99.8a (not yet released)
 
-  Nothing yet.
+  Library:
+
+  * twa::ap_var() renamed to twa::ap_vars().
 
 New in spot 1.99.8 (2016-02-18)
 

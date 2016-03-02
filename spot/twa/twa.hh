@@ -740,13 +740,13 @@ namespace spot
 
     /// \brief The vector of atomic propositions registered by this
     /// automaton.
-    const std::vector<formula>&  ap() const
+    const std::vector<formula>& ap() const
     {
       return aps_;
     }
 
     /// \brief The set of atomic propositions as a conjunction.
-    bdd ap_var() const
+    bdd ap_vars() const
     {
       return bddaps_;
     }

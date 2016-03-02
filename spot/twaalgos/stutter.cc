@@ -272,13 +272,13 @@ namespace spot
   twa_graph_ptr
   sl(const twa_graph_ptr& a)
   {
-    return sl(a, a->ap_var());
+    return sl(a, a->ap_vars());
   }
 
   twa_graph_ptr
   sl2(const twa_graph_ptr& a)
   {
-    return sl2(a, a->ap_var());
+    return sl2(a, a->ap_vars());
   }
 
   twa_graph_ptr
@@ -349,7 +349,7 @@ namespace spot
   sl2(twa_graph_ptr&& a, bdd atomic_propositions)
   {
     if (atomic_propositions == bddfalse)
-      atomic_propositions = a->ap_var();
+      atomic_propositions = a->ap_vars();
     unsigned num_states = a->num_states();
     unsigned num_edges = a->num_edges();
     std::vector<bdd> selfloops(num_states, bddfalse);
@@ -628,7 +628,7 @@ namespace spot
       }
 
     is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),
-				   std::move(neg), aut->ap_var());
+				   std::move(neg), aut->ap_vars());
     aut->prop_stutter_invariant(is_stut);
     return is_stut;
   }
