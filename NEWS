@@ -10,6 +10,11 @@ New in spot 1.99.8a (not yet released)
     people migrating old C++ code written for Spot 1.2.x, and update
     it for Spot 2.0.
 
+  Bug fixes:
+
+  * spot/twaalgos/gtec/gtec.hh was incorrectly installed as
+  spot/tgbaalgos/gtec/gtec.hh.
+
 New in spot 1.99.8 (2016-02-18)
 
   Command-line tools:
