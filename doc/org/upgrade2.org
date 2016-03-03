@@ -460,8 +460,9 @@ name:
           ("myalgorithm() can only works with generalized Büchi acceptance");
 #+END_SRC
 
-- Some methods of the =tgba= class have been removed.  If you
-  wrote a subclass, you may simply remove the following methods:
+- Some methods of the =tgba= class have been removed, include some
+  pure virtual methods. If you wrote a subclass, you may simply remove
+  the following methods:
   - =compute_support_conditions()=,
   - =compute_support_variables()=,
   - =transition_annotation()=,
@@ -483,6 +484,12 @@ name:
     should be the same as what =!done()= would return, and can be used
     to avoid some costly calls to the =done()= virtual function.
 
+- Membership to acceptance sets is now represented using a bit set
+  (instead of BDDs).  An T\omega{}A =aut= uses =aut->num_sets()=
+  acceptance sets numbered from =0= to =aut->num_sets()-1=.  The bit
+  sets are implemented as instances of =spot::acc_cond::mark_t=, so
+  they are also called "acceptance marks".
+
 - The =twa::release_iter()= method allow iterators to be recycled.
   Each =twa= now contains a mutable field =iter_cache_= where
   =release_iter()= stores the last returned iterator.  If this field
@@ -499,7 +506,7 @@ name:
       // ...
       if (iter_cache_)
 	{
-	   my_iterator* it = down_cast<my_iterator*>(iter_cache_);
+	   my_iterator* it = static_cast<my_iterator*>(iter_cache_);
 	   iter_cache_ = nullptr;
 	   // Some method to change the member that need changing.
 	   // (Here we assume that arg2 is the same for all iterators
@@ -561,7 +568,7 @@ written more efficiently as:
 
 If the original code did $1$ virtual call to =first()=, $n+1$ virtual
 calls to =done()=, and $n$ virtual calls to =next()=, the new version
-do as many calls to =first()= and =done()= while avoiding all the
+does as many calls to =first()= and =done()= while avoiding all the
 calls to =done()=.  Furthermore the call =release_iter()= makes it
 possible for the next call to =succ_iter()= to reuse the same
 iterator.
@@ -582,10 +589,10 @@ for (auto i: aut->succ(s))
   - There should now be very few cases where it is necessary to call
     methods of the BDD dictionary attached to a =twa=.  Registering
     the atomic proposition used by a =twa= should now be done via the
-    =register_ap()= or =copy_ap_of()= methods.  Accessing all
-    registered propositions is achievable with =ap()= or =ap_vars()=.
-    All propositions registered by an automaton are automatically
-    unregistered when the automaton is destroyed.
+    =twa::register_ap()= or =twa::copy_ap_of()= methods.  Accessing
+    all registered propositions is achievable with =twa::ap()= or
+    =twa::ap_vars()=.  All propositions registered by an automaton are
+    automatically unregistered when the automaton is destroyed.
 
 * Various renamings
 
@@ -633,6 +640,11 @@ for (auto i: aut->succ(s))
 | ~ta_succ_iterator::current_condition()~               | ~ta_succ_iterator::cond()~                  |                                              |
 | ~ta_succ_iterator::current_state()~                   | ~ta_succ_iterator::dst()~                   |                                              |
 | ~tgba~                                                | ~twa~                                       |                                              |
+| ~tgba::all_acceptance_conditions()~                   |                                             | use ~tgba::acc().is_accepting()~ instead     |
+| ~tgba::neg_acceptance_conditions()~                   |                                             | deleted                                      |
+| ~tgba::number_of_acceptance_conditions()~             | ~tgba::num_sets()~                          |                                              |
+| ~tgba::support_conditions()~                          |                                             | deleted                                      |
+| ~tgba::support_variables()~                           |                                             | deleted                                      |
 | ~tgba_explicit_formula~                               |                                             | deleted                                      |
 | ~tgba_explicit_number~                                | ~twa_graph~                                 | new implementation                           |
 | ~tgba_explicit_string~                                |                                             | deleted                                      |
