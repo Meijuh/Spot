@@ -803,8 +803,8 @@ if output_type == 'r':
     else:
         ec_a = 0
         n_acc = degen.acc().num_sets()
-        n_max = eci.max_acceptance_conditions()
-        n_min = eci.min_acceptance_conditions()
+        n_max = eci.max_sets()
+        n_min = eci.min_sets()
         if (n_acc <= n_max):
             if (n_acc >= n_min):
                 ec_a = degen

@@ -143,13 +143,13 @@ namespace spot
   }
 
   unsigned int
-  emptiness_check_instantiator::min_acceptance_conditions() const
+  emptiness_check_instantiator::min_sets() const
   {
     return static_cast<ec_algo*>(info_)->min_acc;
   }
 
   unsigned int
-  emptiness_check_instantiator::max_acceptance_conditions() const
+  emptiness_check_instantiator::max_sets() const
   {
     return static_cast<ec_algo*>(info_)->max_acc;
   }

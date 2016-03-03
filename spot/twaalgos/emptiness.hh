@@ -224,15 +224,15 @@ namespace spot
     }
     /// @}
 
-    /// \brief Minimum number of acceptance conditions supported by
+    /// \brief Minimum number of acceptance sets supported by
     /// the emptiness check.
-    unsigned int min_acceptance_conditions() const;
+    unsigned int min_sets() const;
 
     /// \brief Maximum number of acceptance conditions supported by
     /// the emptiness check.
     ///
     /// \return \c -1U if no upper bound exists.
-    unsigned int max_acceptance_conditions() const;
+    unsigned int max_sets() const;
   protected:
     emptiness_check_instantiator(option_map o, void* i);
 

@@ -86,8 +86,7 @@ cons_emptiness_check(int num, spot::const_twa_graph_ptr a,
 		     unsigned int n_acc)
 {
   auto inst = ec_algos[num].inst;
-  if (n_acc < inst->min_acceptance_conditions()
-      || n_acc > inst->max_acceptance_conditions())
+  if (n_acc < inst->min_sets() || n_acc > inst->max_sets())
     a = degen;
   if (a)
     return inst->instantiate(a);

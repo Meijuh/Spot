@@ -1103,7 +1103,7 @@ checked_main(int argc, char** argv)
       if (echeck_inst
 	  && degeneralize_opt == NoDegen
 	  && n_acc > 1
-	  && echeck_inst->max_acceptance_conditions() < n_acc)
+	  && echeck_inst->max_sets() < n_acc)
 	{
 	  degeneralize_opt = DegenTBA;
 	  assume_sba = false;
@@ -1334,7 +1334,7 @@ checked_main(int argc, char** argv)
 	  if (echeck_inst
 	      && degeneralize_opt == NoDegen
 	      && n_acc > 1
-	      && echeck_inst->max_acceptance_conditions() < n_acc)
+	      && echeck_inst->max_sets() < n_acc)
             degeneralize_opt = DegenTBA;
           if (degeneralize_opt == DegenTBA)
 	    {
@@ -1359,13 +1359,13 @@ checked_main(int argc, char** argv)
 
 
       if (echeck_inst
-	  && (a->acc().num_sets() < echeck_inst->min_acceptance_conditions()))
+	  && (a->acc().num_sets() < echeck_inst->min_sets()))
 	{
 	  if (!paper_opt)
 	    {
 	      std::cerr << echeck_algo << " requires at least "
-			<< echeck_inst->min_acceptance_conditions()
-			<< " acceptance conditions." << std::endl;
+			<< echeck_inst->min_sets()
+			<< " acceptance sets." << std::endl;
 	      exit(1);
 	    }
 	  else

@@ -3,6 +3,10 @@ New in spot 1.99.8a (not yet released)
   Library:
 
   * twa::ap_var() renamed to twa::ap_vars().
+  * emptiness_check_instantiator::min_acceptance_conditions() and
+    emptiness_check_instantiator::max_acceptance_conditions() renamed
+    to emptiness_check_instantiator::min_sets() and
+    emptiness_check_instantiator::max_sets().
 
   Documentation:
 

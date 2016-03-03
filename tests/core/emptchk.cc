@@ -132,7 +132,7 @@ main(int argc, char** argv)
 	      auto a = aut[j];
 	      std::cout << "** Testing aut[" << j << "] using " << algo << '\n';
 	      unsigned n_acc = a->acc().num_sets();
-	      unsigned n_max = i->max_acceptance_conditions();
+	      unsigned n_max = i->max_sets();
 	      if (n_max < n_acc)
 		{
 		  std::cout << "Skipping because automaton has " << n_acc
@@ -140,7 +140,7 @@ main(int argc, char** argv)
 			    << " accepts at most " << n_max << ".\n";
 		  continue;
 		}
-	      unsigned n_min = i->min_acceptance_conditions();
+	      unsigned n_min = i->min_sets();
 	      if (n_min > n_acc)
 		{
 		  std::cout << "Skipping because automaton has " << n_acc
