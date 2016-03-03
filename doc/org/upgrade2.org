@@ -586,13 +586,19 @@ for (auto i: aut->succ(s))
   }
 #+END_SRC
 
-  - There should now be very few cases where it is necessary to call
-    methods of the BDD dictionary attached to a =twa=.  Registering
-    the atomic proposition used by a =twa= should now be done via the
-    =twa::register_ap()= or =twa::copy_ap_of()= methods.  Accessing
-    all registered propositions is achievable with =twa::ap()= or
-    =twa::ap_vars()=.  All propositions registered by an automaton are
-    automatically unregistered when the automaton is destroyed.
+- Each =twa= now has a BDD dictionnary, so the =get_dict()= method is
+  implemented once for all in =twa=, and should not be implemented
+  anymore in sub-classes.
+
+- There should now be very few cases where it is necessary to call
+  methods of the BDD dictionary attached to a =twa=.  Registering
+  the atomic proposition used by a =twa= should now be done via the
+  =twa::register_ap()= or =twa::copy_ap_of()= methods.  Accessing
+  all registered propositions is achievable with =twa::ap()= or
+  =twa::ap_vars()=.  All propositions registered by an automaton are
+  automatically unregistered when the automaton is destroyed.
+
+
 
 * Various renamings
 
@@ -603,57 +609,57 @@ for (auto i: aut->succ(s))
   The following is a non-exhaustive list of functions or classes that
   have been renamed.
 
-| old name                                              | new name                                    | comment                                      |
-|-------------------------------------------------------+---------------------------------------------+----------------------------------------------|
-| ~dstar_parse()~                                       | ~parse_aut()~                               | single parser for all automata               |
-| ~dtgba_complement()~                                  | ~dtwa_complement()~                         |                                              |
-| ~dupexp_bfs()~                                        |                                             | deleted                                      |
-| ~dupexp_dfs()~                                        | ~copy()~                                    |                                              |
-| ~format_parse_aut_errors()~                           | ~parsed_aut::format_errors()~               |                                              |
-| ~hoaf_reachable()~                                    | ~print_hoa()~                               |                                              |
-| ~is_guarantee_automaton()~                            | ~is_terminal_automaton()~                   |                                              |
-| ~kripke_parse()~                                      | ~parse_aut()~                               | single parser for all automata               |
-| ~kripke_save_reachable()~                             | ~print_hoa()~                               | adhoc output format replaced by HOA          |
-| ~kripke_save_reachable_renumbered()~                  | ~print_hoa()~                               | adhoc output format replaced by HOA          |
-| ~lbtt_parse()~                                        | ~parse_aut()~                               | single parser for all automata               |
-| ~lbtt_reachable()~                                    | ~print_lbtt()~                              |                                              |
-| ~ltl::formula::is_X_free()~                           | ~formula::is_syntactic_stutter_invariant()~ |                                              |
-| ~ltl::ltl_simplifier~                                 | ~tl_simplifier~                             |                                              |
-| ~ltl::parse_boolean()~                                | ~parse_infix_boolean()~                     |                                              |
-| ~ltl::parse_lbt()~                                    | ~parse_prefix_ltl()~                        |                                              |
-| ~ltl::parse()~                                        | ~parse_infix_psl()~                         |                                              |
-| ~ltl::parse_sere()~                                   | ~parse_infix_sere()~                        |                                              |
-| ~ltl::to_latex_string()~                              | ~print_latex_psl()~                         | also ~str_latex_psl()~                       |
-| ~ltl::to_lbt_string()~                                | ~print_lbt_ltl()~                           | also ~str_lbt_ltl()~                         |
-| ~ltl::to_sclatex_string()~                            | ~print_sclatex_psl()~                       | also ~str_sclatex_psl()~                     |
-| ~ltl::to_spin_string()~                               | ~print_spin_ltl()~                          | also ~str_spin_ltl()~                        |
-| ~ltl::to_string()~                                    | ~print_psl()~, ~print_sere()~               | also ~str_psl()~ or ~str_sere()~             |
-| ~ltl::to_ut8_string()~                                | ~print_utg8_psl()~, ~print_utf8_sere()~     | also ~str_utf8_psl()~ or ~str_utf8_sere()~   |
-| ~ltl::to_wring_string()~                              | ~print_wring_ltl()~                         | also ~str_wring_ltl()~                       |
-| ~neverclaim_parse()~                                  | ~parse_aut()~                               | single parser for all automata               |
-| ~never_claim_reachable()~                             | ~print_never_claim()~                       |                                              |
-| ~print_tgba_run()~                                    | ~tgba_run::operator<<()~                    |                                              |
-| ~reduce_run()~                                        | ~twa_run::reduce()~                         |                                              |
-| ~replay_tgba_run()~                                   | ~twa_run::replay()~                         |                                              |
-| ~scc_map~                                             | ~scc_info~                                  | new implementation restricted to ~twa_graph~ |
-| ~ta_succ_iterator::current_acceptance_conditions()~   | ~ta_succ_iterator::acc()~                   |                                              |
-| ~ta_succ_iterator::current_condition()~               | ~ta_succ_iterator::cond()~                  |                                              |
-| ~ta_succ_iterator::current_state()~                   | ~ta_succ_iterator::dst()~                   |                                              |
-| ~tgba~                                                | ~twa~                                       |                                              |
-| ~tgba::all_acceptance_conditions()~                   |                                             | use ~tgba::acc().is_accepting()~ instead     |
-| ~tgba::neg_acceptance_conditions()~                   |                                             | deleted                                      |
-| ~tgba::number_of_acceptance_conditions()~             | ~tgba::num_sets()~                          |                                              |
-| ~tgba::support_conditions()~                          |                                             | deleted                                      |
-| ~tgba::support_variables()~                           |                                             | deleted                                      |
-| ~tgba_explicit_formula~                               |                                             | deleted                                      |
-| ~tgba_explicit_number~                                | ~twa_graph~                                 | new implementation                           |
-| ~tgba_explicit_string~                                |                                             | deleted                                      |
-| ~tgba_parse()~                                        | ~parse_aut()~                               | single parser for all automata               |
-| ~tgba_run_to_tgba()~                                  | ~twa_run::as_twa()~                         |                                              |
-| ~tgba_run~                                            | ~twa_run~                                   |                                              |
-| ~tgba_save_reachable()~                               | ~print_hoa()~                               | adhoc output format replaced by HOA          |
-| ~tgba_statistics::transitions()~                      | ~twa_statistics::edges()~                   |                                              |
-| ~tgba_sub_statistics::sub_transitions()~              | ~twa_sub_statistics::transitions()~         |                                              |
-| ~tgba_succ_iterator::current_acceptance_conditions()~ | ~twa_succ_iterator::acc()~                  |                                              |
-| ~tgba_succ_iterator::current_condition()~             | ~twa_succ_iterator::cond()~                 |                                              |
-| ~tgba_succ_iterator::current_state()~                 | ~twa_succ_iterator::dst()~                  |                                              |
+| old name                                              | new name                                    | comment                                                   |
+|-------------------------------------------------------+---------------------------------------------+-----------------------------------------------------------|
+| ~dstar_parse()~                                       | ~parse_aut()~                               | single parser for all automata                            |
+| ~dtgba_complement()~                                  | ~dtwa_complement()~                         |                                                           |
+| ~dupexp_bfs()~                                        |                                             | deleted                                                   |
+| ~dupexp_dfs()~                                        | ~copy()~                                    |                                                           |
+| ~format_parse_aut_errors()~                           | ~parsed_aut::format_errors()~               |                                                           |
+| ~hoaf_reachable()~                                    | ~print_hoa()~                               |                                                           |
+| ~is_guarantee_automaton()~                            | ~is_terminal_automaton()~                   |                                                           |
+| ~kripke_parse()~                                      | ~parse_aut()~                               | single parser for all automata                            |
+| ~kripke_save_reachable()~                             | ~print_hoa()~                               | adhoc output format replaced by HOA                       |
+| ~kripke_save_reachable_renumbered()~                  | ~print_hoa()~                               | adhoc output format replaced by HOA                       |
+| ~lbtt_parse()~                                        | ~parse_aut()~                               | single parser for all automata                            |
+| ~lbtt_reachable()~                                    | ~print_lbtt()~                              |                                                           |
+| ~ltl::formula::is_X_free()~                           | ~formula::is_syntactic_stutter_invariant()~ |                                                           |
+| ~ltl::ltl_simplifier~                                 | ~tl_simplifier~                             |                                                           |
+| ~ltl::parse_boolean()~                                | ~parse_infix_boolean()~                     |                                                           |
+| ~ltl::parse_lbt()~                                    | ~parse_prefix_ltl()~                        |                                                           |
+| ~ltl::parse()~                                        | ~parse_infix_psl()~                         |                                                           |
+| ~ltl::parse_sere()~                                   | ~parse_infix_sere()~                        |                                                           |
+| ~ltl::to_latex_string()~                              | ~print_latex_psl()~                         | also ~str_latex_psl()~                                    |
+| ~ltl::to_lbt_string()~                                | ~print_lbt_ltl()~                           | also ~str_lbt_ltl()~                                      |
+| ~ltl::to_sclatex_string()~                            | ~print_sclatex_psl()~                       | also ~str_sclatex_psl()~                                  |
+| ~ltl::to_spin_string()~                               | ~print_spin_ltl()~                          | also ~str_spin_ltl()~                                     |
+| ~ltl::to_string()~                                    | ~print_psl()~, ~print_sere()~               | also ~str_psl()~ or ~str_sere()~                          |
+| ~ltl::to_ut8_string()~                                | ~print_utg8_psl()~, ~print_utf8_sere()~     | also ~str_utf8_psl()~ or ~str_utf8_sere()~                |
+| ~ltl::to_wring_string()~                              | ~print_wring_ltl()~                         | also ~str_wring_ltl()~                                    |
+| ~neverclaim_parse()~                                  | ~parse_aut()~                               | single parser for all automata                            |
+| ~never_claim_reachable()~                             | ~print_never_claim()~                       |                                                           |
+| ~print_tgba_run()~                                    | ~tgba_run::operator<<()~                    |                                                           |
+| ~reduce_run()~                                        | ~twa_run::reduce()~                         |                                                           |
+| ~replay_tgba_run()~                                   | ~twa_run::replay()~                         |                                                           |
+| ~scc_map~                                             | ~scc_info~                                  | new implementation restricted to ~twa_graph~              |
+| ~ta_succ_iterator::current_acceptance_conditions()~   | ~ta_succ_iterator::acc()~                   |                                                           |
+| ~ta_succ_iterator::current_condition()~               | ~ta_succ_iterator::cond()~                  |                                                           |
+| ~ta_succ_iterator::current_state()~                   | ~ta_succ_iterator::dst()~                   |                                                           |
+| ~tgba~                                                | ~twa~                                       |                                                           |
+| ~tgba::all_acceptance_conditions()~                   |                                             | use ~tgba::acc().accepting()~ or ~tgba::acc().all_sets()~ |
+| ~tgba::neg_acceptance_conditions()~                   |                                             | deleted                                                   |
+| ~tgba::number_of_acceptance_conditions()~             | ~tgba::num_sets()~                          |                                                           |
+| ~tgba::support_conditions()~                          |                                             | deleted                                                   |
+| ~tgba::support_variables()~                           |                                             | deleted                                                   |
+| ~tgba_explicit_formula~                               |                                             | deleted                                                   |
+| ~tgba_explicit_number~                                | ~twa_graph~                                 | new implementation                                        |
+| ~tgba_explicit_string~                                |                                             | deleted                                                   |
+| ~tgba_parse()~                                        | ~parse_aut()~                               | single parser for all automata                            |
+| ~tgba_run_to_tgba()~                                  | ~twa_run::as_twa()~                         |                                                           |
+| ~tgba_run~                                            | ~twa_run~                                   |                                                           |
+| ~tgba_save_reachable()~                               | ~print_hoa()~                               | adhoc output format replaced by HOA                       |
+| ~tgba_statistics::transitions()~                      | ~twa_statistics::edges()~                   |                                                           |
+| ~tgba_sub_statistics::sub_transitions()~              | ~twa_sub_statistics::transitions()~         |                                                           |
+| ~tgba_succ_iterator::current_acceptance_conditions()~ | ~twa_succ_iterator::acc()~                  |                                                           |
+| ~tgba_succ_iterator::current_condition()~             | ~twa_succ_iterator::cond()~                 |                                                           |
+| ~tgba_succ_iterator::current_state()~                 | ~twa_succ_iterator::dst()~                  |                                                           |
