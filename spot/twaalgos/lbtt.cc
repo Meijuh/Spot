@@ -34,11 +34,11 @@ namespace spot
 {
   namespace
   {
-    class lbtt_bfs : public tgba_reachable_iterator_breadth_first
+    class lbtt_bfs final : public twa_reachable_iterator_breadth_first
     {
     public:
       lbtt_bfs(const const_twa_ptr& a, std::ostream& os, bool sba_format)
-	: tgba_reachable_iterator_breadth_first(a),
+	: twa_reachable_iterator_breadth_first(a),
 	  os_(os),
 	  sba_format_(sba_format),
 	  sba_(nullptr)

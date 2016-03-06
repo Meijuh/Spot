@@ -7,6 +7,8 @@ New in spot 1.99.8a (not yet released)
     emptiness_check_instantiator::max_acceptance_conditions() renamed
     to emptiness_check_instantiator::min_sets() and
     emptiness_check_instantiator::max_sets().
+  * tgba_reachable_iterator (and subclasses) was renamed to
+    twa_reachable_iterator for consistency.
 
   Documentation:
 

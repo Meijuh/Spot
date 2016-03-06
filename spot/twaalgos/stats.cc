@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2011, 2012, 2013, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -33,23 +33,23 @@ namespace spot
 {
   namespace
   {
-    class stats_bfs: public tgba_reachable_iterator_breadth_first
+    class stats_bfs: public twa_reachable_iterator_breadth_first
     {
     public:
       stats_bfs(const const_twa_ptr& a, twa_statistics& s)
-	: tgba_reachable_iterator_breadth_first(a), s_(s)
+	: twa_reachable_iterator_breadth_first(a), s_(s)
       {
       }
 
       void
-      process_state(const state*, int, twa_succ_iterator*)
+      process_state(const state*, int, twa_succ_iterator*) override final
       {
 	++s_.states;
       }
 
       void
       process_link(const state*, int, const state*, int,
-		   const twa_succ_iterator*)
+		   const twa_succ_iterator*) override
       {
 	++s_.edges;
       }
@@ -58,7 +58,7 @@ namespace spot
       twa_statistics& s_;
     };
 
-    class sub_stats_bfs: public stats_bfs
+    class sub_stats_bfs final: public stats_bfs
     {
     public:
       sub_stats_bfs(const const_twa_ptr& a, twa_sub_statistics& s)
@@ -68,7 +68,7 @@ namespace spot
 
       void
       process_link(const state*, int, const state*, int,
-		   const twa_succ_iterator* it)
+		   const twa_succ_iterator* it) override
       {
 	++s_.edges;
 

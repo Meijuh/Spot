@@ -31,11 +31,11 @@ namespace spot
 {
   /// \ingroup twa_generic
   /// \brief Iterate over all reachable states of a spot::tgba.
-  class SPOT_API tgba_reachable_iterator
+  class SPOT_API twa_reachable_iterator
   {
   public:
-    tgba_reachable_iterator(const const_twa_ptr& a);
-    virtual ~tgba_reachable_iterator();
+    twa_reachable_iterator(const const_twa_ptr& a);
+    virtual ~twa_reachable_iterator();
 
     /// \brief Iterate over all reachable states of a spot::tgba.
     ///
@@ -47,7 +47,7 @@ namespace spot
     /// \name Todo list management.
     ///
     /// See e.g.
-    /// spot::tgba_reachable_iterator_breadth_first for precanned
+    /// spot::twa_reachable_iterator_breadth_first for precanned
     /// implementations for these functions.
     /// \{
     /// \brief Called by run() to register newly discovered states.
@@ -81,7 +81,7 @@ namespace spot
     ///             transition.
     ///
     /// The in_s and out_s states are owned by the
-    /// spot::tgba_reachable_iterator instance and destroyed when the
+    /// spot::twa_reachable_iterator instance and destroyed when the
     /// instance is destroyed.
     virtual void process_link(const state* in_s, int in,
 			      const state* out_s, int out,
@@ -94,13 +94,13 @@ namespace spot
   };
 
   /// \ingroup twa_generic
-  /// \brief An implementation of spot::tgba_reachable_iterator that browses
+  /// \brief An implementation of spot::twa_reachable_iterator that browses
   /// states breadth first.
-  class SPOT_API tgba_reachable_iterator_breadth_first :
-    public tgba_reachable_iterator
+  class SPOT_API twa_reachable_iterator_breadth_first :
+    public twa_reachable_iterator
   {
   public:
-    tgba_reachable_iterator_breadth_first(const const_twa_ptr& a);
+    twa_reachable_iterator_breadth_first(const const_twa_ptr& a);
 
     virtual void add_state(const state* s) override;
     virtual const state* next_state() override;
@@ -111,11 +111,11 @@ namespace spot
 
   /// \ingroup twa_generic
   /// \brief Iterate over all states of an automaton using a DFS.
-  class SPOT_API tgba_reachable_iterator_depth_first
+  class SPOT_API twa_reachable_iterator_depth_first
   {
   public:
-    tgba_reachable_iterator_depth_first(const const_twa_ptr& a);
-    virtual ~tgba_reachable_iterator_depth_first();
+    twa_reachable_iterator_depth_first(const const_twa_ptr& a);
+    virtual ~twa_reachable_iterator_depth_first();
 
     /// \brief Iterate over all reachable states of a spot::tgba.
     ///
@@ -149,7 +149,7 @@ namespace spot
     ///             transition.
     ///
     /// The in_s and out_s states are owned by the
-    /// spot::tgba_reachable_iterator instance and destroyed when the
+    /// spot::twa_reachable_iterator instance and destroyed when the
     /// instance is destroyed.
     virtual void process_link(const state* in_s, int in,
 			      const state* out_s, int out,
@@ -178,11 +178,11 @@ namespace spot
   ///
   /// This variant also maintains a set of states that are on the DFS
   /// stack.  It can be checked using the on_stack() method.
-  class tgba_reachable_iterator_depth_first_stack
-    : public tgba_reachable_iterator_depth_first
+  class twa_reachable_iterator_depth_first_stack
+    : public twa_reachable_iterator_depth_first
   {
   public:
-    tgba_reachable_iterator_depth_first_stack(const const_twa_ptr& a);
+    twa_reachable_iterator_depth_first_stack(const const_twa_ptr& a);
     /// \brief Whether state sn is on the DFS stack.
     ///
     /// Note the destination state of a transition is only pushed to

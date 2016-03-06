@@ -25,15 +25,15 @@
 
 namespace spot
 {
-  // tgba_reachable_iterator
+  // twa_reachable_iterator
   //////////////////////////////////////////////////////////////////////
 
-  tgba_reachable_iterator::tgba_reachable_iterator(const const_twa_ptr& a)
+  twa_reachable_iterator::twa_reachable_iterator(const const_twa_ptr& a)
     : aut_(a)
   {
   }
 
-  tgba_reachable_iterator::~tgba_reachable_iterator()
+  twa_reachable_iterator::~twa_reachable_iterator()
   {
     auto s = seen.begin();
     while (s != seen.end())
@@ -46,7 +46,7 @@ namespace spot
   }
 
   void
-  tgba_reachable_iterator::run()
+  twa_reachable_iterator::run()
   {
     int n = 0;
     start();
@@ -90,51 +90,51 @@ namespace spot
   }
 
   bool
-  tgba_reachable_iterator::want_state(const state*) const
+  twa_reachable_iterator::want_state(const state*) const
   {
     return true;
   }
 
   void
-  tgba_reachable_iterator::start()
+  twa_reachable_iterator::start()
   {
   }
 
   void
-  tgba_reachable_iterator::end()
+  twa_reachable_iterator::end()
   {
   }
 
   void
-  tgba_reachable_iterator::process_state(const state*, int,
+  twa_reachable_iterator::process_state(const state*, int,
 					 twa_succ_iterator*)
   {
   }
 
   void
-  tgba_reachable_iterator::process_link(const state*, int,
+  twa_reachable_iterator::process_link(const state*, int,
 					const state*, int,
 					const twa_succ_iterator*)
   {
   }
 
-  // tgba_reachable_iterator_breadth_first
+  // twa_reachable_iterator_breadth_first
   //////////////////////////////////////////////////////////////////////
 
-  tgba_reachable_iterator_breadth_first::
-    tgba_reachable_iterator_breadth_first(const const_twa_ptr& a)
-      : tgba_reachable_iterator(a)
+  twa_reachable_iterator_breadth_first::
+    twa_reachable_iterator_breadth_first(const const_twa_ptr& a)
+      : twa_reachable_iterator(a)
   {
   }
 
   void
-  tgba_reachable_iterator_breadth_first::add_state(const state* s)
+  twa_reachable_iterator_breadth_first::add_state(const state* s)
   {
     todo.push_back(s);
   }
 
   const state*
-  tgba_reachable_iterator_breadth_first::next_state()
+  twa_reachable_iterator_breadth_first::next_state()
   {
     if (todo.empty())
       return nullptr;
@@ -143,16 +143,16 @@ namespace spot
     return s;
   }
 
-  // tgba_reachable_iterator_depth_first
+  // twa_reachable_iterator_depth_first
   //////////////////////////////////////////////////////////////////////
 
-  tgba_reachable_iterator_depth_first::
-    tgba_reachable_iterator_depth_first(const const_twa_ptr& a)
+  twa_reachable_iterator_depth_first::
+    twa_reachable_iterator_depth_first(const const_twa_ptr& a)
       : aut_(a)
   {
   }
 
-  tgba_reachable_iterator_depth_first::~tgba_reachable_iterator_depth_first()
+  twa_reachable_iterator_depth_first::~twa_reachable_iterator_depth_first()
   {
     auto s = seen.begin();
     while (s != seen.end())
@@ -165,7 +165,7 @@ namespace spot
   }
 
   void
-  tgba_reachable_iterator_depth_first::push(const state* s, int sn)
+  twa_reachable_iterator_depth_first::push(const state* s, int sn)
   {
     twa_succ_iterator* si = aut_->succ_iter(s);
     process_state(s, sn, si);
@@ -175,7 +175,7 @@ namespace spot
   }
 
   void
-  tgba_reachable_iterator_depth_first::pop()
+  twa_reachable_iterator_depth_first::pop()
   {
     aut_->release_iter(todo.back().it);
     todo.pop_back();
@@ -184,7 +184,7 @@ namespace spot
   }
 
   void
-  tgba_reachable_iterator_depth_first::run()
+  twa_reachable_iterator_depth_first::run()
   {
     int n = 1;
     start();
@@ -240,60 +240,60 @@ namespace spot
   }
 
   bool
-  tgba_reachable_iterator_depth_first::want_state(const state*) const
+  twa_reachable_iterator_depth_first::want_state(const state*) const
   {
     return true;
   }
 
   void
-  tgba_reachable_iterator_depth_first::start()
+  twa_reachable_iterator_depth_first::start()
   {
   }
 
   void
-  tgba_reachable_iterator_depth_first::end()
+  twa_reachable_iterator_depth_first::end()
   {
   }
 
   void
-  tgba_reachable_iterator_depth_first::process_state(const state*, int,
+  twa_reachable_iterator_depth_first::process_state(const state*, int,
 						     twa_succ_iterator*)
   {
   }
 
   void
-  tgba_reachable_iterator_depth_first::process_link(const state*, int,
+  twa_reachable_iterator_depth_first::process_link(const state*, int,
 						    const state*, int,
 						    const twa_succ_iterator*)
   {
   }
 
-  // tgba_reachable_iterator_depth_first_stack
+  // twa_reachable_iterator_depth_first_stack
   //////////////////////////////////////////////////////////////////////
 
 
-  tgba_reachable_iterator_depth_first_stack::
-  tgba_reachable_iterator_depth_first_stack(const const_twa_ptr& a)
-    : tgba_reachable_iterator_depth_first(a)
+  twa_reachable_iterator_depth_first_stack::
+  twa_reachable_iterator_depth_first_stack(const const_twa_ptr& a)
+    : twa_reachable_iterator_depth_first(a)
   {
   }
 
   void
-  tgba_reachable_iterator_depth_first_stack::push(const state* s, int sn)
+  twa_reachable_iterator_depth_first_stack::push(const state* s, int sn)
   {
     stack_.insert(sn);
-    this->tgba_reachable_iterator_depth_first::push(s, sn);
+    this->twa_reachable_iterator_depth_first::push(s, sn);
   }
 
   void
-  tgba_reachable_iterator_depth_first_stack::pop()
+  twa_reachable_iterator_depth_first_stack::pop()
   {
     stack_.erase(todo.back().src_n);
-    this->tgba_reachable_iterator_depth_first::pop();
+    this->twa_reachable_iterator_depth_first::pop();
   }
 
   bool
-  tgba_reachable_iterator_depth_first_stack::on_stack(int sn) const
+  twa_reachable_iterator_depth_first_stack::on_stack(int sn) const
   {
     return stack_.find(sn) != stack_.end();
   }

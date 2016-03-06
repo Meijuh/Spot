@@ -658,6 +658,9 @@ for (auto i: aut->succ(s))
 | ~tgba_explicit_number~                                      | ~twa_graph~                                 | new implementation                                        |
 | ~tgba_explicit_string~                                      |                                             | deleted                                                   |
 | ~tgba_parse()~                                              | ~parse_aut()~                               | single parser for all automata                            |
+| ~tgba_reachable_iterator~                                   | ~twa_reachable_iterator~                    |                                                           |
+| ~tgba_reachable_iterator_breadth_first~                     | ~twa_reachable_iterator_breadth_first~      |                                                           |
+| ~tgba_reachable_iterator_depth_first~                       | ~twa_reachable_iterator_depth_first~        |                                                           |
 | ~tgba_run_to_tgba()~                                        | ~twa_run::as_twa()~                         |                                                           |
 | ~tgba_run~                                                  | ~twa_run~                                   |                                                           |
 | ~tgba_save_reachable()~                                     | ~print_hoa()~                               | adhoc output format replaced by HOA                       |
