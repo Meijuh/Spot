@@ -190,7 +190,7 @@ namespace spot
 	  word_parse_error(word, word.size(),
 			   "A twa_word must contain a cycle");
 	if (word[ind] == '}')
-	  word_parse_error(word, ind, "Expected ';' delimiter :"
+	  word_parse_error(word, ind, "Expected ';' delimiter: "
 			   "'}' stands for ending a cycle");
 	// Exract formula, convert it to bdd and add it to the prefix sequence
 	extract_bdd(tw->prefix);
@@ -211,7 +211,7 @@ namespace spot
 	  break;
 	if (i == std::string::npos)
 	  word_parse_error(word, ind + 1,
-			   "Missing end of cycle character : '}'");
+			   "Missing end of cycle character: '}'");
       }
     if (ind != word.size() - 1)
       word_parse_error(word, ind + 1, "Input should be finished after cycle");
