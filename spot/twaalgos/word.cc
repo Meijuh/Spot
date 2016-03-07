@@ -117,15 +117,10 @@ namespace spot
   namespace
   {
     static void word_parse_error(const std::string& word,
-				 size_t i, parse_error_list pel)
+				 size_t i, parsed_formula pf)
     {
-      for (auto& err: pel)
-	{
-	  err.first.begin.column += i;
-	  err.first.end.column += i;
-	}
       std::ostringstream os;
-      format_parse_errors(os, word, pel);
+      pf.format_errors(os, word, i);
       throw parse_error(os.str());
     }
 
@@ -166,7 +161,6 @@ namespace spot
   twa_word_ptr parse_word(const std::string& word, const bdd_dict_ptr& dict)
   {
     atomic_prop_set aps;
-    parse_error_list pel;
     tl_simplifier tls(dict);
     twa_word_ptr tw = make_twa_word(dict);
     size_t i = 0;
@@ -176,11 +170,11 @@ namespace spot
       [&](typename twa_word::seq_t& seq)
       {
 	auto sub = word.substr(i, ind - i);
-	formula f = spot::parse_infix_boolean(sub, pel);
-	if (!pel.empty())
-	  word_parse_error(word, i, pel);
-	atomic_prop_collect(f, &aps);
-	seq.push_back(tls.as_bdd(f));
+	auto pf = spot::parse_infix_boolean(sub);
+	if (!pf.errors.empty())
+	  word_parse_error(word, i, pf);
+	atomic_prop_collect(pf.f, &aps);
+	seq.push_back(tls.as_bdd(pf.f));
 	if (word[ind] == '}')
 	  return true;
 	// Skip blanks after semi-colon

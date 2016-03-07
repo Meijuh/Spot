@@ -74,6 +74,28 @@ namespace spot
     /// \param os Where diagnostics should be output.
     /// \return \c true iff any diagnostic was output.
     bool format_errors(std::ostream& os);
+
+    /// \brief Format shifted diagnostics.
+    ///
+    /// If the user input was something like "formula = a U b;" but you
+    /// only passed "a U b" to the parser, it might be convenient to
+    /// display the diagnostic in the context of "formula = a U b;".
+    ///
+    /// So pass the real input as \a input, and specify the number
+    /// of character to skip before the actual text passed to the
+    /// parser starts.
+    ///
+    /// This procedure assumes that the text passed to the parser
+    /// appears as-is in the input string.  If you had to un-escape it
+    /// in any way, the error locations will be wrong.
+    ///
+    /// \param os Where diagnostics should be output.
+    /// \param input the real input string
+    /// \param shift how many characters to add to the error locations
+    /// \return \c true iff any diagnostic was output.
+    bool format_errors(std::ostream& os,
+		       const std::string& input,
+		       unsigned shift);
   };
 
 

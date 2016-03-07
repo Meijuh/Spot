@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2013, 2015 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2013, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -66,10 +66,11 @@ namespace spot
 
   namespace
   {
-    bool
+    static bool
     format_parse_errors_aux(std::ostream& os,
 			    const std::string& ltl_string,
-			    const parse_error_list& error_list)
+			    const parse_error_list& error_list,
+			    unsigned shift)
     {
       bool printed = false;
       for (auto it: error_list)
@@ -78,12 +79,12 @@ namespace spot
 	  const location& l = it.first;
 
 	  unsigned n = 1;
-	  for (; n < 4 + l.begin.column; ++n)
+	  for (; n < 4 + l.begin.column + shift; ++n)
 	    os << ' ';
 	  // Write at least one '^', even if begin==end.
 	  os << '^';
 	  ++n;
-	  for (; n < 4 + l.end.column; ++n)
+	  for (; n < 4 + l.end.column + shift; ++n)
 	    os << '^';
 	  os << '\n' << it.second << "\n\n";
 	  printed = true;
@@ -93,17 +94,27 @@ namespace spot
   }
 
   bool
-  parsed_formula::format_errors(std::ostream& os)
+  parsed_formula::format_errors(std::ostream& os,
+				const std::string& real_input,
+				unsigned shift)
   {
     if (utf8::is_valid(input.begin(), input.end()))
       {
 	parse_error_list fixed = errors;
 	fix_utf8_locations(input, fixed);
-	return format_parse_errors_aux(os, input, fixed);
+	return format_parse_errors_aux(os, real_input, fixed, shift);
       }
     else
       {
-	return format_parse_errors_aux(os, input, errors);
+	return format_parse_errors_aux(os, real_input, errors, shift);
       }
   }
+
+  bool
+  parsed_formula::format_errors(std::ostream& os)
+  {
+    return format_errors(os, input, 0);
+  }
+
+
 }
