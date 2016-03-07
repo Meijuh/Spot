@@ -21,7 +21,12 @@
 
 # The --accept-word option filters automata that accept the given word
 # If several words are given, it filters automata that accept ALL words
-ltl2tgba 'G!a' | autfilt --accept-word 'b; cycle{!a}'
-ltl2tgba 'a U b' | autfilt --accept-word 'a; a; cycle{b}'
+ltl2tgba 'G!a' | autfilt --accept-word 'b; cycle{!a}' -q
+ltl2tgba 'a U b' | autfilt --accept-word 'a; a; cycle{b}' -q
 ltl2tgba 'F(!a&b)' |
-    autfilt --accept-word 'b; cycle{b; !a&b}' --accept-word 'cycle{b}'
+    autfilt --accept-word 'b; cycle{b; !a&b}' --accept-word 'cycle{b}' -q
+ltl2tgba -f 'a U b' |
+    autfilt --accept-word='cycle{!a}' --accept-word='a;cycle{b}' -q
+
+ltl2tgba -f 'a U b' | autfilt --accept-word='cycle{!b}' -q && exit 1
+:

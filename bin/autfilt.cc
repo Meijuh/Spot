@@ -58,6 +58,7 @@
 #include <spot/twaalgos/dtwasat.hh>
 #include <spot/twaalgos/complement.hh>
 #include <spot/twaalgos/strength.hh>
+#include <spot/twaalgos/hoa.hh>
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter omega-automata.\v\
@@ -282,6 +283,7 @@ static struct opt_t
   std::unique_ptr<unique_aut_t> uniq = nullptr;
   spot::exclusive_ap excl_ap;
   spot::remove_ap rem_ap;
+  std::vector<spot::twa_graph_ptr> acc_words;
 }* opt;
 
 static bool opt_merge = false;
@@ -296,7 +298,6 @@ static range opt_states = { 0, std::numeric_limits<int>::max() };
 static range opt_edges = { 0, std::numeric_limits<int>::max() };
 static range opt_accsets = { 0, std::numeric_limits<int>::max() };
 static range opt_ap_n = { 0, std::numeric_limits<int>::max() };
-static std::vector<std::string> opt_acc_words;
 static int opt_max_count = -1;
 static bool opt_destut = false;
 static char opt_instut = 0;
@@ -366,7 +367,8 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_ACC_WORD:
-      opt_acc_words.push_back(arg);
+      opt->acc_words.push_back(spot::parse_word(arg, opt->dict)
+			       ->as_automaton());
       break;
     case OPT_ARE_ISOMORPHIC:
       opt->are_isomorphic = read_automaton(arg, opt->dict);
@@ -659,20 +661,14 @@ namespace
 	matched &= spot::product(aut, opt->equivalent_neg)->is_empty()
 	  && spot::product(dtwa_complement(ensure_deterministic(aut)),
 			   opt->equivalent_pos)->is_empty();
-      if (!opt_acc_words.empty())
-	{
-	  auto word_aut = spot::parse_word(opt_acc_words[0],
-				       opt->dict)->as_automaton();
-	  for (size_t i = 1; i < opt_acc_words.size(); ++i)
+
+      if (matched && !opt->acc_words.empty())
+	for (auto& word_aut: opt->acc_words)
+	  if (spot::product(aut, word_aut)->is_empty())
 	    {
-	      // Compose each additionnanl word with the first one
-	      word_aut = spot::product(word_aut,
-				       spot::parse_word(opt_acc_words[i],
-							opt->dict)
-				       ->as_automaton());
+	      matched = false;
+	      break;
 	    }
-	  matched &= !spot::product(aut, word_aut)->is_empty();
-	}
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)
@@ -835,20 +831,8 @@ main(int argc, char** argv)
     }
   catch (const spot::parse_error& e)
     {
-      auto is_several_lines =
-	[] (const char* err)
-	{
-	  for (;;)
-	    {
-	      if (*err == '\0')
-		return false;
-	      else if (*err == '\n')
-		return true;
-	      ++err;
-	    }
-	};
       auto err = e.what();
-      if (is_several_lines(err))
+      if (strchr(err, '\n'))
 	error(2, 0, "\n%s", err);
       else
 	error(2, 0, "%s", err);

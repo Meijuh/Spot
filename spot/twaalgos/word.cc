@@ -227,6 +227,21 @@ namespace spot
     aut->prop_weak(true);
     aut->prop_deterministic(true);
 
+    // Register the atomic propositions used in the word.
+    {
+      bdd support = bddtrue;
+      for (auto b: prefix)
+	support &= bdd_support(b);
+      for (auto b: cycle)
+	support &= bdd_support(b);
+      while (support != bddtrue)
+	{
+	  int v = bdd_var(support);
+	  support = bdd_high(support);
+	  aut->register_ap(dict_->bdd_map[v].f);
+	}
+    }
+
     size_t i = 0;
     aut->new_states(prefix.size() + cycle.size());
     for (auto b: prefix)
