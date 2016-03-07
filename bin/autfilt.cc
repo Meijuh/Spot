@@ -367,8 +367,16 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_ACC_WORD:
-      opt->acc_words.push_back(spot::parse_word(arg, opt->dict)
-			       ->as_automaton());
+      try
+	{
+	  opt->acc_words.push_back(spot::parse_word(arg, opt->dict)
+				   ->as_automaton());
+	}
+      catch (const spot::parse_error& e)
+	{
+	  error(2, 0, "failed to parse the argument of --accept-word:\n%s",
+		e.what());
+	}
       break;
     case OPT_ARE_ISOMORPHIC:
       opt->are_isomorphic = read_automaton(arg, opt->dict);
@@ -828,14 +836,6 @@ main(int argc, char** argv)
       hoa_processor processor(post);
       if (processor.run())
 	return 2;
-    }
-  catch (const spot::parse_error& e)
-    {
-      auto err = e.what();
-      if (strchr(err, '\n'))
-	error(2, 0, "\n%s", err);
-      else
-	error(2, 0, "%s", err);
     }
   catch (const std::runtime_error& e)
     {
