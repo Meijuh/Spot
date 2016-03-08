@@ -38,8 +38,8 @@ namespace spot
 
   SPOT_API
   std::vector<formula> mutate(formula f,
-			      unsigned opts = Mut_All,
-			      unsigned max_output = -1U,
-			      unsigned mutation_count = 1,
-			      bool sort = true);
+                              unsigned opts = Mut_All,
+                              unsigned max_output = -1U,
+                              unsigned mutation_count = 1,
+                              bool sort = true);
 }

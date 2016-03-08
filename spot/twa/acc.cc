@@ -39,13 +39,13 @@ namespace spot
     const char* comma = "";
     while (a)
       {
-	if (a & 1)
-	  {
-	    os << comma << level;
-	    comma = ",";
-	  }
-	a >>= 1;
-	++level;
+        if (a & 1)
+          {
+            os << comma << level;
+            comma = ",";
+          }
+        a >>= 1;
+        ++level;
       }
     os << '}';
     return os;
@@ -66,108 +66,108 @@ namespace spot
     template<bool html>
     static void
     print_code(std::ostream& os,
-	       const acc_cond::acc_code& code, unsigned pos,
-	       std::function<void(std::ostream&, int)> set_printer)
+               const acc_cond::acc_code& code, unsigned pos,
+               std::function<void(std::ostream&, int)> set_printer)
     {
       const char* op = " | ";
       auto& w = code[pos];
       const char* negated = "";
       bool top = pos == code.size() - 1;
       switch (w.op)
-	{
-	case acc_cond::acc_op::And:
-	  op = html ? " &amp; " : " & ";
-	case acc_cond::acc_op::Or:
-	  {
-	    unsigned sub = pos - w.size;
-	    if (!top)
-	      os << '(';
-	    bool first = true;
-	    while (sub < pos)
-	      {
-		--pos;
-		if (first)
-		  first = false;
-		else
-		  os << op;
-		print_code<html>(os, code, pos, set_printer);
-		pos -= code[pos].size;
-	      }
-	    if (!top)
-	      os << ')';
-	  }
-	  break;
-	case acc_cond::acc_op::InfNeg:
-	  negated = "!";
-	case acc_cond::acc_op::Inf:
-	  {
-	    auto a = code[pos - 1].mark.id;
-	    if (a == 0U)
-	      {
-		os << 't';
-	      }
-	    else
-	      {
-		if (!top)
-		  // Avoid extra parentheses if there is only one set
-		  top = code[pos - 1].mark.count() == 1;
-		unsigned level = 0;
-		const char* and_ = "";
-		if (!top)
-		  os << '(';
-		while (a)
-		  {
-		    if (a & 1)
-		      {
-			os << and_ << "Inf(" << negated;
-			set_printer(os, level);
-			os << ')';
-			and_ = html ? "&amp;" : "&";
-		      }
-		    a >>= 1;
-		    ++level;
-		  }
-		if (!top)
-		  os << ')';
-	      }
-	  }
-	  break;
-	case acc_cond::acc_op::FinNeg:
-	  negated = "!";
-	case acc_cond::acc_op::Fin:
-	  {
-	    auto a = code[pos - 1].mark.id;
-	    if (a == 0U)
-	      {
-		os << 'f';
-	      }
-	    else
-	      {
-		if (!top)
-		  // Avoid extra parentheses if there is only one set
-		  top = code[pos - 1].mark.count() == 1;
-		unsigned level = 0;
-		const char* or_ = "";
-		if (!top)
-		  os << '(';
-		while (a)
-		  {
-		    if (a & 1)
-		      {
-			os << or_ << "Fin(" << negated;
-			set_printer(os, level);
-			os << ')';
-			or_ = "|";
-		      }
-		    a >>= 1;
-		    ++level;
-		  }
-		if (!top)
-		  os << ')';
-	      }
-	  }
-	  break;
-	}
+        {
+        case acc_cond::acc_op::And:
+          op = html ? " &amp; " : " & ";
+        case acc_cond::acc_op::Or:
+          {
+            unsigned sub = pos - w.size;
+            if (!top)
+              os << '(';
+            bool first = true;
+            while (sub < pos)
+              {
+                --pos;
+                if (first)
+                  first = false;
+                else
+                  os << op;
+                print_code<html>(os, code, pos, set_printer);
+                pos -= code[pos].size;
+              }
+            if (!top)
+              os << ')';
+          }
+          break;
+        case acc_cond::acc_op::InfNeg:
+          negated = "!";
+        case acc_cond::acc_op::Inf:
+          {
+            auto a = code[pos - 1].mark.id;
+            if (a == 0U)
+              {
+                os << 't';
+              }
+            else
+              {
+                if (!top)
+                  // Avoid extra parentheses if there is only one set
+                  top = code[pos - 1].mark.count() == 1;
+                unsigned level = 0;
+                const char* and_ = "";
+                if (!top)
+                  os << '(';
+                while (a)
+                  {
+                    if (a & 1)
+                      {
+                        os << and_ << "Inf(" << negated;
+                        set_printer(os, level);
+                        os << ')';
+                        and_ = html ? "&amp;" : "&";
+                      }
+                    a >>= 1;
+                    ++level;
+                  }
+                if (!top)
+                  os << ')';
+              }
+          }
+          break;
+        case acc_cond::acc_op::FinNeg:
+          negated = "!";
+        case acc_cond::acc_op::Fin:
+          {
+            auto a = code[pos - 1].mark.id;
+            if (a == 0U)
+              {
+                os << 'f';
+              }
+            else
+              {
+                if (!top)
+                  // Avoid extra parentheses if there is only one set
+                  top = code[pos - 1].mark.count() == 1;
+                unsigned level = 0;
+                const char* or_ = "";
+                if (!top)
+                  os << '(';
+                while (a)
+                  {
+                    if (a & 1)
+                      {
+                        os << or_ << "Fin(" << negated;
+                        set_printer(os, level);
+                        os << ')';
+                        or_ = "|";
+                      }
+                    a >>= 1;
+                    ++level;
+                  }
+                if (!top)
+                  os << ')';
+              }
+          }
+          break;
+        }
     }
 
 
@@ -175,39 +175,39 @@ namespace spot
     eval(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
     {
       switch (pos->op)
-	{
-	case acc_cond::acc_op::And:
-	  {
-	    auto sub = pos - pos->size;
-	    while (sub < pos)
-	      {
-		--pos;
-		if (!eval(inf, pos))
-		  return false;
-		pos -= pos->size;
-	      }
-	    return true;
-	  }
-	case acc_cond::acc_op::Or:
-	  {
-	    auto sub = pos - pos->size;
-	    while (sub < pos)
-	      {
-		--pos;
-		if (eval(inf, pos))
-		  return true;
-		pos -= pos->size;
-	      }
-	    return false;
-	  }
-	case acc_cond::acc_op::Inf:
-	  return (pos[-1].mark & inf) == pos[-1].mark;
-	case acc_cond::acc_op::Fin:
-	  return (pos[-1].mark & inf) != pos[-1].mark;
-	case acc_cond::acc_op::FinNeg:
-	case acc_cond::acc_op::InfNeg:
-	  SPOT_UNREACHABLE();
-	}
+        {
+        case acc_cond::acc_op::And:
+          {
+            auto sub = pos - pos->size;
+            while (sub < pos)
+              {
+                --pos;
+                if (!eval(inf, pos))
+                  return false;
+                pos -= pos->size;
+              }
+            return true;
+          }
+        case acc_cond::acc_op::Or:
+          {
+            auto sub = pos - pos->size;
+            while (sub < pos)
+              {
+                --pos;
+                if (eval(inf, pos))
+                  return true;
+                pos -= pos->size;
+              }
+            return false;
+          }
+        case acc_cond::acc_op::Inf:
+          return (pos[-1].mark & inf) == pos[-1].mark;
+        case acc_cond::acc_op::Fin:
+          return (pos[-1].mark & inf) != pos[-1].mark;
+        case acc_cond::acc_op::FinNeg:
+        case acc_cond::acc_op::InfNeg:
+          SPOT_UNREACHABLE();
+        }
       SPOT_UNREACHABLE();
       return false;
     }
@@ -216,39 +216,39 @@ namespace spot
     inf_eval(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
     {
       switch (pos->op)
-	{
-	case acc_cond::acc_op::And:
-	  {
-	    auto sub = pos - pos->size;
-	    while (sub < pos)
-	      {
-		--pos;
-		if (!inf_eval(inf, pos))
-		  return false;
-		pos -= pos->size;
-	      }
-	    return true;
-	  }
-	case acc_cond::acc_op::Or:
-	  {
-	    auto sub = pos - pos->size;
-	    while (sub < pos)
-	      {
-		--pos;
-		if (inf_eval(inf, pos))
-		  return true;
-		pos -= pos->size;
-	      }
-	    return false;
-	  }
-	case acc_cond::acc_op::Inf:
-	  return (pos[-1].mark & inf) == pos[-1].mark;
-	case acc_cond::acc_op::Fin:
-	  return true;
-	case acc_cond::acc_op::FinNeg:
-	case acc_cond::acc_op::InfNeg:
-	  SPOT_UNREACHABLE();
-	}
+        {
+        case acc_cond::acc_op::And:
+          {
+            auto sub = pos - pos->size;
+            while (sub < pos)
+              {
+                --pos;
+                if (!inf_eval(inf, pos))
+                  return false;
+                pos -= pos->size;
+              }
+            return true;
+          }
+        case acc_cond::acc_op::Or:
+          {
+            auto sub = pos - pos->size;
+            while (sub < pos)
+              {
+                --pos;
+                if (inf_eval(inf, pos))
+                  return true;
+                pos -= pos->size;
+              }
+            return false;
+          }
+        case acc_cond::acc_op::Inf:
+          return (pos[-1].mark & inf) == pos[-1].mark;
+        case acc_cond::acc_op::Fin:
+          return true;
+        case acc_cond::acc_op::FinNeg:
+        case acc_cond::acc_op::InfNeg:
+          SPOT_UNREACHABLE();
+        }
       SPOT_UNREACHABLE();
       return false;
     }
@@ -257,44 +257,44 @@ namespace spot
     eval_sets(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
     {
       switch (pos->op)
-	{
-	case acc_cond::acc_op::And:
-	  {
-	    auto sub = pos - pos->size;
-	    acc_cond::mark_t m = 0U;
-	    while (sub < pos)
-	      {
-		--pos;
-		if (auto s = eval_sets(inf, pos))
-		  m |= s;
-		else
-		  return 0U;
-		pos -= pos->size;
-	      }
-	    return m;
-	  }
-	case acc_cond::acc_op::Or:
-	  {
-	    auto sub = pos - pos->size;
-	    while (sub < pos)
-	      {
-		--pos;
-		if (auto s = eval_sets(inf, pos))
-		  return s;
-		pos -= pos->size;
-	      }
-	    return 0U;
-	  }
-	case acc_cond::acc_op::Inf:
-	  if ((pos[-1].mark & inf) == pos[-1].mark)
-	    return pos[-1].mark;
-	  else
-	    return 0U;
-	case acc_cond::acc_op::Fin:
-	case acc_cond::acc_op::FinNeg:
-	case acc_cond::acc_op::InfNeg:
-	  SPOT_UNREACHABLE();
-	}
+        {
+        case acc_cond::acc_op::And:
+          {
+            auto sub = pos - pos->size;
+            acc_cond::mark_t m = 0U;
+            while (sub < pos)
+              {
+                --pos;
+                if (auto s = eval_sets(inf, pos))
+                  m |= s;
+                else
+                  return 0U;
+                pos -= pos->size;
+              }
+            return m;
+          }
+        case acc_cond::acc_op::Or:
+          {
+            auto sub = pos - pos->size;
+            while (sub < pos)
+              {
+                --pos;
+                if (auto s = eval_sets(inf, pos))
+                  return s;
+                pos -= pos->size;
+              }
+            return 0U;
+          }
+        case acc_cond::acc_op::Inf:
+          if ((pos[-1].mark & inf) == pos[-1].mark)
+            return pos[-1].mark;
+          else
+            return 0U;
+        case acc_cond::acc_op::Fin:
+        case acc_cond::acc_op::FinNeg:
+        case acc_cond::acc_op::InfNeg:
+          SPOT_UNREACHABLE();
+        }
       SPOT_UNREACHABLE();
       return false;
     }
@@ -318,7 +318,7 @@ namespace spot
   {
     if (uses_fin_acceptance())
       throw std::runtime_error
-	("Fin acceptance is not supported by this code path.");
+        ("Fin acceptance is not supported by this code path.");
     if (code_.empty())
       return 0U;
     return eval_sets(inf, &code_.back());
@@ -331,25 +331,25 @@ namespace spot
     unsigned pos = code_.size();
     do
       {
-	switch (code_[pos - 1].op)
-	  {
-	  case acc_cond::acc_op::And:
-	  case acc_cond::acc_op::Or:
-	    --pos;
-	    break;
-	  case acc_cond::acc_op::Inf:
-	  case acc_cond::acc_op::InfNeg:
-	    pos -= 2;
-	    break;
-	  case acc_cond::acc_op::Fin:
-	    if (code_[pos - 2].mark == 0U) // f
-	      {
-		pos -= 2;
-		break;
-	      }
-	  case acc_cond::acc_op::FinNeg:
-	    return true;
-	  }
+        switch (code_[pos - 1].op)
+          {
+          case acc_cond::acc_op::And:
+          case acc_cond::acc_op::Or:
+            --pos;
+            break;
+          case acc_cond::acc_op::Inf:
+          case acc_cond::acc_op::InfNeg:
+            pos -= 2;
+            break;
+          case acc_cond::acc_op::Fin:
+            if (code_[pos - 2].mark == 0U) // f
+              {
+                pos -= 2;
+                break;
+              }
+          case acc_cond::acc_op::FinNeg:
+            return true;
+          }
       }
     while (pos > 0);
     return false;
@@ -361,56 +361,56 @@ namespace spot
     // Is Rabin or Streett, depending on highop and lowop.
     static bool
     is_rs(const acc_cond::acc_code& code,
-	  acc_cond::acc_op highop,
-	  acc_cond::acc_op lowop,
-	  acc_cond::mark_t all_sets)
+          acc_cond::acc_op highop,
+          acc_cond::acc_op lowop,
+          acc_cond::mark_t all_sets)
     {
       unsigned s = code.back().size;
       auto mainop = code.back().op;
       if (mainop == highop)
-	{
-	  // The size must be a multiple of 5.
-	  if ((s != code.size() - 1) || (s % 5))
-	    return false;
-	}
-      else			// Single pair?
-	{
-	  if (s != 4 || mainop != lowop)
-	    return false;
-	  // Pretend we where in a unary highop.
-	  s = 5;
-	}
+        {
+          // The size must be a multiple of 5.
+          if ((s != code.size() - 1) || (s % 5))
+            return false;
+        }
+      else                        // Single pair?
+        {
+          if (s != 4 || mainop != lowop)
+            return false;
+          // Pretend we where in a unary highop.
+          s = 5;
+        }
       acc_cond::mark_t seen_fin = 0U;
       acc_cond::mark_t seen_inf = 0U;
       while (s)
-	{
-	  if (code[--s].op != lowop)
-	    return false;
-	  auto o1 = code[--s].op;
-	  auto m1 = code[--s].mark;
-	  auto o2 = code[--s].op;
-	  auto m2 = code[--s].mark;
+        {
+          if (code[--s].op != lowop)
+            return false;
+          auto o1 = code[--s].op;
+          auto m1 = code[--s].mark;
+          auto o2 = code[--s].op;
+          auto m2 = code[--s].mark;
 
-	  // We assume
-	  //   Fin(n) lowop Inf(n+1)
-	  //   o1 (m1)       o2 (m2)
-	  // swap if it is the converse
-	  if (o2 == acc_cond::acc_op::Fin)
-	    {
-	      std::swap(o1, o2);
-	      std::swap(m1, m2);
-	    }
-	  if (o1 != acc_cond::acc_op::Fin
-	      || o2 != acc_cond::acc_op::Inf
-	      || m1.count() != 1
-	      || m2.id != (m1.id << 1))
-	    return false;
-	  seen_fin |= m1;
-	  seen_inf |= m2;
-	}
+          // We assume
+          //   Fin(n) lowop Inf(n+1)
+          //   o1 (m1)       o2 (m2)
+          // swap if it is the converse
+          if (o2 == acc_cond::acc_op::Fin)
+            {
+              std::swap(o1, o2);
+              std::swap(m1, m2);
+            }
+          if (o1 != acc_cond::acc_op::Fin
+              || o2 != acc_cond::acc_op::Inf
+              || m1.count() != 1
+              || m2.id != (m1.id << 1))
+            return false;
+          seen_fin |= m1;
+          seen_inf |= m2;
+        }
 
       return (!(seen_fin & seen_inf)
-	      && (seen_fin | seen_inf) == all_sets);
+              && (seen_fin | seen_inf) == all_sets);
     }
   }
 
@@ -446,11 +446,11 @@ namespace spot
     pairs.clear();
     if (is_generalized_co_buchi())
       {
-	pairs.resize(num_);
-	return true;
+        pairs.resize(num_);
+        return true;
       }
     if (code_.is_t()
-	|| code_.back().op != acc_op::Or)
+        || code_.back().op != acc_op::Or)
       return false;
 
     auto s = code_.back().size;
@@ -461,63 +461,63 @@ namespace spot
     std::map<unsigned, unsigned> p;
     while (s)
       {
-	--s;
-	if (code_[s].op == acc_op::And)
-	  {
-	    auto o1 = code_[--s].op;
-	    auto m1 = code_[--s].mark;
-	    auto o2 = code_[--s].op;
-	    auto m2 = code_[--s].mark;
+        --s;
+        if (code_[s].op == acc_op::And)
+          {
+            auto o1 = code_[--s].op;
+            auto m1 = code_[--s].mark;
+            auto o2 = code_[--s].op;
+            auto m2 = code_[--s].mark;
 
-	    // We assume
-	    //   Fin(n) & Inf({n+1,n+2,...,n+i})
-	    //   o1 (m1)       o2 (m2)
-	    // swap if it is the converse
-	    if (o2 == acc_cond::acc_op::Fin)
-	      {
-		std::swap(o1, o2);
-		std::swap(m1, m2);
-	      }
+            // We assume
+            //   Fin(n) & Inf({n+1,n+2,...,n+i})
+            //   o1 (m1)       o2 (m2)
+            // swap if it is the converse
+            if (o2 == acc_cond::acc_op::Fin)
+              {
+                std::swap(o1, o2);
+                std::swap(m1, m2);
+              }
 
-	    if (o1 != acc_cond::acc_op::Fin
-		|| o2 != acc_cond::acc_op::Inf
-		|| m1.count() != 1)
-	      return false;
+            if (o1 != acc_cond::acc_op::Fin
+                || o2 != acc_cond::acc_op::Inf
+                || m1.count() != 1)
+              return false;
 
-	    unsigned i = m2.count();
-	    // If we have seen this pair already, it must have the
-	    // same size.
-	    if (p.emplace(m1.max_set(), i).first->second != i)
-	      return false;
-	    assert(i > 0);
-	    unsigned j = m1.max_set(); // == n+1
-	    do
-	      if (!m2.has(j++))
-		return false;
-	    while (--i);
+            unsigned i = m2.count();
+            // If we have seen this pair already, it must have the
+            // same size.
+            if (p.emplace(m1.max_set(), i).first->second != i)
+              return false;
+            assert(i > 0);
+            unsigned j = m1.max_set(); // == n+1
+            do
+              if (!m2.has(j++))
+                return false;
+            while (--i);
 
-	    seen_fin |= m1;
-	    seen_inf |= m2;
-	  }
-	else if (code_[s].op == acc_op::Fin)
-	  {
-	    auto m1 = code_[--s].mark;
-	    for (auto s: m1.sets())
-	      // If we have seen this pair already, it must have the
-	      // same size.
-	      if (p.emplace(s, 0U).first->second != 0U)
-		return false;
-	    seen_fin |= m1;
-	  }
-	else
-	  {
-	    return false;
-	  }
+            seen_fin |= m1;
+            seen_inf |= m2;
+          }
+        else if (code_[s].op == acc_op::Fin)
+          {
+            auto m1 = code_[--s].mark;
+            for (auto s: m1.sets())
+              // If we have seen this pair already, it must have the
+              // same size.
+              if (p.emplace(s, 0U).first->second != 0U)
+                return false;
+            seen_fin |= m1;
+          }
+        else
+          {
+            return false;
+          }
       }
     for (auto i: p)
       pairs.push_back(i.second);
     return (!(seen_fin & seen_inf)
-	    && (seen_fin | seen_inf) == all_sets());
+            && (seen_fin | seen_inf) == all_sets());
   }
 
   acc_cond::acc_code
@@ -542,10 +542,10 @@ namespace spot
     int end = max ? sets : -1;
     for (int i = start; i != end; i += inc)
       {
-	if ((i & 1) == odd)
-	  res |= inf({(unsigned)i});
-	else
-	  res &= fin({(unsigned)i});
+        if ((i & 1) == odd)
+          res |= inf({(unsigned)i});
+        else
+          res &= fin({(unsigned)i});
       }
     return res;
   }
@@ -564,26 +564,26 @@ namespace spot
     codes.reserve(n_accs);
     for (unsigned i = 0; i < n_accs; ++i)
       {
-	codes.push_back(drand() < 0.5 ? inf({i}) : fin({i}));
-	if (reuse > 0.0 && drand() < reuse)
-	  --i;
+        codes.push_back(drand() < 0.5 ? inf({i}) : fin({i}));
+        if (reuse > 0.0 && drand() < reuse)
+          --i;
       }
 
     int s = codes.size();
     while (s > 1)
       {
-	// Pick a random code and put it at the end
-	int p1 = mrand(s--);
-	std::swap(codes[p1], codes[s]);
-	// and another one
-	int p2 = mrand(s);
+        // Pick a random code and put it at the end
+        int p1 = mrand(s--);
+        std::swap(codes[p1], codes[s]);
+        // and another one
+        int p2 = mrand(s);
 
-	if (drand() < 0.5)
-	  codes[p2] |= std::move(codes.back());
-	else
-	  codes[p2] &= std::move(codes.back());
+        if (drand() < 0.5)
+          codes[p2] |= std::move(codes.back());
+        else
+          codes[p2] &= std::move(codes.back());
 
-	codes.pop_back();
+        codes.pop_back();
       }
     return codes[0];
   }
@@ -596,57 +596,57 @@ namespace spot
       auto start = c - sz - 1;
       auto op = c->op;
       switch (op)
-	{
-	case acc_cond::acc_op::Or:
-	  {
-	    --c;
-	    bdd res = bddfalse;
-	    do
-	      {
-		res |= to_bdd_rec(c, map);
-		c -= c->size + 1;
-	      }
-	    while (c > start);
-	    return res;
-	  }
-	case acc_cond::acc_op::And:
-	  {
-	    --c;
-	    bdd res = bddtrue;
-	    do
-	      {
-		res &= to_bdd_rec(c, map);
-		c -= c->size + 1;
-	      }
-	    while (c > start);
-	    return res;
-	  }
-	case acc_cond::acc_op::Fin:
-	  {
-	    bdd res = bddfalse;
-	    for (auto i: c[-1].mark.sets())
-	      res |= !map[i];
-	    return res;
-	  }
-	case acc_cond::acc_op::Inf:
-	  {
-	    bdd res = bddtrue;
-	    for (auto i: c[-1].mark.sets())
-	      res &= map[i];
-	    return res;
-	  }
-	case acc_cond::acc_op::InfNeg:
-	case acc_cond::acc_op::FinNeg:
-	  SPOT_UNREACHABLE();
-	  return bddfalse;
-	}
+        {
+        case acc_cond::acc_op::Or:
+          {
+            --c;
+            bdd res = bddfalse;
+            do
+              {
+                res |= to_bdd_rec(c, map);
+                c -= c->size + 1;
+              }
+            while (c > start);
+            return res;
+          }
+        case acc_cond::acc_op::And:
+          {
+            --c;
+            bdd res = bddtrue;
+            do
+              {
+                res &= to_bdd_rec(c, map);
+                c -= c->size + 1;
+              }
+            while (c > start);
+            return res;
+          }
+        case acc_cond::acc_op::Fin:
+          {
+            bdd res = bddfalse;
+            for (auto i: c[-1].mark.sets())
+              res |= !map[i];
+            return res;
+          }
+        case acc_cond::acc_op::Inf:
+          {
+            bdd res = bddtrue;
+            for (auto i: c[-1].mark.sets())
+              res &= map[i];
+            return res;
+          }
+        case acc_cond::acc_op::InfNeg:
+        case acc_cond::acc_op::FinNeg:
+          SPOT_UNREACHABLE();
+          return bddfalse;
+        }
       SPOT_UNREACHABLE();
       return bddfalse;
     }
 
     static bool
     equiv_codes(const acc_cond::acc_code& lhs,
-		const acc_cond::acc_code& rhs)
+                const acc_cond::acc_code& rhs)
     {
       auto used = lhs.used_sets() | rhs.used_sets();
 
@@ -658,10 +658,10 @@ namespace spot
       assert(base == 0);
       std::vector<bdd> r;
       for (unsigned i = 0; r.size() < umax; ++i)
-	if (used.has(i))
-	  r.push_back(bdd_ithvar(base++));
-	else
-	  r.push_back(bddfalse);
+        if (used.has(i))
+          r.push_back(bdd_ithvar(base++));
+        else
+          r.push_back(bddfalse);
       return to_bdd_rec(&lhs.back(), &r[0]) == to_bdd_rec(&rhs.back(), &r[0]);
     }
   }
@@ -671,9 +671,9 @@ namespace spot
     unsigned sets = num_;
     if (sets == 0)
       {
-	max = true;
-	odd = is_t();
-	return true;
+        max = true;
+        odd = is_t();
+        return true;
       }
     acc_cond::mark_t u_inf;
     acc_cond::mark_t u_fin;
@@ -682,22 +682,22 @@ namespace spot
     odd = !u_inf.has(0);
     for (auto s: u_inf.sets())
       if ((s & 1) != odd)
-	{
-	  max = false;	     // just so the value is not uninitialized
-	  return false;
-	}
+        {
+          max = false;             // just so the value is not uninitialized
+          return false;
+        }
 
     auto max_code = acc_code::parity(true, odd, sets);
     if (max_code == code_)
       {
-	max = true;
-	return true;
+        max = true;
+        return true;
       }
     auto min_code = acc_code::parity(false, odd, sets);
     if (min_code == code_)
       {
-	max = false;
-	return true;
+        max = false;
+        return true;
       }
 
     if (!equiv)
@@ -705,13 +705,13 @@ namespace spot
 
     if (equiv_codes(code_, max_code))
       {
-	max = true;
-	return true;
+        max = true;
+        return true;
       }
     if (equiv_codes(code_, min_code))
       {
-	max = false;
-	return true;
+        max = false;
+        return true;
       }
     return false;
   }
@@ -732,15 +732,15 @@ namespace spot
     std::vector<unsigned> sets(c);
     for (unsigned i = 0; r.size() < max; ++i)
       {
-	if (used.has(i))
-	  {
-	    sets[base] = i;
-	    r.push_back(bdd_ithvar(base++));
-	  }
-	else
-	  {
-	    r.push_back(bddfalse);
-	  }
+        if (used.has(i))
+          {
+            sets[base] = i;
+            r.push_back(bdd_ithvar(base++));
+          }
+        else
+          {
+            r.push_back(bddfalse);
+          }
       }
 
     bdd res = to_bdd_rec(&back(), &r[0]);
@@ -755,34 +755,34 @@ namespace spot
     acc_code rescode = f();
     while ((cube = isop.next()) != bddfalse)
       {
-	mark_t i = 0U;
-	acc_code c;
-	while (cube != bddtrue)
-	  {
-	    // The acceptance set associated to this BDD variable
-	    mark_t s = 0U;
-	    s.set(sets[bdd_var(cube)]);
+        mark_t i = 0U;
+        acc_code c;
+        while (cube != bddtrue)
+          {
+            // The acceptance set associated to this BDD variable
+            mark_t s = 0U;
+            s.set(sets[bdd_var(cube)]);
 
-	    bdd h = bdd_high(cube);
-	    if (h == bddfalse)	// Negative variable? -> Fin
-	      {
-		cube = bdd_low(cube);
-		// The strange order here make sure we can smaller set
-		// numbers at the end of the acceptance code, i.e., at
-		// the front of the output.
-		auto a = fin(s) & std::move(c);
-		std::swap(a, c);
-	      }
-	    else		// Positive variable? -> Inf
-	      {
-		i |= s;
-		cube = h;
-	      }
-	  }
-	c &= inf(i);
-	// See comment above for the order.
-	c |= std::move(rescode);
-	std::swap(c, rescode);
+            bdd h = bdd_high(cube);
+            if (h == bddfalse)        // Negative variable? -> Fin
+              {
+                cube = bdd_low(cube);
+                // The strange order here make sure we can smaller set
+                // numbers at the end of the acceptance code, i.e., at
+                // the front of the output.
+                auto a = fin(s) & std::move(c);
+                std::swap(a, c);
+              }
+            else                // Positive variable? -> Inf
+              {
+                i |= s;
+                cube = h;
+              }
+          }
+        c &= inf(i);
+        // See comment above for the order.
+        c |= std::move(rescode);
+        std::swap(c, rescode);
       }
 
     return rescode;
@@ -804,15 +804,15 @@ namespace spot
     std::vector<unsigned> sets(c);
     for (unsigned i = 0; r.size() < max; ++i)
       {
-	if (used.has(i))
-	  {
-	    sets[base] = i;
-	    r.push_back(bdd_ithvar(base++));
-	  }
-	else
-	  {
-	    r.push_back(bddfalse);
-	  }
+        if (used.has(i))
+          {
+            sets[base] = i;
+            r.push_back(bdd_ithvar(base++));
+          }
+        else
+          {
+            r.push_back(bddfalse);
+          }
       }
 
     bdd res = to_bdd_rec(&back(), &r[0]);
@@ -827,34 +827,34 @@ namespace spot
     acc_code rescode;
     while ((cube = isop.next()) != bddfalse)
       {
-	mark_t m = 0U;
-	acc_code c = f();
-	while (cube != bddtrue)
-	  {
-	    // The acceptance set associated to this BDD variable
-	    mark_t s = 0U;
-	    s.set(sets[bdd_var(cube)]);
+        mark_t m = 0U;
+        acc_code c = f();
+        while (cube != bddtrue)
+          {
+            // The acceptance set associated to this BDD variable
+            mark_t s = 0U;
+            s.set(sets[bdd_var(cube)]);
 
-	    bdd h = bdd_high(cube);
-	    if (h == bddfalse)	// Negative variable? -> Inf
-	      {
-		cube = bdd_low(cube);
-		// The strange order here make sure we can smaller set
-		// numbers at the end of the acceptance code, i.e., at
-		// the front of the output.
-		auto a = inf(s) | std::move(c);
-		std::swap(a, c);
-	      }
-	    else		// Positive variable? -> Fin
-	      {
-		m |= s;
-		cube = h;
-	      }
-	  }
-	c |= fin(m);
-	// See comment above for the order.
-	c &= std::move(rescode);
-	std::swap(c, rescode);
+            bdd h = bdd_high(cube);
+            if (h == bddfalse)        // Negative variable? -> Inf
+              {
+                cube = bdd_low(cube);
+                // The strange order here make sure we can smaller set
+                // numbers at the end of the acceptance code, i.e., at
+                // the front of the output.
+                auto a = inf(s) | std::move(c);
+                std::swap(a, c);
+              }
+            else                // Positive variable? -> Fin
+              {
+                m |= s;
+                cube = h;
+              }
+          }
+        c |= fin(m);
+        // See comment above for the order.
+        c &= std::move(rescode);
+        std::swap(c, rescode);
       }
     return rescode;
   }
@@ -878,15 +878,15 @@ namespace spot
     std::vector<unsigned> sets(c);
     for (unsigned i = 0; r.size() < max; ++i)
       {
-	if (used.has(i))
-	  {
-	    sets[base] = i;
-	    r.push_back(bdd_ithvar(base++));
-	  }
-	else
-	  {
-	    r.push_back(bddfalse);
-	  }
+        if (used.has(i))
+          {
+            sets[base] = i;
+            r.push_back(bdd_ithvar(base++));
+          }
+        else
+          {
+            r.push_back(bddfalse);
+          }
       }
 
     bdd res = to_bdd_rec(&code_.back(), &r[0]);
@@ -900,19 +900,19 @@ namespace spot
     mark_t i = 0U;
     while (cube != bddtrue)
       {
-	// The acceptance set associated to this BDD variable
-	int s = sets[bdd_var(cube)];
+        // The acceptance set associated to this BDD variable
+        int s = sets[bdd_var(cube)];
 
-	bdd h = bdd_high(cube);
-	if (h == bddfalse)	// Negative variable? -> skip
-	  {
-	    cube = bdd_low(cube);
-	  }
-	else		// Positive variable? -> Inf
-	  {
-	    i.set(s);
-	    cube = h;
-	  }
+        bdd h = bdd_high(cube);
+        if (h == bddfalse)        // Negative variable? -> skip
+          {
+            cube = bdd_low(cube);
+          }
+        else                // Positive variable? -> Inf
+          {
+            i.set(s);
+            cube = h;
+          }
       }
     return {true, i};
   }
@@ -922,12 +922,12 @@ namespace spot
   {
     if (empty())
       {
-	if (accepting)
-	  return {};
-	else
-	  return {
-	    {}
-	  };
+        if (accepting)
+          return {};
+        else
+          return {
+            {}
+          };
       }
     auto used = acc_cond::acc_code::used_sets();
     unsigned c = used.count();
@@ -941,18 +941,18 @@ namespace spot
     bdd known = bddtrue;
     for (unsigned i = 0; r.size() < max; ++i)
       {
-	if (used.has(i))
-	  {
-	    sets[base] = i;
-	    bdd v = bdd_ithvar(base++);
-	    r.push_back(v);
-	    if (inf.has(i))
-	      known &= v;
-	  }
-	else
-	  {
-	    r.push_back(bddfalse);
-	  }
+        if (used.has(i))
+          {
+            sets[base] = i;
+            bdd v = bdd_ithvar(base++);
+            r.push_back(v);
+            if (inf.has(i))
+              known &= v;
+          }
+        else
+          {
+            r.push_back(bddfalse);
+          }
       }
 
     bdd res = to_bdd_rec(&back(), &r[0]);
@@ -970,25 +970,25 @@ namespace spot
     std::vector<std::vector<int>> result;
     while ((cube = isop.next()) != bddfalse)
       {
-	std::vector<int> partial;
-	while (cube != bddtrue)
-	  {
-	    // The acceptance set associated to this BDD variable
-	    int s = sets[bdd_var(cube)];
+        std::vector<int> partial;
+        while (cube != bddtrue)
+          {
+            // The acceptance set associated to this BDD variable
+            int s = sets[bdd_var(cube)];
 
-	    bdd h = bdd_high(cube);
-	    if (h == bddfalse)	// Negative variable
-	      {
-		partial.push_back(s);
-		cube = bdd_low(cube);
-	      }
-	    else		// Positive variable
-	      {
-		partial.push_back(-s - 1);
-		cube = h;
-	      }
-	  }
-	result.emplace_back(std::move(partial));
+            bdd h = bdd_high(cube);
+            if (h == bddfalse)        // Negative variable
+              {
+                partial.push_back(s);
+                cube = bdd_low(cube);
+              }
+            else                // Positive variable
+              {
+                partial.push_back(-s - 1);
+                cube = h;
+              }
+          }
+        result.emplace_back(std::move(partial));
       }
     return result;
   }
@@ -1004,24 +1004,24 @@ namespace spot
       --pos;
     while (pos > start)
       {
-	switch (pos->op)
-	  {
-	  case acc_cond::acc_op::Or:
-	    return false;
-	  case acc_cond::acc_op::And:
-	    and_scope = std::min(and_scope, pos - pos->size);
-	    --pos;
-	    break;
-	  case acc_cond::acc_op::Fin:
-	  case acc_cond::acc_op::FinNeg:
-	    if (pos[-1].mark.count() > 1 && pos > and_scope)
-	      return false;
-	    /* fall through */
-	  case acc_cond::acc_op::Inf:
-	  case acc_cond::acc_op::InfNeg:
-	    pos -= 2;
-	    break;
-	  }
+        switch (pos->op)
+          {
+          case acc_cond::acc_op::Or:
+            return false;
+          case acc_cond::acc_op::And:
+            and_scope = std::min(and_scope, pos - pos->size);
+            --pos;
+            break;
+          case acc_cond::acc_op::Fin:
+          case acc_cond::acc_op::FinNeg:
+            if (pos[-1].mark.count() > 1 && pos > and_scope)
+              return false;
+            /* fall through */
+          case acc_cond::acc_op::Inf:
+          case acc_cond::acc_op::InfNeg:
+            pos -= 2;
+            break;
+          }
       }
     return true;
   }
@@ -1037,24 +1037,24 @@ namespace spot
       --pos;
     while (pos > start)
       {
-	switch (pos->op)
-	  {
-	  case acc_cond::acc_op::And:
-	    return false;
-	  case acc_cond::acc_op::Or:
-	    or_scope = std::min(or_scope, pos - pos->size);
-	    --pos;
-	    break;
-	  case acc_cond::acc_op::Inf:
-	  case acc_cond::acc_op::InfNeg:
-	    if (pos[-1].mark.count() > 1 && pos > or_scope)
-	      return false;
-	    /* fall through */
-	  case acc_cond::acc_op::Fin:
-	  case acc_cond::acc_op::FinNeg:
-	    pos -= 2;
-	    break;
-	  }
+        switch (pos->op)
+          {
+          case acc_cond::acc_op::And:
+            return false;
+          case acc_cond::acc_op::Or:
+            or_scope = std::min(or_scope, pos - pos->size);
+            --pos;
+            break;
+          case acc_cond::acc_op::Inf:
+          case acc_cond::acc_op::InfNeg:
+            if (pos[-1].mark.count() > 1 && pos > or_scope)
+              return false;
+            /* fall through */
+          case acc_cond::acc_op::Fin:
+          case acc_cond::acc_op::FinNeg:
+            pos -= 2;
+            break;
+          }
       }
     return true;
   }
@@ -1065,42 +1065,42 @@ namespace spot
     {
       auto start = pos - pos->size;
       switch (pos->op)
-	{
-	case acc_cond::acc_op::And:
-	  {
-	    --pos;
-	    auto res = acc_cond::acc_code::f();
-	    do
-	      {
-		auto tmp = complement_rec(pos) | std::move(res);
-		std::swap(tmp, res);
-		pos -= pos->size + 1;
-	      }
-	    while (pos > start);
-	    return res;
-	  }
-	case acc_cond::acc_op::Or:
-	  {
-	    --pos;
-	    auto res = acc_cond::acc_code::t();
-	    do
-	      {
-		auto tmp = complement_rec(pos) & std::move(res);
-		std::swap(tmp, res);
-		pos -= pos->size + 1;
-	      }
-	    while (pos > start);
-	    return res;
-	  }
-	case acc_cond::acc_op::Fin:
-	  return acc_cond::acc_code::inf(pos[-1].mark);
-	case acc_cond::acc_op::Inf:
-	  return acc_cond::acc_code::fin(pos[-1].mark);
-	case acc_cond::acc_op::FinNeg:
-	  return acc_cond::acc_code::inf_neg(pos[-1].mark);
-	case acc_cond::acc_op::InfNeg:
-	  return acc_cond::acc_code::fin_neg(pos[-1].mark);
-	}
+        {
+        case acc_cond::acc_op::And:
+          {
+            --pos;
+            auto res = acc_cond::acc_code::f();
+            do
+              {
+                auto tmp = complement_rec(pos) | std::move(res);
+                std::swap(tmp, res);
+                pos -= pos->size + 1;
+              }
+            while (pos > start);
+            return res;
+          }
+        case acc_cond::acc_op::Or:
+          {
+            --pos;
+            auto res = acc_cond::acc_code::t();
+            do
+              {
+                auto tmp = complement_rec(pos) & std::move(res);
+                std::swap(tmp, res);
+                pos -= pos->size + 1;
+              }
+            while (pos > start);
+            return res;
+          }
+        case acc_cond::acc_op::Fin:
+          return acc_cond::acc_code::inf(pos[-1].mark);
+        case acc_cond::acc_op::Inf:
+          return acc_cond::acc_code::fin(pos[-1].mark);
+        case acc_cond::acc_op::FinNeg:
+          return acc_cond::acc_code::inf_neg(pos[-1].mark);
+        case acc_cond::acc_op::InfNeg:
+          return acc_cond::acc_code::fin_neg(pos[-1].mark);
+        }
       SPOT_UNREACHABLE();
       return {};
     }
@@ -1122,46 +1122,46 @@ namespace spot
     {
       auto start = pos - pos->size;
       switch (pos->op)
-	{
-	case acc_cond::acc_op::And:
-	  {
-	    --pos;
-	    auto res = acc_cond::acc_code::t();
-	    do
-	      {
-		auto tmp = strip_rec(pos, rem, missing) & std::move(res);
-		std::swap(tmp, res);
-		pos -= pos->size + 1;
-	      }
-	    while (pos > start);
-	    return res;
-	  }
-	case acc_cond::acc_op::Or:
-	  {
-	    --pos;
-	    auto res = acc_cond::acc_code::f();
-	    do
-	      {
-		auto tmp = strip_rec(pos, rem, missing) | std::move(res);
-		std::swap(tmp, res);
-		pos -= pos->size + 1;
-	      }
-	    while (pos > start);
-	    return res;
-	  }
-	case acc_cond::acc_op::Fin:
-	  if (missing && (pos[-1].mark & rem))
-	    return acc_cond::acc_code::t();
-	  return acc_cond::acc_code::fin(pos[-1].mark.strip(rem));
-	case acc_cond::acc_op::Inf:
-	  if (missing && (pos[-1].mark & rem))
-	    return acc_cond::acc_code::f();
-	  return acc_cond::acc_code::inf(pos[-1].mark.strip(rem));
-	case acc_cond::acc_op::FinNeg:
-	case acc_cond::acc_op::InfNeg:
-	  SPOT_UNREACHABLE();
-	  return {};
-	}
+        {
+        case acc_cond::acc_op::And:
+          {
+            --pos;
+            auto res = acc_cond::acc_code::t();
+            do
+              {
+                auto tmp = strip_rec(pos, rem, missing) & std::move(res);
+                std::swap(tmp, res);
+                pos -= pos->size + 1;
+              }
+            while (pos > start);
+            return res;
+          }
+        case acc_cond::acc_op::Or:
+          {
+            --pos;
+            auto res = acc_cond::acc_code::f();
+            do
+              {
+                auto tmp = strip_rec(pos, rem, missing) | std::move(res);
+                std::swap(tmp, res);
+                pos -= pos->size + 1;
+              }
+            while (pos > start);
+            return res;
+          }
+        case acc_cond::acc_op::Fin:
+          if (missing && (pos[-1].mark & rem))
+            return acc_cond::acc_code::t();
+          return acc_cond::acc_code::fin(pos[-1].mark.strip(rem));
+        case acc_cond::acc_op::Inf:
+          if (missing && (pos[-1].mark & rem))
+            return acc_cond::acc_code::f();
+          return acc_cond::acc_code::inf(pos[-1].mark.strip(rem));
+        case acc_cond::acc_op::FinNeg:
+        case acc_cond::acc_op::InfNeg:
+          SPOT_UNREACHABLE();
+          return {};
+        }
       SPOT_UNREACHABLE();
       return {};
     }
@@ -1185,20 +1185,20 @@ namespace spot
     auto end = &front();
     while (pos > end)
       {
-	switch (pos->op)
-	  {
-	  case acc_cond::acc_op::And:
-	  case acc_cond::acc_op::Or:
-	    --pos;
-	    break;
-	  case acc_cond::acc_op::Fin:
-	  case acc_cond::acc_op::Inf:
-	  case acc_cond::acc_op::FinNeg:
-	  case acc_cond::acc_op::InfNeg:
-	    used_in_cond |= pos[-1].mark;
-	    pos -= 2;
-	    break;
-	  }
+        switch (pos->op)
+          {
+          case acc_cond::acc_op::And:
+          case acc_cond::acc_op::Or:
+            --pos;
+            break;
+          case acc_cond::acc_op::Fin:
+          case acc_cond::acc_op::Inf:
+          case acc_cond::acc_op::FinNeg:
+          case acc_cond::acc_op::InfNeg:
+            used_in_cond |= pos[-1].mark;
+            pos -= 2;
+            break;
+          }
       }
     return used_in_cond;
   }
@@ -1215,56 +1215,56 @@ namespace spot
     auto end = &front();
     while (pos > end)
       {
-	switch (pos->op)
-	  {
-	  case acc_cond::acc_op::And:
-	  case acc_cond::acc_op::Or:
-	    --pos;
-	    break;
-	  case acc_cond::acc_op::Fin:
-	  case acc_cond::acc_op::FinNeg:
-	    used_fin |= pos[-1].mark;
-	    pos -= 2;
-	    break;
-	  case acc_cond::acc_op::Inf:
-	  case acc_cond::acc_op::InfNeg:
-	    used_inf |= pos[-1].mark;
-	    pos -= 2;
-	    break;
-	  }
+        switch (pos->op)
+          {
+          case acc_cond::acc_op::And:
+          case acc_cond::acc_op::Or:
+            --pos;
+            break;
+          case acc_cond::acc_op::Fin:
+          case acc_cond::acc_op::FinNeg:
+            used_fin |= pos[-1].mark;
+            pos -= 2;
+            break;
+          case acc_cond::acc_op::Inf:
+          case acc_cond::acc_op::InfNeg:
+            used_inf |= pos[-1].mark;
+            pos -= 2;
+            break;
+          }
       }
     return {used_inf, used_fin};
   }
 
   std::ostream&
   acc_cond::acc_code::to_html(std::ostream& os,
-			      std::function<void(std::ostream&, int)>
-			      set_printer) const
+                              std::function<void(std::ostream&, int)>
+                              set_printer) const
   {
     if (empty())
       os << 't';
     else
       print_code<true>(os, *this, size() - 1,
-		       set_printer ? set_printer : default_set_printer);
+                       set_printer ? set_printer : default_set_printer);
     return os;
   }
 
   std::ostream&
   acc_cond::acc_code::to_text(std::ostream& os,
-			      std::function<void(std::ostream&, int)>
-			      set_printer) const
+                              std::function<void(std::ostream&, int)>
+                              set_printer) const
   {
     if (empty())
       os << 't';
     else
       print_code<false>(os, *this, size() - 1,
-			set_printer ? set_printer : default_set_printer);
+                        set_printer ? set_printer : default_set_printer);
     return os;
   }
 
 
   std::ostream& operator<<(std::ostream& os,
-			   const spot::acc_cond::acc_code& code)
+                           const spot::acc_cond::acc_code& code)
   {
     return code.to_text(os);
   }
@@ -1280,9 +1280,9 @@ namespace spot
       std::ostringstream s;
       s << "syntax error at ";
       if (*input)
-	s << '\'' << input << "': ";
+        s << '\'' << input << "': ";
       else
-	s << "end of acceptance: ";
+        s << "end of acceptance: ";
       s << message;
       throw parse_error(s.str());
     }
@@ -1295,7 +1295,7 @@ namespace spot
     static void skip_space(const char*& input)
     {
       while (std::isspace(*input))
-	++input;
+        ++input;
     }
 
     // Eat c and remove the following spaces.
@@ -1303,11 +1303,11 @@ namespace spot
     void expect(const char*& input, char c)
     {
       if (*input != c)
-	{
-	  char msg[20];
-	  sprintf(msg, "was expecting %c '.'", c);
-	  syntax_error(input, msg);
-	}
+        {
+          char msg[20];
+          sprintf(msg, "was expecting %c '.'", c);
+          syntax_error(input, msg);
+        }
       ++input;
       skip_space(input);
     }
@@ -1319,14 +1319,14 @@ namespace spot
       auto res = parse_term(input);
       skip_space(input);
       while (*input == '|')
-	{
-	  ++input;
-	  skip_space(input);
-	  // Prepend instead of append, to preserve the input order.
-	  auto tmp = parse_term(input);
-	  std::swap(tmp, res);
-	  res |= std::move(tmp);
-	}
+        {
+          ++input;
+          skip_space(input);
+          // Prepend instead of append, to preserve the input order.
+          auto tmp = parse_term(input);
+          std::swap(tmp, res);
+          res |= std::move(tmp);
+        }
       return res;
     }
 
@@ -1338,7 +1338,7 @@ namespace spot
       unsigned long n = strtoul(input, &end, 10);
       unsigned num = n;
       if (errno || num != n)
-	syntax_error(input, "invalid number.");
+        syntax_error(input, "invalid number.");
       input = end;
       return n;
     }
@@ -1352,43 +1352,43 @@ namespace spot
       errno = 0;
       min = strtol(str, &end, 10);
       if (end == str || errno)
-	{
-	  // No leading number.  It's OK as long as '..' or ':' are next.
-	  if (errno || (*end != ':' && *end != '.'))
-	    syntax_error(str, "invalid range.");
-	  min = 1;
-	}
+        {
+          // No leading number.  It's OK as long as '..' or ':' are next.
+          if (errno || (*end != ':' && *end != '.'))
+            syntax_error(str, "invalid range.");
+          min = 1;
+        }
       if (!*end || (*end != ':' && *end != '.'))
-	{
-	  // Only one number.
-	  max = min;
-	}
+        {
+          // Only one number.
+          max = min;
+        }
       else
-	{
-	  // Skip : or ..
-	  if (end[0] == ':')
-	    ++end;
-	  else if (end[0] == '.' && end[1] == '.')
-	    end += 2;
+        {
+          // Skip : or ..
+          if (end[0] == ':')
+            ++end;
+          else if (end[0] == '.' && end[1] == '.')
+            end += 2;
 
-	  // Parse the next integer.
-	  char* end2;
-	  max = strtol(end, &end2, 10);
-	  if (end == end2 || errno)
-	    syntax_error(str, "invalid range (missing end?)");
-	  end = end2;
-	}
+          // Parse the next integer.
+          char* end2;
+          max = strtol(end, &end2, 10);
+          if (end == end2 || errno)
+            syntax_error(str, "invalid range (missing end?)");
+          end = end2;
+        }
 
       if (min < 0 || max < 0)
-	syntax_error(str, "values in range must be positive.");
+        syntax_error(str, "values in range must be positive.");
 
       str = end;
 
       if (min == max)
-	return min;
+        return min;
 
       if (min > max)
-	std::swap(min, max);
+        std::swap(min, max);
       return spot::rrand(min, max);
     }
 
@@ -1408,9 +1408,9 @@ namespace spot
       char* end;
       double n = strtod(input, &end);
       if (errno)
-	syntax_error(input, "cannot convert to double.");
+        syntax_error(input, "cannot convert to double.");
       if (!(n >= 0.0 && n <= 1.0))
-	syntax_error(input, "value should be between 0 and 1.");
+        syntax_error(input, "value should be between 0 and 1.");
       input = end;
       return n;
     }
@@ -1419,48 +1419,48 @@ namespace spot
     {
       acc_cond::acc_code res;
       if (*input == 't')
-	{
-	  ++input;
-	  res = acc_cond::acc_code::t();
-	}
+        {
+          ++input;
+          res = acc_cond::acc_code::t();
+        }
       else if (*input == 'f')
-	{
-	  ++input;
-	  res = acc_cond::acc_code::f();
-	}
+        {
+          ++input;
+          res = acc_cond::acc_code::f();
+        }
       else if (*input == '(')
-	{
-	  ++input;
-	  skip_space(input);
-	  res = parse_acc(input);
-	  skip_space(input);
-	  expect(input, ')');
-	}
+        {
+          ++input;
+          skip_space(input);
+          res = parse_acc(input);
+          skip_space(input);
+          expect(input, ')');
+        }
       else if (!strncmp(input, "Inf", 3))
-	{
-	  input += 3;
-	  res = acc_cond::acc_code::inf({parse_par_num(input)});
-	}
+        {
+          input += 3;
+          res = acc_cond::acc_code::inf({parse_par_num(input)});
+        }
       else if (!strncmp(input, "Fin", 3))
-	{
-	  input += 3;
-	  res = acc_cond::acc_code::fin({parse_par_num(input)});
-	}
+        {
+          input += 3;
+          res = acc_cond::acc_code::fin({parse_par_num(input)});
+        }
       else
-	{
-	  syntax_error(input, "unexpected character.");
-	}
+        {
+          syntax_error(input, "unexpected character.");
+        }
 
       skip_space(input);
       while (*input == '&')
-	{
-	  ++input;
-	  skip_space(input);
-	  // Prepend instead of append, to preserve the input order.
-	  auto tmp = parse_term(input);
-	  std::swap(tmp, res);
-	  res &= std::move(tmp);
-	}
+        {
+          ++input;
+          skip_space(input);
+          // Prepend instead of append, to preserve the input order.
+          auto tmp = parse_term(input);
+          std::swap(tmp, res);
+          res &= std::move(tmp);
+        }
       return res;
     }
 
@@ -1468,25 +1468,25 @@ namespace spot
     {
       skip_space(input);
       if (!strncmp(input, "max", 3))
-	{
-	  input += 3;
-	  return true;
-	}
+        {
+          input += 3;
+          return true;
+        }
       if (!strncmp(input, "min", 3))
-	{
-	  input += 3;
-	  return false;
-	}
+        {
+          input += 3;
+          return false;
+        }
       if (!strncmp(input, "rand", 4))
-	{
-	  input += 4;
-	  return drand() < 0.5;
-	}
+        {
+          input += 4;
+          return drand() < 0.5;
+        }
       if (!strncmp(input, "random", 6))
-	{
-	  input += 6;
-	  return drand() < 0.5;
-	}
+        {
+          input += 6;
+          return drand() < 0.5;
+        }
       syntax_error(input, "expecting 'min', 'max', or 'rand'.");
       SPOT_UNREACHABLE();
       return false;
@@ -1496,25 +1496,25 @@ namespace spot
     {
       skip_space(input);
       if (!strncmp(input, "odd", 3))
-	{
-	  input += 3;
-	  return true;
-	}
+        {
+          input += 3;
+          return true;
+        }
       if (!strncmp(input, "even", 4))
-	{
-	  input += 4;
-	  return false;
-	}
+        {
+          input += 4;
+          return false;
+        }
       if (!strncmp(input, "rand", 4))
-	{
-	  input += 4;
-	  return drand() < 0.5;
-	}
+        {
+          input += 4;
+          return drand() < 0.5;
+        }
       if (!strncmp(input, "random", 6))
-	{
-	  input += 6;
-	  return drand() < 0.5;
-	}
+        {
+          input += 6;
+          return drand() < 0.5;
+        }
       syntax_error(input, "expecting 'odd', 'even', or 'rand'.");
       SPOT_UNREACHABLE();
       return false;
@@ -1528,79 +1528,79 @@ namespace spot
     acc_cond::acc_code c;
     if (!strncmp(input, "all", 3))
       {
-	input += 3;
-	c = acc_cond::acc_code::t();
+        input += 3;
+        c = acc_cond::acc_code::t();
       }
     else if (!strncmp(input, "none", 4))
       {
-	input += 4;
-	c = acc_cond::acc_code::f();
+        input += 4;
+        c = acc_cond::acc_code::f();
       }
     else if (!strncmp(input, "Buchi", 5))
       {
-	input += 5;
-	c = acc_cond::acc_code::buchi();
+        input += 5;
+        c = acc_cond::acc_code::buchi();
       }
     else if (!strncmp(input, "co-Buchi", 8))
       {
-	input += 8;
-	c = acc_cond::acc_code::cobuchi();
+        input += 8;
+        c = acc_cond::acc_code::cobuchi();
       }
     else if (!strncmp(input, "generalized-Buchi", 17))
       {
-	input += 17;
-	c = acc_cond::acc_code::generalized_buchi(parse_range(input));
+        input += 17;
+        c = acc_cond::acc_code::generalized_buchi(parse_range(input));
       }
     else if (!strncmp(input, "generalized-co-Buchi", 20))
       {
-	input += 20;
-	c = acc_cond::acc_code::generalized_co_buchi(parse_range(input));
+        input += 20;
+        c = acc_cond::acc_code::generalized_co_buchi(parse_range(input));
       }
     else if (!strncmp(input, "Rabin", 5))
       {
-	input += 5;
-	c = acc_cond::acc_code::rabin(parse_range(input));
+        input += 5;
+        c = acc_cond::acc_code::rabin(parse_range(input));
       }
     else if (!strncmp(input, "Streett", 7))
       {
-	input += 7;
-	c = acc_cond::acc_code::streett(parse_range(input));
+        input += 7;
+        c = acc_cond::acc_code::streett(parse_range(input));
       }
     else if (!strncmp(input, "generalized-Rabin", 17))
       {
-	input += 17;
-	unsigned num = parse_num(input);
-	std::vector<unsigned> v;
-	v.reserve(num);
-	while (num > 0)
-	  {
-	    v.push_back(parse_range(input));
-	    --num;
-	  }
-	c = acc_cond::acc_code::generalized_rabin(v.begin(), v.end());
+        input += 17;
+        unsigned num = parse_num(input);
+        std::vector<unsigned> v;
+        v.reserve(num);
+        while (num > 0)
+          {
+            v.push_back(parse_range(input));
+            --num;
+          }
+        c = acc_cond::acc_code::generalized_rabin(v.begin(), v.end());
       }
     else if (!strncmp(input, "parity", 6))
       {
-	input += 6;
-	bool max = max_or_min(input);
-	bool odd = odd_or_even(input);
-	unsigned num = parse_range(input);
-	c = acc_cond::acc_code::parity(max, odd, num);
+        input += 6;
+        bool max = max_or_min(input);
+        bool odd = odd_or_even(input);
+        unsigned num = parse_range(input);
+        c = acc_cond::acc_code::parity(max, odd, num);
       }
     else if (!strncmp(input, "random", 6))
       {
-	input += 6;
-	unsigned n = parse_range(input);
-	skip_space(input);
-	auto setreuse = input;
-	double reuse = (*input) ? parse_proba(input) : 0.0;
-	if (reuse >= 1.0)
-	  syntax_error(setreuse, "probability for set reuse should be <1.");
-	c = acc_cond::acc_code::random(n, reuse);
+        input += 6;
+        unsigned n = parse_range(input);
+        skip_space(input);
+        auto setreuse = input;
+        double reuse = (*input) ? parse_proba(input) : 0.0;
+        if (reuse >= 1.0)
+          syntax_error(setreuse, "probability for set reuse should be <1.");
+        c = acc_cond::acc_code::random(n, reuse);
       }
     else
       {
-	c = parse_acc(input);
+        c = parse_acc(input);
       }
     skip_space(input);
     if (*input)

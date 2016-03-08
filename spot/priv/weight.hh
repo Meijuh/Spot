@@ -48,7 +48,7 @@ namespace spot
     /// the corresponding counter in w.
     acc_cond::mark_t diff(const acc_cond& acc, const weight& w) const;
     friend std::ostream& operator<<(std::ostream& os,
-				    const weight& w);
+                                    const weight& w);
 
   private:
     std::vector<int> m;

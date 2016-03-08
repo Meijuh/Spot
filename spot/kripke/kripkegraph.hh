@@ -46,16 +46,16 @@ namespace spot
 
       // Do not simply return "other - this", it might not fit in an int.
       if (o < this)
-	return -1;
+        return -1;
       if (o > this)
-	return 1;
+        return 1;
       return 0;
     }
 
     virtual size_t hash() const override
     {
       return
-	reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
+        reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
     }
 
     virtual kripke_graph_state*
@@ -93,7 +93,7 @@ namespace spot
     edge p_;
   public:
     kripke_graph_succ_iterator(const Graph* g,
-			       const typename Graph::state_storage_t* s):
+                               const typename Graph::state_storage_t* s):
       kripke_succ_iterator(s->cond()),
       g_(g),
       t_(s->succ)
@@ -131,7 +131,7 @@ namespace spot
     {
       assert(!done());
       return const_cast<kripke_graph_state*>
-	(&g_->state_data(g_->edge_storage(p_).dst));
+        (&g_->state_data(g_->edge_storage(p_).dst));
     }
   };
 
@@ -176,14 +176,14 @@ namespace spot
     graph_t::state get_init_state_number() const
     {
       if (num_states() == 0)
-	const_cast<graph_t&>(g_).new_state();
+        const_cast<graph_t&>(g_).new_state();
       return init_number_;
     }
 
     virtual const kripke_graph_state* get_init_state() const override
     {
       if (num_states() == 0)
-	const_cast<graph_t&>(g_).new_state();
+        const_cast<graph_t&>(g_).new_state();
       return state_from_number(init_number_);
     }
 
@@ -197,13 +197,13 @@ namespace spot
       assert(!s->succ || g_.valid_trans(s->succ));
 
       if (this->iter_cache_)
-	{
-	  auto it =
-	    down_cast<kripke_graph_succ_iterator<graph_t>*>(this->iter_cache_);
-	  it->recycle(s);
-	  this->iter_cache_ = nullptr;
-	  return it;
-	}
+        {
+          auto it =
+            down_cast<kripke_graph_succ_iterator<graph_t>*>(this->iter_cache_);
+          it->recycle(s);
+          this->iter_cache_ = nullptr;
+          return it;
+        }
       return new kripke_graph_succ_iterator<graph_t>(&g_, s);
 
     }

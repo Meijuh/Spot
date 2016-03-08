@@ -56,7 +56,7 @@ namespace spot
   //@{
   SPOT_API twa_graph_ptr
   tgba_powerset(const const_twa_graph_ptr& aut,
-		power_map& pm, bool merge = true);
+                power_map& pm, bool merge = true);
   SPOT_API twa_graph_ptr
   tgba_powerset(const const_twa_graph_ptr& aut);
   //@}
@@ -71,19 +71,19 @@ namespace spot
   ///
   /// The construction is adapted from Section 3.2 of:
   /// \verbatim
-  /// @InProceedings{	  dax.07.atva,
-  ///   author	  = {Christian Dax and Jochen Eisinger and Felix Klaedtke},
+  /// @InProceedings{          dax.07.atva,
+  ///   author    = {Christian Dax and Jochen Eisinger and Felix Klaedtke},
   ///   title     = {Mechanizing the Powerset Construction for Restricted
-  /// 		     Classes of {$\omega$}-Automata},
+  ///                  Classes of {$\omega$}-Automata},
   ///   year      = 2007,
-  ///   series	  = {Lecture Notes in Computer Science},
+  ///   series    = {Lecture Notes in Computer Science},
   ///   publisher = {Springer-Verlag},
-  ///   volume	  = 4762,
+  ///   volume    = 4762,
   ///   booktitle = {Proceedings of the 5th International Symposium on
-  /// 		     Automated Technology for Verification and Analysis
-  /// 		     (ATVA'07)},
-  ///   editor	  = {Kedar S. Namjoshi and Tomohiro Yoneda and Teruo Higashino
-  /// 		     and Yoshio Okamura},
+  ///                  Automated Technology for Verification and Analysis
+  ///                  (ATVA'07)},
+  ///   editor    = {Kedar S. Namjoshi and Tomohiro Yoneda and Teruo Higashino
+  ///                 and Yoshio Okamura},
   ///   month     = oct
   /// }
   /// \endverbatim
@@ -99,8 +99,8 @@ namespace spot
   /// threshold_cycles cycles.
   SPOT_API twa_graph_ptr
   tba_determinize(const const_twa_graph_ptr& aut,
-		  unsigned threshold_states = 0,
-		  unsigned threshold_cycles = 0);
+                  unsigned threshold_states = 0,
+                  unsigned threshold_cycles = 0);
 
   /// \brief Determinize a TBA and make sure it is correct.
   ///
@@ -131,9 +131,9 @@ namespace spot
   /// were supplied.
   SPOT_API twa_graph_ptr
   tba_determinize_check(const twa_graph_ptr& aut,
-			unsigned threshold_states = 0,
-			unsigned threshold_cycles = 0,
-			formula f = nullptr,
-			const_twa_graph_ptr neg_aut = nullptr);
+                        unsigned threshold_states = 0,
+                        unsigned threshold_cycles = 0,
+                        formula f = nullptr,
+                        const_twa_graph_ptr neg_aut = nullptr);
 
 }

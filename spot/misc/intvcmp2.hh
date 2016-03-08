@@ -36,7 +36,7 @@ namespace spot
   /// filled in \a dest
   SPOT_API void
   int_array_array_compress2(const int* array, size_t n,
-			   int* dest, size_t& dest_size);
+                           int* dest, size_t& dest_size);
 
   /// \brief Uncompress an int array of size \a array_size into a int
   ///        array of size \a size.
@@ -44,7 +44,7 @@ namespace spot
   /// \a size must be the exact expected size of uncompressed array.
   SPOT_API void
   int_array_array_decompress2(const int* array, size_t array_size,
-			     int* res, size_t size);
+                             int* res, size_t size);
 
   /// @}
 }

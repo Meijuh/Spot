@@ -39,7 +39,7 @@ namespace spot
       const size_t bpb = 8 * sizeof(bitvect::block_t);
       size_t n = (bitcount + bpb - 1) / bpb;
       if (n < 1)
-	return 1;
+        return 1;
       return n;
     }
 
@@ -60,12 +60,12 @@ namespace spot
     {
       static unsigned long init()
       {
-	return 14695981039346656037UL;
+        return 14695981039346656037UL;
       }
 
       static unsigned long prime()
       {
-	return 1099511628211UL;
+        return 1099511628211UL;
       }
     };
 #endif
@@ -76,12 +76,12 @@ namespace spot
     {
       static unsigned long init()
       {
-	return 2166136261UL;
+        return 2166136261UL;
       }
 
       static unsigned long prime()
       {
-	return 16777619UL;
+        return 16777619UL;
       }
     };
 
@@ -109,7 +109,7 @@ namespace spot
     // already contains one int of local_storage_, but
     // we allocate n-1 more so that we store the table.
     void* mem = operator new(sizeof(bitvect)
-			     + (n - 1) * sizeof(bitvect::block_t));
+                             + (n - 1) * sizeof(bitvect::block_t));
     bitvect* res = new(mem) bitvect(size_, n, true);
     memcpy(res->storage_, storage_, res->block_count_ * sizeof(block_t));
     return res;
@@ -125,8 +125,8 @@ namespace spot
       return res;
     for (i = 0; i < m - 1; ++i)
       {
-	res ^= storage_[i];
-	res *= fnv<sizeof(block_t)>::prime();
+        res ^= storage_[i];
+        res *= fnv<sizeof(block_t)>::prime();
       }
     // Deal with the last block, that might not be fully used.
     // Compute the number n of bits used in the last block.
@@ -144,7 +144,7 @@ namespace spot
     // already contains one int of local_storage_, but
     // we allocate n-1 more so that we store the table.
     void* mem = operator new(sizeof(bitvect)
-			     + (n - 1) * sizeof(bitvect::block_t));
+                             + (n - 1) * sizeof(bitvect::block_t));
     return new(mem) bitvect(bitcount, n);
   }
 
@@ -176,16 +176,16 @@ namespace spot
     size_t end = a.size();
     if (end == 0)
       {
-	os << "empty\n";
-	return os;
+        os << "empty\n";
+        return os;
       }
     int w = floor(log10(end - 1)) + 1;
     for (size_t i = 0; i != end; ++i)
       {
-	os.width(w);
-	os << i;
-	os.width(1);
-	os << ": " << a.at(i) << '\n';
+        os.width(w);
+        os << i;
+        os.width(1);
+        os << ": " << a.at(i) << '\n';
       }
     return os;
   }

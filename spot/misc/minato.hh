@@ -91,7 +91,7 @@ namespace spot
       bdd f1_min, f1_max;
       bdd g0, g1;
       local_vars(bdd f_min, bdd f_max, bdd vars)
-	: f_min(f_min), f_max(f_max), step(FirstStep), vars(vars) {}
+        : f_min(f_min), f_max(f_max), step(FirstStep), vars(vars) {}
     };
     std::stack<local_vars> todo_;
     std::stack<bdd> cube_;

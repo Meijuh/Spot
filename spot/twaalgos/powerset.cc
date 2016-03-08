@@ -50,10 +50,10 @@ namespace spot
       unsigned nap = 0;
       int v = vin.id();
       while (v != 1)
-	{
-	  v = bdd_high(v);
-	  ++nap;
-	}
+        {
+          v = bdd_high(v);
+          ++nap;
+        }
       return nap;
     }
 
@@ -63,8 +63,8 @@ namespace spot
       power_map::power_state ps;
       unsigned ns = in->size();
       for (unsigned pos = 0; pos < ns; ++pos)
-	if (in->get(pos))
-	  ps.insert(pos);
+        if (in->get(pos))
+          ps.insert(pos);
       return ps;
     }
 
@@ -72,7 +72,7 @@ namespace spot
     {
       size_t operator()(const bitvect* bv) const
       {
-	return bv->hash();
+        return bv->hash();
       }
     };
 
@@ -80,7 +80,7 @@ namespace spot
     {
       bool operator()(const bitvect* bvl, const bitvect* bvr) const
       {
-	return *bvl == *bvr;
+        return *bvl == *bvr;
       }
     };
   }
@@ -94,9 +94,9 @@ namespace spot
       sup_map sup;
       // Record occurrences of all guards
       for (auto& t: aut->edges())
-	sup.emplace(t.cond);
+        sup.emplace(t.cond);
       for (auto& i: sup)
-	allap &= bdd_support(i);
+        allap &= bdd_support(i);
     }
 
     unsigned nap = number_of_variables(allap);
@@ -118,13 +118,13 @@ namespace spot
     bdd all = bddtrue;
     while (all != bddfalse)
       {
-	bdd one = bdd_satoneset(all, allap, bddfalse);
-	all -= one;
-	bdd2num.emplace(one, num2bdd.size());
-	num2bdd.push_back(one);
+        bdd one = bdd_satoneset(all, allap, bddfalse);
+        all -= one;
+        bdd2num.emplace(one, num2bdd.size());
+        num2bdd.push_back(one);
       }
 
-    size_t nc = num2bdd.size();	// number of conditions
+    size_t nc = num2bdd.size();        // number of conditions
     assert(nc == (1UL << nap));
 
     // An array of bit vectors of size 'ns'.  Each original state is
@@ -134,18 +134,18 @@ namespace spot
 
     for (unsigned src = 0; src < ns; ++src)
       {
-	size_t base = src * nc;
-	for (auto& t: aut->out(src))
-	  {
-	    bdd all = t.cond;
-	    while (all != bddfalse)
-	      {
-		bdd one = bdd_satoneset(all, allap, bddfalse);
-		all -= one;
-		unsigned num = bdd2num[one];
-		bv->at(base + num).set(t.dst);
-	      }
-	  }
+        size_t base = src * nc;
+        for (auto& t: aut->out(src))
+          {
+            bdd all = t.cond;
+            while (all != bddfalse)
+              {
+                bdd one = bdd_satoneset(all, allap, bddfalse);
+                all -= one;
+                unsigned num = bdd2num[one];
+                bv->at(base + num).set(t.dst);
+              }
+          }
       }
 
     typedef power_map::power_state power_state;
@@ -175,39 +175,39 @@ namespace spot
 
     for (unsigned src_num = 0; src_num < res->num_states(); ++src_num)
       {
-	om->clear_all();
+        om->clear_all();
 
-	const power_state& src = pm.states_of(src_num);
+        const power_state& src = pm.states_of(src_num);
 
-	for (auto s: src)
-	  {
-	    size_t base = s * nc;
-	    for (unsigned c = 0; c < nc; ++c)
-	      om->at(c) |= bv->at(base + c);
-	  }
-	for (unsigned c = 0; c < nc; ++c)
-	  {
-	    auto dst = &om->at(c);
-	    if (dst->is_fully_clear())
-	      continue;
-	    auto i = seen.find(dst);
-	    unsigned dst_num;
-	    if (i != seen.end())
-	      {
-		dst_num = i->second;
-	      }
-	    else
-	      {
-		dst_num = res->new_state();
-		auto dst2 = dst->clone();
-		seen[dst2] = dst_num;
-		toclean.push_back(dst2);
-		auto ps = bv_to_ps(dst);
-		assert(pm.map_.size() == dst_num);
-		pm.map_.emplace_back(std::move(ps));
-	      }
-	    res->new_edge(src_num, dst_num, num2bdd[c]);
-	  }
+        for (auto s: src)
+          {
+            size_t base = s * nc;
+            for (unsigned c = 0; c < nc; ++c)
+              om->at(c) |= bv->at(base + c);
+          }
+        for (unsigned c = 0; c < nc; ++c)
+          {
+            auto dst = &om->at(c);
+            if (dst->is_fully_clear())
+              continue;
+            auto i = seen.find(dst);
+            unsigned dst_num;
+            if (i != seen.end())
+              {
+                dst_num = i->second;
+              }
+            else
+              {
+                dst_num = res->new_state();
+                auto dst2 = dst->clone();
+                seen[dst2] = dst_num;
+                toclean.push_back(dst2);
+                auto ps = bv_to_ps(dst);
+                assert(pm.map_.size() == dst_num);
+                pm.map_.emplace_back(std::move(ps));
+              }
+            res->new_edge(src_num, dst_num, num2bdd[c]);
+          }
       }
 
     for (auto v: toclean)
@@ -238,133 +238,133 @@ namespace spot
     protected:
       const_twa_graph_ptr ref_;
       power_map& refmap_;
-      edge_set reject_;	// set of rejecting edges
-      set_set accept_;		// set of cycles that are accepting
-      edge_set all_;		// all non rejecting edges
-      unsigned threshold_;	// maximum count of enumerated cycles
-      unsigned cycles_left_; 	// count of cycles left to explore
+      edge_set reject_;        // set of rejecting edges
+      set_set accept_;                // set of cycles that are accepting
+      edge_set all_;                // all non rejecting edges
+      unsigned threshold_;        // maximum count of enumerated cycles
+      unsigned cycles_left_;         // count of cycles left to explore
 
     public:
       fix_scc_acceptance(const scc_info& sm, const_twa_graph_ptr ref,
-			 power_map& refmap, unsigned threshold)
-	: enumerate_cycles(sm), ref_(ref), refmap_(refmap),
-	  threshold_(threshold)
+                         power_map& refmap, unsigned threshold)
+        : enumerate_cycles(sm), ref_(ref), refmap_(refmap),
+          threshold_(threshold)
       {
       }
 
       bool fix_scc(const int m)
       {
-	reject_.clear();
-	accept_.clear();
-	cycles_left_ = threshold_;
-	run(m);
+        reject_.clear();
+        accept_.clear();
+        cycles_left_ = threshold_;
+        run(m);
 
-//	std::cerr << "SCC #" << m << '\n';
-//	std::cerr << "REJECT: ";
-//	print_set(std::cerr, reject_) << '\n';
-//	std::cerr << "ALL: ";
-//	print_set(std::cerr, all_) << '\n';
-//	for (set_set::const_iterator j = accept_.begin();
-//	     j != accept_.end(); ++j)
-//	  {
-//	    std::cerr << "ACCEPT: ";
-//	    print_set(std::cerr, *j) << '\n';
-//	  }
+//        std::cerr << "SCC #" << m << '\n';
+//        std::cerr << "REJECT: ";
+//        print_set(std::cerr, reject_) << '\n';
+//        std::cerr << "ALL: ";
+//        print_set(std::cerr, all_) << '\n';
+//        for (set_set::const_iterator j = accept_.begin();
+//             j != accept_.end(); ++j)
+//          {
+//            std::cerr << "ACCEPT: ";
+//            print_set(std::cerr, *j) << '\n';
+//          }
 
-	auto acc = aut_->acc().all_sets();
-	for (auto i: all_)
-	  i->acc = acc;
-	return threshold_ != 0 && cycles_left_ == 0;
+        auto acc = aut_->acc().all_sets();
+        for (auto i: all_)
+          i->acc = acc;
+        return threshold_ != 0 && cycles_left_ == 0;
       }
 
       bool is_cycle_accepting(cycle_iter begin, edge_set& ts) const
       {
-	auto a = std::const_pointer_cast<twa_graph>(aut_);
+        auto a = std::const_pointer_cast<twa_graph>(aut_);
 
-	// Build an automaton representing this loop.
-	auto loop_a = make_twa_graph(aut_->get_dict());
-	int loop_size = std::distance(begin, dfs_.end());
-	loop_a->new_states(loop_size);
-	int n;
-	cycle_iter i;
-	for (n = 1, i = begin; n <= loop_size; ++n, ++i)
-	  {
-	    trans* t = &a->edge_data(i->succ);
-	    loop_a->new_edge(n - 1, n % loop_size, t->cond);
-	    if (reject_.find(t) == reject_.end())
-	      ts.insert(t);
-	  }
-	assert(i == dfs_.end());
+        // Build an automaton representing this loop.
+        auto loop_a = make_twa_graph(aut_->get_dict());
+        int loop_size = std::distance(begin, dfs_.end());
+        loop_a->new_states(loop_size);
+        int n;
+        cycle_iter i;
+        for (n = 1, i = begin; n <= loop_size; ++n, ++i)
+          {
+            trans* t = &a->edge_data(i->succ);
+            loop_a->new_edge(n - 1, n % loop_size, t->cond);
+            if (reject_.find(t) == reject_.end())
+              ts.insert(t);
+          }
+        assert(i == dfs_.end());
 
-	unsigned loop_a_init = loop_a->get_init_state_number();
-	assert(loop_a_init == 0);
+        unsigned loop_a_init = loop_a->get_init_state_number();
+        assert(loop_a_init == 0);
 
-	// Check if the loop is accepting in the original automaton.
-	bool accepting = false;
+        // Check if the loop is accepting in the original automaton.
+        bool accepting = false;
 
-	// Iterate on each original state corresponding to the
-	// start of the loop in the determinized automaton.
-	for (auto s: refmap_.states_of(begin->s))
-	  {
-	    // Check the product between LOOP_A, and ORIG_A starting
-	    // in S.
-	    if (!product(loop_a, ref_, loop_a_init, s)->is_empty())
-	      {
-		accepting = true;
-		break;
-	      }
-	  }
-	return accepting;
+        // Iterate on each original state corresponding to the
+        // start of the loop in the determinized automaton.
+        for (auto s: refmap_.states_of(begin->s))
+          {
+            // Check the product between LOOP_A, and ORIG_A starting
+            // in S.
+            if (!product(loop_a, ref_, loop_a_init, s)->is_empty())
+              {
+                accepting = true;
+                break;
+              }
+          }
+        return accepting;
       }
 
       std::ostream&
       print_set(std::ostream& o, const edge_set& s) const
       {
-	o << "{ ";
-	for (auto i: s)
-	  o << i << ' ';
-	o << '}';
-	return o;
+        o << "{ ";
+        for (auto i: s)
+          o << i << ' ';
+        o << '}';
+        return o;
       }
 
       virtual bool
       cycle_found(unsigned start) override
       {
-	cycle_iter i = dfs_.begin();
-	while (i->s != start)
-	  ++i;
-	edge_set ts;
-	bool is_acc = is_cycle_accepting(i, ts);
-	do
-	  ++i;
-	while (i != dfs_.end());
-	if (is_acc)
-	  {
-	    accept_.push_back(ts);
-	    all_.insert(ts.begin(), ts.end());
-	  }
-	else
-	  {
-	    for (auto t: ts)
-	      {
-		reject_.insert(t);
-		for (auto& j: accept_)
-		  j.erase(t);
-		all_.erase(t);
-	      }
-	  }
+        cycle_iter i = dfs_.begin();
+        while (i->s != start)
+          ++i;
+        edge_set ts;
+        bool is_acc = is_cycle_accepting(i, ts);
+        do
+          ++i;
+        while (i != dfs_.end());
+        if (is_acc)
+          {
+            accept_.push_back(ts);
+            all_.insert(ts.begin(), ts.end());
+          }
+        else
+          {
+            for (auto t: ts)
+              {
+                reject_.insert(t);
+                for (auto& j: accept_)
+                  j.erase(t);
+                all_.erase(t);
+              }
+          }
 
-	// Abort this algorithm if we have seen too much cycles, i.e.,
-	// when cycle_left_ *reaches* 0.  (If cycle_left_ == 0, that
-	// means we had no limit.)
-	return (cycles_left_ == 0) || --cycles_left_;
+        // Abort this algorithm if we have seen too much cycles, i.e.,
+        // when cycle_left_ *reaches* 0.  (If cycle_left_ == 0, that
+        // means we had no limit.)
+        return (cycles_left_ == 0) || --cycles_left_;
       }
     };
 
     static bool
     fix_dba_acceptance(twa_graph_ptr det,
-		       const_twa_graph_ptr ref, power_map& refmap,
-		       unsigned threshold)
+                       const_twa_graph_ptr ref, power_map& refmap,
+                       unsigned threshold)
     {
       det->copy_acceptance_of(ref);
 
@@ -375,16 +375,16 @@ namespace spot
       fix_scc_acceptance fsa(sm, ref, refmap, threshold);
 
       for (unsigned m = 0; m < scc_count; ++m)
-	if (!sm.is_trivial(m))
-	  if (fsa.fix_scc(m))
-	    return true;
+        if (!sm.is_trivial(m))
+          if (fsa.fix_scc(m))
+            return true;
       return false;
     }
   }
 
   twa_graph_ptr
   tba_determinize(const const_twa_graph_ptr& aut,
-		  unsigned threshold_states, unsigned threshold_cycles)
+                  unsigned threshold_states, unsigned threshold_cycles)
   {
     power_map pm;
     // Do not merge edges in the deterministic automaton.  If we
@@ -393,7 +393,7 @@ namespace spot
     auto det = tgba_powerset(aut, pm, false);
 
     if ((threshold_states > 0)
-	&& (pm.map_.size() > aut->num_states() * threshold_states))
+        && (pm.map_.size() > aut->num_states() * threshold_states))
       return nullptr;
     if (fix_dba_acceptance(det, aut, pm, threshold_cycles))
       return nullptr;
@@ -403,10 +403,10 @@ namespace spot
 
   twa_graph_ptr
   tba_determinize_check(const twa_graph_ptr& aut,
-			unsigned threshold_states,
-			unsigned threshold_cycles,
-			formula f,
-			const_twa_graph_ptr neg_aut)
+                        unsigned threshold_states,
+                        unsigned threshold_cycles,
+                        formula f,
+                        const_twa_graph_ptr neg_aut)
   {
     if (f == nullptr && neg_aut == nullptr)
       return nullptr;
@@ -420,17 +420,17 @@ namespace spot
 
     if (neg_aut == nullptr)
       {
-	neg_aut = ltl_to_tgba_fm(formula::Not(f), aut->get_dict());
-	// Remove useless SCCs.
-	neg_aut = scc_filter(neg_aut, true);
+        neg_aut = ltl_to_tgba_fm(formula::Not(f), aut->get_dict());
+        // Remove useless SCCs.
+        neg_aut = scc_filter(neg_aut, true);
       }
 
     if (product(det, neg_aut)->is_empty())
       // Complement the DBA.
       if (product(aut, remove_fin(dtwa_complement(det)))->is_empty())
-	// Finally, we are now sure that it was safe
-	// to determinize the automaton.
-	return det;
+        // Finally, we are now sure that it was safe
+        // to determinize the automaton.
+        return det;
 
     return aut;
   }

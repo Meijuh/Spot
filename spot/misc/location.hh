@@ -157,8 +157,8 @@ namespace spot
     position last = loc.end - 1;
     ostr << loc.begin;
     if (last.filename
-	&& (!loc.begin.filename
-	    || *loc.begin.filename != *last.filename))
+        && (!loc.begin.filename
+            || *loc.begin.filename != *last.filename))
       ostr << '-' << last;
     else if (loc.begin.line != last.line)
       ostr << '-' << last.line  << '.' << last.column;

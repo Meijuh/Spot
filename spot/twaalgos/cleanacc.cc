@@ -56,7 +56,7 @@ namespace spot
   twa_graph_ptr cleanup_acceptance(const_twa_graph_ptr aut)
   {
     return cleanup_acceptance_here(make_twa_graph(aut,
-						     twa::prop_set::all()));
+                                                     twa::prop_set::all()));
   }
 
 

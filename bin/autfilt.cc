@@ -363,9 +363,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'x':
       {
-	const char* opt = extra_options.parse_options(arg);
-	if (opt)
-	  error(2, 0, "failed to parse --options near '%s'", opt);
+        const char* opt = extra_options.parse_options(arg);
+        if (opt)
+          error(2, 0, "failed to parse --options near '%s'", opt);
       }
       break;
     case OPT_AP_N:
@@ -376,15 +376,15 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_ACCEPT_WORD:
       try
-	{
-	  opt->acc_words.push_back(spot::parse_word(arg, opt->dict)
-				   ->as_automaton());
-	}
+        {
+          opt->acc_words.push_back(spot::parse_word(arg, opt->dict)
+                                   ->as_automaton());
+        }
       catch (const spot::parse_error& e)
-	{
-	  error(2, 0, "failed to parse the argument of --accept-word:\n%s",
-		e.what());
-	}
+        {
+          error(2, 0, "failed to parse the argument of --accept-word:\n%s",
+                e.what());
+        }
       break;
     case OPT_ARE_ISOMORPHIC:
       opt->are_isomorphic = read_automaton(arg, opt->dict);
@@ -420,27 +420,27 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_EQUIVALENT_TO:
       if (opt->equivalent_pos)
-	error(2, 0, "only one --equivalent-to option can be given");
+        error(2, 0, "only one --equivalent-to option can be given");
       opt->equivalent_pos = read_automaton(arg, opt->dict);
       opt->equivalent_neg =
-	spot::dtwa_complement(ensure_deterministic(opt->equivalent_pos));
+        spot::dtwa_complement(ensure_deterministic(opt->equivalent_pos));
       break;
     case OPT_INSTUT:
       if (!arg || (arg[0] == '1' && arg[1] == 0))
-	opt_instut = 1;
+        opt_instut = 1;
       else if (arg[0] == '2' && arg[1] == 0)
-	opt_instut = 2;
+        opt_instut = 2;
       else
-	error(2, 0, "unknown argument for --instut: %s", arg);
+        error(2, 0, "unknown argument for --instut: %s", arg);
       break;
     case OPT_INCLUDED_IN:
       {
-	auto aut = ensure_deterministic(read_automaton(arg, opt->dict));
-	aut = spot::dtwa_complement(aut);
-	if (!opt->included_in)
-	  opt->included_in = aut;
-	else
-	  opt->included_in = spot::product_or(opt->included_in, aut);
+        auto aut = ensure_deterministic(read_automaton(arg, opt->dict));
+        aut = spot::dtwa_complement(aut);
+        if (!opt->included_in)
+          opt->included_in = aut;
+        else
+          opt->included_in = spot::product_or(opt->included_in, aut);
       }
       break;
     case OPT_INTERSECT:
@@ -472,18 +472,18 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_MASK_ACC:
       {
-	for (auto res : to_longs(arg))
-	  {
-	    if (res < 0)
-	      error(2, 0, "acceptance sets should be non-negative:"
-		    " --mask-acc=%ld", res);
-	    if (static_cast<unsigned long>(res)
-		> sizeof(spot::acc_cond::mark_t::value_t))
-	      error(2, 0, "this implementation does not support that many"
-		    " acceptance sets: --mask-acc=%ld", res);
-	    opt_mask_acc.set(res);
-	  }
-	break;
+        for (auto res : to_longs(arg))
+          {
+            if (res < 0)
+              error(2, 0, "acceptance sets should be non-negative:"
+                    " --mask-acc=%ld", res);
+            if (static_cast<unsigned long>(res)
+                > sizeof(spot::acc_cond::mark_t::value_t))
+              error(2, 0, "this implementation does not support that many"
+                    " acceptance sets: --mask-acc=%ld", res);
+            opt_mask_acc.set(res);
+          }
+        break;
       }
     case OPT_KEEP_STATES:
       {
@@ -491,71 +491,71 @@ parse_opt(int key, char* arg, struct argp_state*)
         if (!values.empty())
           opt_keep_states_initial = values[0];
         for (auto res : values)
-	  {
-	    if (res < 0)
-	      error(2, 0, "state ids should be non-negative:"
-		    " --mask-acc=%ld", res);
+          {
+            if (res < 0)
+              error(2, 0, "state ids should be non-negative:"
+                    " --mask-acc=%ld", res);
             // We don't know yet how many states the automata contain.
             if (opt_keep_states.size() <= static_cast<unsigned long>(res))
               opt_keep_states.resize(res + 1, false);
-	    opt_keep_states[res] = true;
-	  }
-	opt_rem_unreach = true;
-	break;
+            opt_keep_states[res] = true;
+          }
+        opt_rem_unreach = true;
+        break;
       }
     case OPT_PRODUCT_AND:
       {
-	auto a = read_automaton(arg, opt->dict);
-	if (!opt->product_and)
-	  opt->product_and = std::move(a);
-	else
-	  opt->product_and = spot::product(std::move(opt->product_and),
-					   std::move(a));
+        auto a = read_automaton(arg, opt->dict);
+        if (!opt->product_and)
+          opt->product_and = std::move(a);
+        else
+          opt->product_and = spot::product(std::move(opt->product_and),
+                                           std::move(a));
       }
       break;
     case OPT_PRODUCT_OR:
       {
-	auto a = read_automaton(arg, opt->dict);
-	if (!opt->product_or)
-	  opt->product_or = std::move(a);
-	else
-	  opt->product_or = spot::product_or(std::move(opt->product_or),
-					     std::move(a));
+        auto a = read_automaton(arg, opt->dict);
+        if (!opt->product_or)
+          opt->product_or = std::move(a);
+        else
+          opt->product_or = spot::product_or(std::move(opt->product_or),
+                                             std::move(a));
       }
       break;
     case OPT_RANDOMIZE:
       if (arg)
-	{
-	  for (auto p = arg; *p; ++p)
-	    switch (*p)
-	      {
-	      case 's':
-		randomize_st = true;
-		break;
-	      case 't':
-		randomize_tr = true;
-		break;
-	      default:
-		error(2, 0, "unknown argument for --randomize: '%c'", *p);
-	      }
-	}
+        {
+          for (auto p = arg; *p; ++p)
+            switch (*p)
+              {
+              case 's':
+                randomize_st = true;
+                break;
+              case 't':
+                randomize_tr = true;
+                break;
+              default:
+                error(2, 0, "unknown argument for --randomize: '%c'", *p);
+              }
+        }
       else
-	{
-	  randomize_tr = true;
-	  randomize_st = true;
-	}
+        {
+          randomize_tr = true;
+          randomize_st = true;
+        }
       break;
     case OPT_REJECT_WORD:
       try
-	{
-	  opt->rej_words.push_back(spot::parse_word(arg, opt->dict)
-				   ->as_automaton());
-	}
+        {
+          opt->rej_words.push_back(spot::parse_word(arg, opt->dict)
+                                   ->as_automaton());
+        }
       catch (const spot::parse_error& e)
-	{
-	  error(2, 0, "failed to parse the argument of --reject-word:\n%s",
-		e.what());
-	}
+        {
+          error(2, 0, "failed to parse the argument of --reject-word:\n%s",
+                e.what());
+        }
       break;
     case OPT_REM_AP:
       opt->rem_ap.add_ap(arg);
@@ -621,7 +621,7 @@ namespace
 
     int
     process_automaton(const spot::const_parsed_aut_ptr& haut,
-		      const char* filename)
+                      const char* filename)
     {
       spot::stopwatch sw;
       sw.start();
@@ -630,30 +630,30 @@ namespace
       // never modify the original automaton (e.g. with
       // merge_edges()) and the statistics about it make sense.
       auto aut = ((automaton_format == Stats) || opt_name)
-	? spot::make_twa_graph(haut->aut, spot::twa::prop_set::all())
-	: haut->aut;
+        ? spot::make_twa_graph(haut->aut, spot::twa::prop_set::all())
+        : haut->aut;
 
       // Preprocessing.
 
       if (opt_stripacc)
-	spot::strip_acceptance_here(aut);
+        spot::strip_acceptance_here(aut);
       if (opt_merge)
-	aut->merge_edges();
+        aut->merge_edges();
       if (opt_clean_acc || opt_rem_fin)
-	cleanup_acceptance_here(aut);
+        cleanup_acceptance_here(aut);
       if (opt_sep_sets)
-	separate_sets_here(aut);
+        separate_sets_here(aut);
       if (opt_complement_acc)
-	aut->set_acceptance(aut->acc().num_sets(),
-			    aut->get_acceptance().complement());
+        aut->set_acceptance(aut->acc().num_sets(),
+                            aut->get_acceptance().complement());
       if (opt_rem_fin)
-	aut = remove_fin(aut);
+        aut = remove_fin(aut);
       if (opt_dnf_acc)
-	aut->set_acceptance(aut->acc().num_sets(),
-			    aut->get_acceptance().to_dnf());
+        aut->set_acceptance(aut->acc().num_sets(),
+                            aut->get_acceptance().to_dnf());
       if (opt_cnf_acc)
-	aut->set_acceptance(aut->acc().num_sets(),
-			    aut->get_acceptance().to_cnf());
+        aut->set_acceptance(aut->acc().num_sets(),
+                            aut->get_acceptance().to_cnf());
 
       // Filters.
 
@@ -664,46 +664,46 @@ namespace
       matched &= opt_accsets.contains(aut->acc().num_sets());
       matched &= opt_ap_n.contains(aut->ap().size());
       if (opt_is_complete)
-	matched &= is_complete(aut);
+        matched &= is_complete(aut);
       if (opt_is_deterministic)
-	matched &= is_deterministic(aut);
+        matched &= is_deterministic(aut);
       if (opt_is_deterministic)
-	matched &= is_deterministic(aut);
+        matched &= is_deterministic(aut);
       else if (opt_is_unambiguous)
-	matched &= is_unambiguous(aut);
+        matched &= is_unambiguous(aut);
       if (opt_is_terminal)
-	matched &= is_terminal_automaton(aut);
+        matched &= is_terminal_automaton(aut);
       else if (opt_is_weak)
-	matched &= is_weak_automaton(aut);
+        matched &= is_weak_automaton(aut);
       else if (opt_is_inherently_weak)
-	matched &= is_inherently_weak_automaton(aut);
+        matched &= is_inherently_weak_automaton(aut);
       if (opt->are_isomorphic)
         matched &= opt->isomorphism_checker->is_isomorphic(aut);
       if (opt_is_empty)
-	matched &= aut->is_empty();
+        matched &= aut->is_empty();
       if (opt->intersect)
-	matched &= !spot::product(aut, opt->intersect)->is_empty();
+        matched &= !spot::product(aut, opt->intersect)->is_empty();
       if (opt->included_in)
-	matched &= spot::product(aut, opt->included_in)->is_empty();
+        matched &= spot::product(aut, opt->included_in)->is_empty();
       if (opt->equivalent_pos)
-	matched &= spot::product(aut, opt->equivalent_neg)->is_empty()
-	  && spot::product(dtwa_complement(ensure_deterministic(aut)),
-			   opt->equivalent_pos)->is_empty();
+        matched &= spot::product(aut, opt->equivalent_neg)->is_empty()
+          && spot::product(dtwa_complement(ensure_deterministic(aut)),
+                           opt->equivalent_pos)->is_empty();
 
       if (matched && !opt->acc_words.empty())
-	for (auto& word_aut: opt->acc_words)
-	  if (spot::product(aut, word_aut)->is_empty())
-	    {
-	      matched = false;
-	      break;
-	    }
+        for (auto& word_aut: opt->acc_words)
+          if (spot::product(aut, word_aut)->is_empty())
+            {
+              matched = false;
+              break;
+            }
       if (matched && !opt->rej_words.empty())
-	for (auto& word_aut: opt->rej_words)
-	  if (!spot::product(aut, word_aut)->is_empty())
-	    {
-	      matched = false;
-	      break;
-	    }
+        for (auto& word_aut: opt->rej_words)
+          if (!spot::product(aut, word_aut)->is_empty())
+            {
+              matched = false;
+              break;
+            }
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)
@@ -712,65 +712,65 @@ namespace
       // Postprocessing.
 
       if (opt_mask_acc)
-	aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
+        aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
 
       if (!opt->excl_ap.empty())
-	aut = opt->excl_ap.constrain(aut, opt_simplify_exclusive_ap);
+        aut = opt->excl_ap.constrain(aut, opt_simplify_exclusive_ap);
 
       if (!opt->rem_ap.empty())
-	aut = opt->rem_ap.strip(aut);
+        aut = opt->rem_ap.strip(aut);
 
       if (opt_destut)
-	aut = spot::closure(std::move(aut));
+        aut = spot::closure(std::move(aut));
       if (opt_instut == 1)
-	aut = spot::sl(std::move(aut));
+        aut = spot::sl(std::move(aut));
       else if (opt_instut == 2)
-	aut = spot::sl2(std::move(aut));
+        aut = spot::sl2(std::move(aut));
 
       if (!opt_keep_states.empty())
-	aut = mask_keep_states(aut, opt_keep_states, opt_keep_states_initial);
+        aut = mask_keep_states(aut, opt_keep_states, opt_keep_states_initial);
       if (opt_rem_dead)
-	aut->purge_dead_states();
+        aut->purge_dead_states();
       else if (opt_rem_unreach)
-	aut->purge_unreachable_states();
+        aut->purge_unreachable_states();
 
       if (opt->product_and)
-	aut = spot::product(std::move(aut), opt->product_and);
+        aut = spot::product(std::move(aut), opt->product_and);
       if (opt->product_or)
-	aut = spot::product_or(std::move(aut), opt->product_or);
+        aut = spot::product_or(std::move(aut), opt->product_or);
 
       if (opt_decompose_strength)
-	{
-	  aut = decompose_strength(aut, opt_decompose_strength);
-	  if (!aut)
-	    return 0;
-	}
+        {
+          aut = decompose_strength(aut, opt_decompose_strength);
+          if (!aut)
+            return 0;
+        }
 
       if (opt_sat_minimize)
-	{
-	  aut = spot::sat_minimize(aut, opt_sat_minimize, sbacc);
-	  if (!aut)
-	    return 0;
-	}
+        {
+          aut = spot::sat_minimize(aut, opt_sat_minimize, sbacc);
+          if (!aut)
+            return 0;
+        }
 
       if (opt_complement)
-	aut = spot::dtwa_complement(ensure_deterministic(aut));
+        aut = spot::dtwa_complement(ensure_deterministic(aut));
 
       aut = post.run(aut, nullptr);
 
       if (randomize_st || randomize_tr)
-	spot::randomize(aut, randomize_st, randomize_tr);
+        spot::randomize(aut, randomize_st, randomize_tr);
 
       const double conversion_time = sw.stop();
 
       if (opt->uniq)
         {
           auto tmp =
-	    spot::canonicalize(make_twa_graph(aut,
-						 spot::twa::prop_set::all()));
+            spot::canonicalize(make_twa_graph(aut,
+                                                 spot::twa::prop_set::all()));
           if (!opt->uniq->emplace(tmp->edge_vector().begin() + 1,
-				  tmp->edge_vector().end()).second)
-	    return 0;
+                                  tmp->edge_vector().end()).second)
+            return 0;
         }
 
       ++match_count;
@@ -778,7 +778,7 @@ namespace
       printer.print(aut, nullptr, filename, -1, conversion_time, haut);
 
       if (opt_max_count >= 0 && match_count >= opt_max_count)
-	abort_run = true;
+        abort_run = true;
 
       return 0;
     }
@@ -796,19 +796,19 @@ namespace
       auto hp = spot::automaton_stream_parser(filename, opt_parse);
       int err = 0;
       while (!abort_run)
-	{
-	  auto haut = hp.parse(opt->dict);
-	  if (!haut->aut && haut->errors.empty())
-	    break;
-	  if (haut->format_errors(std::cerr))
-	    err = 2;
-	  if (!haut->aut)
-	    error(2, 0, "failed to read automaton from %s", filename);
-	  else if (haut->aborted)
-	    err = std::max(err, aborted(haut, filename));
-	  else
+        {
+          auto haut = hp.parse(opt->dict);
+          if (!haut->aut && haut->errors.empty())
+            break;
+          if (haut->format_errors(std::cerr))
+            err = 2;
+          if (!haut->aut)
+            error(2, 0, "failed to read automaton from %s", filename);
+          else if (haut->aborted)
+            err = std::max(err, aborted(haut, filename));
+          else
             process_automaton(haut, filename);
-	}
+        }
       return err;
     }
   };
@@ -820,7 +820,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FILENAMES...]",
-		    argp_program_doc, children, nullptr, nullptr };
+                    argp_program_doc, children, nullptr, nullptr };
 
   try
     {
@@ -834,23 +834,23 @@ main(int argc, char** argv)
       pref = spot::postprocessor::Any;
       type = spot::postprocessor::Generic;
       if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
-	exit(err);
+        exit(err);
 
       if (level_set && !pref_set)
-	pref = spot::postprocessor::Small;
+        pref = spot::postprocessor::Small;
       if (pref_set && !level_set)
-	level = spot::postprocessor::High;
+        level = spot::postprocessor::High;
 
       if (jobs.empty())
-	jobs.emplace_back("-", true);
+        jobs.emplace_back("-", true);
 
       if (opt->are_isomorphic)
-	{
-	  if (opt_merge)
-	    opt->are_isomorphic->merge_edges();
-	  opt->isomorphism_checker = std::unique_ptr<spot::isomorphism_checker>
-	    (new spot::isomorphism_checker(opt->are_isomorphic));
-	}
+        {
+          if (opt_merge)
+            opt->are_isomorphic->merge_edges();
+          opt->isomorphism_checker = std::unique_ptr<spot::isomorphism_checker>
+            (new spot::isomorphism_checker(opt->are_isomorphic));
+        }
 
 
       spot::srand(opt_seed);
@@ -862,7 +862,7 @@ main(int argc, char** argv)
 
       hoa_processor processor(post);
       if (processor.run())
-	return 2;
+        return 2;
     }
   catch (const std::runtime_error& e)
     {

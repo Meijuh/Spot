@@ -34,7 +34,7 @@ namespace spot
   namespace
   {
     typedef std::pair<const spot::state*,
-		      ta_succ_iterator_product*> pair_state_iter;
+                      ta_succ_iterator_product*> pair_state_iter;
   }
 
   /// \addtogroup ta_emptiness_check Emptiness-checks
@@ -111,7 +111,7 @@ namespace spot
     /// this heuristic is described in the paper cited above
     bool
     check(bool disable_second_pass = false,
-	  bool disable_heuristic_for_livelock_detection = false);
+          bool disable_heuristic_for_livelock_detection = false);
 
     /// \brief Check whether the product automaton contains
     /// a livelock-accepting run

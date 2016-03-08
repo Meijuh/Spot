@@ -85,7 +85,7 @@ namespace spot
     /// to be output, and so is \a run_time).
     std::ostream&
       print(const const_twa_graph_ptr& aut, formula f = nullptr,
-	    double run_time = -1.);
+            double run_time = -1.);
 
   private:
     const char* format_;

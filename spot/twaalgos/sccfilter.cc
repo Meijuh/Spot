@@ -42,25 +42,25 @@ namespace spot
     {
       scc_info* si;
       id_filter(scc_info* si)
-	: si(si)
+        : si(si)
       {
       }
 
       // Accept all states
       bool state(unsigned)
       {
-	return true;
+        return true;
       }
 
       void fix_acceptance(const twa_graph_ptr& out)
       {
-	out->copy_acceptance_of(this->si->get_aut());
+        out->copy_acceptance_of(this->si->get_aut());
       }
 
       // Accept all edges, unmodified
       filtered_trans trans(unsigned, unsigned, bdd cond, acc_cond::mark_t acc)
       {
-	return filtered_trans{true, cond, acc};
+        return filtered_trans{true, cond, acc};
       }
     };
 
@@ -70,13 +70,13 @@ namespace spot
     {
       template<typename... Args>
       state_filter(scc_info* si, Args&&... args)
-	: next_filter(si, std::forward<Args>(args)...)
+        : next_filter(si, std::forward<Args>(args)...)
       {
       }
 
       bool state(unsigned s)
       {
-	return this->next_filter::state(s) && this->si->is_useful_state(s);
+        return this->next_filter::state(s) && this->si->is_useful_state(s);
       }
     };
 
@@ -90,37 +90,37 @@ namespace spot
 
       template<typename... Args>
       susp_filter(scc_info* si,
-		  bdd suspvars, bdd ignoredvars, bool early_susp,
-		  Args&&... args)
-	: next_filter(si, std::forward<Args>(args)...),
-	  suspvars(suspvars),
-	  ignoredvars(ignoredvars),
-	  early_susp(early_susp)
+                  bdd suspvars, bdd ignoredvars, bool early_susp,
+                  Args&&... args)
+        : next_filter(si, std::forward<Args>(args)...),
+          suspvars(suspvars),
+          ignoredvars(ignoredvars),
+          early_susp(early_susp)
       {
       }
 
       filtered_trans trans(unsigned src, unsigned dst,
-			   bdd cond, acc_cond::mark_t acc)
+                           bdd cond, acc_cond::mark_t acc)
       {
-	bool keep;
-	std::tie(keep, cond, acc) =
-	  this->next_filter::trans(src, dst, cond, acc);
+        bool keep;
+        std::tie(keep, cond, acc) =
+          this->next_filter::trans(src, dst, cond, acc);
 
-	if (keep)
-	  {
-	    // Always remove ignored variables
-	    cond = bdd_exist(cond, ignoredvars);
+        if (keep)
+          {
+            // Always remove ignored variables
+            cond = bdd_exist(cond, ignoredvars);
 
-	    // Remove the suspension variables only if
-	    // the destination in a rejecting SCC,
-	    // or if we are between SCC with early_susp unset.
-	    unsigned u = this->si->scc_of(dst);
-	    if (this->si->is_rejecting_scc(u)
-		|| (!early_susp && (u != this->si->scc_of(src))))
-	      cond = bdd_exist(cond, suspvars);
-	  }
+            // Remove the suspension variables only if
+            // the destination in a rejecting SCC,
+            // or if we are between SCC with early_susp unset.
+            unsigned u = this->si->scc_of(dst);
+            if (this->si->is_rejecting_scc(u)
+                || (!early_susp && (u != this->si->scc_of(src))))
+              cond = bdd_exist(cond, suspvars);
+          }
 
-	return filtered_trans(keep, cond, acc);
+        return filtered_trans(keep, cond, acc);
       }
     };
 
@@ -136,68 +136,68 @@ namespace spot
 
       template<typename... Args>
       acc_filter_mask(scc_info* si, Args&&... args)
-	: next_filter(si, std::forward<Args>(args)...)
+        : next_filter(si, std::forward<Args>(args)...)
       {
-	acc_cond::mark_t fin;
-	acc_cond::mark_t inf;
-	std::tie(inf, fin) =
-	  si->get_aut()->acc().get_acceptance().used_inf_fin_sets();
-	// If an SCC is rejecting, we can mask all the sets that are
-	// used only as Inf in the acceptance.
-	accmask = ~(inf - fin);
+        acc_cond::mark_t fin;
+        acc_cond::mark_t inf;
+        std::tie(inf, fin) =
+          si->get_aut()->acc().get_acceptance().used_inf_fin_sets();
+        // If an SCC is rejecting, we can mask all the sets that are
+        // used only as Inf in the acceptance.
+        accmask = ~(inf - fin);
       }
 
       filtered_trans trans(unsigned src, unsigned dst,
-			   bdd cond, acc_cond::mark_t acc)
+                           bdd cond, acc_cond::mark_t acc)
       {
-	bool keep;
-	std::tie(keep, cond, acc) =
-	  this->next_filter::trans(src, dst, cond, acc);
+        bool keep;
+        std::tie(keep, cond, acc) =
+          this->next_filter::trans(src, dst, cond, acc);
 
-	if (keep)
-	  {
-	    unsigned u = this->si->scc_of(src);
-	    unsigned v = this->si->scc_of(dst);
-	    // The basic rules are as follows:
-	    //
-	    // - If an edge is between two SCCs, is OK to remove
-	    //   all acceptance sets, as this edge cannot be part
-	    //   of any loop.
-	    // - If an edge is in an non-accepting SCC, we can only
-	    //   remove the Inf sets, as removinf the Fin sets
-	    //   might make the SCC accepting.
-	    //
-	    // The above rules are made more complex with two flags:
-	    //
-	    // - If PreserveSBA is set, we have to tree a transition
-	    //   leaving an SCC as other transitions inside the SCC,
-	    //   otherwise we will break the property that all
-	    //   transitions leaving the same state have identical set
-	    //   membership.
-	    // - If RemoveAll is false, we like to keep the membership
-	    //   of transitions entering an SCC.  This can only be
-	    //   done if PreserveSBA is unset, unfortunately.
-	    if (u == v)
-	      {
-		if (this->si->is_rejecting_scc(u))
-		  acc &= accmask;
-	      }
-	    else if (PreserveSBA && this->si->is_rejecting_scc(u))
-	      {
-		if (!this->si->is_trivial(u))
-		  acc &= accmask; // No choice.
-		else if (RemoveAll)
-		  acc = 0U;
-	      }
-	    else if (!PreserveSBA)
-	      {
-		if (RemoveAll)
-		  acc = 0U;
-		else if (this->si->is_rejecting_scc(v))
-		  acc &= accmask;
-	      }
-	  }
-	return filtered_trans(keep, cond, acc);
+        if (keep)
+          {
+            unsigned u = this->si->scc_of(src);
+            unsigned v = this->si->scc_of(dst);
+            // The basic rules are as follows:
+            //
+            // - If an edge is between two SCCs, is OK to remove
+            //   all acceptance sets, as this edge cannot be part
+            //   of any loop.
+            // - If an edge is in an non-accepting SCC, we can only
+            //   remove the Inf sets, as removinf the Fin sets
+            //   might make the SCC accepting.
+            //
+            // The above rules are made more complex with two flags:
+            //
+            // - If PreserveSBA is set, we have to tree a transition
+            //   leaving an SCC as other transitions inside the SCC,
+            //   otherwise we will break the property that all
+            //   transitions leaving the same state have identical set
+            //   membership.
+            // - If RemoveAll is false, we like to keep the membership
+            //   of transitions entering an SCC.  This can only be
+            //   done if PreserveSBA is unset, unfortunately.
+            if (u == v)
+              {
+                if (this->si->is_rejecting_scc(u))
+                  acc &= accmask;
+              }
+            else if (PreserveSBA && this->si->is_rejecting_scc(u))
+              {
+                if (!this->si->is_trivial(u))
+                  acc &= accmask; // No choice.
+                else if (RemoveAll)
+                  acc = 0U;
+              }
+            else if (!PreserveSBA)
+              {
+                if (RemoveAll)
+                  acc = 0U;
+                else if (this->si->is_rejecting_scc(v))
+                  acc &= accmask;
+              }
+          }
+        return filtered_trans(keep, cond, acc);
       }
     };
 
@@ -210,75 +210,75 @@ namespace spot
 
       template<typename... Args>
       acc_filter_simplify(scc_info* si, Args&&... args)
-	: next_filter(si, std::forward<Args>(args)...)
+        : next_filter(si, std::forward<Args>(args)...)
       {
       }
 
       void fix_acceptance(const twa_graph_ptr& out)
       {
-	auto& acc = this->si->get_aut()->acc();
-	if (!acc.is_generalized_buchi())
-	  throw std::runtime_error
-	    ("simplification of SCC acceptance works only with "
-	     "generalized Büchi acceptance");
+        auto& acc = this->si->get_aut()->acc();
+        if (!acc.is_generalized_buchi())
+          throw std::runtime_error
+            ("simplification of SCC acceptance works only with "
+             "generalized Büchi acceptance");
 
-	unsigned scc_count = this->si->scc_count();
-	auto used_acc = this->si->used_acc();
-	assert(used_acc.size() == scc_count);
-	strip_.resize(scc_count);
-	std::vector<unsigned> cnt(scc_count); // # of useful sets in each SCC
-	unsigned max = 0;		      // Max number of useful sets
-	for (unsigned n = 0; n < scc_count; ++n)
-	  {
-	    if (this->si->is_rejecting_scc(n))
-	      continue;
-	    strip_[n] = acc.useless(used_acc[n].begin(), used_acc[n].end());
-	    cnt[n] = acc.num_sets() - strip_[n].count();
-	    if (cnt[n] > max)
-	      max = cnt[n];
-	  }
-	// Now that we know about the max number of acceptance
-	// conditions, add extra acceptance conditions to those SCC
-	// that do not have enough.
-	for (unsigned n = 0; n < scc_count; ++n)
-	  {
-	    if (this->si->is_rejecting_scc(n))
-	      continue;
-	    if (cnt[n] < max)
-	      strip_[n].remove_some(max - cnt[n]);
-	  }
+        unsigned scc_count = this->si->scc_count();
+        auto used_acc = this->si->used_acc();
+        assert(used_acc.size() == scc_count);
+        strip_.resize(scc_count);
+        std::vector<unsigned> cnt(scc_count); // # of useful sets in each SCC
+        unsigned max = 0;                     // Max number of useful sets
+        for (unsigned n = 0; n < scc_count; ++n)
+          {
+            if (this->si->is_rejecting_scc(n))
+              continue;
+            strip_[n] = acc.useless(used_acc[n].begin(), used_acc[n].end());
+            cnt[n] = acc.num_sets() - strip_[n].count();
+            if (cnt[n] > max)
+              max = cnt[n];
+          }
+        // Now that we know about the max number of acceptance
+        // conditions, add extra acceptance conditions to those SCC
+        // that do not have enough.
+        for (unsigned n = 0; n < scc_count; ++n)
+          {
+            if (this->si->is_rejecting_scc(n))
+              continue;
+            if (cnt[n] < max)
+              strip_[n].remove_some(max - cnt[n]);
+          }
 
-	out->set_generalized_buchi(max);
+        out->set_generalized_buchi(max);
       }
 
       filtered_trans trans(unsigned src, unsigned dst, bdd cond,
-			   acc_cond::mark_t acc)
+                           acc_cond::mark_t acc)
       {
-	bool keep;
-	std::tie(keep, cond, acc) =
-	  this->next_filter::trans(src, dst, cond, acc);
+        bool keep;
+        std::tie(keep, cond, acc) =
+          this->next_filter::trans(src, dst, cond, acc);
 
-	if (keep && acc)
-	  {
-	    unsigned u = this->si->scc_of(dst);
+        if (keep && acc)
+          {
+            unsigned u = this->si->scc_of(dst);
 
-	    if (this->si->is_rejecting_scc(u))
-	      acc = 0U;
-	    else
-	      acc = acc.strip(strip_[u]);
-	  }
-	return filtered_trans{keep, cond, acc};
+            if (this->si->is_rejecting_scc(u))
+              acc = 0U;
+            else
+              acc = acc.strip(strip_[u]);
+          }
+        return filtered_trans{keep, cond, acc};
       }
     };
 
 
     template<class F, typename... Args>
     twa_graph_ptr scc_filter_apply(const_twa_graph_ptr aut,
-				   scc_info* given_si, Args&&... args)
+                                   scc_info* given_si, Args&&... args)
     {
       unsigned in_n = aut->num_states();
-      if (in_n == 0)			 // nothing to filter.
-	return make_twa_graph(aut, twa::prop_set::all());
+      if (in_n == 0)                         // nothing to filter.
+        return make_twa_graph(aut, twa::prop_set::all());
 
       twa_graph_ptr filtered = make_twa_graph(aut->get_dict());
       filtered->copy_ap_of(aut);
@@ -286,44 +286,44 @@ namespace spot
       // Compute scc_info if not supplied.
       scc_info* si = given_si;
       if (!si)
-	si = new scc_info(aut);
+        si = new scc_info(aut);
       si->determine_unknown_acceptance();
 
       F filter(si, std::forward<Args>(args)...);
 
       // Renumber all useful states.
-      unsigned out_n = 0;		 // Number of output states.
+      unsigned out_n = 0;          // Number of output states.
       std::vector<unsigned> inout; // Associate old states to new ones.
       inout.reserve(in_n);
       for (unsigned i = 0; i < in_n; ++i)
-	if (filter.state(i))
-	  inout.push_back(out_n++);
-	else
-	  inout.push_back(-1U);
+        if (filter.state(i))
+          inout.push_back(out_n++);
+        else
+          inout.push_back(-1U);
 
       filter.fix_acceptance(filtered);
       filtered->new_states(out_n);
       for (unsigned isrc = 0; isrc < in_n; ++isrc)
-	{
-	  unsigned osrc = inout[isrc];
-	  if (osrc >= out_n)
-	    continue;
-	  for (auto& t: aut->out(isrc))
-	    {
-	      unsigned odst = inout[t.dst];
-	      if (odst >= out_n)
-		continue;
-	      bool want;
-	      bdd cond;
-	      acc_cond::mark_t acc;
-	      std::tie(want, cond, acc) =
-		filter.trans(isrc, t.dst, t.cond, t.acc);
-	      if (want)
-		filtered->new_edge(osrc, odst, cond, acc);
-	    }
-	}
+        {
+          unsigned osrc = inout[isrc];
+          if (osrc >= out_n)
+            continue;
+          for (auto& t: aut->out(isrc))
+            {
+              unsigned odst = inout[t.dst];
+              if (odst >= out_n)
+                continue;
+              bool want;
+              bdd cond;
+              acc_cond::mark_t acc;
+              std::tie(want, cond, acc) =
+                filter.trans(isrc, t.dst, t.cond, t.acc);
+              if (want)
+                filtered->new_edge(osrc, odst, cond, acc);
+            }
+        }
       if (!given_si)
-	delete si;
+        delete si;
       // If the initial state has been filtered out, we have to create
       // a new one (not doing so may cause empty automata, which in turn
       // cause all sort of issue with algorithms assuming an automaton
@@ -338,92 +338,92 @@ namespace spot
 
   twa_graph_ptr
   scc_filter_states(const const_twa_graph_ptr& aut, bool remove_all_useless,
-		    scc_info* given_si)
+                    scc_info* given_si)
   {
     twa_graph_ptr res;
     if (remove_all_useless)
       res = scc_filter_apply<state_filter
-			     <acc_filter_mask<true, true>>>(aut, given_si);
+                             <acc_filter_mask<true, true>>>(aut, given_si);
     else
       res = scc_filter_apply<state_filter
-			     <acc_filter_mask<false, true>>>(aut, given_si);
+                             <acc_filter_mask<false, true>>>(aut, given_si);
     res->prop_copy(aut, { true, true, true, true });
     return res;
   }
 
   twa_graph_ptr
   scc_filter(const const_twa_graph_ptr& aut, bool remove_all_useless,
-	     scc_info* given_si)
+             scc_info* given_si)
   {
     twa_graph_ptr res;
     // acc_filter_simplify only works for generalized Büchi
     if (aut->acc().is_generalized_buchi())
       {
-	if (remove_all_useless)
-	  res =
-	    scc_filter_apply<state_filter
-			     <acc_filter_mask
-			      <true, false,
-			       acc_filter_simplify<>>>>(aut, given_si);
-	else
-	  res =
-	    scc_filter_apply<state_filter
-			     <acc_filter_mask
-			      <false, false,
-			       acc_filter_simplify<>>>>(aut, given_si);
+        if (remove_all_useless)
+          res =
+            scc_filter_apply<state_filter
+                             <acc_filter_mask
+                              <true, false,
+                               acc_filter_simplify<>>>>(aut, given_si);
+        else
+          res =
+            scc_filter_apply<state_filter
+                             <acc_filter_mask
+                              <false, false,
+                               acc_filter_simplify<>>>>(aut, given_si);
       }
     else
       {
-	if (remove_all_useless)
-	  res = scc_filter_apply<state_filter
-				 <acc_filter_mask
-				  <true, false>>>(aut, given_si);
-	else
-	  res = scc_filter_apply<state_filter
-				 <acc_filter_mask
-				  <false, false>>>(aut, given_si);
+        if (remove_all_useless)
+          res = scc_filter_apply<state_filter
+                                 <acc_filter_mask
+                                  <true, false>>>(aut, given_si);
+        else
+          res = scc_filter_apply<state_filter
+                                 <acc_filter_mask
+                                  <false, false>>>(aut, given_si);
       }
     res->merge_edges();
     res->prop_copy(aut,
-		   { false,  // state-based acceptance is not preserved
-		     true,
-		     true,
-		     true,
-		   });
+                   { false,  // state-based acceptance is not preserved
+                     true,
+                     true,
+                     true,
+                   });
     return res;
   }
 
   twa_graph_ptr
   scc_filter_susp(const const_twa_graph_ptr& aut, bool remove_all_useless,
-		  bdd suspvars, bdd ignoredvars, bool early_susp,
-		  scc_info* given_si)
+                  bdd suspvars, bdd ignoredvars, bool early_susp,
+                  scc_info* given_si)
   {
     twa_graph_ptr res;
     if (remove_all_useless)
       res = scc_filter_apply<susp_filter
-			     <state_filter
-			      <acc_filter_mask
-			       <true, false,
-				acc_filter_simplify<>>>>>(aut, given_si,
-							  suspvars,
-							  ignoredvars,
-							  early_susp);
+                             <state_filter
+                              <acc_filter_mask
+                               <true, false,
+                                acc_filter_simplify<>>>>>(aut, given_si,
+                                                          suspvars,
+                                                          ignoredvars,
+                                                          early_susp);
     else
       res = scc_filter_apply<susp_filter
-			     <state_filter
-			      <acc_filter_mask
-			       <false, false,
-				acc_filter_simplify<>>>>>(aut, given_si,
-							  suspvars,
-							  ignoredvars,
-							  early_susp);
+                             <state_filter
+                              <acc_filter_mask
+                               <false, false,
+                                acc_filter_simplify<>>>>>(aut, given_si,
+                                                          suspvars,
+                                                          ignoredvars,
+                                                          early_susp);
     res->merge_edges();
     res->prop_copy(aut,
-		   { false,  // state-based acceptance is not preserved
-		     true,
-		     false,	// determinism may not be preserved
-		     false,  	// stutter inv. of suspvars probably altered
-		   });
+                   { false,  // state-based acceptance is not preserved
+                     true,
+                     false,  // determinism may not be preserved
+                     false,  // stutter inv. of suspvars probably altered
+                   });
     return res;
   }
 

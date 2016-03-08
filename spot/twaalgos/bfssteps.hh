@@ -91,12 +91,12 @@ namespace spot
     /// unless you do not want \a l to be updated (in which case an empty
     /// finalize() will do).
     virtual void finalize(const std::map<const state*, twa_run::step,
-			                 state_ptr_less_than>& father,
-			  const twa_run::step& s,
-			  const state* start,
-			  twa_run::steps& l);
+                                         state_ptr_less_than>& father,
+                          const twa_run::step& s,
+                          const state* start,
+                          twa_run::steps& l);
 
   protected:
-    const_twa_ptr a_;		///< The spot::tgba we are searching into.
+    const_twa_ptr a_;                ///< The spot::tgba we are searching into.
   };
 }

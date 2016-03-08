@@ -30,7 +30,7 @@
 #include "common_file.hh"
 
 enum output_format_t { spot_output, spin_output, utf8_output,
-		       lbt_output, wring_output, latex_output,
+                       lbt_output, wring_output, latex_output,
                        quiet_output, count_output };
 extern output_format_t output_format;
 extern bool full_parenth;
@@ -43,12 +43,12 @@ int parse_opt_output(int key, char* arg, struct argp_state* state);
 // Low-level output
 std::ostream&
 stream_formula(std::ostream& out,
-	       spot::formula f, const char* filename, int linenum);
+               spot::formula f, const char* filename, int linenum);
 
 void output_formula_checked(spot::formula f,
-			    const char* filename = nullptr, int linenum = 0,
-			    const char* prefix = nullptr,
-			    const char* suffix = nullptr);
+                            const char* filename = nullptr, int linenum = 0,
+                            const char* prefix = nullptr,
+                            const char* suffix = nullptr);
 
 
 class printable_formula:
@@ -72,15 +72,15 @@ public:
   aut_stat_printer(std::ostream& os, const char* format)
     : spot::stat_printer(os, format)
   {
-    declare('f', &formula_);	// Override the formula printer.
+    declare('f', &formula_);        // Override the formula printer.
   }
 
   using spot::formater::set_output;
 
   std::ostream&
   print(const spot::const_twa_graph_ptr& aut,
-	spot::formula f = nullptr,
-	double run_time = -1.)
+        spot::formula f = nullptr,
+        double run_time = -1.)
   {
     formula_ = f;
     return this->spot::stat_printer::print(aut, f, run_time);

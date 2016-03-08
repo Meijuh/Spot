@@ -58,22 +58,22 @@ namespace spot
     switch (ref.type)
       {
       case bdd_dict::var:
-	print_(o, ref.f);
-	break;
+        print_(o, ref.f);
+        break;
       case bdd_dict::acc:
-	if (want_acc)
-	  {
-	    o << "Acc[";
-	    print_(o, ref.f) << ']';
-	  }
-	else
-	  {
-	    o << '"';
-	    print_(o, ref.f) << '"';
-	  }
-	break;
+        if (want_acc)
+          {
+            o << "Acc[";
+            print_(o, ref.f) << ']';
+          }
+        else
+          {
+            o << '"';
+            print_(o, ref.f) << '"';
+          }
+        break;
       case bdd_dict::anon:
-	o << '?' << v;
+        o << '?' << v;
       }
   }
 
@@ -85,15 +85,15 @@ namespace spot
     bool not_first = false;
     for (int v = 0; v < size; ++v)
       {
-	if (varset[v] < 0)
-	  continue;
-	if (not_first)
-	  *where << ' ';
-	else
-	  not_first = true;
-	if (varset[v] == 0)
-	  *where << "! ";
-	print_handler(*where, v);
+        if (varset[v] < 0)
+          continue;
+        if (not_first)
+          *where << ' ';
+        else
+          not_first = true;
+        if (varset[v] == 0)
+          *where << "! ";
+        print_handler(*where, v);
       }
   }
 
@@ -114,11 +114,11 @@ namespace spot
   {
     for (int v = 0; v < size; ++v)
       if (varset[v] > 0)
-	{
-	  *where << (first_done ? ", " : "{");
-	  print_handler(*where, v);
-	  first_done = true;
-	}
+        {
+          *where << (first_done ? ", " : "{");
+          print_handler(*where, v);
+          first_done = true;
+        }
   }
 
   std::ostream&

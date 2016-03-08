@@ -33,14 +33,14 @@ namespace spot
   {
     for (auto i: str)
       switch (i)
-	{
-	case '"':
-	  os << "\"\"";
-	  break;
-	default:
-	  os << i;
-	  break;
-	}
+        {
+        case '"':
+          os << "\"\"";
+          break;
+        default:
+          os << i;
+          break;
+        }
     return os;
   }
 
@@ -49,28 +49,28 @@ namespace spot
   {
     for (auto i: str)
       switch (i)
-	{
-	case '~':
-	  os << "\\text{\\textasciitilde}";
-	  break;
-	case '^':
-	  os << "\\text{\\textasciicircum}";
-	  break;
-	case '\\':
-	  os << "\\text{\\textbackslash}";
-	  break;
-	case '&':
-	case '%':
-	case '$':
-	case '#':
-	case '_':
-	case '{':
-	case '}':
-	  os << '\\';
-	default:
-	  os << i;
-	  break;
-	}
+        {
+        case '~':
+          os << "\\text{\\textasciitilde}";
+          break;
+        case '^':
+          os << "\\text{\\textasciicircum}";
+          break;
+        case '\\':
+          os << "\\text{\\textbackslash}";
+          break;
+        case '&':
+        case '%':
+        case '$':
+        case '#':
+        case '_':
+        case '{':
+        case '}':
+          os << '\\';
+        default:
+          os << i;
+          break;
+        }
     return os;
   }
 
@@ -79,23 +79,23 @@ namespace spot
   {
     for (auto i: str)
       switch (i)
-	{
-	case '&':
-	  os << "&amp;";
-	  break;
-	case '"':
-	  os << "&quot;";
-	  break;
-	case '<':
-	  os << "&lt;";
-	  break;
-	case '>':
-	  os << "&gt;";
-	  break;
-	default:
-	  os << i;
-	  break;
-	}
+        {
+        case '&':
+          os << "&amp;";
+          break;
+        case '"':
+          os << "&quot;";
+          break;
+        case '<':
+          os << "&lt;";
+          break;
+        case '>':
+          os << "&gt;";
+          break;
+        default:
+          os << i;
+          break;
+        }
     return os;
   }
 
@@ -104,20 +104,20 @@ namespace spot
   {
     for (auto i: str)
       switch (i)
-	{
-	case '\\':
-	  os << "\\\\";
-	  break;
-	case '"':
-	  os << "\\\"";
-	  break;
-	case '\n':
-	  os << "\\n";
-	  break;
-	default:
-	  os << i;
-	  break;
-	}
+        {
+        case '\\':
+          os << "\\\\";
+          break;
+        case '"':
+          os << "\\\"";
+          break;
+        case '\n':
+          os << "\\n";
+          break;
+        default:
+          os << i;
+          break;
+        }
     return os;
   }
 
@@ -135,26 +135,26 @@ namespace spot
     // Single quotes are best, unless the string to quote contains one.
     if (!strchr(str, '\''))
       {
-	os << '\'' << str << '\'';
+        os << '\'' << str << '\'';
       }
     else
       {
-	// In double quotes we have to escape $ ` " or \.
-	os << '"';
-	while (*str)
-	  switch (*str)
-	    {
-	    case '$':
-	    case '`':
-	    case '"':
-	    case '\\':
-	      os << '\\';
-	      // fall through
-	    default:
-	      os << *str++;
-	      break;
-	    }
-	os << '"';
+        // In double quotes we have to escape $ ` " or \.
+        os << '"';
+        while (*str)
+          switch (*str)
+            {
+            case '$':
+            case '`':
+            case '"':
+            case '\\':
+              os << '\\';
+              // fall through
+            default:
+              os << *str++;
+              break;
+            }
+        os << '"';
       }
     return os;
   }

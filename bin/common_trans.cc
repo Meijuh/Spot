@@ -53,17 +53,17 @@ static void show_shorthands()
 {
   std::cout
     << ("If a COMMANDFMT does not use any %-sequence, and starts with one of\n"
-	"the following words, then the string on the right is appended.\n\n");
+        "the following words, then the string on the right is appended.\n\n");
   for (auto& s: shorthands)
     std::cout << "  "
-	      << std::left << std::setw(12) << s.prefix
-	      << s.suffix << '\n';
+              << std::left << std::setw(12) << s.prefix
+              << s.suffix << '\n';
   std::cout
     << ("\nAny {name} and directory component is skipped for the purpose of\n"
-	"matching those prefixes.  So for instance\n"
-	"  '{DRA} ~/mytools/ltl2dstar-0.5.2'\n"
-	"will changed into\n"
-	"  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %L %O'\n");
+        "matching those prefixes.  So for instance\n"
+        "  '{DRA} ~/mytools/ltl2dstar-0.5.2'\n"
+        "will changed into\n"
+        "  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %L %O'\n");
 }
 
 
@@ -76,19 +76,19 @@ translator_spec::translator_spec(const char* spec)
       const char* pos = cmd;
       unsigned count = 1;
       while (*++pos)
-	{
-	  if (*pos == '{')
-	    ++count;
-	  else if (*pos == '}')
-	    if (!--count)
-	      {
-		name = strndup(cmd + 1, pos - cmd - 1);
-		cmd = pos + 1;
-		while (*cmd == ' ' || *cmd == '\t')
-		  ++cmd;
-		break;
-	      }
-	}
+        {
+          if (*pos == '{')
+            ++count;
+          else if (*pos == '}')
+            if (!--count)
+              {
+                name = strndup(cmd + 1, pos - cmd - 1);
+                cmd = pos + 1;
+                while (*cmd == ' ' || *cmd == '\t')
+                  ++cmd;
+                break;
+              }
+        }
     }
   // If there is no % in the string, look for a known
   // command from our shorthand list.  If we find it,
@@ -100,29 +100,29 @@ translator_spec::translator_spec(const char* spec)
       auto basename = cmd;
       auto pos = cmd;
       while (*pos)
-	{
-	  if (*pos == '/')
-	    basename = pos + 1;
-	  else if (*pos == ' ')
-	    break;
-	  ++pos;
-	}
+        {
+          if (*pos == '/')
+            basename = pos + 1;
+          else if (*pos == ' ')
+            break;
+          ++pos;
+        }
       // Match a shorthand.
       for (auto& p: shorthands)
-	{
-	  int n = strlen(p.prefix);
-	  if (strncmp(basename, p.prefix, n) == 0)
-	    {
-	      int m = strlen(p.suffix);
-	      int q = strlen(cmd);
-	      char* tmp = static_cast<char*>(malloc(q + m + 1));
-	      strcpy(tmp, cmd);
-	      strcpy(tmp + q, p.suffix);
-	      cmd = tmp;
-	      allocated = true;
-	      break;
-	    }
-	}
+        {
+          int n = strlen(p.prefix);
+          if (strncmp(basename, p.prefix, n) == 0)
+            {
+              int m = strlen(p.suffix);
+              int q = strlen(cmd);
+              char* tmp = static_cast<char*>(malloc(q + m + 1));
+              strcpy(tmp, cmd);
+              strcpy(tmp + q, p.suffix);
+              cmd = tmp;
+              allocated = true;
+              break;
+            }
+        }
     }
   if (!allocated)
     cmd = strdup(cmd);
@@ -186,7 +186,7 @@ printable_result_filename::print(std::ostream& os, const char*) const
 
 
 translator_runner::translator_runner(spot::bdd_dict_ptr dict,
-				     bool no_output_allowed)
+                                     bool no_output_allowed)
   : dict(dict)
 {
   declare('f', &string_ltl_spot);
@@ -213,17 +213,17 @@ translator_runner::translator_runner(spot::bdd_dict_ptr dict,
       const translator_spec& t = translators[n];
       scan(t.cmd, has);
       if (!(has['f'] || has['s'] || has['l'] || has['w']
-	    || has['F'] || has['S'] || has['L'] || has['W']))
-	error(2, 0, "no input %%-sequence in '%s'.\n       Use "
-	      "one of %%f,%%s,%%l,%%w,%%F,%%S,%%L,%%W to indicate how "
-	      "to pass the formula.", t.spec);
+            || has['F'] || has['S'] || has['L'] || has['W']))
+        error(2, 0, "no input %%-sequence in '%s'.\n       Use "
+              "one of %%f,%%s,%%l,%%w,%%F,%%S,%%L,%%W to indicate how "
+              "to pass the formula.", t.spec);
       if (!no_output_allowed
-	  && !(has['O'] ||
-	       // backward-compatibility
-	       has['D'] || has['N'] || has['T'] || has['H']))
-	error(2, 0, "no output %%-sequence in '%s'.\n      Use  "
-	      "%%O to indicate where the automaton is output.",
-	      t.spec);
+          && !(has['O'] ||
+               // backward-compatibility
+               has['D'] || has['N'] || has['T'] || has['H']))
+        error(2, 0, "no output %%-sequence in '%s'.\n      Use  "
+              "%%O to indicate where the automaton is output.",
+              t.spec);
       // Remember the %-sequences used by all translators.
       prime(t.cmd);
     }
@@ -231,7 +231,7 @@ translator_runner::translator_runner(spot::bdd_dict_ptr dict,
 
 void
 translator_runner::string_to_tmp(std::string& str, unsigned n,
-				 std::string& tmpname)
+                                 std::string& tmpname)
 {
   char prefix[30];
   snprintf(prefix, sizeof prefix, "lcr-i%u-", n);
@@ -302,18 +302,18 @@ sig_handler(int sig)
     {
       timed_out = true;
       if (--alarm_on)
-	{
-	  // Send SIGTERM to children.
-	  kill(-child_pid, SIGTERM);
-	  // Try again later if it didn't work.  (alarm() will be reset
-	  // if it did work and the call to wait() returns)
-	  alarm(2);
-	}
+        {
+          // Send SIGTERM to children.
+          kill(-child_pid, SIGTERM);
+          // Try again later if it didn't work.  (alarm() will be reset
+          // if it did work and the call to wait() returns)
+          alarm(2);
+        }
       else
-	{
-	  // After a few gentle tries, really kill that child.
-	  kill(-child_pid, SIGKILL);
-	}
+        {
+          // After a few gentle tries, really kill that child.
+          kill(-child_pid, SIGKILL);
+        }
     }
   else
     {
@@ -370,7 +370,7 @@ exec_with_timeout(const char* cmd)
       alarm_on = 0;
 
       if (w == -1)
-	error(2, errno, "error during wait()");
+        error(2, errno, "error during wait()");
 
       alarm(0);
     }
@@ -424,7 +424,7 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
       timeout = to_pos_int(arg);
 #if !ENABLE_TIMEOUT
       std::cerr << "warning: setting a timeout is not supported "
-		<< "on your platform" << std::endl;
+                << "on your platform" << std::endl;
 #endif
       break;
     case OPT_LIST:
@@ -437,4 +437,4 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
 }
 
 const struct argp trans_argp = { options, parse_opt_trans, nullptr, nullptr,
-				 nullptr, nullptr, nullptr };
+                                 nullptr, nullptr, nullptr };

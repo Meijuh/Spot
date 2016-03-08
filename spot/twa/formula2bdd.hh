@@ -44,7 +44,7 @@ namespace spot
   template<typename T>
   SPOT_API bdd
   formula_to_bdd(formula f, const bdd_dict_ptr& d,
-		 const std::shared_ptr<T>& for_me)
+                 const std::shared_ptr<T>& for_me)
   {
     return formula_to_bdd(f, d, for_me.get());
   }

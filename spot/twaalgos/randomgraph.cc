@@ -37,33 +37,33 @@ namespace spot
   {
     static unsigned
     random_deterministic_labels_rec(std::vector<bdd>& labels, int *props,
-				    int props_n, bdd current, unsigned n)
+                                    int props_n, bdd current, unsigned n)
     {
       if (n > 1 && props_n >= 1)
         {
-	  bdd ap = bdd_ithvar(*props);
+          bdd ap = bdd_ithvar(*props);
           ++props;
-	  --props_n;
+          --props_n;
 
-	  // There are m labels generated from "current & ap"
-	  // and n - m labels generated from "current & !ap"
+          // There are m labels generated from "current & ap"
+          // and n - m labels generated from "current & !ap"
           unsigned m = rrand(1, n - 1);
-	  if (2 * m < n)
-	    {
-	      m = n - m;
-	      ap = !ap;
-	    }
+          if (2 * m < n)
+            {
+              m = n - m;
+              ap = !ap;
+            }
 
-	  unsigned res = random_deterministic_labels_rec(labels, props,
-							 props_n,
-							 current & ap, m);
-	  res += random_deterministic_labels_rec(labels, props, props_n,
-						 current & !ap, n - res);
+          unsigned res = random_deterministic_labels_rec(labels, props,
+                                                         props_n,
+                                                         current & ap, m);
+          res += random_deterministic_labels_rec(labels, props, props_n,
+                                                 current & !ap, n - res);
           return res;
         }
       else
         {
-	  labels.push_back(current);
+          labels.push_back(current);
           return 1;
         }
     }
@@ -81,8 +81,8 @@ namespace spot
     {
       acc_cond::mark_t m = 0U;
       for (unsigned i = 0U; i < n_accs; ++i)
-	if (drand() < a)
-	  m.set(i);
+        if (drand() < a)
+          m.set(i);
       return m;
     }
 
@@ -100,21 +100,21 @@ namespace spot
       int size = 0;
       bdd p = bddtrue;
       while (props_n)
-	{
-	  if (size == 8 * sizeof(int))
-	    {
-	      p &= bdd_ibuildcube(val, size, props);
-	      props += size;
-	      val = 0;
-	      size = 0;
-	    }
-	  val <<= 1;
-	  val |= (drand() < t);
-	  ++size;
-	  --props_n;
-	}
+        {
+          if (size == 8 * sizeof(int))
+            {
+              p &= bdd_ibuildcube(val, size, props);
+              props += size;
+              val = 0;
+              size = 0;
+            }
+          val <<= 1;
+          val |= (drand() < t);
+          ++size;
+          --props_n;
+        }
       if (size > 0)
-	p &= bdd_ibuildcube(val, size, props);
+        p &= bdd_ibuildcube(val, size, props);
 
       return p;
     }
@@ -122,9 +122,9 @@ namespace spot
 
   twa_graph_ptr
   random_graph(int n, float d,
-	       const atomic_prop_set* ap, const bdd_dict_ptr& dict,
-	       unsigned n_accs, float a, float t,
-	       bool deterministic, bool state_acc, bool colored)
+               const atomic_prop_set* ap, const bdd_dict_ptr& dict,
+               unsigned n_accs, float a, float t,
+               bool deterministic, bool state_acc, bool colored)
   {
     if (n <= 0)
       throw std::invalid_argument("random_graph() requires n>0 states");
@@ -157,8 +157,8 @@ namespace spot
 
     for (int i = 1; i < n; ++i)
       {
-	state_randomizer[i] = i;
-	unreachable_nodes.insert(i);
+        state_randomizer[i] = i;
+        unreachable_nodes.insert(i);
       }
 
     // We want to connect each node to a number of successors between
@@ -168,57 +168,57 @@ namespace spot
 
     while (!nodes_to_process.empty())
       {
-	auto src = *nodes_to_process.begin();
-	nodes_to_process.erase(nodes_to_process.begin());
+        auto src = *nodes_to_process.begin();
+        nodes_to_process.erase(nodes_to_process.begin());
 
-	// Choose a random number of successors (at least one), using
-	// a binomial distribution.
-	unsigned nsucc = 1 + bin.rand();
+        // Choose a random number of successors (at least one), using
+        // a binomial distribution.
+        unsigned nsucc = 1 + bin.rand();
 
-	bool saw_unreachable = false;
+        bool saw_unreachable = false;
 
-	// Create NSUCC random labels.
-	std::vector<bdd> labels;
-	if (deterministic)
-	  {
-	    labels = random_deterministic_labels(props, props_n, nsucc);
+        // Create NSUCC random labels.
+        std::vector<bdd> labels;
+        if (deterministic)
+          {
+            labels = random_deterministic_labels(props, props_n, nsucc);
 
-	    // if nsucc > 2^props_n, we cannot produce nsucc deterministic
-	    // edges so we set it to labels.size()
-	    nsucc = labels.size();
-	  }
-	else
-	  for (unsigned i = 0; i < nsucc; ++i)
-	    labels.push_back(random_labels(props, props_n, t));
+            // if nsucc > 2^props_n, we cannot produce nsucc deterministic
+            // edges so we set it to labels.size()
+            nsucc = labels.size();
+          }
+        else
+          for (unsigned i = 0; i < nsucc; ++i)
+            labels.push_back(random_labels(props, props_n, t));
 
         int possibilities = n;
-	unsigned dst;
-	acc_cond::mark_t m = 0U;
-	if (state_acc)
-	  m = colored ? random_acc1(n_accs) : random_acc(n_accs, a);
+        unsigned dst;
+        acc_cond::mark_t m = 0U;
+        if (state_acc)
+          m = colored ? random_acc1(n_accs) : random_acc(n_accs, a);
 
-	for (auto& l: labels)
-	  {
-	    if (!state_acc)
-	      m = colored ? random_acc1(n_accs) : random_acc(n_accs, a);
+        for (auto& l: labels)
+          {
+            if (!state_acc)
+              m = colored ? random_acc1(n_accs) : random_acc(n_accs, a);
 
-	    // No connection to unreachable successors so far.  This
-	    // is our last chance, so force it now.
-	    if (--nsucc == 0
-		&& !unreachable_nodes.empty()
-		&& !saw_unreachable)
-	      {
-		// Pick a random unreachable node.
-		int index = mrand(unreachable_nodes.size());
-		node_set::const_iterator i = unreachable_nodes.begin();
-		std::advance(i, index);
+            // No connection to unreachable successors so far.  This
+            // is our last chance, so force it now.
+            if (--nsucc == 0
+                && !unreachable_nodes.empty()
+                && !saw_unreachable)
+              {
+                // Pick a random unreachable node.
+                int index = mrand(unreachable_nodes.size());
+                node_set::const_iterator i = unreachable_nodes.begin();
+                std::advance(i, index);
 
-		// Link it from src.
-		res->new_edge(src, *i, l, m);
-		nodes_to_process.insert(*i);
-		unreachable_nodes.erase(*i);
-		break;
-	      }
+                // Link it from src.
+                res->new_edge(src, *i, l, m);
+                nodes_to_process.insert(*i);
+                unreachable_nodes.erase(*i);
+                break;
+              }
 
             // Pick the index of a random node.
             int index = mrand(possibilities--);
@@ -237,10 +237,10 @@ namespace spot
                 unreachable_nodes.erase(j);
                 saw_unreachable = true;
               }
-	  }
+          }
 
-	// The node must have at least one successor.
-	assert(res->get_graph().state_storage(src).succ);
+        // The node must have at least one successor.
+        assert(res->get_graph().state_storage(src).succ);
       }
     // All nodes must be reachable.
     assert(unreachable_nodes.empty());

@@ -70,8 +70,8 @@ namespace spot
     /// BDD-variable-to-formula maps.
     typedef std::map<int, formula> vf_map;
 
-    fv_map var_map;		///< Maps atomic propositions to BDD variables
-    fv_map acc_map;		///< Maps acceptance conditions to BDD variables
+    fv_map var_map; ///< Maps atomic propositions to BDD variables
+    fv_map acc_map; ///< Maps acceptance conditions to BDD variables
 
     /// BDD-variable reference counts.
     typedef std::set<const void*> ref_set;
@@ -80,7 +80,7 @@ namespace spot
     struct bdd_info {
       bdd_info() : type(anon) {}
       var_type type;
-      formula f;	// Used unless t==anon.
+      formula f;        // Used unless t==anon.
       ref_set refs;
       int clone_counts;
     };
@@ -180,21 +180,21 @@ namespace spot
 
     template <typename T>
     void register_all_variables_of(const void* from_other,
-				   std::shared_ptr<T> for_me)
+                                   std::shared_ptr<T> for_me)
     {
       register_all_variables_of(from_other, for_me.get());
     }
 
     template <typename T>
     void register_all_variables_of(std::shared_ptr<T> from_other,
-				   const void* for_me)
+                                   const void* for_me)
     {
       register_all_variables_of(from_other.get(), for_me);
     }
 
     template <typename T, typename U>
     void register_all_variables_of(std::shared_ptr<T> from_other,
-				   std::shared_ptr<U> for_me)
+                                   std::shared_ptr<U> for_me)
     {
       register_all_variables_of(from_other.get(), for_me.get());
     }
@@ -209,25 +209,25 @@ namespace spot
     /// is still alive.
     /// @{
     void register_all_propositions_of(const void* from_other,
-				      const void* for_me);
+                                      const void* for_me);
 
     template <typename T>
     void register_all_propositions_of(const void* from_other,
-				      std::shared_ptr<T> for_me)
+                                      std::shared_ptr<T> for_me)
     {
       register_all_propositions_of(from_other, for_me.get());
     }
 
     template <typename T>
     void register_all_propositions_of(std::shared_ptr<T> from_other,
-				      const void* for_me)
+                                      const void* for_me)
     {
       register_all_propositions_of(from_other.get(), for_me);
     }
 
     template <typename T, typename U>
     void register_all_propositions_of(std::shared_ptr<T> from_other,
-				      std::shared_ptr<U> for_me)
+                                      std::shared_ptr<U> for_me)
     {
       register_all_propositions_of(from_other.get(), for_me.get());
     }

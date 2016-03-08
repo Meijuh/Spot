@@ -42,6 +42,6 @@ namespace spot
   /// 'a' shows the acceptance, 'k' uses state-based labels if possible.
   SPOT_API std::ostream&
   print_dot(std::ostream& os,
-		  const const_twa_ptr& g,
-		  const char* options = nullptr);
+                  const const_twa_ptr& g,
+                  const char* options = nullptr);
 }

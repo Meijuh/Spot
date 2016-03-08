@@ -14,7 +14,7 @@
 //
 // Spot is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-// or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU General Public
+// or FITNESS FOR A PARTICULAR PURPOSE.         See the GNU General Public
 // License for more details.
 //
 // You should have received a copy of the GNU General Public License
@@ -114,20 +114,20 @@ namespace spot
     const char* spin_kw[] = {
       "false", // 0 doesn't work from the command line
       "true",  // 1 doesn't work from the command line
-      "[*0]",			// not supported
-      " xor ",		// rewritten
+      "[*0]",                        // not supported
+      " xor ",                // rewritten
       " -> ",
       " <-> ",
       " U ",
       " V ",
-      " W ",			// rewritten
-      " M ",			// rewritten
-      "<>-> ",		// not supported
-      "<>=> ",		// not supported
-      "<>+> ",		// not supported
-      "<>=+> ",		// not supported
-      "[]-> ",		// not supported
-      "[]=> ",		// not supported
+      " W ",                        // rewritten
+      " M ",                        // rewritten
+      "<>-> ",                // not supported
+      "<>=> ",                // not supported
+      "<>+> ",                // not supported
+      "<>=+> ",                // not supported
+      "[]-> ",                // not supported
+      "[]=> ",                // not supported
       "!",
       "X",
       "<>",
@@ -135,58 +135,58 @@ namespace spot
       " || ",
       " || ",
       " && ",
-      " && ",			// not supported
-      " & ",			// not supported
-      ";",			// not supported
-      ":",			// not supported
-      "{",			// not supported
-      "}",			// not supported
-      "]",			// not supported
-      "[*",			// not supported
-      "[+]",			// not supported
-      "[:*",			// not supported
-      "[:+]",			// not supported
-      "[=",			// not supported
-      "[->",			// not supported
+      " && ",                        // not supported
+      " & ",                        // not supported
+      ";",                        // not supported
+      ":",                        // not supported
+      "{",                        // not supported
+      "}",                        // not supported
+      "]",                        // not supported
+      "[*",                        // not supported
+      "[+]",                        // not supported
+      "[:*",                        // not supported
+      "[:+]",                        // not supported
+      "[=",                        // not supported
+      "[->",                        // not supported
     };
 
     const char* wring_kw[] = {
       "FALSE",
       "TRUE",
-      "[*0]",			// not supported
+      "[*0]",                        // not supported
       " ^ ",
       " -> ",
       " <-> ",
       " U ",
       " R ",
-      " W ",			// rewritten
-      " M ",			// rewritten
-      "<>-> ",		// not supported
-      "<>=> ",		// not supported
-      "<>+> ",		// not supported
-      "<>=+> ",		// not supported
-      "[]-> ",		// not supported
-      "[]=> ",		// not supported
+      " W ",                        // rewritten
+      " M ",                        // rewritten
+      "<>-> ",                // not supported
+      "<>=> ",                // not supported
+      "<>+> ",                // not supported
+      "<>=+> ",                // not supported
+      "[]-> ",                // not supported
+      "[]=> ",                // not supported
       "!",
       "X",
       "F",
       "G",
       " + ",
-      " | ",			// not supported
+      " | ",                        // not supported
       " * ",
-      " && ",			// not supported
-      " & ",			// not supported
-      ";",			// not supported
-      ":",			// not supported
-      "{",			// not supported
-      "}",			// not supported
-      "]",			// not supported
-      "[*",			// not supported
-      "[+]",			// not supported
-      "[:*",			// not supported
-      "[:+]",			// not supported
-      "[=",			// not supported
-      "[->",			// not supported
+      " && ",                        // not supported
+      " & ",                        // not supported
+      ";",                        // not supported
+      ":",                        // not supported
+      "{",                        // not supported
+      "}",                        // not supported
+      "]",                        // not supported
+      "[*",                        // not supported
+      "[+]",                        // not supported
+      "[:*",                        // not supported
+      "[:+]",                        // not supported
+      "[=",                        // not supported
+      "[->",                        // not supported
     };
 
     const char* utf8_kw[] = {
@@ -317,19 +317,19 @@ namespace spot
       // unary operator, or be the name of an existing constant or
       // operator.  Also they should start with an letter.
       if (!*str
-	  || *str == 'F'
-	  || *str == 'G'
-	  || *str == 'X'
-	  || !(isalpha(*str) || *str == '_' || *str == '.')
-	  || ((*str == 'U' || *str == 'W' || *str == 'M' || *str == 'R')
-	      && str[1] == 0)
-	  || !strcasecmp(str, "true")
-	  || !strcasecmp(str, "false"))
-	return false;
+          || *str == 'F'
+          || *str == 'G'
+          || *str == 'X'
+          || !(isalpha(*str) || *str == '_' || *str == '.')
+          || ((*str == 'U' || *str == 'W' || *str == 'M' || *str == 'R')
+              && str[1] == 0)
+          || !strcasecmp(str, "true")
+          || !strcasecmp(str, "false"))
+        return false;
       // The remaining of the word must be alphanumeric.
       while (*++str)
-	if (!(isalnum(*str) || *str == '_' || *str == '.'))
-	  return false;
+        if (!(isalnum(*str) || *str == '_' || *str == '.'))
+          return false;
       return true;
     }
 
@@ -348,9 +348,9 @@ namespace spot
       assert(i + 1 < mo.size());
       formula b = strip_star_not(mo[i]);
       if (b == nullptr || !b.is_boolean())
-	return nullptr;
+        return nullptr;
       if (mo[i + 1] == b)
-	return b;
+        return b;
       return nullptr;
     }
 
@@ -358,490 +358,490 @@ namespace spot
     {
     public:
       to_string_visitor(std::ostream& os,
-			bool full_parent = false,
-			bool ratexp = false,
-			const char** kw = spot_kw)
-	: os_(os), top_level_(true),
-	full_parent_(full_parent), in_ratexp_(ratexp),
-	kw_(kw)
-	{
-	}
+                        bool full_parent = false,
+                        bool ratexp = false,
+                        const char** kw = spot_kw)
+        : os_(os), top_level_(true),
+        full_parent_(full_parent), in_ratexp_(ratexp),
+        kw_(kw)
+        {
+        }
 
       void
-	openp() const
+        openp() const
       {
-	if (in_ratexp_)
-	  emit(KOpenSERE);
-	else
-	  os_ << '(';
+        if (in_ratexp_)
+          emit(KOpenSERE);
+        else
+          os_ << '(';
       }
 
       void
-	closep() const
+        closep() const
       {
-	if (in_ratexp_)
-	  emit(KCloseSERE);
-	else
-	  os_ << ')';
+        if (in_ratexp_)
+          emit(KCloseSERE);
+        else
+          os_ << ')';
       }
 
       std::ostream&
-	emit(int symbol) const
+        emit(int symbol) const
       {
-	return os_ << kw_[symbol];
+        return os_ << kw_[symbol];
       }
 
       void
-	visit(formula f)
+        visit(formula f)
       {
-	bool top_level = top_level_;
-	top_level_ = false;
+        bool top_level = top_level_;
+        top_level_ = false;
 
-	auto s = f.size();
-	bool want_par = (full_parent_ || s > 1) && !top_level;
-	if (want_par)
-	  openp();
+        auto s = f.size();
+        bool want_par = (full_parent_ || s > 1) && !top_level;
+        if (want_par)
+          openp();
 
-	auto emit_bunop_child = [this](formula b)
-	  {
-	    // b[*] is OK, no need to print {b}[*].  However we want
-	    // braces for {!b}[*], the only unary operator that can
-	    // be nested with Star/FStar.
-	    // If full_parent_ is set, we do NOT emit those extra
-	    // braces, because they are already output for the node
-	    // below.
-	    bool need_parent = (!full_parent_ && b.is(op::Not));
-	    if (need_parent)
-	      openp();
-	    this->visit(b);
-	    if (need_parent)
-	      closep();
-	  };
+        auto emit_bunop_child = [this](formula b)
+          {
+            // b[*] is OK, no need to print {b}[*].  However we want
+            // braces for {!b}[*], the only unary operator that can
+            // be nested with Star/FStar.
+            // If full_parent_ is set, we do NOT emit those extra
+            // braces, because they are already output for the node
+            // below.
+            bool need_parent = (!full_parent_ && b.is(op::Not));
+            if (need_parent)
+              openp();
+            this->visit(b);
+            if (need_parent)
+              closep();
+          };
 
-	op o = f.kind();
-	switch (o)
-	  {
-	  case op::ff:
-	    emit(KFalse);
-	    break;
-	  case op::tt:
-	    emit(KTrue);
-	    break;
-	  case op::eword:
-	    emit(KEmptyWord);
-	    break;
-	  case op::ap:
-	    {
-	      const std::string& str = f.ap_name();
-	      if (!is_bare_word(str.c_str()))
-		{
-		  // Spin 6 supports atomic propositions such as (a == 0)
-		  // as long as they are enclosed in parentheses.
-		  if (kw_ == sclatex_kw  || kw_ == latex_kw)
-		    escape_latex(os_ << "``\\mathit{", str)
-		      << "}\\textrm{''}";
-		  else if (kw_ != spin_kw)
-		    escape_str(os_ << '"', str) << '"';
-		  else if (!full_parent_)
-		    os_ << '(' << str << ')';
-		  else
-		    os_ << str;
-		}
-	      else
-		{
-		  if (kw_ == latex_kw || kw_ == sclatex_kw)
-		    {
-		      size_t s = str.size();
-		      while (str[s - 1] >= '0' && str[s - 1] <= '9')
-			{
-			  --s;
-			  // bare words cannot start with digits
-			  assert(s != 0);
-			}
-		      if (s > 1)
-			os_ << "\\mathit{";
-		      escape_latex(os_, str.substr(0, s));
-		      if (s > 1)
-			os_ << '}';
-		      if (s != str.size())
-			os_ << "_{"
-			    << str.substr(s)
-			    << '}';
-		    }
-		  else
-		    {
-		      os_ << str;
-		    }
-		}
-	      if (kw_ == wring_kw)
-		os_ << "=1";
+        op o = f.kind();
+        switch (o)
+          {
+          case op::ff:
+            emit(KFalse);
+            break;
+          case op::tt:
+            emit(KTrue);
+            break;
+          case op::eword:
+            emit(KEmptyWord);
+            break;
+          case op::ap:
+            {
+              const std::string& str = f.ap_name();
+              if (!is_bare_word(str.c_str()))
+                {
+                  // Spin 6 supports atomic propositions such as (a == 0)
+                  // as long as they are enclosed in parentheses.
+                  if (kw_ == sclatex_kw  || kw_ == latex_kw)
+                    escape_latex(os_ << "``\\mathit{", str)
+                      << "}\\textrm{''}";
+                  else if (kw_ != spin_kw)
+                    escape_str(os_ << '"', str) << '"';
+                  else if (!full_parent_)
+                    os_ << '(' << str << ')';
+                  else
+                    os_ << str;
+                }
+              else
+                {
+                  if (kw_ == latex_kw || kw_ == sclatex_kw)
+                    {
+                      size_t s = str.size();
+                      while (str[s - 1] >= '0' && str[s - 1] <= '9')
+                        {
+                          --s;
+                          // bare words cannot start with digits
+                          assert(s != 0);
+                        }
+                      if (s > 1)
+                        os_ << "\\mathit{";
+                      escape_latex(os_, str.substr(0, s));
+                      if (s > 1)
+                        os_ << '}';
+                      if (s != str.size())
+                        os_ << "_{"
+                            << str.substr(s)
+                            << '}';
+                    }
+                  else
+                    {
+                      os_ << str;
+                    }
+                }
+              if (kw_ == wring_kw)
+                os_ << "=1";
 
-	    }
-	    break;
-	  case op::Not:
-	    {
-	      formula c = f[0];
-	      if (c.is(op::ap))
-		{
-		  // If we negate a single letter in UTF-8, use a
-		  // combining overline.
-		  if (!full_parent_ && kw_ == utf8_kw)
-		    {
-		      auto& name = c.ap_name();
-		      if (name.size() == 1 && is_bare_word(name.c_str()))
-			{
-			  os_ << name << "̅";
-			  break;
-			}
-		    }
-		  // If we negate an atomic proposition for Wring,
-		  // output prop=0.
-		  if (kw_ == wring_kw)
-		    {
-		      auto& name = c.ap_name();
-		      if (is_bare_word(name.c_str()))
-			{
-			  os_ << name << "=0";
-			  break;
-			}
-		    }
-		}
-	      emit(KNot);
-	      visit(c);
-	      break;
-	    }
-	  case op::X:
-	    emit(KX);
-	    visit(f[0]);
-	    break;
-	  case op::F:
-	    emit(KF);
-	    visit(f[0]);
-	    break;
-	  case op::G:
-	    emit(KG);
-	    visit(f[0]);
-	    break;
-	  case op::NegClosure:
-	  case op::NegClosureMarked:
-	    emit(KNot);
-	    if (o == op::NegClosureMarked)
-	      os_ << (kw_ == utf8_kw ? "̃": "+");
-	    // Fall through
-	  case op::Closure:
-	    os_ << '{';
-	    in_ratexp_ = true;
-	    top_level_ = true;
-	    visit(f[0]);
-	    os_ << '}';
-	    in_ratexp_ = false;
-	    top_level_ = false;
-	    break;
-	  case op::Xor:
-	    visit(f[0]);
-	    emit(KXor);
-	    visit(f[1]);
-	    break;
-	  case op::Implies:
-	    visit(f[0]);
-	    emit(KImplies);
-	    visit(f[1]);
-	    break;
-	  case op::Equiv:
-	    visit(f[0]);
-	    emit(KEquiv);
-	    visit(f[1]);
-	    break;
-	  case op::U:
-	    visit(f[0]);
-	    emit(KU);
-	    visit(f[1]);
-	    break;
-	  case op::R:
-	    visit(f[0]);
-	    emit(KR);
-	    visit(f[1]);
-	    break;
-	  case op::W:
-	    visit(f[0]);
-	    emit(KW);
-	    visit(f[1]);
-	    break;
-	  case op::M:
-	    visit(f[0]);
-	    emit(KM);
-	    visit(f[1]);
-	    break;
-	  case op::EConcat:
-	  case op::EConcatMarked:
-	  case op::UConcat:
-	    {
-	      in_ratexp_ = true;
-	      openp();
-	      top_level_ = true;
-	      formula left = f[0];
-	      formula right = f[1];
-	      unsigned last = left.size() - 1;
-	      bool onelast = false;
-	      if (left.is(op::Concat) && left[last].is_tt())
-		{
-		  visit(left.all_but(last));
-		  onelast = true;
-		}
-	      else
-		{
-		  visit(left);
-		}
-	      top_level_ = false;
-	      closep();
-	      in_ratexp_ = false;
-	      if (o == op::UConcat)
-		{
-		  emit(onelast ? KTriggersNext : KTriggers);
-		  visit(right);
-		}
-	      else if (o == op::EConcatMarked)
-		{
-		  emit(onelast ? KSeqMarkedNext : KSeqMarked);
-		  visit(right);
-		}
-	      else if (o == op::EConcat)
-		{
-		  if (f[1].is_tt())
-		    {
-		      os_ << '!';
-		      // No recursion on right.
-		    }
-		  else
-		    {
-		      emit(onelast ? KSeqNext : KSeq);
-		      visit(right);
-		    }
-		}
-	      else
-		{
-		  SPOT_UNREACHABLE();
-		}
-	    }
-	    break;
-	  case op::Or:
-	  case op::OrRat:
-	  case op::And:
-	  case op::AndRat:
-	  case op::AndNLM:
-	  case op::Fusion:
-	    {
-	      visit(f[0]);
-	      keyword k = KFalse; // Initialize to something to please GCC.
-	      switch (o)
-		{
-		case op::Or:
-		  k = KOr;
-		  break;
-		case op::OrRat:
-		  k = KOrRat;
-		  break;
-		case op::And:
-		  k = in_ratexp_ ? KAndRat : KAnd;
-		  break;
-		case op::AndRat:
-		  k = KAndRat;
-		  break;
-		case op::AndNLM:
-		  k = KAndNLM;
-		  break;
-		case op::Fusion:
-		  k = KFusion;
-		  break;
-		default:
-		  SPOT_UNREACHABLE();
-		}
-	      assert(k != KFalse);
+            }
+            break;
+          case op::Not:
+            {
+              formula c = f[0];
+              if (c.is(op::ap))
+                {
+                  // If we negate a single letter in UTF-8, use a
+                  // combining overline.
+                  if (!full_parent_ && kw_ == utf8_kw)
+                    {
+                      auto& name = c.ap_name();
+                      if (name.size() == 1 && is_bare_word(name.c_str()))
+                        {
+                          os_ << name << "̅";
+                          break;
+                        }
+                    }
+                  // If we negate an atomic proposition for Wring,
+                  // output prop=0.
+                  if (kw_ == wring_kw)
+                    {
+                      auto& name = c.ap_name();
+                      if (is_bare_word(name.c_str()))
+                        {
+                          os_ << name << "=0";
+                          break;
+                        }
+                    }
+                }
+              emit(KNot);
+              visit(c);
+              break;
+            }
+          case op::X:
+            emit(KX);
+            visit(f[0]);
+            break;
+          case op::F:
+            emit(KF);
+            visit(f[0]);
+            break;
+          case op::G:
+            emit(KG);
+            visit(f[0]);
+            break;
+          case op::NegClosure:
+          case op::NegClosureMarked:
+            emit(KNot);
+            if (o == op::NegClosureMarked)
+              os_ << (kw_ == utf8_kw ? "̃": "+");
+            // Fall through
+          case op::Closure:
+            os_ << '{';
+            in_ratexp_ = true;
+            top_level_ = true;
+            visit(f[0]);
+            os_ << '}';
+            in_ratexp_ = false;
+            top_level_ = false;
+            break;
+          case op::Xor:
+            visit(f[0]);
+            emit(KXor);
+            visit(f[1]);
+            break;
+          case op::Implies:
+            visit(f[0]);
+            emit(KImplies);
+            visit(f[1]);
+            break;
+          case op::Equiv:
+            visit(f[0]);
+            emit(KEquiv);
+            visit(f[1]);
+            break;
+          case op::U:
+            visit(f[0]);
+            emit(KU);
+            visit(f[1]);
+            break;
+          case op::R:
+            visit(f[0]);
+            emit(KR);
+            visit(f[1]);
+            break;
+          case op::W:
+            visit(f[0]);
+            emit(KW);
+            visit(f[1]);
+            break;
+          case op::M:
+            visit(f[0]);
+            emit(KM);
+            visit(f[1]);
+            break;
+          case op::EConcat:
+          case op::EConcatMarked:
+          case op::UConcat:
+            {
+              in_ratexp_ = true;
+              openp();
+              top_level_ = true;
+              formula left = f[0];
+              formula right = f[1];
+              unsigned last = left.size() - 1;
+              bool onelast = false;
+              if (left.is(op::Concat) && left[last].is_tt())
+                {
+                  visit(left.all_but(last));
+                  onelast = true;
+                }
+              else
+                {
+                  visit(left);
+                }
+              top_level_ = false;
+              closep();
+              in_ratexp_ = false;
+              if (o == op::UConcat)
+                {
+                  emit(onelast ? KTriggersNext : KTriggers);
+                  visit(right);
+                }
+              else if (o == op::EConcatMarked)
+                {
+                  emit(onelast ? KSeqMarkedNext : KSeqMarked);
+                  visit(right);
+                }
+              else if (o == op::EConcat)
+                {
+                  if (f[1].is_tt())
+                    {
+                      os_ << '!';
+                      // No recursion on right.
+                    }
+                  else
+                    {
+                      emit(onelast ? KSeqNext : KSeq);
+                      visit(right);
+                    }
+                }
+              else
+                {
+                  SPOT_UNREACHABLE();
+                }
+            }
+            break;
+          case op::Or:
+          case op::OrRat:
+          case op::And:
+          case op::AndRat:
+          case op::AndNLM:
+          case op::Fusion:
+            {
+              visit(f[0]);
+              keyword k = KFalse; // Initialize to something to please GCC.
+              switch (o)
+                {
+                case op::Or:
+                  k = KOr;
+                  break;
+                case op::OrRat:
+                  k = KOrRat;
+                  break;
+                case op::And:
+                  k = in_ratexp_ ? KAndRat : KAnd;
+                  break;
+                case op::AndRat:
+                  k = KAndRat;
+                  break;
+                case op::AndNLM:
+                  k = KAndNLM;
+                  break;
+                case op::Fusion:
+                  k = KFusion;
+                  break;
+                default:
+                  SPOT_UNREACHABLE();
+                }
+              assert(k != KFalse);
 
-	      unsigned max = f.size();
-	      for (unsigned n = 1; n < max; ++n)
-		{
-		  emit(k);
-		  visit(f[n]);
-		}
-	      break;
-	    }
-	  case op::Concat:
-	    {
-	      unsigned max = f.size();
+              unsigned max = f.size();
+              for (unsigned n = 1; n < max; ++n)
+                {
+                  emit(k);
+                  visit(f[n]);
+                }
+              break;
+            }
+          case op::Concat:
+            {
+              unsigned max = f.size();
 
-	      for (unsigned i = 0; i < max; ++i)
-		{
-		  if (i > 0)
-		    emit(KConcat);
-		  if (i + 1 < max)
-		    {
-		      // Try to match (!b)[*];b
-		      formula b = match_goto(f, i);
-		      if (b != nullptr)
-			{
-			  emit_bunop_child(b);
+              for (unsigned i = 0; i < max; ++i)
+                {
+                  if (i > 0)
+                    emit(KConcat);
+                  if (i + 1 < max)
+                    {
+                      // Try to match (!b)[*];b
+                      formula b = match_goto(f, i);
+                      if (b != nullptr)
+                        {
+                          emit_bunop_child(b);
 
-			  // Wait... maybe we are looking at (!b)[*];b;(!b)[*]
-			  // in which case it's b[=1].
-			  if (i + 2 < max && f[i] == f[i + 2])
-			    {
-			      emit(KEqualBunop);
-			      os_ << '1';
-			      emit(KCloseBunop);
-			      i += 2;
-			    }
-			  else
-			    {
-			      emit(KGotoBunop);
-			      emit(KCloseBunop);
-			      ++i;
-			    }
-			  continue;
-			}
-		      // Try to match ((!b)[*];b)[*i..j];(!b)[*]
-		      formula fi = f[i];
-		      if (fi.is(op::Star))
-			{
-			  if (formula b2 = strip_star_not(f[i + 1]))
-			    {
-			      formula fic = fi[0];
-			      if (fic.is(op::Concat))
-				if (formula b1 = match_goto(fic, 0))
-				  if (b1 == b2)
-				    {
-				      emit_bunop_child(b1);
-				      emit(KEqualBunop);
-				      unsigned min = fi.min();
-				      os_ << min;
-				      unsigned max = fi.max();
-				      if (max != min)
-					{
-					  os_ << "..";
-					  if (max != formula::unbounded())
-					    os_ << max;
-					}
-				      emit(KCloseBunop);
-				      ++i;
-				      continue;
-				    }
-			    }
-			}
-		    }
-		  visit(f[i]);
-		}
-	      break;
-	    }
-	  case op::Star:
-	  case op::FStar:
-	    {
-	      formula c = f[0];
-	      enum { Star, FStar, Goto } sugar = Star;
-	      unsigned default_min = 0;
-	      unsigned default_max = formula::unbounded();
+                          // Wait... maybe we are looking at (!b)[*];b;(!b)[*]
+                          // in which case it's b[=1].
+                          if (i + 2 < max && f[i] == f[i + 2])
+                            {
+                              emit(KEqualBunop);
+                              os_ << '1';
+                              emit(KCloseBunop);
+                              i += 2;
+                            }
+                          else
+                            {
+                              emit(KGotoBunop);
+                              emit(KCloseBunop);
+                              ++i;
+                            }
+                          continue;
+                        }
+                      // Try to match ((!b)[*];b)[*i..j];(!b)[*]
+                      formula fi = f[i];
+                      if (fi.is(op::Star))
+                        {
+                          if (formula b2 = strip_star_not(f[i + 1]))
+                            {
+                              formula fic = fi[0];
+                              if (fic.is(op::Concat))
+                                if (formula b1 = match_goto(fic, 0))
+                                  if (b1 == b2)
+                                    {
+                                      emit_bunop_child(b1);
+                                      emit(KEqualBunop);
+                                      unsigned min = fi.min();
+                                      os_ << min;
+                                      unsigned max = fi.max();
+                                      if (max != min)
+                                        {
+                                          os_ << "..";
+                                          if (max != formula::unbounded())
+                                            os_ << max;
+                                        }
+                                      emit(KCloseBunop);
+                                      ++i;
+                                      continue;
+                                    }
+                            }
+                        }
+                    }
+                  visit(f[i]);
+                }
+              break;
+            }
+          case op::Star:
+          case op::FStar:
+            {
+              formula c = f[0];
+              enum { Star, FStar, Goto } sugar = Star;
+              unsigned default_min = 0;
+              unsigned default_max = formula::unbounded();
 
-	      // Abbreviate "1[*]" as "[*]".
-	      if (!c.is_tt() || o != op::Star)
-		{
-		  if (o == op::Star)
-		    {
-		      // Is this a Goto?
-		      if (c.is(op::Concat))
-			{
-			  unsigned s = c.size();
-			  if (s == 2)
-			    if (formula b = match_goto(c, 0))
-			      {
-				c = b;
-				sugar = Goto;
-			      }
-			}
-		    }
-		  else if (o == op::FStar)
-		    {
-		      sugar = FStar;
-		    }
-		  else
-		    {
-		      SPOT_UNREACHABLE();
-		    }
-		  emit_bunop_child(c);
-		}
+              // Abbreviate "1[*]" as "[*]".
+              if (!c.is_tt() || o != op::Star)
+                {
+                  if (o == op::Star)
+                    {
+                      // Is this a Goto?
+                      if (c.is(op::Concat))
+                        {
+                          unsigned s = c.size();
+                          if (s == 2)
+                            if (formula b = match_goto(c, 0))
+                              {
+                                c = b;
+                                sugar = Goto;
+                              }
+                        }
+                    }
+                  else if (o == op::FStar)
+                    {
+                      sugar = FStar;
+                    }
+                  else
+                    {
+                      SPOT_UNREACHABLE();
+                    }
+                  emit_bunop_child(c);
+                }
 
-	      unsigned min = f.min();
-	      unsigned max = f.max();
-	      bool range = true;
-	      switch (sugar)
-		{
-		case Star:
-		  if (min == 1 && max == formula::unbounded())
-		    {
-		      range = false;
-		      emit(KPlusBunop);
-		    }
-		  else
-		    {
-		      emit(KStarBunop);
-		    }
-		  break;
-		case FStar:
-		  if (min == 1 && max == formula::unbounded())
-		    {
-		      range = false;
-		      emit(KFPlusBunop);
-		    }
-		  else
-		    {
-		      emit(KFStarBunop);
-		    }
-		  break;
-		case Goto:
-		  emit(KGotoBunop);
-		  default_min = 1;
-		  default_max = 1;
-		  break;
-		}
+              unsigned min = f.min();
+              unsigned max = f.max();
+              bool range = true;
+              switch (sugar)
+                {
+                case Star:
+                  if (min == 1 && max == formula::unbounded())
+                    {
+                      range = false;
+                      emit(KPlusBunop);
+                    }
+                  else
+                    {
+                      emit(KStarBunop);
+                    }
+                  break;
+                case FStar:
+                  if (min == 1 && max == formula::unbounded())
+                    {
+                      range = false;
+                      emit(KFPlusBunop);
+                    }
+                  else
+                    {
+                      emit(KFStarBunop);
+                    }
+                  break;
+                case Goto:
+                  emit(KGotoBunop);
+                  default_min = 1;
+                  default_max = 1;
+                  break;
+                }
 
-	      // Beware that the default parameters of the Goto operator are
-	      // not the same as Star or Equal:
-	      //
-	      //   [->]   = [->1..1]
-	      //   [->..] = [->1..unbounded]
-	      //   [*]    = [*0..unbounded]
-	      //   [*..]  = [*0..unbounded]
-	      //   [=]    = [=0..unbounded]
-	      //   [=..]  = [=0..unbounded]
-	      //
-	      // Strictly speaking [=] is not specified by PSL, and anyway we
-	      // automatically rewrite Exp[=0..unbounded] as
-	      // Exp[*0..unbounded], so we should never have to print [=]
-	      // here.
-	      //
-	      // Also
-	      //   [*..]  = [*0..unbounded]
+              // Beware that the default parameters of the Goto operator are
+              // not the same as Star or Equal:
+              //
+              //   [->]   = [->1..1]
+              //   [->..] = [->1..unbounded]
+              //   [*]    = [*0..unbounded]
+              //   [*..]  = [*0..unbounded]
+              //   [=]    = [=0..unbounded]
+              //   [=..]  = [=0..unbounded]
+              //
+              // Strictly speaking [=] is not specified by PSL, and anyway we
+              // automatically rewrite Exp[=0..unbounded] as
+              // Exp[*0..unbounded], so we should never have to print [=]
+              // here.
+              //
+              // Also
+              //   [*..]  = [*0..unbounded]
 
-	      if (range)
-		{
-		  if (min != default_min || max != default_max)
-		    {
-		      // Always print the min_, even when it is equal to
-		      // default_min, this way we avoid ambiguities (like
-		      // when reading [*..3] near [->..2])
-		      os_ << min;
-		      if (min != max)
-			{
-			  os_ << "..";
-			  if (max != formula::unbounded())
-			    os_ << max;
-			}
-		    }
-		  emit(KCloseBunop);
-		}
-	    }
-	    break;
-	  }
-	if (want_par)
-	  closep();
+              if (range)
+                {
+                  if (min != default_min || max != default_max)
+                    {
+                      // Always print the min_, even when it is equal to
+                      // default_min, this way we avoid ambiguities (like
+                      // when reading [*..3] near [->..2])
+                      os_ << min;
+                      if (min != max)
+                        {
+                          os_ << "..";
+                          if (max != formula::unbounded())
+                            os_ << max;
+                        }
+                    }
+                  emit(KCloseBunop);
+                }
+            }
+            break;
+          }
+        if (want_par)
+          closep();
       }
 
     protected:
@@ -855,7 +855,7 @@ namespace spot
 
     std::ostream&
     printer_(std::ostream& os, formula f, bool full_parent,
-	     bool ratexp, const char** kw)
+             bool ratexp, const char** kw)
     {
       to_string_visitor v(os, full_parent, ratexp, kw);
       v.visit(f);
@@ -1010,10 +1010,10 @@ namespace spot
     is_pnum(const char* str)
     {
       if (str[0] != 'p' || str[1] == 0)
-	return false;
+        return false;
       while (*++str)
-	if (*str < '0' || *str > '9')
-	  return false;
+        if (*str < '0' || *str > '9')
+          return false;
       return true;
     }
 
@@ -1025,97 +1025,97 @@ namespace spot
     public:
 
       lbt_visitor(std::ostream& os)
-	: os_(os), first_(true)
-	{
-	}
+        : os_(os), first_(true)
+        {
+        }
 
       void
-	visit(formula f)
+        visit(formula f)
       {
-	if (first_)
-	  first_ = false;
-	else
-	  os_ << ' ';
+        if (first_)
+          first_ = false;
+        else
+          os_ << ' ';
 
-	op o = f.kind();
-	switch (o)
-	  {
-	  case op::ff:
-	    os_ << 'f';
-	    break;
-	  case op::tt:
-	    os_ << 't';
-	    break;
-	  case op::ap:
-	    {
-	      const std::string& str = f.ap_name();
-	      if (!is_pnum(str.c_str()))
-		escape_str(os_ << '"', str) << '"';
-	      else
-		os_ << str;
-	      break;
-	    }
-	  case op::Not:
-	    os_ << '!';
-	    break;
-	  case op::X:
-	    os_ << 'X';
-	    break;
-	  case op::F:
-	    os_ << 'F';
-	    break;
-	  case op::G:
-	    os_ << 'G';
-	    break;
-	  case op::Xor:
-	    os_ << '^';
-	    break;
-	  case op::Implies:
-	    os_ << 'i';
-	    break;
-	  case op::Equiv:
-	    os_ << 'e';
-	    break;
-	  case op::U:
-	    os_ << 'U';
-	    break;
-	  case op::R:
-	    os_ << 'V';
-	    break;
-	  case op::W:
-	    os_ << 'W';
-	    break;
-	  case op::M:
-	    os_ << 'M';
-	    break;
-	  case op::Or:
-	    for (unsigned i = f.size() - 1; i != 0; --i)
-	      os_ << "| ";
-	    first_ = true;
-	    break;
-	  case op::And:
-	    for (unsigned i = f.size() - 1; i != 0; --i)
-	      os_ << "& ";
-	    first_ = true;
-	    break;
-	  case op::eword:
-	  case op::Closure:
-	  case op::NegClosure:
-	  case op::NegClosureMarked:
-	  case op::EConcat:
-	  case op::EConcatMarked:
-	  case op::UConcat:
-	  case op::OrRat:
-	  case op::AndRat:
-	  case op::AndNLM:
-	  case op::Concat:
-	  case op::Fusion:
-	  case op::Star:
-	  case op::FStar:
-	    SPOT_UNIMPLEMENTED();
-	  }
-	for (auto c: f)
-	  visit(c);
+        op o = f.kind();
+        switch (o)
+          {
+          case op::ff:
+            os_ << 'f';
+            break;
+          case op::tt:
+            os_ << 't';
+            break;
+          case op::ap:
+            {
+              const std::string& str = f.ap_name();
+              if (!is_pnum(str.c_str()))
+                escape_str(os_ << '"', str) << '"';
+              else
+                os_ << str;
+              break;
+            }
+          case op::Not:
+            os_ << '!';
+            break;
+          case op::X:
+            os_ << 'X';
+            break;
+          case op::F:
+            os_ << 'F';
+            break;
+          case op::G:
+            os_ << 'G';
+            break;
+          case op::Xor:
+            os_ << '^';
+            break;
+          case op::Implies:
+            os_ << 'i';
+            break;
+          case op::Equiv:
+            os_ << 'e';
+            break;
+          case op::U:
+            os_ << 'U';
+            break;
+          case op::R:
+            os_ << 'V';
+            break;
+          case op::W:
+            os_ << 'W';
+            break;
+          case op::M:
+            os_ << 'M';
+            break;
+          case op::Or:
+            for (unsigned i = f.size() - 1; i != 0; --i)
+              os_ << "| ";
+            first_ = true;
+            break;
+          case op::And:
+            for (unsigned i = f.size() - 1; i != 0; --i)
+              os_ << "& ";
+            first_ = true;
+            break;
+          case op::eword:
+          case op::Closure:
+          case op::NegClosure:
+          case op::NegClosureMarked:
+          case op::EConcat:
+          case op::EConcatMarked:
+          case op::UConcat:
+          case op::OrRat:
+          case op::AndRat:
+          case op::AndNLM:
+          case op::Concat:
+          case op::Fusion:
+          case op::Star:
+          case op::FStar:
+            SPOT_UNIMPLEMENTED();
+          }
+        for (auto c: f)
+          visit(c);
       }
     };
 

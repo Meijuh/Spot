@@ -43,17 +43,17 @@ namespace spot
     ~multiple_size_pool()
     {
       while (chunklist_)
-	{
-	  chunk_* prev = chunklist_->prev;
-	  free(chunklist_);
-	  chunklist_ = prev;
-	}
+        {
+          chunk_* prev = chunklist_->prev;
+          free(chunklist_);
+          chunklist_ = prev;
+        }
     }
 
     size_t fixsize(size_t size) const
     {
       if (size < sizeof(block_))
-	size = sizeof(block_);
+        size = sizeof(block_);
 
       return (size + alignment_ - 1) & ~(alignment_ - 1);
     }
@@ -67,28 +67,28 @@ namespace spot
       block_*& f = freelist_[size];
       // If we have free blocks available, return the first one.
       if (f)
-	{
-	  block_* first = f;
-	  f = f->next;
-	  return first;
-	}
+        {
+          block_* first = f;
+          f = f->next;
+          return first;
+        }
 
       // Else, create a block out of the last chunk of allocated
       // memory.
 
       // If all the last chunk has been used, allocate one more.
       if (free_start_ + size > free_end_)
-	{
-	  const size_t requested = (size > 128 ? size : 128) * 8192 - 64;
-	  chunk_* c = reinterpret_cast<chunk_*>(malloc(requested));
-	  if (!c)
-	    throw std::bad_alloc();
-	  c->prev = chunklist_;
-	  chunklist_ = c;
+        {
+          const size_t requested = (size > 128 ? size : 128) * 8192 - 64;
+          chunk_* c = reinterpret_cast<chunk_*>(malloc(requested));
+          if (!c)
+            throw std::bad_alloc();
+          c->prev = chunklist_;
+          chunklist_ = c;
 
-	  free_start_ = c->data_ + size;
-	  free_end_ = c->data_ + requested;
-	}
+          free_start_ = c->data_ + size;
+          free_end_ = c->data_ + requested;
+        }
 
       void* res = free_start_;
       free_start_ += size;

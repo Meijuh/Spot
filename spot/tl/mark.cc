@@ -58,25 +58,25 @@ namespace spot
       case op::UConcat:
       case op::Concat:
       case op::Fusion:
-	res = f;
-	break;
+        res = f;
+        break;
       case op::NegClosure:
-	res = formula::NegClosureMarked(f[0]);
-	break;
+        res = formula::NegClosureMarked(f[0]);
+        break;
       case op::EConcat:
-	res = formula::EConcatMarked(f[0], f[1]);
-	break;
+        res = formula::EConcatMarked(f[0], f[1]);
+        break;
       case op::Or:
       case op::And:
-	res = f.map([this](formula f)
-		    {
-		      return this->mark_concat_ops(f);
-		    });
-	break;
+        res = f.map([this](formula f)
+                    {
+                      return this->mark_concat_ops(f);
+                    });
+        break;
       case op::Xor:
       case op::Implies:
       case op::Equiv:
-	SPOT_UNIMPLEMENTED();
+        SPOT_UNIMPLEMENTED();
       }
 
     markops_[f] = res;
@@ -95,7 +95,7 @@ namespace spot
 
     auto recurse = [this](formula f)
       {
-	return this->simplify_mark(f);
+        return this->simplify_mark(f);
       };
 
     formula res;
@@ -119,58 +119,58 @@ namespace spot
       case op::EConcat:
       case op::EConcatMarked:
       case op::UConcat:
-	res = f;
-	break;
+        res = f;
+        break;
       case op::Or:
-	res = f.map(recurse);
-	break;
+        res = f.map(recurse);
+        break;
       case op::And:
-	{
-	  std::set<std::pair<formula, formula>> empairs;
-	  std::set<formula> nmset;
-	  std::vector<formula> elist;
-	  std::vector<formula> nlist;
-	  std::vector<formula> v;
+        {
+          std::set<std::pair<formula, formula>> empairs;
+          std::set<formula> nmset;
+          std::vector<formula> elist;
+          std::vector<formula> nlist;
+          std::vector<formula> v;
 
-	  for (auto c: f)
-	    {
-	      if (c.is(op::EConcatMarked))
-		{
-		  empairs.emplace(c[0], c[1]);
-		  v.push_back(c.map(recurse));
-		}
-	      else if (c.is(op::EConcat))
-		{
-		  elist.push_back(c);
-		}
-	      else if (c.is(op::NegClosureMarked))
-		{
-		  nmset.insert(c[0]);
-		  v.push_back(c.map(recurse));
-		}
-	      else if (c.is(op::NegClosure))
-		{
-		  nlist.push_back(c);
-		}
-	      else
-		{
-		  v.push_back(c);
-		}
-	    }
-	  // Keep only the non-marked EConcat for which we
-	  // have not seen a similar EConcatMarked.
-	  for (auto e:  elist)
-	    if (empairs.find(std::make_pair(e[0], e[1]))
-		== empairs.end())
-	      v.push_back(e);
-	  // Keep only the non-marked NegClosure for which we
-	  // have not seen a similar NegClosureMarked.
-	  for (auto n: nlist)
-	    if (nmset.find(n[0]) == nmset.end())
-	      v.push_back(n);
-	  res = formula::And(v);
-	}
-	break;
+          for (auto c: f)
+            {
+              if (c.is(op::EConcatMarked))
+                {
+                  empairs.emplace(c[0], c[1]);
+                  v.push_back(c.map(recurse));
+                }
+              else if (c.is(op::EConcat))
+                {
+                  elist.push_back(c);
+                }
+              else if (c.is(op::NegClosureMarked))
+                {
+                  nmset.insert(c[0]);
+                  v.push_back(c.map(recurse));
+                }
+              else if (c.is(op::NegClosure))
+                {
+                  nlist.push_back(c);
+                }
+              else
+                {
+                  v.push_back(c);
+                }
+            }
+          // Keep only the non-marked EConcat for which we
+          // have not seen a similar EConcatMarked.
+          for (auto e:  elist)
+            if (empairs.find(std::make_pair(e[0], e[1]))
+                == empairs.end())
+              v.push_back(e);
+          // Keep only the non-marked NegClosure for which we
+          // have not seen a similar NegClosureMarked.
+          for (auto n: nlist)
+            if (nmset.find(n[0]) == nmset.end())
+              v.push_back(n);
+          res = formula::And(v);
+        }
+        break;
       case op::Xor:
       case op::Implies:
       case op::Equiv:
@@ -181,7 +181,7 @@ namespace spot
       case op::FStar:
       case op::Concat:
       case op::Fusion:
-	SPOT_UNIMPLEMENTED();
+        SPOT_UNIMPLEMENTED();
       }
 
     simpmark_[f] = res;

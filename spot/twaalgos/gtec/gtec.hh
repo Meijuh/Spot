@@ -221,7 +221,7 @@ namespace spot
     {
       const state* s;
       int n;
-      succ_queue q;		// Unprocessed successors of S
+      succ_queue q;                // Unprocessed successors of S
       todo_item(const state* s, int n, couvreur99_check_shy* shy);
     };
 

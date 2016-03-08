@@ -49,7 +49,7 @@ namespace spot
     size_t operator()(const T* p) const
     {
       return knuth32_hash(reinterpret_cast<const char*>(p)
-			  - static_cast<const char*>(nullptr));
+                          - static_cast<const char*>(nullptr));
     }
   };
 
@@ -85,7 +85,7 @@ namespace spot
       std::hash<U> uh;
 
       return wang32_hash(static_cast<size_t>(th(p.first)) ^
-			 static_cast<size_t>(uh(p.second)));
+                         static_cast<size_t>(uh(p.second)));
     }
   };
 }

@@ -35,8 +35,8 @@ namespace spot
   {
   public:
     couvreur99_check_result(const
-			    std::shared_ptr<const couvreur99_check_status>& ecs,
-			    option_map o = option_map());
+                            std::shared_ptr<const couvreur99_check_status>& ecs,
+                            option_map o = option_map());
 
     virtual twa_run_ptr accepting_run() override;
 

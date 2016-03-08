@@ -109,8 +109,8 @@ namespace spot
 
       void set_size(const twa_graph_ptr& a)
       {
-	states = a->num_states();
-	edges = a->num_edges();
+        states = a->num_states();
+        edges = a->num_edges();
       }
 
       inline bool operator!=(const automaton_size& r)
@@ -166,23 +166,23 @@ namespace spot
 
       bdd mark_to_bdd(acc_cond::mark_t m)
       {
-	// FIXME: Use a cache.
-	bdd res = bddtrue;
-	for (auto n: m.sets())
-	  res &= bdd_ithvar(acc_vars + n);
-	return res;
+        // FIXME: Use a cache.
+        bdd res = bddtrue;
+        for (auto n: m.sets())
+          res &= bdd_ithvar(acc_vars + n);
+        return res;
       }
 
       acc_cond::mark_t bdd_to_mark(bdd b)
       {
-	// FIXME: Use a cache.
-	std::vector<unsigned> res;
-	while (b != bddtrue)
-	  {
-	    res.push_back(bdd_var(b) - acc_vars);
-	    b = bdd_high(b);
-	  }
-	return acc_cond::mark_t(res.begin(), res.end());
+        // FIXME: Use a cache.
+        std::vector<unsigned> res;
+        while (b != bddtrue)
+          {
+            res.push_back(bdd_var(b) - acc_vars);
+            b = bdd_high(b);
+          }
+        return acc_cond::mark_t(res.begin(), res.end());
       }
 
       direct_simulation(const const_twa_graph_ptr& in)
@@ -190,104 +190,104 @@ namespace spot
           all_class_var_(bddtrue),
           original_(in)
       {
-	if (!has_separate_sets(in))
-	  throw std::runtime_error
-	    ("direct_simulation() requires separate Inf and Fin sets");
+        if (!has_separate_sets(in))
+          throw std::runtime_error
+            ("direct_simulation() requires separate Inf and Fin sets");
 
-	// Call get_init_state_number() before anything else as it
-	// might add a state.
-	unsigned init_state_number = in->get_init_state_number();
+        // Call get_init_state_number() before anything else as it
+        // might add a state.
+        unsigned init_state_number = in->get_init_state_number();
         scc_info_.reset(new scc_info(in));
 
-	unsigned ns = in->num_states();
-	assert(ns > 0);
-	size_a_ = ns;
+        unsigned ns = in->num_states();
+        assert(ns > 0);
+        size_a_ = ns;
 
-	auto all_inf = in->get_acceptance().used_inf_fin_sets().first;
-	all_inf_ = all_inf;
+        auto all_inf = in->get_acceptance().used_inf_fin_sets().first;
+        all_inf_ = all_inf;
 
-	// Replace all the acceptance conditions by their complements.
-	// (In the case of Cosimulation, we also flip the edges.)
-	if (Cosimulation)
-	  {
-	    a_ = make_twa_graph(in->get_dict());
-	    a_->copy_ap_of(in);
-	    a_->copy_acceptance_of(in);
-	    a_->new_states(ns);
+        // Replace all the acceptance conditions by their complements.
+        // (In the case of Cosimulation, we also flip the edges.)
+        if (Cosimulation)
+          {
+            a_ = make_twa_graph(in->get_dict());
+            a_->copy_ap_of(in);
+            a_->copy_acceptance_of(in);
+            a_->new_states(ns);
 
-	    for (unsigned s = 0; s < ns; ++s)
-	      {
-		for (auto& t: in->out(s))
-		  {
-		    acc_cond::mark_t acc;
-		    if (Sba)
-		      {
-			// If the acceptance is interpreted as
-			// state-based, to apply the reverse simulation
-			// on a SBA, we should pull the acceptance of
-			// the destination state on its incoming arcs
-			// (which now become outgoing arcs after
-			// transposition).
-			acc = 0U;
-			for (auto& td: in->out(t.dst))
-			  {
-			    acc = td.acc ^ all_inf;
-			    break;
-			  }
-		      }
-		    else
-		      {
-			acc = t.acc ^ all_inf;
-		      }
-		    a_->new_edge(t.dst, s, t.cond, acc);
-		  }
-		a_->set_init_state(init_state_number);
-	      }
-	  }
-	else
-	  {
-	    a_ = make_twa_graph(in, twa::prop_set::all());
-	    for (auto& t: a_->edges())
-	      t.acc ^= all_inf;
-	  }
-	assert(a_->num_states() == size_a_);
+            for (unsigned s = 0; s < ns; ++s)
+              {
+                for (auto& t: in->out(s))
+                  {
+                    acc_cond::mark_t acc;
+                    if (Sba)
+                      {
+                        // If the acceptance is interpreted as
+                        // state-based, to apply the reverse simulation
+                        // on a SBA, we should pull the acceptance of
+                        // the destination state on its incoming arcs
+                        // (which now become outgoing arcs after
+                        // transposition).
+                        acc = 0U;
+                        for (auto& td: in->out(t.dst))
+                          {
+                            acc = td.acc ^ all_inf;
+                            break;
+                          }
+                      }
+                    else
+                      {
+                        acc = t.acc ^ all_inf;
+                      }
+                    a_->new_edge(t.dst, s, t.cond, acc);
+                  }
+                a_->set_init_state(init_state_number);
+              }
+          }
+        else
+          {
+            a_ = make_twa_graph(in, twa::prop_set::all());
+            for (auto& t: a_->edges())
+              t.acc ^= all_inf;
+          }
+        assert(a_->num_states() == size_a_);
 
-	// Now, we have to get the bdd which will represent the
-	// class. We register one bdd by state, because in the worst
-	// case, |Class| == |State|.
-	unsigned set_num = a_->get_dict()
-	  ->register_anonymous_variables(size_a_ + 1, this);
+        // Now, we have to get the bdd which will represent the
+        // class. We register one bdd by state, because in the worst
+        // case, |Class| == |State|.
+        unsigned set_num = a_->get_dict()
+          ->register_anonymous_variables(size_a_ + 1, this);
 
-	unsigned n_acc = a_->num_sets();
-	acc_vars = a_->get_dict()
-	  ->register_anonymous_variables(n_acc, this);
+        unsigned n_acc = a_->num_sets();
+        acc_vars = a_->get_dict()
+          ->register_anonymous_variables(n_acc, this);
 
-	all_proms_ = bddtrue;
-	for (unsigned v = acc_vars; v < acc_vars + n_acc; ++v)
-	  all_proms_ &= bdd_ithvar(v);
+        all_proms_ = bddtrue;
+        for (unsigned v = acc_vars; v < acc_vars + n_acc; ++v)
+          all_proms_ &= bdd_ithvar(v);
 
         bdd_initial = bdd_ithvar(set_num++);
-	bdd init = bdd_ithvar(set_num++);
+        bdd init = bdd_ithvar(set_num++);
 
-	used_var_.push_back(init);
+        used_var_.push_back(init);
 
-	// Initialize all classes to init.
-	previous_class_.resize(size_a_);
-	for (unsigned s = 0; s < size_a_; ++s)
-	  previous_class_[s] = init;
+        // Initialize all classes to init.
+        previous_class_.resize(size_a_);
+        for (unsigned s = 0; s < size_a_; ++s)
+          previous_class_[s] = init;
 
-	// Put all the anonymous variable in a queue, and record all
-	// of these in a variable all_class_var_ which will be used
-	// to understand the destination part in the signature when
-	// building the resulting automaton.
-	all_class_var_ = init;
-	for (unsigned i = set_num; i < set_num + size_a_ - 1; ++i)
+        // Put all the anonymous variable in a queue, and record all
+        // of these in a variable all_class_var_ which will be used
+        // to understand the destination part in the signature when
+        // building the resulting automaton.
+        all_class_var_ = init;
+        for (unsigned i = set_num; i < set_num + size_a_ - 1; ++i)
           {
             free_var_.push(i);
             all_class_var_ &= bdd_ithvar(i);
           }
 
-	relation_[init] = init;
+        relation_[init] = init;
       }
 
 
@@ -296,40 +296,40 @@ namespace spot
       // function simulation.
       virtual ~direct_simulation()
       {
-	a_->get_dict()->unregister_all_my_variables(this);
+        a_->get_dict()->unregister_all_my_variables(this);
       }
 
       // Update the name of the classes.
       void update_previous_class()
       {
-	std::list<bdd>::iterator it_bdd = used_var_.begin();
+        std::list<bdd>::iterator it_bdd = used_var_.begin();
 
-	// We run through the map bdd/list<state>, and we update
-	// the previous_class_ with the new data.
-	for (auto& p: bdd_lstate_)
+        // We run through the map bdd/list<state>, and we update
+        // the previous_class_ with the new data.
+        for (auto& p: bdd_lstate_)
           {
-	    // If the signature of a state is bddfalse (no
-	    // edges) the class of this state is bddfalse
-	    // instead of an anonymous variable. It allows
-	    // simplifications in the signature by removing a
-	    // edge which has as a destination a state with
-	    // no outgoing edge.
-	    if (p.first == bddfalse)
-	      for (auto s: p.second)
-		previous_class_[s] = bddfalse;
-	    else
-	      for (auto s: p.second)
-		previous_class_[s] = *it_bdd;
-	    ++it_bdd;
+            // If the signature of a state is bddfalse (no
+            // edges) the class of this state is bddfalse
+            // instead of an anonymous variable. It allows
+            // simplifications in the signature by removing a
+            // edge which has as a destination a state with
+            // no outgoing edge.
+            if (p.first == bddfalse)
+              for (auto s: p.second)
+                previous_class_[s] = bddfalse;
+            else
+              for (auto s: p.second)
+                previous_class_[s] = *it_bdd;
+            ++it_bdd;
           }
       }
 
       void main_loop()
       {
-	unsigned int nb_partition_before = 0;
-	unsigned int nb_po_before = po_size_ - 1;
-	while (nb_partition_before != bdd_lstate_.size()
-	       || nb_po_before != po_size_)
+        unsigned int nb_partition_before = 0;
+        unsigned int nb_po_before = po_size_ - 1;
+        while (nb_partition_before != bdd_lstate_.size()
+               || nb_po_before != po_size_)
           {
             update_previous_class();
             nb_partition_before = bdd_lstate_.size();
@@ -340,14 +340,14 @@ namespace spot
             go_to_next_it();
           }
 
-	update_previous_class();
+        update_previous_class();
       }
 
       // The core loop of the algorithm.
       twa_graph_ptr run(std::map<int, bdd>* implications = nullptr)
       {
         main_loop();
-	return build_result(implications);
+        return build_result(implications);
       }
 
       // Take a state and compute its signature.
@@ -359,13 +359,13 @@ namespace spot
           {
             bdd acc = mark_to_bdd(t.acc);
 
-	    // to_add is a conjunction of the acceptance condition,
-	    // the label of the edge and the class of the
-	    // destination and all the class it implies.
-	    bdd to_add = acc & t.cond & relation_[previous_class_[t.dst]];
+            // to_add is a conjunction of the acceptance condition,
+            // the label of the edge and the class of the
+            // destination and all the class it implies.
+            bdd to_add = acc & t.cond & relation_[previous_class_[t.dst]];
 
-	    res |= to_add;
-	  }
+            res |= to_add;
+          }
 
         // When we Cosimulate, we add a special flag to differentiate
         // the initial state from the other.
@@ -378,20 +378,20 @@ namespace spot
 
       void update_sig()
       {
-	for (unsigned s = 0; s < size_a_; ++s)
-	  bdd_lstate_[compute_sig(s)].push_back(s);
+        for (unsigned s = 0; s < size_a_; ++s)
+          bdd_lstate_[compute_sig(s)].push_back(s);
       }
 
 
       // This method rename the color set, update the partial order.
       void go_to_next_it()
       {
-	int nb_new_color = bdd_lstate_.size() - used_var_.size();
+        int nb_new_color = bdd_lstate_.size() - used_var_.size();
 
 
         // If we have created more partitions, we need to use more
         // variables.
-	for (int i = 0; i < nb_new_color; ++i)
+        for (int i = 0; i < nb_new_color; ++i)
           {
             assert(!free_var_.empty());
             used_var_.push_back(bdd_ithvar(free_var_.front()));
@@ -401,7 +401,7 @@ namespace spot
 
         // If we have reduced the number of partition, we 'free' them
         // in the free_var_ list.
-	for (int i = 0; i > nb_new_color; --i)
+        for (int i = 0; i > nb_new_color; --i)
           {
             assert(!used_var_.empty());
             free_var_.push(bdd_var(used_var_.front()));
@@ -409,36 +409,36 @@ namespace spot
           }
 
 
-	assert((bdd_lstate_.size() == used_var_.size())
+        assert((bdd_lstate_.size() == used_var_.size())
                || (bdd_lstate_.find(bddfalse) != bdd_lstate_.end()
                    && bdd_lstate_.size() == used_var_.size() + 1));
 
-	// Now we make a temporary hash_table which links the tuple
-	// "C^(i-1), N^(i-1)" to the new class coloring.  If we
-	// rename the class before updating the partial order, we
-	// loose the information, and if we make it after, I can't
-	// figure out how to apply this renaming on rel_.
-	// It adds a data structure but it solves our problem.
-	map_bdd_bdd now_to_next;
+        // Now we make a temporary hash_table which links the tuple
+        // "C^(i-1), N^(i-1)" to the new class coloring.  If we
+        // rename the class before updating the partial order, we
+        // loose the information, and if we make it after, I can't
+        // figure out how to apply this renaming on rel_.
+        // It adds a data structure but it solves our problem.
+        map_bdd_bdd now_to_next;
 
-	std::list<bdd>::iterator it_bdd = used_var_.begin();
+        std::list<bdd>::iterator it_bdd = used_var_.begin();
 
-	for (auto& p: bdd_lstate_)
+        for (auto& p: bdd_lstate_)
           {
-	    // If the signature of a state is bddfalse (no
-	    // edges) the class of this state is bddfalse
-	    // instead of an anonymous variable. It allows
-	    // simplifications in the signature by removing a
-	    // edge which has as a destination a state with
-	    // no outgoing edge.
-	    bdd acc = bddfalse;
-	    if (p.first != bddfalse)
-	      acc = *it_bdd;
-	    now_to_next[p.first] = acc;
-	    ++it_bdd;
+            // If the signature of a state is bddfalse (no
+            // edges) the class of this state is bddfalse
+            // instead of an anonymous variable. It allows
+            // simplifications in the signature by removing a
+            // edge which has as a destination a state with
+            // no outgoing edge.
+            bdd acc = bddfalse;
+            if (p.first != bddfalse)
+              acc = *it_bdd;
+            now_to_next[p.first] = acc;
+            ++it_bdd;
           }
 
-	update_po(now_to_next, relation_);
+        update_po(now_to_next, relation_);
       }
 
       // This function computes the new po with previous_class_ and
@@ -451,17 +451,17 @@ namespace spot
       void update_po(const container_bdd_bdd& now_to_next,
                      map_bdd_bdd& relation)
       {
-	// This loop follows the pattern given by the paper.
-	// foreach class do
-	// |  foreach class do
-	// |  | update po if needed
-	// |  od
-	// od
+        // This loop follows the pattern given by the paper.
+        // foreach class do
+        // |  foreach class do
+        // |  | update po if needed
+        // |  od
+        // od
 
-	for (typename container_bdd_bdd::const_iterator it1
+        for (typename container_bdd_bdd::const_iterator it1
                = now_to_next.begin();
-	     it1 != now_to_next.end();
-	     ++it1)
+             it1 != now_to_next.end();
+             ++it1)
           {
             bdd accu = it1->second;
             for (typename container_bdd_bdd::const_iterator it2
@@ -486,31 +486,31 @@ namespace spot
       // Build the minimal resulting automaton.
       twa_graph_ptr build_result(std::map<int, bdd>* implications = nullptr)
       {
-	twa_graph_ptr res = make_twa_graph(a_->get_dict());
-	res->copy_ap_of(a_);
-	res->copy_acceptance_of(a_);
+        twa_graph_ptr res = make_twa_graph(a_->get_dict());
+        res->copy_ap_of(a_);
+        res->copy_acceptance_of(a_);
 
-	// Non atomic propositions variables (= acc and class)
-	bdd nonapvars = all_proms_ & bdd_support(all_class_var_);
+        // Non atomic propositions variables (= acc and class)
+        bdd nonapvars = all_proms_ & bdd_support(all_class_var_);
 
-	auto* gb = res->create_namer<int>();
+        auto* gb = res->create_namer<int>();
 
-	// Create one state per partition.
-	for (auto& p: bdd_lstate_)
+        // Create one state per partition.
+        for (auto& p: bdd_lstate_)
           {
             bdd cl = previous_class_[p.second.front()];
-	    // A state may be referred to either by
-	    // its class, or by all the implied classes.
-	    auto s = gb->new_state(cl.id());
-	    gb->alias_state(s, relation_[cl].id());
+            // A state may be referred to either by
+            // its class, or by all the implied classes.
+            auto s = gb->new_state(cl.id());
+            gb->alias_state(s, relation_[cl].id());
             if (implications)
               (*implications)[s] = relation_[cl];
           }
 
-	// Acceptance of states.  Only used if Sba && Cosimulation.
-	std::vector<acc_cond::mark_t> accst;
-	if (Sba && Cosimulation)
-	  accst.resize(res->num_states(), 0U);
+        // Acceptance of states.  Only used if Sba && Cosimulation.
+        std::vector<acc_cond::mark_t> accst;
+        if (Sba && Cosimulation)
+          accst.resize(res->num_states(), 0U);
 
         stat.states = bdd_lstate_.size();
         stat.edges = 0;
@@ -518,14 +518,14 @@ namespace spot
         unsigned nb_satoneset = 0;
         unsigned nb_minato = 0;
 
-	auto all_inf = all_inf_;
-	// For each class, we will create
-	// all the edges between the states.
-	for (auto& p: bdd_lstate_)
+        auto all_inf = all_inf_;
+        // For each class, we will create
+        // all the edges between the states.
+        for (auto& p: bdd_lstate_)
           {
-	    // All states in p.second have the same class, so just
-	    // pick the class of the first one first one.
-	    bdd src = previous_class_[p.second.front()];
+            // All states in p.second have the same class, so just
+            // pick the class of the first one first one.
+            bdd src = previous_class_[p.second.front()];
 
             // Get the signature to derive successors.
             bdd sig = compute_sig(p.second.front());
@@ -544,108 +544,108 @@ namespace spot
             // proposition.
             bdd all_atomic_prop = bdd_exist(sig, nonapvars);
 
-	    // First loop over all possible valuations atomic properties.
+            // First loop over all possible valuations atomic properties.
             while (all_atomic_prop != bddfalse)
-	      {
-		bdd one = bdd_satoneset(all_atomic_prop,
-					sup_all_atomic_prop,
-					bddtrue);
-		all_atomic_prop -= one;
+              {
+                bdd one = bdd_satoneset(all_atomic_prop,
+                                        sup_all_atomic_prop,
+                                        bddtrue);
+                all_atomic_prop -= one;
 
-		// For each possible valuation, iterate over all possible
-		// destination classes.   We use minato_isop here, because
-		// if the same valuation of atomic properties can go
-		// to two different classes C1 and C2, iterating on
-		// C1 + C2 with the above bdd_satoneset loop will see
-		// C1 then (!C1)C2, instead of C1 then C2.
-		// With minatop_isop, we ensure that the no negative
-		// class variable will be seen (likewise for promises).
-		minato_isop isop(sig & one);
+                // For each possible valuation, iterate over all possible
+                // destination classes.   We use minato_isop here, because
+                // if the same valuation of atomic properties can go
+                // to two different classes C1 and C2, iterating on
+                // C1 + C2 with the above bdd_satoneset loop will see
+                // C1 then (!C1)C2, instead of C1 then C2.
+                // With minatop_isop, we ensure that the no negative
+                // class variable will be seen (likewise for promises).
+                minato_isop isop(sig & one);
 
                 ++nb_satoneset;
 
-		bdd cond_acc_dest;
-		while ((cond_acc_dest = isop.next()) != bddfalse)
-		  {
+                bdd cond_acc_dest;
+                while ((cond_acc_dest = isop.next()) != bddfalse)
+                  {
                     ++stat.edges;
 
                     ++nb_minato;
 
-		    // Take the edge, and keep only the variable which
-		    // are used to represent the class.
-		    bdd dst = bdd_existcomp(cond_acc_dest,
-					     all_class_var_);
+                    // Take the edge, and keep only the variable which
+                    // are used to represent the class.
+                    bdd dst = bdd_existcomp(cond_acc_dest,
+                                             all_class_var_);
 
-		    // Keep only ones who are acceptance condition.
-		    auto acc = bdd_to_mark(bdd_existcomp(cond_acc_dest,
-							 all_proms_));
+                    // Keep only ones who are acceptance condition.
+                    auto acc = bdd_to_mark(bdd_existcomp(cond_acc_dest,
+                                                         all_proms_));
 
-		    // Keep the other!
-		    bdd cond = bdd_existcomp(cond_acc_dest,
-					     sup_all_atomic_prop);
+                    // Keep the other!
+                    bdd cond = bdd_existcomp(cond_acc_dest,
+                                             sup_all_atomic_prop);
 
-		    // Because we have complemented all the Inf
-		    // acceptance conditions on the input automaton,
-		    // we must revert them to create a new edge.
-		    acc ^= all_inf;
+                    // Because we have complemented all the Inf
+                    // acceptance conditions on the input automaton,
+                    // we must revert them to create a new edge.
+                    acc ^= all_inf;
 
-		    if (Cosimulation)
-		      {
-			if (Sba)
-			  {
-			    // acc should be attached to src, or rather,
-			    // in our edge-based representation)
-			    // to all edges leaving src.  As we
-			    // can't do this here, store this in a table
-			    // so we can fix it later.
-			    accst[gb->get_state(src.id())] = acc;
-			    acc = 0U;
-			  }
-			gb->new_edge(dst.id(), src.id(), cond, acc);
-		      }
-		    else
-		      {
-			gb->new_edge(src.id(), dst.id(), cond, acc);
-		      }
-		  }
-	      }
+                    if (Cosimulation)
+                      {
+                        if (Sba)
+                          {
+                            // acc should be attached to src, or rather,
+                            // in our edge-based representation)
+                            // to all edges leaving src.  As we
+                            // can't do this here, store this in a table
+                            // so we can fix it later.
+                            accst[gb->get_state(src.id())] = acc;
+                            acc = 0U;
+                          }
+                        gb->new_edge(dst.id(), src.id(), cond, acc);
+                      }
+                    else
+                      {
+                        gb->new_edge(src.id(), dst.id(), cond, acc);
+                      }
+                  }
+              }
           }
 
-	res->set_init_state(gb->get_state(previous_class_
-					  [a_->get_init_state_number()].id()));
+        res->set_init_state(gb->get_state(previous_class_
+                                          [a_->get_init_state_number()].id()));
 
-	res->merge_edges(); // FIXME: is this really needed?
+        res->merge_edges(); // FIXME: is this really needed?
 
-	// Mark all accepting state in a second pass, when
-	// dealing with SBA in cosimulation.
-	if (Sba && Cosimulation)
-	  {
-	    unsigned ns = res->num_states();
-	    for (unsigned s = 0; s < ns; ++s)
-	      {
-		acc_cond::mark_t acc = accst[s];
-		if (acc == 0U)
-		  continue;
-		for (auto& t: res->out(s))
-		  t.acc = acc;
-	      }
-	  }
+        // Mark all accepting state in a second pass, when
+        // dealing with SBA in cosimulation.
+        if (Sba && Cosimulation)
+          {
+            unsigned ns = res->num_states();
+            for (unsigned s = 0; s < ns; ++s)
+              {
+                acc_cond::mark_t acc = accst[s];
+                if (acc == 0U)
+                  continue;
+                for (auto& t: res->out(s))
+                  t.acc = acc;
+              }
+          }
 
-	res->purge_unreachable_states();
+        res->purge_unreachable_states();
 
         delete gb;
-	res->prop_copy(original_,
-		       { false, // state-based acc forced below
-		         true,  // weakness preserved,
-			 true, // determinism checked and overridden below
-			       // and "unambiguous" property preserved
-			 true, // stutter inv.
-		       });
+        res->prop_copy(original_,
+                       { false, // state-based acc forced below
+                         true,  // weakness preserved,
+                         true, // determinism checked and overridden below
+                               // and "unambiguous" property preserved
+                         true, // stutter inv.
+                       });
         if (nb_minato == nb_satoneset && !Cosimulation)
-	  res->prop_deterministic(true);
-	if (Sba)
-	  res->prop_state_acc(true);
-	return res;
+          res->prop_deterministic(true);
+        if (Sba)
+          res->prop_state_acc(true);
+        return res;
       }
 
 
@@ -656,21 +656,21 @@ namespace spot
       // where is the new class name.
       void print_partition()
       {
-	for (auto& p: bdd_lstate_)
+        for (auto& p: bdd_lstate_)
           {
             std::cerr << "partition: "
                       << bdd_format_isop(a_->get_dict(), p.first)
                       << std::endl;
             for (auto s: p.second)
-	      std::cerr << "  - "
-			<< a_->format_state(a_->state_from_number(s))
-			<< '\n';
+              std::cerr << "  - "
+                        << a_->format_state(a_->state_from_number(s))
+                        << '\n';
           }
 
-	std::cerr << "\nPrevious iteration\n" << std::endl;
+        std::cerr << "\nPrevious iteration\n" << std::endl;
 
-	unsigned ps = previous_class_.size();
-	for (unsigned p = 0; p < ps; ++p)
+        unsigned ps = previous_class_.size();
+        for (unsigned p = 0; p < ps; ++p)
           {
             std::cerr << a_->format_state(a_->state_from_number(p))
                       << " was in "
@@ -781,15 +781,15 @@ namespace spot
         direct_simulation<false, Sba> simul(res ? res : t);
         res = simul.run();
         if (res->prop_deterministic())
-	  break;
+          break;
 
         direct_simulation<true, Sba> cosimul(res);
-	res = cosimul.run();
+        res = cosimul.run();
 
-	if (Sba)
-	  res = scc_filter_states(res, false);
-	else
-	  res = scc_filter(res, false);
+        if (Sba)
+          res = scc_filter_states(res, false);
+        else
+          res = scc_filter(res, false);
 
         next.set_size(res);
       }

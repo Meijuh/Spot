@@ -102,10 +102,10 @@ namespace spot
             (ta_init_it_->dst()), kripke_init_state->clone());
 
         if (!h.emplace(init, num + 1).second)
-	  {
-	    init->destroy();
-	    continue;
-	  }
+          {
+            init->destroy();
+            continue;
+          }
 
         scc.push(++num);
         arc.push(0U);
@@ -146,7 +146,7 @@ namespace spot
                   }
 
                 // fill rem with any component removed,
-		auto i = h.find(curr);
+                auto i = h.find(curr);
                 assert(i != h.end());
 
                 scc.rem().push_front(curr);
@@ -168,7 +168,7 @@ namespace spot
                   {
                     // removing states
                     for (auto j: scc.rem())
-		      h[j] = -1;
+                      h[j] = -1;
                     dec_depth(scc.rem().size());
                     scc.pop();
                     assert(!arc.empty());
@@ -209,7 +209,7 @@ namespace spot
             // We do not need SUCC from now on.
 
             // Are we going to a new state?
-	    auto p = h.emplace(dest, num + 1);
+            auto p = h.emplace(dest, num + 1);
             if (p.second)
               {
                 // Number it, stack it, and register its successors
@@ -277,23 +277,23 @@ namespace spot
 
             scc.rem().splice(scc.rem().end(), rem);
             bool is_accepting_sscc = scc.top().is_accepting
-	      || a_->acc().accepting(scc.top().condition);
+              || a_->acc().accepting(scc.top().condition);
 
             if (is_accepting_sscc)
               {
                 trace
-		  << "PASS 1: SUCCESS: a_->is_livelock_accepting_state(curr): "
-		  << a_->is_livelock_accepting_state(curr) << '\n';
+                  << "PASS 1: SUCCESS: a_->is_livelock_accepting_state(curr): "
+                  << a_->is_livelock_accepting_state(curr) << '\n';
                 trace
                   << "PASS 1: scc.top().condition : "
-		  << scc.top().condition << '\n';
+                  << scc.top().condition << '\n';
                 trace
                   << "PASS 1: a_->acc().all_sets() : "
-		  << (a_->acc().all_sets()) << '\n';
+                  << (a_->acc().all_sets()) << '\n';
                 trace
-		  << ("PASS 1 CYCLE and accepting? ")
-		  << a_->acc().accepting(scc.top().condition)
-		  << std::endl;
+                  << ("PASS 1 CYCLE and accepting? ")
+                  << a_->acc().accepting(scc.top().condition)
+                  << std::endl;
                 clear(h, todo, ta_init_it_);
                 return true;
               }
@@ -315,19 +315,19 @@ namespace spot
                   h_livelock_root = h[livelock_roots.top()];
 
                 if (heuristic_livelock_detection(dest, h, h_livelock_root,
-						 liveset_curr))
+                                                 liveset_curr))
                   {
                     clear(h, todo, ta_init_it_);
                     return true;
                   }
 
                 for (const state* succ: liveset_dest)
-		  if (heuristic_livelock_detection(succ, h, h_livelock_root,
-						   liveset_curr))
-		    {
-		      clear(h, todo, ta_init_it_);
-		      return true;
-		    }
+                  if (heuristic_livelock_detection(succ, h, h_livelock_root,
+                                                   liveset_curr))
+                    {
+                      clear(h, todo, ta_init_it_);
+                      return true;
+                    }
               }
           }
 
@@ -403,11 +403,11 @@ namespace spot
             auto init = ta_init_it_.front();
             ta_init_it_.pop();
 
-	    if (!h.emplace(init, num + 1).second)
-	      {
-		init->destroy();
-		continue;
-	      }
+            if (!h.emplace(init, num + 1).second)
+              {
+                init->destroy();
+                continue;
+              }
 
             sscc.push(num);
             sscc.top().is_accepting = t->is_livelock_accepting_state(init);
@@ -435,7 +435,7 @@ namespace spot
                 trace << "PASS 2 : backtrack\n";
 
                 // fill rem with any component removed,
-		auto i = h.find(curr);
+                auto i = h.find(curr);
                 assert(i != h.end());
 
                 sscc.rem().push_front(curr);
@@ -449,7 +449,7 @@ namespace spot
                   {
                     // removing states
                     for (auto j: sscc.rem())
-		      h[j] = -1;
+                      h[j] = -1;
                     dec_depth(sscc.rem().size());
                     sscc.pop();
                   }
@@ -498,10 +498,10 @@ namespace spot
                 inc_depth();
                 continue;
               }
-	    else
-	      {
-		dest->destroy();
-	      }
+            else
+              {
+                dest->destroy();
+              }
 
             // If we have reached a dead component, ignore it.
             if (i->second == -1)
@@ -509,12 +509,12 @@ namespace spot
 
             //self loop state
             if (!curr->compare(i->first))
-	      if (t->is_livelock_accepting_state(curr))
-		{
-		  clear(h, todo, ta_init_it_);
-		  trace << "PASS 2: SUCCESS\n";
-		  return true;
-		}
+              if (t->is_livelock_accepting_state(curr))
+                {
+                  clear(h, todo, ta_init_it_);
+                  trace << "PASS 2: SUCCESS\n";
+                  return true;
+                }
 
             // Now this is the most interesting case.  We have reached a
             // state S1 which is already part of a non-dead SSCC.  Any such

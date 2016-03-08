@@ -44,7 +44,7 @@ namespace spot
   // tgta_product
 
   tgta_product::tgta_product(const const_kripke_ptr& left,
-			     const const_tgta_ptr& right):
+                             const const_tgta_ptr& right):
     twa_product(left, right)
   {
   }
@@ -207,7 +207,7 @@ namespace spot
                 kripke_current_dest_state->clone(),
                 tgta_succ_it_->dst(), pool_);
             current_acceptance_conditions_
-	      = tgta_succ_it_->acc();
+              = tgta_succ_it_->acc();
             return true;
           }
 

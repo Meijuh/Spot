@@ -35,10 +35,10 @@ namespace spot
     auto i = h.begin();
     while (i != h.end())
       {
-	// Advance the iterator before deleting the key.
-	const state* s = i->first;
-	++i;
-	s->destroy();
+        // Advance the iterator before deleting the key.
+        const state* s = i->first;
+        ++i;
+        s->destroy();
       }
   }
 

@@ -65,13 +65,13 @@ static const argp_option options[] =
   };
 
 const struct argp output_argp = { options, parse_opt_output,
-				  nullptr, nullptr, nullptr,
-				  nullptr, nullptr };
+                                  nullptr, nullptr, nullptr,
+                                  nullptr, nullptr };
 
 static
 void
 report_not_ltl(spot::formula f,
-	       const char* filename, int linenum, const char* syn)
+               const char* filename, int linenum, const char* syn)
 {
   std::string s = spot::str_psl(f);
   static const char msg[] =
@@ -84,30 +84,30 @@ report_not_ltl(spot::formula f,
 
 std::ostream&
 stream_formula(std::ostream& out,
-	       spot::formula f, const char* filename, int linenum)
+               spot::formula f, const char* filename, int linenum)
 {
   switch (output_format)
     {
     case lbt_output:
       if (f.is_ltl_formula())
-	spot::print_lbt_ltl(out, f);
+        spot::print_lbt_ltl(out, f);
       else
-	report_not_ltl(f, filename, linenum, "LBT");
+        report_not_ltl(f, filename, linenum, "LBT");
       break;
     case spot_output:
       spot::print_psl(out, f, full_parenth);
       break;
     case spin_output:
       if (f.is_ltl_formula())
-	spot::print_spin_ltl(out, f, full_parenth);
+        spot::print_spin_ltl(out, f, full_parenth);
       else
-	report_not_ltl(f, filename, linenum, "Spin");
+        report_not_ltl(f, filename, linenum, "Spin");
       break;
     case wring_output:
       if (f.is_ltl_formula())
-	spot::print_wring_ltl(out, f);
+        spot::print_wring_ltl(out, f);
       else
-	report_not_ltl(f, filename, linenum, "Wring");
+        report_not_ltl(f, filename, linenum, "Wring");
       break;
     case utf8_output:
       spot::print_utf8_psl(out, f, full_parenth);
@@ -124,8 +124,8 @@ stream_formula(std::ostream& out,
 
 static void
 stream_escapable_formula(std::ostream& os,
-			 spot::formula f,
-			 const char* filename, int linenum)
+                         spot::formula f,
+                         const char* filename, int linenum)
 {
   if (escape_csv)
     {
@@ -260,17 +260,17 @@ parse_opt_output(int key, char* arg, struct argp_state*)
 
 static void
 output_formula(std::ostream& out,
-	       spot::formula f,
-	       const char* filename = nullptr, int linenum = 0,
-	       const char* prefix = nullptr, const char* suffix = nullptr)
+               spot::formula f,
+               const char* filename = nullptr, int linenum = 0,
+               const char* prefix = nullptr, const char* suffix = nullptr)
 {
   if (!format)
     {
       if (prefix)
-	out << prefix << ',';
+        out << prefix << ',';
       stream_escapable_formula(out, f, filename, linenum);
       if (suffix)
-	out << ',' << suffix;
+        out << ',' << suffix;
     }
   else
     {
@@ -287,14 +287,14 @@ void
 
 void
 output_formula_checked(spot::formula f,
-		       const char* filename, int linenum,
-		       const char* prefix, const char* suffix)
+                       const char* filename, int linenum,
+                       const char* prefix, const char* suffix)
 {
   if (output_format == count_output)
     {
       if (outputnamer)
-	throw std::runtime_error
-	  ("options --output and --count are incompatible");
+        throw std::runtime_error
+          ("options --output and --count are incompatible");
       return;
     }
   if (output_format == quiet_output)
@@ -308,7 +308,7 @@ output_formula_checked(spot::formula f,
       std::string fname = outputname.str();
       auto p = outputfiles.emplace(fname, nullptr);
       if (p.second)
-	p.first->second.reset(new output_file(fname.c_str()));
+        p.first->second.reset(new output_file(fname.c_str()));
       out = &p.first->second->ostream();
     }
   output_formula(*out, f, filename, linenum, prefix, suffix);

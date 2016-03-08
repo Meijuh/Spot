@@ -348,10 +348,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_EQUIVALENT_TO:
       {
-	if (opt->equivalent_to)
-	  error(2, 0, "only one --equivalent-to option can be given");
-	opt->equivalent_to = parse_formula_arg(arg);
-	break;
+        if (opt->equivalent_to)
+          error(2, 0, "only one --equivalent-to option can be given");
+        opt->equivalent_to = parse_formula_arg(arg);
+        break;
       }
     case OPT_EXCLUSIVE_AP:
       opt->excl_ap.add_group(arg);
@@ -364,17 +364,17 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_IMPLIED_BY:
       {
-	spot::formula i = parse_formula_arg(arg);
-	// a→c∧b→c ≡ (a∨b)→c
-	opt->implied_by = spot::formula::Or({opt->implied_by, i});
-	break;
+        spot::formula i = parse_formula_arg(arg);
+        // a→c∧b→c ≡ (a∨b)→c
+        opt->implied_by = spot::formula::Or({opt->implied_by, i});
+        break;
       }
     case OPT_IMPLY:
       {
-	// a→b∧a→c ≡ a→(b∧c)
-	spot::formula i = parse_formula_arg(arg);
-	opt->imply = spot::formula::And({opt->imply, i});
-	break;
+        // a→b∧a→c ≡ a→(b∧c)
+        spot::formula i = parse_formula_arg(arg);
+        opt->imply = spot::formula::And({opt->imply, i});
+        break;
       }
     case OPT_LTL:
       ltl = true;
@@ -392,13 +392,13 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_RELABEL_BOOL:
       relabeling = (key == OPT_RELABEL_BOOL ? BseRelabeling : ApRelabeling);
       if (!arg || !strncasecmp(arg, "abc", 6))
-	style = spot::Abc;
+        style = spot::Abc;
       else if (!strncasecmp(arg, "pnn", 4))
-	style = spot::Pnn;
+        style = spot::Pnn;
       else
-	error(2, 0, "invalid argument for --relabel%s: '%s'",
-	      (key == OPT_RELABEL_BOOL ? "-bool" : ""),
-	      arg);
+        error(2, 0, "invalid argument for --relabel%s: '%s'",
+              (key == OPT_RELABEL_BOOL ? "-bool" : ""),
+              arg);
       break;
     case OPT_REMOVE_WM:
       unabbreviate += "MW";
@@ -426,9 +426,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_UNABBREVIATE:
       if (arg)
-	unabbreviate += arg;
+        unabbreviate += arg;
       else
-	unabbreviate += spot::default_unabbrev_string;
+        unabbreviate += spot::default_unabbrev_string;
       break;
     case OPT_AP_N:
       ap_n = parse_range(arg, 0, std::numeric_limits<int>::max());
@@ -479,87 +479,87 @@ namespace
 
     int
     process_string(const std::string& input,
-		    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0)
     {
       spot::parsed_formula pf = parse_formula(input);
 
       if (!pf.f || !pf.errors.empty())
-	  {
-	    if (!ignore_errors)
-	      {
-		if (filename)
-		  error_at_line(0, 0, filename, linenum, "parse error:");
-		pf.format_errors(std::cerr);
-	      }
+          {
+            if (!ignore_errors)
+              {
+                if (filename)
+                  error_at_line(0, 0, filename, linenum, "parse error:");
+                pf.format_errors(std::cerr);
+              }
 
-	    if (error_style == skip_errors)
-	      std::cout << input << '\n';
-	    else
-	      assert(error_style == drop_errors);
-	    check_cout();
-	    return !ignore_errors;
-	  }
+            if (error_style == skip_errors)
+              std::cout << input << '\n';
+            else
+              assert(error_style == drop_errors);
+            check_cout();
+            return !ignore_errors;
+          }
       try
-	{
-	  return process_formula(pf.f, filename, linenum);
-	}
+        {
+          return process_formula(pf.f, filename, linenum);
+        }
       catch (const std::runtime_error& e)
-	{
-	  error_at_line(2, 0, filename, linenum, "%s", e.what());
-	  SPOT_UNREACHABLE();
-	}
+        {
+          error_at_line(2, 0, filename, linenum, "%s", e.what());
+          SPOT_UNREACHABLE();
+        }
     }
 
     int
     process_formula(spot::formula f,
-		    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0)
     {
       if (opt_max_count >= 0 && match_count >= opt_max_count)
-	{
-	  abort_run = true;
-	  return 0;
-	}
+        {
+          abort_run = true;
+          return 0;
+        }
 
       if (negate)
-	f = spot::formula::Not(f);
+        f = spot::formula::Not(f);
 
       if (remove_x)
-	{
-	  // If simplification are enabled, we do them before and after.
-	  if (simplification_level)
-	    f = simpl.simplify(f);
-	  f = spot::remove_x(f);
-	}
+        {
+          // If simplification are enabled, we do them before and after.
+          if (simplification_level)
+            f = simpl.simplify(f);
+          f = spot::remove_x(f);
+        }
 
       if (simplification_level || boolean_to_isop)
-	f = simpl.simplify(f);
+        f = simpl.simplify(f);
 
       if (nnf)
-	f = simpl.negative_normal_form(f);
+        f = simpl.negative_normal_form(f);
 
       switch (relabeling)
-	{
-	case ApRelabeling:
-	  {
-	    relmap.clear();
-	    f = spot::relabel(f, style, &relmap);
-	    break;
-	  }
-	case BseRelabeling:
-	  {
-	    relmap.clear();
-	    f = spot::relabel_bse(f, style, &relmap);
-	    break;
-	  }
-	case NoRelabeling:
-	  break;
-	}
+        {
+        case ApRelabeling:
+          {
+            relmap.clear();
+            f = spot::relabel(f, style, &relmap);
+            break;
+          }
+        case BseRelabeling:
+          {
+            relmap.clear();
+            f = spot::relabel_bse(f, style, &relmap);
+            break;
+          }
+        case NoRelabeling:
+          break;
+        }
 
       if (!unabbreviate.empty())
-	f = spot::unabbreviate(f, unabbreviate.c_str());
+        f = spot::unabbreviate(f, unabbreviate.c_str());
 
       if (!opt->excl_ap.empty())
-	f = opt->excl_ap.constrain(f);
+        f = opt->excl_ap.constrain(f);
 
       bool matched = true;
 
@@ -575,32 +575,32 @@ namespace
       matched &= !syntactic_persistence || f.is_syntactic_persistence();
       matched &= !syntactic_si || f.is_syntactic_stutter_invariant();
       if (matched && (ap_n.min > 0 || ap_n.max >= 0))
-	{
-	  auto s = atomic_prop_collect(f);
-	  int n = s->size();
-	  delete s;
-	  matched &= (ap_n.min <= 0) || (n >= ap_n.min);
-	  matched &= (ap_n.max < 0) || (n <= ap_n.max);
-	}
+        {
+          auto s = atomic_prop_collect(f);
+          int n = s->size();
+          delete s;
+          matched &= (ap_n.min <= 0) || (n >= ap_n.min);
+          matched &= (ap_n.max < 0) || (n <= ap_n.max);
+        }
 
       if (matched && (size.min > 0 || size.max >= 0))
-	{
-	  int l = spot::length(f);
-	  matched &= (size.min <= 0) || (l >= size.min);
-	  matched &= (size.max < 0) || (l <= size.max);
-	}
+        {
+          int l = spot::length(f);
+          matched &= (size.min <= 0) || (l >= size.min);
+          matched &= (size.max < 0) || (l <= size.max);
+        }
 
       if (matched && (bsize.min > 0 || bsize.max >= 0))
-	{
-	  int l = spot::length_boolone(f);
-	  matched &= (bsize.min <= 0) || (l >= bsize.min);
-	  matched &= (bsize.max < 0) || (l <= bsize.max);
-	}
+        {
+          int l = spot::length_boolone(f);
+          matched &= (bsize.min <= 0) || (l >= bsize.min);
+          matched &= (bsize.max < 0) || (l <= bsize.max);
+        }
 
       matched &= !opt->implied_by || simpl.implication(opt->implied_by, f);
       matched &= !opt->imply || simpl.implication(f, opt->imply);
       matched &= !opt->equivalent_to
-	|| simpl.are_equivalent(f, opt->equivalent_to);
+        || simpl.are_equivalent(f, opt->equivalent_to);
       matched &= !stutter_insensitive || spot::is_stutter_invariant(f);
 
       // Match obligations and subclasses using WDBA minimization.
@@ -608,46 +608,46 @@ namespace
       // have to compute it on formulas that have been discarded for
       // other reasons.
       if (matched && obligation)
-	{
-	  auto aut = ltl_to_tgba_fm(f, simpl.get_dict());
-	  auto min = minimize_obligation(aut, f);
-	  assert(min);
-	  if (aut == min)
-	    {
-	      // Not an obligation
-	      matched = false;
-	    }
-	  else
-	    {
-	      matched &= !guarantee || is_terminal_automaton(min);
-	      matched &= !safety || is_safety_mwdba(min);
-	    }
-	}
+        {
+          auto aut = ltl_to_tgba_fm(f, simpl.get_dict());
+          auto min = minimize_obligation(aut, f);
+          assert(min);
+          if (aut == min)
+            {
+              // Not an obligation
+              matched = false;
+            }
+          else
+            {
+              matched &= !guarantee || is_terminal_automaton(min);
+              matched &= !safety || is_safety_mwdba(min);
+            }
+        }
 
       matched ^= invert;
 
       if (unique && !unique_set.insert(f).second)
-	matched = false;
+        matched = false;
 
       if (matched)
-	{
-	  if (opt->output_define
-	      && output_format != count_output
-	      && output_format != quiet_output)
-	    {
-	      // Sort the formulas alphabetically.
-	      std::map<std::string, spot::formula> m;
-	      for (auto& p: relmap)
-		m.emplace(str_psl(p.first), p.second);
-	      for (auto& p: m)
-		stream_formula(opt->output_define->ostream()
-			       << "#define " << p.first << " (",
-			       p.second, filename, linenum) << ")\n";
-	    }
-	  one_match = true;
-	  output_formula_checked(f, filename, linenum, prefix, suffix);
-	  ++match_count;
-	}
+        {
+          if (opt->output_define
+              && output_format != count_output
+              && output_format != quiet_output)
+            {
+              // Sort the formulas alphabetically.
+              std::map<std::string, spot::formula> m;
+              for (auto& p: relmap)
+                m.emplace(str_psl(p.first), p.second);
+              for (auto& p: m)
+                stream_formula(opt->output_define->ostream()
+                               << "#define " << p.first << " (",
+                               p.second, filename, linenum) << ")\n";
+            }
+          one_match = true;
+          output_formula_checked(f, filename, linenum, prefix, suffix);
+          ++match_count;
+        }
       return 0;
     }
   };
@@ -659,7 +659,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FILENAME[/COL]...]",
-		    argp_program_doc, children, nullptr, nullptr };
+                    argp_program_doc, children, nullptr, nullptr };
 
   try
     {
@@ -669,20 +669,20 @@ main(int argc, char** argv)
       opt = &o;
 
       if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
-	exit(err);
+        exit(err);
 
       if (jobs.empty())
-	jobs.emplace_back("-", 1);
+        jobs.emplace_back("-", 1);
 
       if (boolean_to_isop && simplification_level == 0)
-	simplification_level = 1;
+        simplification_level = 1;
       spot::tl_simplifier_options opt(simplification_level);
       opt.boolean_to_isop = boolean_to_isop;
       spot::tl_simplifier simpl(opt);
 
       ltl_processor processor(simpl);
       if (processor.run())
-	return 2;
+        return 2;
     }
   catch (const std::runtime_error& e)
     {

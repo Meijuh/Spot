@@ -39,193 +39,193 @@ namespace spot
       mark_t() = default;
 
       mark_t(value_t id) noexcept
-	: id(id)
+        : id(id)
       {
       }
 
       template<class iterator>
       mark_t(const iterator& begin, const iterator& end) noexcept
       {
-	id = 0U;
-	for (iterator i = begin; i != end; ++i)
-	  set(*i);
+        id = 0U;
+        for (iterator i = begin; i != end; ++i)
+          set(*i);
       }
 
       mark_t(std::initializer_list<unsigned> vals) noexcept
-	: mark_t(vals.begin(), vals.end())
+        : mark_t(vals.begin(), vals.end())
       {
       }
 
       bool operator==(unsigned o) const
       {
-	assert(o == 0U);
-	return id == o;
+        assert(o == 0U);
+        return id == o;
       }
 
       bool operator!=(unsigned o) const
       {
-	assert(o == 0U);
-	return id != o;
+        assert(o == 0U);
+        return id != o;
       }
 
       bool operator==(mark_t o) const
       {
-	return id == o.id;
+        return id == o.id;
       }
 
       bool operator!=(mark_t o) const
       {
-	return id != o.id;
+        return id != o.id;
       }
 
       bool operator<(mark_t o) const
       {
-	return id < o.id;
+        return id < o.id;
       }
 
       bool operator<=(mark_t o) const
       {
-	return id <= o.id;
+        return id <= o.id;
       }
 
       bool operator>(mark_t o) const
       {
-	return id > o.id;
+        return id > o.id;
       }
 
       bool operator>=(mark_t o) const
       {
-	return id >= o.id;
+        return id >= o.id;
       }
 
       operator bool() const
       {
-	return id != 0;
+        return id != 0;
       }
 
       bool has(unsigned u) const
       {
-	return id & (1U << u);
+        return id & (1U << u);
       }
 
       void set(unsigned u)
       {
-	id |= (1U << u);
+        id |= (1U << u);
       }
 
       void clear(unsigned u)
       {
-	id &= ~(1U << u);
+        id &= ~(1U << u);
       }
 
       mark_t& operator&=(mark_t r)
       {
-	id &= r.id;
-	return *this;
+        id &= r.id;
+        return *this;
       }
 
       mark_t& operator|=(mark_t r)
       {
-	id |= r.id;
-	return *this;
+        id |= r.id;
+        return *this;
       }
 
       mark_t& operator-=(mark_t r)
       {
-	id &= ~r.id;
-	return *this;
+        id &= ~r.id;
+        return *this;
       }
 
       mark_t& operator^=(mark_t r)
       {
-	id ^= r.id;
-	return *this;
+        id ^= r.id;
+        return *this;
       }
 
       mark_t operator&(mark_t r) const
       {
-	return id & r.id;
+        return id & r.id;
       }
 
       mark_t operator|(mark_t r) const
       {
-	return id | r.id;
+        return id | r.id;
       }
 
       mark_t operator-(mark_t r) const
       {
-	return id & ~r.id;
+        return id & ~r.id;
       }
 
       mark_t operator~() const
       {
-	return ~id;
+        return ~id;
       }
 
       mark_t operator^(mark_t r) const
       {
-	return id ^ r.id;
+        return id ^ r.id;
       }
 
       mark_t operator<<(unsigned i) const
       {
-	return id << i;
+        return id << i;
       }
 
       mark_t& operator<<=(unsigned i)
       {
-	id <<= i;
-	return *this;
+        id <<= i;
+        return *this;
       }
 
       mark_t operator>>(unsigned i) const
       {
-	return id >> i;
+        return id >> i;
       }
 
       mark_t& operator>>=(unsigned i)
       {
-	id >>= i;
-	return *this;
+        id >>= i;
+        return *this;
       }
 
       mark_t strip(mark_t y) const
       {
-	// strip every bit of id that is marked in y
-	//       100101110100.strip(
-	//       001011001000)
-	//   ==  10 1  11 100
-	//   ==      10111100
+        // strip every bit of id that is marked in y
+        //       100101110100.strip(
+        //       001011001000)
+        //   ==  10 1  11 100
+        //   ==      10111100
 
-	auto xv = id;		// 100101110100
-	auto yv = y.id;		// 001011001000
+        auto xv = id;                // 100101110100
+        auto yv = y.id;                // 001011001000
 
-	while (yv && xv)
-	  {
-	    // Mask for everything after the last 1 in y
-	    auto rm = (~yv) & (yv - 1);	// 000000000111
-	    // Mask for everything before the last 1 in y
-	    auto lm = ~(yv ^ (yv - 1));	// 111111110000
-	    xv = ((xv & lm) >> 1) | (xv & rm);
-	    yv = (yv & lm) >> 1;
-	  }
-	return xv;
+        while (yv && xv)
+          {
+            // Mask for everything after the last 1 in y
+            auto rm = (~yv) & (yv - 1);        // 000000000111
+            // Mask for everything before the last 1 in y
+            auto lm = ~(yv ^ (yv - 1));        // 111111110000
+            xv = ((xv & lm) >> 1) | (xv & rm);
+            yv = (yv & lm) >> 1;
+          }
+        return xv;
       }
 
       // Number of bits sets.
       unsigned count() const
       {
 #ifdef __GNUC__
-	return __builtin_popcount(id);
+        return __builtin_popcount(id);
 #else
-	unsigned c = 0U;
-	auto v = id;
-	while (v)
-	  {
-	    ++c;
-	    v &= v - 1;
-	  }
-	return c;
+        unsigned c = 0U;
+        auto v = id;
+        while (v)
+          {
+            ++c;
+            v &= v - 1;
+          }
+        return c;
 #endif
       }
 
@@ -234,50 +234,50 @@ namespace spot
       // but if the sets {1,3,8} are used, this returns 9.
       unsigned max_set() const
       {
-	auto i = id;
-	int res = 0;
-	while (i)
-	  {
-	    ++res;
-	    i >>= 1;
-	  }
-	return res;
+        auto i = id;
+        int res = 0;
+        while (i)
+          {
+            ++res;
+            i >>= 1;
+          }
+        return res;
       }
 
       // Return the lowest acceptance mark
       mark_t lowest() const
       {
-	return id & -id;
+        return id & -id;
       }
 
       // Remove n bits that where set
       mark_t& remove_some(unsigned n)
       {
-	while (n--)
-	  id &= id - 1;
-	return *this;
+        while (n--)
+          id &= id - 1;
+        return *this;
       }
 
       template<class iterator>
       void fill(iterator here) const
       {
-	auto a = id;
-	unsigned level = 0;
-	while (a)
-	  {
-	    if (a & 1)
-	      *here++ = level;
-	    ++level;
-	    a >>= 1;
-	  }
+        auto a = id;
+        unsigned level = 0;
+        while (a)
+          {
+            if (a & 1)
+              *here++ = level;
+            ++level;
+            a >>= 1;
+          }
       }
 
       // FIXME: Return some iterable object without building a vector.
       std::vector<unsigned> sets() const
       {
-	std::vector<unsigned> res;
-	fill(std::back_inserter(res));
-	return res;
+        std::vector<unsigned> res;
+        fill(std::back_inserter(res));
+        return res;
       }
 
       SPOT_API
@@ -291,9 +291,9 @@ namespace spot
     {
       mark_t mark;
       struct {
-	acc_op op;	     // Operator
-	unsigned short size; // Size of the subtree (number of acc_word),
-			     // not counting this node.
+        acc_op op;             // Operator
+        unsigned short size; // Size of the subtree (number of acc_word),
+                             // not counting this node.
       };
     };
 
@@ -301,255 +301,255 @@ namespace spot
     {
       bool operator==(const acc_code& other) const
       {
-	unsigned pos = size();
-	if (other.size() != pos)
-	  return false;
-	while (pos > 0)
-	  {
-	    auto op = (*this)[pos - 1].op;
-	    auto sz = (*this)[pos - 1].size;
-	    if (other[pos - 1].op != op ||
-		other[pos - 1].size != sz)
-	      return false;
-	    switch (op)
-	      {
-	      case acc_cond::acc_op::And:
-	      case acc_cond::acc_op::Or:
-		--pos;
-		break;
-	      case acc_cond::acc_op::Inf:
-	      case acc_cond::acc_op::InfNeg:
-	      case acc_cond::acc_op::Fin:
-	      case acc_cond::acc_op::FinNeg:
-		pos -= 2;
-		if (other[pos].mark != (*this)[pos].mark)
-		  return false;
-		break;
-	      }
-	  }
-	return true;
+        unsigned pos = size();
+        if (other.size() != pos)
+          return false;
+        while (pos > 0)
+          {
+            auto op = (*this)[pos - 1].op;
+            auto sz = (*this)[pos - 1].size;
+            if (other[pos - 1].op != op ||
+                other[pos - 1].size != sz)
+              return false;
+            switch (op)
+              {
+              case acc_cond::acc_op::And:
+              case acc_cond::acc_op::Or:
+                --pos;
+                break;
+              case acc_cond::acc_op::Inf:
+              case acc_cond::acc_op::InfNeg:
+              case acc_cond::acc_op::Fin:
+              case acc_cond::acc_op::FinNeg:
+                pos -= 2;
+                if (other[pos].mark != (*this)[pos].mark)
+                  return false;
+                break;
+              }
+          }
+        return true;
       };
 
       bool operator<(const acc_code& other) const
       {
-	unsigned pos = size();
-	auto osize = other.size();
-	if (pos < osize)
-	  return true;
-	if (pos > osize)
-	  return false;
-	while (pos > 0)
-	  {
-	    auto op = (*this)[pos - 1].op;
-	    auto oop = other[pos - 1].op;
-	    if (op < oop)
-	      return true;
-	    if (op > oop)
-	      return false;
-	    auto sz = (*this)[pos - 1].size;
-	    auto osz = other[pos - 1].size;
-	    if (sz < osz)
-	      return true;
-	    if (sz > osz)
-	      return false;
-	    switch (op)
-	      {
-	      case acc_cond::acc_op::And:
-	      case acc_cond::acc_op::Or:
-		--pos;
-		break;
-	      case acc_cond::acc_op::Inf:
-	      case acc_cond::acc_op::InfNeg:
-	      case acc_cond::acc_op::Fin:
-	      case acc_cond::acc_op::FinNeg:
-		pos -= 2;
-		auto m = (*this)[pos].mark;
-		auto om = other[pos].mark;
-		if (m < om)
-		  return true;
-		if (m > om)
-		  return false;
-		break;
-	      }
-	  }
-	return false;
+        unsigned pos = size();
+        auto osize = other.size();
+        if (pos < osize)
+          return true;
+        if (pos > osize)
+          return false;
+        while (pos > 0)
+          {
+            auto op = (*this)[pos - 1].op;
+            auto oop = other[pos - 1].op;
+            if (op < oop)
+              return true;
+            if (op > oop)
+              return false;
+            auto sz = (*this)[pos - 1].size;
+            auto osz = other[pos - 1].size;
+            if (sz < osz)
+              return true;
+            if (sz > osz)
+              return false;
+            switch (op)
+              {
+              case acc_cond::acc_op::And:
+              case acc_cond::acc_op::Or:
+                --pos;
+                break;
+              case acc_cond::acc_op::Inf:
+              case acc_cond::acc_op::InfNeg:
+              case acc_cond::acc_op::Fin:
+              case acc_cond::acc_op::FinNeg:
+                pos -= 2;
+                auto m = (*this)[pos].mark;
+                auto om = other[pos].mark;
+                if (m < om)
+                  return true;
+                if (m > om)
+                  return false;
+                break;
+              }
+          }
+        return false;
       }
 
       bool operator>(const acc_code& other) const
       {
-	return other < *this;
+        return other < *this;
       }
 
       bool operator<=(const acc_code& other) const
       {
-	return !(other < *this);
+        return !(other < *this);
       }
 
       bool operator>=(const acc_code& other) const
       {
-	return !(*this < other);
+        return !(*this < other);
       }
 
       bool operator!=(const acc_code& other) const
       {
-	return !(*this == other);
+        return !(*this == other);
       }
 
       bool is_t() const
       {
-	unsigned s = size();
-	return s == 0
-	  || ((*this)[s - 1].op == acc_op::Inf && (*this)[s - 2].mark == 0U);
+        unsigned s = size();
+        return s == 0
+          || ((*this)[s - 1].op == acc_op::Inf && (*this)[s - 2].mark == 0U);
       }
 
       bool is_f() const
       {
-	unsigned s = size();
-	return s > 1
-	  && (*this)[s - 1].op == acc_op::Fin && (*this)[s - 2].mark == 0U;
+        unsigned s = size();
+        return s > 1
+          && (*this)[s - 1].op == acc_op::Fin && (*this)[s - 2].mark == 0U;
       }
 
       static acc_code f()
       {
-	acc_code res;
-	res.resize(2);
-	res[0].mark = 0U;
-	res[1].op = acc_op::Fin;
-	res[1].size = 1;
-	return res;
+        acc_code res;
+        res.resize(2);
+        res[0].mark = 0U;
+        res[1].op = acc_op::Fin;
+        res[1].size = 1;
+        return res;
       }
 
       static acc_code t()
       {
-	return {};
+        return {};
       }
 
       static acc_code fin(mark_t m)
       {
-	acc_code res;
-	res.resize(2);
-	res[0].mark = m;
-	res[1].op = acc_op::Fin;
-	res[1].size = 1;
-	return res;
+        acc_code res;
+        res.resize(2);
+        res[0].mark = m;
+        res[1].op = acc_op::Fin;
+        res[1].size = 1;
+        return res;
       }
 
       static acc_code fin(std::initializer_list<unsigned> vals)
       {
-	return fin(mark_t(vals));
+        return fin(mark_t(vals));
       }
 
       static acc_code fin_neg(mark_t m)
       {
-	acc_code res;
-	res.resize(2);
-	res[0].mark = m;
-	res[1].op = acc_op::FinNeg;
-	res[1].size = 1;
-	return res;
+        acc_code res;
+        res.resize(2);
+        res[0].mark = m;
+        res[1].op = acc_op::FinNeg;
+        res[1].size = 1;
+        return res;
       }
 
       static acc_code fin_neg(std::initializer_list<unsigned> vals)
       {
-	return fin_neg(mark_t(vals));
+        return fin_neg(mark_t(vals));
       }
 
       static acc_code inf(mark_t m)
       {
-	acc_code res;
-	res.resize(2);
-	res[0].mark = m;
-	res[1].op = acc_op::Inf;
-	res[1].size = 1;
-	return res;
+        acc_code res;
+        res.resize(2);
+        res[0].mark = m;
+        res[1].op = acc_op::Inf;
+        res[1].size = 1;
+        return res;
       }
 
       static acc_code inf(std::initializer_list<unsigned> vals)
       {
-	return inf(mark_t(vals));
+        return inf(mark_t(vals));
       }
 
       static acc_code inf_neg(mark_t m)
       {
-	acc_code res;
-	res.resize(2);
-	res[0].mark = m;
-	res[1].op = acc_op::InfNeg;
-	res[1].size = 1;
-	return res;
+        acc_code res;
+        res.resize(2);
+        res[0].mark = m;
+        res[1].op = acc_op::InfNeg;
+        res[1].size = 1;
+        return res;
       }
 
       static acc_code inf_neg(std::initializer_list<unsigned> vals)
       {
-	return inf_neg(mark_t(vals));
+        return inf_neg(mark_t(vals));
       }
 
       static acc_code buchi()
       {
-	return inf({0});
+        return inf({0});
       }
 
       static acc_code cobuchi()
       {
-	return fin({0});
+        return fin({0});
       }
 
       static acc_code generalized_buchi(unsigned n)
       {
-	acc_cond::mark_t m = (1U << n) - 1;
-	if (n == 8 * sizeof(mark_t::value_t))
-	  m = mark_t(-1U);
-	return inf(m);
+        acc_cond::mark_t m = (1U << n) - 1;
+        if (n == 8 * sizeof(mark_t::value_t))
+          m = mark_t(-1U);
+        return inf(m);
       }
 
       static acc_code generalized_co_buchi(unsigned n)
       {
-	acc_cond::mark_t m = (1U << n) - 1;
-	if (n == 8 * sizeof(mark_t::value_t))
-	  m = mark_t(-1U);
-	return fin(m);
+        acc_cond::mark_t m = (1U << n) - 1;
+        if (n == 8 * sizeof(mark_t::value_t))
+          m = mark_t(-1U);
+        return fin(m);
       }
 
       // n is a number of pairs.
       static acc_code rabin(unsigned n)
       {
-	acc_cond::acc_code res = f();
-	while (n > 0)
-	  {
-	    res |= inf({2*n - 1}) & fin({2*n - 2});
-	    --n;
-	  }
-	return res;
+        acc_cond::acc_code res = f();
+        while (n > 0)
+          {
+            res |= inf({2*n - 1}) & fin({2*n - 2});
+            --n;
+          }
+        return res;
       }
 
        // n is a number of pairs.
       static acc_code streett(unsigned n)
       {
-	acc_cond::acc_code res = t();
-	while (n > 0)
-	  {
-	    res &= inf({2*n - 1}) | fin({2*n - 2});
-	    --n;
-	  }
-	return res;
+        acc_cond::acc_code res = t();
+        while (n > 0)
+          {
+            res &= inf({2*n - 1}) | fin({2*n - 2});
+            --n;
+          }
+        return res;
       }
 
       template<class Iterator>
       static acc_code generalized_rabin(Iterator begin, Iterator end)
       {
-	acc_cond::acc_code res = f();
-	unsigned n = 0;
-	for (Iterator i = begin; i != end; ++i)
-	  {
-	    acc_cond::acc_code pair = fin({n++});
-	    acc_cond::mark_t m = 0U;
-	    for (unsigned ni = *i; ni > 0; --ni)
-	      m.set(n++);
-	    pair &= inf(m);
-	    std::swap(pair, res);
-	    res |= std::move(pair);
-	  }
-	return res;
+        acc_cond::acc_code res = f();
+        unsigned n = 0;
+        for (Iterator i = begin; i != end; ++i)
+          {
+            acc_cond::acc_code pair = fin({n++});
+            acc_cond::mark_t m = 0U;
+            for (unsigned ni = *i; ni > 0; --ni)
+              m.set(n++);
+            pair &= inf(m);
+            std::swap(pair, res);
+            res |= std::move(pair);
+          }
+        return res;
       }
 
       static acc_code parity(bool max, bool odd, unsigned sets);
@@ -561,281 +561,281 @@ namespace spot
 
       acc_code& operator&=(acc_code&& r)
       {
-	if (is_t() || r.is_f())
-	  {
-	    *this = std::move(r);
-	    return *this;
-	  }
-	if (is_f() || r.is_t())
-	  return *this;
-	unsigned s = size() - 1;
-	unsigned rs = r.size() - 1;
-	// We want to group all Inf(x) operators:
-	//   Inf(a) & Inf(b) = Inf(a & b)
-	if (((*this)[s].op == acc_op::Inf && r[rs].op == acc_op::Inf)
-	    || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
-	  {
-	    (*this)[s - 1].mark |= r[rs - 1].mark;
-	    return *this;
-	  }
+        if (is_t() || r.is_f())
+          {
+            *this = std::move(r);
+            return *this;
+          }
+        if (is_f() || r.is_t())
+          return *this;
+        unsigned s = size() - 1;
+        unsigned rs = r.size() - 1;
+        // We want to group all Inf(x) operators:
+        //   Inf(a) & Inf(b) = Inf(a & b)
+        if (((*this)[s].op == acc_op::Inf && r[rs].op == acc_op::Inf)
+            || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
+          {
+            (*this)[s - 1].mark |= r[rs - 1].mark;
+            return *this;
+          }
 
-	// In the more complex scenarios, left and right may both
-	// be conjunctions, and Inf(x) might be a member of each
-	// side.  Find it if it exists.
-	// left_inf points to the left Inf mark if any.
-	// right_inf points to the right Inf mark if any.
-	acc_word* left_inf = nullptr;
-	if ((*this)[s].op == acc_op::And)
-	  {
-	    auto start = &(*this)[s] - (*this)[s].size;
-	    auto pos = &(*this)[s] - 1;
-	    pop_back();
-	    while (pos > start)
-	      {
-		if (pos->op == acc_op::Inf)
-		  {
-		    left_inf = pos - 1;
-		    break;
-		  }
-		pos -= pos->size + 1;
-	      }
-	  }
-	else if ((*this)[s].op == acc_op::Inf)
-	  {
-	    left_inf = &(*this)[s - 1];
-	  }
+        // In the more complex scenarios, left and right may both
+        // be conjunctions, and Inf(x) might be a member of each
+        // side.  Find it if it exists.
+        // left_inf points to the left Inf mark if any.
+        // right_inf points to the right Inf mark if any.
+        acc_word* left_inf = nullptr;
+        if ((*this)[s].op == acc_op::And)
+          {
+            auto start = &(*this)[s] - (*this)[s].size;
+            auto pos = &(*this)[s] - 1;
+            pop_back();
+            while (pos > start)
+              {
+                if (pos->op == acc_op::Inf)
+                  {
+                    left_inf = pos - 1;
+                    break;
+                  }
+                pos -= pos->size + 1;
+              }
+          }
+        else if ((*this)[s].op == acc_op::Inf)
+          {
+            left_inf = &(*this)[s - 1];
+          }
 
-	acc_word* right_inf = nullptr;
-	auto right_end = &r.back();
-	if (right_end->op == acc_op::And)
-	  {
-	    auto start = &r[0];
-	    auto pos = --right_end;
-	    while (pos > start)
-	    {
-	      if (pos->op == acc_op::Inf)
-		{
-		  right_inf = pos - 1;
-		  break;
-		}
-	      pos -= pos->size + 1;
-	    }
-	  }
-	else if (right_end->op == acc_op::Inf)
-	  {
-	    right_inf = right_end - 1;
-	  }
+        acc_word* right_inf = nullptr;
+        auto right_end = &r.back();
+        if (right_end->op == acc_op::And)
+          {
+            auto start = &r[0];
+            auto pos = --right_end;
+            while (pos > start)
+            {
+              if (pos->op == acc_op::Inf)
+                {
+                  right_inf = pos - 1;
+                  break;
+                }
+              pos -= pos->size + 1;
+            }
+          }
+        else if (right_end->op == acc_op::Inf)
+          {
+            right_inf = right_end - 1;
+          }
 
-	if (left_inf && right_inf)
-	  {
-	    left_inf->mark |= right_inf->mark;
-	    insert(this->end(), &r[0], right_inf);
-	    insert(this->end(), right_inf + 2, right_end + 1);
-	  }
-	else if (right_inf)
-	  {
-	    // Always insert Inf() at the very first entry.
-	    insert(this->begin(), right_inf, right_inf + 2);
-	    insert(this->end(), &r[0], right_inf);
-	    insert(this->end(), right_inf + 2, right_end + 1);
-	  }
-	else
-	  {
-	    insert(this->end(), &r[0], right_end + 1);
-	  }
+        if (left_inf && right_inf)
+          {
+            left_inf->mark |= right_inf->mark;
+            insert(this->end(), &r[0], right_inf);
+            insert(this->end(), right_inf + 2, right_end + 1);
+          }
+        else if (right_inf)
+          {
+            // Always insert Inf() at the very first entry.
+            insert(this->begin(), right_inf, right_inf + 2);
+            insert(this->end(), &r[0], right_inf);
+            insert(this->end(), right_inf + 2, right_end + 1);
+          }
+        else
+          {
+            insert(this->end(), &r[0], right_end + 1);
+          }
 
-	acc_word w;
-	w.op = acc_op::And;
-	w.size = size();
-	push_back(w);
-	return *this;
+        acc_word w;
+        w.op = acc_op::And;
+        w.size = size();
+        push_back(w);
+        return *this;
       }
 
       acc_code& operator&=(const acc_code& r)
       {
-	if (is_t() || r.is_f())
-	  {
-	    *this = r;
-	    return *this;
-	  }
-	if (is_f() || r.is_t())
-	  return *this;
-	unsigned s = size() - 1;
-	unsigned rs = r.size() - 1;
-	// Inf(a) & Inf(b) = Inf(a & b)
-	if (((*this)[s].op == acc_op::Inf && r[rs].op == acc_op::Inf)
-	    || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
-	  {
-	    (*this)[s - 1].mark |= r[rs - 1].mark;
-	    return *this;
-	  }
+        if (is_t() || r.is_f())
+          {
+            *this = r;
+            return *this;
+          }
+        if (is_f() || r.is_t())
+          return *this;
+        unsigned s = size() - 1;
+        unsigned rs = r.size() - 1;
+        // Inf(a) & Inf(b) = Inf(a & b)
+        if (((*this)[s].op == acc_op::Inf && r[rs].op == acc_op::Inf)
+            || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
+          {
+            (*this)[s - 1].mark |= r[rs - 1].mark;
+            return *this;
+          }
 
-	// In the more complex scenarios, left and right may both
-	// be conjunctions, and Inf(x) might be a member of each
-	// side.  Find it if it exists.
-	// left_inf points to the left Inf mark if any.
-	// right_inf points to the right Inf mark if any.
-	acc_word* left_inf = nullptr;
-	if ((*this)[s].op == acc_op::And)
-	  {
-	    auto start = &(*this)[s] - (*this)[s].size;
-	    auto pos = &(*this)[s] - 1;
-	    pop_back();
-	    while (pos > start)
-	      {
-		if (pos->op == acc_op::Inf)
-		  {
-		    left_inf = pos - 1;
-		    break;
-		  }
-		pos -= pos->size + 1;
-	      }
-	  }
-	else if ((*this)[s].op == acc_op::Inf)
-	  {
-	    left_inf = &(*this)[s - 1];
-	  }
+        // In the more complex scenarios, left and right may both
+        // be conjunctions, and Inf(x) might be a member of each
+        // side.  Find it if it exists.
+        // left_inf points to the left Inf mark if any.
+        // right_inf points to the right Inf mark if any.
+        acc_word* left_inf = nullptr;
+        if ((*this)[s].op == acc_op::And)
+          {
+            auto start = &(*this)[s] - (*this)[s].size;
+            auto pos = &(*this)[s] - 1;
+            pop_back();
+            while (pos > start)
+              {
+                if (pos->op == acc_op::Inf)
+                  {
+                    left_inf = pos - 1;
+                    break;
+                  }
+                pos -= pos->size + 1;
+              }
+          }
+        else if ((*this)[s].op == acc_op::Inf)
+          {
+            left_inf = &(*this)[s - 1];
+          }
 
-	const acc_word* right_inf = nullptr;
-	auto right_end = &r.back();
-	if (right_end->op == acc_op::And)
-	  {
-	    auto start = &r[0];
-	    auto pos = --right_end;
-	    while (pos > start)
-	    {
-	      if (pos->op == acc_op::Inf)
-		{
-		  right_inf = pos - 1;
-		  break;
-		}
-	      pos -= pos->size + 1;
-	    }
-	  }
-	else if (right_end->op == acc_op::Inf)
-	  {
-	    right_inf = right_end - 1;
-	  }
+        const acc_word* right_inf = nullptr;
+        auto right_end = &r.back();
+        if (right_end->op == acc_op::And)
+          {
+            auto start = &r[0];
+            auto pos = --right_end;
+            while (pos > start)
+            {
+              if (pos->op == acc_op::Inf)
+                {
+                  right_inf = pos - 1;
+                  break;
+                }
+              pos -= pos->size + 1;
+            }
+          }
+        else if (right_end->op == acc_op::Inf)
+          {
+            right_inf = right_end - 1;
+          }
 
-	if (left_inf && right_inf)
-	  {
-	    left_inf->mark |= right_inf->mark;
-	    insert(this->end(), &r[0], right_inf);
-	    insert(this->end(), right_inf + 2, right_end + 1);
-	  }
-	else if (right_inf)
-	  {
-	    // Always insert Inf() at the very first entry.
-	    insert(this->begin(), right_inf, right_inf + 2);
-	    insert(this->end(), &r[0], right_inf);
-	    insert(this->end(), right_inf + 2, right_end + 1);
-	  }
-	else
-	  {
-	    insert(this->end(), &r[0], right_end + 1);
-	  }
+        if (left_inf && right_inf)
+          {
+            left_inf->mark |= right_inf->mark;
+            insert(this->end(), &r[0], right_inf);
+            insert(this->end(), right_inf + 2, right_end + 1);
+          }
+        else if (right_inf)
+          {
+            // Always insert Inf() at the very first entry.
+            insert(this->begin(), right_inf, right_inf + 2);
+            insert(this->end(), &r[0], right_inf);
+            insert(this->end(), right_inf + 2, right_end + 1);
+          }
+        else
+          {
+            insert(this->end(), &r[0], right_end + 1);
+          }
 
-	acc_word w;
-	w.op = acc_op::And;
-	w.size = size();
-	push_back(w);
-	return *this;
+        acc_word w;
+        w.op = acc_op::And;
+        w.size = size();
+        push_back(w);
+        return *this;
       }
 
       acc_code operator&(acc_code&& r)
       {
-	acc_code res = *this;
-	res &= r;
-	return res;
+        acc_code res = *this;
+        res &= r;
+        return res;
       }
 
       acc_code operator&(const acc_code& r)
       {
-	acc_code res = *this;
-	res &= r;
-	return res;
+        acc_code res = *this;
+        res &= r;
+        return res;
       }
 
       acc_code& operator|=(acc_code&& r)
       {
-	if (is_t() || r.is_f())
-	  return *this;
-	if (is_f() || r.is_t())
-	  {
-	    *this = std::move(r);
-	    return *this;
-	  }
-	unsigned s = size() - 1;
-	unsigned rs = r.size() - 1;
-	// Fin(a) | Fin(b) = Fin(a | b)
-	if (((*this)[s].op == acc_op::Fin && r[rs].op == acc_op::Fin)
-	    || ((*this)[s].op == acc_op::FinNeg && r[rs].op == acc_op::FinNeg))
-	  {
-	    (*this)[s - 1].mark |= r[rs - 1].mark;
-	    return *this;
-	  }
-	if ((*this)[s].op == acc_op::Or)
-	  pop_back();
-	if (r.back().op == acc_op::Or)
-	  r.pop_back();
-	insert(this->end(), r.begin(), r.end());
-	acc_word w;
-	w.op = acc_op::Or;
-	w.size = size();
-	push_back(w);
-	return *this;
+        if (is_t() || r.is_f())
+          return *this;
+        if (is_f() || r.is_t())
+          {
+            *this = std::move(r);
+            return *this;
+          }
+        unsigned s = size() - 1;
+        unsigned rs = r.size() - 1;
+        // Fin(a) | Fin(b) = Fin(a | b)
+        if (((*this)[s].op == acc_op::Fin && r[rs].op == acc_op::Fin)
+            || ((*this)[s].op == acc_op::FinNeg && r[rs].op == acc_op::FinNeg))
+          {
+            (*this)[s - 1].mark |= r[rs - 1].mark;
+            return *this;
+          }
+        if ((*this)[s].op == acc_op::Or)
+          pop_back();
+        if (r.back().op == acc_op::Or)
+          r.pop_back();
+        insert(this->end(), r.begin(), r.end());
+        acc_word w;
+        w.op = acc_op::Or;
+        w.size = size();
+        push_back(w);
+        return *this;
       }
 
       acc_code& operator|=(const acc_code& r)
       {
-	return *this |= acc_code(r);
+        return *this |= acc_code(r);
       }
 
       acc_code operator|(acc_code&& r)
       {
-	acc_code res = *this;
-	res |= r;
-	return res;
+        acc_code res = *this;
+        res |= r;
+        return res;
       }
 
       acc_code operator|(const acc_code& r)
       {
-	acc_code res = *this;
-	res |= r;
-	return res;
+        acc_code res = *this;
+        res |= r;
+        return res;
       }
 
       acc_code& operator<<=(unsigned sets)
       {
-	if (empty())
-	  return *this;
-	unsigned pos = size();
-	do
-	  {
-	    switch ((*this)[pos - 1].op)
-	      {
-	      case acc_cond::acc_op::And:
-	      case acc_cond::acc_op::Or:
-		--pos;
-		break;
-	      case acc_cond::acc_op::Inf:
-	      case acc_cond::acc_op::InfNeg:
-	      case acc_cond::acc_op::Fin:
-	      case acc_cond::acc_op::FinNeg:
-		pos -= 2;
-		(*this)[pos].mark.id <<= sets;
-		break;
-	      }
-	  }
-	while (pos > 0);
-	return *this;
+        if (empty())
+          return *this;
+        unsigned pos = size();
+        do
+          {
+            switch ((*this)[pos - 1].op)
+              {
+              case acc_cond::acc_op::And:
+              case acc_cond::acc_op::Or:
+                --pos;
+                break;
+              case acc_cond::acc_op::Inf:
+              case acc_cond::acc_op::InfNeg:
+              case acc_cond::acc_op::Fin:
+              case acc_cond::acc_op::FinNeg:
+                pos -= 2;
+                (*this)[pos].mark.id <<= sets;
+                break;
+              }
+          }
+        while (pos > 0);
+        return *this;
       }
 
       acc_code operator<<(unsigned sets) const
       {
-	acc_code res = *this;
-	res <<= sets;
-	return res;
+        acc_code res = *this;
+        res <<= sets;
+        return res;
       }
 
       bool is_dnf() const;
@@ -852,7 +852,7 @@ namespace spot
       // Positive values describe positive set.
       // A negative value x means the set -x-1 must be absent.
       std::vector<std::vector<int>>
-	missing(mark_t inf, bool accepting) const;
+        missing(mark_t inf, bool accepting) const;
 
       bool accepting(mark_t inf) const;
 
@@ -883,15 +883,15 @@ namespace spot
       // be used to implement customized output for set numbers.
       std::ostream&
       to_html(std::ostream& os,
-	      std::function<void(std::ostream&, int)>
-	      set_printer = nullptr) const;
+              std::function<void(std::ostream&, int)>
+              set_printer = nullptr) const;
 
       // Print the acceptance as text.  The set_printer function can
       // be used to implement customized output for set numbers.
       std::ostream&
       to_text(std::ostream& os,
-	      std::function<void(std::ostream&, int)>
-	      set_printer = nullptr) const;
+              std::function<void(std::ostream&, int)>
+              set_printer = nullptr) const;
 
 
       /// \brief Construct an acc_code from a string.
@@ -999,7 +999,7 @@ namespace spot
     {
       unsigned s = code_.size();
       return num_ == 1 &&
-	s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets();
+        s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets();
     }
 
     bool is_co_buchi() const
@@ -1016,14 +1016,14 @@ namespace spot
     {
       unsigned s = code_.size();
       return (s == 0 && num_ == 0) ||
-	(s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets());
+        (s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets());
     }
 
     bool is_generalized_co_buchi() const
     {
       unsigned s = code_.size();
       return (s == 2 &&
-	      code_[1].op == acc_op::Fin && code_[0].mark == all_sets());
+              code_[1].op == acc_op::Fin && code_[0].mark == all_sets());
     }
 
     // Returns a number of pairs (>=0) if Rabin, or -1 else.
@@ -1099,11 +1099,11 @@ namespace spot
     unsigned add_sets(unsigned num)
     {
       if (num == 0)
-	return -1U;
+        return -1U;
       unsigned j = num_;
       num_ += num;
       if (num_ > 8 * sizeof(mark_t::id))
-	throw std::runtime_error("Too many acceptance sets used.");
+        throw std::runtime_error("Too many acceptance sets used.");
       all_ = all_sets_();
       return j;
     }
@@ -1145,7 +1145,7 @@ namespace spot
     {
       auto a = m;
       if (a == 0U)
-	return os;
+        return os;
       return os << m;
     }
 
@@ -1164,25 +1164,25 @@ namespace spot
     template<class iterator>
     mark_t useless(iterator begin, iterator end) const
     {
-      mark_t::value_t u = 0U;	// The set of useless marks.
+      mark_t::value_t u = 0U;        // The set of useless marks.
       for (unsigned x = 0; x < num_; ++x)
-	{
-	  // Skip marks that are already known to be useless.
-	  if (u & (1 << x))
-	    continue;
-	  unsigned all = all_ ^ (u | (1 << x));
-	  for (iterator y = begin; y != end; ++y)
-	    {
-	      auto v = y->id;
-	      if (v & (1 << x))
-		{
-		  all &= v;
-		  if (!all)
-		    break;
-		}
-	    }
-	  u |= all;
-	}
+        {
+          // Skip marks that are already known to be useless.
+          if (u & (1 << x))
+            continue;
+          unsigned all = all_ ^ (u | (1 << x));
+          for (iterator y = begin; y != end; ++y)
+            {
+              auto v = y->id;
+              if (v & (1 << x))
+                {
+                  all &= v;
+                  if (!all)
+                    break;
+                }
+            }
+          u |= all;
+        }
       return u;
     }
 
@@ -1190,7 +1190,7 @@ namespace spot
     mark_t::value_t all_sets_() const
     {
       if (num_ == 0)
-	return 0;
+        return 0;
       return -1U >> (8 * sizeof(mark_t::value_t) - num_);
     }
 

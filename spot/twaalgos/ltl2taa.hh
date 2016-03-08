@@ -49,5 +49,5 @@ namespace spot
   /// \return A spot::taa that recognizes the language of \a f.
   SPOT_API taa_tgba_formula_ptr
   ltl_to_taa(formula f, const bdd_dict_ptr& dict,
-	     bool refined_rules = false);
+             bool refined_rules = false);
 }

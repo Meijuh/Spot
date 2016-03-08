@@ -42,7 +42,7 @@ namespace spot
   {
     for (auto s: a.sets())
       if (m[s] > 0)
-	--m[s];
+        --m[s];
     return *this;
   }
 
@@ -52,7 +52,7 @@ namespace spot
     std::vector<unsigned> res;
     for (unsigned n = 0; n < max; ++n)
       if (m[n] > w.m[n])
-	res.push_back(n);
+        res.push_back(n);
     return acc_cond::mark_t(res.begin(), res.end());
   }
 

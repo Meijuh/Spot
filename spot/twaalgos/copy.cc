@@ -38,8 +38,8 @@ namespace spot
     std::set<unsigned>* incomplete = nullptr;
     if (preserve_names)
       {
-	names = new std::vector<std::string>;
-	out->set_named_prop("state-names", names);
+        names = new std::vector<std::string>;
+        out->set_named_prop("state-names", names);
       }
 
     // States already seen.
@@ -49,59 +49,59 @@ namespace spot
 
     auto new_state = [&](const state* s) -> unsigned
       {
-	auto p = seen.emplace(s, 0);
-	if (p.second)
-	  {
-	    p.first->second = out->new_state();
-	    todo.push_back(p.first);
-	    if (names)
-	      names->push_back(aut->format_state(s));
-	  }
-	else
-	  {
-	    s->destroy();
-	  }
-	return p.first->second;
+        auto p = seen.emplace(s, 0);
+        if (p.second)
+          {
+            p.first->second = out->new_state();
+            todo.push_back(p.first);
+            if (names)
+              names->push_back(aut->format_state(s));
+          }
+        else
+          {
+            s->destroy();
+          }
+        return p.first->second;
       };
 
     out->set_init_state(new_state(aut->get_init_state()));
     while (!todo.empty())
       {
-	const state* src1;
-	unsigned src2;
-	std::tie(src1, src2) = *todo.front();
-	todo.pop_front();
-	for (auto* t: aut->succ(src1))
-	  {
-	    if (SPOT_UNLIKELY(max_states < out->num_states()))
-	      {
-		// If we have reached the max number of state, never try
-		// to create a new one.
-		auto i = seen.find(t->dst());
-		if (i == seen.end())
-		  {
-		    if (!incomplete)
-		      incomplete = new std::set<unsigned>;
-		    incomplete->insert(src2);
-		    continue;
-		  }
-		out->new_edge(src2, i->second, t->cond(), t->acc());
-	      }
-	    else
-	      {
-		out->new_edge(src2, new_state(t->dst()), t->cond(), t->acc());
-	      }
-	  }
+        const state* src1;
+        unsigned src2;
+        std::tie(src1, src2) = *todo.front();
+        todo.pop_front();
+        for (auto* t: aut->succ(src1))
+          {
+            if (SPOT_UNLIKELY(max_states < out->num_states()))
+              {
+                // If we have reached the max number of state, never try
+                // to create a new one.
+                auto i = seen.find(t->dst());
+                if (i == seen.end())
+                  {
+                    if (!incomplete)
+                      incomplete = new std::set<unsigned>;
+                    incomplete->insert(src2);
+                    continue;
+                  }
+                out->new_edge(src2, i->second, t->cond(), t->acc());
+              }
+            else
+              {
+                out->new_edge(src2, new_state(t->dst()), t->cond(), t->acc());
+              }
+          }
       }
 
 
     auto s = seen.begin();
     while (s != seen.end())
       {
-	// Advance the iterator before deleting the "key" pointer.
-	const state* ptr = s->first;
-	++s;
-	ptr->destroy();
+        // Advance the iterator before deleting the "key" pointer.
+        const state* ptr = s->first;
+        ++s;
+        ptr->destroy();
       }
 
     if (incomplete)

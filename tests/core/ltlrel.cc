@@ -51,13 +51,13 @@ main(int argc, char **argv)
     typedef std::map<std::string, std::string> map_t;
     map_t sorted_map;
     for (spot::relabeling_map::const_iterator i = m->begin();
-	 i != m->end(); ++i)
+         i != m->end(); ++i)
       sorted_map[spot::str_psl(i->first)] =
-	spot::str_psl(i->second);
+        spot::str_psl(i->second);
     for (map_t::const_iterator i = sorted_map.begin();
-	 i != sorted_map.end(); ++i)
+         i != sorted_map.end(); ++i)
       std::cout << "  " << i->first << "   ->   "
-		<< i->second << '\n';
+                << i->second << '\n';
     delete m;
   }
   assert(spot::fnode::instances_check());

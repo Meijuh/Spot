@@ -43,6 +43,6 @@ namespace spot
   /// \return true iff the run could be completed
   SPOT_API twa_run_ptr
   project_twa_run(const const_twa_ptr& a_run,
-		   const const_twa_ptr& a_proj,
-		   const const_twa_run_ptr& run);
+                   const const_twa_ptr& a_proj,
+                   const const_twa_run_ptr& run);
 }

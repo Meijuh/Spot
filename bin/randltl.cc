@@ -197,7 +197,7 @@ parse_opt(int key, char* arg, struct argp_state* as)
     case OPT_TREE_SIZE:
       opt_tree_size = parse_range(arg);
       if (opt_tree_size.min > opt_tree_size.max)
-	std::swap(opt_tree_size.min, opt_tree_size.max);
+        std::swap(opt_tree_size.min, opt_tree_size.max);
       break;
     case OPT_WF:
       opt_wf = true;
@@ -211,16 +211,16 @@ parse_opt(int key, char* arg, struct argp_state* as)
       // last non-option argument, and if aprops.empty() we know this
       // is the also the first one.
       if (opt->aprops.empty() && as->argc == as->next)
-	{
-	  char* endptr;
-	  int res = strtol(arg, &endptr, 10);
-	  if (!*endptr && res >= 0) // arg is a number
-	    {
-	      ap_count_given = true;
-	      opt->aprops = spot::create_atomic_prop_set(res);
-	      break;
-	    }
-	}
+        {
+          char* endptr;
+          int res = strtol(arg, &endptr, 10);
+          if (!*endptr && res >= 0) // arg is a number
+            {
+              ap_count_given = true;
+              opt->aprops = spot::create_atomic_prop_set(res);
+              break;
+            }
+        }
       opt->aprops.insert(spot::default_environment::instance().require(arg));
       break;
     default:
@@ -235,7 +235,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "N|PROP...", argp_program_doc,
-		    children, nullptr, nullptr };
+                    children, nullptr, nullptr };
 
   try
     {
@@ -245,78 +245,78 @@ main(int argc, char** argv)
       opt = &o;
 
       if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
-	exit(err);
+        exit(err);
 
       // running 'randltl 0' is one way to generate formulas using no
       // atomic propositions so do not complain in that case.
       if (opt->aprops.empty() && !ap_count_given)
-	error(2, 0, "No atomic proposition supplied?  "
-	      "Run '%s --help' for usage.", program_name);
+        error(2, 0, "No atomic proposition supplied?  "
+              "Run '%s --help' for usage.", program_name);
 
       spot::srand(opt_seed);
 
       spot::randltlgenerator rg
-	(opt->aprops,
-	 [&] (){
-	  spot::option_map opts;
-	  opts.set("output", output);
-	  opts.set("tree_size_min", opt_tree_size.min);
-	  opts.set("tree_size_max", opt_tree_size.max);
-	  opts.set("wf", opt_wf);
-	  opts.set("seed", opt_seed);
-	  opts.set("simplification_level", simplification_level);
-	  return opts;
-	}(), opt_pL, opt_pS, opt_pB);
+        (opt->aprops,
+         [&] (){
+          spot::option_map opts;
+          opts.set("output", output);
+          opts.set("tree_size_min", opt_tree_size.min);
+          opts.set("tree_size_max", opt_tree_size.max);
+          opts.set("wf", opt_wf);
+          opts.set("seed", opt_seed);
+          opts.set("simplification_level", simplification_level);
+          return opts;
+        }(), opt_pL, opt_pS, opt_pB);
 
       if (opt_dump_priorities)
-	{
-	  switch (output)
-	    {
-	    case OUTPUTLTL:
-	      std::cout <<
-		"Use --ltl-priorities to set the following LTL priorities:\n";
-	      rg.dump_ltl_priorities(std::cout);
-	      break;
-	    case OUTPUTBOOL:
-	      std::cout <<
-		"Use --boolean-priorities to set the following Boolean "
-		"formula priorities:\n";
-	      rg.dump_bool_priorities(std::cout);
-	      break;
-	    case OUTPUTPSL:
-	      std::cout <<
-		"Use --ltl-priorities to set the following LTL priorities:\n";
-	      rg.dump_psl_priorities(std::cout);
-	      // Fall through.
-	    case OUTPUTSERE:
-	      std::cout <<
-		"Use --sere-priorities to set the following SERE priorities:\n";
-	      rg.dump_sere_priorities(std::cout);
-	      std::cout <<
-		"Use --boolean-priorities to set the following Boolean "
-		"formula priorities:\n";
-	      rg.dump_sere_bool_priorities(std::cout);
-	      break;
-	    default:
-	      error(2, 0, "internal error: unknown type of output");
-	    }
-	  exit(0);
-	}
+        {
+          switch (output)
+            {
+            case OUTPUTLTL:
+              std::cout <<
+                "Use --ltl-priorities to set the following LTL priorities:\n";
+              rg.dump_ltl_priorities(std::cout);
+              break;
+            case OUTPUTBOOL:
+              std::cout <<
+                "Use --boolean-priorities to set the following Boolean "
+                "formula priorities:\n";
+              rg.dump_bool_priorities(std::cout);
+              break;
+            case OUTPUTPSL:
+              std::cout <<
+                "Use --ltl-priorities to set the following LTL priorities:\n";
+              rg.dump_psl_priorities(std::cout);
+              // Fall through.
+            case OUTPUTSERE:
+              std::cout <<
+                "Use --sere-priorities to set the following SERE priorities:\n";
+              rg.dump_sere_priorities(std::cout);
+              std::cout <<
+                "Use --boolean-priorities to set the following Boolean "
+                "formula priorities:\n";
+              rg.dump_sere_bool_priorities(std::cout);
+              break;
+            default:
+              error(2, 0, "internal error: unknown type of output");
+            }
+          exit(0);
+        }
 
       while (opt_formulas < 0 || opt_formulas--)
-	{
-	  static int count = 0;
-	  spot::formula f = rg.next();
-	  if (!f)
-	    {
-	      error(2, 0, "failed to generate a new unique formula after %d " \
-		    "trials", MAX_TRIALS);
-	    }
-	  else
-	    {
-	      output_formula_checked(f, nullptr, ++count);
-	    }
-	};
+        {
+          static int count = 0;
+          spot::formula f = rg.next();
+          if (!f)
+            {
+              error(2, 0, "failed to generate a new unique formula after %d " \
+                    "trials", MAX_TRIALS);
+            }
+          else
+            {
+              output_formula_checked(f, nullptr, ++count);
+            }
+        };
     }
   catch (const std::runtime_error& e)
     {

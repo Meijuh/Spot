@@ -67,8 +67,8 @@ namespace spot
   ////////////////////////////////////////////////////////////
   // ta_succ_iterator_product
   ta_succ_iterator_product::ta_succ_iterator_product(const state_ta_product* s,
-						     const ta* t,
-						     const kripke* k)
+                                                     const ta* t,
+                                                     const kripke* k)
     : source_(s), ta_(t), kripke_(k)
   {
     kripke_source_condition = kripke_->state_condition(s->get_kripke_state());
@@ -243,7 +243,7 @@ namespace spot
 
 
   ta_product::ta_product(const const_ta_ptr& testing_automata,
-			 const const_kripke_ptr& kripke_structure):
+                         const const_kripke_ptr& kripke_structure):
     ta(testing_automata->get_dict()),
     dict_(testing_automata->get_dict()),
     ta_(testing_automata),
@@ -292,9 +292,9 @@ namespace spot
 
     for (auto s: ta_init_states_set)
       if (artificial_initial_state ||
-	  (kripke_init_condition == ta_->get_state_condition(s)))
-	initial_states_set.insert(new state_ta_product(s,
-						       kripke_init->clone()));
+          (kripke_init_condition == ta_->get_state_condition(s)))
+        initial_states_set.insert(new state_ta_product(s,
+                                                       kripke_init->clone()));
 
     kripke_init->destroy();
     return initial_states_set;
@@ -316,8 +316,8 @@ namespace spot
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
     assert(s);
     return new ta_succ_iterator_product_by_changeset(stp,
-						     ta_.get(), kripke_.get(),
-						     changeset);
+                                                     ta_.get(), kripke_.get(),
+                                                     changeset);
 
   }
 
@@ -402,7 +402,7 @@ namespace spot
 
   ta_succ_iterator_product_by_changeset::
   ta_succ_iterator_product_by_changeset(const state_ta_product* s, const ta* t,
-					const kripke* k, bdd changeset)
+                                        const kripke* k, bdd changeset)
     : ta_succ_iterator_product(s, t, k)
   {
     current_condition_ = changeset;

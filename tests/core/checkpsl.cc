@@ -58,49 +58,49 @@ main(int argc, char** argv)
       ++line;
       std::cerr << line << ": " << s << '\n';
       if (s.empty() || s[0] == '#') // Skip comments
-	continue;
+        continue;
 
       auto pfpos = spot::parse_infix_psl(s);
       if (pfpos.format_errors(std::cerr))
-	return 2;
+        return 2;
       auto fpos = pfpos.f;
 
       auto fneg = spot::formula::Not(fpos);
 
       {
-	auto apos = scc_filter(ltl_to_tgba_fm(fpos, d));
-	auto aneg = scc_filter(ltl_to_tgba_fm(fneg, d));
-	if (!spot::product(apos, aneg)->is_empty())
-	  {
-	    std::cerr << "non-empty intersection between pos and neg (FM)\n";
-	    exit(2);
-	  }
+        auto apos = scc_filter(ltl_to_tgba_fm(fpos, d));
+        auto aneg = scc_filter(ltl_to_tgba_fm(fneg, d));
+        if (!spot::product(apos, aneg)->is_empty())
+          {
+            std::cerr << "non-empty intersection between pos and neg (FM)\n";
+            exit(2);
+          }
       }
 
       {
-	auto apos = scc_filter(ltl_to_tgba_fm(fpos, d, true));
-	auto aneg = scc_filter(ltl_to_tgba_fm(fneg, d, true));
-	if (!spot::product(apos, aneg)->is_empty())
-	  {
-	    std::cerr << "non-empty intersection between pos and neg (FM -x)\n";
-	    exit(2);
-	  }
+        auto apos = scc_filter(ltl_to_tgba_fm(fpos, d, true));
+        auto aneg = scc_filter(ltl_to_tgba_fm(fneg, d, true));
+        if (!spot::product(apos, aneg)->is_empty())
+          {
+            std::cerr << "non-empty intersection between pos and neg (FM -x)\n";
+            exit(2);
+          }
       }
 
       if (fpos.is_ltl_formula())
-	{
-	  auto apos =
-	    scc_filter(make_twa_graph(ltl_to_taa(fpos, d),
-					 spot::twa::prop_set::all()));
-	  auto aneg =
-	    scc_filter(make_twa_graph(ltl_to_taa(fneg, d),
-					 spot::twa::prop_set::all()));
-	  if (!spot::product(apos, aneg)->is_empty())
-	    {
-	      std::cerr << "non-empty intersection between pos and neg (TAA)\n";
-	      exit(2);
-	    }
-	}
+        {
+          auto apos =
+            scc_filter(make_twa_graph(ltl_to_taa(fpos, d),
+                                         spot::twa::prop_set::all()));
+          auto aneg =
+            scc_filter(make_twa_graph(ltl_to_taa(fneg, d),
+                                         spot::twa::prop_set::all()));
+          if (!spot::product(apos, aneg)->is_empty())
+            {
+              std::cerr << "non-empty intersection between pos and neg (TAA)\n";
+              exit(2);
+            }
+        }
     }
 
   assert(spot::fnode::instances_check());

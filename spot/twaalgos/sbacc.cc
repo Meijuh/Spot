@@ -43,15 +43,15 @@ namespace spot
     auto new_state =
       [&](unsigned state, acc_cond::mark_t m) -> unsigned
       {
-	pair_t x(state, m);
-	auto p = s2n.emplace(x, 0);
-	if (p.second)		// This is a new state
-	  {
-	    unsigned s = res->new_state();
-	    p.first->second = s;
-	    todo.emplace_back(x, s);
-	  }
-	return p.first->second;
+        pair_t x(state, m);
+        auto p = s2n.emplace(x, 0);
+        if (p.second)                // This is a new state
+          {
+            unsigned s = res->new_state();
+            p.first->second = s;
+            todo.emplace_back(x, s);
+          }
+        return p.first->second;
       };
 
     // Find any edge going into the initial state, and use its
@@ -60,21 +60,21 @@ namespace spot
     unsigned old_init = old->get_init_state_number();
     for (auto& t: old->edges())
       if (t.dst == old_init)
-	{
-	  init_acc = t.acc;
-	  break;
-	}
+        {
+          init_acc = t.acc;
+          break;
+        }
 
     res->set_init_state(new_state(old_init, init_acc));
     while (!todo.empty())
       {
-	auto one = todo.back();
-	todo.pop_back();
-	for (auto& t: old->out(one.first.first))
-	  res->new_edge(one.second,
-			new_state(t.dst, t.acc),
-			t.cond,
-			one.first.second);
+        auto one = todo.back();
+        todo.pop_back();
+        for (auto& t: old->out(one.first.first))
+          res->new_edge(one.second,
+                        new_state(t.dst, t.acc),
+                        t.cond,
+                        one.first.second);
       }
     return res;
   }

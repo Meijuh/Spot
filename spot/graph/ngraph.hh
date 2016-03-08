@@ -26,9 +26,9 @@
 namespace spot
 {
   template <typename Graph,
-	    typename State_Name,
-	    typename Name_Hash = std::hash<State_Name>,
-	    typename Name_Equal = std::equal_to<State_Name>>
+            typename State_Name,
+            typename Name_Hash = std::hash<State_Name>,
+            typename Name_Equal = std::equal_to<State_Name>>
   class SPOT_API named_graph
   {
   protected:
@@ -40,7 +40,7 @@ namespace spot
     typedef State_Name name;
 
     typedef std::unordered_map<name, state,
-			       Name_Hash, Name_Equal> name_to_state_t;
+                               Name_Hash, Name_Equal> name_to_state_t;
     name_to_state_t name_to_state;
     typedef std::vector<name> state_to_name_t;
     state_to_name_t state_to_name;
@@ -65,14 +65,14 @@ namespace spot
     {
       auto p = name_to_state.emplace(n, 0U);
       if (p.second)
-	{
-	  unsigned s = g_.new_state(std::forward<Args>(args)...);
-	  p.first->second = s;
-	  if (state_to_name.size() < s + 1)
-	    state_to_name.resize(s + 1);
-	  state_to_name[s] = n;
-	  return s;
-	}
+        {
+          unsigned s = g_.new_state(std::forward<Args>(args)...);
+          p.first->second = s;
+          if (state_to_name.size() < s + 1)
+            state_to_name.resize(s + 1);
+          state_to_name[s] = n;
+          return s;
+        }
       return p.first->second;
     }
 
@@ -85,27 +85,27 @@ namespace spot
     {
       auto p = name_to_state.emplace(newname, s);
       if (!p.second)
-	{
-	  // The state already exists.  Change its number.
-	  auto old = p.first->second;
-	  p.first->second = s;
-	  // Add the successor of OLD to those of S.
-	  auto& trans = g_.edge_vector();
-	  auto& states = g_.states();
-	  trans[states[s].succ_tail].next_succ = states[old].succ;
-	  states[s].succ_tail = states[old].succ_tail;
-	  states[old].succ = 0;
-	  states[old].succ_tail = 0;
-	  // Remove all references to old in edges:
-	  unsigned tend = trans.size();
-	  for (unsigned t = 1; t < tend; ++t)
-	    {
-	      if (trans[t].src == old)
-		trans[t].src = s;
-	      if (trans[t].dst == old)
-		trans[t].dst = s;
-	    }
-	}
+        {
+          // The state already exists.  Change its number.
+          auto old = p.first->second;
+          p.first->second = s;
+          // Add the successor of OLD to those of S.
+          auto& trans = g_.edge_vector();
+          auto& states = g_.states();
+          trans[states[s].succ_tail].next_succ = states[old].succ;
+          states[s].succ_tail = states[old].succ_tail;
+          states[old].succ = 0;
+          states[old].succ_tail = 0;
+          // Remove all references to old in edges:
+          unsigned tend = trans.size();
+          for (unsigned t = 1; t < tend; ++t)
+            {
+              if (trans[t].src == old)
+                trans[t].src = s;
+              if (trans[t].dst == old)
+                trans[t].dst = s;
+            }
+        }
       return !p.second;
     }
 
@@ -134,7 +134,7 @@ namespace spot
     new_edge(name src, name dst, Args&&... args)
     {
       return g_.new_edge(get_state(src), get_state(dst),
-			 std::forward<Args>(args)...);
+                         std::forward<Args>(args)...);
     }
 
     template <typename... Args>
@@ -144,19 +144,19 @@ namespace spot
       std::vector<State_Name> d;
       d.reserve(dst.size());
       for (auto n: dst)
-	d.push_back(get_state(n));
+        d.push_back(get_state(n));
       return g_.new_edge(get_state(src), d, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     edge
     new_edge(name src,
-		   const std::initializer_list<State_Name>& dst, Args&&... args)
+                   const std::initializer_list<State_Name>& dst, Args&&... args)
     {
       std::vector<state> d;
       d.reserve(dst.size());
       for (auto n: dst)
-	d.push_back(get_state(n));
+        d.push_back(get_state(n));
       return g_.new_edge(get_state(src), d, std::forward<Args>(args)...);
     }
   };

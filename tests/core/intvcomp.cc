@@ -53,15 +53,15 @@ check_vv(int* data, int size, unsigned expected = 0)
       std::cout << "*** cmp error *** " << std::endl;
       std::cout << "WE[" << size << "] ";
       for (int i = 0; i < size; ++i)
-	std::cout << data[i] << ' ';
+        std::cout << data[i] << ' ';
       std::cout << '\n';
     }
 
   if (expected && (output.size() * sizeof(int) != expected))
     {
       std::cout << "*** size error *** (expected "
-		<< expected << " bytes, got " << output.size() * sizeof(int)
-		<< " bytes)" << std::endl;
+                << expected << " bytes, got " << output.size() * sizeof(int)
+                << " bytes)" << std::endl;
       res = 1;
     }
 
@@ -96,15 +96,15 @@ check_av(int* data, int size, unsigned expected = 0)
       std::cout << "*** cmp error *** " << res << std::endl;
       std::cout << "VE[" << size << "] ";
       for (int i = 0; i < size; ++i)
-	std::cout << data[i] << ' ';
+        std::cout << data[i] << ' ';
       std::cout << '\n';
     }
 
   if (expected && (v->size() * sizeof(int) != expected))
     {
       std::cout << "*** size error *** (expected "
-		<< expected << " bytes, got " << v->size() * sizeof(int)
-		<< " bytes)" << std::endl;
+                << expected << " bytes, got " << v->size() * sizeof(int)
+                << " bytes)" << std::endl;
       res = 1;
     }
 
@@ -142,15 +142,15 @@ check_aa(int* data, int size, unsigned expected = 0)
       std::cout << "*** cmp error *** " << res << std::endl;
       std::cout << "AE[" << size << "] ";
       for (int i = 0; i < size; ++i)
-	std::cout << data[i] << ' ';
+        std::cout << data[i] << ' ';
       std::cout << '\n';
     }
 
   if (expected && (csize * sizeof(int) != expected))
     {
       std::cout << "*** size error *** (expected "
-		<< expected << " bytes, got " << csize * sizeof(int)
-		<< " bytes)" << std::endl;
+                << expected << " bytes, got " << csize * sizeof(int)
+                << " bytes)" << std::endl;
       res = 1;
     }
 
@@ -181,11 +181,11 @@ int main()
   errors += check(comp2, sizeof(comp2) / sizeof(*comp2));
 
   int comp3[] = { 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1,
-		  0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0,
-		  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1,
-		  0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-		  0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1,
-		  0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0 };
+                  0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0,
+                  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1,
+                  0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+                  0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1,
+                  0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0 };
   errors += check(comp3, sizeof(comp3) / sizeof(*comp3));
 
   int comp4[] = { 1, 2, 1, 2, 1, 2, 2, 0 }; // 32 bits
@@ -202,23 +202,23 @@ int main()
   errors += check(comp7, sizeof(comp7) / sizeof(*comp7));
 
   int comp8[] = { 4959, 6754, 8133, 10985, 11121, 14413, 17335, 20754,
-		  21317, 30008, 30381, 33494, 34935, 41210, 41417 };
+                  21317, 30008, 30381, 33494, 34935, 41210, 41417 };
   errors += check(comp8, sizeof(comp8) / sizeof(*comp8));
 
   int comp9[] = { 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   errors += check(comp9, sizeof(comp9) / sizeof(*comp9));
 
   int comp10[] = { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-		   0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		   0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-		   0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0,
-		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,
-		   9, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10,
-		   0, 0, 0, 0, 0, 0, 0, 0, 9 };
+                   0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,
+                   9, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10,
+                   0, 0, 0, 0, 0, 0, 0, 0, 9 };
   errors += check(comp10, sizeof(comp10) / sizeof(*comp10));
 
   return errors;

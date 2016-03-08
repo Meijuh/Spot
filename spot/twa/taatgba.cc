@@ -94,7 +94,7 @@ namespace spot
     {
       int i = *it1++ - *it2++;
       if (i != 0)
-	return i;
+        return i;
     }
     return 0;
   }
@@ -162,14 +162,14 @@ namespace spot
       unsigned p;
       for (p = 0; p < pos.size() && t->condition != bddfalse; ++p)
       {
-	taa_tgba::state_set::const_iterator j;
-	for (j = (*pos[p])->dst->begin(); j != (*pos[p])->dst->end(); ++j)
-	  if ((*j)->size() > 0) // Remove sink states.
-	    ss->insert(*j);
+        taa_tgba::state_set::const_iterator j;
+        for (j = (*pos[p])->dst->begin(); j != (*pos[p])->dst->end(); ++j)
+          if ((*j)->size() > 0) // Remove sink states.
+            ss->insert(*j);
 
-	// Fill the new transition.
-	t->condition &= (*pos[p])->condition;
-	t->acceptance_conditions |= (*pos[p])->acceptance_conditions;
+        // Fill the new transition.
+        t->condition &= (*pos[p])->condition;
+        t->acceptance_conditions |= (*pos[p])->acceptance_conditions;
       } // If p != pos.size() we have found a contradiction
       assert(p > 0);
       t->dst = ss;
@@ -182,54 +182,54 @@ namespace spot
       std::vector<taa_tgba::transition*>::iterator j;
       if (t->condition != bddfalse)
       {
-	i = seen_.find(b);
-	if (i != seen_.end())
-	  for (j = i->second.begin(); j != i->second.end(); ++j)
-	  {
-	    taa_tgba::transition* current = *j;
-	    if (*current->dst == *t->dst
-		&& current->condition == t->condition)
-	    {
-	      current->acceptance_conditions &= t->acceptance_conditions;
-	      break;
-	    }
-	    if (*current->dst == *t->dst
-		&& current->acceptance_conditions == t->acceptance_conditions)
-	    {
-	      current->condition |= t->condition;
-	      break;
-	    }
-	}
+        i = seen_.find(b);
+        if (i != seen_.end())
+          for (j = i->second.begin(); j != i->second.end(); ++j)
+          {
+            taa_tgba::transition* current = *j;
+            if (*current->dst == *t->dst
+                && current->condition == t->condition)
+            {
+              current->acceptance_conditions &= t->acceptance_conditions;
+              break;
+            }
+            if (*current->dst == *t->dst
+                && current->acceptance_conditions == t->acceptance_conditions)
+            {
+              current->condition |= t->condition;
+              break;
+            }
+        }
       }
       // Mark the new transition as seen and keep it if we have not
       // found any contradiction and no other transition to merge
       // with, or delete it otherwise.
       if (t->condition != bddfalse
-	  && (i == seen_.end() || j == i->second.end()))
+          && (i == seen_.end() || j == i->second.end()))
       {
-	seen_[b].push_back(t);
-	if (i != seen_.end())
-	  delete b;
-	succ_.push_back(t);
+        seen_[b].push_back(t);
+        if (i != seen_.end())
+          delete b;
+        succ_.push_back(t);
       }
       else
       {
-	delete t->dst;
-	delete t;
-	delete b;
+        delete t->dst;
+        delete t;
+        delete b;
       }
 
       for (int i = pos.size() - 1; i >= 0; --i)
       {
-	if ((i < int(p))
-	    && (std::distance(pos[i], bounds[i].second) > 1
-		|| (i == 0 && std::distance(pos[i], bounds[i].second) == 1)))
-	{
-	  ++pos[i];
-	  break;
-	}
-	else
-	  pos[i] = bounds[i].first;
+        if ((i < int(p))
+            && (std::distance(pos[i], bounds[i].second) > 1
+                || (i == 0 && std::distance(pos[i], bounds[i].second) == 1)))
+        {
+          ++pos[i];
+          break;
+        }
+        else
+          pos[i] = bounds[i].first;
       }
     }
   }

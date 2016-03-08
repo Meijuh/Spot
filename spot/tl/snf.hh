@@ -33,13 +33,13 @@ namespace spot
   /// paper.
   ///
   /** \verbatim
-      @Article{	  bruggeman.96.tcs,
-      author	= {Anne Br{\"u}ggemann-Klein},
-      title		= {Regular Expressions into Finite Automata},
-      journal	= {Theoretical Computer Science},
-      year		= {1996},
-      volume	= {120},
-      pages		= {87--98}
+      @Article{          bruggeman.96.tcs,
+      author        = {Anne Br{\"u}ggemann-Klein},
+      title                = {Regular Expressions into Finite Automata},
+      journal        = {Theoretical Computer Science},
+      year                = {1996},
+      volume        = {120},
+      pages                = {87--98}
       }
       \endverbatim */
   ///

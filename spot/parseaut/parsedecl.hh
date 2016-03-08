@@ -25,8 +25,8 @@
 
 # define YY_DECL \
   int hoayylex(hoayy::parser::semantic_type *yylval, \
-	       spot::location *yylloc, \
-	       spot::parse_aut_error_list& error_list)
+               spot::location *yylloc, \
+               spot::parse_aut_error_list& error_list)
 YY_DECL;
 
 namespace spot

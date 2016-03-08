@@ -41,6 +41,6 @@ namespace spot
 
     formula constrain(formula f) const;
     twa_graph_ptr constrain(const_twa_graph_ptr aut,
-			       bool simplify_guards = false) const;
+                               bool simplify_guards = false) const;
   };
 }

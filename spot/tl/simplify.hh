@@ -30,23 +30,23 @@ namespace spot
   {
   public:
     tl_simplifier_options(bool basics = true,
-			   bool synt_impl = true,
-			   bool event_univ = true,
-			   bool containment_checks = false,
-			   bool containment_checks_stronger = false,
-			   bool nenoform_stop_on_boolean = false,
-			   bool reduce_size_strictly = false,
-			   bool boolean_to_isop = false,
-			   bool favor_event_univ = false)
+                           bool synt_impl = true,
+                           bool event_univ = true,
+                           bool containment_checks = false,
+                           bool containment_checks_stronger = false,
+                           bool nenoform_stop_on_boolean = false,
+                           bool reduce_size_strictly = false,
+                           bool boolean_to_isop = false,
+                           bool favor_event_univ = false)
       : reduce_basics(basics),
-	synt_impl(synt_impl),
-	event_univ(event_univ),
-	containment_checks(containment_checks),
-	containment_checks_stronger(containment_checks_stronger),
-	nenoform_stop_on_boolean(nenoform_stop_on_boolean),
-	reduce_size_strictly(reduce_size_strictly),
-	boolean_to_isop(boolean_to_isop),
-	favor_event_univ(favor_event_univ)
+        synt_impl(synt_impl),
+        event_univ(event_univ),
+        containment_checks(containment_checks),
+        containment_checks_stronger(containment_checks_stronger),
+        nenoform_stop_on_boolean(nenoform_stop_on_boolean),
+        reduce_size_strictly(reduce_size_strictly),
+        boolean_to_isop(boolean_to_isop),
+        favor_event_univ(favor_event_univ)
     {
     }
 
@@ -54,21 +54,21 @@ namespace spot
       tl_simplifier_options(false, false, false)
     {
       switch (level)
-	{
-	case 3:
-	  containment_checks = true;
-	  containment_checks_stronger = true;
-	  // fall through
-	case 2:
-	  synt_impl = true;
-	  // fall through
-	case 1:
-	  reduce_basics = true;
-	  event_univ = true;
-	  // fall through
-	default:
-	  break;
-	}
+        {
+        case 3:
+          containment_checks = true;
+          containment_checks_stronger = true;
+          // fall through
+        case 2:
+          synt_impl = true;
+          // fall through
+        case 1:
+          reduce_basics = true;
+          event_univ = true;
+          // fall through
+        default:
+          break;
+        }
     }
 
     bool reduce_basics;
@@ -99,7 +99,7 @@ namespace spot
   public:
     tl_simplifier(const bdd_dict_ptr& dict = make_bdd_dict());
     tl_simplifier(const tl_simplifier_options& opt,
-		   bdd_dict_ptr dict = make_bdd_dict());
+                   bdd_dict_ptr dict = make_bdd_dict());
     ~tl_simplifier();
 
     /// Simplify the formula \a f (using options supplied to the
@@ -123,18 +123,18 @@ namespace spot
     ///
     /// This is adapted from
     /** \verbatim
-	@InProceedings{          somenzi.00.cav,
-	author         = {Fabio Somenzi and Roderick Bloem},
-	title          = {Efficient {B\"u}chi Automata for {LTL} Formulae},
-	booktitle      = {Proceedings of the 12th International Conference on
-	Computer Aided Verification (CAV'00)},
-	pages          = {247--263},
-	year           = {2000},
-	volume         = {1855},
-	series         = {Lecture Notes in Computer Science},
-	publisher      = {Springer-Verlag}
-	}
-	\endverbatim */
+        @InProceedings{          somenzi.00.cav,
+        author         = {Fabio Somenzi and Roderick Bloem},
+        title          = {Efficient {B\"u}chi Automata for {LTL} Formulae},
+        booktitle      = {Proceedings of the 12th International Conference on
+        Computer Aided Verification (CAV'00)},
+        pages          = {247--263},
+        year           = {2000},
+        volume         = {1855},
+        series         = {Lecture Notes in Computer Science},
+        publisher      = {Springer-Verlag}
+        }
+        \endverbatim */
     ///
     bool syntactic_implication(formula f, formula g);
     /// \brief Syntactic implication with one negated argument.
@@ -143,7 +143,7 @@ namespace spot
     /// \a f implies !\a g.  If \a right is false, this returns
     /// whether !\a f implies \a g.
     bool syntactic_implication_neg(formula f, formula g,
-				   bool right);
+                                   bool right);
 
     /// \brief check whether two formulae are equivalent.
     ///

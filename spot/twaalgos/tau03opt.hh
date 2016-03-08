@@ -98,7 +98,7 @@ namespace spot
   ///
   SPOT_API emptiness_check_ptr
   explicit_tau03_opt_search(const const_twa_ptr& a,
-			    option_map o = option_map());
+                            option_map o = option_map());
 
   /// @}
 }

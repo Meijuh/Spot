@@ -56,18 +56,18 @@ namespace spot
   ///
   /// This algorithms is adapted from the one in Fig 6.2 page 48 of
   /** \verbatim
-      @TechReport{	  tauriainen.00.a66,
-        author	= {Heikki Tauriainen},
+      @TechReport{          tauriainen.00.a66,
+        author        = {Heikki Tauriainen},
         title   = {Automated Testing of {B\"u}chi Automata Translators for
-      		  {L}inear {T}emporal {L}ogic},
-        address	= {Espoo, Finland},
+                        {L}inear {T}emporal {L}ogic},
+        address        = {Espoo, Finland},
         institution = {Helsinki University of Technology, Laboratory for
-      		  Theoretical Computer Science},
-        number	= {A66},
-        year	= {2000},
-        url	= {http://citeseer.nj.nec.com/tauriainen00automated.html},
-        type	= {Research Report},
-        note	= {Reprint of Master's thesis}
+                        Theoretical Computer Science},
+        number        = {A66},
+        year        = {2000},
+        url        = {http://citeseer.nj.nec.com/tauriainen00automated.html},
+        type        = {Research Report},
+        note        = {Reprint of Master's thesis}
       }
       \endverbatim */
   ///
@@ -84,10 +84,10 @@ namespace spot
   /// acceptance sets, this does not set the acceptance condition.
   SPOT_API twa_graph_ptr
   random_graph(int n, float d,
-	       const atomic_prop_set* ap, const bdd_dict_ptr& dict,
-	       unsigned n_accs = 0, float a = 0.1, float t = 0.5,
-	       bool deterministic = false, bool state_acc = false,
-	       bool colored = false);
+               const atomic_prop_set* ap, const bdd_dict_ptr& dict,
+               unsigned n_accs = 0, float a = 0.1, float t = 0.5,
+               bool deterministic = false, bool state_acc = false,
+               bool colored = false);
 
   /// Build a random acceptance where each acceptance sets is used once.
   SPOT_API acc_cond::acc_code random_acceptance(unsigned n_accs);

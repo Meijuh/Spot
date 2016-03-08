@@ -82,68 +82,68 @@ checked_main(int argc, char **argv)
     {
       char* opt = argv[i];
       if (*opt == '-')
-	{
-	  switch (*++opt)
-	    {
-	    case 'C':
-	      accepting_run = true;
-	      break;
-	    case 'd':
-	      dead = opt + 1;
-	      break;
-	    case 'D':
-	      deterministic = true;
-	      break;
-	    case 'e':
-	    case 'E':
-	      {
-		echeck_algo = opt + 1;
-		if (!*echeck_algo)
-		  echeck_algo = "Cou99";
+        {
+          switch (*++opt)
+            {
+            case 'C':
+              accepting_run = true;
+              break;
+            case 'd':
+              dead = opt + 1;
+              break;
+            case 'D':
+              deterministic = true;
+              break;
+            case 'e':
+            case 'E':
+              {
+                echeck_algo = opt + 1;
+                if (!*echeck_algo)
+                  echeck_algo = "Cou99";
 
-		expect_counter_example = (*opt == 'e');
-		output = EmptinessCheck;
-		break;
-	      }
-	    case 'g':
-	      switch (opt[1])
-		{
-		case 'm':
-		  output = DotModel;
-		  break;
-		case 'p':
-		  output = DotProduct;
-		  break;
-		case 'f':
-		  output = DotFormula;
-		  break;
+                expect_counter_example = (*opt == 'e');
+                output = EmptinessCheck;
+                break;
+              }
+            case 'g':
+              switch (opt[1])
+                {
+                case 'm':
+                  output = DotModel;
+                  break;
+                case 'p':
+                  output = DotProduct;
+                  break;
+                case 'f':
+                  output = DotFormula;
+                  break;
                 case 'K':
                   output = Kripke;
                   break;
-		default:
-		  goto error;
-		}
-	      break;
-	    case 'T':
-	      use_timer = true;
-	      break;
-	    case 'z':
-	      compress_states = 1;
-	      break;
-	    case 'Z':
-	      compress_states = 2;
-	      break;
-	    default:
-	    error:
-	      std::cerr << "Unknown option `" << argv[i] << "'." << std::endl;
-	      exit(1);
-	    }
-	  --argc;
-	}
+                default:
+                  goto error;
+                }
+              break;
+            case 'T':
+              use_timer = true;
+              break;
+            case 'z':
+              compress_states = 1;
+              break;
+            case 'Z':
+              compress_states = 2;
+              break;
+            default:
+            error:
+              std::cerr << "Unknown option `" << argv[i] << "'." << std::endl;
+              exit(1);
+            }
+          --argc;
+        }
       else
-	{
-	  argv[dest++] = argv[i];
-	}
+        {
+          argv[dest++] = argv[i];
+        }
     }
 
   if (argc != 3)
@@ -182,12 +182,12 @@ checked_main(int argc, char **argv)
       const char* err;
       echeck_inst = spot::make_emptiness_check_instantiator(echeck_algo, &err);
       if (!echeck_inst)
-	{
-	  std::cerr << "Failed to parse argument of -e/-E near `"
-		    << err <<  "'\n";
-	  exit_code = 1;
-	  goto safe_exit;
-	}
+        {
+          std::cerr << "Failed to parse argument of -e/-E near `"
+                    << err <<  "'\n";
+          exit_code = 1;
+          goto safe_exit;
+        }
     }
 
   tm.start("parsing formula");
@@ -217,33 +217,33 @@ checked_main(int argc, char **argv)
     {
       tm.start("loading ltsmin model");
       try
-	{
-	  model = spot::ltsmin_model::load(argv[1]).kripke(&ap, dict, deadf,
-							   compress_states);
-	}
+        {
+          model = spot::ltsmin_model::load(argv[1]).kripke(&ap, dict, deadf,
+                                                           compress_states);
+        }
       catch (std::runtime_error& e)
-	{
-	  std::cerr << e.what() << '\n';
-	}
+        {
+          std::cerr << e.what() << '\n';
+        }
       tm.stop("loading ltsmin model");
 
       if (!model)
-	{
-	  exit_code = 1;
-	  goto safe_exit;
-	}
+        {
+          exit_code = 1;
+          goto safe_exit;
+        }
 
       if (output == DotModel)
-	{
-	  tm.start("dot output");
-	  spot::print_dot(std::cout, model);
-	  tm.stop("dot output");
-	  goto safe_exit;
-	}
+        {
+          tm.start("dot output");
+          spot::print_dot(std::cout, model);
+          tm.stop("dot output");
+          goto safe_exit;
+        }
       if (output == Kripke)
       {
         tm.start("kripke output");
-	spot::print_hoa(std::cout, model);
+        spot::print_hoa(std::cout, model);
         tm.stop("kripke output");
         goto safe_exit;
       }
@@ -275,85 +275,85 @@ checked_main(int argc, char **argv)
     assert(ec);
     do
       {
-	int memused = spot::memusage();
-	tm.start("running emptiness check");
-	spot::emptiness_check_result_ptr res;
-	try
-	  {
-	    res = ec->check();
-	  }
-	catch (std::bad_alloc)
-	  {
-	    std::cerr << "Out of memory during emptiness check."
-		      << std::endl;
-	    if (!compress_states)
-	      std::cerr << "Try option -z for state compression." << std::endl;
-	    exit_code = 2;
-	    exit(exit_code);
-	  }
-	tm.stop("running emptiness check");
-	memused = spot::memusage() - memused;
+        int memused = spot::memusage();
+        tm.start("running emptiness check");
+        spot::emptiness_check_result_ptr res;
+        try
+          {
+            res = ec->check();
+          }
+        catch (std::bad_alloc)
+          {
+            std::cerr << "Out of memory during emptiness check."
+                      << std::endl;
+            if (!compress_states)
+              std::cerr << "Try option -z for state compression." << std::endl;
+            exit_code = 2;
+            exit(exit_code);
+          }
+        tm.stop("running emptiness check");
+        memused = spot::memusage() - memused;
 
-	ec->print_stats(std::cout);
-	std::cout << memused << " pages allocated for emptiness check"
-		  << std::endl;
+        ec->print_stats(std::cout);
+        std::cout << memused << " pages allocated for emptiness check"
+                  << std::endl;
 
-	if (expect_counter_example == !res &&
-	    (!expect_counter_example || ec->safe()))
-	  exit_code = 1;
+        if (expect_counter_example == !res &&
+            (!expect_counter_example || ec->safe()))
+          exit_code = 1;
 
-	if (!res)
-	  {
-	    std::cout << "no accepting run found";
-	    if (!ec->safe() && expect_counter_example)
-	      {
-		std::cout << " even if expected" << std::endl;
-		std::cout << "this may be due to the use of the bit"
-			  << " state hashing technique" << std::endl;
-		std::cout << "you can try to increase the heap size "
-			  << "or use an explicit storage"
-			  << std::endl;
-	      }
-	    std::cout << std::endl;
-	    break;
-	  }
-	else if (accepting_run)
-	  {
+        if (!res)
+          {
+            std::cout << "no accepting run found";
+            if (!ec->safe() && expect_counter_example)
+              {
+                std::cout << " even if expected" << std::endl;
+                std::cout << "this may be due to the use of the bit"
+                          << " state hashing technique" << std::endl;
+                std::cout << "you can try to increase the heap size "
+                          << "or use an explicit storage"
+                          << std::endl;
+              }
+            std::cout << std::endl;
+            break;
+          }
+        else if (accepting_run)
+          {
 
-	    spot::twa_run_ptr run;
-	    tm.start("computing accepting run");
-	    try
-	      {
-		run = res->accepting_run();
-	      }
-	    catch (std::bad_alloc)
-	      {
-		std::cerr << "Out of memory while looking for counterexample."
-			  << std::endl;
-		exit_code = 2;
-		exit(exit_code);
-	      }
-	    tm.stop("computing accepting run");
+            spot::twa_run_ptr run;
+            tm.start("computing accepting run");
+            try
+              {
+                run = res->accepting_run();
+              }
+            catch (std::bad_alloc)
+              {
+                std::cerr << "Out of memory while looking for counterexample."
+                          << std::endl;
+                exit_code = 2;
+                exit(exit_code);
+              }
+            tm.stop("computing accepting run");
 
-	    if (!run)
-	      {
-		std::cout << "an accepting run exists" << std::endl;
-	      }
-	    else
-	      {
-		tm.start("reducing accepting run");
-		run = run->reduce();
-		tm.stop("reducing accepting run");
-		tm.start("printing accepting run");
-		std::cout << *run;
-		tm.stop("printing accepting run");
-	      }
-	  }
-	else
-	  {
-	    std::cout << "an accepting run exists "
-		      << "(use -C to print it)" << std::endl;
-	  }
+            if (!run)
+              {
+                std::cout << "an accepting run exists" << std::endl;
+              }
+            else
+              {
+                tm.start("reducing accepting run");
+                run = run->reduce();
+                tm.stop("reducing accepting run");
+                tm.start("printing accepting run");
+                std::cout << *run;
+                tm.stop("printing accepting run");
+              }
+          }
+        else
+          {
+            std::cout << "an accepting run exists "
+                      << "(use -C to print it)" << std::endl;
+          }
       }
     while (search_many);
   }
@@ -361,7 +361,7 @@ checked_main(int argc, char **argv)
  safe_exit:
   if (use_timer)
     tm.print(std::cout);
-  tm.reset_all();		// This helps valgrind.
+  tm.reset_all();                // This helps valgrind.
   return exit_code;
 }
 

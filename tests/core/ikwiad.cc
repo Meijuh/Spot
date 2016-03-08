@@ -78,195 +78,195 @@ syntax(char* prog)
     prog = slash + 4;
 
   std::cerr << "Usage: "<< prog << " [-f|-l|-taa] [OPTIONS...] formula"
-	    << std::endl
+            << std::endl
             << "       "<< prog << " [-f|-l|-taa] -F [OPTIONS...] file"
-	    << std::endl
+            << std::endl
             << "       "<< prog << " -XH [OPTIONS...] file" << std::endl
-	    << std::endl
+            << std::endl
 
             << "Translate an LTL formula into an automaton, or read the "
-	    << "automaton from a file." << std::endl
-	    << "Optionally multiply this automaton by another"
-	    << " automaton read from a file." << std::endl
+            << "automaton from a file." << std::endl
+            << "Optionally multiply this automaton by another"
+            << " automaton read from a file." << std::endl
             << "Output the result in various formats, or perform an emptiness "
             << "check." << std::endl
-	    << std::endl
+            << std::endl
 
             << "Input options:" << std::endl
             << "  -F    read the formula from a file, not from the command line"
-	    << std::endl
-	    << "  -XD   do not compute an automaton, read it from an"
-	    << " ltl2dstar file" << std::endl
-	    << "  -XDB  like -XD, and convert it to TGBA\n"
-	    << "  -XH   do not compute an automaton, read it from a"
-	    << " HOA file\n"
-	    << "  -XL   do not compute an automaton, read it from an"
-	    << " LBTT file" << std::endl
-	    << "  -XN   do not compute an automaton, read it from a"
-	    << " neverclaim file" << std::endl
-	    << "  -Pfile  multiply the formula automaton with the TGBA read"
-	    << " from `file'\n"
-	    << "  -KPfile multiply the formula automaton with the Kripke"
-	    << " structure from `file'\n"
-	    << std::endl
+            << std::endl
+            << "  -XD   do not compute an automaton, read it from an"
+            << " ltl2dstar file" << std::endl
+            << "  -XDB  like -XD, and convert it to TGBA\n"
+            << "  -XH   do not compute an automaton, read it from a"
+            << " HOA file\n"
+            << "  -XL   do not compute an automaton, read it from an"
+            << " LBTT file" << std::endl
+            << "  -XN   do not compute an automaton, read it from a"
+            << " neverclaim file" << std::endl
+            << "  -Pfile  multiply the formula automaton with the TGBA read"
+            << " from `file'\n"
+            << "  -KPfile multiply the formula automaton with the Kripke"
+            << " structure from `file'\n"
+            << std::endl
 
-	    << "Translation algorithm:" << std::endl
+            << "Translation algorithm:" << std::endl
             << "  -f    use Couvreur's FM algorithm for LTL"
-	    << " (default)" << std::endl
+            << " (default)" << std::endl
             << "  -taa  use Tauriainen's TAA-based algorithm for LTL"
-	    << std::endl
-	    << "  -u    use Compositional translation"
-	    << std::endl
-	    << std::endl
+            << std::endl
+            << "  -u    use Compositional translation"
+            << std::endl
+            << std::endl
 
-	    << "Options for Couvreur's FM algorithm (-f):" << std::endl
-	    << "  -fr   reduce formula at each step of FM" << std::endl
-	    << "          as specified with the -r{1..7} options" << std::endl
-	    << "  -fu   build unambiguous automata" << std::endl
+            << "Options for Couvreur's FM algorithm (-f):" << std::endl
+            << "  -fr   reduce formula at each step of FM" << std::endl
+            << "          as specified with the -r{1..7} options" << std::endl
+            << "  -fu   build unambiguous automata" << std::endl
             << "  -L    fair-loop approximation (implies -f)" << std::endl
             << "  -p    branching postponement (implies -f)" << std::endl
             << "  -U[PROPS]  consider atomic properties of the formula as "
-	    << "exclusive events, and" << std::endl
-	    << "        PROPS as unobservables events (implies -f)"
-	    << std::endl
+            << "exclusive events, and" << std::endl
+            << "        PROPS as unobservables events (implies -f)"
+            << std::endl
             << "  -x    try to produce a more deterministic automaton "
-	    << "(implies -f)" << std::endl
-	    << "  -y    do not merge states with same symbolic representation "
-	    << "(implies -f)" << std::endl
-	    << std::endl
+            << "(implies -f)" << std::endl
+            << "  -y    do not merge states with same symbolic representation "
+            << "(implies -f)" << std::endl
+            << std::endl
 
-	    << "Options for Tauriainen's TAA-based algorithm (-taa):"
-	    << std::endl
-	    << "  -c    enable language containment checks (implies -taa)"
-	    << std::endl
-	    << std::endl
+            << "Options for Tauriainen's TAA-based algorithm (-taa):"
+            << std::endl
+            << "  -c    enable language containment checks (implies -taa)"
+            << std::endl
+            << std::endl
 
-	    << "Formula simplification (before translation):"
-	    << std::endl
-	    << "  -r1   reduce formula using basic rewriting" << std::endl
-	    << "  -r2   reduce formula using class of eventuality and "
-	    << "universality" << std::endl
-	    << "  -r3   reduce formula using implication between "
-	    << "sub-formulae" << std::endl
-	    << "  -r4   reduce formula using all above rules" << std::endl
-	    << "  -r5   reduce formula using tau03" << std::endl
-	    << "  -r6   reduce formula using tau03+" << std::endl
-	    << "  -r7   reduce formula using tau03+ and -r4" << std::endl
-	    << "  -rd   display the reduced formula" << std::endl
-	    << "  -rD   dump statistics about the simplifier cache" << std::endl
-	    << "  -rL   disable basic rewritings producing larger formulas"
-	    << std::endl
-	    << "  -ru   lift formulae that are eventual and universal"
-	    << std::endl << std::endl
+            << "Formula simplification (before translation):"
+            << std::endl
+            << "  -r1   reduce formula using basic rewriting" << std::endl
+            << "  -r2   reduce formula using class of eventuality and "
+            << "universality" << std::endl
+            << "  -r3   reduce formula using implication between "
+            << "sub-formulae" << std::endl
+            << "  -r4   reduce formula using all above rules" << std::endl
+            << "  -r5   reduce formula using tau03" << std::endl
+            << "  -r6   reduce formula using tau03+" << std::endl
+            << "  -r7   reduce formula using tau03+ and -r4" << std::endl
+            << "  -rd   display the reduced formula" << std::endl
+            << "  -rD   dump statistics about the simplifier cache" << std::endl
+            << "  -rL   disable basic rewritings producing larger formulas"
+            << std::endl
+            << "  -ru   lift formulae that are eventual and universal"
+            << std::endl << std::endl
 
-	    << "Automaton degeneralization (after translation):"
-	    << std::endl
-	    << "  -DT   degeneralize the automaton as a TBA" << std::endl
-	    << "  -DS   degeneralize the automaton as an SBA" << std::endl
-	    << "          (append z/Z, o/O, l/L: to turn on/off options "
+            << "Automaton degeneralization (after translation):"
+            << std::endl
+            << "  -DT   degeneralize the automaton as a TBA" << std::endl
+            << "  -DS   degeneralize the automaton as an SBA" << std::endl
+            << "          (append z/Z, o/O, l/L: to turn on/off options "
             << "(default: zol)\n "
-	    << "          z: level resetting, o: adaptive order, "
-	    << "l: level cache)\n"
-	    << std::endl
+            << "          z: level resetting, o: adaptive order, "
+            << "l: level cache)\n"
+            << std::endl
 
-	    << "Automaton simplifications (after translation):"
-	    << std::endl
-	    << "  -R3   use SCC to reduce the automaton" << std::endl
-	    << "  -R3f  clean more acceptance conditions than -R3" << std::endl
-	    << "          "
-	    << "(prefer -R3 over -R3f if you degeneralize with -D, -DS, or -N)"
-	    << std::endl
-	    << "  -RDS  reduce the automaton with direct simulation"
-	    << std::endl
-	    << "  -RRS  reduce the automaton with reverse simulation"
-	    << std::endl
-	    << "  -RIS  iterate both direct and reverse simulations"
-	    << std::endl
+            << "Automaton simplifications (after translation):"
+            << std::endl
+            << "  -R3   use SCC to reduce the automaton" << std::endl
+            << "  -R3f  clean more acceptance conditions than -R3" << std::endl
+            << "          "
+            << "(prefer -R3 over -R3f if you degeneralize with -D, -DS, or -N)"
+            << std::endl
+            << "  -RDS  reduce the automaton with direct simulation"
+            << std::endl
+            << "  -RRS  reduce the automaton with reverse simulation"
+            << std::endl
+            << "  -RIS  iterate both direct and reverse simulations"
+            << std::endl
             << "  -Rm   attempt to WDBA-minimize the automaton" << std::endl
-	    << std::endl
+            << std::endl
             << "  -RM   attempt to WDBA-minimize the automaton unless the "
-	    << "result is bigger" << std::endl
-	    << "  -RQ   determinize a TGBA (assuming it's legal!)" << std::endl
-	    << std::endl
+            << "result is bigger" << std::endl
+            << "  -RQ   determinize a TGBA (assuming it's legal!)" << std::endl
+            << std::endl
 
             << "Automaton conversion:" << std::endl
             << "  -M    convert into a deterministic minimal monitor "
-	    << "(implies -R3 or R3b)" << std::endl
-	    << "  -s    convert to explicit automaton, and number states "
-	    << "in DFS order" << std::endl
-	    << "  -S    convert to explicit automaton, and number states "
-	    << "in BFS order" << std::endl
-	    << std::endl
+            << "(implies -R3 or R3b)" << std::endl
+            << "  -s    convert to explicit automaton, and number states "
+            << "in DFS order" << std::endl
+            << "  -S    convert to explicit automaton, and number states "
+            << "in BFS order" << std::endl
+            << std::endl
 
-	    << "Conversion to Testing Automaton:" << std::endl
- 	    << "  -TA   output a Generalized Testing Automaton (GTA),\n"
-	    << "          or a Testing Automaton (TA) with -DS\n"
- 	    << "  -lv   add an artificial livelock state to obtain a "
-	    << "Single-pass (G)TA\n"
+            << "Conversion to Testing Automaton:" << std::endl
+             << "  -TA   output a Generalized Testing Automaton (GTA),\n"
+            << "          or a Testing Automaton (TA) with -DS\n"
+             << "  -lv   add an artificial livelock state to obtain a "
+            << "Single-pass (G)TA\n"
             << "  -sp   convert into a single-pass (G)TA without artificial "
-	    << "livelock state\n"
-	    << "  -in   do not use an artificial initial state\n"
+            << "livelock state\n"
+            << "  -in   do not use an artificial initial state\n"
             << "  -TGTA output a Transition-based Generalized TA"
             << std::endl
-	    << "  -RT   reduce the (G)TA/TGTA using bisimulation.\n"
+            << "  -RT   reduce the (G)TA/TGTA using bisimulation.\n"
             << std::endl
 
-	    << "Options for performing emptiness checks (on TGBA):" << std::endl
-	    << "  -e[ALGO]  run emptiness check, expect and compute an "
-	    << "accepting run" << std::endl
-	    << "  -E[ALGO]  run emptiness check, expect no accepting run"
-	    << std::endl
-	    << "  -C    compute an accepting run (Counterexample) if it exists"
-	    << std::endl
-	    << "  -CR   compute and replay an accepting run (implies -C)"
-	    << std::endl
-	    << "  -G    graph the accepting run seen as an automaton "
-	    << " (requires -e)" << std::endl
-	    << "  -m    try to reduce accepting runs, in a second pass"
-	    << std::endl
-	    << "Where ALGO should be one of:" << std::endl
-	    << "  Cou99(OPTIONS) (the default)" << std::endl
-	    << "  CVWY90(OPTIONS)" << std::endl
-	    << "  GV04(OPTIONS)" << std::endl
-	    << "  SE05(OPTIONS)" << std::endl
-	    << "  Tau03(OPTIONS)" << std::endl
-	    << "  Tau03_opt(OPTIONS)" << std::endl
-	    << std::endl
+            << "Options for performing emptiness checks (on TGBA):" << std::endl
+            << "  -e[ALGO]  run emptiness check, expect and compute an "
+            << "accepting run" << std::endl
+            << "  -E[ALGO]  run emptiness check, expect no accepting run"
+            << std::endl
+            << "  -C    compute an accepting run (Counterexample) if it exists"
+            << std::endl
+            << "  -CR   compute and replay an accepting run (implies -C)"
+            << std::endl
+            << "  -G    graph the accepting run seen as an automaton "
+            << " (requires -e)" << std::endl
+            << "  -m    try to reduce accepting runs, in a second pass"
+            << std::endl
+            << "Where ALGO should be one of:" << std::endl
+            << "  Cou99(OPTIONS) (the default)" << std::endl
+            << "  CVWY90(OPTIONS)" << std::endl
+            << "  GV04(OPTIONS)" << std::endl
+            << "  SE05(OPTIONS)" << std::endl
+            << "  Tau03(OPTIONS)" << std::endl
+            << "  Tau03_opt(OPTIONS)" << std::endl
+            << std::endl
 
-	    << "If no emptiness check is run, the automaton will be output "
-	    << "in dot format" << std::endl << "by default.  This can be "
-	    << "changed with the following options." << std::endl
-	    << std::endl
+            << "If no emptiness check is run, the automaton will be output "
+            << "in dot format" << std::endl << "by default.  This can be "
+            << "changed with the following options." << std::endl
+            << std::endl
 
-	    << "Output options (if no emptiness check):" << std::endl
-	    << "  -ks   display statistics on the automaton (size only)"
-	    << std::endl
-	    << "  -kt   display statistics on the automaton (size + "
-	    << "subtransitions)"
-	    << std::endl
-	    << "  -K    dump the graph of SCCs in dot format" << std::endl
-	    << "  -KC   list cycles in automaton" << std::endl
-	    << "  -KW   list weak SCCs" << std::endl
-	    << "  -N    output the never clain for Spin (implies -DS)"
-	    << std::endl
-	    << "  -NN   output the never clain for Spin, with commented states"
-	    << " (implies -DS)" << std::endl
-	    << "  -O    tell if a formula represents a safety, guarantee, "
-	    << "or obligation property"
-	    << std::endl
-	    << "  -t    output automaton in LBTT's format" << std::endl
-	    << std::endl
+            << "Output options (if no emptiness check):" << std::endl
+            << "  -ks   display statistics on the automaton (size only)"
+            << std::endl
+            << "  -kt   display statistics on the automaton (size + "
+            << "subtransitions)"
+            << std::endl
+            << "  -K    dump the graph of SCCs in dot format" << std::endl
+            << "  -KC   list cycles in automaton" << std::endl
+            << "  -KW   list weak SCCs" << std::endl
+            << "  -N    output the never clain for Spin (implies -DS)"
+            << std::endl
+            << "  -NN   output the never clain for Spin, with commented states"
+            << " (implies -DS)" << std::endl
+            << "  -O    tell if a formula represents a safety, guarantee, "
+            << "or obligation property"
+            << std::endl
+            << "  -t    output automaton in LBTT's format" << std::endl
+            << std::endl
 
-	    << "Miscellaneous options:" << std::endl
-	    << "  -0    produce minimal output dedicated to the paper"
-	    << std::endl
-	    << "  -8    output UTF-8 formulae" << std::endl
-	    << "  -d    turn on traces during parsing" << std::endl
+            << "Miscellaneous options:" << std::endl
+            << "  -0    produce minimal output dedicated to the paper"
+            << std::endl
+            << "  -8    output UTF-8 formulae" << std::endl
+            << "  -d    turn on traces during parsing" << std::endl
             << "  -T    time the different phases of the translation"
-	    << std::endl
-	    << "  -v    display the BDD variables used by the automaton"
-	    << std::endl
-	    << std::endl;
+            << std::endl
+            << "  -v    display the BDD variables used by the automaton"
+            << std::endl
+            << std::endl;
 
   exit(2);
 }
@@ -324,7 +324,7 @@ checked_main(int argc, char** argv)
   bool scc_filter = false;
   bool simpltl = false;
   spot::tl_simplifier_options redopt(false, false, false, false,
-					   false, false, false);
+                                           false, false, false);
   bool simpcache_stats = false;
   bool scc_filter_all = false;
   bool display_reduced_form = false;
@@ -371,296 +371,296 @@ checked_main(int argc, char** argv)
   for (;;)
     {
       if (argc < formula_index + 2)
-	syntax(argv[0]);
+        syntax(argv[0]);
 
       ++formula_index;
 
       if (!strcmp(argv[formula_index], "-0"))
-	{
-	  paper_opt = true;
-	}
+        {
+          paper_opt = true;
+        }
       else if (!strcmp(argv[formula_index], "-8"))
-	{
-	  utf8_opt = true;
-	  spot::enable_utf8();
-	}
+        {
+          utf8_opt = true;
+          spot::enable_utf8();
+        }
       else if (!strcmp(argv[formula_index], "-c"))
-	{
-	  containment = true;
-	  translation = TransTAA;
-	}
+        {
+          containment = true;
+          translation = TransTAA;
+        }
       else if (!strcmp(argv[formula_index], "-C"))
-	{
-	  accepting_run = true;
-	}
+        {
+          accepting_run = true;
+        }
       else if (!strcmp(argv[formula_index], "-CR"))
-	{
-	  accepting_run = true;
-	  accepting_run_replay = true;
-	}
+        {
+          accepting_run = true;
+          accepting_run_replay = true;
+        }
       else if (!strcmp(argv[formula_index], "-d"))
-	{
-	  debug_opt = true;
-	}
+        {
+          debug_opt = true;
+        }
       else if (!strcmp(argv[formula_index], "-D"))
-	{
-	  std::cerr << "-D was renamed to -DT\n";
-	  abort();
-	}
+        {
+          std::cerr << "-D was renamed to -DT\n";
+          abort();
+        }
       else if (!strcmp(argv[formula_index], "-DC"))
-	{
-	  opt_dtwacomp = true;
-	}
+        {
+          opt_dtwacomp = true;
+        }
       else if (!strncmp(argv[formula_index], "-DS", 3)
-	       || !strncmp(argv[formula_index], "-DT", 3))
-	{
-	  degeneralize_opt =
-	    argv[formula_index][2] == 'S' ? DegenSBA : DegenTBA;
-	  const char* p = argv[formula_index] + 3;
-	  while (*p)
-	    {
-	      switch (*p++)
-		{
-		case 'o':
-		  degen_order = true;
-		  break;
-		case 'O':
-		  degen_order = false;
-		  break;
-		case 'z':
-		  degen_reset = true;
-		  break;
-		case 'Z':
-		  degen_reset = false;
-		  break;
-		case 'l':
-		  degen_cache = true;
-		  break;
-		case 'L':
-		  degen_cache = false;
-		  break;
-		}
-	    }
-	}
+               || !strncmp(argv[formula_index], "-DT", 3))
+        {
+          degeneralize_opt =
+            argv[formula_index][2] == 'S' ? DegenSBA : DegenTBA;
+          const char* p = argv[formula_index] + 3;
+          while (*p)
+            {
+              switch (*p++)
+                {
+                case 'o':
+                  degen_order = true;
+                  break;
+                case 'O':
+                  degen_order = false;
+                  break;
+                case 'z':
+                  degen_reset = true;
+                  break;
+                case 'Z':
+                  degen_reset = false;
+                  break;
+                case 'l':
+                  degen_cache = true;
+                  break;
+                case 'L':
+                  degen_cache = false;
+                  break;
+                }
+            }
+        }
       else if (!strncmp(argv[formula_index], "-e", 2))
         {
-	  echeck_algo = 2 + argv[formula_index];
-	  if (!*echeck_algo)
-	    echeck_algo = "Cou99";
+          echeck_algo = 2 + argv[formula_index];
+          if (!*echeck_algo)
+            echeck_algo = "Cou99";
 
-	  const char* err;
-	  echeck_inst =
-	    spot::make_emptiness_check_instantiator(echeck_algo, &err);
-	  if (!echeck_inst)
-	    {
-	      std::cerr << "Failed to parse argument of -e near `"
-			<< err <<  '\'' << std::endl;
-	      exit(2);
-	    }
+          const char* err;
+          echeck_inst =
+            spot::make_emptiness_check_instantiator(echeck_algo, &err);
+          if (!echeck_inst)
+            {
+              std::cerr << "Failed to parse argument of -e near `"
+                        << err <<  '\'' << std::endl;
+              exit(2);
+            }
           expect_counter_example = true;
           output = -1;
         }
       else if (!strncmp(argv[formula_index], "-E", 2))
         {
-	  const char* echeck_algo = 2 + argv[formula_index];
-	  if (!*echeck_algo)
-	    echeck_algo = "Cou99";
+          const char* echeck_algo = 2 + argv[formula_index];
+          if (!*echeck_algo)
+            echeck_algo = "Cou99";
 
-	  const char* err;
-	  echeck_inst =
-	    spot::make_emptiness_check_instantiator(echeck_algo, &err);
-	  if (!echeck_inst)
-	    {
-	      std::cerr << "Failed to parse argument of -e near `"
-			<< err <<  '\'' << std::endl;
-	      exit(2);
-	    }
+          const char* err;
+          echeck_inst =
+            spot::make_emptiness_check_instantiator(echeck_algo, &err);
+          if (!echeck_inst)
+            {
+              std::cerr << "Failed to parse argument of -e near `"
+                        << err <<  '\'' << std::endl;
+              exit(2);
+            }
           expect_counter_example = false;
           output = -1;
         }
       else if (!strcmp(argv[formula_index], "-f"))
-	{
-	  translation = TransFM;
-	}
+        {
+          translation = TransFM;
+        }
       else if (!strcmp(argv[formula_index], "-fr"))
-	{
-	  fm_red = true;
-	  translation = TransFM;
-	}
+        {
+          fm_red = true;
+          translation = TransFM;
+        }
       else if (!strcmp(argv[formula_index], "-fu"))
-	{
-	  fm_unambiguous = true;
-	  fm_exprop_opt = true;
-	  translation = TransFM;
-	}
+        {
+          fm_unambiguous = true;
+          fm_exprop_opt = true;
+          translation = TransFM;
+        }
       else if (!strcmp(argv[formula_index], "-F"))
-	{
-	  file_opt = true;
-	}
+        {
+          file_opt = true;
+        }
       else if (!strcmp(argv[formula_index], "-G"))
-	{
-	  accepting_run = true;
-	  graph_run_tgba_opt = true;
-	}
+        {
+          accepting_run = true;
+          graph_run_tgba_opt = true;
+        }
       else if (!strncmp(argv[formula_index], "-H", 2))
-	{
-	  output = 17;
-	  hoa_opt = argv[formula_index] + 2;
-	}
+        {
+          output = 17;
+          hoa_opt = argv[formula_index] + 2;
+        }
       else if (!strcmp(argv[formula_index], "-ks"))
-	{
-	  output = 12;
-	}
+        {
+          output = 12;
+        }
       else if (!strcmp(argv[formula_index], "-kt"))
-	{
-	  output = 13;
-	}
+        {
+          output = 13;
+        }
       else if (!strcmp(argv[formula_index], "-K"))
-	{
-	  output = 10;
-	}
+        {
+          output = 10;
+        }
       else if (!strncmp(argv[formula_index], "-KP", 3))
-	{
-	  tm.start("reading -KP's argument");
-	  spot::automaton_parser_options opts;
-	  opts.debug = debug_opt;
-	  opts.want_kripke = true;
-	  auto paut = spot::parse_aut(argv[formula_index] + 3, dict, env, opts);
-	  if (paut->format_errors(std::cerr))
-	    return 2;
-	  system_aut = paut->ks;
-	  tm.stop("reading -KP's argument");
-	}
+        {
+          tm.start("reading -KP's argument");
+          spot::automaton_parser_options opts;
+          opts.debug = debug_opt;
+          opts.want_kripke = true;
+          auto paut = spot::parse_aut(argv[formula_index] + 3, dict, env, opts);
+          if (paut->format_errors(std::cerr))
+            return 2;
+          system_aut = paut->ks;
+          tm.stop("reading -KP's argument");
+        }
       else if (!strcmp(argv[formula_index], "-KC"))
-	{
-	  output = 15;
-	}
+        {
+          output = 15;
+        }
       else if (!strcmp(argv[formula_index], "-KW"))
-	{
-	  output = 16;
-	}
+        {
+          output = 16;
+        }
       else if (!strcmp(argv[formula_index], "-L"))
-	{
-	  fair_loop_approx = true;
-	  translation = TransFM;
-	}
+        {
+          fair_loop_approx = true;
+          translation = TransFM;
+        }
       else if (!strcmp(argv[formula_index], "-m"))
-	{
-	  opt_reduce = true;
-	}
+        {
+          opt_reduce = true;
+        }
       else if (!strcmp(argv[formula_index], "-N"))
-	{
-	  degeneralize_opt = DegenSBA;
-	  output = 8;
-	  opt_never = nullptr;
-	}
+        {
+          degeneralize_opt = DegenSBA;
+          output = 8;
+          opt_never = nullptr;
+        }
       else if (!strcmp(argv[formula_index], "-NN"))
-	{
-	  degeneralize_opt = DegenSBA;
-	  output = 8;
-	  opt_never = "c";
-	}
+        {
+          degeneralize_opt = DegenSBA;
+          output = 8;
+          opt_never = "c";
+        }
       else if (!strncmp(argv[formula_index], "-O", 2))
-	{
-	  output = 14;
+        {
+          output = 14;
           opt_minimize = true;
-	  if (argv[formula_index][2] != 0)
-	    opt_o_threshold = to_int(argv[formula_index] + 2);
-	}
+          if (argv[formula_index][2] != 0)
+            opt_o_threshold = to_int(argv[formula_index] + 2);
+        }
       else if (!strcmp(argv[formula_index], "-p"))
-	{
-	  post_branching = true;
-	  translation = TransFM;
-	}
+        {
+          post_branching = true;
+          translation = TransFM;
+        }
       else if (!strncmp(argv[formula_index], "-P", 2))
-	{
-	  tm.start("reading -P's argument");
+        {
+          tm.start("reading -P's argument");
 
-	  spot::automaton_parser_options opts;
-	  opts.debug = debug_opt;
-	  auto daut = spot::parse_aut(argv[formula_index] + 2, dict, env, opts);
-	  if (daut->format_errors(std::cerr))
-	    return 2;
-	  daut->aut->merge_edges();
-	  system_aut = daut->aut;
-	  tm.stop("reading -P's argument");
-	}
+          spot::automaton_parser_options opts;
+          opts.debug = debug_opt;
+          auto daut = spot::parse_aut(argv[formula_index] + 2, dict, env, opts);
+          if (daut->format_errors(std::cerr))
+            return 2;
+          daut->aut->merge_edges();
+          system_aut = daut->aut;
+          tm.stop("reading -P's argument");
+        }
       else if (!strcmp(argv[formula_index], "-r1"))
-	{
-	  simpltl = true;
-	  redopt.reduce_basics = true;
-	}
+        {
+          simpltl = true;
+          redopt.reduce_basics = true;
+        }
       else if (!strcmp(argv[formula_index], "-r2"))
-	{
-	  simpltl = true;
-	  redopt.event_univ = true;
-	}
+        {
+          simpltl = true;
+          redopt.event_univ = true;
+        }
       else if (!strcmp(argv[formula_index], "-r3"))
-	{
-	  simpltl = true;
-	  redopt.synt_impl = true;
-	}
+        {
+          simpltl = true;
+          redopt.synt_impl = true;
+        }
       else if (!strcmp(argv[formula_index], "-r4"))
-	{
-	  simpltl = true;
-	  redopt.reduce_basics = true;
-	  redopt.event_univ = true;
-	  redopt.synt_impl = true;
-	}
+        {
+          simpltl = true;
+          redopt.reduce_basics = true;
+          redopt.event_univ = true;
+          redopt.synt_impl = true;
+        }
       else if (!strcmp(argv[formula_index], "-r5"))
-	{
-	  simpltl = true;
-	  redopt.containment_checks = true;
-	}
+        {
+          simpltl = true;
+          redopt.containment_checks = true;
+        }
       else if (!strcmp(argv[formula_index], "-r6"))
-	{
-	  simpltl = true;
-	  redopt.containment_checks = true;
-	  redopt.containment_checks_stronger = true;
-	}
+        {
+          simpltl = true;
+          redopt.containment_checks = true;
+          redopt.containment_checks_stronger = true;
+        }
       else if (!strcmp(argv[formula_index], "-r7"))
-	{
-	  simpltl = true;
-	  redopt.reduce_basics = true;
-	  redopt.event_univ = true;
-	  redopt.synt_impl = true;
-	  redopt.containment_checks = true;
-	  redopt.containment_checks_stronger = true;
-	}
+        {
+          simpltl = true;
+          redopt.reduce_basics = true;
+          redopt.event_univ = true;
+          redopt.synt_impl = true;
+          redopt.containment_checks = true;
+          redopt.containment_checks_stronger = true;
+        }
       else if (!strcmp(argv[formula_index], "-R1q")
-	       || !strcmp(argv[formula_index], "-R1t")
-	       || !strcmp(argv[formula_index], "-R2q")
-	       || !strcmp(argv[formula_index], "-R2t"))
-	{
-	  // For backward compatibility, make all these options
-	  // equal to -RDS.
-	  reduction_dir_sim = true;
-	}
+               || !strcmp(argv[formula_index], "-R1t")
+               || !strcmp(argv[formula_index], "-R2q")
+               || !strcmp(argv[formula_index], "-R2t"))
+        {
+          // For backward compatibility, make all these options
+          // equal to -RDS.
+          reduction_dir_sim = true;
+        }
       else if (!strcmp(argv[formula_index], "-RRS"))
         {
           reduction_rev_sim = true;
         }
       else if (!strcmp(argv[formula_index], "-R3"))
-	{
-	  scc_filter = true;
-	}
+        {
+          scc_filter = true;
+        }
       else if (!strcmp(argv[formula_index], "-R3f"))
-	{
-	  scc_filter = true;
-	  scc_filter_all = true;
-	}
+        {
+          scc_filter = true;
+          scc_filter_all = true;
+        }
       else if (!strcmp(argv[formula_index], "-rd"))
-	{
-	  display_reduced_form = true;
-	}
+        {
+          display_reduced_form = true;
+        }
       else if (!strcmp(argv[formula_index], "-rD"))
-	{
-	  simpcache_stats = true;
-	}
+        {
+          simpcache_stats = true;
+        }
       else if (!strcmp(argv[formula_index], "-RC"))
-	{
-	  opt_complete = true;
-	}
+        {
+          opt_complete = true;
+        }
       else if (!strcmp(argv[formula_index], "-RDS"))
         {
           reduction_dir_sim = true;
@@ -671,16 +671,16 @@ checked_main(int argc, char** argv)
         }
       else if (!strcmp(argv[formula_index], "-rL"))
         {
-	  simpltl = true;
-	  redopt.reduce_basics = true;
-	  redopt.reduce_size_strictly = true;
+          simpltl = true;
+          redopt.reduce_basics = true;
+          redopt.reduce_size_strictly = true;
         }
       else if (!strncmp(argv[formula_index], "-RG", 3))
         {
-	  if (argv[formula_index][3] != 0)
-	    opt_dtwasat = to_int(argv[formula_index] + 3);
-	  else
-	    opt_dtwasat = 0;
+          if (argv[formula_index][3] != 0)
+            opt_dtwasat = to_int(argv[formula_index] + 3);
+          else
+            opt_dtwasat = 0;
           //output = -1;
         }
       else if (!strcmp(argv[formula_index], "-Rm"))
@@ -690,56 +690,56 @@ checked_main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-RM"))
         {
           opt_minimize = true;
-	  reject_bigger = true;
+          reject_bigger = true;
         }
       else if (!strncmp(argv[formula_index], "-RQ", 3))
         {
           opt_determinize = true;
-	  if (argv[formula_index][3] != 0)
-	    opt_determinize_threshold = to_int(argv[formula_index] + 3);
+          if (argv[formula_index][3] != 0)
+            opt_determinize_threshold = to_int(argv[formula_index] + 3);
         }
       else if (!strncmp(argv[formula_index], "-RS", 3))
         {
-	  if (argv[formula_index][3] != 0)
-	    opt_dtbasat = to_int(argv[formula_index] + 3);
-	  else
-	    opt_dtbasat = 0;
+          if (argv[formula_index][3] != 0)
+            opt_dtbasat = to_int(argv[formula_index] + 3);
+          else
+            opt_dtbasat = 0;
           //output = -1;
         }
       else if (!strcmp(argv[formula_index], "-RT"))
         {
           opt_bisim_ta = true;
-	}
+        }
       else if (!strcmp(argv[formula_index], "-ru"))
         {
-	  simpltl = true;
-	  redopt.event_univ = true;
-	  redopt.favor_event_univ = true;
+          simpltl = true;
+          redopt.event_univ = true;
+          redopt.favor_event_univ = true;
         }
       else if (!strcmp(argv[formula_index], "-M"))
         {
           opt_monitor = true;
         }
       else if (!strcmp(argv[formula_index], "-S"))
-	{
-	  dupexp = true;
-	}
+        {
+          dupexp = true;
+        }
       else if (!strcmp(argv[formula_index], "-CL"))
-	{
-	  opt_closure = true;
-	}
+        {
+          opt_closure = true;
+        }
       else if (!strcmp(argv[formula_index], "-ST"))
-	{
-	  opt_stutterize = true;
-	}
+        {
+          opt_stutterize = true;
+        }
       else if (!strcmp(argv[formula_index], "-t"))
-	{
-	  output = 6;
-	}
+        {
+          output = 6;
+        }
       else if (!strcmp(argv[formula_index], "-T"))
-	{
-	  use_timer = true;
-	}
+        {
+          use_timer = true;
+        }
       else if (!strcmp(argv[formula_index], "-TA"))
         {
           ta_opt = true;
@@ -761,104 +761,104 @@ checked_main(int argc, char** argv)
           opt_with_artificial_initial_state = false;
         }
       else if (!strcmp(argv[formula_index], "-taa"))
-	{
-	  translation = TransTAA;
-	}
+        {
+          translation = TransTAA;
+        }
       else if (!strncmp(argv[formula_index], "-U", 2))
-	{
-	  unobservables = new spot::atomic_prop_set;
-	  translation = TransFM;
-	  // Parse -U's argument.
-	  const char* tok = strtok(argv[formula_index] + 2, ", \t;");
-	  while (tok)
-	    {
-	      unobservables->insert(env.require(tok));
-	      tok = strtok(nullptr, ", \t;");
-	    }
-	}
+        {
+          unobservables = new spot::atomic_prop_set;
+          translation = TransFM;
+          // Parse -U's argument.
+          const char* tok = strtok(argv[formula_index] + 2, ", \t;");
+          while (tok)
+            {
+              unobservables->insert(env.require(tok));
+              tok = strtok(nullptr, ", \t;");
+            }
+        }
       else if (!strncmp(argv[formula_index], "-u", 2))
-	{
-	  translation = TransCompo;
-	  const char* c = argv[formula_index] + 2;
-	  while (*c != 0)
-	    {
-	      switch (*c)
-		{
-		case '2':
-		  cs_nowdba = false;
-		  cs_wdba_smaller = true;
-		  break;
-		case 'w':
-		  cs_nowdba = false;
-		  cs_wdba_smaller = false;
-		  break;
-		case 's':
-		  cs_nosimul = false;
-		  break;
-		case 'e':
-		  cs_early_start = true;
-		  break;
-		case 'W':
-		  cs_nowdba = true;
-		  break;
-		case 'S':
-		  cs_nosimul = true;
-		  break;
-		case 'E':
-		  cs_early_start = false;
-		  break;
-		case 'o':
-		  cs_oblig = true;
-		  break;
-		case 'O':
-		  cs_oblig = false;
-		  break;
-		default:
-		  std::cerr << "Unknown suboption `" << *c
-			    << "' for option -u" << std::endl;
-		}
-	      ++c;
-	    }
-	}
+        {
+          translation = TransCompo;
+          const char* c = argv[formula_index] + 2;
+          while (*c != 0)
+            {
+              switch (*c)
+                {
+                case '2':
+                  cs_nowdba = false;
+                  cs_wdba_smaller = true;
+                  break;
+                case 'w':
+                  cs_nowdba = false;
+                  cs_wdba_smaller = false;
+                  break;
+                case 's':
+                  cs_nosimul = false;
+                  break;
+                case 'e':
+                  cs_early_start = true;
+                  break;
+                case 'W':
+                  cs_nowdba = true;
+                  break;
+                case 'S':
+                  cs_nosimul = true;
+                  break;
+                case 'E':
+                  cs_early_start = false;
+                  break;
+                case 'o':
+                  cs_oblig = true;
+                  break;
+                case 'O':
+                  cs_oblig = false;
+                  break;
+                default:
+                  std::cerr << "Unknown suboption `" << *c
+                            << "' for option -u" << std::endl;
+                }
+              ++c;
+            }
+        }
       else if (!strcmp(argv[formula_index], "-v"))
-	{
-	  output = 5;
-	}
+        {
+          output = 5;
+        }
       else if (!strcmp(argv[formula_index], "-x"))
-	{
-	  translation = TransFM;
-	  fm_exprop_opt = true;
-	}
+        {
+          translation = TransFM;
+          fm_exprop_opt = true;
+        }
       else if (!strcmp(argv[formula_index], "-XD"))
-	{
-	  from_file = true;
-	}
+        {
+          from_file = true;
+        }
       else if (!strcmp(argv[formula_index], "-XDB"))
-	{
-	  from_file = true;
-	  nra2nba = true;
-	}
+        {
+          from_file = true;
+          nra2nba = true;
+        }
       else if (!strcmp(argv[formula_index], "-XH"))
-	{
-	  from_file = true;
-	}
+        {
+          from_file = true;
+        }
       else if (!strcmp(argv[formula_index], "-XL"))
-	{
-	  from_file = true;
-	}
+        {
+          from_file = true;
+        }
       else if (!strcmp(argv[formula_index], "-XN")) // now synonym for -XH
-	{
-	  from_file = true;
-	}
+        {
+          from_file = true;
+        }
       else if (!strcmp(argv[formula_index], "-y"))
-	{
-	  translation = TransFM;
-	  fm_symb_merge_opt = false;
-	}
+        {
+          translation = TransFM;
+          fm_symb_merge_opt = false;
+        }
       else
-	{
-	  break;
-	}
+        {
+          break;
+        }
     }
 
   if ((graph_run_tgba_opt)
@@ -874,24 +874,24 @@ checked_main(int argc, char** argv)
     {
       tm.start("reading formula");
       if (strcmp(argv[formula_index], "-"))
-	{
-	  std::ifstream fin(argv[formula_index]);
-	  if (!fin)
-	    {
-	      std::cerr << "Cannot open " << argv[formula_index] << std::endl;
-	      exit(2);
-	    }
+        {
+          std::ifstream fin(argv[formula_index]);
+          if (!fin)
+            {
+              std::cerr << "Cannot open " << argv[formula_index] << std::endl;
+              exit(2);
+            }
 
-	  if (!std::getline(fin, input, '\0'))
-	    {
-	      std::cerr << "Cannot read " << argv[formula_index] << std::endl;
-	      exit(2);
-	    }
-	}
+          if (!std::getline(fin, input, '\0'))
+            {
+              std::cerr << "Cannot read " << argv[formula_index] << std::endl;
+              exit(2);
+            }
+        }
       else
-	{
-	  std::getline(std::cin, input, '\0');
-	}
+        {
+          std::getline(std::cin, input, '\0');
+        }
       tm.stop("reading formula");
     }
   else
@@ -903,19 +903,19 @@ checked_main(int argc, char** argv)
   if (!from_file) // Reading a formula, not reading an automaton from a file.
     {
       switch (translation)
-	{
-	case TransFM:
-	case TransTAA:
-	case TransCompo:
-	  {
-	    tm.start("parsing formula");
-	    auto pf = spot::parse_infix_psl(input, env, debug_opt);
-	    tm.stop("parsing formula");
-	    exit_code = pf.format_errors(std::cerr);
-	    f = pf.f;
-	  }
-	  break;
-	}
+        {
+        case TransFM:
+        case TransTAA:
+        case TransCompo:
+          {
+            tm.start("parsing formula");
+            auto pf = spot::parse_infix_psl(input, env, debug_opt);
+            tm.stop("parsing formula");
+            exit_code = pf.format_errors(std::cerr);
+            f = pf.f;
+          }
+          break;
+        }
     }
 
   if (f || from_file)
@@ -924,155 +924,155 @@ checked_main(int argc, char** argv)
       bool assume_sba = false;
 
       if (from_file)
-	{
-	  tm.start("parsing hoa");
-	  spot::automaton_parser_options opts;
-	  opts.debug = debug_opt;
-	  auto daut = spot::parse_aut(input, dict, env, opts);
-	  tm.stop("parsing hoa");
-	  if (daut->format_errors(std::cerr))
-	    return 2;
-	  daut->aut->merge_edges();
-	  a = daut->aut;
+        {
+          tm.start("parsing hoa");
+          spot::automaton_parser_options opts;
+          opts.debug = debug_opt;
+          auto daut = spot::parse_aut(input, dict, env, opts);
+          tm.stop("parsing hoa");
+          if (daut->format_errors(std::cerr))
+            return 2;
+          daut->aut->merge_edges();
+          a = daut->aut;
 
-	  if (nra2nba)
-	    a = spot::to_generalized_buchi(daut->aut);
-	  assume_sba = a->is_sba().is_true();
-	}
+          if (nra2nba)
+            a = spot::to_generalized_buchi(daut->aut);
+          assume_sba = a->is_sba().is_true();
+        }
       else
-	{
-	  spot::tl_simplifier* simp = nullptr;
-	  if (simpltl)
-	    simp = new spot::tl_simplifier(redopt, dict);
+        {
+          spot::tl_simplifier* simp = nullptr;
+          if (simpltl)
+            simp = new spot::tl_simplifier(redopt, dict);
 
-	  if (simp)
-	    {
-	      tm.start("reducing formula");
-	      spot::formula t = simp->simplify(f);
-	      tm.stop("reducing formula");
-	      f = t;
-	      if (display_reduced_form)
-		{
-		  if (utf8_opt)
-		    print_utf8_psl(std::cout, f) << '\n';
-		  else
-		    print_psl(std::cout, f) << '\n';
-		}
-	      // This helps ltl_to_tgba_fm() to order BDD variables in
-	      // a more natural way.
-	      simp->clear_as_bdd_cache();
-	    }
+          if (simp)
+            {
+              tm.start("reducing formula");
+              spot::formula t = simp->simplify(f);
+              tm.stop("reducing formula");
+              f = t;
+              if (display_reduced_form)
+                {
+                  if (utf8_opt)
+                    print_utf8_psl(std::cout, f) << '\n';
+                  else
+                    print_psl(std::cout, f) << '\n';
+                }
+              // This helps ltl_to_tgba_fm() to order BDD variables in
+              // a more natural way.
+              simp->clear_as_bdd_cache();
+            }
 
-	  if (f.is_psl_formula()
-	      && !f.is_ltl_formula()
-	      && (translation != TransFM && translation != TransCompo))
-	    {
-	      std::cerr << "Only the FM algorithm can translate PSL formulae;"
-			<< " I'm using it for this formula." << std::endl;
-	      translation = TransFM;
-	    }
+          if (f.is_psl_formula()
+              && !f.is_ltl_formula()
+              && (translation != TransFM && translation != TransCompo))
+            {
+              std::cerr << "Only the FM algorithm can translate PSL formulae;"
+                        << " I'm using it for this formula." << std::endl;
+              translation = TransFM;
+            }
 
-	  tm.start("translating formula");
-	  switch (translation)
-	    {
-	    case TransFM:
-	      a = spot::ltl_to_tgba_fm(f, dict, fm_exprop_opt,
-				       fm_symb_merge_opt,
-				       post_branching,
-				       fair_loop_approx,
-				       unobservables,
-				       fm_red ? simp : nullptr,
-				       fm_unambiguous);
-	      break;
-	    case TransCompo:
-	      {
-		a = spot::compsusp(f, dict,
-				   cs_nowdba, cs_nosimul, cs_early_start,
-				   false, cs_wdba_smaller, cs_oblig);
-		break;
-	      }
-	    case TransTAA:
-	      a = spot::ltl_to_taa(f, dict, containment);
-	      break;
-	    }
-	  tm.stop("translating formula");
+          tm.start("translating formula");
+          switch (translation)
+            {
+            case TransFM:
+              a = spot::ltl_to_tgba_fm(f, dict, fm_exprop_opt,
+                                       fm_symb_merge_opt,
+                                       post_branching,
+                                       fair_loop_approx,
+                                       unobservables,
+                                       fm_red ? simp : nullptr,
+                                       fm_unambiguous);
+              break;
+            case TransCompo:
+              {
+                a = spot::compsusp(f, dict,
+                                   cs_nowdba, cs_nosimul, cs_early_start,
+                                   false, cs_wdba_smaller, cs_oblig);
+                break;
+              }
+            case TransTAA:
+              a = spot::ltl_to_taa(f, dict, containment);
+              break;
+            }
+          tm.stop("translating formula");
 
-	  if (simp && simpcache_stats)
-	    {
-	      simp->print_stats(std::cerr);
-	      bddStat s;
-	      bdd_stats(&s);
-	      std::cerr << "BDD produced: " << s.produced
-			<< "\n    nodenum: " << s.nodenum
-			<< "\n    maxnodenum: " << s.maxnodenum
-			<< "\n    freenodes: " <<  s.freenodes
-			<< "\n    minfreenodes: " << s.minfreenodes
-			<< "\n    varnum: " <<  s.varnum
-			<< "\n    cachesize: " << s.cachesize
-			<< "\n    gbcnum: " << s.gbcnum
-			<< std::endl;
-	      bdd_fprintstat(stderr);
-	      dict->dump(std::cerr);
-	    }
-	  delete simp;
-	}
+          if (simp && simpcache_stats)
+            {
+              simp->print_stats(std::cerr);
+              bddStat s;
+              bdd_stats(&s);
+              std::cerr << "BDD produced: " << s.produced
+                        << "\n    nodenum: " << s.nodenum
+                        << "\n    maxnodenum: " << s.maxnodenum
+                        << "\n    freenodes: " <<  s.freenodes
+                        << "\n    minfreenodes: " << s.minfreenodes
+                        << "\n    varnum: " <<  s.varnum
+                        << "\n    cachesize: " << s.cachesize
+                        << "\n    gbcnum: " << s.gbcnum
+                        << std::endl;
+              bdd_fprintstat(stderr);
+              dict->dump(std::cerr);
+            }
+          delete simp;
+        }
 
       if (opt_monitor && !scc_filter)
-	scc_filter = true;
+        scc_filter = true;
 
       // Remove dead SCCs and useless acceptance conditions before
       // degeneralization.
       if (scc_filter)
-	{
-	  tm.start("SCC-filter");
-	  if (a->prop_state_acc().is_true() & !scc_filter_all)
-	    a = spot::scc_filter_states(ensure_digraph(a));
-	  else
-	    a = spot::scc_filter(ensure_digraph(a), scc_filter_all);
-	  tm.stop("SCC-filter");
-	  assume_sba = false;
-	}
+        {
+          tm.start("SCC-filter");
+          if (a->prop_state_acc().is_true() & !scc_filter_all)
+            a = spot::scc_filter_states(ensure_digraph(a));
+          else
+            a = spot::scc_filter(ensure_digraph(a), scc_filter_all);
+          tm.stop("SCC-filter");
+          assume_sba = false;
+        }
 
       bool wdba_minimization_is_success = false;
       if (opt_minimize)
-	{
-	  auto aa = ensure_digraph(a);
-	  tm.start("obligation minimization");
-	  auto minimized = minimize_obligation(aa, f, nullptr, reject_bigger);
-	  tm.stop("obligation minimization");
+        {
+          auto aa = ensure_digraph(a);
+          tm.start("obligation minimization");
+          auto minimized = minimize_obligation(aa, f, nullptr, reject_bigger);
+          tm.stop("obligation minimization");
 
-	  if (!minimized)
-	    {
-	      // if (!f)
-		{
-		  std::cerr << "Error: Without a formula I cannot make "
-			    << "sure that the automaton built with -Rm\n"
-			    << "       is correct." << std::endl;
-		  exit(2);
-		}
-	    }
-	  else if (minimized == aa)
-	    {
-	      minimized = nullptr;
-	    }
-	  else
-	    {
-	      a = minimized;
-	      wdba_minimization_is_success = true;
+          if (!minimized)
+            {
+              // if (!f)
+                {
+                  std::cerr << "Error: Without a formula I cannot make "
+                            << "sure that the automaton built with -Rm\n"
+                            << "       is correct." << std::endl;
+                  exit(2);
+                }
+            }
+          else if (minimized == aa)
+            {
+              minimized = nullptr;
+            }
+          else
+            {
+              a = minimized;
+              wdba_minimization_is_success = true;
               // When the minimization succeed, simulation is useless.
               reduction_dir_sim = false;
               reduction_rev_sim = false;
               reduction_iterated_sim = false;
-	      assume_sba = true;
-	    }
-	}
+              assume_sba = true;
+            }
+        }
 
       if (reduction_dir_sim && !reduction_iterated_sim)
         {
           tm.start("direct simulation");
           a = spot::simulation(ensure_digraph(a));
           tm.stop("direct simulation");
-	  assume_sba = false;
+          assume_sba = false;
         }
 
       if (reduction_rev_sim && !reduction_iterated_sim)
@@ -1080,7 +1080,7 @@ checked_main(int argc, char** argv)
           tm.start("reverse simulation");
           a = spot::cosimulation(ensure_digraph(a));
           tm.stop("reverse simulation");
-	  assume_sba = false;
+          assume_sba = false;
         }
 
 
@@ -1089,183 +1089,183 @@ checked_main(int argc, char** argv)
           tm.start("Reduction w/ iterated simulations");
           a = spot::iterated_simulations(ensure_digraph(a));
           tm.stop("Reduction w/ iterated simulations");
-	  assume_sba = false;
+          assume_sba = false;
         }
 
       if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
-	{
-	  tm.start("SCC-filter post-sim");
-	  a = spot::scc_filter(ensure_digraph(a), scc_filter_all);
-	  tm.stop("SCC-filter post-sim");
-	}
+        {
+          tm.start("SCC-filter post-sim");
+          a = spot::scc_filter(ensure_digraph(a), scc_filter_all);
+          tm.stop("SCC-filter post-sim");
+        }
 
       unsigned int n_acc = a->acc().num_sets();
       if (echeck_inst
-	  && degeneralize_opt == NoDegen
-	  && n_acc > 1
-	  && echeck_inst->max_sets() < n_acc)
-	{
-	  degeneralize_opt = DegenTBA;
-	  assume_sba = false;
-	}
+          && degeneralize_opt == NoDegen
+          && n_acc > 1
+          && echeck_inst->max_sets() < n_acc)
+        {
+          degeneralize_opt = DegenTBA;
+          assume_sba = false;
+        }
 
       if (!assume_sba && !opt_monitor)
-	{
-	  if (degeneralize_opt == DegenTBA)
-	    {
-	      a = spot::degeneralize_tba(ensure_digraph(a),
-					 degen_reset, degen_order, degen_cache);
-	    }
-	  else if (degeneralize_opt == DegenSBA)
-	    {
-	      tm.start("degeneralization");
-	      a = spot::degeneralize(ensure_digraph(a),
-				     degen_reset, degen_order, degen_cache);
-	      tm.stop("degeneralization");
-	      assume_sba = true;
-	    }
-	}
+        {
+          if (degeneralize_opt == DegenTBA)
+            {
+              a = spot::degeneralize_tba(ensure_digraph(a),
+                                         degen_reset, degen_order, degen_cache);
+            }
+          else if (degeneralize_opt == DegenSBA)
+            {
+              tm.start("degeneralization");
+              a = spot::degeneralize(ensure_digraph(a),
+                                     degen_reset, degen_order, degen_cache);
+              tm.stop("degeneralization");
+              assume_sba = true;
+            }
+        }
 
       if (opt_determinize && a->acc().num_sets() <= 1
-	  && (!f || f.is_syntactic_recurrence()))
-	{
-	  tm.start("determinization 2");
-	  auto determinized = tba_determinize(ensure_digraph(a), 0,
-					      opt_determinize_threshold);
-	  tm.stop("determinization 2");
-	  if (determinized)
-	    a = determinized;
-	}
+          && (!f || f.is_syntactic_recurrence()))
+        {
+          tm.start("determinization 2");
+          auto determinized = tba_determinize(ensure_digraph(a), 0,
+                                              opt_determinize_threshold);
+          tm.stop("determinization 2");
+          if (determinized)
+            a = determinized;
+        }
 
       if (opt_monitor)
-	{
-	  tm.start("Monitor minimization");
-	  a = minimize_monitor(ensure_digraph(a));
-	  tm.stop("Monitor minimization");
-	  assume_sba = false; 	// All states are accepting, so double
-				// circles in the dot output are
-				// pointless.
-	}
+        {
+          tm.start("Monitor minimization");
+          a = minimize_monitor(ensure_digraph(a));
+          tm.stop("Monitor minimization");
+          assume_sba = false;         // All states are accepting, so double
+                                // circles in the dot output are
+                                // pointless.
+        }
 
       if (degeneralize_opt != NoDegen || opt_determinize)
-	{
-	  if (reduction_dir_sim && !reduction_iterated_sim)
-	    {
-	      tm.start("direct simulation 2");
-	      a = spot::simulation(ensure_digraph(a));
-	      tm.stop("direct simulation 2");
-	      assume_sba = false;
-	    }
+        {
+          if (reduction_dir_sim && !reduction_iterated_sim)
+            {
+              tm.start("direct simulation 2");
+              a = spot::simulation(ensure_digraph(a));
+              tm.stop("direct simulation 2");
+              assume_sba = false;
+            }
 
-	  if (reduction_rev_sim && !reduction_iterated_sim)
-	    {
-	      tm.start("reverse simulation 2");
-	      a = spot::cosimulation(ensure_digraph(a));
-	      tm.stop("reverse simulation 2");
-	      assume_sba = false;
-	    }
+          if (reduction_rev_sim && !reduction_iterated_sim)
+            {
+              tm.start("reverse simulation 2");
+              a = spot::cosimulation(ensure_digraph(a));
+              tm.stop("reverse simulation 2");
+              assume_sba = false;
+            }
 
-	  if (reduction_iterated_sim)
-	    {
-	      tm.start("Reduction w/ iterated simulations");
-	      a = spot::iterated_simulations(ensure_digraph(a));
-	      tm.stop("Reduction w/ iterated simulations");
-	      assume_sba = false;
-	    }
-	}
+          if (reduction_iterated_sim)
+            {
+              tm.start("Reduction w/ iterated simulations");
+              a = spot::iterated_simulations(ensure_digraph(a));
+              tm.stop("Reduction w/ iterated simulations");
+              assume_sba = false;
+            }
+        }
 
       if (opt_complete)
-	{
-	  tm.start("completion");
-	  a = complete(a);
-	  tm.stop("completion");
-	}
+        {
+          tm.start("completion");
+          a = complete(a);
+          tm.stop("completion");
+        }
 
       if (opt_dtbasat >= 0)
-	{
-	  tm.start("dtbasat");
-	  auto satminimized =
-	    dtba_sat_synthetize(ensure_digraph(a), opt_dtbasat);
-	  tm.stop("dtbasat");
-	  if (satminimized)
-	    a = satminimized;
-	}
+        {
+          tm.start("dtbasat");
+          auto satminimized =
+            dtba_sat_synthetize(ensure_digraph(a), opt_dtbasat);
+          tm.stop("dtbasat");
+          if (satminimized)
+            a = satminimized;
+        }
       else if (opt_dtwasat >= 0)
-	{
-	  tm.start("dtwasat");
-	  auto satminimized = dtwa_sat_minimize
-	    (ensure_digraph(a), opt_dtwasat,
-	     spot::acc_cond::acc_code::generalized_buchi(opt_dtwasat));
-	  tm.stop("dtwasat");
-	  if (satminimized)
-	    a = satminimized;
-	}
+        {
+          tm.start("dtwasat");
+          auto satminimized = dtwa_sat_minimize
+            (ensure_digraph(a), opt_dtwasat,
+             spot::acc_cond::acc_code::generalized_buchi(opt_dtwasat));
+          tm.stop("dtwasat");
+          if (satminimized)
+            a = satminimized;
+        }
 
       if (opt_dtwacomp)
-	{
-	  tm.start("DTωA complement");
-	  a = remove_fin(dtwa_complement(ensure_digraph(a)));
-	  tm.stop("DTωA complement");
-	}
+        {
+          tm.start("DTωA complement");
+          a = remove_fin(dtwa_complement(ensure_digraph(a)));
+          tm.stop("DTωA complement");
+        }
 
       if (opt_determinize || opt_dtwacomp || opt_dtbasat >= 0
-	  || opt_dtwasat >= 0)
-	{
-	  if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
-	    {
-	      tm.start("SCC-filter post-sim");
-	      auto aa = std::dynamic_pointer_cast<const spot::twa_graph>(a);
-	      assert(aa);
-	      // Do not filter_all for SBA
-	      a = spot::scc_filter(aa, assume_sba ?
-				   false : scc_filter_all);
-	      tm.stop("SCC-filter post-sim");
-	    }
-	}
+          || opt_dtwasat >= 0)
+        {
+          if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
+            {
+              tm.start("SCC-filter post-sim");
+              auto aa = std::dynamic_pointer_cast<const spot::twa_graph>(a);
+              assert(aa);
+              // Do not filter_all for SBA
+              a = spot::scc_filter(aa, assume_sba ?
+                                   false : scc_filter_all);
+              tm.stop("SCC-filter post-sim");
+            }
+        }
 
       if (opt_closure)
-	{
-	  a = closure(ensure_digraph(a));
-	}
+        {
+          a = closure(ensure_digraph(a));
+        }
 
       if (opt_stutterize)
-	{
-	  a = sl(ensure_digraph(a));
-	}
+        {
+          a = sl(ensure_digraph(a));
+        }
 
       if (opt_monitor)
-	{
-	  tm.start("Monitor minimization");
-	  a = minimize_monitor(ensure_digraph(a));
-	  tm.stop("Monitor minimization");
-	  assume_sba = false; 	// All states are accepting, so double
-				// circles in the dot output are
-				// pointless.
-	}
+        {
+          tm.start("Monitor minimization");
+          a = minimize_monitor(ensure_digraph(a));
+          tm.stop("Monitor minimization");
+          assume_sba = false;         // All states are accepting, so double
+                                // circles in the dot output are
+                                // pointless.
+        }
 
       if (dupexp)
-	a = copy(a, spot::twa::prop_set::all());
+        a = copy(a, spot::twa::prop_set::all());
 
       //TA, STA, GTA, SGTA and TGTA
       if (ta_opt || tgta_opt)
         {
-	  bdd atomic_props_set_bdd = atomic_prop_collect_as_bdd(f, a);
+          bdd atomic_props_set_bdd = atomic_prop_collect_as_bdd(f, a);
 
           if (ta_opt)
             {
-	      tm.start("conversion to TA");
+              tm.start("conversion to TA");
               auto testing_automaton
                   = tgba_to_ta(a, atomic_props_set_bdd, degeneralize_opt
                       == DegenSBA, opt_with_artificial_initial_state,
                       opt_single_pass_emptiness_check,
                       opt_with_artificial_livelock);
-	      tm.stop("conversion to TA");
+              tm.stop("conversion to TA");
 
               if (opt_bisim_ta)
                 {
-		  tm.start("TA bisimulation");
+                  tm.start("TA bisimulation");
                   testing_automaton = minimize_ta(testing_automaton);
-		  tm.stop("TA bisimulation");
+                  tm.stop("TA bisimulation");
                 }
 
               if (output != -1)
@@ -1273,15 +1273,15 @@ checked_main(int argc, char** argv)
                   tm.start("producing output");
                   switch (output)
                     {
-		    case 0:
-		      spot::print_dot(std::cout, testing_automaton);
-		      break;
-		    case 12:
-		      stats_reachable(testing_automaton).dump(std::cout);
-		      break;
-		    default:
-		      std::cerr << "unsupported output option" << std::endl;
-		      exit(1);
+                    case 0:
+                      spot::print_dot(std::cout, testing_automaton);
+                      break;
+                    case 12:
+                      stats_reachable(testing_automaton).dump(std::cout);
+                      break;
+                    default:
+                      std::cerr << "unsupported output option" << std::endl;
+                      exit(1);
                     }
                   tm.stop("producing output");
                 }
@@ -1293,9 +1293,9 @@ checked_main(int argc, char** argv)
               auto tgta = tgba_to_tgta(a, atomic_props_set_bdd);
               if (opt_bisim_ta)
                 {
-		  tm.start("TA bisimulation");
+                  tm.start("TA bisimulation");
                   a = minimize_tgta(tgta);
-		  tm.stop("TA bisimulation");
+                  tm.stop("TA bisimulation");
                 }
               else
                 {
@@ -1307,202 +1307,202 @@ checked_main(int argc, char** argv)
                   tm.start("producing output");
                   switch (output)
                     {
-		    case 0:
-		      spot::print_dot(std::cout, std::dynamic_pointer_cast
-					    <spot::tgta_explicit>(a)->get_ta());
-		      break;
-		    case 12:
-		      stats_reachable(a).dump(std::cout);
-		      break;
-		    default:
-		      std::cerr << "unsupported output option" << std::endl;
-		      exit(1);
+                    case 0:
+                      spot::print_dot(std::cout, std::dynamic_pointer_cast
+                                            <spot::tgta_explicit>(a)->get_ta());
+                      break;
+                    case 12:
+                      stats_reachable(a).dump(std::cout);
+                      break;
+                    default:
+                      std::cerr << "unsupported output option" << std::endl;
+                      exit(1);
                     }
                   tm.stop("producing output");
                 }
-	      output = -1;
+              output = -1;
             }
         }
 
       if (system_aut)
         {
-	  a = spot::otf_product(system_aut, a);
+          a = spot::otf_product(system_aut, a);
 
-	  assume_sba = false;
+          assume_sba = false;
 
-	  unsigned int n_acc = a->acc().num_sets();
-	  if (echeck_inst
-	      && degeneralize_opt == NoDegen
-	      && n_acc > 1
-	      && echeck_inst->max_sets() < n_acc)
+          unsigned int n_acc = a->acc().num_sets();
+          if (echeck_inst
+              && degeneralize_opt == NoDegen
+              && n_acc > 1
+              && echeck_inst->max_sets() < n_acc)
             degeneralize_opt = DegenTBA;
           if (degeneralize_opt == DegenTBA)
-	    {
-	      tm.start("degeneralize product");
-	      a = spot::degeneralize_tba(ensure_digraph(a),
-					 degen_reset,
-					 degen_order,
-					 degen_cache);
-	      tm.stop("degeneralize product");
-	    }
+            {
+              tm.start("degeneralize product");
+              a = spot::degeneralize_tba(ensure_digraph(a),
+                                         degen_reset,
+                                         degen_order,
+                                         degen_cache);
+              tm.stop("degeneralize product");
+            }
           else if (degeneralize_opt == DegenSBA)
-	    {
-	      tm.start("degeneralize product");
-	      a = spot::degeneralize(ensure_digraph(a),
-				     degen_reset,
-				     degen_order,
-				     degen_cache);
-	      tm.stop("degeneralize product");
-	      assume_sba = true;
-	    }
+            {
+              tm.start("degeneralize product");
+              a = spot::degeneralize(ensure_digraph(a),
+                                     degen_reset,
+                                     degen_order,
+                                     degen_cache);
+              tm.stop("degeneralize product");
+              assume_sba = true;
+            }
         }
 
 
       if (echeck_inst
-	  && (a->acc().num_sets() < echeck_inst->min_sets()))
-	{
-	  if (!paper_opt)
-	    {
-	      std::cerr << echeck_algo << " requires at least "
-			<< echeck_inst->min_sets()
-			<< " acceptance sets." << std::endl;
-	      exit(1);
-	    }
-	  else
-	    {
-	      std::cout << std::endl;
-	      exit(0);
-	    }
-	}
+          && (a->acc().num_sets() < echeck_inst->min_sets()))
+        {
+          if (!paper_opt)
+            {
+              std::cerr << echeck_algo << " requires at least "
+                        << echeck_inst->min_sets()
+                        << " acceptance sets." << std::endl;
+              exit(1);
+            }
+          else
+            {
+              std::cout << std::endl;
+              exit(0);
+            }
+        }
 
       if (f)
-	a->set_named_prop("automaton-name", new std::string(str_psl(f)));
+        a->set_named_prop("automaton-name", new std::string(str_psl(f)));
 
       if (output != -1)
-	{
-	  tm.start("producing output");
-	  switch (output)
-	    {
-	    case 0:
-	      spot::print_dot(std::cout, a);
-	      break;
-	    case 5:
-	      a->get_dict()->dump(std::cout);
-	      break;
-	    case 6:
-	      spot::print_lbtt(std::cout, a);
-	      break;
-	    case 8:
-	      {
-		assert(degeneralize_opt == DegenSBA);
-		if (assume_sba)
-		  spot::print_never_claim(std::cout, a, opt_never);
-		else
-		  {
-		    // It is possible that we have applied other
-		    // operations to the automaton since its initial
-		    // degeneralization.  Let's degeneralize again!
+        {
+          tm.start("producing output");
+          switch (output)
+            {
+            case 0:
+              spot::print_dot(std::cout, a);
+              break;
+            case 5:
+              a->get_dict()->dump(std::cout);
+              break;
+            case 6:
+              spot::print_lbtt(std::cout, a);
+              break;
+            case 8:
+              {
+                assert(degeneralize_opt == DegenSBA);
+                if (assume_sba)
+                  spot::print_never_claim(std::cout, a, opt_never);
+                else
+                  {
+                    // It is possible that we have applied other
+                    // operations to the automaton since its initial
+                    // degeneralization.  Let's degeneralize again!
                     auto s = spot::degeneralize(ensure_digraph(a), degen_reset,
-						degen_order, degen_cache);
-		    spot::print_never_claim(std::cout, s, opt_never);
-		  }
-		break;
-	      }
-	    case 10:
-	      dump_scc_info_dot(std::cout, ensure_digraph(a));
-	      break;
-	    case 12:
-	      stats_reachable(a).dump(std::cout);
-	      break;
-	    case 13:
-	      sub_stats_reachable(a).dump(std::cout);
-	      std::cout << "nondeterministic states: "
-			<< count_nondet_states(ensure_digraph(a)) << std::endl;
-	      break;
-	    case 14:
-	      if (!wdba_minimization_is_success)
-		{
-		  std::cout << "this is not an obligation property";
-		  auto tmp = tba_determinize_check(ensure_digraph(a),
-						   0, opt_o_threshold,
-						   f, nullptr);
-		  if (tmp && tmp != a)
-		    std::cout << ", but it is a recurrence property";
-		}
-	      else
-		{
-		  bool g = is_terminal_automaton(ensure_digraph(a));
-		  bool s = is_safety_mwdba(ensure_digraph(a));
-		  if (g && !s)
-		    {
-		      std::cout << "this is a guarantee property (hence, "
-				<< "an obligation property)";
-		    }
-		  else if (s && !g)
-		    {
-		      std::cout << "this is a safety property (hence, "
-				<< "an obligation property)";
-		    }
-		  else if (s && g)
-		    {
-		      std::cout << "this is a guarantee and a safety property"
-				<< " (and of course an obligation property)";
-		    }
-		  else
-		    {
-		      std::cout << "this is an obligation property that is "
-				<< "neither a safety nor a guarantee";
-		    }
-		}
-	      std::cout << std::endl;
+                                                degen_order, degen_cache);
+                    spot::print_never_claim(std::cout, s, opt_never);
+                  }
+                break;
+              }
+            case 10:
+              dump_scc_info_dot(std::cout, ensure_digraph(a));
+              break;
+            case 12:
+              stats_reachable(a).dump(std::cout);
+              break;
+            case 13:
+              sub_stats_reachable(a).dump(std::cout);
+              std::cout << "nondeterministic states: "
+                        << count_nondet_states(ensure_digraph(a)) << std::endl;
+              break;
+            case 14:
+              if (!wdba_minimization_is_success)
+                {
+                  std::cout << "this is not an obligation property";
+                  auto tmp = tba_determinize_check(ensure_digraph(a),
+                                                   0, opt_o_threshold,
+                                                   f, nullptr);
+                  if (tmp && tmp != a)
+                    std::cout << ", but it is a recurrence property";
+                }
+              else
+                {
+                  bool g = is_terminal_automaton(ensure_digraph(a));
+                  bool s = is_safety_mwdba(ensure_digraph(a));
+                  if (g && !s)
+                    {
+                      std::cout << "this is a guarantee property (hence, "
+                                << "an obligation property)";
+                    }
+                  else if (s && !g)
+                    {
+                      std::cout << "this is a safety property (hence, "
+                                << "an obligation property)";
+                    }
+                  else if (s && g)
+                    {
+                      std::cout << "this is a guarantee and a safety property"
+                                << " (and of course an obligation property)";
+                    }
+                  else
+                    {
+                      std::cout << "this is an obligation property that is "
+                                << "neither a safety nor a guarantee";
+                    }
+                }
+              std::cout << std::endl;
 
-	      break;
-	    case 15:
-	      {
-		spot::scc_info m(ensure_digraph(a));
-		spot::enumerate_cycles c(m);
-		unsigned max = m.scc_count();
-		for (unsigned n = 0; n < max; ++n)
-		  {
-		    std::cout << "Cycles in SCC #" << n << std::endl;
-		    c.run(n);
-		  }
-		break;
-	      }
-	    case 16:
-	      {
-		spot::scc_info m(ensure_digraph(a));
-		unsigned max = m.scc_count();
-		for (unsigned n = 0; n < max; ++n)
-		  {
-		    bool w = spot::is_weak_scc(m, n);
-		    std::cout << "SCC #" << n
-			      << (w ? " is weak" : " is not weak")
-			      << std::endl;
-		  }
-		break;
-	      }
-	    case 17:
-	      {
-		print_hoa(std::cout, a, hoa_opt) << '\n';
-		break;
-	      }
-	    default:
-	      SPOT_UNREACHABLE();
-	    }
-	  tm.stop("producing output");
-	}
+              break;
+            case 15:
+              {
+                spot::scc_info m(ensure_digraph(a));
+                spot::enumerate_cycles c(m);
+                unsigned max = m.scc_count();
+                for (unsigned n = 0; n < max; ++n)
+                  {
+                    std::cout << "Cycles in SCC #" << n << std::endl;
+                    c.run(n);
+                  }
+                break;
+              }
+            case 16:
+              {
+                spot::scc_info m(ensure_digraph(a));
+                unsigned max = m.scc_count();
+                for (unsigned n = 0; n < max; ++n)
+                  {
+                    bool w = spot::is_weak_scc(m, n);
+                    std::cout << "SCC #" << n
+                              << (w ? " is weak" : " is not weak")
+                              << std::endl;
+                  }
+                break;
+              }
+            case 17:
+              {
+                print_hoa(std::cout, a, hoa_opt) << '\n';
+                break;
+              }
+            default:
+              SPOT_UNREACHABLE();
+            }
+          tm.stop("producing output");
+        }
 
       if (echeck_inst)
-	{
-	  auto ec = echeck_inst->instantiate(a);
-	  bool search_many = echeck_inst->options().get("repeated");
-	  assert(ec);
-	  do
-	    {
-	      tm.start("running emptiness check");
-	      auto res = ec->check();
-	      tm.stop("running emptiness check");
+        {
+          auto ec = echeck_inst->instantiate(a);
+          bool search_many = echeck_inst->options().get("repeated");
+          assert(ec);
+          do
+            {
+              tm.start("running emptiness check");
+              auto res = ec->check();
+              tm.stop("running emptiness check");
 
               if (paper_opt)
                 {
@@ -1517,7 +1517,7 @@ checked_main(int argc, char** argv)
                             << a_size.edges << ", ";
                   std::cout << ec->automaton()->acc().num_sets()
                             << ", ";
-		  auto ecs = ec->emptiness_check_statistics();
+                  auto ecs = ec->emptiness_check_statistics();
                   if (ecs)
                     std::cout << std::right << std::setw(10)
                               << ecs->states() << ", "
@@ -1539,7 +1539,7 @@ checked_main(int argc, char** argv)
                   if (!graph_run_tgba_opt)
                     ec->print_stats(std::cout);
                   if (expect_counter_example != !!res &&
-		      (!expect_counter_example || ec->safe()))
+                      (!expect_counter_example || ec->safe()))
                     exit_code = 1;
 
                   if (!res)
@@ -1560,9 +1560,9 @@ checked_main(int argc, char** argv)
                   else if (accepting_run)
                     {
 
-		      tm.start("computing accepting run");
+                      tm.start("computing accepting run");
                       auto run = res->accepting_run();
-		      tm.stop("computing accepting run");
+                      tm.stop("computing accepting run");
 
                       if (!run)
                         {
@@ -1572,37 +1572,37 @@ checked_main(int argc, char** argv)
                         {
                           if (opt_reduce)
                             {
-			      tm.start("reducing accepting run");
+                              tm.start("reducing accepting run");
                               run = run->reduce();
-			      tm.stop("reducing accepting run");
+                              tm.stop("reducing accepting run");
                             }
-			  if (accepting_run_replay)
-			    {
-			      tm.start("replaying acc. run");
-			      if (!run->replay(std::cout, true))
-				exit_code = 1;
-			      tm.stop("replaying acc. run");
-			    }
-			  else
-			    {
-			      tm.start("printing accepting run");
-			      if (graph_run_tgba_opt)
-				spot::print_dot(std::cout, run->as_twa());
-			      else
-				std::cout << run;
-			      tm.stop("printing accepting run");
-			    }
+                          if (accepting_run_replay)
+                            {
+                              tm.start("replaying acc. run");
+                              if (!run->replay(std::cout, true))
+                                exit_code = 1;
+                              tm.stop("replaying acc. run");
+                            }
+                          else
+                            {
+                              tm.start("printing accepting run");
+                              if (graph_run_tgba_opt)
+                                spot::print_dot(std::cout, run->as_twa());
+                              else
+                                std::cout << run;
+                              tm.stop("printing accepting run");
+                            }
                         }
                     }
-		  else
-		    {
-		      std::cout << "an accepting run exists "
-				<< "(use -C to print it)" << std::endl;
-		    }
+                  else
+                    {
+                      std::cout << "an accepting run exists "
+                                << "(use -C to print it)" << std::endl;
+                    }
                 }
-	    }
-	  while (search_many);
-	}
+            }
+          while (search_many);
+        }
     }
   else
     {

@@ -33,23 +33,23 @@ namespace spot
       unsigned nondet_states = 0;
       unsigned ns = aut->num_states();
       for (unsigned src = 0; src < ns; ++src)
-	{
-	  bdd available = bddtrue;
-	  for (auto& t: aut->out(src))
-	    if (!bdd_implies(t.cond, available))
-	      {
-		++nondet_states;
-		break;
-	      }
-	    else
-	      {
-		available -= t.cond;
-	      }
-	  // If we are not counting non-deterministic states, abort as
-	  // soon as possible.
-	  if (!count && nondet_states)
-	    break;
-	}
+        {
+          bdd available = bddtrue;
+          for (auto& t: aut->out(src))
+            if (!bdd_implies(t.cond, available))
+              {
+                ++nondet_states;
+                break;
+              }
+            else
+              {
+                available -= t.cond;
+              }
+          // If we are not counting non-deterministic states, abort as
+          // soon as possible.
+          if (!count && nondet_states)
+            break;
+        }
       return nondet_states;
     }
   }
@@ -75,11 +75,11 @@ namespace spot
     unsigned ns = aut->num_states();
     for (unsigned src = 0; src < ns; ++src)
       {
-	bdd available = bddtrue;
-	for (auto& t: aut->out(src))
-	  available -= t.cond;
-	if (available != bddfalse)
-	  return false;
+        bdd available = bddtrue;
+        for (auto& t: aut->out(src))
+          available -= t.cond;
+        if (available != bddfalse)
+          return false;
       }
     // The empty automaton is not complete since it does not have an
     // initial state.

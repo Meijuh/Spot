@@ -289,6 +289,8 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
 	    $GREP '#.*include.*<iostream>' $tmp &&
 	      diag 'Avoid <iostream> in headers, better use <iosfwd>.'
 	  fi
+    e$GREP '	' $tmp &&
+	diag 'Use spaces instead of tabular.'
 	  # Headers from spot/priv/ are not installed, so may only be
 	  # included from *.cc files or from other spot/priv/ headers
 	  # (in the latter case they do not have to specify the priv/
@@ -309,6 +311,8 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
 	    $GREP '^[	 ]*class[	 ]' $tmp &&
 	      diag 'Private definitions must be in anonymous namespace.'
 	  fi
+    e$GREP '	' $tmp &&
+	diag 'Use spaces instead of tabular.'
 	  ;;
       esac
       case $file in

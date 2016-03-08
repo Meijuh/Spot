@@ -113,12 +113,12 @@ namespace
   public:
     int
     process_formula(spot::formula f, const char* filename = nullptr,
-		    int linenum = 0)
+                    int linenum = 0)
     {
       auto mutations =
-	spot::mutate(f, mut_opts, max_output, mutation_nb, opt_sort);
+        spot::mutate(f, mut_opts, max_output, mutation_nb, opt_sort);
       for (auto g: mutations)
-	output_formula_checked(g, filename, linenum, prefix, suffix);
+        output_formula_checked(g, filename, linenum, prefix, suffix);
       return 0;
     }
   };
@@ -182,7 +182,7 @@ main(int argc, char* argv[])
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FILENAME[/COL]...]", argp_program_doc,
-		    children, nullptr, nullptr };
+                    children, nullptr, nullptr };
 
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);

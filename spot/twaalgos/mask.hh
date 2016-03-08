@@ -49,36 +49,36 @@ namespace spot
     auto new_state =
       [&](unsigned old_state) -> unsigned
       {
-	unsigned tmp = seen[old_state];
-	if (tmp == -1U)
-	  {
-	    tmp = cpy->new_state();
-	    seen[old_state] = tmp;
-	    todo.push_back(old_state);
-	  }
-	return tmp;
+        unsigned tmp = seen[old_state];
+        if (tmp == -1U)
+          {
+            tmp = cpy->new_state();
+            seen[old_state] = tmp;
+            todo.push_back(old_state);
+          }
+        return tmp;
       };
 
     cpy->set_init_state(new_state(init));
     while (!todo.empty())
       {
-	unsigned old_src = todo.back();
-	todo.pop_back();
+        unsigned old_src = todo.back();
+        todo.pop_back();
 
-	unsigned new_src = seen[old_src];
-	assert(new_src != -1U);
+        unsigned new_src = seen[old_src];
+        assert(new_src != -1U);
 
-	for (auto& t: old->out(old_src))
-	  {
-	    bdd cond = t.cond;
-	    acc_cond::mark_t acc = t.acc;
-	    trans(t.src, cond, acc, t.dst);
+        for (auto& t: old->out(old_src))
+          {
+            bdd cond = t.cond;
+            acc_cond::mark_t acc = t.acc;
+            trans(t.src, cond, acc, t.dst);
 
-	    if (cond != bddfalse)
-	      cpy->new_edge(new_src,
-				  new_state(t.dst),
-				  cond, acc);
-	  }
+            if (cond != bddfalse)
+              cpy->new_edge(new_src,
+                                  new_state(t.dst),
+                                  cond, acc);
+          }
       }
   }
 
@@ -136,7 +136,7 @@ namespace spot
   /// \brief Remove all edges that belong to some given acceptance sets.
   SPOT_API
   twa_graph_ptr mask_acc_sets(const const_twa_graph_ptr& in,
-			      acc_cond::mark_t to_remove);
+                              acc_cond::mark_t to_remove);
 
   /// \brief Keep only the states as specified by \a to_keep.
   ///
@@ -144,6 +144,6 @@ namespace spot
   /// state.  The initial state will be set to \a init.
   SPOT_API
   twa_graph_ptr mask_keep_states(const const_twa_graph_ptr& in,
-				 std::vector<bool>& to_keep,
-				 unsigned int init);
+                                 std::vector<bool>& to_keep,
+                                 unsigned int init);
 }

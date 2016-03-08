@@ -69,10 +69,10 @@ namespace spot
         : emptiness_check(a, o),
           current_weight(a->acc()),
           h(size),
-	  use_condition_stack(o.get("condstack")),
-	  use_ordering(use_condition_stack && o.get("ordering")),
-	  use_weights(o.get("weights", 1)),
-	  use_red_weights(use_weights && o.get("redweights", 1))
+          use_condition_stack(o.get("condstack")),
+          use_ordering(use_condition_stack && o.get("ordering")),
+          use_weights(o.get("weights", 1)),
+          use_red_weights(use_weights && o.get("redweights", 1))
       {
       }
 
@@ -106,8 +106,8 @@ namespace spot
         inc_states();
         h.add_new_state(s0, CYAN, current_weight);
         push(st_blue, s0, bddfalse, 0U);
-	auto t = std::static_pointer_cast<tau03_opt_search>
-	  (this->emptiness_check::shared_from_this());
+        auto t = std::static_pointer_cast<tau03_opt_search>
+          (this->emptiness_check::shared_from_this());
         if (dfs_blue())
           return std::make_shared<ndfs_result<tau03_opt_search<heap>, heap>>(t);
         return nullptr;
@@ -138,7 +138,7 @@ namespace spot
 
     private:
       void push(stack_type& st, const state* s,
-		const bdd& label, acc_cond::mark_t acc)
+                const bdd& label, acc_cond::mark_t acc)
       {
         inc_depth();
         twa_succ_iterator* i = a_->succ_iter(s);
@@ -155,14 +155,14 @@ namespace spot
 
       acc_cond::mark_t project_acc(acc_cond::mark_t acc) const
       {
-	if (!use_ordering)
-	  return acc;
-	// FIXME: This should be improved.
-	std::vector<unsigned> res;
-	unsigned max = a_->num_sets();
-	for (unsigned n = 0; n < max && acc.has(n); ++n)
-	  res.push_back(n);
-	return acc_cond::mark_t(res.begin(), res.end());
+        if (!use_ordering)
+          return acc;
+        // FIXME: This should be improved.
+        std::vector<unsigned> res;
+        unsigned max = a_->num_sets();
+        for (unsigned n = 0; n < max && acc.has(n); ++n)
+          res.push_back(n);
+        return acc_cond::mark_t(res.begin(), res.end());
       }
 
       /// \brief weight of the state on top of the blue stack.
@@ -208,8 +208,8 @@ namespace spot
                 if (c_prime.is_white())
                   {
                     trace << "  It is white, go down" << std::endl;
-		    if (use_weights)
-		      current_weight.add(acc);
+                    if (use_weights)
+                      current_weight.add(acc);
                     inc_states();
                     h.add_new_state(s_prime, CYAN, current_weight);
                     push(st_blue, s_prime, label, acc);
@@ -219,9 +219,9 @@ namespace spot
                     typename heap::color_ref c = h.get_color_ref(f.s);
                     assert(!c.is_white());
                     if (c_prime.get_color() == CYAN
-			&& a_->acc().accepting
-			(current_weight.diff(a_->acc(), c_prime. get_weight())
-			 | c.get_acc() | acc | c_prime.get_acc()))
+                        && a_->acc().accepting
+                        (current_weight.diff(a_->acc(), c_prime. get_weight())
+                         | c.get_acc() | acc | c_prime.get_acc()))
                       {
                         trace << "  It is cyan and acceptance condition "
                               << "is reached, report cycle" << std::endl;
@@ -259,8 +259,8 @@ namespace spot
                 trace << "  All the successors have been visited" << std::endl;
                 stack_item f_dest(f);
                 pop(st_blue);
-		if (use_weights)
-		  current_weight.sub(f_dest.acc);
+                if (use_weights)
+                  current_weight.sub(f_dest.acc);
                 typename heap::color_ref c_prime = h.get_color_ref(f_dest.s);
                 assert(!c_prime.is_white());
                 c_prime.set_color(BLUE);
@@ -303,11 +303,11 @@ namespace spot
       {
         assert(!st_red.empty());
 
-	// These are useful only when USE_CONDITION_STACK is set.
-	typedef std::pair<acc_cond::mark_t, unsigned> cond_level;
-	std::stack<cond_level> condition_stack;
-	unsigned depth = 1;
-	condition_stack.emplace(0U, 0);
+        // These are useful only when USE_CONDITION_STACK is set.
+        typedef std::pair<acc_cond::mark_t, unsigned> cond_level;
+        std::stack<cond_level> condition_stack;
+        unsigned depth = 1;
+        condition_stack.emplace(0U, 0);
 
         while (!st_red.empty())
           {
@@ -330,49 +330,49 @@ namespace spot
                     s_prime->destroy();
                     continue;
                   }
-		else if (c_prime.get_color() == CYAN &&
-			 a_->acc().accepting
-			 (acc | acu | c_prime.get_acc() |
-			  (use_red_weights ?
-			   current_weight.diff(a_->acc(),
-					       c_prime.
-					       get_weight())
-			   : acc_cond::mark_t(0U))))
-		  {
-		    trace << "  It is cyan and acceptance condition "
-			  << "is reached, report cycle" << std::endl;
-		    c_prime.cumulate_acc(a_->acc().all_sets());
-		    push(st_red, s_prime, label, acc);
-		    return true;
-		  }
-		acc_cond::mark_t acp;
-		if (use_ordering)
-		  acp = project_acc(acu | acc | c_prime.get_acc());
-		else if (use_condition_stack)
-		  acp = acu | acc;
-		else
-		  acp = acu;
-		if ((c_prime.get_acc() & acp) != acp)
-		  {
-		    trace << "  It is cyan or blue and propagation "
-			  << "is needed, go down"
-			  << std::endl;
-		    c_prime.cumulate_acc(acp);
-		    push(st_red, s_prime, label, acc);
-		    if (use_condition_stack)
-		      {
-			auto old = acu;
-			acu |= acc;
-			condition_stack.emplace(acu - old, depth);
-		      }
-		    ++depth;
-		  }
-		else
-		  {
-		    trace << "  It is cyan or blue and no propagation "
-			  << "is needed , pop it" << std::endl;
-		    h.pop_notify(s_prime);
-		  }
+                else if (c_prime.get_color() == CYAN &&
+                         a_->acc().accepting
+                         (acc | acu | c_prime.get_acc() |
+                          (use_red_weights ?
+                           current_weight.diff(a_->acc(),
+                                               c_prime.
+                                               get_weight())
+                           : acc_cond::mark_t(0U))))
+                  {
+                    trace << "  It is cyan and acceptance condition "
+                          << "is reached, report cycle" << std::endl;
+                    c_prime.cumulate_acc(a_->acc().all_sets());
+                    push(st_red, s_prime, label, acc);
+                    return true;
+                  }
+                acc_cond::mark_t acp;
+                if (use_ordering)
+                  acp = project_acc(acu | acc | c_prime.get_acc());
+                else if (use_condition_stack)
+                  acp = acu | acc;
+                else
+                  acp = acu;
+                if ((c_prime.get_acc() & acp) != acp)
+                  {
+                    trace << "  It is cyan or blue and propagation "
+                          << "is needed, go down"
+                          << std::endl;
+                    c_prime.cumulate_acc(acp);
+                    push(st_red, s_prime, label, acc);
+                    if (use_condition_stack)
+                      {
+                        auto old = acu;
+                        acu |= acc;
+                        condition_stack.emplace(acu - old, depth);
+                      }
+                    ++depth;
+                  }
+                else
+                  {
+                    trace << "  It is cyan or blue and no propagation "
+                          << "is needed , pop it" << std::endl;
+                    h.pop_notify(s_prime);
+                  }
               }
             else // Backtrack
               {
@@ -380,16 +380,16 @@ namespace spot
                       << std::endl;
                 h.pop_notify(f.s);
                 pop(st_red);
-		--depth;
-		if (condition_stack.top().second == depth)
-		  {
-		    acu -= condition_stack.top().first;
-		    condition_stack.pop();
-		  }
+                --depth;
+                if (condition_stack.top().second == depth)
+                  {
+                    acu -= condition_stack.top().first;
+                    condition_stack.pop();
+                  }
               }
           }
-	assert(depth == 0);
-	assert(condition_stack.empty());
+        assert(depth == 0);
+        assert(condition_stack.empty());
         return false;
       }
 
@@ -404,7 +404,7 @@ namespace spot
       {
       public:
         color_ref(hash_type* h, hcyan_type* hc, const state* s,
-		  const weight* w, acc_cond::mark_t* a)
+                  const weight* w, acc_cond::mark_t* a)
           : is_cyan(true), w(w), ph(h), phc(hc), ps(s), acc(a)
           {
           }
@@ -442,7 +442,7 @@ namespace spot
                 *pc=c;
               }
           }
-	acc_cond::mark_t get_acc() const
+        acc_cond::mark_t get_acc() const
           {
             assert(!is_white());
             return *acc;
@@ -463,8 +463,8 @@ namespace spot
         hcyan_type* phc; // point to the hash table hcyan
         const state* ps; // point to the state in hcyan
         color *pc; // point to the color of a state stored in main hash table
-	acc_cond::mark_t* acc; // point to the acc set of a state stored
-				// in main hash table  or hcyan
+        acc_cond::mark_t* acc; // point to the acc set of a state stored
+                                // in main hash table  or hcyan
       };
 
       explicit_tau03_opt_search_heap(size_t)
@@ -513,7 +513,7 @@ namespace spot
             }
           // cyan state
           return color_ref(&h, &hc, ic->first,
-			   &ic->second.first, &ic->second.second);
+                           &ic->second.first, &ic->second.second);
         }
 
       void add_new_state(const state* s, color c, const weight& w)
@@ -522,8 +522,8 @@ namespace spot
           assert(c == CYAN);
           (void)c;
           hc.emplace(std::piecewise_construct,
-		     std::forward_as_tuple(s),
-		     std::forward_as_tuple(w, 0U));
+                     std::forward_as_tuple(s),
+                     std::forward_as_tuple(w, 0U));
         }
 
       void pop_notify(const state*) const
@@ -562,7 +562,7 @@ namespace spot
   {
     return
       std::make_shared<tau03_opt_search<explicit_tau03_opt_search_heap>>(a,
-									 0, o);
+                                                                         0, o);
   }
 
 }

@@ -131,7 +131,7 @@ namespace spot
     /// \param testing_automaton The TA component in the product.
     /// \param kripke_structure The Kripke component in the product.
     ta_product(const const_ta_ptr& testing_automaton,
-	       const const_kripke_ptr& kripke_structure);
+               const const_kripke_ptr& kripke_structure);
 
     virtual
     ~ta_product();
@@ -197,7 +197,7 @@ namespace spot
   typedef std::shared_ptr<ta_product> ta_product_ptr;
   typedef std::shared_ptr<const ta_product> const_ta_product_ptr;
   inline ta_product_ptr product(const const_ta_ptr& testing_automaton,
-				const const_kripke_ptr& kripke_structure)
+                                const const_kripke_ptr& kripke_structure)
   {
     return std::make_shared<ta_product>(testing_automaton, kripke_structure);
   }
@@ -207,8 +207,8 @@ namespace spot
   {
   public:
     ta_succ_iterator_product_by_changeset(const state_ta_product* s,
-					  const ta* t, const kripke* k,
-					  bdd changeset);
+                                          const ta* t, const kripke* k,
+                                          bdd changeset);
 
     /// \brief Move to the next successor in the Kripke structure
     void next_kripke_dest();

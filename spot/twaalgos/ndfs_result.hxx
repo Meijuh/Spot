@@ -79,8 +79,8 @@ namespace spot
       virtual unsigned
       acss_states() const override
       {
-	// all visited states are in the state space search
-	return static_cast<const T*>(this)->h_.size();
+        // all visited states are in the state space search
+        return static_cast<const T*>(this)->h_.size();
       }
     };
 
@@ -127,7 +127,7 @@ namespace spot
               if (i == str.end())
                 i = stb.begin();
               transition t = { i->s->clone(), j->label, j->acc,
-			       j->s->clone() };
+                               j->s->clone() };
               assert(h_.has_been_visited(t.source));
               assert(h_.has_been_visited(t.dest));
               acc_trans.push_back(t);
@@ -139,7 +139,7 @@ namespace spot
 
               i = j = stb.rbegin(); ++j;
               while (i->s->compare(start) != 0)
-		++i, ++j;
+                ++i, ++j;
 
               stack_type::const_reverse_iterator end = stb.rend();
               for (; j != end; ++i, ++j)
@@ -147,7 +147,7 @@ namespace spot
                   if ((covered_acc & j->acc) != j->acc)
                     {
                       transition t = { i->s->clone(), j->label, j->acc,
-				       j->s->clone() };
+                                       j->s->clone() };
                       assert(h_.has_been_visited(t.source));
                       assert(h_.has_been_visited(t.dest));
                       acc_trans.push_back(t);
@@ -159,11 +159,11 @@ namespace spot
               if ((covered_acc & j->acc) != j->acc)
                 {
                   transition t = { i->s->clone(), j->label, j->acc,
-				   j->s->clone() };
+                                   j->s->clone() };
                   assert(h_.has_been_visited(t.source));
                   assert(h_.has_been_visited(t.dest));
                   acc_trans.push_back(t);
-		  covered_acc |= j->acc;
+                  covered_acc |= j->acc;
                 }
 
               i = j; ++j;
@@ -173,7 +173,7 @@ namespace spot
                   if ((covered_acc & j->acc) != j->acc)
                     {
                       transition t = { i->s->clone(), j->label, j->acc,
-				       j->s->clone() };
+                                       j->s->clone() };
                       assert(h_.has_been_visited(t.source));
                       assert(h_.has_been_visited(t.dest));
                       acc_trans.push_back(t);
@@ -203,7 +203,7 @@ namespace spot
       construct_prefix(run);
 
       for (typename accepting_transitions_list::const_iterator i =
-	     acc_trans.begin(); i != acc_trans.end(); ++i)
+             acc_trans.begin(); i != acc_trans.end(); ++i)
         {
           i->source->destroy();
           i->dest->destroy();
@@ -227,32 +227,32 @@ namespace spot
     typedef std::list<transition> accepting_transitions_list;
 
     typedef std::unordered_set<const state*,
-			       state_ptr_hash, state_ptr_equal> state_set;
+                               state_ptr_hash, state_ptr_equal> state_set;
 
     void clean(const const_twa_ptr& a, stack_type& st1,
-	       state_set& seen, state_set& dead)
+               state_set& seen, state_set& dead)
     {
       while (!st1.empty())
-	{
-	  a->release_iter(st1.front().it);
-	  st1.pop_front();
-	}
+        {
+          a->release_iter(st1.front().it);
+          st1.pop_front();
+        }
       for (state_set::iterator i = seen.begin(); i != seen.end();)
-	{
-	  const state* s = *i;
-	  ++i;
-	  s->destroy();
-	}
+        {
+          const state* s = *i;
+          ++i;
+          s->destroy();
+        }
       for (state_set::iterator i = dead.begin(); i != dead.end();)
-	{
-	  const state* s = *i;
-	  ++i;
-	  s->destroy();
-	}
+        {
+          const state* s = *i;
+          ++i;
+          s->destroy();
+        }
     }
 
     bool dfs(const state* target, accepting_transitions_list& acc_trans,
-	     acc_cond::mark_t& covered_acc)
+             acc_cond::mark_t& covered_acc)
     {
       assert(h_.has_been_visited(target));
       stack_type st1;
@@ -276,7 +276,7 @@ namespace spot
               ndfsr_trace << "  Visit the successor: "
                           << a_->format_state(s_prime) << std::endl;
               bdd label = f.it->cond();
-	      auto acc = f.it->acc();
+              auto acc = f.it->acc();
               f.it->next();
               if (h_.has_been_visited(s_prime))
                 {
@@ -287,7 +287,7 @@ namespace spot
                     }
                   else if (seen.find(s_prime) == seen.end())
                     {
-		      this->inc_ars_cycle_states();
+                      this->inc_ars_cycle_states();
                       ndfsr_trace << "  it is not seen, go down" << std::endl;
                       seen.insert(s_prime);
                       twa_succ_iterator* i = a_->succ_iter(s_prime);
@@ -296,13 +296,13 @@ namespace spot
                     }
                   else if ((acc & covered_acc) != acc)
                     {
-		      this->inc_ars_cycle_states();
+                      this->inc_ars_cycle_states();
                       ndfsr_trace << "  a propagation is needed, "
                                   << "start a search" << std::endl;
                       if (search(s_prime, target, dead))
                         {
                           transition t = { f.s->clone(), label, acc,
-					   s_prime->clone() };
+                                           s_prime->clone() };
                           assert(h_.has_been_visited(t.source));
                           assert(h_.has_been_visited(t.dest));
                           acc_trans.push_back(t);
@@ -342,13 +342,13 @@ namespace spot
                               << std::endl;
                   if (search(f_dest.s, target, dead))
                     {
-		      transition t = { st1.front().s->clone(),
-				       f_dest.label, f_dest.acc,
-				       f_dest.s->clone() };
+                      transition t = { st1.front().s->clone(),
+                                       f_dest.label, f_dest.acc,
+                                       f_dest.s->clone() };
                       assert(h_.has_been_visited(t.source));
                       assert(h_.has_been_visited(t.dest));
                       acc_trans.push_back(t);
-		      covered_acc |= f_dest.acc;
+                      covered_acc |= f_dest.acc;
                       if (a_->acc().accepting(covered_acc))
                         {
                           clean(a_, st1, seen, dead);
@@ -372,8 +372,8 @@ namespace spot
     {
     public:
       test_path(ars_statistics* ars,
-		const const_twa_ptr& a, const state* t,
-		const state_set& d, const heap& h)
+                const const_twa_ptr& a, const state* t,
+                const state_set& d, const heap& h)
         : bfs_steps(a), ars(ars), target(t), dead(d), h(h)
       {
       }
@@ -401,20 +401,20 @@ namespace spot
       const state* filter(const state* s)
       {
         if (!h.has_been_visited(s)
-	    || seen.find(s) != seen.end()
-	    || dead.find(s) != dead.end())
+            || seen.find(s) != seen.end()
+            || dead.find(s) != dead.end())
           {
             s->destroy();
             return nullptr;
           }
-	ars->inc_ars_cycle_states();
+        ars->inc_ars_cycle_states();
         seen.insert(s);
         return s;
       }
 
       void finalize(const std::map<const state*, twa_run::step,
-		                   state_ptr_less_than>&,
-		    const twa_run::step&, const state*, twa_run::steps&)
+                                   state_ptr_less_than>&,
+                    const twa_run::step&, const state*, twa_run::steps&)
       {
       }
 
@@ -440,35 +440,35 @@ namespace spot
     {
       twa_run::steps path;
       if (start->compare(target) == 0)
-	return true;
+        return true;
 
       test_path s(this, a_, target, dead, h_);
       const state* res = s.search(start->clone(), path);
       if (res)
-	{
-	  assert(res->compare(target) == 0);
-	  return true;
-	}
+        {
+          assert(res->compare(target) == 0);
+          return true;
+        }
       else
-	{
-	  state_set::const_iterator it;
-	  for (it = s.get_seen().begin(); it != s.get_seen().end(); ++it)
-	    dead.insert((*it)->clone());
-	  return false;
-	}
+        {
+          state_set::const_iterator it;
+          for (it = s.get_seen().begin(); it != s.get_seen().end(); ++it)
+            dead.insert((*it)->clone());
+          return false;
+        }
     }
 
     typedef std::unordered_multimap<const state*, transition,
-				    state_ptr_hash,
-				    state_ptr_equal> m_source_trans;
+                                    state_ptr_hash,
+                                    state_ptr_equal> m_source_trans;
 
     template<bool cycle>
     class min_path: public bfs_steps
     {
     public:
       min_path(ars_statistics* ars,
-	       const const_twa_ptr& a,
-	       const m_source_trans& target, const heap& h)
+               const const_twa_ptr& a,
+               const m_source_trans& target, const heap& h)
         : bfs_steps(a), ars(ars), target(target), h(h)
       {
       }
@@ -506,10 +506,10 @@ namespace spot
             return nullptr;
           }
         ndfsr_trace << " OK" << std::endl;
-	if (cycle)
-	  ars->inc_ars_cycle_states();
-	else
-	  ars->inc_ars_prefix_states();
+        if (cycle)
+          ars->inc_ars_cycle_states();
+        else
+          ars->inc_ars_prefix_states();
         seen.insert(s);
         return s;
       }
@@ -529,92 +529,92 @@ namespace spot
     };
 
     void construct_cycle(twa_run_ptr run,
-			 const accepting_transitions_list& acc_trans)
+                         const accepting_transitions_list& acc_trans)
     {
       assert(!acc_trans.empty());
       transition current = acc_trans.front();
       // insert the first accepting transition in the cycle
       ndfsr_trace << "the initial accepting transition is from "
-		  << a_->format_state(current.source) << " to "
-		  << a_->format_state(current.dest) << std::endl;
+                  << a_->format_state(current.source) << " to "
+                  << a_->format_state(current.dest) << std::endl;
       const state* begin = current.source;
 
       m_source_trans target;
       typename accepting_transitions_list::const_iterator i =
-	acc_trans.begin();
+        acc_trans.begin();
       ndfsr_trace << "targets are the source states: ";
       for (++i; i != acc_trans.end(); ++i)
-	{
-	  if (i->source->compare(begin) == 0 &&
-	      i->source->compare(i->dest) == 0)
-	    {
-	      ndfsr_trace << "(self loop " << a_->format_state(i->source)
-			  << " -> " << a_->format_state(i->dest)
-			  << " ignored) ";
-	      twa_run::step st = { i->source->clone(), i->label, i->acc };
-	      run->cycle.push_back(st);
-	    }
-	  else
-	    {
-	      ndfsr_trace << a_->format_state(i->source) << " (-> "
-			  << a_->format_state(i->dest) << ") ";
-	      target.emplace(i->source, *i);
-	    }
-	}
+        {
+          if (i->source->compare(begin) == 0 &&
+              i->source->compare(i->dest) == 0)
+            {
+              ndfsr_trace << "(self loop " << a_->format_state(i->source)
+                          << " -> " << a_->format_state(i->dest)
+                          << " ignored) ";
+              twa_run::step st = { i->source->clone(), i->label, i->acc };
+              run->cycle.push_back(st);
+            }
+          else
+            {
+              ndfsr_trace << a_->format_state(i->source) << " (-> "
+                          << a_->format_state(i->dest) << ") ";
+              target.emplace(i->source, *i);
+            }
+        }
       ndfsr_trace << std::endl;
 
       twa_run::step st = { current.source->clone(), current.label,
-			    current.acc };
+                            current.acc };
       run->cycle.push_back(st);
 
       while (!target.empty())
-	{
-	  // find a minimal path from current.dest to any source state in
-	  // target.
-	  ndfsr_trace << "looking for a path from "
-		      << a_->format_state(current.dest) << std::endl;
-	  typename m_source_trans::iterator i = target.find(current.dest);
-	  if (i == target.end())
-	    {
-	      min_path<true> s(this, a_, target, h_);
-	      const state* res = s.search(current.dest->clone(), run->cycle);
-	      // init current to the corresponding transition.
-	      assert(res);
-	      ndfsr_trace << a_->format_state(res) << " reached" << std::endl;
-	      i = target.find(res);
-	      assert(i != target.end());
-	    }
-	  else
-	    {
-	      ndfsr_trace << "this is a target" << std::endl;
-	    }
-	  current = i->second;
-	  // complete the path with the corresponding transition
-	  twa_run::step st = { current.source->clone(), current.label,
-				current.acc };
-	  run->cycle.push_back(st);
-	  // remove this source state of target
-	  target.erase(i);
-	}
+        {
+          // find a minimal path from current.dest to any source state in
+          // target.
+          ndfsr_trace << "looking for a path from "
+                      << a_->format_state(current.dest) << std::endl;
+          typename m_source_trans::iterator i = target.find(current.dest);
+          if (i == target.end())
+            {
+              min_path<true> s(this, a_, target, h_);
+              const state* res = s.search(current.dest->clone(), run->cycle);
+              // init current to the corresponding transition.
+              assert(res);
+              ndfsr_trace << a_->format_state(res) << " reached" << std::endl;
+              i = target.find(res);
+              assert(i != target.end());
+            }
+          else
+            {
+              ndfsr_trace << "this is a target" << std::endl;
+            }
+          current = i->second;
+          // complete the path with the corresponding transition
+          twa_run::step st = { current.source->clone(), current.label,
+                                current.acc };
+          run->cycle.push_back(st);
+          // remove this source state of target
+          target.erase(i);
+        }
 
       if (current.dest->compare(begin) != 0)
-	{
-	  // close the cycle by adding a path from the destination of the
-	  // last inserted transition to the source of the first one
-	  ndfsr_trace << std::endl << "looking for a path from "
-		      << a_->format_state(current.dest) << " to "
-		      << a_->format_state(begin) << std::endl;
-	  transition tmp;
-	  // Initialize to please GCC 4.0.1 (Darwin).
-	  tmp.source = tmp.dest = nullptr;
-	  tmp.acc = 0U;
-	  target.emplace(begin, tmp);
-	  min_path<true> s(this, a_, target, h_);
-	  const state* res = s.search(current.dest->clone(), run->cycle);
-	  assert(res);
-	  assert(res->compare(begin) == 0);
-	  (void)res;
-	}
+        {
+          // close the cycle by adding a path from the destination of the
+          // last inserted transition to the source of the first one
+          ndfsr_trace << std::endl << "looking for a path from "
+                      << a_->format_state(current.dest) << " to "
+                      << a_->format_state(begin) << std::endl;
+          transition tmp;
+          // Initialize to please GCC 4.0.1 (Darwin).
+          tmp.source = tmp.dest = nullptr;
+          tmp.acc = 0U;
+          target.emplace(begin, tmp);
+          min_path<true> s(this, a_, target, h_);
+          const state* res = s.search(current.dest->clone(), run->cycle);
+          assert(res);
+          assert(res->compare(begin) == 0);
+          (void)res;
+        }
     }
 
     void construct_prefix(twa_run_ptr run)
@@ -626,7 +626,7 @@ namespace spot
 
       // Register all states from the cycle as target of the BFS.
       for (twa_run::steps::const_iterator i = run->cycle.begin();
-	   i != run->cycle.end(); ++i)
+           i != run->cycle.end(); ++i)
         target.emplace(i->s, tmp);
 
       const state* prefix_start = a_->get_init_state();
@@ -655,8 +655,8 @@ namespace spot
       // Locate cycle_entry_point on the cycle.
       twa_run::steps::iterator cycle_ep_it;
       for (cycle_ep_it = run->cycle.begin();
-	   cycle_ep_it != run->cycle.end()
-	     && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)
+           cycle_ep_it != run->cycle.end()
+             && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)
         continue;
       assert(cycle_ep_it != run->cycle.end());
       cycle_entry_point->destroy();

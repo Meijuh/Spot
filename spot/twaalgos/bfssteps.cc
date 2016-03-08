@@ -73,34 +73,34 @@ namespace spot
 
     while (!todo.empty())
       {
-	const state* src = todo.front();
-	todo.pop_front();
-	for (auto i: a_->succ(src))
-	  {
-	    const state* dest = filter(i->dst());
+        const state* src = todo.front();
+        todo.pop_front();
+        for (auto i: a_->succ(src))
+          {
+            const state* dest = filter(i->dst());
 
-	    if (!dest)
-	      continue;
+            if (!dest)
+              continue;
 
-	    bdd cond = i->cond();
-	    acc_cond::mark_t acc = i->acc();
-	    twa_run::step s = { src, cond, acc };
+            bdd cond = i->cond();
+            acc_cond::mark_t acc = i->acc();
+            twa_run::step s = { src, cond, acc };
 
-	    if (match(s, dest))
-	      {
-		// Found it!
+            if (match(s, dest))
+              {
+                // Found it!
                 finalize(father, s, start, l);
-		return dest;
-	      }
+                return dest;
+              }
 
-	    // Common case: record backlinks and continue BFS
-	    // for unvisited states.
-	    if (father.find(dest) == father.end())
-	      {
-		todo.push_back(dest);
-		father[dest] = s;
-	      }
-	  }
+            // Common case: record backlinks and continue BFS
+            // for unvisited states.
+            if (father.find(dest) == father.end())
+              {
+                todo.push_back(dest);
+                father[dest] = s;
+              }
+          }
       }
     return nullptr;
   }

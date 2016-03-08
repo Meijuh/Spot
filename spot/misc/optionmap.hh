@@ -84,7 +84,7 @@ namespace spot
     /// \return The previous value associated to \a option if declared,
     /// or \a def otherwise.
     std::string set_str(const char* option,
-			std::string val, std::string def = {});
+                        std::string val, std::string def = {});
 
     /// Acquire all the settings of \a o.
     void set(const option_map& o);

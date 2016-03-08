@@ -61,10 +61,10 @@ dot(std::ostream& out, spot::digraph<SL, TL>& g)
       out << ' ' << s;
       dot_state(out, g, s);
       for (auto& t: g.out(s))
-	{
-	  out << ' ' << s << " -> " << t.dst;
-	  dot_trans(out, g, t);
-	}
+        {
+          out << ' ' << s << " -> " << t.dst;
+          dot_trans(out, g, t);
+        }
     }
   out << "}\n";
 }
@@ -244,9 +244,9 @@ f7()
   for (auto& t: g.out(s1))
     {
       for (auto& tt: t.dst)
-	{
-	  f += t.label * g.state_data(tt);
-	}
+        {
+          f += t.label * g.state_data(tt);
+        }
     }
   return f == 15;
 }
@@ -310,12 +310,12 @@ int main()
   bool a7 = f7();
   bool a8 = f8();
   std::cout << a1 << ' '
-	    << a2 << ' '
-	    << a3 << ' '
-	    << a4 << ' '
-	    << a5 << ' '
-	    << a6 << ' '
-	    << a7 << ' '
-	    << a8 << '\n';
+            << a2 << ' '
+            << a3 << ' '
+            << a4 << ' '
+            << a5 << ' '
+            << a6 << ' '
+            << a7 << ' '
+            << a8 << '\n';
   return !(a1 && a2 && a3 && a4 && a5 && a6 && a7 && a8);
 }

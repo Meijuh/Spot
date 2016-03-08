@@ -55,7 +55,7 @@ namespace spot
       /// \pre The automaton \a a must have at most one acceptance
       /// condition (i.e. it is a TBA).
       se05_search(const const_twa_ptr a, size_t size,
-		  option_map o = option_map())
+                  option_map o = option_map())
         : emptiness_check(a, o),
           h(size)
       {
@@ -89,8 +89,8 @@ namespace spot
       /// visits only a finite set of accepting paths.
       virtual emptiness_check_result_ptr check() override
       {
-	auto t = std::static_pointer_cast<se05_search>
-	  (this->emptiness_check::shared_from_this());
+        auto t = std::static_pointer_cast<se05_search>
+          (this->emptiness_check::shared_from_this());
         if (st_red.empty())
           {
             assert(st_blue.empty());
@@ -130,27 +130,27 @@ namespace spot
 
       virtual bool safe() const override
       {
-	return heap::Safe;
+        return heap::Safe;
       }
 
       const heap& get_heap() const
       {
-	return h;
+        return h;
       }
 
       const stack_type& get_st_blue() const
       {
-	return st_blue;
+        return st_blue;
       }
 
       const stack_type& get_st_red() const
       {
-	return st_red;
+        return st_red;
       }
     private:
 
       void push(stack_type& st, const state* s,
-		const bdd& label, acc_cond::mark_t acc)
+                const bdd& label, acc_cond::mark_t acc)
       {
         inc_depth();
         twa_succ_iterator* i = a_->succ_iter(s);
@@ -201,7 +201,7 @@ namespace spot
                   }
                 else if (c.get_color() == CYAN && (a_->acc().accepting(acc) ||
                              (f.s->compare(s_prime) != 0
-			      && a_->acc().accepting(f.acc))))
+                              && a_->acc().accepting(f.acc))))
                   {
                     trace << "  It is cyan and acceptance condition "
                           << "is reached, report cycle" << std::endl;
@@ -238,7 +238,7 @@ namespace spot
                 typename heap::color_ref c = h.get_color_ref(f_dest.s);
                 assert(!c.is_white());
                 if (!st_blue.empty() &&
-		    a_->acc().accepting(f_dest.acc) && c.get_color() != RED)
+                    a_->acc().accepting(f_dest.acc) && c.get_color() != RED)
                   {
                     // the test 'c.get_color() != RED' is added to limit
                     // the number of runs reported by successive
@@ -383,7 +383,7 @@ namespace spot
           return 0;
         }
       private:
-	std::shared_ptr<se05_search> ms_;
+        std::shared_ptr<se05_search> ms_;
       };
 
 #     define FROM_STACK "ar:from_stack"
@@ -392,7 +392,7 @@ namespace spot
       {
       public:
         se05_result(const std::shared_ptr<se05_search>& m,
-		    option_map o = option_map())
+                    option_map o = option_map())
           : emptiness_check_result(m->automaton(), o), ms(m)
         {
           if (options()[FROM_STACK])
@@ -432,7 +432,7 @@ namespace spot
 
       private:
         emptiness_check_result* computer;
-	std::shared_ptr<se05_search> ms;
+        std::shared_ptr<se05_search> ms;
       };
     };
 
@@ -573,7 +573,7 @@ namespace spot
     {
     private:
       typedef std::unordered_set<const state*,
-				 state_ptr_hash, state_ptr_equal> hcyan_type;
+                                 state_ptr_hash, state_ptr_equal> hcyan_type;
     public:
       enum { Safe = 0 };
 
@@ -681,7 +681,7 @@ namespace spot
 
   emptiness_check_ptr
   bit_state_hashing_se05_search(const const_twa_ptr& a,
-				size_t size, option_map o)
+                                size_t size, option_map o)
   {
     return std::make_shared<se05_search<bsh_se05_search_heap>>(a, size, o);
   }

@@ -49,11 +49,11 @@ namespace spot
   /// returned.
   SPOT_API twa_graph_ptr
   dtwa_sat_synthetize(const const_twa_graph_ptr& a,
-		      unsigned target_acc_number,
-		      const acc_cond::acc_code& target_acc,
-		      int target_state_number,
-		      bool state_based = false,
-		      bool colored = false);
+                      unsigned target_acc_number,
+                      const acc_cond::acc_code& target_acc,
+                      int target_state_number,
+                      bool state_based = false,
+                      bool colored = false);
 
   /// \brief Attempt to minimize a deterministic TωA with a SAT solver.
   ///
@@ -63,11 +63,11 @@ namespace spot
   /// If no smaller TGBA exists, this returns a null pointer.
   SPOT_API twa_graph_ptr
   dtwa_sat_minimize(const const_twa_graph_ptr& a,
-		    unsigned target_acc_number,
-		    const acc_cond::acc_code& target_acc,
-		    bool state_based = false,
-		    int max_states = -1,
-		    bool colored = false);
+                    unsigned target_acc_number,
+                    const acc_cond::acc_code& target_acc,
+                    bool state_based = false,
+                    int max_states = -1,
+                    bool colored = false);
 
   /// \brief Attempt to minimize a deterministic TωA with a SAT solver.
   ///
@@ -77,11 +77,11 @@ namespace spot
   /// If no smaller TBA exist, this returns a null pointer.
   SPOT_API twa_graph_ptr
   dtwa_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
-			      unsigned target_acc_number,
-			      const acc_cond::acc_code& target_acc,
-			      bool state_based = false,
-			      int max_states = -1,
-			      bool colored = false);
+                              unsigned target_acc_number,
+                              const acc_cond::acc_code& target_acc,
+                              bool state_based = false,
+                              int max_states = -1,
+                              bool colored = false);
 
   /// \brief High-level interface to SAT-based minimization
   ///

@@ -38,6 +38,6 @@ namespace spot
   ///        single-line output, (v) verbose properties.
   SPOT_API std::ostream&
   print_hoa(std::ostream& os,
-	    const const_twa_ptr& g,
-	    const char* opt = nullptr);
+            const const_twa_ptr& g,
+            const char* opt = nullptr);
 }

@@ -113,7 +113,7 @@ Enabled by default.") },
 if the TGBA is not already deterministic.  Doing so will degeneralize \
 the automaton.  This is disabled by default, unless sat-minimize is set.") },
     { DOC("sat-minimize",
-	  "Set to 1 to enable SAT-based minimization of deterministic \
+          "Set to 1 to enable SAT-based minimization of deterministic \
 TGBA: it starts with the number of states of the input, and iteratively \
 tries to find a deterministic TGBA with one less state. Set to 2 to perform \
 a binary search instead.  Disabled (0) by default.  The sat solver to use \
@@ -123,7 +123,7 @@ set; this can be changed with the sat-acc option, or of course by using -B \
 to construct a Büchi automaton.  Enabling SAT-based minimization will \
 also enable tba-det.") },
     { DOC("sat-states",
-	  "When this is set to some positive integer, the SAT-based \
+          "When this is set to some positive integer, the SAT-based \
 minimization will attempt to construct a TGBA with the given number of \
 states.  It may however return an automaton with less states if some of \
 these are unreachable or useless.  Setting sat-states automatically \
@@ -131,13 +131,13 @@ enables sat-minimize, but no iteration is performed.  If no equivalent \
 automaton could be constructed with the given number of states, the original \
 automaton is returned.") },
     { DOC("sat-acc",
-	  "When this is set to some positive integer, the SAT-based will \
+          "When this is set to some positive integer, the SAT-based will \
 attempt to construct a TGBA with the given number of acceptance sets. \
 states.  It may however return an automaton with less acceptance sets if \
 some of these are useless.  Setting sat-acc automatically \
 sets sat-minimize to 1 if not set differently.") },
     { DOC("state-based",
-	  "Set to 1 to instruct the SAT-minimization procedure to produce \
+          "Set to 1 to instruct the SAT-minimization procedure to produce \
 a TGBA where all outgoing transition of a state have the same acceptance \
 sets.  By default this is only enabled when option -B is used.") },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
@@ -155,13 +155,13 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, nullptr, nullptr, argp_program_doc, children,
-		    nullptr, nullptr };
+                    nullptr, nullptr };
 
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   std::cerr << "This binary serves no purpose other than generating"
-	    << " the spot-x.7 manpage.\n";
+            << " the spot-x.7 manpage.\n";
 
   return 1;
 }

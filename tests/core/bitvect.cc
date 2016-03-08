@@ -65,7 +65,7 @@ int main()
   ECHO(x);
 
   std::cout << "subset? " << w->is_subset_of(*x)
-	    << ' ' << v->is_subset_of(*w) << '\n';
+            << ' ' << v->is_subset_of(*w) << '\n';
 
   for (size_t i = 0; i < 30; ++i)
     w->push_back((i & 3) == 0);
@@ -108,8 +108,8 @@ int main()
   for (size_t y = 0; y < a->size(); ++y)
     for (size_t x = 0; x < 60; ++x)
       {
-	if (((x ^ y) & 3) < 2)
-	  a->at(y).set(x);
+        if (((x ^ y) & 3) < 2)
+          a->at(y).set(x);
       }
   std::cout << *a;
 
@@ -125,12 +125,12 @@ int main()
 
   std::cout << "Comp: "
             << (a->at(0) == a->at(1))
-	    << (a->at(0) == a->at(2))
-	    << (a->at(1) != a->at(2))
-	    << (a->at(0) < a->at(2))
-	    << (a->at(0) > a->at(2))
-	    << (a->at(3) < a->at(4))
-	    << (a->at(5) > a->at(6)) << std::endl;
+            << (a->at(0) == a->at(2))
+            << (a->at(1) != a->at(2))
+            << (a->at(0) < a->at(2))
+            << (a->at(0) > a->at(2))
+            << (a->at(3) < a->at(4))
+            << (a->at(5) > a->at(6)) << std::endl;
 
   delete a;
 }

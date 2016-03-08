@@ -65,7 +65,7 @@ namespace spot
   // Check whether L(l) is a subset of L(g).
   bool
   language_containment_checker::contained(formula l,
-					  formula g)
+                                          formula g)
   {
     if (l == g)
       return true;
@@ -77,7 +77,7 @@ namespace spot
   // Check whether L(!l) is a subset of L(g).
   bool
   language_containment_checker::neg_contained(formula l,
-					      formula g)
+                                              formula g)
   {
     if (l == g)
       return false;
@@ -92,7 +92,7 @@ namespace spot
   // Check whether L(l) is a subset of L(!g).
   bool
   language_containment_checker::contained_neg(formula l,
-					      formula g)
+                                              formula g)
   {
     if (l == g)
       return false;
@@ -122,7 +122,7 @@ namespace spot
       return &i->second;
 
     auto e = ltl_to_tgba_fm(f, dict_, exprop_, symb_merge_,
-			    branching_postponement_, fair_loop_approx_);
+                            branching_postponement_, fair_loop_approx_);
     record_& r = translated_[f];
     r.translation = e;
     return &r;

@@ -27,40 +27,40 @@ namespace spot
 {
   void
   randomize(twa_graph_ptr& aut, bool randomize_states,
-	    bool randomize_edges)
+            bool randomize_edges)
   {
     if (!randomize_states && !randomize_edges)
       return;
     auto& g = aut->get_graph();
     if (randomize_states)
       {
-	unsigned n = g.num_states();
-	std::vector<unsigned> nums(n);
-	std::iota(nums.begin(), nums.end(), 0);
-	mrandom_shuffle(nums.begin(), nums.end());
-	g.rename_states_(nums);
-	aut->set_init_state(nums[aut->get_init_state_number()]);
+        unsigned n = g.num_states();
+        std::vector<unsigned> nums(n);
+        std::iota(nums.begin(), nums.end(), 0);
+        mrandom_shuffle(nums.begin(), nums.end());
+        g.rename_states_(nums);
+        aut->set_init_state(nums[aut->get_init_state_number()]);
 
-	if (auto sn =
-	    aut->get_named_prop<std::vector<std::string>>("state-names"))
-	  {
-	    unsigned sns = sn->size(); // Might be != n.
-	    auto nn = new std::vector<std::string>(n);
-	    for (unsigned i = 0; i < sns && i < n; ++i)
-	      (*nn)[nums[i]] = (*sn)[i];
-	    aut->set_named_prop("state-names", nn);
-	  }
+        if (auto sn =
+            aut->get_named_prop<std::vector<std::string>>("state-names"))
+          {
+            unsigned sns = sn->size(); // Might be != n.
+            auto nn = new std::vector<std::string>(n);
+            for (unsigned i = 0; i < sns && i < n; ++i)
+              (*nn)[nums[i]] = (*sn)[i];
+            aut->set_named_prop("state-names", nn);
+          }
       }
     if (randomize_edges)
       {
-	g.remove_dead_edges_();
-	auto& v = g.edge_vector();
-	mrandom_shuffle(v.begin() + 1, v.end());
+        g.remove_dead_edges_();
+        auto& v = g.edge_vector();
+        mrandom_shuffle(v.begin() + 1, v.end());
       }
 
     typedef twa_graph::graph_t::edge_storage_t tr_t;
     g.sort_edges_([](const tr_t& lhs, const tr_t& rhs)
-			{ return lhs.src < rhs.src; });
+                        { return lhs.src < rhs.src; });
     g.chain_edges_();
   }
 }

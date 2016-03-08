@@ -34,22 +34,22 @@ namespace spot
     /// Create a pool allocating objects of \a size bytes.
     fixed_size_pool(size_t size)
       : freelist_(nullptr), free_start_(nullptr),
-	free_end_(nullptr), chunklist_(nullptr)
+        free_end_(nullptr), chunklist_(nullptr)
     {
       const size_t alignement = 2 * sizeof(size_t);
       size_ = ((size >= sizeof(block_) ? size : sizeof(block_))
-	       + alignement - 1) & ~(alignement - 1);
+               + alignement - 1) & ~(alignement - 1);
     }
 
     /// Free any memory allocated by this pool.
     ~fixed_size_pool()
     {
       while (chunklist_)
-	{
-	  chunk_* prev = chunklist_->prev;
-	  free(chunklist_);
-	  chunklist_ = prev;
-	}
+        {
+          chunk_* prev = chunklist_->prev;
+          free(chunklist_);
+          chunklist_ = prev;
+        }
     }
 
     /// Allocate \a size bytes of memory.
@@ -59,27 +59,27 @@ namespace spot
       block_* f = freelist_;
       // If we have free blocks available, return the first one.
       if (f)
-	{
-	  freelist_ = f->next;
-	  return f;
-	}
+        {
+          freelist_ = f->next;
+          return f;
+        }
 
       // Else, create a block out of the last chunk of allocated
       // memory.
 
       // If all the last chunk has been used, allocate one more.
       if (free_start_ + size_ > free_end_)
-	{
-	  const size_t requested = (size_ > 128 ? size_ : 128) * 8192 - 64;
-	  chunk_* c = reinterpret_cast<chunk_*>(malloc(requested));
-	  if (!c)
-	    throw std::bad_alloc();
-	  c->prev = chunklist_;
-	  chunklist_ = c;
+        {
+          const size_t requested = (size_ > 128 ? size_ : 128) * 8192 - 64;
+          chunk_* c = reinterpret_cast<chunk_*>(malloc(requested));
+          if (!c)
+            throw std::bad_alloc();
+          c->prev = chunklist_;
+          chunklist_ = c;
 
-	  free_start_ = c->data_ + size_;
-	  free_end_ = c->data_ + requested;
-	}
+          free_start_ = c->data_ + size_;
+          free_end_ = c->data_ + requested;
+        }
 
       void* res = free_start_;
       free_start_ += size_;

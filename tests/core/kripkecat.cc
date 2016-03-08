@@ -34,16 +34,16 @@ int main(int argc, char** argv)
   spot::automaton_stream_parser parser(argv[1], opts);
 
   while (auto paut = parser.parse(make_bdd_dict(),
-				  default_environment::instance()))
+                                  default_environment::instance()))
     {
       if (paut->format_errors(std::cerr))
-	{
-	  return_value = 1;
-	  if (paut->ks)
-	    continue;
-	}
+        {
+          return_value = 1;
+          if (paut->ks)
+            continue;
+        }
       if (!paut->ks)
-	break;
+        break;
       print_hoa(std::cout, paut->ks);
     }
   return return_value;

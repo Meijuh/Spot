@@ -48,8 +48,8 @@ namespace spot
     {
       unsigned base = aut->acc().add_sets(common.count());
       for (auto s: common.sets())
-	map.emplace_back(acc_cond::mark_t({s}),
-			 acc_cond::mark_t({base++}));
+        map.emplace_back(acc_cond::mark_t({s}),
+                         acc_cond::mark_t({base++}));
     }
 
     // Fix the acceptance condition
@@ -60,38 +60,38 @@ namespace spot
     acc_cond::acc_word* start = &code.front();
     while (pos > start)
       {
-	switch (pos->op)
-	  {
-	  case acc_cond::acc_op::Or:
-	  case acc_cond::acc_op::And:
-	    --pos;
-	    break;
-	  case acc_cond::acc_op::Fin:
-	  case acc_cond::acc_op::FinNeg:
-	    if ((pos[-1].mark & common) == 0U)
-	      break;
-	    for (auto p: map)
-	      if (pos[-1].mark & p.first)
-		{
-		  pos[-1].mark -= p.first;
-		  pos[-1].mark |= p.second;
-		}
-	    /* fall through */
-	  case acc_cond::acc_op::Inf:
-	  case acc_cond::acc_op::InfNeg:
-	    pos -= 2;
-	    break;
-	  }
+        switch (pos->op)
+          {
+          case acc_cond::acc_op::Or:
+          case acc_cond::acc_op::And:
+            --pos;
+            break;
+          case acc_cond::acc_op::Fin:
+          case acc_cond::acc_op::FinNeg:
+            if ((pos[-1].mark & common) == 0U)
+              break;
+            for (auto p: map)
+              if (pos[-1].mark & p.first)
+                {
+                  pos[-1].mark -= p.first;
+                  pos[-1].mark |= p.second;
+                }
+            /* fall through */
+          case acc_cond::acc_op::Inf:
+          case acc_cond::acc_op::InfNeg:
+            pos -= 2;
+            break;
+          }
       }
 
     // Fix the edges
     for (auto& t: aut->edges())
       {
-	if ((t.acc & common) == 0U)
-	  continue;
-	for (auto p: map)
-	  if (t.acc & p.first)
-	    t.acc |= p.second;
+        if ((t.acc & common) == 0U)
+          continue;
+        for (auto p: map)
+          if (t.acc & p.first)
+            t.acc |= p.second;
       }
     return aut;
   }

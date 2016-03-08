@@ -91,11 +91,11 @@ namespace spot
 
   struct automaton_parser_options final
   {
-    bool ignore_abort = false;	///< Skip aborted automata
-    bool debug = false;		///< Run the parser in debug mode?
-    bool trust_hoa = true;	///< Trust properties in HOA files
-    bool raise_errors = false;	///< Raise errors as exceptions.
-    bool want_kripke = false;	///< Parse as a Kripke structure.
+    bool ignore_abort = false;        ///< Skip aborted automata
+    bool debug = false;                ///< Run the parser in debug mode?
+    bool trust_hoa = true;        ///< Trust properties in HOA files
+    bool raise_errors = false;        ///< Raise errors as exceptions.
+    bool want_kripke = false;        ///< Parse as a Kripke structure.
   };
 
   /// \brief Parse a stream of automata
@@ -128,7 +128,7 @@ namespace spot
     /// \param filename The file to read from.
     /// \param opts Parser options.
     automaton_stream_parser(const std::string& filename,
-			    automaton_parser_options opts = {});
+                            automaton_parser_options opts = {});
 
     /// \brief Parse from an already opened file descriptor.
     ///
@@ -136,7 +136,7 @@ namespace spot
     /// \param filename What to display in error messages.
     /// \param opts Parser options.
     automaton_stream_parser(int fd, const std::string& filename,
-			    automaton_parser_options opts = {});
+                            automaton_parser_options opts = {});
 
     /// \brief Parse from a buffer
     ///
@@ -144,8 +144,8 @@ namespace spot
     /// \param filename What to display in error messages.
     /// \param opts Parser options.
     automaton_stream_parser(const char* data,
-			    const std::string& filename,
-			    automaton_parser_options opts = {});
+                            const std::string& filename,
+                            automaton_parser_options opts = {});
 
     ~automaton_stream_parser();
 
@@ -165,8 +165,8 @@ namespace spot
     ///
     /// \warning This function is not reentrant.
     parsed_aut_ptr parse(const bdd_dict_ptr& dict,
-			 environment& env =
-			 default_environment::instance());
+                         environment& env =
+                         default_environment::instance());
   };
 
   /// \brief Read the first spot::twa_graph from a file.
@@ -187,8 +187,8 @@ namespace spot
   /// \warning This function is not reentrant.
   SPOT_API parsed_aut_ptr
   parse_aut(const std::string& filename,
-	    const bdd_dict_ptr& dict,
-	    environment& env = default_environment::instance(),
-	    automaton_parser_options opts = {});
+            const bdd_dict_ptr& dict,
+            environment& env = default_environment::instance(),
+            automaton_parser_options opts = {});
   /// @}
 }

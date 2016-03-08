@@ -28,7 +28,7 @@
 struct job
 {
   const char* str;
-  bool file_p;	// true if str is a filename, false if it is a formula
+  bool file_p;        // true if str is a filename, false if it is a formula
 
   job(const char* str, bool file_p)
     : str(str), file_p(file_p)
@@ -58,11 +58,11 @@ public:
 
   virtual int
   process_formula(spot::formula f,
-		  const char* filename = nullptr, int linenum = 0) = 0;
+                  const char* filename = nullptr, int linenum = 0) = 0;
 
   virtual int
   process_string(const std::string& str,
-		 const char* filename = nullptr, int linenum = 0);
+                 const char* filename = nullptr, int linenum = 0);
   virtual int
   process_stream(std::istream& is, const char* filename);
 

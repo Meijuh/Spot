@@ -37,8 +37,8 @@ namespace spot
     time_info total;
     for (tm_type::const_iterator i = tm.begin(); i != tm.end(); ++i)
       {
-	total.utime += i->second.first.utime();
-	total.stime += i->second.first.stime();
+        total.utime += i->second.first.utime();
+        total.stime += i->second.first.stime();
       }
     clock_t grand_total = total.utime + total.stime;
 
@@ -52,30 +52,30 @@ namespace spot
        << std::endl;
     for (tm_type::const_iterator i = tm.begin(); i != tm.end(); ++i)
       {
-	// truncate long keys
-	std::string name = i->first;
-	if (name.size() > 22)
-	  name.erase(22);
+        // truncate long keys
+        std::string name = i->first;
+        if (name.size() > 22)
+          name.erase(22);
 
-	const spot::timer& t = i->second.first;
-	const char* sep = t.is_running() ? "+|" : " |";
+        const spot::timer& t = i->second.first;
+        const char* sep = t.is_running() ? "+|" : " |";
 
-	os << std::setw(22) << name << sep
-	   << std::setw(6) << t.utime() << ' '
-	   << std::setw(8) << (total.utime ?
-			       100.0 * t.utime() / total.utime : 0.)
-	   << sep
-	   << std::setw(6) << t.stime() << ' '
-	   << std::setw(8) << (total.stime ?
-			       100.0 * t.stime() / total.stime : 0.)
-	   << sep
-	   << std::setw(6) << t.utime() + t.stime() << ' '
-	   << std::setw(8) << (grand_total ?
-			       (100.0 * (t.utime() + t.stime()) /
-				grand_total) : 0.)
-	   << sep
-	   << std::setw(4) << i->second.second
-	   << std::endl;
+        os << std::setw(22) << name << sep
+           << std::setw(6) << t.utime() << ' '
+           << std::setw(8) << (total.utime ?
+                               100.0 * t.utime() / total.utime : 0.)
+           << sep
+           << std::setw(6) << t.stime() << ' '
+           << std::setw(8) << (total.stime ?
+                               100.0 * t.stime() / total.stime : 0.)
+           << sep
+           << std::setw(6) << t.utime() + t.stime() << ' '
+           << std::setw(8) << (grand_total ?
+                               (100.0 * (t.utime() + t.stime()) /
+                                grand_total) : 0.)
+           << sep
+           << std::setw(4) << i->second.second
+           << std::endl;
       }
     os << std::setw(79) << std::setfill('-') << "" << std::setfill(' ')
        << std::endl

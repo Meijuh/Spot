@@ -47,7 +47,7 @@ namespace spot
     struct first_is_base_of<Of, Arg1, Args...>
     {
       static const bool value =
-	std::is_base_of<Of, typename std::decay<Arg1>::type>::value;
+        std::is_base_of<Of, typename std::decay<Arg1>::type>::value;
     };
 #endif
 
@@ -65,11 +65,11 @@ namespace spot
 
 #ifndef SWIG
       template <typename... Args,
-		typename = typename std::enable_if<
-		  !first_is_base_of<boxed_label, Args...>::value>::type>
-	boxed_label(Args&&... args)
-	noexcept(std::is_nothrow_constructible<Data, Args...>::value)
-	: label{std::forward<Args>(args)...}
+                typename = typename std::enable_if<
+                  !first_is_base_of<boxed_label, Args...>::value>::type>
+        boxed_label(Args&&... args)
+        noexcept(std::is_nothrow_constructible<Data, Args...>::value)
+        : label{std::forward<Args>(args)...}
       {
       }
 #endif
@@ -77,23 +77,23 @@ namespace spot
       // if Data is a POD type, G++ 4.8.2 wants default values for all
       // label fields unless we define this default constructor here.
       explicit boxed_label()
-	noexcept(std::is_nothrow_constructible<Data>::value)
+        noexcept(std::is_nothrow_constructible<Data>::value)
       {
       }
 
       Data& data()
       {
-	return label;
+        return label;
       }
 
       const Data& data() const
       {
-	return label;
+        return label;
       }
 
       bool operator<(const boxed_label& other) const
       {
-	return label < other.label;
+        return label < other.label;
       }
     };
 
@@ -103,12 +103,12 @@ namespace spot
       typedef std::tuple<> data_t;
       std::tuple<>& data()
       {
-	return *this;
+        return *this;
       }
 
       const std::tuple<>& data() const
       {
-	return *this;
+        return *this;
       }
 
     };
@@ -120,11 +120,11 @@ namespace spot
 
 #ifndef SWIG
       template <typename... Args,
-		typename = typename std::enable_if<
-		  !first_is_base_of<boxed_label, Args...>::value>::type>
-	boxed_label(Args&&... args)
-	noexcept(std::is_nothrow_constructible<Data, Args...>::value)
-	: Data{std::forward<Args>(args)...}
+                typename = typename std::enable_if<
+                  !first_is_base_of<boxed_label, Args...>::value>::type>
+        boxed_label(Args&&... args)
+        noexcept(std::is_nothrow_constructible<Data, Args...>::value)
+        : Data{std::forward<Args>(args)...}
       {
       }
 #endif
@@ -132,18 +132,18 @@ namespace spot
       // if Data is a POD type, G++ 4.8.2 wants default values for all
       // label fields unless we define this default constructor here.
       explicit boxed_label()
-	noexcept(std::is_nothrow_constructible<Data>::value)
+        noexcept(std::is_nothrow_constructible<Data>::value)
       {
       }
 
       Data& data()
       {
-	return *this;
+        return *this;
       }
 
       const Data& data() const
       {
-	return *this;
+        return *this;
       }
     };
 
@@ -158,15 +158,15 @@ namespace spot
     struct SPOT_API distate_storage final: public State_Data
     {
       Edge succ = 0; // First outgoing edge (used when iterating)
-      Edge succ_tail = 0;	// Last outgoing edge (used for
-				// appending new edges)
+      Edge succ_tail = 0;        // Last outgoing edge (used for
+                                // appending new edges)
 #ifndef SWIG
       template <typename... Args,
-		typename = typename std::enable_if<
-		  !first_is_base_of<distate_storage, Args...>::value>::type>
+                typename = typename std::enable_if<
+                  !first_is_base_of<distate_storage, Args...>::value>::type>
       distate_storage(Args&&... args)
-	noexcept(std::is_nothrow_constructible<State_Data, Args...>::value)
-	: State_Data{std::forward<Args>(args)...}
+        noexcept(std::is_nothrow_constructible<State_Data, Args...>::value)
+        : State_Data{std::forward<Args>(args)...}
       {
       }
 #endif
@@ -179,47 +179,47 @@ namespace spot
     // Again two implementation: one with label, and one without.
 
     template <typename StateIn,
-	      typename StateOut, typename Edge, typename Edge_Data>
+              typename StateOut, typename Edge, typename Edge_Data>
     struct SPOT_API edge_storage final: public Edge_Data
     {
       typedef Edge edge;
 
-      StateOut dst;		// destination
-      Edge next_succ;	// next outgoing edge with same
-				// source, or 0
-      StateIn src;		// source
+      StateOut dst;                // destination
+      Edge next_succ;        // next outgoing edge with same
+                                // source, or 0
+      StateIn src;                // source
 
       explicit edge_storage()
-	noexcept(std::is_nothrow_constructible<Edge_Data>::value)
-	: Edge_Data{}
+        noexcept(std::is_nothrow_constructible<Edge_Data>::value)
+        : Edge_Data{}
       {
       }
 
 #ifndef SWIG
       template <typename... Args>
       edge_storage(StateOut dst, Edge next_succ,
-		    StateIn src, Args&&... args)
-	noexcept(std::is_nothrow_constructible<Edge_Data, Args...>::value
-		 && std::is_nothrow_constructible<StateOut, StateOut>::value
-		 && std::is_nothrow_constructible<Edge, Edge>::value)
-	: Edge_Data{std::forward<Args>(args)...},
-	dst(dst), next_succ(next_succ), src(src)
+                    StateIn src, Args&&... args)
+        noexcept(std::is_nothrow_constructible<Edge_Data, Args...>::value
+                 && std::is_nothrow_constructible<StateOut, StateOut>::value
+                 && std::is_nothrow_constructible<Edge, Edge>::value)
+        : Edge_Data{std::forward<Args>(args)...},
+        dst(dst), next_succ(next_succ), src(src)
       {
       }
 #endif
 
       bool operator<(const edge_storage& other) const
       {
-	if (src < other.src)
-	  return true;
-	if (src > other.src)
-	  return false;
-	// This might be costly if the destination is a vector
-	if (dst < other.dst)
-	  return true;
-	if (dst > other.dst)
-	  return false;
-	return this->data() < other.data();
+        if (src < other.src)
+          return true;
+        if (src > other.src)
+          return false;
+        // This might be costly if the destination is a vector
+        if (dst < other.dst)
+          return true;
+        if (dst > other.dst)
+          return false;
+        return this->data() < other.data();
       }
 
       bool operator==(const edge_storage& other) const
@@ -241,86 +241,86 @@ namespace spot
     template <typename Graph>
     class SPOT_API edge_iterator: public
     std::iterator<std::forward_iterator_tag,
-		  typename
-		  std::conditional<std::is_const<Graph>::value,
-				   const typename Graph::edge_storage_t,
-				   typename Graph::edge_storage_t>::type>
+                  typename
+                  std::conditional<std::is_const<Graph>::value,
+                                   const typename Graph::edge_storage_t,
+                                   typename Graph::edge_storage_t>::type>
     {
       typedef
-	std::iterator<std::forward_iterator_tag,
-		      typename
-		      std::conditional<std::is_const<Graph>::value,
-				       const typename Graph::edge_storage_t,
-				       typename Graph::edge_storage_t>::type>
-	super;
+        std::iterator<std::forward_iterator_tag,
+                      typename
+                      std::conditional<std::is_const<Graph>::value,
+                                       const typename Graph::edge_storage_t,
+                                       typename Graph::edge_storage_t>::type>
+        super;
     public:
       typedef typename Graph::edge edge;
 
       edge_iterator() noexcept
-	: g_(nullptr), t_(0)
+        : g_(nullptr), t_(0)
       {
       }
 
       edge_iterator(Graph* g, edge t) noexcept
-	: g_(g), t_(t)
+        : g_(g), t_(t)
       {
       }
 
       bool operator==(edge_iterator o) const
       {
-	return t_ == o.t_;
+        return t_ == o.t_;
       }
 
       bool operator!=(edge_iterator o) const
       {
-	return t_ != o.t_;
+        return t_ != o.t_;
       }
 
       typename super::reference
       operator*()
       {
-	return g_->edge_storage(t_);
+        return g_->edge_storage(t_);
       }
 
       const typename super::reference
       operator*() const
       {
-	return g_->edge_storage(t_);
+        return g_->edge_storage(t_);
       }
 
       typename super::pointer
       operator->()
       {
-	return &g_->edge_storage(t_);
+        return &g_->edge_storage(t_);
       }
 
       const typename super::pointer
       operator->() const
       {
-	return &g_->edge_storage(t_);
+        return &g_->edge_storage(t_);
       }
 
       edge_iterator operator++()
       {
-	t_ = operator*().next_succ;
-	return *this;
+        t_ = operator*().next_succ;
+        return *this;
       }
 
       edge_iterator operator++(int)
       {
-	edge_iterator ti = *this;
-	t_ = operator*().next_succ;
-	return ti;
+        edge_iterator ti = *this;
+        t_ = operator*().next_succ;
+        return ti;
       }
 
       operator bool() const
       {
-	return t_;
+        return t_;
       }
 
       edge trans() const
       {
-	return t_;
+        return t_;
       }
 
     protected:
@@ -337,52 +337,52 @@ namespace spot
       typedef typename Graph::edge edge;
 
       killer_edge_iterator(Graph* g, edge t, state_storage_t& src) noexcept
-	: super(g, t), src_(src), prev_(0)
+        : super(g, t), src_(src), prev_(0)
       {
       }
 
       killer_edge_iterator operator++()
       {
-	prev_ = this->t_;
-	this->t_ = this->operator*().next_succ;
-	return *this;
+        prev_ = this->t_;
+        this->t_ = this->operator*().next_succ;
+        return *this;
       }
 
       killer_edge_iterator operator++(int)
       {
-	killer_edge_iterator ti = *this;
-	++*this;
-	return ti;
+        killer_edge_iterator ti = *this;
+        ++*this;
+        return ti;
       }
 
       // Erase the current edge and advance the iterator.
       void erase()
       {
-	edge next = this->operator*().next_succ;
+        edge next = this->operator*().next_succ;
 
-	// Update source state and previous edges
-	if (prev_)
-	  {
-	    this->g_->edge_storage(prev_).next_succ = next;
-	  }
-	else
-	  {
-	    if (src_.succ == this->t_)
-	      src_.succ = next;
-	  }
-	if (src_.succ_tail == this->t_)
-	  {
-	    src_.succ_tail = prev_;
-	    assert(next == 0);
-	  }
+        // Update source state and previous edges
+        if (prev_)
+          {
+            this->g_->edge_storage(prev_).next_succ = next;
+          }
+        else
+          {
+            if (src_.succ == this->t_)
+              src_.succ = next;
+          }
+        if (src_.succ_tail == this->t_)
+          {
+            src_.succ_tail = prev_;
+            assert(next == 0);
+          }
 
-	// Erased edges have themselves as next_succ.
-	this->operator*().next_succ = this->t_;
+        // Erased edges have themselves as next_succ.
+        this->operator*().next_succ = this->t_;
 
-	// Advance iterator to next edge.
-	this->t_ = next;
+        // Advance iterator to next edge.
+        this->t_ = next;
 
-	++this->g_->killed_edge_;
+        ++this->g_->killed_edge_;
       }
 
     protected:
@@ -403,23 +403,23 @@ namespace spot
     public:
       typedef typename Graph::edge edge;
       state_out(Graph* g, edge t) noexcept
-	: g_(g), t_(t)
+        : g_(g), t_(t)
       {
       }
 
       edge_iterator<Graph> begin()
       {
-	return {g_, t_};
+        return {g_, t_};
       }
 
       edge_iterator<Graph> end()
       {
-	return {};
+        return {};
       }
 
       void recycle(edge t)
       {
-	t_ = t;
+        t_ = t;
       }
 
     protected:
@@ -434,92 +434,92 @@ namespace spot
     template <typename Graph>
     class SPOT_API all_edge_iterator: public
       std::iterator<std::forward_iterator_tag,
-		    typename
-		    std::conditional<std::is_const<Graph>::value,
-				     const typename Graph::edge_storage_t,
-				     typename Graph::edge_storage_t>::type>
+                    typename
+                    std::conditional<std::is_const<Graph>::value,
+                                     const typename Graph::edge_storage_t,
+                                     typename Graph::edge_storage_t>::type>
     {
       typedef
-	std::iterator<std::forward_iterator_tag,
-		      typename
-		      std::conditional<std::is_const<Graph>::value,
-				       const typename Graph::edge_storage_t,
-				       typename Graph::edge_storage_t>::type>
-	super;
+        std::iterator<std::forward_iterator_tag,
+                      typename
+                      std::conditional<std::is_const<Graph>::value,
+                                       const typename Graph::edge_storage_t,
+                                       typename Graph::edge_storage_t>::type>
+        super;
 
       typedef typename std::conditional<std::is_const<Graph>::value,
-					const typename Graph::edge_vector_t,
-					typename Graph::edge_vector_t>::type
-	tv_t;
+                                        const typename Graph::edge_vector_t,
+                                        typename Graph::edge_vector_t>::type
+        tv_t;
 
       unsigned t_;
       tv_t& tv_;
 
       void skip_()
       {
-	unsigned s = tv_.size();
-	do
-	  ++t_;
-	while (t_ < s && tv_[t_].next_succ == t_);
+        unsigned s = tv_.size();
+        do
+          ++t_;
+        while (t_ < s && tv_[t_].next_succ == t_);
       }
 
     public:
       all_edge_iterator(unsigned pos, tv_t& tv) noexcept
-	: t_(pos), tv_(tv)
+        : t_(pos), tv_(tv)
       {
-	skip_();
+        skip_();
       }
 
       all_edge_iterator(tv_t& tv) noexcept
-	: t_(tv.size()), tv_(tv)
+        : t_(tv.size()), tv_(tv)
       {
       }
 
       all_edge_iterator& operator++()
       {
-	skip_();
-	return *this;
+        skip_();
+        return *this;
       }
 
       all_edge_iterator operator++(int)
       {
-	all_edge_iterator old = *this;
-	++*this;
-	return old;
+        all_edge_iterator old = *this;
+        ++*this;
+        return old;
       }
 
       bool operator==(all_edge_iterator o) const
       {
-	return t_ == o.t_;
+        return t_ == o.t_;
       }
 
       bool operator!=(all_edge_iterator o) const
       {
-	return t_ != o.t_;
+        return t_ != o.t_;
       }
 
       typename super::reference
       operator*()
       {
-	return tv_[t_];
+        return tv_[t_];
       }
 
       const typename super::reference
       operator*() const
       {
-	return tv_[t_];
+        return tv_[t_];
       }
 
       const typename super::pointer
       operator->()
       {
-	return &tv_[t_];
+        return &tv_[t_];
       }
 
       typename super::pointer
       operator->() const
       {
-	return &tv_[t_];
+        return &tv_[t_];
       }
     };
 
@@ -529,27 +529,27 @@ namespace spot
     {
     public:
       typedef typename std::conditional<std::is_const<Graph>::value,
-					const typename Graph::edge_vector_t,
-					typename Graph::edge_vector_t>::type
-	tv_t;
+                                        const typename Graph::edge_vector_t,
+                                        typename Graph::edge_vector_t>::type
+        tv_t;
       typedef all_edge_iterator<Graph> iter_t;
     private:
       tv_t& tv_;
     public:
 
       all_trans(tv_t& tv) noexcept
-	: tv_(tv)
+        : tv_(tv)
       {
       }
 
       iter_t begin()
       {
-	return {0, tv_};
+        return {0, tv_};
       }
 
       iter_t end()
       {
-	return {tv_};
+        return {tv_};
       }
     };
 
@@ -586,14 +586,14 @@ namespace spot
     // The type of an output state (when seen from a edge)
     // depends on the kind of graph we build
     typedef typename std::conditional<Alternating,
-				      std::vector<state>,
-				      state>::type out_state;
+                                      std::vector<state>,
+                                      state>::type out_state;
 
     typedef internal::distate_storage<edge,
-				      internal::boxed_label<State_Data>>
+                                      internal::boxed_label<State_Data>>
       state_storage_t;
     typedef internal::edge_storage<state, out_state, edge,
-				    internal::boxed_label<Edge_Data>>
+                                    internal::boxed_label<Edge_Data>>
       edge_storage_t;
     typedef std::vector<state_storage_t> state_vector;
     typedef std::vector<edge_storage_t> edge_vector_t;
@@ -614,7 +614,7 @@ namespace spot
     {
       states_.reserve(max_states);
       if (max_trans == 0)
-	max_trans = max_states * 2;
+        max_trans = max_states * 2;
       edges_.reserve(max_trans + 1);
       // Edge number 0 is not used, because we use this index
       // to mark the absence of a edge.
@@ -638,7 +638,7 @@ namespace spot
       // Erased edges have their next_succ pointing to
       // themselves.
       return (t < edges_.size() &&
-	      edges_[t].next_succ != t);
+              edges_[t].next_succ != t);
     }
 
     template <typename... Args>
@@ -655,7 +655,7 @@ namespace spot
       state s = states_.size();
       states_.reserve(s + n);
       while (n--)
-	states_.emplace_back(std::forward<Args>(args)...);
+        states_.emplace_back(std::forward<Args>(args)...);
       return s;
     }
 
@@ -730,9 +730,9 @@ namespace spot
       edge st = states_[src].succ_tail;
       assert(st < t || !st);
       if (!st)
-	states_[src].succ = t;
+        states_[src].succ = t;
       else
-	edges_[st].next_succ = t;
+        edges_[st].next_succ = t;
       states_[src].succ_tail = t;
       return t;
     }
@@ -836,19 +836,19 @@ namespace spot
     {
       unsigned tend = edges_.size();
       for (unsigned t = 1; t < tend; ++t)
-	{
-	  o << 't' << t << ": (s"
-	    << edges_[t].src << ", s"
-	    << edges_[t].dst << ") t"
-	    << edges_[t].next_succ << '\n';
-	}
+        {
+          o << 't' << t << ": (s"
+            << edges_[t].src << ", s"
+            << edges_[t].dst << ") t"
+            << edges_[t].next_succ << '\n';
+        }
       unsigned send = states_.size();
       for (unsigned s = 0; s < send; ++s)
-	{
-	  o << 's' << s << ": t"
-	    << states_[s].succ << " t"
-	    << states_[s].succ_tail << '\n';
-	}
+        {
+          o << 's' << s << ": t"
+            << states_[s].succ << " t"
+            << states_[s].succ_tail << '\n';
+        }
     }
 
     // Remove all dead edges.  The edges_ vector is left
@@ -858,11 +858,11 @@ namespace spot
     void remove_dead_edges_()
     {
       if (killed_edge_ == 0)
-	return;
+        return;
       auto i = std::remove_if(edges_.begin() + 1, edges_.end(),
-			      [this](const edge_storage_t& t) {
-				return this->is_dead_edge(t);
-			      });
+                              [this](const edge_storage_t& t) {
+                                return this->is_dead_edge(t);
+                              });
       edges_.erase(i, edges_.end());
       killed_edge_ = 0;
     }
@@ -885,38 +885,38 @@ namespace spot
       state last_src = -1U;
       edge tend = edges_.size();
       for (edge t = 1; t < tend; ++t)
-	{
-	  state src = edges_[t].src;
-	  if (src != last_src)
-	    {
-	      states_[src].succ = t;
-	      if (last_src != -1U)
-		{
-		  states_[last_src].succ_tail = t - 1;
-		  edges_[t - 1].next_succ = 0;
-		}
-	      while (++last_src != src)
-		{
-		  states_[last_src].succ = 0;
-		  states_[last_src].succ_tail = 0;
-		}
-	    }
-	  else
-	    {
-	      edges_[t - 1].next_succ = t;
-	    }
-	}
+        {
+          state src = edges_[t].src;
+          if (src != last_src)
+            {
+              states_[src].succ = t;
+              if (last_src != -1U)
+                {
+                  states_[last_src].succ_tail = t - 1;
+                  edges_[t - 1].next_succ = 0;
+                }
+              while (++last_src != src)
+                {
+                  states_[last_src].succ = 0;
+                  states_[last_src].succ_tail = 0;
+                }
+            }
+          else
+            {
+              edges_[t - 1].next_succ = t;
+            }
+        }
       if (last_src != -1U)
-	{
-	  states_[last_src].succ_tail = tend - 1;
-	  edges_[tend - 1].next_succ = 0;
-	}
+        {
+          states_[last_src].succ_tail = tend - 1;
+          edges_[tend - 1].next_succ = 0;
+        }
       unsigned send = states_.size();
       while (++last_src != send)
-	{
-	  states_[last_src].succ = 0;
-	  states_[last_src].succ_tail = 0;
-	}
+        {
+          states_[last_src].succ = 0;
+          states_[last_src].succ_tail = 0;
+        }
       //std::cerr << "\nafter\n";
       //dump_storage(std::cerr);
     }
@@ -930,10 +930,10 @@ namespace spot
       assert(newst.size() == states_.size());
       unsigned tend = edges_.size();
       for (unsigned t = 1; t < tend; t++)
-	{
-	  edges_[t].dst = newst[edges_[t].dst];
-	  edges_[t].src = newst[edges_[t].src];
-	}
+        {
+          edges_[t].dst = newst[edges_[t].dst];
+          edges_[t].src = newst[edges_[t].src];
+        }
     }
 
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states)
@@ -947,22 +947,22 @@ namespace spot
       // Shift all states in states_, as indicated by newst.
       unsigned send = states_.size();
       for (state s = 0; s < send; ++s)
-	{
-	  state dst = newst[s];
-	  if (dst == s)
-	    continue;
-	  if (dst == -1U)
-	    {
-	      // This is an erased state.  Mark all its edges as
-	      // dead (i.e., t.next_succ should point to t for each of
-	      // them).
-	      auto t = states_[s].succ;
-	      while (t)
-		std::swap(t, edges_[t].next_succ);
-	      continue;
-	    }
-	  states_[dst] = std::move(states_[s]);
-	}
+        {
+          state dst = newst[s];
+          if (dst == s)
+            continue;
+          if (dst == -1U)
+            {
+              // This is an erased state.  Mark all its edges as
+              // dead (i.e., t.next_succ should point to t for each of
+              // them).
+              auto t = states_[s].succ;
+              while (t)
+                std::swap(t, edges_[t].next_succ);
+              continue;
+            }
+          states_[dst] = std::move(states_[s]);
+        }
       states_.resize(used_states);
 
       // Shift all edges in edges_.  The algorithm is
@@ -972,33 +972,33 @@ namespace spot
       std::vector<edge> newidx(tend);
       unsigned dest = 1;
       for (edge t = 1; t < tend; ++t)
-	{
-	  if (is_dead_edge(t))
-	    continue;
-	  if (t != dest)
-	    edges_[dest] = std::move(edges_[t]);
-	  newidx[t] = dest;
-	  ++dest;
-	}
+        {
+          if (is_dead_edge(t))
+            continue;
+          if (t != dest)
+            edges_[dest] = std::move(edges_[t]);
+          newidx[t] = dest;
+          ++dest;
+        }
       edges_.resize(dest);
       killed_edge_ = 0;
 
       // Adjust next_succ and dst pointers in all edges.
       for (edge t = 1; t < dest; ++t)
-	{
-	  auto& tr = edges_[t];
-	  tr.next_succ = newidx[tr.next_succ];
-	  tr.dst = newst[tr.dst];
-	  tr.src = newst[tr.src];
-	  assert(tr.dst != -1U);
-	}
+        {
+          auto& tr = edges_[t];
+          tr.next_succ = newidx[tr.next_succ];
+          tr.dst = newst[tr.dst];
+          tr.src = newst[tr.src];
+          assert(tr.dst != -1U);
+        }
 
       // Adjust succ and succ_tails pointers in all states.
       for (auto& s: states_)
-	{
-	  s.succ = newidx[s.succ];
-	  s.succ_tail = newidx[s.succ_tail];
-	}
+        {
+          s.succ = newidx[s.succ];
+          s.succ_tail = newidx[s.succ_tail];
+        }
 
       //std::cerr << "\nafter defrag\n";
       //dump_storage(std::cerr);

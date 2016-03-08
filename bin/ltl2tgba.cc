@@ -90,9 +90,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'x':
       {
-	const char* opt = extra_options.parse_options(arg);
-	if (opt)
-	  error(2, 0, "failed to parse --options near '%s'", opt);
+        const char* opt = extra_options.parse_options(arg);
+        if (opt)
+          error(2, 0, "failed to parse --options near '%s'", opt);
       }
       break;
     case ARGP_KEY_ARG:
@@ -122,19 +122,19 @@ namespace
 
     int
     process_formula(spot::formula f,
-		    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0)
     {
       // This should not happen, because the parser we use can only
       // read PSL/LTL formula, but since our formula type can
       // represent more than PSL formula, let's make this
       // future-proof.
       if (!f.is_psl_formula())
-	{
-	  std::string s = spot::str_psl(f);
-	  error_at_line(2, 0, filename, linenum,
-			"formula '%s' is not an LTL or PSL formula",
-			s.c_str());
-	}
+        {
+          std::string s = spot::str_psl(f);
+          error_at_line(2, 0, filename, linenum,
+                        "formula '%s' is not an LTL or PSL formula",
+                        s.c_str());
+        }
 
       spot::stopwatch sw;
       sw.start();
@@ -142,7 +142,7 @@ namespace
       const double translation_time = sw.stop();
 
       printer.print(aut, f, filename, linenum, translation_time, nullptr,
-		    prefix, suffix);
+                    prefix, suffix);
       return 0;
     }
   };
@@ -157,7 +157,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FORMULA...]",
-		    argp_program_doc, children, nullptr, nullptr };
+                    argp_program_doc, children, nullptr, nullptr };
 
   simplification_level = 3;
 
@@ -166,7 +166,7 @@ main(int argc, char** argv)
 
   if (jobs.empty())
     error(2, 0, "No formula to translate?  Run '%s --help' for usage.",
-	  program_name);
+          program_name);
 
   spot::translator trans(&extra_options);
   trans.set_pref(pref | comp | sbacc | unambig);
@@ -177,7 +177,7 @@ main(int argc, char** argv)
     {
       trans_processor processor(trans);
       if (processor.run())
-	return 2;
+        return 2;
     }
   catch (const std::runtime_error& e)
     {

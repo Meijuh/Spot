@@ -32,22 +32,22 @@ namespace spot
 
   SPOT_API
   twa_graph_ptr product(const const_twa_graph_ptr& left,
-			const const_twa_graph_ptr& right);
+                        const const_twa_graph_ptr& right);
 
   SPOT_API
   twa_graph_ptr product(const const_twa_graph_ptr& left,
-			const const_twa_graph_ptr& right,
-			unsigned left_state,
-			unsigned right_state);
+                        const const_twa_graph_ptr& right,
+                        unsigned left_state,
+                        unsigned right_state);
 
   SPOT_API
   twa_graph_ptr product_or(const const_twa_graph_ptr& left,
-			   const const_twa_graph_ptr& right);
+                           const const_twa_graph_ptr& right);
 
   SPOT_API
   twa_graph_ptr product_or(const const_twa_graph_ptr& left,
-			   const const_twa_graph_ptr& right,
-			   unsigned left_state,
-			   unsigned right_state);
+                           const const_twa_graph_ptr& right,
+                           unsigned left_state,
+                           unsigned right_state);
 
 }

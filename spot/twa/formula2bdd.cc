@@ -33,30 +33,30 @@ namespace spot
     conj_to_formula(bdd b, const bdd_dict_ptr d)
     {
       if (b == bddfalse)
-	return formula::ff();
+        return formula::ff();
       std::vector<formula> v;
       while (b != bddtrue)
-	{
-	  int var = bdd_var(b);
-	  const bdd_dict::bdd_info& i = d->bdd_map[var];
-	  assert(i.type == bdd_dict::var);
-	  formula res = i.f;
+        {
+          int var = bdd_var(b);
+          const bdd_dict::bdd_info& i = d->bdd_map[var];
+          assert(i.type == bdd_dict::var);
+          formula res = i.f;
 
-	  bdd high = bdd_high(b);
-	  if (high == bddfalse)
-	    {
-	      res = formula::Not(res);
-	      b = bdd_low(b);
-	    }
-	  else
-	    {
-	      // If bdd_low is not false, then b was not a conjunction.
-	      assert(bdd_low(b) == bddfalse);
-	      b = high;
-	    }
-	  assert(b != bddfalse);
-	  v.push_back(res);
-	}
+          bdd high = bdd_high(b);
+          if (high == bddfalse)
+            {
+              res = formula::Not(res);
+              b = bdd_low(b);
+            }
+          else
+            {
+              // If bdd_low is not false, then b was not a conjunction.
+              assert(bdd_low(b) == bddfalse);
+              b = high;
+            }
+          assert(b != bddfalse);
+          v.push_back(res);
+        }
       return formula::And(v);
     }
   } // anonymous
@@ -66,14 +66,14 @@ namespace spot
   {
     auto recurse = [&d, owner](formula f)
       {
-	return formula_to_bdd(f, d, owner);
+        return formula_to_bdd(f, d, owner);
       };
     switch (f.kind())
       {
       case op::ff:
-	return bddfalse;
+        return bddfalse;
       case op::tt:
-	return bddtrue;
+        return bddtrue;
       case op::eword:
       case op::Star:
       case op::FStar:
@@ -95,32 +95,32 @@ namespace spot
       case op::AndNLM:
       case op::OrRat:
       case op::AndRat:
-	SPOT_UNIMPLEMENTED();
+        SPOT_UNIMPLEMENTED();
       case op::ap:
-	return bdd_ithvar(d->register_proposition(f, owner));
+        return bdd_ithvar(d->register_proposition(f, owner));
       case op::Not:
-	return bdd_not(recurse(f[0]));
+        return bdd_not(recurse(f[0]));
       case op::Xor:
-	return bdd_apply(recurse(f[0]), recurse(f[1]), bddop_xor);
+        return bdd_apply(recurse(f[0]), recurse(f[1]), bddop_xor);
       case op::Implies:
-	return bdd_apply(recurse(f[0]), recurse(f[1]), bddop_imp);
+        return bdd_apply(recurse(f[0]), recurse(f[1]), bddop_imp);
       case op::Equiv:
-	return bdd_apply(recurse(f[0]), recurse(f[1]), bddop_biimp);
+        return bdd_apply(recurse(f[0]), recurse(f[1]), bddop_biimp);
       case op::And:
       case op::Or:
-	{
-	  int o = bddop_and;
-	  bdd res = bddtrue;
-	  if (f.is(op::Or))
-	    {
-	      o = bddop_or;
-	      res = bddfalse;
-	    }
-	  unsigned s = f.size();
-	  for (unsigned n = 0; n < s; ++n)
-	    res = bdd_apply(res, recurse(f[n]), o);
-	  return res;
-	}
+        {
+          int o = bddop_and;
+          bdd res = bddtrue;
+          if (f.is(op::Or))
+            {
+              o = bddop_or;
+              res = bddfalse;
+            }
+          unsigned s = f.size();
+          for (unsigned n = 0; n < s; ++n)
+            res = bdd_apply(res, recurse(f[n]), o);
+          return res;
+        }
       }
     SPOT_UNREACHABLE();
     return bddfalse;

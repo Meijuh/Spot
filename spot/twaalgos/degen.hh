@@ -51,16 +51,16 @@ namespace spot
   /// \@{
   SPOT_API twa_graph_ptr
   degeneralize(const const_twa_graph_ptr& a, bool use_z_lvl = true,
-	       bool use_cust_acc_orders = false,
-	       int use_lvl_cache = 1,
-	       bool skip_levels = true,
-	       bool ignaccsl = false);
+               bool use_cust_acc_orders = false,
+               int use_lvl_cache = 1,
+               bool skip_levels = true,
+               bool ignaccsl = false);
 
   SPOT_API twa_graph_ptr
   degeneralize_tba(const const_twa_graph_ptr& a, bool use_z_lvl = true,
-		   bool use_cust_acc_orders = false,
-		   int use_lvl_cache = 1,
-		   bool skip_levels = true,
-		   bool ignaccsl = false);
+                   bool use_cust_acc_orders = false,
+                   int use_lvl_cache = 1,
+                   bool skip_levels = true,
+                   bool ignaccsl = false);
   /// \@}
 }

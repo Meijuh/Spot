@@ -113,8 +113,8 @@ namespace spot
     constexpr trival operator!() const
     {
       return trival((val_ == yes_value) ? no_value :
-		    (val_ == no_value) ? yes_value :
-		    maybe_value);
+                    (val_ == no_value) ? yes_value :
+                    maybe_value);
     }
   };
 
@@ -171,8 +171,8 @@ namespace spot
   inline std::ostream& operator<<(std::ostream& os, trival v)
   {
     return os << ((v.val() == trival::no_value) ? "no"
-		  : (v.val() == trival::maybe_value) ? "maybe"
-		  : "yes");
+                  : (v.val() == trival::maybe_value) ? "maybe"
+                  : "yes");
   }
 
   /// @}

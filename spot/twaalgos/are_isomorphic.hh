@@ -49,7 +49,7 @@ namespace spot
     /// \ingroup twa_misc
     /// \brief Check whether two automata are isomorphic.
     static bool are_isomorphic(const const_twa_graph_ptr ref,
-			       const const_twa_graph_ptr aut);
+                               const const_twa_graph_ptr aut);
 
   private:
     bool is_isomorphic_(const const_twa_graph_ptr aut);

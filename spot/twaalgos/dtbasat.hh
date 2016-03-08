@@ -41,8 +41,8 @@ namespace spot
   /// states is found, a null pointer
   SPOT_API twa_graph_ptr
   dtba_sat_synthetize(const const_twa_graph_ptr& a,
-		      int target_state_number,
-		      bool state_based = false);
+                      int target_state_number,
+                      bool state_based = false);
 
   /// \brief Attempt to minimize a deterministic TBA with a SAT solver.
   ///
@@ -52,8 +52,8 @@ namespace spot
   /// If no smaller TBA exist, this returns a null pointer.
   SPOT_API twa_graph_ptr
   dtba_sat_minimize(const const_twa_graph_ptr& a,
-		    bool state_based = false,
-		    int max_states = -1);
+                    bool state_based = false,
+                    int max_states = -1);
 
   /// \brief Attempt to minimize a deterministic TBA with a SAT solver.
   ///
@@ -63,6 +63,6 @@ namespace spot
   /// If no smaller TBA exist, this returns a null pointer.
   SPOT_API twa_graph_ptr
   dtba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
-			      bool state_based = false,
-			      int max_states = -1);
+                              bool state_based = false,
+                              int max_states = -1);
 }

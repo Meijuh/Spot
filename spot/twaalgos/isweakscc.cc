@@ -35,7 +35,7 @@ namespace spot
       keep[s] = true;
     auto sccaut = mask_keep_states(aut, keep, states.front());
     sccaut->set_acceptance(sccaut->acc().num_sets(),
-			   sccaut->get_acceptance().complement());
+                           sccaut->get_acceptance().complement());
     return !sccaut->is_empty();
   }
 
@@ -67,18 +67,18 @@ namespace spot
     auto a = map.get_aut();
     for (auto s: map.states_of(scc))
       {
-	bool has_succ = false;
-	bdd sumall = bddfalse;
-	for (auto& t: a->out(s))
-	  {
-	    has_succ = true;
-	    if (map.scc_of(t.dst) == scc)
-	      sumall |= t.cond;
-	    if (sumall == bddtrue)
-	      break;
-	  }
-	if (!has_succ || sumall != bddtrue)
-	  return false;
+        bool has_succ = false;
+        bdd sumall = bddfalse;
+        for (auto& t: a->out(s))
+          {
+            has_succ = true;
+            if (map.scc_of(t.dst) == scc)
+              sumall |= t.cond;
+            if (sumall == bddtrue)
+              break;
+          }
+        if (!has_succ || sumall != bddtrue)
+          return false;
       }
     return true;
   }
@@ -88,7 +88,7 @@ namespace spot
   {
     // If all transitions use all acceptance conditions, the SCC is weak.
     return (map.is_accepting_scc(scc)
-	    && map.used_acc_of(scc).size() == 1
-	    && is_complete_scc(map, scc));
+            && map.used_acc_of(scc).size() == 1
+            && is_complete_scc(map, scc));
   }
 }

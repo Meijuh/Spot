@@ -31,7 +31,7 @@ namespace spot
   /// Compress an int vector into a vector of unsigned int.
   SPOT_API void
   int_vector_vector_compress(const std::vector<int>& input,
-			     std::vector<unsigned int>& output);
+                             std::vector<unsigned int>& output);
 
   /// \brief Uncompress a vector of unsigned int into a vector of
   ///        size \a size.
@@ -39,7 +39,7 @@ namespace spot
   /// \a size must be the exact expected size of uncompressed array.
   SPOT_API void
   int_vector_vector_decompress(const std::vector<unsigned int>& array,
-			       std::vector<int>& output, size_t size);
+                               std::vector<int>& output, size_t size);
 
   /// Compress an int array if size \a n into a vector of unsigned int.
   SPOT_API const std::vector<unsigned int>*
@@ -51,7 +51,7 @@ namespace spot
   /// \a size must be the exact expected size of uncompressed array.
   SPOT_API void
   int_vector_array_decompress(const std::vector<unsigned int>* array,
-			      int* res, size_t size);
+                              int* res, size_t size);
 
   /// \brief Compress an int array of size \a n into a int array.
   ///
@@ -61,7 +61,7 @@ namespace spot
   /// filled in \a dest
   SPOT_API void
   int_array_array_compress(const int* array, size_t n,
-			   int* dest, size_t& dest_size);
+                           int* dest, size_t& dest_size);
 
   /// \brief Uncompress an int array of size \a array_size into a int
   ///        array of size \a size.
@@ -69,7 +69,7 @@ namespace spot
   /// \a size must be the exact expected size of uncompressed array.
   SPOT_API void
   int_array_array_decompress(const int* array, size_t array_size,
-			     int* res, size_t size);
+                             int* res, size_t size);
 
   /// @}
 }

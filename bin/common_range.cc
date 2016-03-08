@@ -42,7 +42,7 @@ parse_range(const char* str, int missing_left, int missing_right)
       // No leading number.  It's OK as long as the string is not
       // empty.
       if (!*end)
-	error(1, 0, "invalid empty range");
+        error(1, 0, "invalid empty range");
       res.min = missing_left;
     }
   if (!*end)
@@ -54,24 +54,24 @@ parse_range(const char* str, int missing_left, int missing_right)
     {
       // Skip : or ..
       if (end[0] == ':')
-	++end;
+        ++end;
       else if (end[0] == '.' && end[1] == '.')
-	end += 2;
+        end += 2;
 
       if (!*end && missing_right != 0)
-	{
-	  res.max = missing_right;
-	}
+        {
+          res.max = missing_right;
+        }
       else
-	{
-	  // Parse the next integer.
-	  char* end2;
-	  res.max = strtol(end, &end2, 10);
-	  if (end == end2)
-	    error(1, 0, "invalid range '%s' (missing end?)", str);
-	  if (*end2)
-	    error(1, 0, "invalid range '%s' (trailing garbage?)", str);
-	}
+        {
+          // Parse the next integer.
+          char* end2;
+          res.max = strtol(end, &end2, 10);
+          if (end == end2)
+            error(1, 0, "invalid range '%s' (missing end?)", str);
+          if (*end2)
+            error(1, 0, "invalid range '%s' (trailing garbage?)", str);
+        }
     }
 
   if (res.min < 0 || res.max < 0)

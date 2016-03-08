@@ -27,5 +27,5 @@ namespace spot
   /// replace atomic propositions in an automaton
   SPOT_API void
   relabel_here(twa_graph_ptr& aut,
-	       relabeling_map* relmap);
+               relabeling_map* relmap);
 }

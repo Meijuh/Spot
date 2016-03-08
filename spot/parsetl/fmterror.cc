@@ -30,7 +30,7 @@ namespace spot
 {
   void
   fix_utf8_locations(const std::string& ltl_string,
-		     parse_error_list& error_list)
+                     parse_error_list& error_list)
   {
     // LUT to convert byte positions to utf8 positions.
     // (The +2 is to account for position 0, not used,
@@ -42,15 +42,15 @@ namespace spot
     std::string::const_iterator i = b;
     std::string::const_iterator e = ltl_string.end();
 
-    unsigned n = 0;		// number of current utf8 character
-    unsigned prev = 0;	// last byte of previous utf8 character
+    unsigned n = 0;                // number of current utf8 character
+    unsigned prev = 0;        // last byte of previous utf8 character
     while (i != e)
       {
-	utf8::next(i, e);
-	++n;
-	unsigned d = std::distance(b, i);
-	while (prev < d)
-	  b2u[++prev] = n;
+        utf8::next(i, e);
+        ++n;
+        unsigned d = std::distance(b, i);
+        while (prev < d)
+          b2u[++prev] = n;
       }
     b2u[++prev] = ++n;
 
@@ -58,9 +58,9 @@ namespace spot
     parse_error_list::iterator it;
     for (it = error_list.begin(); it != error_list.end(); ++it)
       {
-	location& l = it->first;
-	l.begin.column = b2u[l.begin.column];
-	l.end.column = b2u[l.end.column];
+        location& l = it->first;
+        l.begin.column = b2u[l.begin.column];
+        l.end.column = b2u[l.end.column];
       }
   }
 
@@ -68,45 +68,45 @@ namespace spot
   {
     static bool
     format_parse_errors_aux(std::ostream& os,
-			    const std::string& ltl_string,
-			    const parse_error_list& error_list,
-			    unsigned shift)
+                            const std::string& ltl_string,
+                            const parse_error_list& error_list,
+                            unsigned shift)
     {
       bool printed = false;
       for (auto it: error_list)
-	{
-	  os << ">>> " << ltl_string << '\n';
-	  const location& l = it.first;
+        {
+          os << ">>> " << ltl_string << '\n';
+          const location& l = it.first;
 
-	  unsigned n = 1;
-	  for (; n < 4 + l.begin.column + shift; ++n)
-	    os << ' ';
-	  // Write at least one '^', even if begin==end.
-	  os << '^';
-	  ++n;
-	  for (; n < 4 + l.end.column + shift; ++n)
-	    os << '^';
-	  os << '\n' << it.second << "\n\n";
-	  printed = true;
-	}
+          unsigned n = 1;
+          for (; n < 4 + l.begin.column + shift; ++n)
+            os << ' ';
+          // Write at least one '^', even if begin==end.
+          os << '^';
+          ++n;
+          for (; n < 4 + l.end.column + shift; ++n)
+            os << '^';
+          os << '\n' << it.second << "\n\n";
+          printed = true;
+        }
       return printed;
     }
   }
 
   bool
   parsed_formula::format_errors(std::ostream& os,
-				const std::string& real_input,
-				unsigned shift)
+                                const std::string& real_input,
+                                unsigned shift)
   {
     if (utf8::is_valid(input.begin(), input.end()))
       {
-	parse_error_list fixed = errors;
-	fix_utf8_locations(input, fixed);
-	return format_parse_errors_aux(os, real_input, fixed, shift);
+        parse_error_list fixed = errors;
+        fix_utf8_locations(input, fixed);
+        return format_parse_errors_aux(os, real_input, fixed, shift);
       }
     else
       {
-	return format_parse_errors_aux(os, real_input, errors, shift);
+        return format_parse_errors_aux(os, real_input, errors, shift);
       }
   }
 

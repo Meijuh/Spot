@@ -43,8 +43,8 @@
 // @InProceedings{gastin.01.cav,
 //   author = {Paul Gastin and Denis Oddoux},
 //   title = {Fast {LTL} to {B\"u}chi Automata Translation},
-//   booktitle	= {Proceedings of the 13th International Conference on
-// 		  Computer Aided Verification (CAV'01)},
+//   booktitle        = {Proceedings of the 13th International Conference on
+//                   Computer Aided Verification (CAV'01)},
 //   pages = {53--65},
 //   year = 2001,
 //   editor = {G. Berry and H. Comon and A. Finkel},
@@ -58,7 +58,7 @@
 //   author = {Kristin Y. Rozier and Moshe Y. Vardi},
 //   title = {LTL Satisfiability Checking},
 //   booktitle = {Proceedings of the 12th International SPIN Workshop on
-// 		  Model Checking of Software (SPIN'07)},
+//                   Model Checking of Software (SPIN'07)},
 //   pages = {149--167},
 //   year = {2007},
 //   volume = {4595},
@@ -294,9 +294,9 @@ E_n(std::string name, int n)
       p << name << n;
       formula f = formula::ap(p.str());
       if (result)
-	result = And_(f, result);
+        result = And_(f, result);
       else
-	result = f;
+        result = f;
       result = F_(result);
     }
   return result;
@@ -314,9 +314,9 @@ phi_n(std::string name, int n)
   for (; n > 0; --n)
     {
       if (result)
-	result = And_(p, X_(result));
+        result = And_(p, X_(result));
       else
-	result = p;
+        result = p;
     }
   return result;
 }
@@ -339,14 +339,14 @@ phi_prime_n(std::string name, int n)
   for (; n > 0; --n)
     {
       if (result)
-	{
-	  p = X_(p);
-	  result = And_(result, p);
-	}
+        {
+          p = X_(p);
+          result = And_(result, p);
+        }
       else
-	{
-	  result = p;
-	}
+        {
+          result = p;
+        }
     }
   return result;
 }
@@ -377,9 +377,9 @@ GF_n(std::string name, int n, bool conj = true)
       formula f = G_(F_(formula::ap(p.str())));
 
       if (result)
-	result = formula::multop(o, {f, result});
+        result = formula::multop(o, {f, result});
       else
-	result = f;
+        result = f;
     }
   return result;
 }
@@ -403,9 +403,9 @@ FG_n(std::string name, int n, bool conj = false)
       formula f = F_(G_(formula::ap(p.str())));
 
       if (result)
-	result = formula::multop(o, {f, result});
+        result = formula::multop(o, {f, result});
       else
-	result = f;
+        result = f;
     }
   return result;
 }
@@ -426,11 +426,11 @@ bin_n(std::string name, int n, op o, bool right_assoc = false)
       p << name << (right_assoc ? (n + 1 - i) : i);
       formula f = formula::ap(p.str());
       if (!result)
-	result = f;
+        result = f;
       else if (right_assoc)
-	result = formula::binop(o, f, result);
+        result = formula::binop(o, f, result);
       else
-	result = formula::binop(o, result, f);
+        result = formula::binop(o, result, f);
     }
   return result;
 }
@@ -464,9 +464,9 @@ R_n(std::string name, int n)
       formula f = Or_(gf, fg);
 
       if (result)
-	result = And_(f, result);
+        result = And_(f, result);
       else
-	result = f;
+        result = f;
     }
   return result;
 }
@@ -501,9 +501,9 @@ Q_n(std::string name, int n)
       f = Or_(f, g);
 
       if (result)
-	result = And_(f, result);
+        result = And_(f, result);
       else
-	result = f;
+        result = f;
     }
   return result;
 }
@@ -527,9 +527,9 @@ combunop_n(std::string name, int n, op o, bool conj = false)
       formula f = formula::unop(o, formula::ap(p.str()));
 
       if (result)
-	result = formula::multop(cop, {f, result});
+        result = formula::multop(cop, {f, result});
       else
-	result = f;
+        result = f;
     }
   return result;
 }
@@ -575,7 +575,7 @@ ltl_counter(std::string bit, std::string marker, int n, bool linear)
       // G(m -> X(!m)&XX(!m)&XXX(m))          [if n = 3]
       std::vector<formula> v(n);
       for (int i = 0; i + 1 < n; ++i)
-	v[i] = X_n(neg_m, i + 1);
+        v[i] = X_n(neg_m, i + 1);
       v[n - 1] = X_n(m, n);
       res[0] = And_(m, G_(Implies_(m, formula::And(std::move(v)))));
     }
@@ -584,7 +584,7 @@ ltl_counter(std::string bit, std::string marker, int n, bool linear)
       // G(m -> X(!m & X(!m X(m))))          [if n = 3]
       formula p = m;
       for (int i = n - 1; i > 0; --i)
-	p = And_(neg_m, X_(p));
+        p = And_(neg_m, X_(p));
       res[0] = And_(m, G_(Implies_(m, X_(p))));
     }
 
@@ -594,7 +594,7 @@ ltl_counter(std::string bit, std::string marker, int n, bool linear)
       // !b & X(!b) & XX(!b)    [if n = 3]
       std::vector<formula> v2(n);
       for (int i = 0; i < n; ++i)
-	v2[i] = X_n(neg_b, i);
+        v2[i] = X_n(neg_b, i);
       res[1] = formula::And(std::move(v2));
     }
   else
@@ -602,7 +602,7 @@ ltl_counter(std::string bit, std::string marker, int n, bool linear)
       // !b & X(!b & X(!b))     [if n = 3]
       formula p = neg_b;
       for (int i = n - 1; i > 0; --i)
-	p = And_(neg_b, X_(p));
+        p = And_(neg_b, X_(p));
       res[1] = p;
     }
 
@@ -613,26 +613,26 @@ ltl_counter(std::string bit, std::string marker, int n, bool linear)
   formula Xnm1_b = X_n(b, n - 1);
   formula Xn_b = X_(Xnm1_b);
   res[2] = G_(Implies_(And_(m, neg_b),
-		       AndX_(Xnm1_b, U_(And_(Not_(m), Equiv_(b, Xn_b)), m))));
+                       AndX_(Xnm1_b, U_(And_(Not_(m), Equiv_(b, Xn_b)), m))));
 
   // From the least significant bit to the first 0, all the bits
   // are flipped on the next value.  Remaining bits are identical.
   formula Xnm1_negb = X_n(neg_b, n - 1);
   formula Xn_negb = X_(Xnm1_negb);
   res[3] = G_(Implies_(And_(m, b),
-		       AndX_(Xnm1_negb,
-			     U_(And_(And_(b, neg_m), Xn_negb),
-				Or_(m, And_(And_(neg_m, neg_b),
-					    AndX_(Xnm1_b,
-						  U_(And_(neg_m,
-							  Equiv_(b, Xn_b)),
-						     m))))))));
+                       AndX_(Xnm1_negb,
+                             U_(And_(And_(b, neg_m), Xn_negb),
+                                Or_(m, And_(And_(neg_m, neg_b),
+                                            AndX_(Xnm1_b,
+                                                  U_(And_(neg_m,
+                                                          Equiv_(b, Xn_b)),
+                                                     m))))))));
   return formula::And(std::move(res));
 }
 
 static formula
 ltl_counter_carry(std::string bit, std::string marker,
-		  std::string carry, int n, bool linear)
+                  std::string carry, int n, bool linear)
 {
   formula b = formula::ap(bit);
   formula neg_b = Not_(b);
@@ -650,7 +650,7 @@ ltl_counter_carry(std::string bit, std::string marker,
       // G(m -> X(!m)&XX(!m)&XXX(m))          [if n = 3]
       std::vector<formula> v(n);
       for (int i = 0; i + 1 < n; ++i)
-	v[i] = X_n(neg_m, i + 1);
+        v[i] = X_n(neg_m, i + 1);
       v[n - 1] = X_n(m, n);
       res[0] = And_(m, G_(Implies_(m, formula::And(std::move(v)))));
     }
@@ -659,7 +659,7 @@ ltl_counter_carry(std::string bit, std::string marker,
       // G(m -> X(!m & X(!m X(m))))          [if n = 3]
       formula p = m;
       for (int i = n - 1; i > 0; --i)
-	p = And_(neg_m, X_(p));
+        p = And_(neg_m, X_(p));
       res[0] = And_(m, G_(Implies_(m, X_(p))));
     }
 
@@ -669,7 +669,7 @@ ltl_counter_carry(std::string bit, std::string marker,
       // !b & X(!b) & XX(!b)    [if n = 3]
       std::vector<formula> v2(n);
       for (int i = 0; i < n; ++i)
-	v2[i] = X_n(neg_b, i);
+        v2[i] = X_n(neg_b, i);
       res[1] = formula::And(std::move(v2));
     }
   else
@@ -677,7 +677,7 @@ ltl_counter_carry(std::string bit, std::string marker,
       // !b & X(!b & X(!b))     [if n = 3]
       formula p = neg_b;
       for (int i = n - 1; i > 0; --i)
-	p = And_(neg_b, X_(p));
+        p = And_(neg_b, X_(p));
       res[1] = p;
     }
 
@@ -694,24 +694,24 @@ ltl_counter_carry(std::string bit, std::string marker,
     {
       // If there's no carry, then all of the bits stay the same n steps later.
       res[4] = G_(Implies_(And_(neg_c, X_(neg_m)),
-			   And_(X_(Not_(c)), Equiv_(X_(b), X_(Xn_b)))));
+                           And_(X_(Not_(c)), Equiv_(X_(b), X_(Xn_b)))));
 
       // If there's a carry, then add one: flip the bits of b and
       // adjust the carry.
       res[5] = G_(Implies_(c, And_(Implies_(X_(neg_b),
-					    And_(X_(neg_c), X_(Xn_b))),
-				   Implies_(X_(b),
-					    And_(X_(c), X_(Xn_negb))))));
+                                            And_(X_(neg_c), X_(Xn_b))),
+                                   Implies_(X_(b),
+                                            And_(X_(c), X_(Xn_negb))))));
     }
   else
     {
       // If there's no carry, then all of the bits stay the same n steps later.
       res[4] = G_(Implies_(And_(neg_c, X_(neg_m)),
-			   X_(And_(Not_(c), Equiv_(b, Xn_b)))));
+                           X_(And_(Not_(c), Equiv_(b, Xn_b)))));
       // If there's a carry, then add one: flip the bits of b and
       // adjust the carry.
       res[5] = G_(Implies_(c, X_(And_(Implies_(neg_b, And_(neg_c, Xn_b)),
-				      Implies_(b, And_(c, Xn_negb))))));
+                                      Implies_(b, And_(c, Xn_negb))))));
     }
   return formula::And(std::move(res));
 }
@@ -804,12 +804,12 @@ run_jobs()
       int inc = (j.range.max < j.range.min) ? -1 : 1;
       int n = j.range.min;
       for (;;)
-	{
-	  output_pattern(j.pattern, n);
-	  if (n == j.range.max)
-	    break;
-	  n += inc;
-	}
+        {
+          output_pattern(j.pattern, n);
+          if (n == j.range.max)
+            break;
+          n += inc;
+        }
     }
 }
 
@@ -820,14 +820,14 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, nullptr, argp_program_doc,
-		    children, nullptr, nullptr };
+                    children, nullptr, nullptr };
 
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   if (jobs.empty())
     error(1, 0, "Nothing to do.  Try '%s --help' for more information.",
-	  program_name);
+          program_name);
 
   run_jobs();
   return 0;

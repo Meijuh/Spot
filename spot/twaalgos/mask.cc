@@ -22,7 +22,7 @@
 namespace spot
 {
   twa_graph_ptr mask_acc_sets(const const_twa_graph_ptr& in,
-				 acc_cond::mark_t to_remove)
+                                 acc_cond::mark_t to_remove)
   {
     auto res = make_twa_graph(in->get_dict());
     res->copy_ap_of(in);
@@ -31,7 +31,7 @@ namespace spot
     unsigned tr = to_remove.count();
     assert(tr <= na);
     res->set_acceptance(na - tr,
-			in->get_acceptance().strip(to_remove, true));
+                        in->get_acceptance().strip(to_remove, true));
     transform_accessible(in, res, [&](unsigned,
                                       bdd& cond,
                                       acc_cond::mark_t& acc,
@@ -60,10 +60,10 @@ namespace spot
                                 bdd& cond,
                                 acc_cond::mark_t&,
                                 unsigned dst)
-		   {
-		     if (!to_keep[src] || !to_keep[dst])
-		       cond = bddfalse;
-		   }, init);
+                   {
+                     if (!to_keep[src] || !to_keep[dst])
+                       cond = bddfalse;
+                   }, init);
     return res;
   }
 

@@ -98,7 +98,7 @@ namespace spot
     {
     public:
       twasl_succ_iterator(twa_succ_iterator* it, const state_tgbasl* state,
-			   bdd_dict_ptr d, bdd atomic_propositions)
+                           bdd_dict_ptr d, bdd atomic_propositions)
         : it_(it), state_(state), aps_(atomic_propositions), d_(d)
       {
       }
@@ -207,33 +207,33 @@ namespace spot
     {
     public:
       tgbasl(const const_twa_ptr& a, bdd atomic_propositions)
-	: twa(a->get_dict()), a_(a), aps_(atomic_propositions)
+        : twa(a->get_dict()), a_(a), aps_(atomic_propositions)
       {
-	get_dict()->register_all_propositions_of(&a_, this);
-	assert(num_sets() == 0);
-	set_generalized_buchi(a_->num_sets());
+        get_dict()->register_all_propositions_of(&a_, this);
+        assert(num_sets() == 0);
+        set_generalized_buchi(a_->num_sets());
       }
 
       virtual const state* get_init_state() const override
       {
-	return new state_tgbasl(a_->get_init_state(), bddfalse);
+        return new state_tgbasl(a_->get_init_state(), bddfalse);
       }
 
       virtual twa_succ_iterator* succ_iter(const state* state) const override
       {
-	const state_tgbasl* s = down_cast<const state_tgbasl*>(state);
-	assert(s);
-	return new twasl_succ_iterator(a_->succ_iter(s->real_state()), s,
-					a_->get_dict(), aps_);
+        const state_tgbasl* s = down_cast<const state_tgbasl*>(state);
+        assert(s);
+        return new twasl_succ_iterator(a_->succ_iter(s->real_state()), s,
+                                        a_->get_dict(), aps_);
       }
 
       virtual std::string format_state(const state* state) const override
       {
-	const state_tgbasl* s = down_cast<const state_tgbasl*>(state);
-	assert(s);
-	return (a_->format_state(s->real_state())
-		+ ", "
-		+ bdd_format_formula(a_->get_dict(), s->cond()));
+        const state_tgbasl* s = down_cast<const state_tgbasl*>(state);
+        assert(s);
+        return (a_->format_state(s->real_state())
+                + ", "
+                + bdd_format_formula(a_->get_dict(), s->cond()));
       }
 
     private:
@@ -257,13 +257,13 @@ namespace spot
       size_t
       operator()(const stutter_state& s) const
       {
-	return wang32_hash(s.first) ^ wang32_hash(s.second.id());
+        return wang32_hash(s.first) ^ wang32_hash(s.second.id());
       }
     };
 
     // Associate the stutter state to its number.
     typedef std::unordered_map<stutter_state, unsigned,
-			       stutter_state_hash> ss2num_map;
+                               stutter_state_hash> ss2num_map;
 
     // Queue of state to be processed.
     typedef std::deque<stutter_state> queue_t;
@@ -303,43 +303,43 @@ namespace spot
 
     while (!todo.empty())
       {
-	s = todo.front();
-	todo.pop_front();
-	unsigned src = ss2num[s];
+        s = todo.front();
+        todo.pop_front();
+        unsigned src = ss2num[s];
 
-	bool self_loop_needed = true;
+        bool self_loop_needed = true;
 
-	for (auto& t : a->out(s.first))
-	  {
-	    bdd all = t.cond;
-	    while (all != bddfalse)
-	      {
-		bdd one = bdd_satoneset(all, atomic_propositions, bddtrue);
-		all -= one;
+        for (auto& t : a->out(s.first))
+          {
+            bdd all = t.cond;
+            while (all != bddfalse)
+              {
+                bdd one = bdd_satoneset(all, atomic_propositions, bddtrue);
+                all -= one;
 
-		stutter_state d(t.dst, one);
+                stutter_state d(t.dst, one);
 
-		auto r = ss2num.emplace(d, ss2num.size());
-		unsigned dest = r.first->second;
+                auto r = ss2num.emplace(d, ss2num.size());
+                unsigned dest = r.first->second;
 
-		if (r.second)
-		  {
-		    todo.push_back(d);
-		    unsigned u = res->new_state();
-		    assert(u == dest);
-		    (void)u;
-		  }
+                if (r.second)
+                  {
+                    todo.push_back(d);
+                    unsigned u = res->new_state();
+                    assert(u == dest);
+                    (void)u;
+                  }
 
-		// Create the edge.
-		res->new_edge(src, dest, one, t.acc);
+                // Create the edge.
+                res->new_edge(src, dest, one, t.acc);
 
-		if (src == dest)
-		  self_loop_needed = false;
-	      }
-	  }
+                if (src == dest)
+                  self_loop_needed = false;
+              }
+          }
 
-	if (self_loop_needed && s.second != bddfalse)
-	  res->new_edge(src, src, s.second, 0U);
+        if (self_loop_needed && s.second != bddfalse)
+          res->new_edge(src, src, s.second, 0U);
       }
     res->merge_edges();
     return res;
@@ -358,53 +358,53 @@ namespace spot
     // state.
     for (auto& t: a->edges())
       if (t.src == t.dst)
-	selfloops[t.src] |= t.cond;
+        selfloops[t.src] |= t.cond;
     for (unsigned t = 1; t <= num_edges; ++t)
       {
-	auto& td = a->edge_storage(t);
-	if (a->is_dead_edge(td))
-	  continue;
+        auto& td = a->edge_storage(t);
+        if (a->is_dead_edge(td))
+          continue;
 
-	unsigned src = td.src;
-	unsigned dst = td.dst;
-	if (src != dst)
-	  {
-	    bdd all = td.cond;
-	    // If there is a self-loop with the whole condition on
-	    // either end of the edge, do not bother with it.
-	    if (bdd_implies(all, selfloops[src])
-		|| bdd_implies(all, selfloops[dst]))
-	      continue;
-	    // Do not use td in the loop because the new_edge()
-	    // might invalidate it.
-	    auto acc = td.acc;
-	    while (all != bddfalse)
-	      {
-		bdd one = bdd_satoneset(all, atomic_propositions, bddtrue);
-		all -= one;
-		// Skip if there is a loop for this particular letter.
-		if (bdd_implies(one, selfloops[src])
-		    || bdd_implies(one, selfloops[dst]))
-		  continue;
-		auto p = newstates.emplace(std::make_pair(dst, one.id()), 0);
-		if (p.second)
-		  p.first->second = a->new_state();
-		unsigned tmp = p.first->second; // intermediate state
-		unsigned i = a->new_edge(src, tmp, one, acc);
-		assert(i > num_edges);
-		i = a->new_edge(tmp, tmp, one, 0U);
-		assert(i > num_edges);
-		// No acceptance here to preserve the state-based property.
-		i = a->new_edge(tmp, dst, one, 0U);
-		assert(i > num_edges);
-		(void)i;
-	      }
-	  }
+        unsigned src = td.src;
+        unsigned dst = td.dst;
+        if (src != dst)
+          {
+            bdd all = td.cond;
+            // If there is a self-loop with the whole condition on
+            // either end of the edge, do not bother with it.
+            if (bdd_implies(all, selfloops[src])
+                || bdd_implies(all, selfloops[dst]))
+              continue;
+            // Do not use td in the loop because the new_edge()
+            // might invalidate it.
+            auto acc = td.acc;
+            while (all != bddfalse)
+              {
+                bdd one = bdd_satoneset(all, atomic_propositions, bddtrue);
+                all -= one;
+                // Skip if there is a loop for this particular letter.
+                if (bdd_implies(one, selfloops[src])
+                    || bdd_implies(one, selfloops[dst]))
+                  continue;
+                auto p = newstates.emplace(std::make_pair(dst, one.id()), 0);
+                if (p.second)
+                  p.first->second = a->new_state();
+                unsigned tmp = p.first->second; // intermediate state
+                unsigned i = a->new_edge(src, tmp, one, acc);
+                assert(i > num_edges);
+                i = a->new_edge(tmp, tmp, one, 0U);
+                assert(i > num_edges);
+                // No acceptance here to preserve the state-based property.
+                i = a->new_edge(tmp, dst, one, 0U);
+                assert(i > num_edges);
+                (void)i;
+              }
+          }
       }
     if (num_states != a->num_states())
-      a->prop_keep({true,	// state_based
-                    false,	// inherently_weak
-                    false,	// deterministic
+      a->prop_keep({true,        // state_based
+                    false,        // inherently_weak
+                    false,        // deterministic
                     false,      // stutter inv.
                    });
     a->merge_edges();
@@ -415,16 +415,16 @@ namespace spot
   sl2(const const_twa_graph_ptr& a, bdd atomic_propositions)
   {
     return sl2(make_twa_graph(a, twa::prop_set::all()),
-	       atomic_propositions);
+               atomic_propositions);
   }
 
 
   twa_graph_ptr
   closure(twa_graph_ptr&& a)
   {
-    a->prop_keep({false,	// state_based
-                  false,	// inherently_weak
-                  false,	// deterministic
+    a->prop_keep({false,        // state_based
+                  false,        // inherently_weak
+                  false,        // deterministic
                   false,        // stutter inv.
                  });
 
@@ -434,26 +434,26 @@ namespace spot
 
     for (unsigned state = 0; state < n; ++state)
       {
-	auto trans = a->out(state);
+        auto trans = a->out(state);
 
-	for (auto it = trans.begin(); it != trans.end(); ++it)
-	  {
-	    todo.push_back(it.trans());
-	    dst2trans[it->dst].push_back(it.trans());
-	  }
+        for (auto it = trans.begin(); it != trans.end(); ++it)
+          {
+            todo.push_back(it.trans());
+            dst2trans[it->dst].push_back(it.trans());
+          }
 
-	while (!todo.empty())
-	  {
-	    auto t1 = a->edge_storage(todo.back());
-	    todo.pop_back();
+        while (!todo.empty())
+          {
+            auto t1 = a->edge_storage(todo.back());
+            todo.pop_back();
 
-	    for (auto& t2 : a->out(t1.dst))
-	      {
-		bdd cond = t1.cond & t2.cond;
-		if (cond != bddfalse)
-		  {
+            for (auto& t2 : a->out(t1.dst))
+              {
+                bdd cond = t1.cond & t2.cond;
+                if (cond != bddfalse)
+                  {
                     bool need_new_trans = true;
-		    acc_cond::mark_t acc = t1.acc | t2.acc;
+                    acc_cond::mark_t acc = t1.acc | t2.acc;
                     for (auto& t: dst2trans[t2.dst])
                       {
                         auto& ts = a->edge_storage(t);
@@ -467,34 +467,34 @@ namespace spot
                                   todo.push_back(t);
                               }
                             need_new_trans = false;
-			    break;
+                            break;
                           }
-			else if (cond == ts.cond)
-			  {
-			    acc |= ts.acc;
-			    if (ts.acc != acc)
-			      {
-				ts.acc = acc;
-				if (std::find(todo.begin(), todo.end(), t)
-				    == todo.end())
-				  todo.push_back(t);
-			      }
+                        else if (cond == ts.cond)
+                          {
+                            acc |= ts.acc;
+                            if (ts.acc != acc)
+                              {
+                                ts.acc = acc;
+                                if (std::find(todo.begin(), todo.end(), t)
+                                    == todo.end())
+                                  todo.push_back(t);
+                              }
                             need_new_trans = false;
-			    break;
-			  }
+                            break;
+                          }
                       }
                     if (need_new_trans)
                       {
-			// Load t2.dst first, because t2 can be
-			// invalidated by new_edge().
-			auto dst = t2.dst;
+                        // Load t2.dst first, because t2 can be
+                        // invalidated by new_edge().
+                        auto dst = t2.dst;
                         auto i = a->new_edge(state, dst, cond, acc);
                         dst2trans[dst].push_back(i);
                         todo.push_back(i);
                       }
-		  }
-	      }
-	  }
+                  }
+              }
+          }
         for (auto& it: dst2trans)
           it.clear();
       }
@@ -514,16 +514,16 @@ namespace spot
     static const char* stutter_check = getenv("SPOT_STUTTER_CHECK");
     if (stutter_check)
       {
-	char* endptr;
-	long res = strtol(stutter_check, &endptr, 10);
-	if (*endptr || res < 0 || res > 9)
-	  throw
-	    std::runtime_error("invalid value for SPOT_STUTTER_CHECK.");
-	return res;
+        char* endptr;
+        long res = strtol(stutter_check, &endptr, 10);
+        if (*endptr || res < 0 || res > 9)
+          throw
+            std::runtime_error("invalid value for SPOT_STUTTER_CHECK.");
+        return res;
       }
     else
       {
-	return 8;     // The best variant, according to our benchmarks.
+        return 8;     // The best variant, according to our benchmarks.
       }
   }
 
@@ -538,23 +538,23 @@ namespace spot
     if (algo == 0 || algo == 9)
       // Etessami's check via syntactic transformation.
       {
-	if (!f.is_ltl_formula())
-	  throw std::runtime_error("Cannot use the syntactic "
-				   "stutter-invariance check "
-				   "for non-LTL formulas");
-	formula g = remove_x(f);
-	bool res;
-	if (algo == 0)		// Equivalence check
-	  {
-	    tl_simplifier ls;
-	    res = ls.are_equivalent(f, g);
-	  }
-	else
-	  {
-	    formula h = formula::Xor(f, g);
-	    res = ltl_to_tgba_fm(h, make_bdd_dict())->is_empty();
-	  }
-	return res;
+        if (!f.is_ltl_formula())
+          throw std::runtime_error("Cannot use the syntactic "
+                                   "stutter-invariance check "
+                                   "for non-LTL formulas");
+        formula g = remove_x(f);
+        bool res;
+        if (algo == 0)                // Equivalence check
+          {
+            tl_simplifier ls;
+            res = ls.are_equivalent(f, g);
+          }
+        else
+          {
+            formula h = formula::Xor(f, g);
+            res = ltl_to_tgba_fm(h, make_bdd_dict())->is_empty();
+          }
+        return res;
       }
 
     // Prepare for an automata-based check.
@@ -575,33 +575,33 @@ namespace spot
     switch (algo)
       {
       case 1: // sl(aut_f) x sl(aut_nf)
-	return product(sl(std::move(aut_f), aps),
-		       sl(std::move(aut_nf), aps))->is_empty();
+        return product(sl(std::move(aut_f), aps),
+                       sl(std::move(aut_nf), aps))->is_empty();
       case 2: // sl(cl(aut_f)) x aut_nf
-	return product(sl(closure(std::move(aut_f)), aps),
-		       std::move(aut_nf))->is_empty();
+        return product(sl(closure(std::move(aut_f)), aps),
+                       std::move(aut_nf))->is_empty();
       case 3: // (cl(sl(aut_f)) x aut_nf
-	return product(closure(sl(std::move(aut_f), aps)),
-		       std::move(aut_nf))->is_empty();
+        return product(closure(sl(std::move(aut_f), aps)),
+                       std::move(aut_nf))->is_empty();
       case 4: // sl2(aut_f) x sl2(aut_nf)
-	return product(sl2(std::move(aut_f), aps),
-		       sl2(std::move(aut_nf), aps))->is_empty();
+        return product(sl2(std::move(aut_f), aps),
+                       sl2(std::move(aut_nf), aps))->is_empty();
       case 5: // sl2(cl(aut_f)) x aut_nf
-	return product(sl2(closure(std::move(aut_f)), aps),
-		       std::move(aut_nf))->is_empty();
+        return product(sl2(closure(std::move(aut_f)), aps),
+                       std::move(aut_nf))->is_empty();
       case 6: // (cl(sl2(aut_f)) x aut_nf
-	return product(closure(sl2(std::move(aut_f), aps)),
-		       std::move(aut_nf))->is_empty();
+        return product(closure(sl2(std::move(aut_f), aps)),
+                       std::move(aut_nf))->is_empty();
       case 7: // on-the-fly sl(aut_f) x sl(aut_nf)
-	return otf_product(make_tgbasl(aut_f, aps),
-			   make_tgbasl(aut_nf, aps))->is_empty();
+        return otf_product(make_tgbasl(aut_f, aps),
+                           make_tgbasl(aut_nf, aps))->is_empty();
       case 8: // cl(aut_f) x cl(aut_nf)
-	return product(closure(std::move(aut_f)),
-		       closure(std::move(aut_nf)))->is_empty();
+        return product(closure(std::move(aut_f)),
+                       closure(std::move(aut_nf)))->is_empty();
       default:
-	throw std::runtime_error("invalid algorithm number for "
-				 "is_stutter_invariant()");
-	SPOT_UNREACHABLE();
+        throw std::runtime_error("invalid algorithm number for "
+                                 "is_stutter_invariant()");
+        SPOT_UNREACHABLE();
       }
   }
 
@@ -615,20 +615,20 @@ namespace spot
     twa_graph_ptr neg = nullptr;
     if (f)
       {
-	neg = translator(aut->get_dict()).run(formula::Not(f));
+        neg = translator(aut->get_dict()).run(formula::Not(f));
       }
     else
       {
-	// If the automaton is deterministic, we
-	// know how to complement it.
-	aut->prop_deterministic(is_deterministic(aut));
-	if (!aut->prop_deterministic())
-	  return trival::maybe();
-	neg = remove_fin(dtwa_complement(aut));
+        // If the automaton is deterministic, we
+        // know how to complement it.
+        aut->prop_deterministic(is_deterministic(aut));
+        if (!aut->prop_deterministic())
+          return trival::maybe();
+        neg = remove_fin(dtwa_complement(aut));
       }
 
     is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),
-				   std::move(neg), aut->ap_vars());
+                                   std::move(neg), aut->ap_vars());
     aut->prop_stutter_invariant(is_stut);
     return is_stut;
   }

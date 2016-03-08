@@ -158,51 +158,51 @@ main(int argc, char** argv)
 
     if (readfile)
       {
-	fin = new std::ifstream(argv[2]);
-	if (!*fin)
-	  {
-	    std::cerr << "Cannot open " << argv[2] << std::endl;
-	    exit(2);
-	  }
+        fin = new std::ifstream(argv[2]);
+        if (!*fin)
+          {
+            std::cerr << "Cannot open " << argv[2] << std::endl;
+            exit(2);
+          }
       }
 
   next_line:
 
     if (fin)
       {
-	std::string input;
-	do
-	  {
-	    if (!std::getline(*fin, input))
-	      goto end;
-	  }
-	while (input == "");
+        std::string input;
+        do
+          {
+            if (!std::getline(*fin, input))
+              goto end;
+          }
+        while (input == "");
 
-	auto pf1 = spot::parse_infix_psl(input);
-	if (pf1.format_errors(std::cerr))
-	  return 2;
-	f1 = pf1.f;
+        auto pf1 = spot::parse_infix_psl(input);
+        if (pf1.format_errors(std::cerr))
+          return 2;
+        f1 = pf1.f;
       }
     else
       {
-	auto pf1 = spot::parse_infix_psl(argv[2]);
-	if (pf1.format_errors(std::cerr))
-	  return 2;
-	f1 = pf1.f;
+        auto pf1 = spot::parse_infix_psl(argv[2]);
+        if (pf1.format_errors(std::cerr))
+          return 2;
+        f1 = pf1.f;
       }
 
     if (argc == 4)
       {
-	if (readfile)
-	  {
-	    std::cerr << "Cannot read from file and check result." << std::endl;
-	    exit(2);
-	  }
+        if (readfile)
+          {
+            std::cerr << "Cannot read from file and check result." << std::endl;
+            exit(2);
+          }
 
-	auto pf2 = spot::parse_infix_psl(argv[3]);
-	if (pf2.format_errors(std::cerr))
-	  return 2;
-	f2 = pf2.f;
+        auto pf2 = spot::parse_infix_psl(argv[3]);
+        if (pf2.format_errors(std::cerr))
+          return 2;
+        f2 = pf2.f;
       }
 
     {
@@ -218,80 +218,80 @@ main(int argc, char** argv)
       spot::formula input_f = f1;
       f1 = simp_size->simplify(input_f);
       if (!simp_size->are_equivalent(input_f, f1))
-	{
-	  std::cerr << "Incorrect reduction from `" << f1s_before
-		    << "' to `";
-	  print_psl(std::cerr, f1) << "'.\n";
-	  exit_code = 3;
-	}
+        {
+          std::cerr << "Incorrect reduction from `" << f1s_before
+                    << "' to `";
+          print_psl(std::cerr, f1) << "'.\n";
+          exit_code = 3;
+        }
       else
-	{
-	  spot::formula maybe_larger = simp->simplify(input_f);
-	  f1l = spot::str_psl(maybe_larger);
-	  if (!simp->are_equivalent(input_f, maybe_larger))
-	    {
-	      std::cerr << "Incorrect reduction (reduce_size_strictly=0) from `"
-			<< f1s_before << "' to `" << f1l << "'." << std::endl;
-	      exit_code = 3;
-	    }
-	}
+        {
+          spot::formula maybe_larger = simp->simplify(input_f);
+          f1l = spot::str_psl(maybe_larger);
+          if (!simp->are_equivalent(input_f, maybe_larger))
+            {
+              std::cerr << "Incorrect reduction (reduce_size_strictly=0) from `"
+                        << f1s_before << "' to `" << f1l << "'." << std::endl;
+              exit_code = 3;
+            }
+        }
 
       int length_f1_after = spot::length(f1);
       std::string f1s_after = spot::str_psl(f1);
 
       std::string f2s = "";
       if (f2)
-	{
-	  ftmp1 = f2;
-	  f2 = simp_size->negative_normal_form(f2, false);
-	  f2s = spot::str_psl(f2);
-	}
+        {
+          ftmp1 = f2;
+          f2 = simp_size->negative_normal_form(f2, false);
+          f2s = spot::str_psl(f2);
+        }
 
       sum_before += length_f1_before;
       sum_after += length_f1_after;
 
       // If -h is set, we want to print only formulae that have become larger.
       if (!f2 && (!hidereduc || (length_f1_after > length_f1_before)))
-	{
-	  std::cout << length_f1_before << ' ' << length_f1_after
-		    << " '" << f1s_before << "' reduce to '"
-		    << f1s_after << '\'';
-	  if (f1l != "" && f1l != f1s_after)
-	    std::cout << " or (w/o rss) to '" << f1l << '\'';
-	  std::cout << '\n';
-	}
+        {
+          std::cout << length_f1_before << ' ' << length_f1_after
+                    << " '" << f1s_before << "' reduce to '"
+                    << f1s_after << '\'';
+          if (f1l != "" && f1l != f1s_after)
+            std::cout << " or (w/o rss) to '" << f1l << '\'';
+          std::cout << '\n';
+        }
 
       if (f2)
-	{
-	  if (f1 != f2)
-	    {
-	      if (length_f1_after < length_f1_before)
-		std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
-			  << " KOREDUC " << std::endl;
-	      else
-		std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
-			  << " KOIDEM " << std::endl;
-	      exit_code = 1;
-	    }
-	  else
-	    {
-	      if (f1s_before != f1s_after)
-		std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
-			  << " OKREDUC " << std::endl;
-	      else
-		std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
-			  << " OKIDEM" << std::endl;
-	      exit_code = 0;
-	    }
-	}
+        {
+          if (f1 != f2)
+            {
+              if (length_f1_after < length_f1_before)
+                std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
+                          << " KOREDUC " << std::endl;
+              else
+                std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
+                          << " KOIDEM " << std::endl;
+              exit_code = 1;
+            }
+          else
+            {
+              if (f1s_before != f1s_after)
+                std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
+                          << " OKREDUC " << std::endl;
+              else
+                std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
+                          << " OKIDEM" << std::endl;
+              exit_code = 0;
+            }
+        }
       else
-	{
-	  if (length_f1_after > length_f1_before)
-	    exit_code = 1;
-	}
+        {
+          if (length_f1_after > length_f1_before)
+            exit_code = 1;
+        }
 
       if (fin)
-	goto next_line;
+        goto next_line;
     }
   end:
 
@@ -300,11 +300,11 @@ main(int argc, char** argv)
 
     if (fin)
       {
-	float before = sum_before;
-	float after = sum_after;
-	std::cout << "gain: "
-		  << (1 - (after / before)) * 100 << '%' << std::endl;
-	delete fin;
+        float before = sum_before;
+        float after = sum_after;
+        std::cout << "gain: "
+                  << (1 - (after / before)) * 100 << '%' << std::endl;
+        delete fin;
       }
   }
 

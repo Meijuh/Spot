@@ -55,7 +55,7 @@ namespace spot
       /// \pre The automaton \a a must have at most one acceptance
       /// condition (i.e. it is a TBA).
       magic_search_(const const_twa_ptr& a, size_t size,
-		    option_map o = option_map())
+                    option_map o = option_map())
         : emptiness_check(a, o),
           h(size)
       {
@@ -89,8 +89,8 @@ namespace spot
       /// visits only a finite set of accepting paths.
       virtual emptiness_check_result_ptr check() override
       {
-	auto t = std::static_pointer_cast<magic_search_>
-	  (this->emptiness_check::shared_from_this());
+        auto t = std::static_pointer_cast<magic_search_>
+          (this->emptiness_check::shared_from_this());
         if (st_red.empty())
           {
             assert(st_blue.empty());
@@ -99,7 +99,7 @@ namespace spot
             h.add_new_state(s0, BLUE);
             push(st_blue, s0, bddfalse, 0U);
             if (dfs_blue())
-	      return std::make_shared<magic_search_result>(t, options());
+              return std::make_shared<magic_search_result>(t, options());
           }
         else
           {
@@ -130,27 +130,27 @@ namespace spot
 
       virtual bool safe() const override
       {
-	return heap::Safe;
+        return heap::Safe;
       }
 
       const heap& get_heap() const
       {
-	return h;
+        return h;
       }
 
       const stack_type& get_st_blue() const
       {
-	return st_blue;
+        return st_blue;
       }
 
       const stack_type& get_st_red() const
       {
-	return st_red;
+        return st_red;
       }
     private:
 
       void push(stack_type& st, const state* s,
-		const bdd& label, acc_cond::mark_t acc)
+                const bdd& label, acc_cond::mark_t acc)
       {
         inc_depth();
         twa_succ_iterator* i = a_->succ_iter(s);
@@ -161,7 +161,7 @@ namespace spot
       void pop(stack_type& st)
       {
         dec_depth();
-	a_->release_iter(st.front().it);
+        a_->release_iter(st.front().it);
         st.pop_front();
       }
 
@@ -235,7 +235,7 @@ namespace spot
                 typename heap::color_ref c = h.get_color_ref(f_dest.s);
                 assert(!c.is_white());
                 if (!st_blue.empty() &&
-		    a_->acc().accepting(f_dest.acc) && c.get_color() != RED)
+                    a_->acc().accepting(f_dest.acc) && c.get_color() != RED)
                   {
                     // the test 'c.get_color() != RED' is added to limit
                     // the number of runs reported by successive
@@ -380,7 +380,7 @@ namespace spot
       {
       public:
         magic_search_result(const std::shared_ptr<magic_search_>& m,
-			    option_map o = option_map())
+                            option_map o = option_map())
           : emptiness_check_result(m->automaton(), o), ms(m)
         {
           if (options()[FROM_STACK])
@@ -420,7 +420,7 @@ namespace spot
 
       private:
         emptiness_check_result* computer;
-	std::shared_ptr<magic_search_> ms;
+        std::shared_ptr<magic_search_> ms;
       };
     };
 
@@ -433,21 +433,21 @@ namespace spot
       {
       public:
         color_ref(color* c) :p(c)
-	{
-	}
+        {
+        }
         color get_color() const
-	{
-	  return *p;
-	}
+        {
+          return *p;
+        }
         void set_color(color c)
-	{
-	  assert(!is_white());
-	  *p=c;
-	}
+        {
+          assert(!is_white());
+          *p=c;
+        }
         bool is_white() const
-	{
-	  return !p;
-	}
+        {
+          return !p;
+        }
       private:
         color *p;
       };
@@ -588,7 +588,7 @@ namespace spot
 
   emptiness_check_ptr
   bit_state_hashing_magic_search(const const_twa_ptr& a,
-				 size_t size, option_map o)
+                                 size_t size, option_map o)
   {
     return std::make_shared<magic_search_<bsh_magic_search_heap>>(a, size, o);
   }

@@ -136,7 +136,7 @@ static const argp_option options[] =
   };
 
 const struct argp aoutput_argp = { options, parse_opt_aoutput, nullptr, nullptr,
-				   nullptr, nullptr, nullptr };
+                                   nullptr, nullptr, nullptr };
 
 // Those can be overridden by individual tools. E.g. randaut has no
 // notion of input file, so %F and %L represent something else.
@@ -181,8 +181,8 @@ static const argp_option io_options[] =
   };
 
 const struct argp aoutput_io_format_argp = { io_options, nullptr, nullptr,
-					     nullptr, nullptr,
-					     nullptr, nullptr };
+                                             nullptr, nullptr,
+                                             nullptr, nullptr };
 
 static const argp_option o_options[] =
   {
@@ -221,8 +221,8 @@ static const argp_option o_options[] =
   };
 
 const struct argp aoutput_o_format_argp = { o_options,
-					    nullptr, nullptr, nullptr,
-					    nullptr, nullptr, nullptr };
+                                            nullptr, nullptr, nullptr,
+                                            nullptr, nullptr, nullptr };
 
 int parse_opt_aoutput(int key, char* arg, struct argp_state*)
 {
@@ -249,15 +249,15 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
     case 's':
       automaton_format = Spin;
       if (type != spot::postprocessor::Monitor)
-	type = spot::postprocessor::BA;
+        type = spot::postprocessor::BA;
       automaton_format_opt = arg;
       break;
     case OPT_CHECK:
       automaton_format = Hoa;
       if (arg)
-	opt_check |= XARGMATCH("--check", arg, check_args, check_types);
+        opt_check |= XARGMATCH("--check", arg, check_args, check_types);
       else
-	opt_check |= check_all;
+        opt_check |= check_all;
       break;
     case OPT_LBTT:
       automaton_format = Lbtt;
@@ -266,14 +266,14 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
       // because print_lbtt will raise an exception anyway.  The
       // error message is slightly better in the current way.
       if (arg && (arg[0] != 't' || arg[1] != 0))
-	error(2, 0, "unknown argument for --lbtt: '%s'", arg);
+        error(2, 0, "unknown argument for --lbtt: '%s'", arg);
       break;
     case OPT_NAME:
       opt_name = arg;
       break;
     case OPT_STATS:
       if (!*arg)
-	error(2, 0, "empty format string for --stats");
+        error(2, 0, "empty format string for --stats");
       stats = arg;
       automaton_format = Stats;
       break;
@@ -288,23 +288,23 @@ void setup_default_output_format()
   if (auto val = getenv("SPOT_DEFAULT_FORMAT"))
     {
       static char const *const args[] =
-	{
-	  "dot", "hoa", "hoaf", nullptr
-	};
+        {
+          "dot", "hoa", "hoaf", nullptr
+        };
       static automaton_format_t const format[] =
-	{
-	  Dot, Hoa, Hoa
-	};
+        {
+          Dot, Hoa, Hoa
+        };
       auto eq = strchr(val, '=');
       if (eq)
-	{
-	  val = strndup(val, eq - val);
-	  automaton_format_opt = eq + 1;
-	}
+        {
+          val = strndup(val, eq - val);
+          automaton_format_opt = eq + 1;
+        }
       ARGMATCH_VERIFY(args, format);
       automaton_format = XARGMATCH("SPOT_DEFAULT_FORMAT", val, args, format);
       if (eq)
-	free(val);
+        free(val);
     }
 }
 
@@ -320,24 +320,24 @@ automaton_printer::automaton_printer(stat_style input)
 
 void
 automaton_printer::print(const spot::twa_graph_ptr& aut,
-			 spot::formula f,
-			 // Input location for errors and statistics.
-			 const char* filename,
-			 int loc,
-			 // Time and input automaton for statistics
-			 double time,
-			 const spot::const_parsed_aut_ptr& haut,
-			 const char* csv_prefix,
-			 const char* csv_suffix)
+                         spot::formula f,
+                         // Input location for errors and statistics.
+                         const char* filename,
+                         int loc,
+                         // Time and input automaton for statistics
+                         double time,
+                         const spot::const_parsed_aut_ptr& haut,
+                         const char* csv_prefix,
+                         const char* csv_suffix)
 {
   if (opt_check)
     {
       if (opt_check & check_stutter)
-	spot::check_stutter_invariance(aut, f);
+        spot::check_stutter_invariance(aut, f);
       if (opt_check & check_unambiguous)
-	spot::check_unambiguous(aut);
+        spot::check_unambiguous(aut);
       if (opt_check & check_strength)
-	spot::check_strength(aut);
+        spot::check_strength(aut);
     }
 
   // Name the output automaton.
@@ -353,11 +353,11 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
     {
       outputname.str("");
       outputnamer.print(haut, aut, f, filename, loc, time,
-			csv_prefix, csv_suffix);
+                        csv_prefix, csv_suffix);
       std::string fname = outputname.str();
       auto p = outputfiles.emplace(fname, nullptr);
       if (p.second)
-	p.first->second.reset(new output_file(fname.c_str()));
+        p.first->second.reset(new output_file(fname.c_str()));
       out = &p.first->second->ostream();
     }
 
@@ -383,7 +383,7 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
     case Stats:
       statistics.set_output(*out);
       statistics.print(haut, aut, f, filename, loc, time,
-		       csv_prefix, csv_suffix) << '\n';
+                       csv_prefix, csv_suffix) << '\n';
       break;
     }
   flush_cout();

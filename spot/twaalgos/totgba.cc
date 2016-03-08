@@ -35,7 +35,7 @@ namespace spot
       unsigned s;
 
       st2gba_state(unsigned st, acc_cond::mark_t bv = -1U):
-	pend(bv), s(st)
+        pend(bv), s(st)
       {
       }
     };
@@ -45,8 +45,8 @@ namespace spot
       size_t
       operator()(const st2gba_state& s) const
       {
-	std::hash<acc_cond::mark_t> h;
-	return s.s ^ h(s.pend);
+        std::hash<acc_cond::mark_t> h;
+        return s.s ^ h(s.pend);
       }
     };
 
@@ -56,9 +56,9 @@ namespace spot
       operator()(const st2gba_state& left,
                  const st2gba_state& right) const
       {
-	if (left.s != right.s)
-	  return false;
-	return left.pend == right.pend;
+        if (left.s != right.s)
+          return false;
+        return left.pend == right.pend;
       }
     };
 
@@ -71,21 +71,21 @@ namespace spot
       auto pos = &code.back();
       auto end = &code.front();
       if (pos->op == acc_cond::acc_op::And)
-	--pos;
+        --pos;
       while (pos >= end)
-	{
-	  auto term_end = pos - 1 - pos->size;
-	  if (pos->op == acc_cond::acc_op::Or)
-	    --pos;
-	  acc_cond::mark_t m = 0U;
-	  while (pos > term_end)
-	    {
-	      assert(pos->op == acc_cond::acc_op::Inf);
-	      m |= pos[-1].mark;
-	      pos -= 2;
-	    }
-	  res.push_back(m);
-	}
+        {
+          auto term_end = pos - 1 - pos->size;
+          if (pos->op == acc_cond::acc_op::Or)
+            --pos;
+          acc_cond::mark_t m = 0U;
+          while (pos > term_end)
+            {
+              assert(pos->op == acc_cond::acc_op::Inf);
+              m |= pos[-1].mark;
+              pos -= 2;
+            }
+          res.push_back(m);
+        }
       return res;
     }
   }
@@ -119,7 +119,7 @@ namespace spot
     int p = in->acc().is_streett();
     if (p <= 0)
       throw std::runtime_error("streett_to_generalized_buchi() should only be"
-			       " called on automata with Streett acceptance");
+                               " called on automata with Streett acceptance");
 
     // In Streett acceptance, inf sets are odd, while fin sets are
     // even.
@@ -136,12 +136,12 @@ namespace spot
     sccfi.reserve(nscc);
     for (unsigned s = 0; s < nscc; ++s)
       {
-	auto acc = si.acc_sets_of(s); // {0,1,2,3,4,6,7,9}
-	auto acc_fin = acc & fin;     // {0,  2,  4,6}
-	auto acc_inf = acc & inf;     // {  1,  3,    7,9}
-	auto fin_wo_inf = acc_fin - (acc_inf >> 1U); // {4}
-	auto inf_wo_fin = acc_inf - (acc_fin << 1U); // {9}
-	sccfi.emplace_back(fin_wo_inf, inf_wo_fin, acc_fin == 0U);
+        auto acc = si.acc_sets_of(s); // {0,1,2,3,4,6,7,9}
+        auto acc_fin = acc & fin;     // {0,  2,  4,6}
+        auto acc_inf = acc & inf;     // {  1,  3,    7,9}
+        auto fin_wo_inf = acc_fin - (acc_inf >> 1U); // {4}
+        auto inf_wo_fin = acc_inf - (acc_fin << 1U); // {9}
+        sccfi.emplace_back(fin_wo_inf, inf_wo_fin, acc_fin == 0U);
       }
 
     auto out = make_twa_graph(in->get_dict());
@@ -152,8 +152,8 @@ namespace spot
 
     // Map st2gba pairs to the state numbers used in out.
     typedef std::unordered_map<st2gba_state, unsigned,
-			       st2gba_state_hash,
-			       st2gba_state_equal> bs2num_map;
+                               st2gba_state_hash,
+                               st2gba_state_equal> bs2num_map;
     bs2num_map bs2num;
 
     // Queue of states to be processed.
@@ -171,115 +171,115 @@ namespace spot
 
     while (!todo.empty())
       {
-	s = todo.front();
-	todo.pop_front();
-	unsigned src = bs2num[s];
+        s = todo.front();
+        todo.pop_front();
+        unsigned src = bs2num[s];
 
-	unsigned scc_src = si.scc_of(s.s);
-	bool maybe_acc_scc = !si.is_rejecting_scc(scc_src);
+        unsigned scc_src = si.scc_of(s.s);
+        bool maybe_acc_scc = !si.is_rejecting_scc(scc_src);
 
-	acc_cond::mark_t scc_fin_wo_inf;
-	acc_cond::mark_t scc_inf_wo_fin;
-	bool no_fin;
-	std::tie(scc_fin_wo_inf, scc_inf_wo_fin, no_fin) = sccfi[scc_src];
+        acc_cond::mark_t scc_fin_wo_inf;
+        acc_cond::mark_t scc_inf_wo_fin;
+        bool no_fin;
+        std::tie(scc_fin_wo_inf, scc_inf_wo_fin, no_fin) = sccfi[scc_src];
 
-	for (auto& t: in->out(s.s))
-	  {
-	    acc_cond::mark_t pend = s.pend;
-	    acc_cond::mark_t acc = 0U;
+        for (auto& t: in->out(s.s))
+          {
+            acc_cond::mark_t pend = s.pend;
+            acc_cond::mark_t acc = 0U;
 
-	    bool maybe_acc = maybe_acc_scc && (scc_src == si.scc_of(t.dst));
+            bool maybe_acc = maybe_acc_scc && (scc_src == si.scc_of(t.dst));
 
-	    if (pend != orig_copy)
-	      {
-		if (!maybe_acc)
-		  continue;
-		// No point going to some place we will never leave
-		if (t.acc & scc_fin_wo_inf)
-		  continue;
-		// For any Fin set we see, we want to see the
-		// corresponding Inf set.
-		pend |= (t.acc & fin) << 1U;
-		pend -= t.acc & inf;
-		// Label this transition with all non-pending
-		// inf sets.  The strip will shift everything
-		// to the correct numbers in the targets.
-		acc = (inf - pend).strip(fin) & outall;
-		// Adjust the pending sets to what will be necessary
-		// required on the destination state.
-		if (sbacc)
-		  {
-		    auto a = in->state_acc_sets(t.dst);
-		    if (a & scc_fin_wo_inf)
-		      continue;
-		    pend |= (a & fin) << 1U;
-		    pend -= a & inf;
-		  }
-		pend |= scc_inf_wo_fin;
-	      }
-	    else if (no_fin && maybe_acc)
-	      {
-		assert(maybe_acc);
-		acc = outall;
-	      }
+            if (pend != orig_copy)
+              {
+                if (!maybe_acc)
+                  continue;
+                // No point going to some place we will never leave
+                if (t.acc & scc_fin_wo_inf)
+                  continue;
+                // For any Fin set we see, we want to see the
+                // corresponding Inf set.
+                pend |= (t.acc & fin) << 1U;
+                pend -= t.acc & inf;
+                // Label this transition with all non-pending
+                // inf sets.  The strip will shift everything
+                // to the correct numbers in the targets.
+                acc = (inf - pend).strip(fin) & outall;
+                // Adjust the pending sets to what will be necessary
+                // required on the destination state.
+                if (sbacc)
+                  {
+                    auto a = in->state_acc_sets(t.dst);
+                    if (a & scc_fin_wo_inf)
+                      continue;
+                    pend |= (a & fin) << 1U;
+                    pend -= a & inf;
+                  }
+                pend |= scc_inf_wo_fin;
+              }
+            else if (no_fin && maybe_acc)
+              {
+                assert(maybe_acc);
+                acc = outall;
+              }
 
-	    st2gba_state d(t.dst, pend);
-	    // Have we already seen this destination?
-	    unsigned dest;
-	    auto dres = bs2num.emplace(d, 0);
-	    if (!dres.second)
-	      {
-		dest = dres.first->second;
-	      }
-	    else		// No, this is a new state
-	      {
-		dest = dres.first->second = out->new_state();
-		todo.push_back(d);
-	      }
-	    out->new_edge(src, dest, t.cond, acc);
+            st2gba_state d(t.dst, pend);
+            // Have we already seen this destination?
+            unsigned dest;
+            auto dres = bs2num.emplace(d, 0);
+            if (!dres.second)
+              {
+                dest = dres.first->second;
+              }
+            else                // No, this is a new state
+              {
+                dest = dres.first->second = out->new_state();
+                todo.push_back(d);
+              }
+            out->new_edge(src, dest, t.cond, acc);
 
-	    // Nondeterministically jump to level ∅.  We need to do
-	    // that only once per cycle.  As an approximation, we
-	    // only to that for transition where t.src >= t.dst as
-	    // this has to occur at least once per cycle.
-	    if (pend == orig_copy && (t.src >= t.dst) && maybe_acc && !no_fin)
-	      {
-		acc_cond::mark_t pend = 0U;
-		if (sbacc)
-		  {
-		    auto a = in->state_acc_sets(t.dst);
-		    if (a & scc_fin_wo_inf)
-		      continue;
-		    pend = (a & fin) << 1U;
-		    pend -= a & inf;
-		  }
-		st2gba_state d(t.dst, pend | scc_inf_wo_fin);
-		// Have we already seen this destination?
-		unsigned dest;
-		auto dres = bs2num.emplace(d, 0);
-		if (!dres.second)
-		  {
-		    dest = dres.first->second;
-		  }
-		else		// No, this is a new state
-		  {
-		    dest = dres.first->second = out->new_state();
-		    todo.push_back(d);
-		  }
-		out->new_edge(src, dest, t.cond);
-	      }
-	  }
+            // Nondeterministically jump to level ∅.  We need to do
+            // that only once per cycle.  As an approximation, we
+            // only to that for transition where t.src >= t.dst as
+            // this has to occur at least once per cycle.
+            if (pend == orig_copy && (t.src >= t.dst) && maybe_acc && !no_fin)
+              {
+                acc_cond::mark_t pend = 0U;
+                if (sbacc)
+                  {
+                    auto a = in->state_acc_sets(t.dst);
+                    if (a & scc_fin_wo_inf)
+                      continue;
+                    pend = (a & fin) << 1U;
+                    pend -= a & inf;
+                  }
+                st2gba_state d(t.dst, pend | scc_inf_wo_fin);
+                // Have we already seen this destination?
+                unsigned dest;
+                auto dres = bs2num.emplace(d, 0);
+                if (!dres.second)
+                  {
+                    dest = dres.first->second;
+                  }
+                else                // No, this is a new state
+                  {
+                    dest = dres.first->second = out->new_state();
+                    todo.push_back(d);
+                  }
+                out->new_edge(src, dest, t.cond);
+              }
+          }
       }
 
 
     // for (auto s: bs2num)
     // {
-    // 	std::cerr << s.second << " ("
-    // 		  << s.first.s << ", ";
-    // 	if (s.first.pend == orig_copy)
-    // 	  std::cerr << "-)\n";
-    // 	else
-    // 	  std::cerr << s.first.pend << ")\n";
+    //         std::cerr << s.second << " ("
+    //                   << s.first.s << ", ";
+    //         if (s.first.pend == orig_copy)
+    //           std::cerr << "-)\n";
+    //         else
+    //           std::cerr << s.first.pend << ")\n";
     // }
     return out;
   }
@@ -290,11 +290,11 @@ namespace spot
     static int min = [&]() {
       const char* c = getenv("SPOT_STREETT_CONV_MIN");
       if (!c)
-	return 3;
+        return 3;
       errno = 0;
       int val = strtol(c, nullptr, 10);
       if (val < 0 || errno != 0)
-	throw std::runtime_error("unexpected value for SPOT_STREETT_CONV_MIN");
+        throw std::runtime_error("unexpected value for SPOT_STREETT_CONV_MIN");
       return val;
     }();
     if (min == 0 || min > in->acc().is_streett())
@@ -319,11 +319,11 @@ namespace spot
     auto cnf = res->get_acceptance().to_cnf();
     // If we are very lucky, building a CNF actually gave us a GBA...
     if (cnf.empty() ||
-	(cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Inf))
+        (cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Inf))
       {
-	res->set_acceptance(res->num_sets(), cnf);
-	cleanup_acceptance_here(res);
-	return res;
+        res->set_acceptance(res->num_sets(), cnf);
+        cleanup_acceptance_here(res);
+        return res;
       }
 
     // Handle false specifically.  We want the output
@@ -331,14 +331,14 @@ namespace spot
     // state without successor.
     if (cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Fin)
       {
-	assert(cnf.front().mark == 0U);
-	res = make_twa_graph(aut->get_dict());
-	res->set_init_state(res->new_state());
-	res->prop_state_acc(true);
-	res->prop_weak(true);
-	res->prop_deterministic(true);
-	res->prop_stutter_invariant(true);
-	return res;
+        assert(cnf.front().mark == 0U);
+        res = make_twa_graph(aut->get_dict());
+        res->set_init_state(res->new_state());
+        res->prop_state_acc(true);
+        res->prop_weak(true);
+        res->prop_deterministic(true);
+        res->prop_stutter_invariant(true);
+        return res;
       }
 
     auto terms = cnf_terms(cnf);
@@ -348,12 +348,12 @@ namespace spot
 
     for (auto& t: res->edges())
       {
-	acc_cond::mark_t cur_m = t.acc;
-	acc_cond::mark_t new_m = 0U;
-	for (unsigned n = 0; n < nterms; ++n)
-	  if (cur_m & terms[n])
-	    new_m.set(n);
-	t.acc = new_m;
+        acc_cond::mark_t cur_m = t.acc;
+        acc_cond::mark_t new_m = 0U;
+        for (unsigned n = 0; n < nterms; ++n)
+          if (cur_m & terms[n])
+            new_m.set(n);
+        t.acc = new_m;
       }
     return res;
   }

@@ -29,16 +29,16 @@ namespace spot
 
   twa_run_ptr
   project_twa_run(const const_twa_ptr& a_run,
-		   const const_twa_ptr& a_proj,
-		   const const_twa_run_ptr& run)
+                   const const_twa_ptr& a_proj,
+                   const const_twa_run_ptr& run)
   {
     auto res = std::make_shared<twa_run>(a_proj);
     for (auto& i: run->prefix)
       res->prefix.emplace_back(a_run->project_state(i.s, a_proj),
-			       i.label, i.acc);
+                               i.label, i.acc);
     for (auto& i: run->cycle)
       res->prefix.emplace_back(a_run->project_state(i.s, a_proj),
-			       i.label, i.acc);
+                               i.label, i.acc);
     return res;
   }
 }

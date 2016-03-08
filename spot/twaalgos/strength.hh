@@ -59,7 +59,7 @@ namespace spot
   /// will be built otherwise).
   SPOT_API bool
   is_inherently_weak_automaton(const const_twa_graph_ptr& aut,
-			       scc_info* sm = nullptr);
+                               scc_info* sm = nullptr);
 
   /// \brief Whether a minimized WDBA represents a safety property.
   ///
@@ -105,19 +105,19 @@ namespace spot
   /** \verbatim
       @inproceedings{renault.13.tacas,
         author = {Etienne Renault and Alexandre Duret-Lutz and Fabrice
-		  Kordon and Denis Poitrenaud},
+                  Kordon and Denis Poitrenaud},
         title = {Strength-Based Decomposition of the Property {B\"u}chi
-		  Automaton for Faster Model Checking},
+                  Automaton for Faster Model Checking},
         booktitle = {Proceedings of the 19th International Conference on Tools
-		  and Algorithms for the Construction and Analysis of Systems
-		  (TACAS'13)},
+                  and Algorithms for the Construction and Analysis of Systems
+                  (TACAS'13)},
         editor = {Nir Piterman and Scott A. Smolka},
-	year = {2013},
-	month = mar,
-	pages = {580--593},
-	publisher = {Springer},
-	series = {Lecture Notes in Computer Science},
-	volume = {7795},
+        year = {2013},
+        month = mar,
+        pages = {580--593},
+        publisher = {Springer},
+        series = {Lecture Notes in Computer Science},
+        volume = {7795},
         doi = {10.1007/978-3-642-36742-7_42}
       }
       \endverbatim */

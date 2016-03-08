@@ -37,16 +37,16 @@ namespace spot
   ///
   /// For more detail about monitors, see the following paper:
   /** \verbatim
-      @InProceedings{	  tabakov.10.rv,
-        author	  = {Deian Tabakov and Moshe Y. Vardi},
-        title	  = {Optimized Temporal Monitors for SystemC{$^*$}},
+      @InProceedings{          tabakov.10.rv,
+        author         = {Deian Tabakov and Moshe Y. Vardi},
+        title          = {Optimized Temporal Monitors for SystemC{$^*$}},
         booktitle = {Proceedings of the 10th International Conferance
                      on Runtime Verification},
-        pages	  = {436--451},
-        year	  = 2010,
-        volume	  = {6418},
-        series	  = {Lecture Notes in Computer Science},
-        month	  = nov,
+        pages          = {436--451},
+        year           = 2010,
+        volume         = {6418},
+        series         = {Lecture Notes in Computer Science},
+        month          = nov,
         publisher = {Spring-Verlag}
       }
       \endverbatim */
@@ -76,19 +76,19 @@ namespace spot
   /// technique.
   ///
   /** \verbatim
-      @InProceedings{	  dax.07.atva,
-        author	  = {Christian Dax and Jochen Eisinger and Felix Klaedtke},
+      @InProceedings{          dax.07.atva,
+        author    = {Christian Dax and Jochen Eisinger and Felix Klaedtke},
         title     = {Mechanizing the Powerset Construction for Restricted
-      		     Classes of {$\omega$}-Automata},
+                       Classes of {$\omega$}-Automata},
         year      = 2007,
-        series	  = {Lecture Notes in Computer Science},
+        series    = {Lecture Notes in Computer Science},
         publisher = {Springer-Verlag},
-        volume	  = 4762,
+        volume    = 4762,
         booktitle = {Proceedings of the 5th International Symposium on
-      		     Automated Technology for Verification and Analysis
-      		     (ATVA'07)},
-        editor	  = {Kedar S. Namjoshi and Tomohiro Yoneda and Teruo Higashino
-      		     and Yoshio Okamura},
+                       Automated Technology for Verification and Analysis
+                       (ATVA'07)},
+        editor    = {Kedar S. Namjoshi and Tomohiro Yoneda and Teruo Higashino
+                       and Yoshio Okamura},
         month     = oct
       }
       \endverbatim */
@@ -101,19 +101,19 @@ namespace spot
   /// by the following paper:
   ///
   /** \verbatim
-      @InProceedings{	  dax.07.atva,
-        author	  = {Christian Dax and Jochen Eisinger and Felix Klaedtke},
+      @InProceedings{          dax.07.atva,
+        author    = {Christian Dax and Jochen Eisinger and Felix Klaedtke},
         title     = {Mechanizing the Powerset Construction for Restricted
-      		     Classes of {$\omega$}-Automata},
+                       Classes of {$\omega$}-Automata},
         year      = 2007,
-        series	  = {Lecture Notes in Computer Science},
+        series    = {Lecture Notes in Computer Science},
         publisher = {Springer-Verlag},
-        volume	  = 4762,
+        volume    = 4762,
         booktitle = {Proceedings of the 5th International Symposium on
-      		     Automated Technology for Verification and Analysis
-      		     (ATVA'07)},
-        editor	  = {Kedar S. Namjoshi and Tomohiro Yoneda and Teruo Higashino
-      		     and Yoshio Okamura},
+                       Automated Technology for Verification and Analysis
+                       (ATVA'07)},
+        editor    = {Kedar S. Namjoshi and Tomohiro Yoneda and Teruo Higashino
+                       and Yoshio Okamura},
         month     = oct
       }
       \endverbatim */
@@ -151,8 +151,8 @@ namespace spot
   /// that the minimized WDBA is correct.
   SPOT_API twa_graph_ptr
   minimize_obligation(const const_twa_graph_ptr& aut_f,
-		      formula f = nullptr,
-		      const_twa_graph_ptr aut_neg_f = nullptr,
-		      bool reject_bigger = false);
+                      formula f = nullptr,
+                      const_twa_graph_ptr aut_neg_f = nullptr,
+                      bool reject_bigger = false);
   /// @}
 }

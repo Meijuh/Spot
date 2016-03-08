@@ -41,24 +41,24 @@ namespace spot
     free_list_type::iterator cur;
     for (cur = fl.begin(); cur != fl.end(); ++cur)
       {
-	if (cur->second < n)
-	  continue;
-	if (n == cur->second)
-	  {
-	    best = cur;
-	    break;
-	  }
-	if (best == fl.end()
-	    || cur->second < best->second)
-	  best = cur;
+        if (cur->second < n)
+          continue;
+        if (n == cur->second)
+          {
+            best = cur;
+            break;
+          }
+        if (best == fl.end()
+            || cur->second < best->second)
+          best = cur;
       }
 
     // We have found enough free variables.
     if (best != fl.end())
       {
-	int result = best->first;
-	remove(best, result, n);
-	return result;
+        int result = best->first;
+        remove(best, result, n);
+        return result;
       }
 
     // We haven't found enough adjacent free variables;
@@ -73,67 +73,67 @@ namespace spot
     int end = base + n;
     for (cur = fl.begin(); cur != fl.end(); ++cur)
       {
-	int cend = cur->first + cur->second;
-	// cur              [...]
-	// to insert  [...]
-	// -----------------------
-	// result     [...] [...]
-	// (Insert a new range, unconnected.)
-	if (cur->first > end)
-	  {
-	    break;
-	  }
-	// cur        [...]
-	// to insert        [...]
-	// -----------------------
-	// result unknown : we should look at the rest of the freelist.
-	else if (base > cend)
-	  {
-	    continue;
-	  }
-	//  cur          [....[       [......[
-	//  to insert      [....[       [..[
-	//  ----------------------------------
-	//  result       [......[     [......[
-	else if (cur->first <= base)
-	  {
-	    if (cend >= end)
-	      // second case : nothing to do
-	      return;
-	    // cur->second is set below.
-	  }
-	//  cur           [....[       [..[
-	//  to insert   [....[       [.......[
-	//  ----------------------------------
-	//  result      [......[     [.......[
-	else
-	  {
-	    cur->first = base;
-	    // cur->second is set below.
-	  }
+        int cend = cur->first + cur->second;
+        // cur              [...]
+        // to insert  [...]
+        // -----------------------
+        // result     [...] [...]
+        // (Insert a new range, unconnected.)
+        if (cur->first > end)
+          {
+            break;
+          }
+        // cur        [...]
+        // to insert        [...]
+        // -----------------------
+        // result unknown : we should look at the rest of the freelist.
+        else if (base > cend)
+          {
+            continue;
+          }
+        //  cur          [....[       [......[
+        //  to insert      [....[       [..[
+        //  ----------------------------------
+        //  result       [......[     [......[
+        else if (cur->first <= base)
+          {
+            if (cend >= end)
+              // second case : nothing to do
+              return;
+            // cur->second is set below.
+          }
+        //  cur           [....[       [..[
+        //  to insert   [....[       [.......[
+        //  ----------------------------------
+        //  result      [......[     [.......[
+        else
+          {
+            cur->first = base;
+            // cur->second is set below.
+          }
 
-	// We get here in one of these three situations:
-	//
-	//  cur          [....[      [....[    [..[
-	//  to insert      [....[  [....[    [.......[
-	//  -------------------------------------------
-	//  result       [......[  [......[  [.......[
-	//
-	// cur->first is already set, be cur->second has yet to be.
-	end = std::max(cend, end);
-	cur->second = end - cur->first;
-	// Since we have extended the current range, maybe the next
-	// items on the list should be merged.
-	free_list_type::iterator next = cur;
-	++next;
-	while (next != fl.end() && next->first <= end)
-	  {
-	    end = std::max(next->first + next->second, end);
-	    cur->second = end - cur->first;
-	    free_list_type::iterator next2 = next++;
-	    fl.erase(next2);
-	  }
-	return;
+        // We get here in one of these three situations:
+        //
+        //  cur          [....[      [....[    [..[
+        //  to insert      [....[  [....[    [.......[
+        //  -------------------------------------------
+        //  result       [......[  [......[  [.......[
+        //
+        // cur->first is already set, be cur->second has yet to be.
+        end = std::max(cend, end);
+        cur->second = end - cur->first;
+        // Since we have extended the current range, maybe the next
+        // items on the list should be merged.
+        free_list_type::iterator next = cur;
+        ++next;
+        while (next != fl.end() && next->first <= end)
+          {
+            end = std::max(next->first + next->second, end);
+            cur->second = end - cur->first;
+            free_list_type::iterator next2 = next++;
+            fl.erase(next2);
+          }
+        return;
       }
 
     // We reach this place either because a new unconnected range
@@ -148,15 +148,15 @@ namespace spot
     int end = base + n;
     while (cur != fl.end() && cur->first < end)
       {
-	int cend = cur->first + cur->second;
-	// Remove may invalidate the current iterator, so advance it first.
-	free_list_type::iterator old = cur++;
-	if (cend >= base)
-	  {
-	    int newbase = std::max(base, old->first);
-	    int q = std::min(cend, end) - newbase;
-	    remove(old, newbase, q);
-	  }
+        int cend = cur->first + cur->second;
+        // Remove may invalidate the current iterator, so advance it first.
+        free_list_type::iterator old = cur++;
+        if (cend >= base)
+          {
+            int newbase = std::max(base, old->first);
+            int q = std::min(cend, end) - newbase;
+            remove(old, newbase, q);
+          }
       }
   }
 
@@ -165,31 +165,31 @@ namespace spot
   {
     if (base == i->first)
       {
-	// Removing at the beginning of the range
-	i->second -= n;
-	assert(i->second >= 0);
-	// Erase the range if it's now empty.
-	if (i->second == 0)
-	  fl.erase(i);
-	else
-	  i->first += n;
+        // Removing at the beginning of the range
+        i->second -= n;
+        assert(i->second >= 0);
+        // Erase the range if it's now empty.
+        if (i->second == 0)
+          fl.erase(i);
+        else
+          i->first += n;
       }
     else if (base + n == i->first + i->second)
       {
-	// Removing at the end of the range
-	i->second -= n;
-	assert(i->second > 0); // cannot be empty because base != i->first
+        // Removing at the end of the range
+        i->second -= n;
+        assert(i->second > 0); // cannot be empty because base != i->first
       }
     else
       {
-	// Removing in the middle of a range.
-	int b1 = i->first;
-	int n1 = base - i->first;
-	int n2 = i->first + i->second - base - n;
-	assert(n1 > 0);
-	assert(n2 > 0);
-	*i = pos_lenght_pair(base + n, n2);
-	fl.insert(i, pos_lenght_pair(b1, n1));
+        // Removing in the middle of a range.
+        int b1 = i->first;
+        int n1 = base - i->first;
+        int n2 = i->first + i->second - base - n;
+        assert(n1 > 0);
+        assert(n2 > 0);
+        *i = pos_lenght_pair(base + n, n2);
+        fl.insert(i, pos_lenght_pair(b1, n1));
       }
   }
 

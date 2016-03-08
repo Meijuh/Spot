@@ -50,21 +50,21 @@ namespace spot
       // a hash; but we should ensure that no object in the hash is
       // constructed with p==0.
       anon_free_list(bdd_dict_priv* p = nullptr)
-	: priv_(p)
+        : priv_(p)
       {
       }
 
       virtual int
       extend(int n) override
       {
-	assert(priv_);
-	int b = priv_->allocate_variables(n);
-	free_anonymous_list_of_type::iterator i;
-	for (i = priv_->free_anonymous_list_of.begin();
-	     i != priv_->free_anonymous_list_of.end(); ++i)
-	  if (&i->second != this)
-	    i->second.insert(b, n);
-	return b;
+        assert(priv_);
+        int b = priv_->allocate_variables(n);
+        free_anonymous_list_of_type::iterator i;
+        for (i = priv_->free_anonymous_list_of.begin();
+             i != priv_->free_anonymous_list_of.end(); ++i)
+          if (&i->second != this)
+            i->second.insert(b, n);
+        return b;
       }
 
     private:
@@ -102,15 +102,15 @@ namespace spot
     fv_map::iterator sii = var_map.find(f);
     if (sii != var_map.end())
       {
-	num = sii->second;
+        num = sii->second;
       }
     else
       {
-	num = priv_->allocate_variables(1);
-	var_map[f] = num;
-	bdd_map.resize(bdd_varnum());
-	bdd_map[num].type = var;
-	bdd_map[num].f = f;
+        num = priv_->allocate_variables(1);
+        var_map[f] = num;
+        bdd_map.resize(bdd_varnum());
+        bdd_map[num].type = var;
+        bdd_map[num].f = f;
       }
     bdd_map[num].refs.insert(for_me);
     return num;
@@ -118,7 +118,7 @@ namespace spot
 
   int
   bdd_dict::has_registered_proposition(formula f,
-				       const void* me)
+                                       const void* me)
   {
     auto ssi = var_map.find(f);
     if (ssi == var_map.end())
@@ -132,24 +132,24 @@ namespace spot
 
   int
   bdd_dict::register_acceptance_variable(formula f,
-					 const void* for_me)
+                                         const void* for_me)
   {
     int num;
     // Do not build an acceptance variable that already exists.
     fv_map::iterator sii = acc_map.find(f);
     if (sii != acc_map.end())
       {
-	num = sii->second;
+        num = sii->second;
       }
     else
       {
-	num = priv_->allocate_variables(1);
-	acc_map[f] = num;
-	bdd_map.resize(bdd_varnum());
-	bdd_info& i = bdd_map[num];
-	i.type = acc;
-	i.f = f;
-	i.clone_counts = 0;
+        num = priv_->allocate_variables(1);
+        acc_map[f] = num;
+        bdd_map.resize(bdd_varnum());
+        bdd_info& i = bdd_map[num];
+        i.type = acc;
+        i.f = f;
+        i.clone_counts = 0;
       }
     bdd_map[num].refs.insert(for_me);
     return num;
@@ -163,9 +163,9 @@ namespace spot
 
     if (i == priv_->free_anonymous_list_of.end())
       {
-	i = (priv_->free_anonymous_list_of.insert
-	     (fal::value_type(for_me,
-			      priv_->free_anonymous_list_of[nullptr]))).first;
+        i = (priv_->free_anonymous_list_of.insert
+             (fal::value_type(for_me,
+                              priv_->free_anonymous_list_of[nullptr]))).first;
       }
     int res = i->second.register_n(n);
 
@@ -173,8 +173,8 @@ namespace spot
 
     while (n--)
       {
-	bdd_map[res + n].type = anon;
-	bdd_map[res + n].refs.insert(for_me);
+        bdd_map[res + n].type = anon;
+        bdd_map[res + n].refs.insert(for_me);
       }
 
     return res;
@@ -183,7 +183,7 @@ namespace spot
 
   void
   bdd_dict::register_all_variables_of(const void* from_other,
-				      const void* for_me)
+                                      const void* for_me)
   {
     auto j = priv_->free_anonymous_list_of.find(from_other);
     if (j != priv_->free_anonymous_list_of.end())
@@ -191,24 +191,24 @@ namespace spot
 
     for (auto& i: bdd_map)
       {
-	ref_set& s = i.refs;
-	if (s.find(from_other) != s.end())
-	  s.insert(for_me);
+        ref_set& s = i.refs;
+        if (s.find(from_other) != s.end())
+          s.insert(for_me);
       }
 
   }
 
   void
   bdd_dict::register_all_propositions_of(const void* from_other,
-					 const void* for_me)
+                                         const void* for_me)
   {
     for (auto& i: bdd_map)
       {
-	if (i.type != var_type::var)
-	  continue;
-	ref_set& s = i.refs;
-	if (s.find(from_other) != s.end())
-	  s.insert(for_me);
+        if (i.type != var_type::var)
+          continue;
+        ref_set& s = i.refs;
+        if (s.find(from_other) != s.end())
+          s.insert(for_me);
       }
   }
 
@@ -241,24 +241,24 @@ namespace spot
     switch (bdd_map[v].type)
       {
       case var:
-	f = bdd_map[v].f;
-	var_map.erase(f);
-	break;
+        f = bdd_map[v].f;
+        var_map.erase(f);
+        break;
       case acc:
-	f = bdd_map[v].f;
-	acc_map.erase(f);
-	break;
+        f = bdd_map[v].f;
+        acc_map.erase(f);
+        break;
       case anon:
-	{
-	  bdd_dict_priv::free_anonymous_list_of_type::iterator i;
-	  // Nobody use this variable as an anonymous variable
-	  // anymore, so remove it entirely from the anonymous
-	  // free list so it can be used for something else.
-	  for (i = priv_->free_anonymous_list_of.begin();
-	       i != priv_->free_anonymous_list_of.end(); ++i)
-	    i->second.remove(v, n);
-	  break;
-	}
+        {
+          bdd_dict_priv::free_anonymous_list_of_type::iterator i;
+          // Nobody use this variable as an anonymous variable
+          // anymore, so remove it entirely from the anonymous
+          // free list so it can be used for something else.
+          for (i = priv_->free_anonymous_list_of.begin();
+               i != priv_->free_anonymous_list_of.end(); ++i)
+            i->second.remove(v, n);
+          break;
+        }
       }
     // Actually release the associated BDD variables, and the
     // formula itself.
@@ -283,39 +283,39 @@ namespace spot
     unsigned s = bdd_map.size();
     for (unsigned i = 0; i < s; ++i)
       {
-	os << ' ' << i << ' ';
-	const bdd_info& r = bdd_map[i];
-	switch (r.type)
-	  {
-	  case anon:
-	    os << (r.refs.empty() ? "Free" : "Anon");
-	    break;
-	  case acc:
-	    os << "Acc[";
-	    print_psl(os, r.f) << ']';
-	    break;
-	  case var:
-	    os << "Var[";
-	    print_psl(os, r.f) << ']';
-	    break;
-	  }
-	if (!r.refs.empty())
-	  {
-	    os << " x" << r.refs.size() << " {";
-	    for (ref_set::const_iterator si = r.refs.begin();
-		 si != r.refs.end(); ++si)
-	      os << ' ' << *si;
-	    os << " }";
-	  }
-	os << '\n';
+        os << ' ' << i << ' ';
+        const bdd_info& r = bdd_map[i];
+        switch (r.type)
+          {
+          case anon:
+            os << (r.refs.empty() ? "Free" : "Anon");
+            break;
+          case acc:
+            os << "Acc[";
+            print_psl(os, r.f) << ']';
+            break;
+          case var:
+            os << "Var[";
+            print_psl(os, r.f) << ']';
+            break;
+          }
+        if (!r.refs.empty())
+          {
+            os << " x" << r.refs.size() << " {";
+            for (ref_set::const_iterator si = r.refs.begin();
+                 si != r.refs.end(); ++si)
+              os << ' ' << *si;
+            os << " }";
+          }
+        os << '\n';
       }
     os << "Anonymous lists:\n";
     bdd_dict_priv::free_anonymous_list_of_type::const_iterator ai;
     for (ai = priv_->free_anonymous_list_of.begin();
-	 ai != priv_->free_anonymous_list_of.end(); ++ai)
+         ai != priv_->free_anonymous_list_of.end(); ++ai)
       {
-	os << "  [" << ai->first << "] ";
-	ai->second.dump_free_list(os) << std::endl;
+        os << "  [" << ai->first << "] ";
+        ai->second.dump_free_list(os) << std::endl;
       }
     os << "Free list:\n";
     priv_->dump_free_list(os);
@@ -334,42 +334,42 @@ namespace spot
     unsigned s = bdd_map.size();
     for (unsigned i = 0; i < s; ++i)
       {
-	switch (bdd_map[i].type)
-	  {
-	  case var:
-	    var_seen = true;
-	    break;
-	  case acc:
-	    acc_seen = true;
-	    break;
-	  case anon:
-	    break;
-	  }
-	refs_seen |= !bdd_map[i].refs.empty();
+        switch (bdd_map[i].type)
+          {
+          case var:
+            var_seen = true;
+            break;
+          case acc:
+            acc_seen = true;
+            break;
+          case anon:
+            break;
+          }
+        refs_seen |= !bdd_map[i].refs.empty();
       }
     if (var_map.empty() && acc_map.empty())
       {
-	if (var_seen)
-	  {
-	    std::cerr << "var_map is empty but Var in map" << std::endl;
-	    fail = true;
-	  }
-	if (acc_seen)
-	  {
-	    std::cerr << "acc_map is empty but Acc in map" << std::endl;
-	    fail = true;
-	  }
-	if (refs_seen)
-	  {
-	    std::cerr << "maps are empty but var_refs is not" << std::endl;
-	    fail = true;
-	  }
-	if (!fail)
-	  return;
+        if (var_seen)
+          {
+            std::cerr << "var_map is empty but Var in map" << std::endl;
+            fail = true;
+          }
+        if (acc_seen)
+          {
+            std::cerr << "acc_map is empty but Acc in map" << std::endl;
+            fail = true;
+          }
+        if (refs_seen)
+          {
+            std::cerr << "maps are empty but var_refs is not" << std::endl;
+            fail = true;
+          }
+        if (!fail)
+          return;
       }
     else
       {
-	std::cerr << "some maps are not empty" << std::endl;
+        std::cerr << "some maps are not empty" << std::endl;
       }
     dump(std::cerr);
     abort();

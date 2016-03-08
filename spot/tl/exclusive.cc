@@ -33,66 +33,66 @@ namespace spot
       std::vector<formula> group;
       auto start = arg;
       while (*start)
-	{
-	  while (*start == ' ' || *start == '\t')
-	    ++start;
-	  if (!*start)
-	    break;
-	  if (*start == ',')
-	    {
-	      std::string s = "unexpected ',' in ";
-	      s += arg;
-	      throw std::invalid_argument(s);
-	    }
-	  if (*start == '"')
-	    {
-	      ++start;
-	      auto end = start;
-	      while (*end && *end != '"')
-		{
-		  if (*end == '\\')
-		    ++end;
-		  ++end;
-		}
-	      if (!*end)
-		{
-		  std::string s = "missing closing '\"' in ";
-		  s += arg;
-		  throw std::invalid_argument(s);
-		}
-	      std::string ap(start, end - start);
-	      group.emplace_back(formula::ap(ap));
-	      do
-		++end;
-	      while (*end == ' ' || *end == '\t');
-	      if (*end && *end != ',')
-		{
-		  std::string s = "unexpected character '";
-		  s += *end;
-		  s += "' in ";
-		  s += arg;
-		  throw std::invalid_argument(s);
-		}
-	      if (*end == ',')
-		++end;
-	      start = end;
-	    }
-	  else
-	    {
-	      auto end = start;
-	      while (*end && *end != ',')
-		++end;
-	      auto rend = end;
-	      while (rend > start && (rend[-1] == ' ' || rend[-1] == '\t'))
-		--rend;
-	      std::string ap(start, rend - start);
-	      group.emplace_back(formula::ap(ap));
-	      if (*end == ',')
-		start = end + 1;
-	      else
-		break;
-	    }
-	}
+        {
+          while (*start == ' ' || *start == '\t')
+            ++start;
+          if (!*start)
+            break;
+          if (*start == ',')
+            {
+              std::string s = "unexpected ',' in ";
+              s += arg;
+              throw std::invalid_argument(s);
+            }
+          if (*start == '"')
+            {
+              ++start;
+              auto end = start;
+              while (*end && *end != '"')
+                {
+                  if (*end == '\\')
+                    ++end;
+                  ++end;
+                }
+              if (!*end)
+                {
+                  std::string s = "missing closing '\"' in ";
+                  s += arg;
+                  throw std::invalid_argument(s);
+                }
+              std::string ap(start, end - start);
+              group.emplace_back(formula::ap(ap));
+              do
+                ++end;
+              while (*end == ' ' || *end == '\t');
+              if (*end && *end != ',')
+                {
+                  std::string s = "unexpected character '";
+                  s += *end;
+                  s += "' in ";
+                  s += arg;
+                  throw std::invalid_argument(s);
+                }
+              if (*end == ',')
+                ++end;
+              start = end;
+            }
+          else
+            {
+              auto end = start;
+              while (*end && *end != ',')
+                ++end;
+              auto rend = end;
+              while (rend > start && (rend[-1] == ' ' || rend[-1] == '\t'))
+                --rend;
+              std::string ap(start, rend - start);
+              group.emplace_back(formula::ap(ap));
+              if (*end == ',')
+                start = end + 1;
+              else
+                break;
+            }
+        }
       return group;
     }
   }
@@ -126,16 +126,16 @@ namespace spot
 
     for (auto& g: groups)
       {
-	group.clear();
+        group.clear();
 
-	for (auto ap: g)
-	  if (s->find(ap) != s->end())
-	    group.push_back(ap);
+        for (auto ap: g)
+          if (s->find(ap) != s->end())
+            group.push_back(ap);
 
-	unsigned s = group.size();
-	for (unsigned j = 0; j < s; ++j)
-	  for (unsigned k = j + 1; k < s; ++k)
-	    v.push_back(nand(group[j], group[k]));
+        unsigned s = group.size();
+        for (unsigned j = 0; j < s; ++j)
+          for (unsigned k = j + 1; k < s; ++k)
+            v.push_back(nand(group[j], group[k]));
       };
 
     delete s;
@@ -143,15 +143,15 @@ namespace spot
   }
 
   twa_graph_ptr exclusive_ap::constrain(const_twa_graph_ptr aut,
-					   bool simplify_guards) const
+                                           bool simplify_guards) const
   {
     // Compute the support of the automaton.
     bdd support = bddtrue;
     {
       std::set<int> bdd_seen;
       for (auto& t: aut->edges())
-	if (bdd_seen.insert(t.cond.id()).second)
-	  support &= bdd_support(t.cond);
+        if (bdd_seen.insert(t.cond.id()).second)
+          support &= bdd_support(t.cond);
     }
 
     bdd restrict = bddtrue;
@@ -160,19 +160,19 @@ namespace spot
     std::vector<bdd> group;
     for (auto& g: groups)
       {
-	group.clear();
+        group.clear();
 
-	for (auto ap: g)
-	  {
-	    int v = d->has_registered_proposition(ap, aut);
-	    if (v >= 0)
-	      group.push_back(bdd_nithvar(v));
-	  }
+        for (auto ap: g)
+          {
+            int v = d->has_registered_proposition(ap, aut);
+            if (v >= 0)
+              group.push_back(bdd_nithvar(v));
+          }
 
-	unsigned s = group.size();
-	for (unsigned j = 0; j < s; ++j)
-	  for (unsigned k = j + 1; k < s; ++k)
-	    restrict &= group[j] | group[k];
+        unsigned s = group.size();
+        for (unsigned j = 0; j < s; ++j)
+          for (unsigned k = j + 1; k < s; ++k)
+            restrict &= group[j] | group[k];
       }
 
     twa_graph_ptr res = make_twa_graph(aut->get_dict());
@@ -181,26 +181,26 @@ namespace spot
     res->copy_acceptance_of(aut);
     if (simplify_guards)
       {
-	transform_accessible(aut, res, [&](unsigned, bdd& cond,
-					   acc_cond::mark_t&, unsigned)
-			     {
-			       minato_isop isop(cond & restrict,
-						cond | !restrict,
-						true);
-			       bdd res = bddfalse;
-			       bdd cube = bddfalse;
-			       while ((cube = isop.next()) != bddfalse)
-				 res |= cube;
-			       cond = res;
-			     });
+        transform_accessible(aut, res, [&](unsigned, bdd& cond,
+                                           acc_cond::mark_t&, unsigned)
+                             {
+                               minato_isop isop(cond & restrict,
+                                                cond | !restrict,
+                                                true);
+                               bdd res = bddfalse;
+                               bdd cube = bddfalse;
+                               while ((cube = isop.next()) != bddfalse)
+                                 res |= cube;
+                               cond = res;
+                             });
       }
     else
       {
-	transform_accessible(aut, res, [&](unsigned, bdd& cond,
-					   acc_cond::mark_t&, unsigned)
-			     {
-			       cond &= restrict;
-			     });
+        transform_accessible(aut, res, [&](unsigned, bdd& cond,
+                                           acc_cond::mark_t&, unsigned)
+                             {
+                               cond &= restrict;
+                             });
       }
     return res;
   }

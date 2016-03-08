@@ -191,24 +191,24 @@ parse_opt(int key, char* arg, struct argp_state* as)
     case 'a':
       opt_acc_prob = to_float(arg);
       if (opt_acc_prob < 0.0 || opt_acc_prob > 1.0)
-	error(2, 0, "probability of acceptance set membership "
-	      "should be between 0.0 and 1.0");
+        error(2, 0, "probability of acceptance set membership "
+              "should be between 0.0 and 1.0");
       break;
     case 'A':
       if (looks_like_a_range(arg))
-	{
-	  opt_acc_sets = parse_range(arg);
-	  if (opt_acc_sets.min > opt_acc_sets.max)
-	    std::swap(opt_acc_sets.min, opt_acc_sets.max);
-	  if (opt_acc_sets.min < 0)
-	    error(2, 0, "number of acceptance sets should be positive");
-	  gba_wanted = true;
-	}
+        {
+          opt_acc_sets = parse_range(arg);
+          if (opt_acc_sets.min > opt_acc_sets.max)
+            std::swap(opt_acc_sets.min, opt_acc_sets.max);
+          if (opt_acc_sets.min < 0)
+            error(2, 0, "number of acceptance sets should be positive");
+          gba_wanted = true;
+        }
       else
-	{
-	  opt_acceptance = arg;
-	  generic_wanted = true;
-	}
+        {
+          opt_acceptance = arg;
+          generic_wanted = true;
+        }
       break;
     case 'B':
       ba_options();
@@ -217,7 +217,7 @@ parse_opt(int key, char* arg, struct argp_state* as)
     case 'e':
       opt_density = to_float(arg);
       if (opt_density < 0.0 || opt_density > 1.0)
-	error(2, 0, "density should be between 0.0 and 1.0");
+        error(2, 0, "density should be between 0.0 and 1.0");
       break;
     case 'D':
       opt_deterministic = true;
@@ -228,9 +228,9 @@ parse_opt(int key, char* arg, struct argp_state* as)
     case 'Q':
       opt_states = parse_range(arg);
       if (opt_states.min > opt_states.max)
-	std::swap(opt_states.min, opt_states.max);
+        std::swap(opt_states.min, opt_states.max);
       if (opt_states.min == 0)
-	error(1, 0, "cannot build an automaton with 0 states");
+        error(1, 0, "cannot build an automaton with 0 states");
       break;
     case 'S':
       opt_state_acc = true;
@@ -255,14 +255,14 @@ parse_opt(int key, char* arg, struct argp_state* as)
       // last non-option argument, and if aprops.empty() we know this
       // is the also the first one.
       if (opt->aprops.empty()
-	  && as->argc == as->next && looks_like_a_range(arg))
-	{
-	  ap_count_given = parse_range(arg);
-	  // Create the set once if the count is fixed.
-	  if (ap_count_given.min == ap_count_given.max)
-	    opt->aprops = spot::create_atomic_prop_set(ap_count_given.min);
-	  break;
-	}
+          && as->argc == as->next && looks_like_a_range(arg))
+        {
+          ap_count_given = parse_range(arg);
+          // Create the set once if the count is fixed.
+          if (ap_count_given.min == ap_count_given.max)
+            opt->aprops = spot::create_atomic_prop_set(ap_count_given.min);
+          break;
+        }
       opt->aprops.insert(spot::formula::ap(arg));
       break;
 
@@ -281,7 +281,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "N|PROP...", argp_program_doc,
-		    children, nullptr, nullptr };
+                    children, nullptr, nullptr };
 
   try
     {
@@ -291,43 +291,43 @@ main(int argc, char** argv)
       opt = &o;
 
       if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
-	exit(err);
+        exit(err);
 
       // running 'randaut 0' is one way to generate automata using no
       // atomic propositions so do not complain in that case.
       if (opt->aprops.empty() && ap_count_given.max < 0)
-	error(2, 0,
-	      "No atomic proposition supplied?   Run '%s --help' for usage.",
-	      program_name);
+        error(2, 0,
+              "No atomic proposition supplied?   Run '%s --help' for usage.",
+              program_name);
 
       if (generic_wanted && automaton_format == Spin)
-	error(2, 0,
-	      "--spin implies --ba so should not be used with --acceptance");
+        error(2, 0,
+              "--spin implies --ba so should not be used with --acceptance");
       if (generic_wanted && ba_wanted)
-	error(2, 0, "--acceptance and --ba may not be used together");
+        error(2, 0, "--acceptance and --ba may not be used together");
 
       if (automaton_format == Spin && opt_acc_sets.max > 1)
-	error(2, 0, "--spin is incompatible with --acceptance=%d..%d",
-	      opt_acc_sets.min, opt_acc_sets.max);
+        error(2, 0, "--spin is incompatible with --acceptance=%d..%d",
+              opt_acc_sets.min, opt_acc_sets.max);
       if (ba_wanted && opt_acc_sets.min != 1 && opt_acc_sets.max != 1)
-	error(2, 0, "--ba is incompatible with --acceptance=%d..%d",
-	      opt_acc_sets.min, opt_acc_sets.max);
+        error(2, 0, "--ba is incompatible with --acceptance=%d..%d",
+              opt_acc_sets.min, opt_acc_sets.max);
       if (ba_wanted && generic_wanted)
-	error(2, 0,
-	      "--ba is incompatible with --acceptance=%s", opt_acceptance);
+        error(2, 0,
+              "--ba is incompatible with --acceptance=%s", opt_acceptance);
 
       if (automaton_format == Spin)
-	ba_options();
+        ba_options();
 
       if (opt_colored && opt_acc_sets.min == -1 && !generic_wanted)
-	error(2, 0, "--colored requires at least one acceptance set; "
-	      "use --acceptance");
+        error(2, 0, "--colored requires at least one acceptance set; "
+              "use --acceptance");
       if (opt_colored && opt_acc_sets.min == 0)
-	error(2, 0, "--colored requires at least one acceptance set; "
-	      "fix the range of --acceptance");
+        error(2, 0, "--colored requires at least one acceptance set; "
+              "fix the range of --acceptance");
 
       if (opt_acc_sets.min == -1)
-	opt_acc_sets.min = 0;
+        opt_acc_sets.min = 0;
 
       spot::srand(opt_seed);
       auto d = spot::make_bdd_dict();
@@ -340,70 +340,70 @@ main(int argc, char** argv)
       int automaton_num = 0;
 
       for (;;)
-	{
-	  spot::stopwatch sw;
-	  sw.start();
+        {
+          spot::stopwatch sw;
+          sw.start();
 
-	  if (ap_count_given.max > 0
-	      && ap_count_given.min != ap_count_given.max)
-	    {
-	      int c = spot::rrand(ap_count_given.min, ap_count_given.max);
-	      opt->aprops = spot::create_atomic_prop_set(c);
-	    }
+          if (ap_count_given.max > 0
+              && ap_count_given.min != ap_count_given.max)
+            {
+              int c = spot::rrand(ap_count_given.min, ap_count_given.max);
+              opt->aprops = spot::create_atomic_prop_set(c);
+            }
 
-	  int size = opt_states.min;
-	  if (size != opt_states.max)
-	    size = spot::rrand(size, opt_states.max);
+          int size = opt_states.min;
+          if (size != opt_states.max)
+            size = spot::rrand(size, opt_states.max);
 
-	  int accs = opt_acc_sets.min;
-	  if (accs != opt_acc_sets.max)
-	    accs = spot::rrand(accs, opt_acc_sets.max);
+          int accs = opt_acc_sets.min;
+          if (accs != opt_acc_sets.max)
+            accs = spot::rrand(accs, opt_acc_sets.max);
 
-	  spot::acc_cond::acc_code code;
-	  if (opt_acceptance)
-	    {
-	      code = spot::acc_cond::acc_code(opt_acceptance);
-	      accs = code.used_sets().max_set();
-	      if (opt_colored && accs == 0)
-		error(2, 0, "--colored requires at least one acceptance set; "
-		      "fix the range of --acceptance");
-	    }
+          spot::acc_cond::acc_code code;
+          if (opt_acceptance)
+            {
+              code = spot::acc_cond::acc_code(opt_acceptance);
+              accs = code.used_sets().max_set();
+              if (opt_colored && accs == 0)
+                error(2, 0, "--colored requires at least one acceptance set; "
+                      "fix the range of --acceptance");
+            }
 
-	  auto aut =
-	    spot::random_graph(size, opt_density, &opt->aprops, d,
-			       accs, opt_acc_prob, 0.5,
-			       opt_deterministic, opt_state_acc,
-			       opt_colored);
+          auto aut =
+            spot::random_graph(size, opt_density, &opt->aprops, d,
+                               accs, opt_acc_prob, 0.5,
+                               opt_deterministic, opt_state_acc,
+                               opt_colored);
 
-	  if (opt_acceptance)
-	    aut->set_acceptance(accs, code);
+          if (opt_acceptance)
+            aut->set_acceptance(accs, code);
 
-	  if (opt_uniq)
-	    {
-	      auto tmp = spot::canonicalize
-		(make_twa_graph(aut, spot::twa::prop_set::all()));
-	      std::vector<tr_t> trans(tmp->edge_vector().begin() + 1,
-				      tmp->edge_vector().end());
-	      if (!opt_uniq->emplace(trans).second)
-		{
-		  --trials;
-		  if (trials == 0)
-		    error(2, 0, "failed to generate a new unique automaton"
-			  " after %d trials", max_trials);
-		  continue;
-		}
-	      trials = max_trials;
-	    }
+          if (opt_uniq)
+            {
+              auto tmp = spot::canonicalize
+                (make_twa_graph(aut, spot::twa::prop_set::all()));
+              std::vector<tr_t> trans(tmp->edge_vector().begin() + 1,
+                                      tmp->edge_vector().end());
+              if (!opt_uniq->emplace(trans).second)
+                {
+                  --trials;
+                  if (trials == 0)
+                    error(2, 0, "failed to generate a new unique automaton"
+                          " after %d trials", max_trials);
+                  continue;
+                }
+              trials = max_trials;
+            }
 
-	  auto runtime = sw.stop();
+          auto runtime = sw.stop();
 
-	  printer.print(aut, nullptr,
-			opt_seed_str, automaton_num, runtime, nullptr);
+          printer.print(aut, nullptr,
+                        opt_seed_str, automaton_num, runtime, nullptr);
 
-	  ++automaton_num;
-	  if (opt_automata > 0 && automaton_num >= opt_automata)
-	    break;
-	}
+          ++automaton_num;
+          if (opt_automata > 0 && automaton_num >= opt_automata)
+            break;
+        }
     }
   catch (const std::runtime_error& e)
     {

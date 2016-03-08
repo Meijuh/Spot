@@ -41,7 +41,7 @@ namespace spot
         author        = {Kousha Etessami and Gerard J. Holzmann},
         title         = {Optimizing {B\"u}chi Automata},
         booktitle     = {Proceedings of the 11th International Conference on
-     	  	      Concurrency Theory (Concur'00)},
+                             Concurrency Theory (Concur'00)},
         pages         = {153--167},
         year          = {2000},
         editor        = {C. Palamidessi},
@@ -87,8 +87,8 @@ namespace spot
   /// but generalized to handle TωA directly.
   /** \verbatim
       @InProceedings{ somenzi.00.cav,
-        author	      = {Fabio Somenzi and Roderick Bloem},
-        title	      = {Efficient {B\"u}chi Automata for {LTL} Formul{\ae}},
+        author        = {Fabio Somenzi and Roderick Bloem},
+        title         = {Efficient {B\"u}chi Automata for {LTL} Formul{\ae}},
         booktitle     = {Proceedings of the 12th International Conference on
                          Computer Aided Verification (CAV'00)},
         pages         = {247--263},

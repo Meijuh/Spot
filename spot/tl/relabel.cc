@@ -43,15 +43,15 @@ namespace spot
     {
       unsigned nn;
       pnn_generator()
-	: nn(0)
-	{
-	}
+        : nn(0)
+        {
+        }
 
       virtual formula next() override
       {
-	std::ostringstream s;
-	s << 'p' << nn++;
-	return formula::ap(s.str());
+        std::ostringstream s;
+        s << 'p' << nn++;
+        return formula::ap(s.str());
       }
     };
 
@@ -59,23 +59,23 @@ namespace spot
     {
     public:
       abc_generator()
-	: nn(0)
-	{
-	}
+        : nn(0)
+        {
+        }
 
       unsigned nn;
 
       virtual formula next() override
       {
-	std::string s;
-	unsigned n = nn++;
-	do
-	  {
-	    s.push_back('a' + (n % 26));
-	    n /= 26;
-	  }
-	while (n);
-	return formula::ap(s);
+        std::string s;
+        unsigned n = nn++;
+        do
+          {
+            s.push_back('a' + (n % 26));
+            n /= 26;
+          }
+        while (n);
+        return formula::ap(s);
       }
     };
 
@@ -89,42 +89,42 @@ namespace spot
       relabeling_map* oldnames;
 
       relabeler(ap_generator* gen, relabeling_map* m)
-	: gen(gen), oldnames(m)
+        : gen(gen), oldnames(m)
       {
       }
 
       ~relabeler()
       {
-	delete gen;
+        delete gen;
       }
 
       formula rename(formula old)
       {
-	auto r = newname.emplace(old, nullptr);
-	if (!r.second)
-	  {
-	    return r.first->second;
-	  }
-	else
-	  {
-	    formula res = gen->next();
-	    r.first->second = res;
-	    if (oldnames)
-	      (*oldnames)[res] = old;
-	    return res;
-	  }
+        auto r = newname.emplace(old, nullptr);
+        if (!r.second)
+          {
+            return r.first->second;
+          }
+        else
+          {
+            formula res = gen->next();
+            r.first->second = res;
+            if (oldnames)
+              (*oldnames)[res] = old;
+            return res;
+          }
       }
 
       formula
       visit(formula f)
       {
-	if (f.is(op::ap))
-	  return rename(f);
-	else
-	  return f.map([this](formula f)
-		       {
-			 return this->visit(f);
-		       });
+        if (f.is(op::ap))
+          return rename(f);
+        else
+          return f.map([this](formula f)
+                       {
+                         return this->visit(f);
+                       });
       }
 
     };
@@ -139,11 +139,11 @@ namespace spot
     switch (style)
       {
       case Pnn:
-	gen = new pnn_generator;
-	break;
+        gen = new pnn_generator;
+        break;
       case Abc:
-	gen = new abc_generator;
-	break;
+        gen = new abc_generator;
+        break;
       }
 
     relabeler r(gen, m);
@@ -236,67 +236,67 @@ namespace spot
       std::stack<formula> s;
 
       formula_to_fgraph(fgraph& g):
-	g(g)
-	{
-	}
+        g(g)
+        {
+        }
 
       ~formula_to_fgraph()
-	{
-	}
+        {
+        }
 
       void
-	visit(formula f)
+        visit(formula f)
       {
-	{
-	  // Connect to parent
-	  auto in = g.emplace(f, succ_vec());
-	  if (!s.empty())
-	    {
-	      formula top = s.top();
-	      in.first->second.push_back(top);
-	      g[top].push_back(f);
-	      if (!in.second)
-		return;
-	    }
-	  else
-	    {
-	      assert(in.second);
-	    }
-	}
-	s.push(f);
+        {
+          // Connect to parent
+          auto in = g.emplace(f, succ_vec());
+          if (!s.empty())
+            {
+              formula top = s.top();
+              in.first->second.push_back(top);
+              g[top].push_back(f);
+              if (!in.second)
+                return;
+            }
+          else
+            {
+              assert(in.second);
+            }
+        }
+        s.push(f);
 
-	unsigned sz = f.size();
-	unsigned i = 0;
-	if (sz > 2 && !f.is_boolean())
-	  {
-	    /// If we have a formula like (a & b & Xc), consider
-	    /// it as ((a & b) & Xc) in the graph to isolate the
-	    /// Boolean operands as a single node.
-	    formula b = f.boolean_operands(&i);
-	    if (b)
-	      visit(b);
-	  }
-	for (; i < sz; ++i)
-	  visit(f[i]);
-	if (sz > 1 && f.is_boolean())
-	  {
-	    // For Boolean nodes, connect all children in a
-	    // loop.  This way the node can only be a cut-point
-	    // if it separates all children from the reset of
-	    // the graph (not only one).
-	    formula pred = f[0];
-	    for (i = 1; i < sz; ++i)
-	      {
-		formula next = f[i];
-		// Note that we only add an edge in one
-		// direction, because we are building a cycle
-		// between all children anyway.
-		g[pred].push_back(next);
-		pred = next;
-	      }
-	    g[pred].push_back(f[0]);
-	  }
-	s.pop();
+        unsigned sz = f.size();
+        unsigned i = 0;
+        if (sz > 2 && !f.is_boolean())
+          {
+            /// If we have a formula like (a & b & Xc), consider
+            /// it as ((a & b) & Xc) in the graph to isolate the
+            /// Boolean operands as a single node.
+            formula b = f.boolean_operands(&i);
+            if (b)
+              visit(b);
+          }
+        for (; i < sz; ++i)
+          visit(f[i]);
+        if (sz > 1 && f.is_boolean())
+          {
+            // For Boolean nodes, connect all children in a
+            // loop.  This way the node can only be a cut-point
+            // if it separates all children from the reset of
+            // the graph (not only one).
+            formula pred = f[0];
+            for (i = 1; i < sz; ++i)
+              {
+                formula next = f[i];
+                // Note that we only add an edge in one
+                // direction, because we are building a cycle
+                // between all children anyway.
+                g[pred].push_back(next);
+                pred = next;
+              }
+            g[pred].push_back(f[0]);
+          }
+        s.pop();
       }
     };
 
@@ -307,7 +307,7 @@ namespace spot
       unsigned num; // serial number, in pre-order
       unsigned low; // lowest number accessible via unstacked descendants
       data_entry(unsigned num = 0, unsigned low = 0)
-	: num(num), low(low)
+        : num(num), low(low)
       {
       }
     };
@@ -315,7 +315,7 @@ namespace spot
     struct stack_entry
     {
       formula grand_parent;
-      formula parent;	// current node
+      formula parent;        // current node
       succ_vec::const_iterator current_child;
       succ_vec::const_iterator last_child;
     };
@@ -347,58 +347,58 @@ namespace spot
       s.push(e);
 
       while (!s.empty())
-	{
-	  stack_entry& e  = s.top();
-	  if (e.current_child != e.last_child)
-	    {
-	      // Skip the edge if it is just the reverse of the one
-	      // we took.
-	      formula child = *e.current_child;
-	      if (child == e.grand_parent)
-		{
-		  ++e.current_child;
-		  continue;
-		}
-	      auto i = data.emplace(std::piecewise_construct,
-				    std::forward_as_tuple(child),
-				    std::forward_as_tuple(num, num));
-	      if (i.second)	// New destination.
-		{
-		  ++num;
-		  const succ_vec& children = g.find(child)->second;
-		  stack_entry newe = { e.parent, child,
-				       children.begin(), children.end() };
-		  s.push(newe);
-		}
-	      else	   // Destination exists.
-		{
-		  data_entry& dparent = data[e.parent];
-		  data_entry& dchild = i.first->second;
-		  // If this is a back-edge, update
-		  // the low field of the parent.
-		  if (dchild.num <= dparent.num)
-		    if (dparent.low > dchild.num)
-		      dparent.low = dchild.num;
-		}
-	      ++e.current_child;
-	    }
-	  else
-	    {
-	      formula grand_parent = e.grand_parent;
-	      formula parent = e.parent;
-	      s.pop();
-	      if (!s.empty())
-		{
-		  data_entry& dparent = data[parent];
-		  data_entry& dgrand_parent = data[grand_parent];
-		  if (dparent.low >= dgrand_parent.num // cut-point
-		      && grand_parent.is_boolean())
-		    c.insert(grand_parent);
-		  if (dparent.low < dgrand_parent.low)
-		    dgrand_parent.low = dparent.low;
-		}
-	    }
-	}
+        {
+          stack_entry& e  = s.top();
+          if (e.current_child != e.last_child)
+            {
+              // Skip the edge if it is just the reverse of the one
+              // we took.
+              formula child = *e.current_child;
+              if (child == e.grand_parent)
+                {
+                  ++e.current_child;
+                  continue;
+                }
+              auto i = data.emplace(std::piecewise_construct,
+                                    std::forward_as_tuple(child),
+                                    std::forward_as_tuple(num, num));
+              if (i.second)        // New destination.
+                {
+                  ++num;
+                  const succ_vec& children = g.find(child)->second;
+                  stack_entry newe = { e.parent, child,
+                                       children.begin(), children.end() };
+                  s.push(newe);
+                }
+              else           // Destination exists.
+                {
+                  data_entry& dparent = data[e.parent];
+                  data_entry& dchild = i.first->second;
+                  // If this is a back-edge, update
+                  // the low field of the parent.
+                  if (dchild.num <= dparent.num)
+                    if (dparent.low > dchild.num)
+                      dparent.low = dchild.num;
+                }
+              ++e.current_child;
+            }
+          else
+            {
+              formula grand_parent = e.grand_parent;
+              formula parent = e.parent;
+              s.pop();
+              if (!s.empty())
+                {
+                  data_entry& dparent = data[parent];
+                  data_entry& dgrand_parent = data[grand_parent];
+                  if (dparent.low >= dgrand_parent.num // cut-point
+                      && grand_parent.is_boolean())
+                    c.insert(grand_parent);
+                  if (dparent.low < dgrand_parent.low)
+                    dgrand_parent.low = dparent.low;
+                }
+            }
+        }
     }
 
 
@@ -407,44 +407,44 @@ namespace spot
     public:
       fset& c;
       bse_relabeler(ap_generator* gen, fset& c,
-		    relabeling_map* m)
-	: relabeler(gen, m), c(c)
+                    relabeling_map* m)
+        : relabeler(gen, m), c(c)
       {
       }
 
       using relabeler::visit;
 
       formula
-	visit(formula f)
+        visit(formula f)
       {
-	if (f.is(op::ap) || (c.find(f) != c.end()))
-	  return rename(f);
+        if (f.is(op::ap) || (c.find(f) != c.end()))
+          return rename(f);
 
-	unsigned sz = f.size();
-	if (sz <= 2)
-	  return f.map([this](formula f)
-		       {
-			 return visit(f);
-		       });
+        unsigned sz = f.size();
+        if (sz <= 2)
+          return f.map([this](formula f)
+                       {
+                         return visit(f);
+                       });
 
-	unsigned i = 0;
-	std::vector<formula> res;
-	/// If we have a formula like (a & b & Xc), consider
-	/// it as ((a & b) & Xc) in the graph to isolate the
-	/// Boolean operands as a single node.
-	formula b = f.boolean_operands(&i);
-	if (b)
-	  {
-	    res.reserve(sz - i + 1);
-	    res.push_back(visit(b));
-	  }
-	else
-	  {
-	    res.reserve(sz);
-	  }
-	for (; i < sz; ++i)
-	  res.push_back(visit(f[i]));
-	return formula::multop(f.kind(), res);
+        unsigned i = 0;
+        std::vector<formula> res;
+        /// If we have a formula like (a & b & Xc), consider
+        /// it as ((a & b) & Xc) in the graph to isolate the
+        /// Boolean operands as a single node.
+        formula b = f.boolean_operands(&i);
+        if (b)
+          {
+            res.reserve(sz - i + 1);
+            res.push_back(visit(b));
+          }
+        else
+          {
+            res.reserve(sz);
+          }
+        for (; i < sz; ++i)
+          res.push_back(visit(f[i]));
+        return formula::multop(f.kind(), res);
       }
     };
   }
@@ -471,11 +471,11 @@ namespace spot
     switch (style)
       {
       case Pnn:
-	gen = new pnn_generator;
-	break;
+        gen = new pnn_generator;
+        break;
       case Abc:
-	gen = new abc_generator;
-	break;
+        gen = new abc_generator;
+        break;
       }
     bse_relabeler rel(gen, c, m);
     return rel.visit(f);

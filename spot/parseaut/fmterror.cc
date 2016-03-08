@@ -29,11 +29,11 @@ namespace spot
     spot::parse_aut_error_list::iterator it;
     for (auto& err : errors)
       {
-	if (!filename.empty() && filename != "-")
-	  os << filename << ':';
-	os << err.first << ": ";
-	os << err.second << std::endl;
-	printed = true;
+        if (!filename.empty() && filename != "-")
+          os << filename << ':';
+        os << err.first << ": ";
+        os << err.second << std::endl;
+        printed = true;
       }
     return printed;
   }

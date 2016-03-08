@@ -47,11 +47,11 @@ main(int argc, char **argv)
   std::string s;
   while (std::getline(input, s))
     {
-      if (s[0] == '#')		// Skip comments
-	{
-	  std::cerr << s << '\n';
-	  continue;
-	}
+      if (s[0] == '#')                // Skip comments
+        {
+          std::cerr << s << '\n';
+          continue;
+        }
       std::istringstream ss(s);
       std::string form;
       bool expected;
@@ -60,16 +60,16 @@ main(int argc, char **argv)
 
       auto pf1 = spot::parse_infix_sere(form);
       if (pf1.format_errors(std::cerr))
-	return 2;
+        return 2;
 
       bool b = pf1.f.accepts_eword();
       std::cout << form << ',' << b << '\n';
       if (b != expected)
-	{
-	  std::cerr << "computed '" << b
-		    << "' but expected '" << expected << "'\n";
-	  return 2;
-	}
+        {
+          std::cerr << "computed '" << b
+                    << "' but expected '" << expected << "'\n";
+          return 2;
+        }
     }
 
   assert(spot::fnode::instances_check());

@@ -31,9 +31,9 @@ namespace spot
     atomic_prop_set res;
     for (unsigned i = 0; i < n; ++i)
       {
-	std::ostringstream p;
-	p << 'p' << i;
-	res.insert(formula::ap(p.str()));
+        std::ostringstream p;
+        p << 'p' << i;
+        res.insert(formula::ap(p.str()));
       }
     return res;
   }
@@ -44,11 +44,11 @@ namespace spot
     if (!s)
       s = new atomic_prop_set;
     f.traverse([&](const formula& f)
-	       {
-		 if (f.is(op::ap))
-		   s->insert(f);
-		 return false;
-	       });
+               {
+                 if (f.is(op::ap))
+                   s->insert(f);
+                 return false;
+               });
     return s;
   }
 

@@ -37,50 +37,50 @@ namespace spot
     auto um = aut->acc().unsat_mark();
     if (!um.first)
       {
-	// We cannot safely complete an automaton if its
-	// acceptance is always satisfiable.
-	auto acc = aut->set_buchi();
-	for (auto& t: aut->edge_vector())
-	  t.acc = acc;
+        // We cannot safely complete an automaton if its
+        // acceptance is always satisfiable.
+        auto acc = aut->set_buchi();
+        for (auto& t: aut->edge_vector())
+          t.acc = acc;
       }
     else
       {
-	// Loop over the states and search a state that has only self
-	// loop labeled by the same non-accepting mark.  This will be
-	// our sink state.  Note that we do not even have to ensure
-	// that the state is complete as we will complete the whole
-	// automaton in a second pass.
-	for (unsigned i = 0; i < n; ++i)
-	  {
-	    bool sinkable = true;
-	    bool first = true;
-	    acc_cond::mark_t commonacc = 0U;
-	    for (auto& t: aut->out(i))
-	      {
-		if (t.dst != i)	// Not a self-loop
-		  {
-		    sinkable = false;
-		    break;
-		  }
-		if (first)
-		  {
-		    commonacc = t.acc;
-		    first = false;
-		  }
-		else if (t.acc != commonacc)
-		  {
-		    sinkable = false;
-		    break;
-		  }
-	      }
-	    if (sinkable && !aut->acc().accepting(commonacc))
-	      {
-		// We have found a sink!
-		um.second = commonacc;
-		sink = i;
-		break;
-	      }
-	  }
+        // Loop over the states and search a state that has only self
+        // loop labeled by the same non-accepting mark.  This will be
+        // our sink state.  Note that we do not even have to ensure
+        // that the state is complete as we will complete the whole
+        // automaton in a second pass.
+        for (unsigned i = 0; i < n; ++i)
+          {
+            bool sinkable = true;
+            bool first = true;
+            acc_cond::mark_t commonacc = 0U;
+            for (auto& t: aut->out(i))
+              {
+                if (t.dst != i)        // Not a self-loop
+                  {
+                    sinkable = false;
+                    break;
+                  }
+                if (first)
+                  {
+                    commonacc = t.acc;
+                    first = false;
+                  }
+                else if (t.acc != commonacc)
+                  {
+                    sinkable = false;
+                    break;
+                  }
+              }
+            if (sinkable && !aut->acc().accepting(commonacc))
+              {
+                // We have found a sink!
+                um.second = commonacc;
+                sink = i;
+                break;
+              }
+          }
       }
 
     unsigned t = aut->num_edges();
@@ -92,42 +92,42 @@ namespace spot
     // Now complete all states (excluding any newly added the sink).
     for (unsigned i = 0; i < n; ++i)
       {
-	bdd missingcond = bddtrue;
-	acc_cond::mark_t acc = 0U;
-	for (auto& t: aut->out(i))
-	  {
-	    missingcond -= t.cond;
-	    // FIXME: This is ugly.
-	    //
-	    // In case the automaton uses state-based acceptance, we
-	    // need to put the new edge in the same set as all
-	    // the other.
-	    //
-	    // In case the automaton uses edge-based acceptance,
-	    // it does not matter what acceptance set we put the new
-	    // edge into.
-	    //
-	    // So in both cases, we put the edge in the same
-	    // acceptance sets as the last outgoing edge of the
-	    // state.
-	    acc = t.acc;
-	  }
-	// If the state has incomplete successors, we need to add a
-	// edge to some sink state.
-	if (missingcond != bddfalse)
-	  {
-	    // If we haven't found any sink, simply add one.
-	    if (sink == -1U)
-	      {
-		sink = aut->new_state();
-		aut->new_edge(sink, sink, bddtrue, um.second);
-	      }
-	    // In case the automaton use state-based acceptance, propagate
-	    // the acceptance of the first edge to the one we add.
-	    if (aut->prop_state_acc() != true)
-	      acc = 0U;
-	    aut->new_edge(i, sink, missingcond, acc);
-	  }
+        bdd missingcond = bddtrue;
+        acc_cond::mark_t acc = 0U;
+        for (auto& t: aut->out(i))
+          {
+            missingcond -= t.cond;
+            // FIXME: This is ugly.
+            //
+            // In case the automaton uses state-based acceptance, we
+            // need to put the new edge in the same set as all
+            // the other.
+            //
+            // In case the automaton uses edge-based acceptance,
+            // it does not matter what acceptance set we put the new
+            // edge into.
+            //
+            // So in both cases, we put the edge in the same
+            // acceptance sets as the last outgoing edge of the
+            // state.
+            acc = t.acc;
+          }
+        // If the state has incomplete successors, we need to add a
+        // edge to some sink state.
+        if (missingcond != bddfalse)
+          {
+            // If we haven't found any sink, simply add one.
+            if (sink == -1U)
+              {
+                sink = aut->new_state();
+                aut->new_edge(sink, sink, bddtrue, um.second);
+              }
+            // In case the automaton use state-based acceptance, propagate
+            // the acceptance of the first edge to the one we add.
+            if (aut->prop_state_acc() != true)
+              acc = 0U;
+            aut->new_edge(i, sink, missingcond, acc);
+          }
       }
 
     // Get rid of any named property if the automaton changed.
@@ -142,11 +142,11 @@ namespace spot
   twa_graph_ptr complete(const const_twa_ptr& aut)
   {
     auto res = make_twa_graph(aut, {
-					true, // state based
-					true, // inherently_weak
-					true, // deterministic
-					true, // stutter inv.
-				      });
+                                        true, // state based
+                                        true, // inherently_weak
+                                        true, // deterministic
+                                        true, // stutter inv.
+                                      });
     complete_here(res);
     return res;
   }

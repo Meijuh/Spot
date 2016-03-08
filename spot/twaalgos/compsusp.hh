@@ -50,7 +50,7 @@ namespace spot
   /// spot::translator class instead.
   SPOT_API twa_graph_ptr
   compsusp(formula f, const bdd_dict_ptr& dict,
-	   bool no_wdba = false, bool no_simulation = false,
-	   bool early_susp = false, bool no_susp_product = false,
-	   bool wdba_smaller = false, bool oblig = false);
+           bool no_wdba = false, bool no_simulation = false,
+           bool early_susp = false, bool no_susp_product = false,
+           bool wdba_smaller = false, bool oblig = false);
 }

@@ -183,24 +183,24 @@ namespace spot
     total_2_and_more_ = 0.0;
     for (unsigned i = 0; i < proba_size_; ++i)
       {
-	if (proba_[i].min_n == 1)
-	  {
-	    total_1_ += proba_[i].proba;
-	    if (proba_ + i >= proba_2_)
-	      total_2_ += proba_[i].proba;
-	    if (proba_ + i >= proba_2_or_more_)
-	      total_2_and_more_ += proba_[i].proba;
-	  }
-	else if (proba_[i].min_n == 2)
-	  {
-	    total_2_ += proba_[i].proba;
-	    if (proba_ + i >= proba_2_or_more_)
-	      total_2_and_more_ += proba_[i].proba;
-	  }
-	else if (proba_[i].min_n > 2)
-	  total_2_and_more_ += proba_[i].proba;
-	else
-	  SPOT_UNREACHABLE(); // unexpected max_n
+        if (proba_[i].min_n == 1)
+          {
+            total_1_ += proba_[i].proba;
+            if (proba_ + i >= proba_2_)
+              total_2_ += proba_[i].proba;
+            if (proba_ + i >= proba_2_or_more_)
+              total_2_and_more_ += proba_[i].proba;
+          }
+        else if (proba_[i].min_n == 2)
+          {
+            total_2_ += proba_[i].proba;
+            if (proba_ + i >= proba_2_or_more_)
+              total_2_and_more_ += proba_[i].proba;
+          }
+        else if (proba_[i].min_n > 2)
+          total_2_and_more_ += proba_[i].proba;
+        else
+          SPOT_UNREACHABLE(); // unexpected max_n
       }
     assert(total_2_and_more_ >= total_2_);
   }
@@ -216,48 +216,48 @@ namespace spot
     // Approximate impossible cases.
     if (n == 1 && total_1_ == 0.0)
       {
-	if (total_2_ != 0.0)
-	  n = 2;
-	else
-	  n = 3;
+        if (total_2_ != 0.0)
+          n = 2;
+        else
+          n = 3;
       }
     else if (n == 2 && total_2_ == 0.0)
       {
-	if (total_1_ != 0.0)
-	  n = 1;
-	else
-	  n = 3;
+        if (total_1_ != 0.0)
+          n = 1;
+        else
+          n = 3;
       }
     else if (n > 2 && total_2_and_more_ == 0.0)
       {
-	if (total_1_ != 0.0)
-	  n = 1;
-	else
-	  assert(total_2_ == 0.0);
+        if (total_1_ != 0.0)
+          n = 1;
+        else
+          assert(total_2_ == 0.0);
       }
 
 
     if (n == 1)
       {
-	r *= total_1_;
-	p = proba_;
+        r *= total_1_;
+        p = proba_;
       }
     else if (n == 2)
       {
-	r *= total_2_;
-	p = proba_2_;
+        r *= total_2_;
+        p = proba_2_;
       }
     else
       {
-	r *= total_2_and_more_;
-	p = proba_2_or_more_;
+        r *= total_2_and_more_;
+        p = proba_2_or_more_;
       }
 
     double s = p->proba;
     while (s < r)
       {
-	++p;
-	s += p->proba;
+        ++p;
+        s += p->proba;
       }
 
     return p->build(this, n);
@@ -271,30 +271,30 @@ namespace spot
     char* key = strtok(options, "=\t, :;");
     while (key)
       {
-	char* value = strtok(nullptr, "=\t, :;");
-	if (!value)
-	  return key;
+        char* value = strtok(nullptr, "=\t, :;");
+        if (!value)
+          return key;
 
-	char* endptr;
-	double res = strtod(value, &endptr);
-	if (*endptr)
-	  return value;
+        char* endptr;
+        double res = strtod(value, &endptr);
+        if (*endptr)
+          return value;
 
-	unsigned i;
-	for (i = 0; i < proba_size_; ++i)
-	  {
-	    if (('a' <= *proba_[i].name && *proba_[i].name <= 'z'
-		 && !strcasecmp(proba_[i].name, key))
-		|| !strcmp(proba_[i].name, key))
-	      {
-		proba_[i].proba = res;
-		break;
-	      }
-	  }
-	if (i == proba_size_)
-	  return key;
+        unsigned i;
+        for (i = 0; i < proba_size_; ++i)
+          {
+            if (('a' <= *proba_[i].name && *proba_[i].name <= 'z'
+                 && !strcasecmp(proba_[i].name, key))
+                || !strcmp(proba_[i].name, key))
+              {
+                proba_[i].proba = res;
+                break;
+              }
+          }
+        if (i == proba_size_)
+          return key;
 
-	key = strtok(nullptr, "=\t, :;");
+        key = strtok(nullptr, "=\t, :;");
       }
     update_sums();
     return nullptr;
@@ -393,7 +393,7 @@ namespace spot
   {
     // FIXME: This looks very fragile.
     memmove(proba_ + 8, proba_ + 7,
-	    ((proba_ + 16) - (proba_ + 7)) * sizeof(*proba_));
+            ((proba_ + 16) - (proba_ + 7)) * sizeof(*proba_));
 
     proba_[7].setup("Closure", 2, closure_builder);
     proba_[17].setup("EConcat", 3, binop_SERELTL_builder<op::EConcat>);
@@ -402,10 +402,10 @@ namespace spot
   }
 
   randltlgenerator::randltlgenerator(atomic_prop_set aprops,
-				     const option_map& opts,
-				     char* opt_pL,
-				     char* opt_pS,
-				     char* opt_pB)
+                                     const option_map& opts,
+                                     char* opt_pL,
+                                     char* opt_pS,
+                                     char* opt_pB)
   {
     aprops_ = aprops;
     output_ = opts.get("output", OUTPUTLTL);
@@ -423,51 +423,51 @@ namespace spot
     switch (output_)
       {
       case OUTPUTLTL:
-	rf_ = new random_ltl(&aprops_);
-	if (opt_pS)
-	  throw std::invalid_argument("Cannot set sere priorities with "
-				      "LTL output");
-	if (opt_pB)
-	  throw std::invalid_argument("Cannot set boolean priorities with "
-				      "LTL output");
-	tok_pL = rf_->parse_options(opt_pL);
-	break;
+        rf_ = new random_ltl(&aprops_);
+        if (opt_pS)
+          throw std::invalid_argument("Cannot set sere priorities with "
+                                      "LTL output");
+        if (opt_pB)
+          throw std::invalid_argument("Cannot set boolean priorities with "
+                                      "LTL output");
+        tok_pL = rf_->parse_options(opt_pL);
+        break;
       case OUTPUTBOOL:
-	rf_ = new random_boolean(&aprops_);
-	tok_pB = rf_->parse_options(opt_pB);
-	if (opt_pL)
-	  throw std::invalid_argument("Cannot set ltl priorities with "
-				      "Boolean output");
-	if (opt_pS)
-	  throw std::invalid_argument("Cannot set sere priorities "
-				      "with Boolean output");
-	break;
+        rf_ = new random_boolean(&aprops_);
+        tok_pB = rf_->parse_options(opt_pB);
+        if (opt_pL)
+          throw std::invalid_argument("Cannot set ltl priorities with "
+                                      "Boolean output");
+        if (opt_pS)
+          throw std::invalid_argument("Cannot set sere priorities "
+                                      "with Boolean output");
+        break;
       case OUTPUTSERE:
-	rf_ = rs_ = new random_sere(&aprops_);
-	tok_pS = rs_->parse_options(opt_pS);
-	tok_pB = rs_->rb.parse_options(opt_pB);
-	if (opt_pL)
-	  throw std::invalid_argument("Cannot set ltl priorities "
-				      "with SERE output");
-	break;
+        rf_ = rs_ = new random_sere(&aprops_);
+        tok_pS = rs_->parse_options(opt_pS);
+        tok_pB = rs_->rb.parse_options(opt_pB);
+        if (opt_pL)
+          throw std::invalid_argument("Cannot set ltl priorities "
+                                      "with SERE output");
+        break;
       case OUTPUTPSL:
-	rf_ = rp_ = new random_psl(&aprops_);
-	rs_ = &rp_->rs;
-	tok_pL = rp_->parse_options(opt_pL);
-	tok_pS = rs_->parse_options(opt_pS);
-	tok_pB = rs_->rb.parse_options(opt_pB);
-	break;
+        rf_ = rp_ = new random_psl(&aprops_);
+        rs_ = &rp_->rs;
+        tok_pL = rp_->parse_options(opt_pL);
+        tok_pS = rs_->parse_options(opt_pS);
+        tok_pB = rs_->rb.parse_options(opt_pB);
+        break;
       }
 
     if (tok_pL)
       throw std::invalid_argument("failed to parse LTL priorities near "
-				  + std::string(tok_pL));
+                                  + std::string(tok_pL));
     if (tok_pS)
       throw std::invalid_argument("failed to parse SERE priorities near "
-				  + std::string(tok_pS));
+                                  + std::string(tok_pS));
     if (tok_pB)
       throw std::invalid_argument("failed to parse Boolean priorities near "
-				  + std::string(tok_pB));
+                                  + std::string(tok_pB));
 
     spot::srand(opt_seed_);
     tl_simplifier_options simpl_opts(opt_simpl_level_);
@@ -475,12 +475,12 @@ namespace spot
   }
 
   randltlgenerator::randltlgenerator(int aprops_n,
-				     const option_map& opts,
-				     char* opt_pL,
-				     char* opt_pS,
-				     char* opt_pB)
+                                     const option_map& opts,
+                                     char* opt_pL,
+                                     char* opt_pS,
+                                     char* opt_pB)
     : randltlgenerator(create_atomic_prop_set(aprops_n), opts,
-		       opt_pL, opt_pS, opt_pB)
+                       opt_pL, opt_pS, opt_pB)
   {
   }
 
@@ -496,24 +496,24 @@ namespace spot
     formula f = nullptr;
     do
       {
-	ignore = false;
-	int size = opt_tree_size_min_;
-	if (size != opt_tree_size_max_)
-	  size = spot::rrand(size, opt_tree_size_max_);
-	f = rf_->generate(size);
+        ignore = false;
+        int size = opt_tree_size_min_;
+        if (size != opt_tree_size_max_)
+          size = spot::rrand(size, opt_tree_size_max_);
+        f = rf_->generate(size);
 
-	if (opt_wf_)
-	  {
-	    atomic_prop_set s = aprops_;
-	    remove_some_props(s);
-	    f = formula::And({f, GF_n()});
-	  }
+        if (opt_wf_)
+          {
+            atomic_prop_set s = aprops_;
+            remove_some_props(s);
+            f = formula::And({f, GF_n()});
+          }
 
-	if (opt_simpl_level_)
-	  f = simpl_.simplify(f);
+        if (opt_simpl_level_)
+          f = simpl_.simplify(f);
 
-	if (opt_unique_ && !unique_set_.insert(f).second)
-	  ignore = true;
+        if (opt_unique_ && !unique_set_.insert(f).second)
+          ignore = true;
       } while (ignore && --trials);
     if (trials <= 0)
       return nullptr;
@@ -529,9 +529,9 @@ namespace spot
 
     while (n--)
       {
-	auto i = s.begin();
-	std::advance(i, spot::mrand(s.size()));
-	s.erase(i);
+        auto i = s.begin();
+        std::advance(i, spot::mrand(s.size()));
+        s.erase(i);
       }
   }
 
@@ -542,11 +542,11 @@ namespace spot
     formula res = nullptr;
     for (auto v: aprops_)
       {
-	formula f = formula::G(formula::F(v));
-	if (res)
-	  res = formula::And({f, res});
-	else
-	  res = f;
+        formula f = formula::G(formula::F(v));
+        if (res)
+          res = formula::And({f, res});
+        else
+          res = f;
       }
     return res;
   }

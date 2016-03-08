@@ -74,8 +74,8 @@ namespace spot
   ///                    possible.)
   SPOT_API twa_graph_ptr
   tgba_determinize(const const_twa_graph_ptr& aut,
-		   bool pretty_print = false,
-		   bool use_scc = true,
-		   bool use_simulation = true,
-		   bool use_stutter = true);
+                   bool pretty_print = false,
+                   bool use_scc = true,
+                   bool use_simulation = true,
+                   bool use_stutter = true);
 }

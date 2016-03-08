@@ -83,58 +83,58 @@ namespace spot
     {
     public:
       twa_succ_iterator_product_common(twa_succ_iterator* left,
-					twa_succ_iterator* right,
-					const twa_product* prod,
-					fixed_size_pool* pool)
-	: left_(left), right_(right), prod_(prod), pool_(pool)
+                                        twa_succ_iterator* right,
+                                        const twa_product* prod,
+                                        fixed_size_pool* pool)
+        : left_(left), right_(right), prod_(prod), pool_(pool)
       {
       }
 
       void recycle(const const_twa_ptr& l, twa_succ_iterator* left,
-		   const_twa_ptr r, twa_succ_iterator* right)
+                   const_twa_ptr r, twa_succ_iterator* right)
       {
-	l->release_iter(left_);
-	left_ = left;
-	r->release_iter(right_);
-	right_ = right;
+        l->release_iter(left_);
+        left_ = left;
+        r->release_iter(right_);
+        right_ = right;
       }
 
       virtual ~twa_succ_iterator_product_common()
       {
-	delete left_;
-	delete right_;
+        delete left_;
+        delete right_;
       }
 
       virtual bool next_non_false_() = 0;
 
       bool first()
       {
-	if (!right_)
-	  return false;
+        if (!right_)
+          return false;
 
-	// If one of the two successor sets is empty initially, we
-	// reset right_, so that done() can detect this situation
-	// easily.  (We choose to reset right_ because this variable
-	// is already used by done().)
-	if (!(left_->first() && right_->first()))
-	  {
-	    delete right_;
-	    right_ = nullptr;
-	    return false;
-	  }
-	return next_non_false_();
+        // If one of the two successor sets is empty initially, we
+        // reset right_, so that done() can detect this situation
+        // easily.  (We choose to reset right_ because this variable
+        // is already used by done().)
+        if (!(left_->first() && right_->first()))
+          {
+            delete right_;
+            right_ = nullptr;
+            return false;
+          }
+        return next_non_false_();
       }
 
       bool done() const
       {
-	return !right_ || right_->done();
+        return !right_ || right_->done();
       }
 
       const state_product* dst() const
       {
-	return new(pool_->allocate()) state_product(left_->dst(),
-						    right_->dst(),
-						    pool_);
+        return new(pool_->allocate()) state_product(left_->dst(),
+                                                    right_->dst(),
+                                                    pool_);
       }
 
     protected:
@@ -151,10 +151,10 @@ namespace spot
     {
     public:
       twa_succ_iterator_product(twa_succ_iterator* left,
-				 twa_succ_iterator* right,
-				 const twa_product* prod,
-				 fixed_size_pool* pool)
-	: twa_succ_iterator_product_common(left, right, prod, pool)
+                                 twa_succ_iterator* right,
+                                 const twa_product* prod,
+                                 fixed_size_pool* pool)
+        : twa_succ_iterator_product_common(left, right, prod, pool)
       {
       }
 
@@ -164,46 +164,46 @@ namespace spot
 
       bool step_()
       {
-	if (left_->next())
-	  return true;
-	left_->first();
-	return right_->next();
+        if (left_->next())
+          return true;
+        left_->first();
+        return right_->next();
       }
 
       bool next_non_false_()
       {
-	assert(!done());
-	do
-	  {
-	    bdd l = left_->cond();
-	    bdd r = right_->cond();
-	    bdd current_cond = l & r;
+        assert(!done());
+        do
+          {
+            bdd l = left_->cond();
+            bdd r = right_->cond();
+            bdd current_cond = l & r;
 
-	    if (current_cond != bddfalse)
-	      {
-		current_cond_ = current_cond;
-		return true;
-	      }
-	  }
-	while (step_());
-	return false;
+            if (current_cond != bddfalse)
+              {
+                current_cond_ = current_cond;
+                return true;
+              }
+          }
+        while (step_());
+        return false;
       }
 
       bool next()
       {
-	if (step_())
-	  return next_non_false_();
-	return false;
+        if (step_())
+          return next_non_false_();
+        return false;
       }
 
       bdd cond() const
       {
-	return current_cond_;
+        return current_cond_;
       }
 
       acc_cond::mark_t acc() const
       {
-	return left_->acc() | (right_->acc() << prod_->left_acc().num_sets());
+        return left_->acc() | (right_->acc() << prod_->left_acc().num_sets());
       }
 
     protected:
@@ -217,10 +217,10 @@ namespace spot
     {
     public:
       twa_succ_iterator_product_kripke(twa_succ_iterator* left,
-					twa_succ_iterator* right,
-					const twa_product* prod,
-					fixed_size_pool* pool)
-	: twa_succ_iterator_product_common(left, right, prod, pool)
+                                        twa_succ_iterator* right,
+                                        const twa_product* prod,
+                                        fixed_size_pool* pool)
+        : twa_succ_iterator_product_common(left, right, prod, pool)
       {
       }
 
@@ -230,43 +230,43 @@ namespace spot
 
       bool next_non_false_()
       {
-	// All the transitions of left_ iterator have the
-	// same label, because it is a Kripke structure.
-	bdd l = left_->cond();
-	assert(!right_->done());
-	do
-	  {
-	    bdd r = right_->cond();
-	    bdd current_cond = l & r;
+        // All the transitions of left_ iterator have the
+        // same label, because it is a Kripke structure.
+        bdd l = left_->cond();
+        assert(!right_->done());
+        do
+          {
+            bdd r = right_->cond();
+            bdd current_cond = l & r;
 
-	    if (current_cond != bddfalse)
-	      {
-		current_cond_ = current_cond;
-		return true;
-	      }
-	  }
-	while (right_->next());
-	return false;
+            if (current_cond != bddfalse)
+              {
+                current_cond_ = current_cond;
+                return true;
+              }
+          }
+        while (right_->next());
+        return false;
       }
 
       bool next()
       {
-	if (left_->next())
-	  return true;
-	left_->first();
-	if (right_->next())
-	  return next_non_false_();
-	return false;
+        if (left_->next())
+          return true;
+        left_->first();
+        if (right_->next())
+          return next_non_false_();
+        return false;
       }
 
       bdd cond() const
       {
-	return current_cond_;
+        return current_cond_;
       }
 
       acc_cond::mark_t acc() const
       {
-	return right_->acc();
+        return right_->acc();
       }
 
     protected:
@@ -279,13 +279,13 @@ namespace spot
   // twa_product
 
   twa_product::twa_product(const const_twa_ptr& left,
-			     const const_twa_ptr& right)
+                             const const_twa_ptr& right)
     : twa(left->get_dict()), left_(left), right_(right),
       pool_(sizeof(state_product))
   {
     if (left->get_dict() != right->get_dict())
       throw std::runtime_error("twa_product: left and right automata should "
-			       "share their bdd_dict");
+                               "share their bdd_dict");
     assert(get_dict() == right_->get_dict());
 
     // If one of the side is a Kripke structure, it is easier to deal
@@ -293,16 +293,16 @@ namespace spot
     // computing the successors can be improved a bit).
     if (dynamic_cast<const kripke*>(left_.get()))
       {
-	left_kripke_ = true;
+        left_kripke_ = true;
       }
     else if (dynamic_cast<const kripke*>(right_.get()))
       {
-	std::swap(left_, right_);
-	left_kripke_ = true;
+        std::swap(left_, right_);
+        left_kripke_ = true;
       }
     else
       {
-	left_kripke_ = false;
+        left_kripke_ = false;
       }
 
     auto d = get_dict();
@@ -329,7 +329,7 @@ namespace spot
   {
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);
     return new(p->allocate()) state_product(left_->get_init_state(),
-					    right_->get_init_state(), p);
+                                            right_->get_init_state(), p);
   }
 
   twa_succ_iterator*
@@ -342,11 +342,11 @@ namespace spot
 
     if (iter_cache_)
       {
-	twa_succ_iterator_product_common* it =
-	  down_cast<twa_succ_iterator_product_common*>(iter_cache_);
-	it->recycle(left_, li, right_, ri);
-	iter_cache_ = nullptr;
-	return it;
+        twa_succ_iterator_product_common* it =
+          down_cast<twa_succ_iterator_product_common*>(iter_cache_);
+        it->recycle(left_, li, right_, ri);
+        iter_cache_ = nullptr;
+        return it;
       }
 
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);
@@ -372,8 +372,8 @@ namespace spot
     const state_product* s = down_cast<const state_product*>(state);
     assert(s);
     return (left_->format_state(s->left())
-	    + " * "
-	    + right_->format_state(s->right()));
+            + " * "
+            + right_->format_state(s->right()));
   }
 
   state*
@@ -393,9 +393,9 @@ namespace spot
   // twa_product_init
 
   twa_product_init::twa_product_init(const const_twa_ptr& left,
-				       const const_twa_ptr& right,
-				       const state* left_init,
-				       const state* right_init)
+                                       const const_twa_ptr& right,
+                                       const state* left_init,
+                                       const state* right_init)
     : twa_product(left, right),
       left_init_(left_init), right_init_(right_init)
   {
@@ -408,7 +408,7 @@ namespace spot
   {
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);
     return new(p->allocate()) state_product(left_init_->clone(),
-					    right_init_->clone(), p);
+                                            right_init_->clone(), p);
   }
 
 }

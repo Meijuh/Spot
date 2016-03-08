@@ -35,14 +35,14 @@ namespace spot
     {
       const char* res = secure_getenv("SPOT_TMPDIR");
       if (res)
-	return res;
+        return res;
       return secure_getenv("TMPDIR");
     }
 
     static int
     create_temporary_file(const char* prefix,
-			  const char* suffix,
-			  char** name)
+                          const char* suffix,
+                          char** name)
       throw(std::bad_alloc, std::runtime_error)
     {
       static const char* tmpdir = get_tmpdir();
@@ -51,30 +51,30 @@ namespace spot
       size_t len = strlen(prefix);
       size_t slen = 0;
       if (suffix)
-	len += slen = strlen(suffix);
+        len += slen = strlen(suffix);
       char* x = *name = static_cast<char*>(malloc(tmpdirlen + 1 + len + 6 + 1));
       if (!x)
-	throw std::bad_alloc();
+        throw std::bad_alloc();
       if (tmpdir)
-	{
-	  x = stpcpy(x, tmpdir);
-	  if (x[-1] != '/')
-	    *x++ = '/';
-	}
+        {
+          x = stpcpy(x, tmpdir);
+          if (x[-1] != '/')
+            *x++ = '/';
+        }
       x = stpcpy(x, prefix);
       x = stpcpy(x, "XXXXXX");
       int fd;
       if (suffix)
-	{
-	  stpcpy(x, suffix);
-	  fd = mkstemps(*name, slen);
-	}
+        {
+          stpcpy(x, suffix);
+          fd = mkstemps(*name, slen);
+        }
       else
-	{
-	  fd = mkstemp(*name);
-	}
+        {
+          fd = mkstemp(*name);
+        }
       if (fd < 0)
-	throw std::runtime_error(std::string("failed to create ") + *name);
+        throw std::runtime_error(std::string("failed to create ") + *name);
       return fd;
     }
   }

@@ -23,7 +23,7 @@
 #include <spot/twaalgos/postproc.hh>
 #include <argp.h>
 
-extern const struct argp post_argp;	     // postprocessing enabled
+extern const struct argp post_argp;             // postprocessing enabled
 extern const struct argp post_argp_disabled; // postprocessing disabled
 
 extern spot::postprocessor::output_type type;

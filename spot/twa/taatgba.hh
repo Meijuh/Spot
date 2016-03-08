@@ -88,7 +88,7 @@ namespace spot
     virtual ~set_state()
     {
       if (delete_me_)
-	delete s_;
+        delete s_;
     }
 
     const taa_tgba::state_set* get_state() const;
@@ -118,18 +118,18 @@ namespace spot
     typedef std::pair<iterator, iterator> iterator_pair;
     typedef std::vector<iterator_pair> bounds_t;
     typedef std::unordered_map<const spot::set_state*,
-			       std::vector<taa_tgba::transition*>,
-			       state_ptr_hash, state_ptr_equal> seen_map;
+                               std::vector<taa_tgba::transition*>,
+                               state_ptr_hash, state_ptr_equal> seen_map;
 
     struct distance_sort :
       public std::binary_function<const iterator_pair&,
-				  const iterator_pair&, bool>
+                                  const iterator_pair&, bool>
     {
       bool
       operator()(const iterator_pair& lhs, const iterator_pair& rhs) const
       {
-	return std::distance(lhs.first, lhs.second) <
-	       std::distance(rhs.first, rhs.second);
+        return std::distance(lhs.first, lhs.second) <
+               std::distance(rhs.first, rhs.second);
       }
     };
 
@@ -150,11 +150,11 @@ namespace spot
     ~taa_tgba_labelled()
     {
       for (auto i: name_state_map_)
-	{
-	  for (auto i2: *i.second)
-	    delete i2;
-	  delete i.second;
-	}
+        {
+          for (auto i2: *i.second)
+            delete i2;
+          delete i.second;
+        }
     }
 
     void set_init_state(const label& s)
@@ -170,7 +170,7 @@ namespace spot
 
     transition*
     create_transition(const label& s,
-		      const std::vector<label>& d)
+                      const std::vector<label>& d)
     {
       state* src = add_state(s);
       state_set* dst = add_state_set(d);
@@ -194,7 +194,7 @@ namespace spot
     {
       auto p = acc_map_.emplace(f, 0);
       if (p.second)
-	p.first->second = acc_cond::mark_t({acc().add_set()});
+        p.first->second = acc_cond::mark_t({acc().add_set()});
       t->acceptance_conditions |= p.first->second;
     }
 
@@ -220,14 +220,14 @@ namespace spot
       typename ns_map::const_iterator i;
       for (i = name_state_map_.begin(); i != name_state_map_.end(); ++i)
       {
-	taa_tgba::state::const_iterator i2;
-	os << "State: " << label_to_string(i->first) << std::endl;
-	for (i2 = i->second->begin(); i2 != i->second->end(); ++i2)
-	{
-	  os << ' ' << format_state_set((*i2)->dst)
-	     << ", C:" << (*i2)->condition
-	     << ", A:" << (*i2)->acceptance_conditions << std::endl;
-	}
+        taa_tgba::state::const_iterator i2;
+        os << "State: " << label_to_string(i->first) << std::endl;
+        for (i2 = i->second->begin(); i2 != i->second->end(); ++i2)
+        {
+          os << ' ' << format_state_set((*i2)->dst)
+             << ", C:" << (*i2)->condition
+             << ", A:" << (*i2)->acceptance_conditions << std::endl;
+        }
       }
     }
 
@@ -236,7 +236,7 @@ namespace spot
 
     typedef std::unordered_map<label, taa_tgba::state*> ns_map;
     typedef std::unordered_map<const taa_tgba::state*, label,
-			       ptr_hash<taa_tgba::state> > sn_map;
+                               ptr_hash<taa_tgba::state> > sn_map;
 
     ns_map name_state_map_;
     sn_map state_name_map_;
@@ -252,10 +252,10 @@ namespace spot
       typename ns_map::iterator i = name_state_map_.find(name);
       if (i == name_state_map_.end())
       {
-	taa_tgba::state* s = new taa_tgba::state;
-	name_state_map_[name] = s;
-	state_name_map_[s] = name;
-	return s;
+        taa_tgba::state* s = new taa_tgba::state;
+        name_state_map_[name] = s;
+        state_name_map_[s] = name;
+        return s;
       }
       return i->second;
     }
@@ -265,7 +265,7 @@ namespace spot
     {
       state_set* ss = new state_set;
       for (unsigned i = 0; i < names.size(); ++i)
-	ss->insert(add_state(names[i]));
+        ss->insert(add_state(names[i]));
       state_set_vec_.push_back(ss);
       return ss;
     }
@@ -275,25 +275,25 @@ namespace spot
       state_set::const_iterator i1 = ss->begin();
       typename sn_map::const_iterator i2;
       if (ss->empty())
-	return std::string("{}");
+        return std::string("{}");
       if (ss->size() == 1)
       {
-	i2 = state_name_map_.find(*i1);
-	assert(i2 != state_name_map_.end());
-	return "{" + label_to_string(i2->second) + "}";
+        i2 = state_name_map_.find(*i1);
+        assert(i2 != state_name_map_.end());
+        return "{" + label_to_string(i2->second) + "}";
       }
       else
       {
-	std::string res("{");
-	while (i1 != ss->end())
-	{
-	  i2 = state_name_map_.find(*i1++);
-	  assert(i2 != state_name_map_.end());
-	  res += label_to_string(i2->second);
-	  res += ",";
-	}
-	res[res.size() - 1] = '}';
-	return res;
+        std::string res("{");
+        while (i1 != ss->end())
+        {
+          i2 = state_name_map_.find(*i1++);
+          assert(i2 != state_name_map_.end());
+          res += label_to_string(i2->second);
+          res += ",";
+        }
+        res[res.size() - 1] = '}';
+        return res;
       }
     }
   };

@@ -66,33 +66,33 @@ main(int argc, char** argv)
     switch (opt)
       {
       case 0:
-	std::cout << "Test f1 < f2" << std::endl;
-	if (c->syntactic_implication(f1, f2))
-	  {
-	    std::cout << f1s << " < " << f2s << '\n';
-	    exit_return = 1;
-	  }
-	break;
+        std::cout << "Test f1 < f2" << std::endl;
+        if (c->syntactic_implication(f1, f2))
+          {
+            std::cout << f1s << " < " << f2s << '\n';
+            exit_return = 1;
+          }
+        break;
 
       case 1:
-	std::cout << "Test !f1 < f2" << std::endl;
-	if (c->syntactic_implication_neg(f1, f2, false))
-	  {
-	    std::cout << "!(" << f1s << ") < " << f2s << '\n';
-	    exit_return = 1;
-	  }
-	break;
+        std::cout << "Test !f1 < f2" << std::endl;
+        if (c->syntactic_implication_neg(f1, f2, false))
+          {
+            std::cout << "!(" << f1s << ") < " << f2s << '\n';
+            exit_return = 1;
+          }
+        break;
 
       case 2:
-	std::cout << "Test f1 < !f2" << std::endl;
-	if (c->syntactic_implication_neg(f1, f2, true))
-	  {
-	    std::cout << f1s << " < !(" << f2s << ")\n";
-	    exit_return = 1;
-	  }
-	break;
+        std::cout << "Test f1 < !f2" << std::endl;
+        if (c->syntactic_implication_neg(f1, f2, true))
+          {
+            std::cout << f1s << " < !(" << f2s << ")\n";
+            exit_return = 1;
+          }
+        break;
       default:
-	break;
+        break;
       }
 
     f1.dump(std::cout) << '\n';

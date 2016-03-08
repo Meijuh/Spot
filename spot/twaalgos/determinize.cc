@@ -112,16 +112,16 @@ namespace spot
     using power_set = std::map<safra_state, int>;
     const char* const sub[10] =
       {
-	"\u2080",
-	"\u2081",
-	"\u2082",
-	"\u2083",
-	"\u2084",
-	"\u2085",
-	"\u2086",
-	"\u2087",
-	"\u2088",
-	"\u2089",
+        "\u2080",
+        "\u2081",
+        "\u2082",
+        "\u2083",
+        "\u2084",
+        "\u2085",
+        "\u2086",
+        "\u2087",
+        "\u2088",
+        "\u2089",
       };
 
     std::string subscript(unsigned start)
@@ -157,18 +157,18 @@ namespace spot
       assert(max_acc < 32);
       unsigned mask = (1 << max_acc) - 1;
       for (auto& t: aut->edges())
-	{
-	  t.acc &= mask;
-	}
+        {
+          t.acc &= mask;
+        }
     }
 
     struct compare
     {
       bool
       operator() (const safra_state::safra_node_t& lhs,
-		  const safra_state::safra_node_t& rhs)
+                  const safra_state::safra_node_t& rhs)
       {
-	return lhs.second < rhs.second;
+        return lhs.second < rhs.second;
       }
     };
 
@@ -178,7 +178,7 @@ namespace spot
     {
       std::vector<safra_state::safra_node_t> res;
       for (auto& n: nodes)
-	res.emplace_back(n.first, n.second);
+        res.emplace_back(n.first, n.second);
       std::sort(res.begin(), res.end(), compare());
       return res;
     }
@@ -191,46 +191,46 @@ namespace spot
       std::stack<unsigned> s;
       bool first = true;
       for (auto& n: copy)
-	{
-	  auto it = n.second.begin();
-	  // Find brace on top of stack in vector
-	  // If brace is not present, then we close it as no other ones of that
-	  // type will be found since we ordered our vector
-	  while (!s.empty())
-	    {
-	      it = std::lower_bound(n.second.begin(), n.second.end(),
-				    s.top());
-	      if (it == n.second.end() || *it != s.top())
-		{
-		  os << subscript(s.top()) << '}';
-		  s.pop();
-		}
-	      else
-		{
-		  if (*it == s.top())
-		    ++it;
-		  break;
-		}
-	    }
-	  // Add new braces
-	  while (it != n.second.end())
-	    {
-	      os << '{' << subscript(*it);
-	      s.push(*it);
-	      ++it;
-	      first = true;
-	    }
-	  if (!first)
-	    os << ' ';
-	  os << n.first;
-	  first = false;
-	}
+        {
+          auto it = n.second.begin();
+          // Find brace on top of stack in vector
+          // If brace is not present, then we close it as no other ones of that
+          // type will be found since we ordered our vector
+          while (!s.empty())
+            {
+              it = std::lower_bound(n.second.begin(), n.second.end(),
+                                    s.top());
+              if (it == n.second.end() || *it != s.top())
+                {
+                  os << subscript(s.top()) << '}';
+                  s.pop();
+                }
+              else
+                {
+                  if (*it == s.top())
+                    ++it;
+                  break;
+                }
+            }
+          // Add new braces
+          while (it != n.second.end())
+            {
+              os << '{' << subscript(*it);
+              s.push(*it);
+              ++it;
+              first = true;
+            }
+          if (!first)
+            os << ' ';
+          os << n.first;
+          first = false;
+        }
       // Finish unwinding stack to print last braces
       while (!s.empty())
-	{
-	  os << subscript(s.top()) << '}';
-	  s.pop();
-	}
+        {
+          os << subscript(s.top()) << '}';
+          s.pop();
+        }
       return os.str();
     }
 
@@ -239,7 +239,7 @@ namespace spot
     {
       auto res = new std::vector<std::string>(states.size());
       for (auto& p: states)
-	(*res)[p.second] = nodes_to_string(p.first.nodes_);
+        (*res)[p.second] = nodes_to_string(p.first.nodes_);
       return res;
     }
 
@@ -250,33 +250,33 @@ namespace spot
 
   safra_state
   safra_state::compute_succ(const const_twa_graph_ptr& aut,
-			    const bdd& ap,
-			    const scc_info& scc,
-			    const std::map<int, bdd>& implications,
-			    const std::vector<bool>& is_connected,
-			    bool use_scc,
-			    bool use_simulation) const
+                            const bdd& ap,
+                            const scc_info& scc,
+                            const std::map<int, bdd>& implications,
+                            const std::vector<bool>& is_connected,
+                            bool use_scc,
+                            bool use_simulation) const
   {
     safra_state ss = safra_state(nb_braces_.size());
     for (auto& node: nodes_)
       {
-	for (auto& t: aut->out(node.first))
-	  {
-	    if (!bdd_implies(ap, t.cond))
-	      continue;
-	    // Check if we are leaving the SCC, if so we delete all the
-	    // braces as no cycles can be found with that node
-	    if (use_scc && scc.scc_of(node.first) != scc.scc_of(t.dst))
-	      if (scc.is_accepting_scc(scc.scc_of(t.dst)))
+        for (auto& t: aut->out(node.first))
+          {
+            if (!bdd_implies(ap, t.cond))
+              continue;
+            // Check if we are leaving the SCC, if so we delete all the
+            // braces as no cycles can be found with that node
+            if (use_scc && scc.scc_of(node.first) != scc.scc_of(t.dst))
+              if (scc.is_accepting_scc(scc.scc_of(t.dst)))
                 // Entering accepting SCC so add brace
                 ss.update_succ({ /* no braces */ }, t.dst, { 0 });
-	      else
-		// When entering non accepting SCC don't create any braces
-		ss.update_succ({ /* no braces */ }, t.dst, { /* empty */ });
-	    else
-	      ss.update_succ(node.second, t.dst, t.acc);
-	    assert(ss.nb_braces_.size() == ss.is_green_.size());
-	  }
+              else
+                // When entering non accepting SCC don't create any braces
+                ss.update_succ({ /* no braces */ }, t.dst, { /* empty */ });
+            else
+              ss.update_succ(node.second, t.dst, t.acc);
+            assert(ss.nb_braces_.size() == ss.is_green_.size());
+          }
       }
     if (use_simulation)
       ss.merge_redundant_states(implications, scc, is_connected);
@@ -287,52 +287,52 @@ namespace spot
 
   void
   safra_state::compute_succs(const const_twa_graph_ptr& aut,
-			     succs_t& res,
-			     const scc_info& scc,
-			     const std::map<int, bdd>& implications,
-			     const std::vector<bool>& is_connected,
-			     std::unordered_map<bdd, unsigned, bdd_hash>&
-			     bdd2num,
-			     std::vector<bdd>& all_bdds,
-			     bool use_scc,
-			     bool use_simulation,
-			     bool use_stutter) const
+                             succs_t& res,
+                             const scc_info& scc,
+                             const std::map<int, bdd>& implications,
+                             const std::vector<bool>& is_connected,
+                             std::unordered_map<bdd, unsigned, bdd_hash>&
+                             bdd2num,
+                             std::vector<bdd>& all_bdds,
+                             bool use_scc,
+                             bool use_simulation,
+                             bool use_stutter) const
   {
     for (auto& ap: all_bdds)
       {
-	safra_state ss = *this;
+        safra_state ss = *this;
 
-	if (use_stutter && aut->prop_stutter_invariant())
-	  {
-	    std::vector<color_t> colors;
-	    unsigned int counter = 0;
-	    std::map<safra_state, unsigned int> safra2id;
-	    bool stop = false;
-	    while (!stop)
-	      {
-		auto pair = safra2id.insert({ss, counter++});
-		// insert should never fail
-		assert(pair.second);
-		ss = ss.compute_succ(aut, ap, scc, implications, is_connected,
-				     use_scc, use_simulation);
-		colors.push_back(ss.color_);
-		stop = safra2id.find(ss) != safra2id.end();
-	      }
-	    // Add color of final transition that loops back
-	    colors.push_back(ss.color_);
-	    unsigned int loop_start = safra2id[ss];
-	    for (auto& min: safra2id)
-	      {
-		if (min.second >= loop_start && ss < min.first)
-		  ss = min.first;
-	      }
-	    ss.color_ = *std::min_element(colors.begin(), colors.end());
-	  }
-	else
-	  ss = compute_succ(aut, ap, scc, implications, is_connected,
-			    use_scc, use_simulation);
-	unsigned bdd_idx = bdd2num[ap];
-	res.emplace_back(ss, bdd_idx);
+        if (use_stutter && aut->prop_stutter_invariant())
+          {
+            std::vector<color_t> colors;
+            unsigned int counter = 0;
+            std::map<safra_state, unsigned int> safra2id;
+            bool stop = false;
+            while (!stop)
+              {
+                auto pair = safra2id.insert({ss, counter++});
+                // insert should never fail
+                assert(pair.second);
+                ss = ss.compute_succ(aut, ap, scc, implications, is_connected,
+                                     use_scc, use_simulation);
+                colors.push_back(ss.color_);
+                stop = safra2id.find(ss) != safra2id.end();
+              }
+            // Add color of final transition that loops back
+            colors.push_back(ss.color_);
+            unsigned int loop_start = safra2id[ss];
+            for (auto& min: safra2id)
+              {
+                if (min.second >= loop_start && ss < min.first)
+                  ss = min.first;
+              }
+            ss.color_ = *std::min_element(colors.begin(), colors.end());
+          }
+        else
+          ss = compute_succ(aut, ap, scc, implications, is_connected,
+                            use_scc, use_simulation);
+        unsigned bdd_idx = bdd2num[ap];
+        res.emplace_back(ss, bdd_idx);
       }
   }
 
@@ -350,12 +350,12 @@ namespace spot
               continue;
             // index to see if there is a path from scc2 -> scc1
             unsigned idx = scc.scc_count() * scc.scc_of(n2.first) +
-	      scc.scc_of(n1.first);
+              scc.scc_of(n1.first);
             if (bdd_implies(implications.at(n1.first),
                             implications.at(n2.first)) && !is_connected[idx])
-	      {
-		to_remove.push_back(n1.first);
-	      }
+              {
+                to_remove.push_back(n1.first);
+              }
           }
       }
     for (auto& n: to_remove)
@@ -442,8 +442,8 @@ namespace spot
 
   void
   node_helper::truncate_braces(std::vector<brace_t>& braces,
-			       const std::vector<unsigned>& rem_succ_of,
-			       std::vector<size_t>& nb_braces)
+                               const std::vector<unsigned>& rem_succ_of,
+                               std::vector<size_t>& nb_braces)
   {
     for (unsigned idx = 0; idx < braces.size(); ++idx)
       {
@@ -582,8 +582,8 @@ namespace spot
 
   twa_graph_ptr
   tgba_determinize(const const_twa_graph_ptr& a,
-		   bool pretty_print, bool use_scc,
-		   bool use_simulation, bool use_stutter)
+                   bool pretty_print, bool use_scc,
+                   bool use_simulation, bool use_stutter)
   {
     if (a->prop_deterministic())
       return std::const_pointer_cast<twa_graph>(a);
@@ -642,10 +642,10 @@ namespace spot
     res->copy_ap_of(aut);
     res->prop_copy(aut,
                    { false, // state based
-		       false, // inherently_weak
-		       false, // deterministic
-		       true // stutter inv
-		       });
+                       false, // inherently_weak
+                       false, // deterministic
+                       true // stutter inv
+                       });
 
     // Given a safra_state get its associated state in output automata.
     // Required to create new edges from 2 safra-state
@@ -676,13 +676,13 @@ namespace spot
             if (s.first.nodes_.empty())
               continue;
             auto i = seen.find(s.first);
-	    unsigned dst_num;
-	    if (i != seen.end())
-	      {
-		dst_num = i->second;
-	      }
-	    else
-	      {
+            unsigned dst_num;
+            if (i != seen.end())
+              {
+                dst_num = i->second;
+              }
+            else
+              {
                 dst_num = res->new_state();
                 todo.push_back(s.first);
                 seen.insert(std::make_pair(s.first, dst_num));
@@ -690,7 +690,7 @@ namespace spot
             if (s.first.color_ != -1U)
               {
                 res->new_edge(src_num, dst_num, num2bdd[s.second],
-			      {s.first.color_});
+                              {s.first.color_});
                 // We only care about green acc which are odd
                 if (s.first.color_ % 2 == 1)
                   sets = std::max(s.first.color_ + 1, sets);

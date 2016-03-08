@@ -78,7 +78,7 @@ namespace spot
   {
   public:
     emptiness_check_result(const const_twa_ptr& a,
-			   option_map o = option_map())
+                           option_map o = option_map())
       : a_(a), o_(o)
     {
     }
@@ -126,8 +126,8 @@ namespace spot
     /// Notify option updates.
     virtual void options_updated(const option_map& old);
 
-    const_twa_ptr a_;		///< The automaton.
-    option_map o_;		///< The options.
+    const_twa_ptr a_;                ///< The automaton.
+    option_map o_;                ///< The options.
   };
 
   typedef std::shared_ptr<emptiness_check_result> emptiness_check_result_ptr;
@@ -192,8 +192,8 @@ namespace spot
     virtual void options_updated(const option_map& old);
 
   protected:
-    const_twa_ptr a_;		///< The automaton.
-    option_map o_;		///< The options
+    const_twa_ptr a_;                ///< The automaton.
+    option_map o_;                ///< The options
   };
 
   typedef std::shared_ptr<emptiness_check> emptiness_check_ptr;
@@ -270,7 +270,7 @@ namespace spot
       acc_cond::mark_t acc;
 
       step(const state* s, bdd label, acc_cond::mark_t acc)
-	: s(s), label(label), acc(acc)
+        : s(s), label(label), acc(acc)
       {
       }
       step()

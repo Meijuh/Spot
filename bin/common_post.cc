@@ -155,7 +155,7 @@ parse_opt_post(int key, char*, struct argp_state*)
       break;
     case OPT_TGBA:
       if (automaton_format == Spin)
-	error(2, 0, "--spin and --tgba are incompatible");
+        error(2, 0, "--spin and --tgba are incompatible");
       type = spot::postprocessor::TGBA;
       break;
     default:
@@ -165,7 +165,7 @@ parse_opt_post(int key, char*, struct argp_state*)
 }
 
 const struct argp post_argp = { options, parse_opt_post,
-				nullptr, nullptr, nullptr, nullptr, nullptr };
+                                nullptr, nullptr, nullptr, nullptr, nullptr };
 const struct argp post_argp_disabled = { options_disabled, parse_opt_post,
-					 nullptr, nullptr, nullptr,
-					 nullptr, nullptr };
+                                         nullptr, nullptr, nullptr,
+                                         nullptr, nullptr };

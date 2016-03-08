@@ -41,14 +41,14 @@ static void print(const std::vector<std::vector<int>>& res)
       std::cout << '{';
       const char* comma = "";
       for (int s: v)
-	{
-	  std::cout << comma;
-	  if (s < 0)
-	    std::cout << '!' << (-s - 1);
-	  else
-	    std::cout << s;
-	  comma = ", ";
-	}
+        {
+          std::cout << comma;
+          if (s < 0)
+            std::cout << '!' << (-s - 1);
+          else
+            std::cout << s;
+          comma = ", ";
+        }
       std::cout << "}\n";
     }
 }
@@ -90,7 +90,7 @@ int main()
   spot::acc_cond ac3(ac.num_sets() + ac2.num_sets());
   ac3.set_generalized_buchi();
   std::cout << ac.num_sets() << " + "
-	    << ac2.num_sets() << " = " << ac3.num_sets() << '\n';
+            << ac2.num_sets() << " = " << ac3.num_sets() << '\n';
   auto m5 = m2 | (m3 << ac.num_sets());
   check(ac3, m5);
   auto m6 = ac.comp(m2 & m3) | (m3 << ac.num_sets());

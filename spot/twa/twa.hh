@@ -180,14 +180,14 @@ namespace spot
   ///
   /// \see state_unicity_table
   typedef std::unordered_set<const state*,
-			     state_ptr_hash, state_ptr_equal> state_set;
+                             state_ptr_hash, state_ptr_equal> state_set;
 
   /// \brief Unordered map of abstract states
   ///
   /// Destroying each state if needed is the user's responsibility.
   template<class val>
   using state_map = std::unordered_map<const state*, val,
-				       state_ptr_hash, state_ptr_equal>;
+                                       state_ptr_hash, state_ptr_equal>;
 
   /// \ingroup twa_essentials
   /// \brief Render state pointers unique via a hash table.
@@ -208,7 +208,7 @@ namespace spot
     {
       auto p = m.insert(s);
       if (!p.second)
-	s->destroy();
+        s->destroy();
       return *p.first;
     }
 
@@ -220,22 +220,22 @@ namespace spot
     {
       auto p = m.insert(s);
       if (!p.second)
-	{
-	  s->destroy();
-	  return nullptr;
-	}
+        {
+          s->destroy();
+          return nullptr;
+        }
       return *p.first;
     }
 
     ~state_unicity_table()
     {
       for (state_set::iterator i = m.begin(); i != m.end();)
-	{
-	  // Advance the iterator before destroying its key.  This
-	  // avoid issues with old g++ implementations.
-	  state_set::iterator old = i++;
-	  (*old)->destroy();
-	}
+        {
+          // Advance the iterator before destroying its key.  This
+          // avoid issues with old g++ implementations.
+          state_set::iterator old = i++;
+          (*old)->destroy();
+        }
     }
 
     size_t
@@ -336,8 +336,8 @@ namespace spot
 
   /// Unordered set of shared states
   typedef std::unordered_set<shared_state,
-			     state_shared_ptr_hash,
-			     state_shared_ptr_equal> shared_state_set;
+                             state_shared_ptr_hash,
+                             state_shared_ptr_equal> shared_state_set;
 
   /// \ingroup twa_essentials
   /// \brief Iterate over the successors of a state.
@@ -483,29 +483,29 @@ namespace spot
     public:
 
       succ_iterator(twa_succ_iterator* it):
-	it_(it)
+        it_(it)
       {
       }
 
       bool operator==(succ_iterator o) const
       {
-	return it_ == o.it_;
+        return it_ == o.it_;
       }
 
       bool operator!=(succ_iterator o) const
       {
-	return it_ != o.it_;
+        return it_ != o.it_;
       }
 
       const twa_succ_iterator* operator*() const
       {
-	return it_;
+        return it_;
       }
 
       void operator++()
       {
-	if (!it_->next())
-	  it_ = nullptr;
+        if (!it_->next())
+          it_ = nullptr;
       }
     };
   }
@@ -597,30 +597,30 @@ namespace spot
       twa_succ_iterator* it_;
     public:
       succ_iterable(const twa* aut, twa_succ_iterator* it)
-	: aut_(aut), it_(it)
+        : aut_(aut), it_(it)
       {
       }
 
       succ_iterable(succ_iterable&& other)
-	: aut_(other.aut_), it_(other.it_)
+        : aut_(other.aut_), it_(other.it_)
       {
-	other.it_ = nullptr;
+        other.it_ = nullptr;
       }
 
       ~succ_iterable()
       {
-	if (it_)
-	  aut_->release_iter(it_);
+        if (it_)
+          aut_->release_iter(it_);
       }
 
       internal::succ_iterator begin()
       {
-	return it_->first() ? it_ : nullptr;
+        return it_->first() ? it_ : nullptr;
       }
 
       internal::succ_iterator end()
       {
-	return nullptr;
+        return nullptr;
       }
     };
 #endif
@@ -682,9 +682,9 @@ namespace spot
     void release_iter(twa_succ_iterator* i) const
     {
       if (iter_cache_)
-	delete i;
+        delete i;
       else
-	iter_cache_ = i;
+        iter_cache_ = i;
     }
 
     /// \brief Get the dictionary associated to the automaton.
@@ -724,11 +724,11 @@ namespace spot
     {
       int res = dict_->has_registered_proposition(ap, this);
       if (res < 0)
-	{
-	  aps_.push_back(ap);
-	  res = dict_->register_proposition(ap, this);
-	  bddaps_ &= bdd_ithvar(res);
-	}
+        {
+          aps_.push_back(ap);
+          res = dict_->register_proposition(ap, this);
+          bddaps_ &= bdd_ithvar(res);
+        }
       return res;
     }
 
@@ -773,7 +773,7 @@ namespace spot
     ///    or a new \c state* (the projected state) that must be
     ///    destroyed by the caller.
     virtual state* project_state(const state* s,
-				 const const_twa_ptr& t) const;
+                                 const const_twa_ptr& t) const;
 
     ///@{
     /// \brief The acceptance condition of the automaton.
@@ -797,10 +797,10 @@ namespace spot
     void set_num_sets_(unsigned num)
     {
       if (num < acc_.num_sets())
-	{
-	  acc_.~acc_cond();
-	  new (&acc_) acc_cond;
-	}
+        {
+          acc_.~acc_cond();
+          new (&acc_) acc_cond;
+        }
       acc_.add_sets(num - acc_.num_sets());
     }
 
@@ -826,7 +826,7 @@ namespace spot
       set_num_sets_(num);
       acc_.set_acceptance(c);
       if (num == 0)
-	prop_state_acc(true);
+        prop_state_acc(true);
     }
 
     /// Copy the acceptance condition of another TωA.
@@ -835,14 +835,14 @@ namespace spot
       acc_ = a->acc();
       unsigned num = acc_.num_sets();
       if (num == 0)
-	prop_state_acc(true);
+        prop_state_acc(true);
     }
 
     /// Copy the atomic propositions of another TωA
     void copy_ap_of(const const_twa_ptr& a)
     {
       for (auto f: a->ap())
-	this->register_ap(f);
+        this->register_ap(f);
     }
 
     /// \brief Set generalized Büchi acceptance
@@ -862,7 +862,7 @@ namespace spot
       set_num_sets_(num);
       acc_.set_generalized_buchi();
       if (num == 0)
-	prop_state_acc(true);
+        prop_state_acc(true);
     }
 
     /// \brief Set Büchi acceptance.
@@ -895,8 +895,8 @@ namespace spot
     {
       trival::repr_t state_based_acc:2;   // State-based acceptance.
       trival::repr_t inherently_weak:2;   // Inherently Weak automaton.
-      trival::repr_t weak:2;	       // Weak automaton.
-      trival::repr_t terminal:2;	       // Terminal automaton.
+      trival::repr_t weak:2;               // Weak automaton.
+      trival::repr_t terminal:2;               // Terminal automaton.
       trival::repr_t deterministic:2;     // Deterministic automaton.
       trival::repr_t unambiguous:2;       // Unambiguous automaton.
       trival::repr_t stutter_invariant:2; // Stutter invariant language.
@@ -910,8 +910,8 @@ namespace spot
 #ifndef SWIG
     // Dynamic properties, are given with a name and a destructor function.
     std::unordered_map<std::string,
-		       std::pair<void*,
-				 std::function<void(void*)>>> named_prop_;
+                       std::pair<void*,
+                                 std::function<void(void*)>>> named_prop_;
 #endif
     void* get_named_prop_(std::string s) const;
 
@@ -930,7 +930,7 @@ namespace spot
     /// When the automaton is destroyed, the \a destructor function will
     /// be called to destroy the attached object.
     void set_named_prop(std::string s,
-			void* val, std::function<void(void*)> destructor);
+                        void* val, std::function<void(void*)> destructor);
 
     /// \brief Declare a named property
     ///
@@ -966,7 +966,7 @@ namespace spot
     {
       void* p = get_named_prop_(s);
       if (!p)
-	return nullptr;
+        return nullptr;
       return static_cast<T*>(p);
     }
 #endif
@@ -979,7 +979,7 @@ namespace spot
     {
       // Destroy all named properties.
       for (auto& np: named_prop_)
-	np.second.second(np.second.first);
+        np.second.second(np.second.first);
       named_prop_.clear();
     }
 
@@ -1036,7 +1036,7 @@ namespace spot
     {
       is.inherently_weak = val.val();
       if (!val)
-	is.terminal = is.weak = val.val();
+        is.terminal = is.weak = val.val();
     }
 
     /// \brief Whether the automaton is terminal.
@@ -1064,7 +1064,7 @@ namespace spot
     {
       is.terminal = val.val();
       if (val)
-	is.inherently_weak = is.weak = val.val();
+        is.inherently_weak = is.weak = val.val();
     }
 
     /// \brief Whether the automaton is weak.
@@ -1091,9 +1091,9 @@ namespace spot
     {
       is.weak = val.val();
       if (val)
-	is.inherently_weak = val.val();
+        is.inherently_weak = val.val();
       if (!val)
-	is.terminal = val.val();
+        is.terminal = val.val();
     }
 
     /// \brief Whether the automaton is deterministic.
@@ -1122,8 +1122,8 @@ namespace spot
     {
       is.deterministic = val.val();
       if (val)
-	// deterministic implies unambiguous
-	is.unambiguous = val.val();
+        // deterministic implies unambiguous
+        is.unambiguous = val.val();
     }
 
     /// \brief Whether the automaton is unambiguous
@@ -1154,7 +1154,7 @@ namespace spot
     {
       is.unambiguous = val.val();
       if (!val)
-	is.deterministic = val.val();
+        is.deterministic = val.val();
     }
 
     /// \brief Whether the automaton is stutter-invariant.
@@ -1215,10 +1215,10 @@ namespace spot
     /// \see prop_copy
     struct prop_set
     {
-      bool state_based;		///< preserve state-based acceptnace
-      bool inherently_weak;	///< preserve inherently weak, weak, & terminal
-      bool deterministic;	///< preserve deterministic and unambiguous
-      bool stutter_inv;		///< preserve stutter invariance
+      bool state_based;     ///< preserve state-based acceptnace
+      bool inherently_weak; ///< preserve inherently weak, weak, & terminal
+      bool deterministic;   ///< preserve deterministic and unambiguous
+      bool stutter_inv;     ///< preserve stutter invariance
 
       /// \brief An all-true \c prop_set
       ///
@@ -1237,7 +1237,7 @@ namespace spot
       /// algorithm X, in case that new property is not preserved.
       static prop_set all()
       {
-	return { true, true, true, true };
+        return { true, true, true, true };
       }
     };
 
@@ -1254,20 +1254,20 @@ namespace spot
     void prop_copy(const const_twa_ptr& other, prop_set p)
     {
       if (p.state_based)
-	prop_state_acc(other->prop_state_acc());
+        prop_state_acc(other->prop_state_acc());
       if (p.inherently_weak)
-	{
-	  prop_terminal(other->prop_terminal());
-	  prop_weak(other->prop_weak());
-	  prop_inherently_weak(other->prop_inherently_weak());
-	}
+        {
+          prop_terminal(other->prop_terminal());
+          prop_weak(other->prop_weak());
+          prop_inherently_weak(other->prop_inherently_weak());
+        }
       if (p.deterministic)
-	{
-	  prop_deterministic(other->prop_deterministic());
-	  prop_unambiguous(other->prop_unambiguous());
-	}
+        {
+          prop_deterministic(other->prop_deterministic());
+          prop_unambiguous(other->prop_unambiguous());
+        }
       if (p.stutter_inv)
-	prop_stutter_invariant(other->prop_stutter_invariant());
+        prop_stutter_invariant(other->prop_stutter_invariant());
     }
 
     /// \brief Keep only a subset of properties of the current
@@ -1278,20 +1278,20 @@ namespace spot
     void prop_keep(prop_set p)
     {
       if (!p.state_based)
-	prop_state_acc(trival::maybe());
+        prop_state_acc(trival::maybe());
       if (!p.inherently_weak)
-	{
-	  prop_terminal(trival::maybe());
-	  prop_weak(trival::maybe());
-	  prop_inherently_weak(trival::maybe());
-	}
+        {
+          prop_terminal(trival::maybe());
+          prop_weak(trival::maybe());
+          prop_inherently_weak(trival::maybe());
+        }
       if (!p.deterministic)
-	{
-	  prop_deterministic(trival::maybe());
-	  prop_unambiguous(trival::maybe());
-	}
+        {
+          prop_deterministic(trival::maybe());
+          prop_unambiguous(trival::maybe());
+        }
       if (!p.stutter_inv)
-	prop_stutter_invariant(trival::maybe());
+        prop_stutter_invariant(trival::maybe());
     }
 
   };

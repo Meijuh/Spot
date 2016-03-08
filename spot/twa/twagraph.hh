@@ -49,16 +49,16 @@ namespace spot
 
       // Do not simply return "other - this", it might not fit in an int.
       if (o < this)
-	return -1;
+        return -1;
       if (o > this)
-	return 1;
+        return 1;
       return 0;
     }
 
     virtual size_t hash() const override
     {
       return
-	reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
+        reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
     }
 
     virtual twa_graph_state*
@@ -90,9 +90,9 @@ namespace spot
     bool operator<(const twa_graph_edge_data& other) const
     {
       if (cond.id() < other.cond.id())
-	return true;
+        return true;
       if (cond.id() > other.cond.id())
-	return false;
+        return false;
       return acc < other.acc;
     }
 
@@ -178,7 +178,7 @@ namespace spot
     // handle graph_t::state as an abstract type.
     typedef unsigned state_num;
     static_assert(std::is_same<typename graph_t::state, state_num>::value,
-		  "type mismatch");
+                  "type mismatch");
 
   protected:
     graph_t g_;
@@ -187,7 +187,7 @@ namespace spot
   public:
     twa_graph(const bdd_dict_ptr& dict)
       : twa(dict),
-	init_number_(0)
+        init_number_(0)
     {
     }
 
@@ -195,9 +195,9 @@ namespace spot
       : twa(other->get_dict()),
         g_(other->g_), init_number_(other->init_number_)
       {
-	copy_acceptance_of(other);
-	copy_ap_of(other);
-	prop_copy(other, p);
+        copy_acceptance_of(other);
+        copy_ap_of(other);
+        prop_copy(other, p);
       }
 
     virtual ~twa_graph()
@@ -206,13 +206,13 @@ namespace spot
 
 #ifndef SWIG
     template <typename State_Name,
-	      typename Name_Hash = std::hash<State_Name>,
-	      typename Name_Equal = std::equal_to<State_Name>>
+              typename Name_Hash = std::hash<State_Name>,
+              typename Name_Equal = std::equal_to<State_Name>>
     using namer = named_graph<graph_t, State_Name, Name_Hash, Name_Equal>;
 
     template <typename State_Name,
-	      typename Name_Hash = std::hash<State_Name>,
-	      typename Name_Equal = std::equal_to<State_Name>>
+              typename Name_Hash = std::hash<State_Name>,
+              typename Name_Equal = std::equal_to<State_Name>>
     namer<State_Name, Name_Hash, Name_Equal>*
     create_namer()
     {
@@ -263,14 +263,14 @@ namespace spot
     state_num get_init_state_number() const
     {
       if (num_states() == 0)
-	const_cast<graph_t&>(g_).new_state();
+        const_cast<graph_t&>(g_).new_state();
       return init_number_;
     }
 
     virtual const twa_graph_state* get_init_state() const override
     {
       if (num_states() == 0)
-	const_cast<graph_t&>(g_).new_state();
+        const_cast<graph_t&>(g_).new_state();
       return state_from_number(init_number_);
     }
 
@@ -282,13 +282,13 @@ namespace spot
       assert(!s->succ || g_.valid_trans(s->succ));
 
       if (this->iter_cache_)
-	{
-	  auto it =
-	    down_cast<twa_graph_succ_iterator<graph_t>*>(this->iter_cache_);
-	  it->recycle(s->succ);
-	  this->iter_cache_ = nullptr;
-	  return it;
-	}
+        {
+          auto it =
+            down_cast<twa_graph_succ_iterator<graph_t>*>(this->iter_cache_);
+          it->recycle(s->succ);
+          this->iter_cache_ = nullptr;
+          return it;
+        }
       return new twa_graph_succ_iterator<graph_t>(&g_, s->succ);
     }
 
@@ -374,18 +374,18 @@ namespace spot
     }
 
     unsigned new_edge(unsigned src, unsigned dst,
-			    bdd cond, acc_cond::mark_t acc = 0U)
+                            bdd cond, acc_cond::mark_t acc = 0U)
     {
       return g_.new_edge(src, dst, cond, acc);
     }
 
     unsigned new_acc_edge(unsigned src, unsigned dst,
-				bdd cond, bool acc = true)
+                                bdd cond, bool acc = true)
     {
       if (acc)
-	return g_.new_edge(src, dst, cond, this->acc().all_sets());
+        return g_.new_edge(src, dst, cond, this->acc().all_sets());
       else
-	return g_.new_edge(src, dst, cond);
+        return g_.new_edge(src, dst, cond);
     }
 
 #ifndef SWIG
@@ -445,9 +445,9 @@ namespace spot
     {
       assert((bool)prop_state_acc() || num_sets() == 0);
       for (auto& t: g_.out(s))
-	// Stop at the first edge, since the remaining should be
-	// labeled identically.
-	return t.acc;
+        // Stop at the first edge, since the remaining should be
+        // labeled identically.
+        return t.acc;
       return 0U;
     }
 
@@ -455,9 +455,9 @@ namespace spot
     {
       assert((bool)prop_state_acc() || num_sets() == 0);
       for (auto& t: g_.out(s))
-	// Stop at the first edge, since the remaining should be
-	// labeled identically.
-	return acc().accepting(t.acc);
+        // Stop at the first edge, since the remaining should be
+        // labeled identically.
+        return acc().accepting(t.acc);
       return false;
     }
 
@@ -487,19 +487,19 @@ namespace spot
   }
 
   inline twa_graph_ptr make_twa_graph(const twa_graph_ptr& aut,
-				      twa::prop_set p)
+                                      twa::prop_set p)
   {
     return std::make_shared<twa_graph>(aut, p);
   }
 
   inline twa_graph_ptr make_twa_graph(const const_twa_graph_ptr& aut,
-				      twa::prop_set p)
+                                      twa::prop_set p)
   {
     return std::make_shared<twa_graph>(aut, p);
   }
 
   inline twa_graph_ptr make_twa_graph(const const_twa_ptr& aut,
-				      twa::prop_set p)
+                                      twa::prop_set p)
   {
     auto a = std::dynamic_pointer_cast<const twa_graph>(aut);
     if (a)

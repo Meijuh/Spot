@@ -27,8 +27,8 @@
 
 # define YY_DECL \
   int tlyylex (tlyy::parser::semantic_type *yylval, \
-               spot::location *yylloc,				\
-	       spot::parse_error_list& error_list)
+               spot::location *yylloc,                                \
+               spot::parse_error_list& error_list)
 YY_DECL;
 
 void flex_set_buffer(const std::string& buf, int start_tok, bool lenient);

@@ -19,15 +19,15 @@
 
 #pragma once
 
-#define RANGE_DOC							\
-    { nullptr, 0, nullptr, 0,						\
-      "RANGE may have one of the following forms: 'INT', "		\
+#define RANGE_DOC                                                        \
+    { nullptr, 0, nullptr, 0,                                                \
+      "RANGE may have one of the following forms: 'INT', "                \
       "'INT..INT', or '..INT'.\nIn the latter case, the missing number " \
       "is assumed to be 1.", 0 }
 
-#define RANGE_DOC_FULL						\
-    { nullptr, 0, nullptr, 0,					\
-      "RANGE may have one of the following forms: 'INT', "	\
+#define RANGE_DOC_FULL                                                \
+    { nullptr, 0, nullptr, 0,                                        \
+      "RANGE may have one of the following forms: 'INT', "        \
       "'INT..INT', '..INT', or 'INT..'", 0 }
 
 struct range
@@ -47,4 +47,4 @@ struct range
 // values.  Additionally, if missing_right == 0, then the INT.. form
 // is disallowed.
 range parse_range(const char* str,
-		  int missing_left = 1, int missing_right = 0);
+                  int missing_left = 1, int missing_right = 0);

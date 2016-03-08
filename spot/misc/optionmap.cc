@@ -33,96 +33,96 @@ namespace spot
   {
     while (*options)
       {
-	// Skip leading separators.
-	while (*options && strchr(" \t\n,;", *options))
-	  ++options;
+        // Skip leading separators.
+        while (*options && strchr(" \t\n,;", *options))
+          ++options;
 
-	// `!foo' is a shorthand for `foo=0'.
-	const char* negated = nullptr;
-	if (*options == '!')
-	  {
-	    // Skip spaces.
-	    while (*options && strchr(" \t\n", *options))
-	      ++options;
-	    negated = options++;
-	  }
+        // `!foo' is a shorthand for `foo=0'.
+        const char* negated = nullptr;
+        if (*options == '!')
+          {
+            // Skip spaces.
+            while (*options && strchr(" \t\n", *options))
+              ++options;
+            negated = options++;
+          }
 
-	if (!*options)
-	  {
-	    if (negated)
-	      return negated;
-	    else
-	      break;
-	  }
+        if (!*options)
+          {
+            if (negated)
+              return negated;
+            else
+              break;
+          }
 
-	const char* name_start = options;
+        const char* name_start = options;
 
-	// Find the end of the name.
-	while (*options && !strchr(", \t\n;=", *options))
-	  ++options;
+        // Find the end of the name.
+        while (*options && !strchr(", \t\n;=", *options))
+          ++options;
 
-	std::string name(name_start, options);
+        std::string name(name_start, options);
 
-	// Skip spaces.
-	while (*options && strchr(" \t\n", *options))
-	  ++options;
+        // Skip spaces.
+        while (*options && strchr(" \t\n", *options))
+          ++options;
 
-	if (*options != '=')
-	  {
-	    options_[name] = (negated ? 0 : 1);
-	  }
-	else if (negated)
-	  {
-	    return negated;
-	  }
-	else
-	  {
-	    ++options;
-	    // Skip spaces.
-	    while (*options && strchr(" \t\n", *options))
-	      ++options;
-	    if (!*options)
-	      return name_start;
+        if (*options != '=')
+          {
+            options_[name] = (negated ? 0 : 1);
+          }
+        else if (negated)
+          {
+            return negated;
+          }
+        else
+          {
+            ++options;
+            // Skip spaces.
+            while (*options && strchr(" \t\n", *options))
+              ++options;
+            if (!*options)
+              return name_start;
 
-	    if (*options == '\'' || *options == '"')
-	      {
-		auto sep = *options;
-		auto start = options + 1;
-		do
-		  ++options;
-		while (*options && *options != sep);
-		if (*options != sep)
-		  return start - 1;
-		std::string val(start, options);
-		options_str_[name] = val;
-		if (*options)
-		  ++options;
-	      }
-	    else
-	      {
-		char* val_end;
-		int val = strtol(options, &val_end, 10);
-		if (val_end == options)
-		  return name_start;
+            if (*options == '\'' || *options == '"')
+              {
+                auto sep = *options;
+                auto start = options + 1;
+                do
+                  ++options;
+                while (*options && *options != sep);
+                if (*options != sep)
+                  return start - 1;
+                std::string val(start, options);
+                options_str_[name] = val;
+                if (*options)
+                  ++options;
+              }
+            else
+              {
+                char* val_end;
+                int val = strtol(options, &val_end, 10);
+                if (val_end == options)
+                  return name_start;
 
-		if (*val_end == 'K')
-		  {
-		    val *= 1024;
-		    ++val_end;
-		  }
-		else if (*val_end == 'M')
-		  {
-		    val *= 1024 * 1024;
-		    ++val_end;
-		  }
-		else if (*val_end && !strchr(" \t\n,;", *val_end))
-		  {
-		    return options;
-		  }
-		options = val_end;
-		options_[name] = val;
-	      }
-	  }
+                if (*val_end == 'K')
+                  {
+                    val *= 1024;
+                    ++val_end;
+                  }
+                else if (*val_end == 'M')
+                  {
+                    val *= 1024 * 1024;
+                    ++val_end;
+                  }
+                else if (*val_end && !strchr(" \t\n,;", *val_end))
+                  {
+                    return options;
+                  }
+                options = val_end;
+                options_[name] = val;
+              }
+          }
       }
     return nullptr;
   }

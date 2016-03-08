@@ -44,7 +44,7 @@ namespace spot
   ///
   /// The resulting bitvect_array should be released with <code>delete</code>.
   SPOT_API bitvect_array* make_bitvect_array(size_t bitcount,
-					     size_t vectcount);
+                                             size_t vectcount);
 
   /// \brief A bit vector
   class SPOT_API bitvect
@@ -85,14 +85,14 @@ namespace spot
       reserve_blocks(other.block_count_);
       size_ = other.size();
       for (size_t i = 0; i < block_count_; ++i)
-	storage_[i] = other.storage_[i];
+        storage_[i] = other.storage_[i];
       return *this;
     }
 
     ~bitvect()
     {
       if (storage_ != &local_storage_)
-	free(storage_);
+        free(storage_);
     }
 
     /// Grow the bitvector to \a new_block_count blocks.
@@ -101,20 +101,20 @@ namespace spot
     void reserve_blocks(size_t new_block_count)
     {
       if (new_block_count < block_count_)
-	return;
+        return;
       if (storage_ == &local_storage_)
-	{
-	  block_t* new_storage_ = static_cast<block_t*>
-	    (malloc(new_block_count * sizeof(block_t)));
-	  for (size_t i = 0; i < block_count_; ++i)
-	    new_storage_[i] = storage_[i];
-	  storage_ = new_storage_;
-	}
+        {
+          block_t* new_storage_ = static_cast<block_t*>
+            (malloc(new_block_count * sizeof(block_t)));
+          for (size_t i = 0; i < block_count_; ++i)
+            new_storage_[i] = storage_[i];
+          storage_ = new_storage_;
+        }
       else
-	{
-	  storage_ = static_cast<block_t*>
-	    (realloc(storage_, new_block_count * sizeof(block_t)));
-	}
+        {
+          storage_ = static_cast<block_t*>
+            (realloc(storage_, new_block_count * sizeof(block_t)));
+        }
       block_count_ = new_block_count;
     }
 
@@ -137,44 +137,44 @@ namespace spot
     void push_back(bool val)
     {
       if (size() == capacity())
-	grow();
+        grow();
       size_t pos = size_++;
       if (val)
-	set(pos);
+        set(pos);
       else
-	clear(pos);
+        clear(pos);
     }
 
     /// \brief Append the lowest \a count bits of \a data.
     void push_back(block_t data, unsigned count)
     {
       if (size() + count > capacity())
-	grow();
+        grow();
       const size_t bpb = 8 * sizeof(block_t);
 
       // Clear the higher bits.
       if (count != bpb)
-	data &= (1UL << count) - 1;
+        data &= (1UL << count) - 1;
 
       size_t n = size() % bpb;
       size_t i = size_ / bpb;
       size_ += count;
-      if (n == 0)		// Aligned on block_t boundary
-	{
-	  storage_[i] = data;
-	}
-      else			// Only (bpb-n) bits free in this block.
-	{
-	  // Take the lower bpb-n bits of data...
-	  block_t mask = (1UL << (bpb - n)) - 1;
-	  block_t data1 = (data & mask) << n;
-	  mask <<= n;
-	  // ... write them on the higher bpb-n bits of last block.
-	  storage_[i] = (storage_[i] & ~mask) | data1;
-	  // Write the remaining bits in the next block.
-	  if (bpb - n < count)
-	    storage_[i + 1] = data >> (bpb - n);
-	}
+      if (n == 0)                // Aligned on block_t boundary
+        {
+          storage_[i] = data;
+        }
+      else                        // Only (bpb-n) bits free in this block.
+        {
+          // Take the lower bpb-n bits of data...
+          block_t mask = (1UL << (bpb - n)) - 1;
+          block_t data1 = (data & mask) << n;
+          mask <<= n;
+          // ... write them on the higher bpb-n bits of last block.
+          storage_[i] = (storage_[i] & ~mask) | data1;
+          // Write the remaining bits in the next block.
+          if (bpb - n < count)
+            storage_[i + 1] = data >> (bpb - n);
+        }
     }
 
     size_t size() const
@@ -199,7 +199,7 @@ namespace spot
     void clear_all()
     {
       for (size_t i = 0; i < block_count_; ++i)
-	storage_[i] = 0;
+        storage_[i] = 0;
     }
 
     bool is_fully_clear() const
@@ -208,12 +208,12 @@ namespace spot
       const size_t bpb = 8 * sizeof(bitvect::block_t);
       size_t rest = size() % bpb;
       for (i = 0; i < block_count_ - !!rest; ++i)
-	if (storage_[i] != 0)
-	  return false;
+        if (storage_[i] != 0)
+          return false;
       // The last block might not be fully used, compare only the
       // relevant portion.
       if (!rest)
-	return true;
+        return true;
       block_t mask = (1UL << rest) - 1;
       return (storage_[i] & mask) == 0;
     }
@@ -224,10 +224,10 @@ namespace spot
       const size_t bpb = 8 * sizeof(bitvect::block_t);
       size_t rest = size() % bpb;
       for (i = 0; i < block_count_ - !!rest; ++i)
-	if (storage_[i] != -1UL)
-	  return false;
+        if (storage_[i] != -1UL)
+          return false;
       if (!rest)
-	return true;
+        return true;
       // The last block might not be fully used, compare only the
       // relevant portion.
       block_t mask = (1UL << rest) - 1;
@@ -237,13 +237,13 @@ namespace spot
     void set_all()
     {
       for (size_t i = 0; i < block_count_; ++i)
-	storage_[i] = -1UL;
+        storage_[i] = -1UL;
     }
 
     void flip_all()
     {
       for (size_t i = 0; i < block_count_; ++i)
-	storage_[i] = ~storage_[i];
+        storage_[i] = ~storage_[i];
     }
 
     void set(size_t pos)
@@ -273,7 +273,7 @@ namespace spot
       assert(other.size_ <= size_);
       unsigned m = std::min(other.block_count_, block_count_);
       for (size_t i = 0; i < m; ++i)
-	storage_[i] |= other.storage_[i];
+        storage_[i] |= other.storage_[i];
       return *this;
     }
 
@@ -282,7 +282,7 @@ namespace spot
       assert(other.size_ <= size_);
       unsigned m = std::min(other.block_count_, block_count_);
       for (size_t i = 0; i < m; ++i)
-	storage_[i] &= other.storage_[i];
+        storage_[i] &= other.storage_[i];
       return *this;
     }
 
@@ -291,7 +291,7 @@ namespace spot
       assert(other.size_ <= size_);
       unsigned m = std::min(other.block_count_, block_count_);
       for (size_t i = 0; i < m; ++i)
-	storage_[i] ^= other.storage_[i];
+        storage_[i] ^= other.storage_[i];
       return *this;
     }
 
@@ -299,7 +299,7 @@ namespace spot
     {
       assert(other.block_count_ <= block_count_);
       for (size_t i = 0; i < other.block_count_; ++i)
-	storage_[i] &= ~other.storage_[i];
+        storage_[i] &= ~other.storage_[i];
       return *this;
     }
 
@@ -311,33 +311,33 @@ namespace spot
       const size_t bpb = 8 * sizeof(bitvect::block_t);
       size_t rest = size() % bpb;
       for (i = 0; i < block_count_ - !!rest; ++i)
-	if ((storage_[i] & other.storage_[i]) != other.storage_[i])
-	  return false;
+        if ((storage_[i] & other.storage_[i]) != other.storage_[i])
+          return false;
       if (!rest)
-	return true;
+        return true;
 
       // The last block might not be fully used, compare only the
       // relevant portion.
       block_t mask = (1UL << rest) - 1;
       return ((storage_[i] & mask & other.storage_[i])
-	      == (other.storage_[i] & mask));
+              == (other.storage_[i] & mask));
     }
 
     bool operator==(const bitvect& other) const
     {
       if (other.size_ != size_)
-	return false;
+        return false;
       if (size_ == 0)
-	return true;
+        return true;
       size_t i;
       size_t m = other.used_blocks();
       const size_t bpb = 8 * sizeof(bitvect::block_t);
       size_t rest = size() % bpb;
       for (i = 0; i < m - !!rest; ++i)
-	if (storage_[i] != other.storage_[i])
-	  return false;
+        if (storage_[i] != other.storage_[i])
+          return false;
       if (!rest)
-	return true;
+        return true;
       // The last block might not be fully used, compare only the
       // relevant portion.
       block_t mask = (1UL << rest) - 1;
@@ -352,18 +352,18 @@ namespace spot
     bool operator<(const bitvect& other) const
     {
       if (size_ != other.size_)
-	return size_ < other.size_;
+        return size_ < other.size_;
       if (size_ == 0)
-	return false;
+        return false;
       size_t i;
       size_t m = other.used_blocks();
       const size_t bpb = 8 * sizeof(bitvect::block_t);
       size_t rest = size() % bpb;
       for (i = 0; i < m - !!rest; ++i)
-	if (storage_[i] > other.storage_[i])
-	  return false;
+        if (storage_[i] > other.storage_[i])
+          return false;
       if (!rest)
-	return true;
+        return true;
       // The last block might not be fully used, compare only the
       // relevant portion.
       block_t mask = (1UL << rest) - 1;
@@ -398,7 +398,7 @@ namespace spot
       res->make_empty();
 
       if (end == begin)
-	return res;
+        return res;
 
       const size_t bpb = 8 * sizeof(bitvect::block_t);
 
@@ -407,32 +407,32 @@ namespace spot
       size_t indexe = (end - 1) / bpb;
 
       if (indexb == indexe)
-	{
-	  block_t data = storage_[indexb];
-	  data >>= bitb;
-	  res->push_back(data, count);
-	}
+        {
+          block_t data = storage_[indexb];
+          data >>= bitb;
+          res->push_back(data, count);
+        }
       else
-	{
-	  block_t data = storage_[indexb];
-	  data >>= bitb;
-	  res->push_back(data, bpb - bitb);
-	  count -= bpb - bitb;
-	  while (count >= bpb)
-	    {
-	      ++indexb;
-	      res->push_back(storage_[indexb], bpb);
-	      count -= bpb;
-	      assert(indexb != indexe || count == 0);
-	    }
-	  if (count > 0)
-	    {
-	      ++indexb;
-	      assert(indexb == indexe);
-	      assert(count == end % bpb);
-	      res->push_back(storage_[indexb], count);
-	    }
-	}
+        {
+          block_t data = storage_[indexb];
+          data >>= bitb;
+          res->push_back(data, bpb - bitb);
+          count -= bpb - bitb;
+          while (count >= bpb)
+            {
+              ++indexb;
+              res->push_back(storage_[indexb], bpb);
+              count -= bpb;
+              assert(indexb != indexe || count == 0);
+            }
+          if (count > 0)
+            {
+              ++indexb;
+              assert(indexb == indexe);
+              assert(count == end % bpb);
+              res->push_back(storage_[indexb], count);
+            }
+        }
       return res;
     }
 
@@ -441,12 +441,12 @@ namespace spot
 
     /// Print a bitvect.
     friend SPOT_API std::ostream& operator<<(std::ostream&,
-					     const bitvect&);
+                                             const bitvect&);
 
   private:
     friend SPOT_API bitvect_array*
       ::spot::make_bitvect_array(size_t bitcount,
-				 size_t vectcount);
+                                 size_t vectcount);
 
     size_t size_;
     size_t block_count_;
@@ -485,7 +485,7 @@ namespace spot
     ~bitvect_array()
     {
       for (size_t i = 0; i < size_; ++i)
-	at(i).~bitvect();
+        at(i).~bitvect();
     }
 
     /// The number of bitvect in the array.
@@ -506,7 +506,7 @@ namespace spot
       // FIXME: This could be changed into a large memset if the
       // individual vectors where not allowed to be reallocated.
       for (unsigned s = 0; s < size_; s++)
-	at(s).clear_all();
+        at(s).clear_all();
     }
 
     /// Return the bit-vector at \a index.
@@ -518,12 +518,12 @@ namespace spot
 
     friend SPOT_API bitvect_array*
       ::spot::make_bitvect_array(size_t bitcount,
-				 size_t vectcount);
+                                 size_t vectcount);
 
 
     /// Print a bitvect_array.
     friend SPOT_API std::ostream& operator<<(std::ostream&,
-					     const bitvect_array&);
+                                             const bitvect_array&);
 
   private:
     size_t size_;

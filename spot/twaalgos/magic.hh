@@ -97,7 +97,7 @@ namespace spot
   /// from \c godefroid.93.pstv, not \c courcoubetis.92.fmsd.
   SPOT_API emptiness_check_ptr
   explicit_magic_search(const const_twa_ptr& a,
-			option_map o = option_map());
+                        option_map o = option_map());
 
   /// \brief Returns an emptiness checker on the spot::tgba automaton \a a.
   ///
@@ -128,7 +128,7 @@ namespace spot
   ///
   SPOT_API emptiness_check_ptr
   bit_state_hashing_magic_search(const const_twa_ptr& a, size_t size,
-				 option_map o = option_map());
+                                 option_map o = option_map());
 
   /// \brief Wrapper for the two magic_search implementations.
   ///

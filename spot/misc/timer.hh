@@ -197,7 +197,7 @@ namespace spot
       assert(i != tm.end());
       assert(0 < i->second.second);
       if (0 == --i->second.second)
-	tm.erase(i);
+        tm.erase(i);
     }
 
     /// Return the timer \a name.

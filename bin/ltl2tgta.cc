@@ -119,9 +119,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'x':
       {
-	const char* opt = extra_options.parse_options(arg);
-	if (opt)
-	  error(2, 0, "failed to parse --options near '%s'", opt);
+        const char* opt = extra_options.parse_options(arg);
+        if (opt)
+          error(2, 0, "failed to parse --options near '%s'", opt);
       }
       break;
     case OPT_TGTA:
@@ -171,7 +171,7 @@ namespace
 
     int
     process_formula(spot::formula f,
-		    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0)
     {
       auto aut = trans.run(&f);
 
@@ -180,33 +180,33 @@ namespace
       // represent more than PSL formula, let's make this
       // future-proof.
       if (!f.is_psl_formula())
-	{
-	  std::string s = spot::str_psl(f);
-	  error_at_line(2, 0, filename, linenum,
-			"formula '%s' is not an LTL or PSL formula",
-			s.c_str());
-	}
+        {
+          std::string s = spot::str_psl(f);
+          error_at_line(2, 0, filename, linenum,
+                        "formula '%s' is not an LTL or PSL formula",
+                        s.c_str());
+        }
 
       bdd ap_set = atomic_prop_collect_as_bdd(f, aut);
 
       if (ta_type != TGTA)
-	{
-	  auto testing_automaton =
-	    tgba_to_ta(aut, ap_set, type == spot::postprocessor::BA,
-		       opt_with_artificial_initial_state,
-		       opt_single_pass_emptiness_check,
-		       opt_with_artificial_livelock);
-	  if (level != spot::postprocessor::Low)
-	    testing_automaton = spot::minimize_ta(testing_automaton);
-	  spot::print_dot(std::cout, testing_automaton);
-	}
+        {
+          auto testing_automaton =
+            tgba_to_ta(aut, ap_set, type == spot::postprocessor::BA,
+                       opt_with_artificial_initial_state,
+                       opt_single_pass_emptiness_check,
+                       opt_with_artificial_livelock);
+          if (level != spot::postprocessor::Low)
+            testing_automaton = spot::minimize_ta(testing_automaton);
+          spot::print_dot(std::cout, testing_automaton);
+        }
       else
-	{
-	  auto tgta = tgba_to_tgta(aut, ap_set);
-	  if (level != spot::postprocessor::Low)
-	    tgta = spot::minimize_tgta(tgta);
-	  spot::print_dot(std::cout, tgta->get_ta());
-	}
+        {
+          auto tgta = tgba_to_tgta(aut, ap_set);
+          if (level != spot::postprocessor::Low)
+            tgta = spot::minimize_tgta(tgta);
+          spot::print_dot(std::cout, tgta->get_ta());
+        }
       flush_cout();
       return 0;
     }
@@ -219,7 +219,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FORMULA...]",
-		    argp_program_doc, children, nullptr, nullptr };
+                    argp_program_doc, children, nullptr, nullptr };
 
   simplification_level = 3;
 
@@ -228,7 +228,7 @@ main(int argc, char** argv)
 
   if (jobs.empty())
     error(2, 0, "No formula to translate?  Run '%s --help' for usage.",
-	  program_name);
+          program_name);
 
   spot::translator trans(&extra_options);
   trans.set_pref(pref | comp | sbacc);

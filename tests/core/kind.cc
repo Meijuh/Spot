@@ -47,11 +47,11 @@ main(int argc, char **argv)
   std::string s;
   while (std::getline(input, s))
     {
-      if (s[0] == '#')		// Skip comments
-	{
-	  std::cerr << s << '\n';
-	  continue;
-	}
+      if (s[0] == '#')                // Skip comments
+        {
+          std::cerr << s << '\n';
+          continue;
+        }
       std::istringstream ss(s);
       std::string form;
       std::string expected;
@@ -61,7 +61,7 @@ main(int argc, char **argv)
       spot::parse_error_list p1;
       auto pf1 = spot::parse_infix_psl(form);
       if (pf1.format_errors(std::cerr))
-	return 2;
+        return 2;
       auto f1 = pf1.f;
 
       std::ostringstream so;
@@ -69,11 +69,11 @@ main(int argc, char **argv)
       auto sost = so.str();
       std::cout << form << ',' << sost << '\n';
       if (sost != expected)
-	{
-	  std::cerr << "computed '" << sost
-		    << "' but expected '" << expected << "'\n";
-	  return 2;
-	}
+        {
+          std::cerr << "computed '" << sost
+                    << "' but expected '" << expected << "'\n";
+          return 2;
+        }
     }
   assert(spot::fnode::instances_check());
   return 0;

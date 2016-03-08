@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(pf.f);
       res = spot::tgba_determinize(tmp, pretty_print, scc_opt,
-				   use_bisim, use_stutter);
+                                   use_bisim, use_stutter);
     }
   else if (in_hoa)
     {
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
       if (aut->format_errors(std::cerr))
         return 2;
       res = tgba_determinize(aut->aut, pretty_print, scc_opt,
-			     use_bisim, use_stutter);
+                             use_bisim, use_stutter);
     }
   if (sim)
     res = simulation(res);

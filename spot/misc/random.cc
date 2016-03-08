@@ -96,8 +96,8 @@ namespace spot
 
     if (has_next)
       {
-	has_next = false;
-	return next;
+        has_next = false;
+        return next;
       }
 
     double x;
@@ -105,9 +105,9 @@ namespace spot
     double r;
     do
       {
-	x = 2.0 * drand() - 1.0;
-	y = 2.0 * drand() - 1.0;
-	r = x * x + y * y;
+        x = 2.0 * drand() - 1.0;
+        y = 2.0 * drand() - 1.0;
+        r = x * x + y * y;
       }
     while (r >= 1.0 || r == 0.0);
     r = sqrt(-2 * log(r) / r);
@@ -124,8 +124,8 @@ namespace spot
 
     while (s < p)
       {
-	s -= log(1.0 - drand());
-	++x;
+        s -= log(1.0 - drand());
+        ++x;
       }
     return x - 1;
   }

@@ -38,10 +38,10 @@ namespace spot
     auto s = seen.begin();
     while (s != seen.end())
       {
-	// Advance the iterator before deleting the "key" pointer.
-	const state* ptr = s->first;
-	++s;
-	ptr->destroy();
+        // Advance the iterator before deleting the "key" pointer.
+        const state* ptr = s->first;
+        ++s;
+        ptr->destroy();
       }
   }
 
@@ -57,34 +57,34 @@ namespace spot
     const state* t;
     while ((t = next_state()))
       {
-	assert(seen.find(t) != seen.end());
-	int tn = seen[t];
-	twa_succ_iterator* si = aut_->succ_iter(t);
-	process_state(t, tn, si);
-	if (si->first())
-	  do
-	    {
-	      const state* current = si->dst();
-	      auto s = seen.find(current);
-	      bool ws = want_state(current);
-	      if (s == seen.end())
-		{
-		  seen[current] = ++n;
-		  if (ws)
-		    {
-		      add_state(current);
-		      process_link(t, tn, current, n, si);
-		    }
-		}
-	      else
-		{
-		  if (ws)
-		    process_link(t, tn, s->first, s->second, si);
-		  current->destroy();
-		}
-	    }
-	  while (si->next());
-	aut_->release_iter(si);
+        assert(seen.find(t) != seen.end());
+        int tn = seen[t];
+        twa_succ_iterator* si = aut_->succ_iter(t);
+        process_state(t, tn, si);
+        if (si->first())
+          do
+            {
+              const state* current = si->dst();
+              auto s = seen.find(current);
+              bool ws = want_state(current);
+              if (s == seen.end())
+                {
+                  seen[current] = ++n;
+                  if (ws)
+                    {
+                      add_state(current);
+                      process_link(t, tn, current, n, si);
+                    }
+                }
+              else
+                {
+                  if (ws)
+                    process_link(t, tn, s->first, s->second, si);
+                  current->destroy();
+                }
+            }
+          while (si->next());
+        aut_->release_iter(si);
       }
     end();
   }
@@ -107,14 +107,14 @@ namespace spot
 
   void
   twa_reachable_iterator::process_state(const state*, int,
-					 twa_succ_iterator*)
+                                         twa_succ_iterator*)
   {
   }
 
   void
   twa_reachable_iterator::process_link(const state*, int,
-					const state*, int,
-					const twa_succ_iterator*)
+                                        const state*, int,
+                                        const twa_succ_iterator*)
   {
   }
 
@@ -157,10 +157,10 @@ namespace spot
     auto s = seen.begin();
     while (s != seen.end())
       {
-	// Advance the iterator before deleting the "key" pointer.
-	const state* ptr = s->first;
-	++s;
-	ptr->destroy();
+        // Advance the iterator before deleting the "key" pointer.
+        const state* ptr = s->first;
+        ++s;
+        ptr->destroy();
       }
   }
 
@@ -195,46 +195,46 @@ namespace spot
     const state* dst;
     while (!todo.empty())
       {
-	twa_succ_iterator* si = todo.back().it;
-	if (si->done())
-	  {
-	    pop();
-	    continue;
-	  }
+        twa_succ_iterator* si = todo.back().it;
+        if (si->done())
+          {
+            pop();
+            continue;
+          }
 
-	dst = si->dst();
-	auto res = seen.emplace(dst, n);
-	if (!res.second)
-	  {
-	    // The state has already been seen.
-	    dst->destroy();
-	    // 0-numbered states are not wanted.
-	    if (res.first->second == 0)
-	      {
-		si->next();
-		continue;
-	      }
-	    dst = res.first->first;
-	  }
-	else if (!want_state(dst))
-	  {
-	    // Mark this state as non-wanted in case we see it again.
-	    res.first->second = 0;
-	    si->next();
-	    continue;
-	  }
-	else
-	  {
-	    ++n;
-	  }
+        dst = si->dst();
+        auto res = seen.emplace(dst, n);
+        if (!res.second)
+          {
+            // The state has already been seen.
+            dst->destroy();
+            // 0-numbered states are not wanted.
+            if (res.first->second == 0)
+              {
+                si->next();
+                continue;
+              }
+            dst = res.first->first;
+          }
+        else if (!want_state(dst))
+          {
+            // Mark this state as non-wanted in case we see it again.
+            res.first->second = 0;
+            si->next();
+            continue;
+          }
+        else
+          {
+            ++n;
+          }
 
-	int dst_n = res.first->second;
-	process_link(todo.back().src, todo.back().src_n, dst, dst_n, si);
+        int dst_n = res.first->second;
+        process_link(todo.back().src, todo.back().src_n, dst, dst_n, si);
 
-	if (res.second)
-	  push(dst, dst_n);
-	else
-	  si->next();
+        if (res.second)
+          push(dst, dst_n);
+        else
+          si->next();
       }
     end();
   }
@@ -257,14 +257,14 @@ namespace spot
 
   void
   twa_reachable_iterator_depth_first::process_state(const state*, int,
-						     twa_succ_iterator*)
+                                                     twa_succ_iterator*)
   {
   }
 
   void
   twa_reachable_iterator_depth_first::process_link(const state*, int,
-						    const state*, int,
-						    const twa_succ_iterator*)
+                                                    const state*, int,
+                                                    const twa_succ_iterator*)
   {
   }
 

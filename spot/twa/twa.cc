@@ -45,7 +45,7 @@ namespace spot
 
   state*
   twa::project_state(const state* s,
-		      const const_twa_ptr& t) const
+                      const const_twa_ptr& t) const
   {
     if (t.get() == this)
       return s->clone();
@@ -61,25 +61,25 @@ namespace spot
     auto a = shared_from_this();
     if (a->acc().uses_fin_acceptance())
       {
-	auto aa = std::dynamic_pointer_cast<const twa_graph>(a);
-	if (!aa)
-	  aa = make_twa_graph(a, prop_set::all());
-	a = remove_fin(aa);
+        auto aa = std::dynamic_pointer_cast<const twa_graph>(a);
+        if (!aa)
+          aa = make_twa_graph(a, prop_set::all());
+        a = remove_fin(aa);
       }
     return !couvreur99(a)->check();
   }
 
   void
   twa::set_named_prop(std::string s,
-		      void* val, std::function<void(void*)> destructor)
+                      void* val, std::function<void(void*)> destructor)
   {
     auto p = named_prop_.emplace(std::piecewise_construct,
-				 std::forward_as_tuple(s),
-				 std::forward_as_tuple(val, destructor));
+                                 std::forward_as_tuple(s),
+                                 std::forward_as_tuple(val, destructor));
     if (!p.second)
       {
-	p.first->second.second(p.first->second.first);
-	p.first->second = std::make_pair(val, destructor);
+        p.first->second.second(p.first->second.first);
+        p.first->second = std::make_pair(val, destructor);
       }
   }
 

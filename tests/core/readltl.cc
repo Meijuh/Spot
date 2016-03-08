@@ -49,7 +49,7 @@ main(int argc, char** argv)
     {
       debug = true;
       if (argc < 3)
-	syntax(argv[0]);
+        syntax(argv[0]);
       formula_index = 2;
     }
 
@@ -66,14 +66,14 @@ main(int argc, char** argv)
     if (f)
       {
 #ifdef DOTTY
-	spot::print_dot_psl(std::cout, f);
+        spot::print_dot_psl(std::cout, f);
 #else
-	f.dump(std::cout) << std::endl;
+        f.dump(std::cout) << std::endl;
 #endif
       }
     else
       {
-	exit_code = 1;
+        exit_code = 1;
       }
 
   }

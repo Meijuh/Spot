@@ -37,48 +37,48 @@ namespace spot
 
       satsolver_command()
       {
-	satsolver = getenv("SPOT_SATSOLVER");
-	if (!satsolver)
-	  {
-	    satsolver = "glucose -verb=0 -model %I >%O";
-	    return;
-	  }
-	prime(satsolver);
-	if (!has('I'))
-	  throw std::runtime_error("SPOT_SATSOLVER should contain %I to "
-				   "indicate how to use the input filename.");
-	if (!has('O'))
-	  throw std::runtime_error("SPOT_SATSOLVER should contain %O to "
-				   "indicate how to use the output filename.");
+        satsolver = getenv("SPOT_SATSOLVER");
+        if (!satsolver)
+          {
+            satsolver = "glucose -verb=0 -model %I >%O";
+            return;
+          }
+        prime(satsolver);
+        if (!has('I'))
+          throw std::runtime_error("SPOT_SATSOLVER should contain %I to "
+                                   "indicate how to use the input filename.");
+        if (!has('O'))
+          throw std::runtime_error("SPOT_SATSOLVER should contain %O to "
+                                   "indicate how to use the output filename.");
       }
 
       int
       run(printable* in, printable* out)
       {
-	declare('I', in);
-	declare('O', out);
-	std::ostringstream s;
-	format(s, satsolver);
-	int res = system(s.str().c_str());
-	if (res < 0 || (WIFEXITED(res) && WEXITSTATUS(res) == 127))
-	  {
-	    s << ": failed to execute";
-	    throw std::runtime_error(s.str());
-	  }
-	// For POSIX shells, "The exit status of a command that
-	// terminated because it received a signal shall be reported
-	// as greater than 128."
-	if (WIFEXITED(res) && WEXITSTATUS(res) >= 128)
-	  {
-	    s << ": terminated by signal";
-	    throw std::runtime_error(s.str());
-	  }
-	if (WIFSIGNALED(res))
-	  {
-	    s << ": terminated by signal " << WTERMSIG(res);
-	    throw std::runtime_error(s.str());
-	  }
-	return res;
+        declare('I', in);
+        declare('O', out);
+        std::ostringstream s;
+        format(s, satsolver);
+        int res = system(s.str().c_str());
+        if (res < 0 || (WIFEXITED(res) && WEXITSTATUS(res) == 127))
+          {
+            s << ": failed to execute";
+            throw std::runtime_error(s.str());
+          }
+        // For POSIX shells, "The exit status of a command that
+        // terminated because it received a signal shall be reported
+        // as greater than 128."
+        if (WIFEXITED(res) && WEXITSTATUS(res) >= 128)
+          {
+            s << ": terminated by signal";
+            throw std::runtime_error(s.str());
+          }
+        if (WIFSIGNALED(res))
+          {
+            s << ": terminated by signal " << WTERMSIG(res);
+            throw std::runtime_error(s.str());
+          }
+        return res;
       }
     };
   }
@@ -96,25 +96,25 @@ namespace spot
     int c;
     while ((c = in->get()) != EOF)
       {
-	// If a line does not start with 'v ', ignore it.
-	if (c != 'v' || in->get() != ' ')
-	  {
-	    in->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-	    continue;
-	  }
-	// Otherwise, read integers one by one.
-	int i;
-	while (*in >> i)
-	  {
-	    if (i == 0)
-	      goto done;
-	    sol.push_back(i);
-	  }
-	if (!in->eof())
-	  // If we haven't reached end-of-file, then we just attempted
-	  // to extract something that wasn't an integer.  Clear the
-	  // fail bit so that will loop over.
-	  in->clear();
+        // If a line does not start with 'v ', ignore it.
+        if (c != 'v' || in->get() != ' ')
+          {
+            in->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+          }
+        // Otherwise, read integers one by one.
+        int i;
+        while (*in >> i)
+          {
+            if (i == 0)
+              goto done;
+            sol.push_back(i);
+          }
+        if (!in->eof())
+          // If we haven't reached end-of-file, then we just attempted
+          // to extract something that wasn't an integer.  Clear the
+          // fail bit so that will loop over.
+          in->clear();
       }
   done:
     if (in != &std::cin)
@@ -149,7 +149,7 @@ namespace spot
   satsolver::solution_pair
   satsolver::get_solution()
   {
-    delete cnf_stream_;		// Close the file.
+    delete cnf_stream_;                // Close the file.
     cnf_stream_ = nullptr;
 
     temporary_file* output = create_tmpfile("sat-", ".out");

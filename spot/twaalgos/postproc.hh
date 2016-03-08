@@ -95,10 +95,10 @@ namespace spot
     enum
     {
       Any = 0,
-      Small = 1,		// Small and Deterministic
-      Deterministic = 2,	// are exclusive choices.
+      Small = 1,                // Small and Deterministic
+      Deterministic = 2,        // are exclusive choices.
       Complete = 4,
-      SBAcc = 8,		// State-based acceptance.
+      SBAcc = 8,                // State-based acceptance.
       Unambiguous = 16,
     };
     typedef int output_pref;

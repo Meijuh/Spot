@@ -37,94 +37,94 @@ namespace spot
       std::ostringstream* sinks_;
 
       dot_printer(std::ostream& os, formula f)
-	: os_(os), sinks_(new std::ostringstream)
-	{
-	  os_ << "digraph G {\n";
-	  rec(f);
-	  os_ << "  subgraph atoms {\n     rank=sink;\n"
-	      << sinks_->str() << "  }\n}\n";
-	}
+        : os_(os), sinks_(new std::ostringstream)
+        {
+          os_ << "digraph G {\n";
+          rec(f);
+          os_ << "  subgraph atoms {\n     rank=sink;\n"
+              << sinks_->str() << "  }\n}\n";
+        }
 
       ~dot_printer()
-	{
-	  delete sinks_;
-	}
+        {
+          delete sinks_;
+        }
 
       int rec(formula f)
       {
-	auto i = node_.emplace(f, node_.size());
-	int src = i.first->second;
-	if (!i.second)
-	  return src;
+        auto i = node_.emplace(f, node_.size());
+        int src = i.first->second;
+        if (!i.second)
+          return src;
 
-	op o = f.kind();
-	std::string str = (o == op::ap) ? f.ap_name() : f.kindstr();
+        op o = f.kind();
+        std::string str = (o == op::ap) ? f.ap_name() : f.kindstr();
 
-	if (o == op::ap || f.is_constant())
-	  *sinks_ << "    " << src << " [label=\""
-		  << str << "\", shape=box];\n";
-	else
-	  os_ << "  " << src << " [label=\"" << str << "\"];\n";
+        if (o == op::ap || f.is_constant())
+          *sinks_ << "    " << src << " [label=\""
+                  << str << "\", shape=box];\n";
+        else
+          os_ << "  " << src << " [label=\"" << str << "\"];\n";
 
-	int childnum = 0;
-	switch (o)
-	  {
-	  case op::ff:
-	  case op::tt:
-	  case op::eword:
-	  case op::ap:
-	  case op::Not:
-	  case op::X:
-	  case op::F:
-	  case op::G:
-	  case op::Closure:
-	  case op::NegClosure:
-	  case op::NegClosureMarked:
-	  case op::Or:
-	  case op::OrRat:
-	  case op::And:
-	  case op::AndRat:
-	  case op::AndNLM:
-	  case op::Star:
-	  case op::FStar:
-	    childnum = 0;		// No number for children
-	    break;
-	  case op::Xor:
-	  case op::Implies:
-	  case op::Equiv:
-	  case op::U:
-	  case op::R:
-	  case op::W:
-	  case op::M:
-	  case op::EConcat:
-	  case op::EConcatMarked:
-	  case op::UConcat:
-	    childnum = -2;		// L and R markers
-	    break;
-	  case op::Concat:
-	  case op::Fusion:
-	    childnum = 1;		// Numbered children
-	    break;
-	  }
+        int childnum = 0;
+        switch (o)
+          {
+          case op::ff:
+          case op::tt:
+          case op::eword:
+          case op::ap:
+          case op::Not:
+          case op::X:
+          case op::F:
+          case op::G:
+          case op::Closure:
+          case op::NegClosure:
+          case op::NegClosureMarked:
+          case op::Or:
+          case op::OrRat:
+          case op::And:
+          case op::AndRat:
+          case op::AndNLM:
+          case op::Star:
+          case op::FStar:
+            childnum = 0;                // No number for children
+            break;
+          case op::Xor:
+          case op::Implies:
+          case op::Equiv:
+          case op::U:
+          case op::R:
+          case op::W:
+          case op::M:
+          case op::EConcat:
+          case op::EConcatMarked:
+          case op::UConcat:
+            childnum = -2;                // L and R markers
+            break;
+          case op::Concat:
+          case op::Fusion:
+            childnum = 1;                // Numbered children
+            break;
+          }
 
-	for (auto c: f)
-	  {
-	    // Do not merge the next two lines, as there is no
-	    // guarantee that rec will be called before we start
-	    // printing the transition.
-	    int dst = rec(c);
-	    os_ << "  " << src << " -> " << dst;
-	    if (childnum > 0)
-	      os_ << " [taillabel=\"" << childnum << "\"]";
-	    if (childnum == -2)
-	      os_ << " [taillabel=\"L\"]";
-	    else if (childnum == -1)
-	      os_ << " [taillabel=\"R\"]";
-	    os_ << ";\n";
-	    ++childnum;
-	  }
+        for (auto c: f)
+          {
+            // Do not merge the next two lines, as there is no
+            // guarantee that rec will be called before we start
+            // printing the transition.
+            int dst = rec(c);
+            os_ << "  " << src << " -> " << dst;
+            if (childnum > 0)
+              os_ << " [taillabel=\"" << childnum << "\"]";
+            if (childnum == -2)
+              os_ << " [taillabel=\"L\"]";
+            else if (childnum == -1)
+              os_ << " [taillabel=\"R\"]";
+            os_ << ";\n";
+            ++childnum;
+          }
 
-	return src;
+        return src;
       }
     };
   }

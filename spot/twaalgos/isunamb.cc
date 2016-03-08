@@ -37,7 +37,7 @@ namespace spot
     auto prod = product(clean_a, clean_a);
     auto clean_p = scc_filter_states(prod);
     return (clean_a->num_states() == clean_p->num_states()
-	    && clean_a->num_edges() == clean_p->num_edges());
+            && clean_a->num_edges() == clean_p->num_edges());
   }
 
   bool check_unambiguous(const twa_graph_ptr& aut)

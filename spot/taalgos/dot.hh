@@ -26,5 +26,5 @@ namespace spot
 {
   SPOT_API std::ostream&
   print_dot(std::ostream& os, const const_ta_ptr& a,
-		  const char* opt = nullptr);
+                  const char* opt = nullptr);
 }

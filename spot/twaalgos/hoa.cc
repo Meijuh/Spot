@@ -62,171 +62,171 @@ namespace spot
       sup_map sup;
 
       metadata(const const_twa_graph_ptr& aut, bool implicit,
-	       bool state_labels)
+               bool state_labels)
       {
-	check_det_and_comp(aut);
-	use_implicit_labels = implicit && is_deterministic && is_complete;
-	use_state_labels &= state_labels;
-	number_all_ap();
+        check_det_and_comp(aut);
+        use_implicit_labels = implicit && is_deterministic && is_complete;
+        use_state_labels &= state_labels;
+        number_all_ap();
       }
 
       std::ostream&
       emit_acc(std::ostream& os, acc_cond::mark_t b)
       {
-	// FIXME: We could use a cache for this.
-	if (b == 0U)
-	  return os;
-	os << " {";
-	bool notfirst = false;
-	for (auto v: b.sets())
-	  {
-	    if (notfirst)
-	      os << ' ';
-	    else
-	      notfirst = true;
-	    os << v;
-	  }
-	os << '}';
-	return os;
+        // FIXME: We could use a cache for this.
+        if (b == 0U)
+          return os;
+        os << " {";
+        bool notfirst = false;
+        for (auto v: b.sets())
+          {
+            if (notfirst)
+              os << ' ';
+            else
+              notfirst = true;
+            os << v;
+          }
+        os << '}';
+        return os;
       }
 
       void check_det_and_comp(const const_twa_graph_ptr& aut)
       {
-	std::string empty;
+        std::string empty;
 
-	unsigned ns = aut->num_states();
-	bool deterministic = true;
-	bool complete = true;
-	bool state_acc = true;
-	bool nodeadend = true;
-	bool colored = aut->num_sets() >= 1;
-	for (unsigned src = 0; src < ns; ++src)
-	  {
-	    bdd sum = bddfalse;
-	    bdd available = bddtrue;
-	    bool st_acc = true;
-	    bool notfirst = false;
-	    acc_cond::mark_t prev = 0U;
-	    bool has_succ = false;
-	    bdd lastcond = bddfalse;
-	    for (auto& t: aut->out(src))
-	      {
-		if (has_succ)
-		  use_state_labels &= lastcond == t.cond;
-		else
-		  lastcond = t.cond;
-		if (complete)
-		  sum |= t.cond;
-		if (deterministic)
-		  {
-		    if (!bdd_implies(t.cond, available))
-		      deterministic = false;
-		    else
-		      available -= t.cond;
-		  }
-		sup.insert(std::make_pair(t.cond, empty));
-		if (st_acc)
-		  {
-		    if (notfirst && prev != t.acc)
-		      {
-			st_acc = false;
-		      }
-		    else
-		      {
-			notfirst = true;
-			prev = t.acc;
-		      }
-		  }
-		if (colored)
-		  {
-		    auto a = t.acc;
-		    if (!a || a.remove_some(1))
-		      colored = false;
-		  }
-		has_succ = true;
-	      }
-	    nodeadend &= has_succ;
-	    if (complete)
-	      complete &= sum == bddtrue;
-	    common_acc.push_back(st_acc);
-	    state_acc &= st_acc;
-	  }
-	is_deterministic = deterministic;
-	is_complete = complete;
-	has_state_acc = state_acc;
-	// If the automaton has state-based acceptance and contain
-	// some states without successors do not declare it as
-	// colored.
-	is_colored = colored && (!has_state_acc || nodeadend);
-	// If the automaton declares that it is deterministic or
-	// state-based, make sure that it really is.
-	assert(deterministic || aut->prop_deterministic() != true);
-	assert(state_acc || aut->prop_state_acc() != true);
+        unsigned ns = aut->num_states();
+        bool deterministic = true;
+        bool complete = true;
+        bool state_acc = true;
+        bool nodeadend = true;
+        bool colored = aut->num_sets() >= 1;
+        for (unsigned src = 0; src < ns; ++src)
+          {
+            bdd sum = bddfalse;
+            bdd available = bddtrue;
+            bool st_acc = true;
+            bool notfirst = false;
+            acc_cond::mark_t prev = 0U;
+            bool has_succ = false;
+            bdd lastcond = bddfalse;
+            for (auto& t: aut->out(src))
+              {
+                if (has_succ)
+                  use_state_labels &= lastcond == t.cond;
+                else
+                  lastcond = t.cond;
+                if (complete)
+                  sum |= t.cond;
+                if (deterministic)
+                  {
+                    if (!bdd_implies(t.cond, available))
+                      deterministic = false;
+                    else
+                      available -= t.cond;
+                  }
+                sup.insert(std::make_pair(t.cond, empty));
+                if (st_acc)
+                  {
+                    if (notfirst && prev != t.acc)
+                      {
+                        st_acc = false;
+                      }
+                    else
+                      {
+                        notfirst = true;
+                        prev = t.acc;
+                      }
+                  }
+                if (colored)
+                  {
+                    auto a = t.acc;
+                    if (!a || a.remove_some(1))
+                      colored = false;
+                  }
+                has_succ = true;
+              }
+            nodeadend &= has_succ;
+            if (complete)
+              complete &= sum == bddtrue;
+            common_acc.push_back(st_acc);
+            state_acc &= st_acc;
+          }
+        is_deterministic = deterministic;
+        is_complete = complete;
+        has_state_acc = state_acc;
+        // If the automaton has state-based acceptance and contain
+        // some states without successors do not declare it as
+        // colored.
+        is_colored = colored && (!has_state_acc || nodeadend);
+        // If the automaton declares that it is deterministic or
+        // state-based, make sure that it really is.
+        assert(deterministic || aut->prop_deterministic() != true);
+        assert(state_acc || aut->prop_state_acc() != true);
       }
 
       void number_all_ap()
       {
-	bdd all = bddtrue;
-	for (auto& i: sup)
-	  all &= bdd_support(i.first);
-	all_ap = all;
+        bdd all = bddtrue;
+        for (auto& i: sup)
+          all &= bdd_support(i.first);
+        all_ap = all;
 
-	while (all != bddtrue)
-	  {
-	    int v = bdd_var(all);
-	    all = bdd_high(all);
-	    ap.insert(std::make_pair(v, vap.size()));
-	    vap.push_back(v);
-	  }
+        while (all != bddtrue)
+          {
+            int v = bdd_var(all);
+            all = bdd_high(all);
+            ap.insert(std::make_pair(v, vap.size()));
+            vap.push_back(v);
+          }
 
-	if (use_implicit_labels)
-	  return;
+        if (use_implicit_labels)
+          return;
 
-	for (auto& i: sup)
-	  {
-	    bdd cond = i.first;
-	    if (cond == bddtrue)
-	      {
-		i.second = "t";
-		continue;
-	      }
-	    if (cond == bddfalse)
-	      {
-		i.second = "f";
-		continue;
-	      }
-	    std::ostringstream s;
-	    bool notfirstor = false;
+        for (auto& i: sup)
+          {
+            bdd cond = i.first;
+            if (cond == bddtrue)
+              {
+                i.second = "t";
+                continue;
+              }
+            if (cond == bddfalse)
+              {
+                i.second = "f";
+                continue;
+              }
+            std::ostringstream s;
+            bool notfirstor = false;
 
-	    minato_isop isop(cond);
-	    bdd cube;
-	    while ((cube = isop.next()) != bddfalse)
-	      {
-		if (notfirstor)
-		  s << " | ";
-		bool notfirstand = false;
-		while (cube != bddtrue)
-		  {
-		    if (notfirstand)
-		      s << '&';
-		    else
-		      notfirstand = true;
-		    bdd h = bdd_high(cube);
-		    if (h == bddfalse)
-		      {
-			s << '!' << ap[bdd_var(cube)];
-			cube = bdd_low(cube);
-		      }
-		    else
-		      {
-			s << ap[bdd_var(cube)];
-			cube = h;
-		      }
-		  }
-		notfirstor = true;
-	      }
-	    i.second = s.str();
-	  }
+            minato_isop isop(cond);
+            bdd cube;
+            while ((cube = isop.next()) != bddfalse)
+              {
+                if (notfirstor)
+                  s << " | ";
+                bool notfirstand = false;
+                while (cube != bddtrue)
+                  {
+                    if (notfirstand)
+                      s << '&';
+                    else
+                      notfirstand = true;
+                    bdd h = bdd_high(cube);
+                    if (h == bddfalse)
+                      {
+                        s << '!' << ap[bdd_var(cube)];
+                        cube = bdd_low(cube);
+                      }
+                    else
+                      {
+                        s << ap[bdd_var(cube)];
+                        cube = h;
+                      }
+                  }
+                notfirstor = true;
+              }
+            i.second = s.str();
+          }
       }
     };
 
@@ -234,18 +234,18 @@ namespace spot
 
   enum hoa_acceptance
     {
-      Hoa_Acceptance_States,	/// state-based acceptance if
-				/// (globally) possible
-				/// transition-based acceptance
-				/// otherwise.
+      Hoa_Acceptance_States,        /// state-based acceptance if
+                                /// (globally) possible
+                                /// transition-based acceptance
+                                /// otherwise.
       Hoa_Acceptance_Transitions, /// transition-based acceptance globally
       Hoa_Acceptance_Mixed    /// mix state-based and transition-based
     };
 
   static std::ostream&
   print_hoa(std::ostream& os,
-		const const_twa_graph_ptr& aut,
-		const char* opt)
+                const const_twa_graph_ptr& aut,
+                const char* opt)
   {
     bool newline = true;
     hoa_acceptance acceptance = Hoa_Acceptance_States;
@@ -255,35 +255,35 @@ namespace spot
 
     if (opt)
       while (*opt)
-	{
-	  switch (char c = *opt++)
-	    {
-	    case 'i':
-	      implicit_labels = true;
-	      break;
-	    case 'k':
-	      state_labels = true;
-	      break;
-	    case 'l':
-	      newline = false;
-	      break;
-	    case 'm':
-	      acceptance = Hoa_Acceptance_Mixed;
-	      break;
-	    case 's':
-	      acceptance = Hoa_Acceptance_States;
-	      break;
-	    case 't':
-	      acceptance = Hoa_Acceptance_Transitions;
-	      break;
-	    case 'v':
-	      verbose = true;
-	      break;
-	    default:
-	      throw std::runtime_error
-		(std::string("unknown option for print_hoa(): ") + c);
-	    }
-	}
+        {
+          switch (char c = *opt++)
+            {
+            case 'i':
+              implicit_labels = true;
+              break;
+            case 'k':
+              state_labels = true;
+              break;
+            case 'l':
+              newline = false;
+              break;
+            case 'm':
+              acceptance = Hoa_Acceptance_Mixed;
+              break;
+            case 's':
+              acceptance = Hoa_Acceptance_States;
+              break;
+            case 't':
+              acceptance = Hoa_Acceptance_Transitions;
+              break;
+            case 'v':
+              verbose = true;
+              break;
+            default:
+              throw std::runtime_error
+                (std::string("unknown option for print_hoa(): ") + c);
+            }
+        }
 
     // Calling get_init_state_number() may add a state to empty
     // automata, so it has to be done first.
@@ -314,72 +314,72 @@ namespace spot
     acc_cond::acc_code acc_c = aut->acc().get_acceptance();
     if (aut->acc().is_generalized_buchi())
       {
-	if (aut->acc().is_all())
-	  os << "acc-name: all";
-	else if (aut->acc().is_buchi())
-	  os << "acc-name: Buchi";
-	else
-	  os << "acc-name: generalized-Buchi " << num_acc;
-	os << nl;
+        if (aut->acc().is_all())
+          os << "acc-name: all";
+        else if (aut->acc().is_buchi())
+          os << "acc-name: Buchi";
+        else
+          os << "acc-name: generalized-Buchi " << num_acc;
+        os << nl;
       }
     else if (aut->acc().is_generalized_co_buchi())
       {
-	if (aut->acc().is_none())
-	  os << "acc-name: none";
-	else if (aut->acc().is_co_buchi())
-	  os << "acc-name: co-Buchi";
-	else
-	  os << "acc-name: generalized-co-Buchi " << num_acc;
-	os << nl;
+        if (aut->acc().is_none())
+          os << "acc-name: none";
+        else if (aut->acc().is_co_buchi())
+          os << "acc-name: co-Buchi";
+        else
+          os << "acc-name: generalized-co-Buchi " << num_acc;
+        os << nl;
       }
     else
       {
-	int r = aut->acc().is_rabin();
-	assert(r != 0);
-	if (r > 0)
-	  {
-	    os << "acc-name: Rabin " << r << nl;
-	    // Force the acceptance to remove any duplicate sets, and
-	    // make sure it is correctly ordered.
-	    acc_c = acc_cond::acc_code::rabin(r);
-	  }
-	else
-	  {
-	    r = aut->acc().is_streett();
-	    assert(r != 0);
-	    if (r > 0)
-	      {
-		os << "acc-name: Streett " << r << nl;
-		// Force the acceptance to remove any duplicate sets, and
-		// make sure it is correctly ordered.
-		acc_c = acc_cond::acc_code::streett(r);
-	      }
-	    else
-	      {
-		std::vector<unsigned> pairs;
-		if (aut->acc().is_generalized_rabin(pairs))
-		  {
-		    os << "acc-name: generalized-Rabin " << pairs.size();
-		    for (auto p: pairs)
-		      os << ' ' << p;
-		    os << nl;
-		    // Force the acceptance to remove any duplicate
-		    // sets, and make sure it is correctly ordered.
-		    acc_c = acc_cond::acc_code::generalized_rabin(pairs.begin(),
-								  pairs.end());
-		  }
-		else
-		  {
-		    bool max = false;
-		    bool odd = false;
-		    if (aut->acc().is_parity(max, odd))
-		      os << "acc-name: parity "
-			 << (max ? "max " : "min ")
-			 << (odd ? "odd " : "even ")
-			 << num_acc << nl;
-		  }
-	      }
-	  }
+        int r = aut->acc().is_rabin();
+        assert(r != 0);
+        if (r > 0)
+          {
+            os << "acc-name: Rabin " << r << nl;
+            // Force the acceptance to remove any duplicate sets, and
+            // make sure it is correctly ordered.
+            acc_c = acc_cond::acc_code::rabin(r);
+          }
+        else
+          {
+            r = aut->acc().is_streett();
+            assert(r != 0);
+            if (r > 0)
+              {
+                os << "acc-name: Streett " << r << nl;
+                // Force the acceptance to remove any duplicate sets, and
+                // make sure it is correctly ordered.
+                acc_c = acc_cond::acc_code::streett(r);
+              }
+            else
+              {
+                std::vector<unsigned> pairs;
+                if (aut->acc().is_generalized_rabin(pairs))
+                  {
+                    os << "acc-name: generalized-Rabin " << pairs.size();
+                    for (auto p: pairs)
+                      os << ' ' << p;
+                    os << nl;
+                    // Force the acceptance to remove any duplicate
+                    // sets, and make sure it is correctly ordered.
+                    acc_c = acc_cond::acc_code::generalized_rabin(pairs.begin(),
+                                                                  pairs.end());
+                  }
+                else
+                  {
+                    bool max = false;
+                    bool odd = false;
+                    if (aut->acc().is_parity(max, odd))
+                      os << "acc-name: parity "
+                         << (max ? "max " : "min ")
+                         << (odd ? "odd " : "even ")
+                         << num_acc << nl;
+                  }
+              }
+          }
       }
     os << "Acceptance: " << num_acc << ' ';
     os << acc_c;
@@ -390,17 +390,17 @@ namespace spot
     unsigned prop_len = 60;
     auto prop = [&](const char* str)
       {
-	if (newline)
-	  {
-	    auto l = strlen(str);
-	    if (prop_len < l)
-	      {
-		prop_len = 60;
-		os << "\nproperties:";
-	      }
-	    prop_len -= l;
-	  }
-	os << str;
+        if (newline)
+          {
+            auto l = strlen(str);
+            if (prop_len < l)
+              {
+                prop_len = 60;
+                os << "\nproperties:";
+              }
+            prop_len -= l;
+          }
+        os << str;
       };
     // We do not support alternating automata so far, and it's
     // probable that nobody cares about the "no-univ-branch"
@@ -452,132 +452,132 @@ namespace spot
     std::vector<acc_cond::mark_t> outm;
     if (implicit_labels)
       {
-	out.resize(1UL << nap);
-	if (acceptance != Hoa_Acceptance_States)
-	  outm.resize(1UL << nap);
+        out.resize(1UL << nap);
+        if (acceptance != Hoa_Acceptance_States)
+          outm.resize(1UL << nap);
       }
 
     os << "--BODY--" << nl;
     auto sn = aut->get_named_prop<std::vector<std::string>>("state-names");
     for (unsigned i = 0; i < num_states; ++i)
       {
-	hoa_acceptance this_acc = acceptance;
-	if (this_acc == Hoa_Acceptance_Mixed)
-	  this_acc = (md.common_acc[i] ?
-		      Hoa_Acceptance_States : Hoa_Acceptance_Transitions);
+        hoa_acceptance this_acc = acceptance;
+        if (this_acc == Hoa_Acceptance_Mixed)
+          this_acc = (md.common_acc[i] ?
+                      Hoa_Acceptance_States : Hoa_Acceptance_Transitions);
 
-	os << "State: ";
-	if (state_labels)
-	  {
-	    bool output = false;
-	    for (auto& t: aut->out(i))
-	      {
-		os << '[' << md.sup[t.cond] << "] ";
-		output = true;
-		break;
-	      }
-	    if (!output)
-	      os << "[f] ";
-	  }
-	os << i;
-	if (sn && i < sn->size() && !(*sn)[i].empty())
-	  os << " \"" << (*sn)[i] << '"';
-	if (this_acc == Hoa_Acceptance_States)
-	  {
-	    acc_cond::mark_t acc = 0U;
-	    for (auto& t: aut->out(i))
-	      {
-		acc = t.acc;
-		break;
-	      }
-	    md.emit_acc(os, acc);
-	  }
-	os << nl;
+        os << "State: ";
+        if (state_labels)
+          {
+            bool output = false;
+            for (auto& t: aut->out(i))
+              {
+                os << '[' << md.sup[t.cond] << "] ";
+                output = true;
+                break;
+              }
+            if (!output)
+              os << "[f] ";
+          }
+        os << i;
+        if (sn && i < sn->size() && !(*sn)[i].empty())
+          os << " \"" << (*sn)[i] << '"';
+        if (this_acc == Hoa_Acceptance_States)
+          {
+            acc_cond::mark_t acc = 0U;
+            for (auto& t: aut->out(i))
+              {
+                acc = t.acc;
+                break;
+              }
+            md.emit_acc(os, acc);
+          }
+        os << nl;
 
-	if (!implicit_labels && !state_labels)
-	  {
+        if (!implicit_labels && !state_labels)
+          {
 
-	    for (auto& t: aut->out(i))
-	      {
-		os << '[' << md.sup[t.cond] << "] " << t.dst;
-		if (this_acc == Hoa_Acceptance_Transitions)
-		  md.emit_acc(os, t.acc);
-		os << nl;
-	      }
-	  }
-	else if (state_labels)
-	  {
-	    unsigned n = 0;
-	    for (auto& t: aut->out(i))
-	      {
-		os << t.dst;
-		if (this_acc == Hoa_Acceptance_Transitions)
-		  {
-		    md.emit_acc(os, t.acc);
-		    os << nl;
-		  }
-		else
-		  {
-		    ++n;
-		    os << (((n & 15) && t.next_succ) ? ' ' : nl);
-		  }
-	      }
-	  }
-	else
-	  {
-	    for (auto& t: aut->out(i))
-	      {
-		bdd cond = t.cond;
-		while (cond != bddfalse)
-		  {
-		    bdd one = bdd_satoneset(cond, md.all_ap, bddfalse);
-		    cond -= one;
-		    unsigned level = 1;
-		    unsigned pos = 0U;
-		    while (one != bddtrue)
-		      {
-			bdd h = bdd_high(one);
-			if (h == bddfalse)
-			  {
-			    one = bdd_low(one);
-			  }
-			else
-			  {
-			    pos |= level;
-			    one = h;
-			  }
-			level <<= 1;
-		      }
-		    out[pos] = t.dst;
-		    if (this_acc != Hoa_Acceptance_States)
-		      outm[pos] = t.acc;
-		  }
-	      }
-	    unsigned n = out.size();
-	    for (unsigned i = 0; i < n;)
-	      {
-		os << out[i];
-		if (this_acc != Hoa_Acceptance_States)
-		  {
-		    md.emit_acc(os, outm[i]) << nl;
-		    ++i;
-		  }
-		else
-		  {
-		    ++i;
-		    os << (((i & 15) && i < n) ? ' ' : nl);
-		  }
-	      }
-	  }
+            for (auto& t: aut->out(i))
+              {
+                os << '[' << md.sup[t.cond] << "] " << t.dst;
+                if (this_acc == Hoa_Acceptance_Transitions)
+                  md.emit_acc(os, t.acc);
+                os << nl;
+              }
+          }
+        else if (state_labels)
+          {
+            unsigned n = 0;
+            for (auto& t: aut->out(i))
+              {
+                os << t.dst;
+                if (this_acc == Hoa_Acceptance_Transitions)
+                  {
+                    md.emit_acc(os, t.acc);
+                    os << nl;
+                  }
+                else
+                  {
+                    ++n;
+                    os << (((n & 15) && t.next_succ) ? ' ' : nl);
+                  }
+              }
+          }
+        else
+          {
+            for (auto& t: aut->out(i))
+              {
+                bdd cond = t.cond;
+                while (cond != bddfalse)
+                  {
+                    bdd one = bdd_satoneset(cond, md.all_ap, bddfalse);
+                    cond -= one;
+                    unsigned level = 1;
+                    unsigned pos = 0U;
+                    while (one != bddtrue)
+                      {
+                        bdd h = bdd_high(one);
+                        if (h == bddfalse)
+                          {
+                            one = bdd_low(one);
+                          }
+                        else
+                          {
+                            pos |= level;
+                            one = h;
+                          }
+                        level <<= 1;
+                      }
+                    out[pos] = t.dst;
+                    if (this_acc != Hoa_Acceptance_States)
+                      outm[pos] = t.acc;
+                  }
+              }
+            unsigned n = out.size();
+            for (unsigned i = 0; i < n;)
+              {
+                os << out[i];
+                if (this_acc != Hoa_Acceptance_States)
+                  {
+                    md.emit_acc(os, outm[i]) << nl;
+                    ++i;
+                  }
+                else
+                  {
+                    ++i;
+                    os << (((i & 15) && i < n) ? ' ' : nl);
+                  }
+              }
+          }
       }
-    os << "--END--";		// No newline.  Let the caller decide.
+    os << "--END--";                // No newline.  Let the caller decide.
     return os;
   }
 
   std::ostream&
   print_hoa(std::ostream& os,
-	    const const_twa_ptr& aut,
-	    const char* opt)
+            const const_twa_ptr& aut,
+            const char* opt)
   {
 
     auto a = std::dynamic_pointer_cast<const twa_graph>(aut);
@@ -588,12 +588,12 @@ namespace spot
     char* tmpopt = nullptr;
     if (std::dynamic_pointer_cast<const fair_kripke>(aut))
       {
-	unsigned n = opt ? strlen(opt) : 0;
-	tmpopt = new char[n + 2];
-	if (opt)
-	  strcpy(tmpopt, opt);
-	tmpopt[n] = 'k';
-	tmpopt[n + 1] = 0;
+        unsigned n = opt ? strlen(opt) : 0;
+        tmpopt = new char[n + 2];
+        if (opt)
+          strcpy(tmpopt, opt);
+        tmpopt[n] = 'k';
+        tmpopt[n + 1] = 0;
       }
     print_hoa(os, a, tmpopt ? tmpopt : opt);
     delete[] tmpopt;

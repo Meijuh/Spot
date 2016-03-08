@@ -37,21 +37,21 @@ namespace spot
     {
     public:
       stats_bfs(const const_twa_ptr& a, twa_statistics& s)
-	: twa_reachable_iterator_breadth_first(a), s_(s)
+        : twa_reachable_iterator_breadth_first(a), s_(s)
       {
       }
 
       void
       process_state(const state*, int, twa_succ_iterator*) override final
       {
-	++s_.states;
+        ++s_.states;
       }
 
       void
       process_link(const state*, int, const state*, int,
-		   const twa_succ_iterator*) override
+                   const twa_succ_iterator*) override
       {
-	++s_.edges;
+        ++s_.edges;
       }
 
     private:
@@ -62,38 +62,38 @@ namespace spot
     {
     public:
       sub_stats_bfs(const const_twa_ptr& a, twa_sub_statistics& s)
-	: stats_bfs(a, s), s_(s), seen_(bddtrue)
+        : stats_bfs(a, s), s_(s), seen_(bddtrue)
       {
       }
 
       void
       process_link(const state*, int, const state*, int,
-		   const twa_succ_iterator* it) override
+                   const twa_succ_iterator* it) override
       {
-	++s_.edges;
+        ++s_.edges;
 
-	bdd cond = it->cond();
-	bdd newvars = bdd_exist(bdd_support(cond), seen_);
-	if (newvars != bddtrue)
-	  {
-	    seen_ &= newvars;
-	    int count = 0;
-	    while (newvars != bddtrue)
-	      {
-		++count;
-		newvars = bdd_high(newvars);
-	      }
-	    // If we discover one new variable, that means that all
-	    // transitions we counted so far are actually double
-	    // subtransitions.  If we have two new variables, they where
-	    // quadruple transitions, etc.
-	    s_.transitions <<= count;
-	  }
-	while (cond != bddfalse)
-	  {
-	    cond -= bdd_satoneset(cond, seen_, bddtrue);
-	    ++s_.transitions;
-	  }
+        bdd cond = it->cond();
+        bdd newvars = bdd_exist(bdd_support(cond), seen_);
+        if (newvars != bddtrue)
+          {
+            seen_ &= newvars;
+            int count = 0;
+            while (newvars != bddtrue)
+              {
+                ++count;
+                newvars = bdd_high(newvars);
+              }
+            // If we discover one new variable, that means that all
+            // transitions we counted so far are actually double
+            // subtransitions.  If we have two new variables, they where
+            // quadruple transitions, etc.
+            s_.transitions <<= count;
+          }
+        while (cond != bddfalse)
+          {
+            cond -= bdd_satoneset(cond, seen_, bddtrue);
+            ++s_.transitions;
+          }
       }
 
     private:
@@ -153,7 +153,7 @@ namespace spot
     declare('p', &complete_);
     declare('r', &run_time_);
     declare('s', &states_);
-    declare('S', &scc_);	// Historical.  Deprecated.  Use %c instead.
+    declare('S', &scc_);        // Historical.  Deprecated.  Use %c instead.
     declare('t', &trans_);
     set_output(os);
     if (format)
@@ -162,23 +162,23 @@ namespace spot
 
   std::ostream&
   stat_printer::print(const const_twa_graph_ptr& aut,
-		      formula f, double run_time)
+                      formula f, double run_time)
   {
     form_ = f;
     run_time_ = run_time;
 
     if (has('t'))
       {
-	twa_sub_statistics s = sub_stats_reachable(aut);
-	states_ = s.states;
-	edges_ = s.edges;
-	trans_ = s.transitions;
+        twa_sub_statistics s = sub_stats_reachable(aut);
+        states_ = s.states;
+        edges_ = s.edges;
+        trans_ = s.transitions;
       }
     else if (has('s') || has('e'))
       {
-	twa_sub_statistics s = sub_stats_reachable(aut);
-	states_ = s.states;
-	edges_ = s.edges;
+        twa_sub_statistics s = sub_stats_reachable(aut);
+        states_ = s.states;
+        edges_ = s.edges;
       }
 
     if (has('a'))
@@ -189,25 +189,25 @@ namespace spot
 
     if (has('n'))
       {
-	nondetstates_ = count_nondet_states(aut);
-	deterministic_ = (nondetstates_ == 0);
+        nondetstates_ = count_nondet_states(aut);
+        deterministic_ = (nondetstates_ == 0);
       }
     else if (has('d'))
       {
-	// This is more efficient than calling count_nondet_state().
-	deterministic_ = is_deterministic(aut);
+        // This is more efficient than calling count_nondet_state().
+        deterministic_ = is_deterministic(aut);
       }
 
     if (has('p'))
       {
-	complete_ = is_complete(aut);
+        complete_ = is_complete(aut);
       }
 
     if (has('g'))
       {
-	std::ostringstream os;
-	os << aut->get_acceptance();
-	gen_acc_ = os.str();
+        std::ostringstream os;
+        os << aut->get_acceptance();
+        gen_acc_ = os.str();
       }
 
     return format(format_);

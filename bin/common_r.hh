@@ -24,21 +24,21 @@
 
 #define OPT_R 'r'
 
-#define DECLARE_OPT_R							\
-    { "simplify", OPT_R, "LEVEL", OPTION_ARG_OPTIONAL,			\
-      "simplify formulas according to LEVEL (see below); LEVEL is "	\
+#define DECLARE_OPT_R                                                        \
+    { "simplify", OPT_R, "LEVEL", OPTION_ARG_OPTIONAL,                        \
+      "simplify formulas according to LEVEL (see below); LEVEL is "        \
       "set to 3 if omitted", 0 }
 
-#define LEVEL_DOC(g)						\
-    { nullptr, 0, nullptr, 0,					\
-      "The simplification LEVEL may be set as follows.", g },	\
-    { "  0", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,		\
-      "No rewriting", 0 },					\
-    { "  1", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,		\
-      "basic rewritings and eventual/universal rules", 0 },	\
-    { "  2", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,		\
-      "additional syntactic implication rules", 0 },		\
-    { "  3", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,		\
+#define LEVEL_DOC(g)                                                \
+    { nullptr, 0, nullptr, 0,                                        \
+      "The simplification LEVEL may be set as follows.", g },        \
+    { "  0", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                \
+      "No rewriting", 0 },                                        \
+    { "  1", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                \
+      "basic rewritings and eventual/universal rules", 0 },        \
+    { "  2", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                \
+      "additional syntactic implication rules", 0 },                \
+    { "  3", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                \
       "better implications using containment", 0 }
 
 extern int simplification_level;

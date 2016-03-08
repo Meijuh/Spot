@@ -97,12 +97,12 @@ namespace spot
     rand() const
     {
       for (;;)
-	{
-	  int x = round(gen() * s_ + m_);
-	  if (x < 0)
-	    continue;
+        {
+          int x = round(gen() * s_ + m_);
+          if (x < 0)
+            continue;
           if (x <= n_)
-	    return x;
+            return x;
         }
       SPOT_UNREACHABLE();
       return 0;
@@ -128,11 +128,11 @@ namespace spot
     auto d = std::distance(first, last);
     if (d > 1)
       {
-	for (--last; first < last; ++first, --d)
-	  {
-	    auto i = mrand(d);
-	    std::swap(*first, *(first + i));
-	  }
+        for (--last; first < last; ++first, --d)
+          {
+            auto i = mrand(d);
+            std::swap(*first, *(first + i));
+          }
       }
   }
   /// @}

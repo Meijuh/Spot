@@ -33,7 +33,7 @@ namespace spot
   {
   public:
     tgta_product(const const_kripke_ptr& left,
-		 const const_tgta_ptr& right);
+                 const const_tgta_ptr& right);
 
     virtual const state* get_init_state() const override;
 
@@ -42,7 +42,7 @@ namespace spot
   };
 
   inline twa_ptr product(const const_kripke_ptr& left,
-			  const const_tgta_ptr& right)
+                          const const_tgta_ptr& right)
   {
     return std::make_shared<tgta_product>(left, right);
   }
@@ -52,9 +52,9 @@ namespace spot
   {
   public:
     tgta_succ_iterator_product(const state_product* s,
-			       const const_kripke_ptr& k,
-			       const const_tgta_ptr& tgta,
-			       fixed_size_pool* pool);
+                               const const_kripke_ptr& k,
+                               const const_tgta_ptr& tgta,
+                               fixed_size_pool* pool);
 
     virtual
     ~tgta_succ_iterator_product();

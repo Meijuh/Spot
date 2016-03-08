@@ -80,8 +80,8 @@ namespace spot
     unsigned n = 0;
     for (stack_type::iterator i = s.begin(); i != s.end(); ++i)
       {
-	n += i->rem.size();
-	i->rem.clear();
+        n += i->rem.size();
+        i->rem.clear();
       }
     return n;
   }

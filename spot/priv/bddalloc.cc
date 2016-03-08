@@ -67,15 +67,15 @@ namespace spot
     // externally), use the new variables.
     if (lvarnum < varnum)
       {
-	more -= varnum - lvarnum;
-	lvarnum = varnum;
+        more -= varnum - lvarnum;
+        lvarnum = varnum;
       }
     // If we still need more variable, do allocate them.
     if (more > 0)
       {
-	bdd_extvarnum(more);
-	varnum += more;
-	lvarnum = varnum;
+        bdd_extvarnum(more);
+        varnum += more;
+        lvarnum = varnum;
       }
   }
 
@@ -98,19 +98,19 @@ namespace spot
     // of the variable space, allocate just the difference.
     if (!fl.empty() && fl.back().first + fl.back().second == lvarnum)
       {
-	int res = fl.back().first;
-	int endvar = fl.back().second;
-	assert(n > endvar);
-	extvarnum(n - endvar);
-	fl.pop_back();
-	return res;
+        int res = fl.back().first;
+        int endvar = fl.back().second;
+        assert(n > endvar);
+        extvarnum(n - endvar);
+        fl.pop_back();
+        return res;
       }
     else
       {
-	// Otherwise, allocate as much variables as we need.
-	int res = lvarnum;
-	extvarnum(n);
-	return res;
+        // Otherwise, allocate as much variables as we need.
+        int res = lvarnum;
+        extvarnum(n);
+        return res;
       }
   }
 }

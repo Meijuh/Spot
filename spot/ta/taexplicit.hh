@@ -41,8 +41,8 @@ namespace spot
   {
   public:
     ta_explicit(const const_twa_ptr& tgba,
-		unsigned n_acc,
-		state_ta_explicit* artificial_initial_state = nullptr);
+                unsigned n_acc,
+                state_ta_explicit* artificial_initial_state = nullptr);
 
     const_twa_ptr
     get_tgba() const;
@@ -55,9 +55,9 @@ namespace spot
 
     void
     create_transition(state_ta_explicit* source, bdd condition,
-		      acc_cond::mark_t acceptance_conditions,
-		      const state_ta_explicit* dest,
-		      bool add_at_beginning = false);
+                      acc_cond::mark_t acceptance_conditions,
+                      const state_ta_explicit* dest,
+                      bool add_at_beginning = false);
 
     void
     delete_stuttering_transitions();
@@ -142,10 +142,10 @@ namespace spot
     typedef std::list<transition*> transitions;
 
     state_ta_explicit(const state* tgba_state, const bdd tgba_condition,
-		      bool is_initial_state = false,
-		      bool is_accepting_state = false,
-		      bool is_livelock_accepting_state = false,
-		      transitions* trans = nullptr) :
+                      bool is_initial_state = false,
+                      bool is_accepting_state = false,
+                      bool is_livelock_accepting_state = false,
+                      transitions* trans = nullptr) :
       tgba_state_(tgba_state), tgba_condition_(tgba_condition),
           is_initial_state_(is_initial_state), is_accepting_state_(
               is_accepting_state), is_livelock_accepting_state_(
@@ -246,8 +246,8 @@ namespace spot
 
   inline ta_explicit_ptr
   make_ta_explicit(const const_twa_ptr& tgba,
-		   unsigned n_acc,
-		   state_ta_explicit* artificial_initial_state = nullptr)
+                   unsigned n_acc,
+                   state_ta_explicit* artificial_initial_state = nullptr)
   {
     return std::make_shared<ta_explicit>(tgba, n_acc, artificial_initial_state);
   }

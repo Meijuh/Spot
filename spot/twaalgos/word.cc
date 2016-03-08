@@ -54,12 +54,12 @@ namespace spot
     {
       bdd all = bddtrue;
       for (auto& i: cycle)
-	all &= i;
+        all &= i;
       if (all != bddfalse)
-	{
-	  cycle.clear();
-	  cycle.push_back(all);
-	}
+        {
+          cycle.clear();
+          cycle.push_back(all);
+        }
     }
     // If the last formula of the prefix is compatible with the
     // last formula of the cycle, we can shift the cycle and
@@ -71,12 +71,12 @@ namespace spot
     //   !a|!b; cycle{a&b}
     while (!prefix.empty())
       {
-	bdd a = prefix.back() & cycle.back();
-	if (a == bddfalse)
-	  break;
-	prefix.pop_back();
-	cycle.pop_back();
-	cycle.push_front(a);
+        bdd a = prefix.back() & cycle.back();
+        if (a == bddfalse)
+          break;
+        prefix.pop_back();
+        cycle.pop_back();
+        cycle.push_front(a);
       }
     // Get rid of any disjunction.
     //
@@ -98,18 +98,18 @@ namespace spot
     auto d = w.get_dict();
     if (!w.prefix.empty())
       for (auto& i: w.prefix)
-	{
-	  bdd_print_formula(os, d, i);
-	  os << "; ";
-	}
+        {
+          bdd_print_formula(os, d, i);
+          os << "; ";
+        }
     bool notfirst = false;
     os << "cycle{";
     for (auto& i: w.cycle)
       {
-	if (notfirst)
-	  os << "; ";
-	notfirst = true;
-	bdd_print_formula(os, d, i);
+        if (notfirst)
+          os << "; ";
+        notfirst = true;
+        bdd_print_formula(os, d, i);
       }
     os << '}';
     return os;
@@ -118,7 +118,7 @@ namespace spot
   namespace
   {
     static void word_parse_error(const std::string& word,
-				 size_t i, parsed_formula pf)
+                                 size_t i, parsed_formula pf)
     {
       std::ostringstream os;
       pf.format_errors(os, word, i);
@@ -126,14 +126,14 @@ namespace spot
     }
 
     static void word_parse_error(const std::string& word, size_t i,
-				 const std::string& message)
+                                 const std::string& message)
     {
       if (i == std::string::npos)
-	i = word.size();
+        i = word.size();
       std::ostringstream s;
       s << ">>> " << word << '\n';
       for (auto j = i + 4; j > 0; --j)
-	s << ' ';
+        s << ' ';
       s << '^' << '\n';
       s << message << '\n';
       throw parse_error(s.str());
@@ -144,17 +144,17 @@ namespace spot
       bool quoted = false;
       auto size = word.size();
       for (auto j = begin; j < size; ++j)
-	{
-	  auto c = word[j];
-	  if (!quoted && (c == ';' || c == '}'))
-	    return j;
-	  if (c == '"')
-	    quoted = !quoted;
-	  else if (quoted && c == '\\')
-	    ++j;
-	}
+        {
+          auto c = word[j];
+          if (!quoted && (c == ';' || c == '}'))
+            return j;
+          if (c == '"')
+            quoted = !quoted;
+          else if (quoted && c == '\\')
+            ++j;
+        }
       if (quoted)
-	word_parse_error(word, word.size(), "Unclosed string");
+        word_parse_error(word, word.size(), "Unclosed string");
       return std::string::npos;
     }
   }
@@ -170,49 +170,49 @@ namespace spot
     auto extract_bdd =
       [&](typename twa_word::seq_t& seq)
       {
-	auto sub = word.substr(i, ind - i);
-	auto pf = spot::parse_infix_boolean(sub);
-	if (!pf.errors.empty())
-	  word_parse_error(word, i, pf);
-	atomic_prop_collect(pf.f, &aps);
-	seq.push_back(tls.as_bdd(pf.f));
-	if (word[ind] == '}')
-	  return true;
-	// Skip blanks after semi-colon
-	i = word.find_first_not_of(' ', ind + 1);
-	return false;
+        auto sub = word.substr(i, ind - i);
+        auto pf = spot::parse_infix_boolean(sub);
+        if (!pf.errors.empty())
+          word_parse_error(word, i, pf);
+        atomic_prop_collect(pf.f, &aps);
+        seq.push_back(tls.as_bdd(pf.f));
+        if (word[ind] == '}')
+          return true;
+        // Skip blanks after semi-colon
+        i = word.find_first_not_of(' ', ind + 1);
+        return false;
       };
 
     // Parse the prefix part. Can be empty.
     while (word.substr(i, 6) != std::string("cycle{"))
       {
-	ind = skip_next_formula(word, i);
-	if (ind == std::string::npos)
-	  word_parse_error(word, word.size(),
-			   "A twa_word must contain a cycle");
-	if (word[ind] == '}')
-	  word_parse_error(word, ind, "Expected ';' delimiter: "
-			   "'}' stands for ending a cycle");
-	// Exract formula, convert it to bdd and add it to the prefix sequence
-	extract_bdd(tw->prefix);
-	if (i == std::string::npos)
-	  word_parse_error(word, ind + 1, "Missing cycle in formula");
+        ind = skip_next_formula(word, i);
+        if (ind == std::string::npos)
+          word_parse_error(word, word.size(),
+                           "A twa_word must contain a cycle");
+        if (word[ind] == '}')
+          word_parse_error(word, ind, "Expected ';' delimiter: "
+                           "'}' stands for ending a cycle");
+        // Exract formula, convert it to bdd and add it to the prefix sequence
+        extract_bdd(tw->prefix);
+        if (i == std::string::npos)
+          word_parse_error(word, ind + 1, "Missing cycle in formula");
       }
     // Consume "cycle{"
     i += 6;
     while (true)
       {
-	ind = skip_next_formula(word, i);
-	if (ind == std::string::npos)
-	  word_parse_error(word, word.size(),
-			   "Missing ';' or '}' after formula");
-	// Extract formula, convert it to bdd and add it to the cycle sequence
-	// Break if an '}' is encountered
-	if (extract_bdd(tw->cycle))
-	  break;
-	if (i == std::string::npos)
-	  word_parse_error(word, ind + 1,
-			   "Missing end of cycle character: '}'");
+        ind = skip_next_formula(word, i);
+        if (ind == std::string::npos)
+          word_parse_error(word, word.size(),
+                           "Missing ';' or '}' after formula");
+        // Extract formula, convert it to bdd and add it to the cycle sequence
+        // Break if an '}' is encountered
+        if (extract_bdd(tw->cycle))
+          break;
+        if (i == std::string::npos)
+          word_parse_error(word, ind + 1,
+                           "Missing end of cycle character: '}'");
       }
     if (ind != word.size() - 1)
       word_parse_error(word, ind + 1, "Input should be finished after cycle");
@@ -232,31 +232,31 @@ namespace spot
     {
       bdd support = bddtrue;
       for (auto b: prefix)
-	support &= bdd_support(b);
+        support &= bdd_support(b);
       for (auto b: cycle)
-	support &= bdd_support(b);
+        support &= bdd_support(b);
       while (support != bddtrue)
-	{
-	  int v = bdd_var(support);
-	  support = bdd_high(support);
-	  aut->register_ap(dict_->bdd_map[v].f);
-	}
+        {
+          int v = bdd_var(support);
+          support = bdd_high(support);
+          aut->register_ap(dict_->bdd_map[v].f);
+        }
     }
 
     size_t i = 0;
     aut->new_states(prefix.size() + cycle.size());
     for (auto b: prefix)
       {
-	aut->new_edge(i, i + 1, b);
-	++i;
+        aut->new_edge(i, i + 1, b);
+        ++i;
       }
     size_t j = i;
     auto b = cycle.begin();
     auto end = --cycle.end();
     for (; b != end; ++b)
       {
-	aut->new_edge(i, i + 1, *b);
-	++i;
+        aut->new_edge(i, i + 1, *b);
+        ++i;
       }
     // Close the loop
     aut->new_edge(i, j, *b);

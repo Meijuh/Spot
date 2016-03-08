@@ -299,22 +299,22 @@ struct statistics
     if (show_exit)
       os << "\"exit_status\",\"exit_code\",";
     os << ("\"time\","
-	   "\"states\","
-	   "\"edges\","
-	   "\"transitions\","
-	   "\"acc\","
-	   "\"scc\","
-	   "\"nonacc_scc\","
-	   "\"terminal_scc\","
-	   "\"weak_scc\","
-	   "\"strong_scc\","
-	   "\"nondet_states\","
-	   "\"nondet_aut\","
-	   "\"terminal_aut\","
-	   "\"weak_aut\","
-	   "\"strong_aut\","
-	   "\"ambiguous_aut\","
-	   "\"complete_aut\"");
+           "\"states\","
+           "\"edges\","
+           "\"transitions\","
+           "\"acc\","
+           "\"scc\","
+           "\"nonacc_scc\","
+           "\"terminal_scc\","
+           "\"weak_scc\","
+           "\"strong_scc\","
+           "\"nondet_states\","
+           "\"nondet_aut\","
+           "\"terminal_aut\","
+           "\"weak_aut\","
+           "\"strong_aut\","
+           "\"ambiguous_aut\","
+           "\"complete_aut\"");
     size_t m = products_avg ? 1U : products;
     for (size_t i = 0; i < m; ++i)
       os << ",\"product_states\",\"product_transitions\",\"product_scc\"";
@@ -324,70 +324,70 @@ struct statistics
 
   void
   to_csv(std::ostream& os, bool show_exit, const char* na = "",
-	 bool csv_escape = true)
+         bool csv_escape = true)
   {
     if (show_exit)
       os << '"' << status_str << "\"," << status_code << ',';
     os << time << ',';
     if (ok)
       {
-	os << states << ','
-	   << edges << ','
-	   << transitions << ','
-	   << acc << ','
-	   << scc << ','
-	   << nonacc_scc << ','
-	   << terminal_scc << ','
-	   << weak_scc << ','
-	   << strong_scc << ','
-	   << nondetstates << ','
-	   << nondeterministic << ','
-	   << terminal_aut << ','
-	   << weak_aut << ','
-	   << strong_aut << ','
-	   << ambiguous << ','
-	   << complete;
-	if (!products_avg)
-	  {
-	    for (size_t i = 0; i < products; ++i)
-	      os << ',' << product_states[i]
-		 << ',' << product_transitions[i]
-		 << ',' << product_scc[i];
-	  }
-	else
-	  {
-	    double st = 0.0;
-	    double tr = 0.0;
-	    double sc = 0.0;
-	    for (size_t i = 0; i < products; ++i)
-	      {
-		st += product_states[i];
-		tr += product_transitions[i];
-		sc += product_scc[i];
-	      }
-	    os << ',' << (st / products)
-	       << ',' << (tr / products)
-	       << ',' << (sc / products);
-	  }
+        os << states << ','
+           << edges << ','
+           << transitions << ','
+           << acc << ','
+           << scc << ','
+           << nonacc_scc << ','
+           << terminal_scc << ','
+           << weak_scc << ','
+           << strong_scc << ','
+           << nondetstates << ','
+           << nondeterministic << ','
+           << terminal_aut << ','
+           << weak_aut << ','
+           << strong_aut << ','
+           << ambiguous << ','
+           << complete;
+        if (!products_avg)
+          {
+            for (size_t i = 0; i < products; ++i)
+              os << ',' << product_states[i]
+                 << ',' << product_transitions[i]
+                 << ',' << product_scc[i];
+          }
+        else
+          {
+            double st = 0.0;
+            double tr = 0.0;
+            double sc = 0.0;
+            for (size_t i = 0; i < products; ++i)
+              {
+                st += product_states[i];
+                tr += product_transitions[i];
+                sc += product_scc[i];
+              }
+            os << ',' << (st / products)
+               << ',' << (tr / products)
+               << ',' << (sc / products);
+          }
       }
     else
       {
-	size_t m = products_avg ? 1U : products;
-	m *= 3;
-	m += 15;
-	os << na;
-	for (size_t i = 0; i < m; ++i)
-	  os << ',' << na;
+        size_t m = products_avg ? 1U : products;
+        m *= 3;
+        m += 15;
+        os << na;
+        for (size_t i = 0; i < m; ++i)
+          os << ',' << na;
       }
     if (opt_automata)
       {
-	os << ',';
-	if (hoa_str.empty())
-	  os << na;
-	else if (csv_escape)
-	  spot::escape_rfc4180(os << '"', hoa_str) << '"';
-	else
-	  spot::escape_str(os << '"', hoa_str) << '"';
+        os << ',';
+        if (hoa_str.empty())
+          os << na;
+        else if (csv_escape)
+          spot::escape_rfc4180(os << '"', hoa_str) << '"';
+        else
+          spot::escape_str(os << '"', hoa_str) << '"';
       }
   }
 };
@@ -415,17 +415,17 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_BOGUS:
       {
-	bogus_output = new output_file(arg);
-	bogus_output_filename = arg;
-	break;
+        bogus_output = new output_file(arg);
+        bogus_output_filename = arg;
+        break;
       }
     case OPT_COLOR:
       {
-	if (arg)
-	  color_opt = XARGMATCH("--color", arg, color_args, color_types);
-	else
-	  color_opt = color_always;
-	break;
+        if (arg)
+          color_opt = XARGMATCH("--color", arg, color_args, color_types);
+        else
+          color_opt = color_always;
+        break;
       }
     case OPT_CSV:
       want_stats = true;
@@ -449,10 +449,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_PRODUCTS:
       if (*arg == '+')
-	{
-	  products_avg = false;
-	  ++arg;
-	}
+        {
+          products_avg = false;
+          ++arg;
+        }
       products = to_pos_int(arg);
       break;
     case OPT_NOCHECKS:
@@ -495,7 +495,7 @@ namespace
 
     spot::twa_graph_ptr
     translate(unsigned int translator_num, char l, statistics_formula* fstats,
-	      bool& problem)
+              bool& problem)
     {
       output.reset(translator_num);
 
@@ -504,7 +504,7 @@ namespace
 
       std::string cmd = command.str();
       std::cerr << "Running [" << l << translator_num << "]: "
-		<< cmd << std::endl;
+                << cmd << std::endl;
       spot::stopwatch sw;
       sw.start();
       int es = exec_with_timeout(cmd.c_str());
@@ -514,128 +514,128 @@ namespace
 
       spot::twa_graph_ptr res = nullptr;
       if (timed_out)
-	{
-	  // This is not considered to be a global error.
-	  std::cerr << "warning: timeout during execution of command\n";
-	  ++timeout_count;
-	  status_str = "timeout";
-	  problem = false;	// A timeout is not a sign of a bug
-	  es = -1;
-	}
+        {
+          // This is not considered to be a global error.
+          std::cerr << "warning: timeout during execution of command\n";
+          ++timeout_count;
+          status_str = "timeout";
+          problem = false;        // A timeout is not a sign of a bug
+          es = -1;
+        }
       else if (WIFSIGNALED(es))
-	{
-	  status_str = "signal";
-	  problem = true;
-	  es = WTERMSIG(es);
-	  global_error() << "error: execution terminated by signal "
-			 << es << ".\n";
-	  end_error();
-	}
+        {
+          status_str = "signal";
+          problem = true;
+          es = WTERMSIG(es);
+          global_error() << "error: execution terminated by signal "
+                         << es << ".\n";
+          end_error();
+        }
       else if (WIFEXITED(es) && WEXITSTATUS(es) != 0)
-	{
-	  es = WEXITSTATUS(es);
-	  status_str = "exit code";
-	  if (!ignore_exec_fail)
-	    {
-	      problem = true;
-	      global_error() << "error: execution returned exit code "
-			     << es << ".\n";
-	      end_error();
-	    }
-	  else
-	    {
-	      problem = false;
-	      std::cerr << "warning: execution returned exit code "
-			<< es << ".\n";
-	      ++ignored_exec_fail;
-	    }
-	}
+        {
+          es = WEXITSTATUS(es);
+          status_str = "exit code";
+          if (!ignore_exec_fail)
+            {
+              problem = true;
+              global_error() << "error: execution returned exit code "
+                             << es << ".\n";
+              end_error();
+            }
+          else
+            {
+              problem = false;
+              std::cerr << "warning: execution returned exit code "
+                        << es << ".\n";
+              ++ignored_exec_fail;
+            }
+        }
       else
-	{
-	  status_str = "ok";
-	  problem = false;
-	  es = 0;
+        {
+          status_str = "ok";
+          problem = false;
+          es = 0;
 
-	  auto aut = spot::parse_aut(output.val()->name(), dict,
-				     spot::default_environment::instance(),
-				     opt_parse);
-	  if (!aut->errors.empty())
-	    {
-	      status_str = "parse error";
-	      problem = true;
-	      es = -1;
-	      std::ostream& err = global_error();
-	      err << "error: failed to parse the produced automaton.\n";
-	      aut->format_errors(err);
-	      end_error();
-	      res = nullptr;
-	    }
-	  else if (aut->aborted)
-	    {
-	      status_str = "aborted";
-	      problem = true;
-	      es = -1;
-	      global_error()  << "error: aborted HOA file.\n";
-	      end_error();
-	      res = nullptr;
-	    }
-	  else
-	    {
-	      res = aut->aut;
-	    }
-	}
+          auto aut = spot::parse_aut(output.val()->name(), dict,
+                                     spot::default_environment::instance(),
+                                     opt_parse);
+          if (!aut->errors.empty())
+            {
+              status_str = "parse error";
+              problem = true;
+              es = -1;
+              std::ostream& err = global_error();
+              err << "error: failed to parse the produced automaton.\n";
+              aut->format_errors(err);
+              end_error();
+              res = nullptr;
+            }
+          else if (aut->aborted)
+            {
+              status_str = "aborted";
+              problem = true;
+              es = -1;
+              global_error()  << "error: aborted HOA file.\n";
+              end_error();
+              res = nullptr;
+            }
+          else
+            {
+              res = aut->aut;
+            }
+        }
 
       if (want_stats)
-	{
-	  statistics* st = &(*fstats)[translator_num];
-	  st->status_str = status_str;
-	  st->status_code = es;
-	  st->time = duration;
+        {
+          statistics* st = &(*fstats)[translator_num];
+          st->status_str = status_str;
+          st->status_code = es;
+          st->time = duration;
 
-	  // Compute statistics.
-	  if (res)
-	    {
-	      if (verbose)
-		std::cerr << "info: getting statistics\n";
-	      st->ok = true;
-	      spot::twa_sub_statistics s = sub_stats_reachable(res);
-	      st->states = s.states;
-	      st->edges = s.edges;
-	      st->transitions = s.transitions;
-	      st->acc = res->acc().num_sets();
-	      spot::scc_info m(res);
-	      unsigned c = m.scc_count();
-	      st->scc = c;
-	      st->nondetstates = spot::count_nondet_states(res);
-	      st->nondeterministic = st->nondetstates != 0;
-	      for (unsigned n = 0; n < c; ++n)
-		{
-		  if (m.is_rejecting_scc(n))
-		    ++st->nonacc_scc;
-		  else if (is_terminal_scc(m, n))
-		    ++st->terminal_scc;
-		  else if (is_weak_scc(m, n))
-		    ++st->weak_scc;
-		  else
-		    ++st->strong_scc;
-		}
-	      if (st->strong_scc)
-		st->strong_aut = true;
-	      else if (st->weak_scc)
-		st->weak_aut = true;
-	      else
-		st->terminal_aut = true;
-	      st->ambiguous = !spot::is_unambiguous(res);
-	      st->complete = spot::is_complete(res);
+          // Compute statistics.
+          if (res)
+            {
+              if (verbose)
+                std::cerr << "info: getting statistics\n";
+              st->ok = true;
+              spot::twa_sub_statistics s = sub_stats_reachable(res);
+              st->states = s.states;
+              st->edges = s.edges;
+              st->transitions = s.transitions;
+              st->acc = res->acc().num_sets();
+              spot::scc_info m(res);
+              unsigned c = m.scc_count();
+              st->scc = c;
+              st->nondetstates = spot::count_nondet_states(res);
+              st->nondeterministic = st->nondetstates != 0;
+              for (unsigned n = 0; n < c; ++n)
+                {
+                  if (m.is_rejecting_scc(n))
+                    ++st->nonacc_scc;
+                  else if (is_terminal_scc(m, n))
+                    ++st->terminal_scc;
+                  else if (is_weak_scc(m, n))
+                    ++st->weak_scc;
+                  else
+                    ++st->strong_scc;
+                }
+              if (st->strong_scc)
+                st->strong_aut = true;
+              else if (st->weak_scc)
+                st->weak_aut = true;
+              else
+                st->terminal_aut = true;
+              st->ambiguous = !spot::is_unambiguous(res);
+              st->complete = spot::is_complete(res);
 
-	      if (opt_automata)
-		{
-		  std::ostringstream os;
-		  spot::print_hoa(os, res, "l");
-		  st->hoa_str = os.str();
-		}
-	    }
-	}
+              if (opt_automata)
+                {
+                  std::ostringstream os;
+                  spot::print_hoa(os, res, "l");
+                  st->hoa_str = os.str();
+                }
+            }
+        }
       output.cleanup();
       return res;
     }
@@ -643,74 +643,74 @@ namespace
 
   static bool
   check_empty_prod(const spot::const_twa_graph_ptr& aut_i,
-		   const spot::const_twa_graph_ptr& aut_j,
-		   size_t i, size_t j, bool icomp, bool jcomp)
+                   const spot::const_twa_graph_ptr& aut_j,
+                   size_t i, size_t j, bool icomp, bool jcomp)
   {
     if (aut_i->num_sets() + aut_j->num_sets()
-	> 8 * sizeof(spot::acc_cond::mark_t::value_t))
+        > 8 * sizeof(spot::acc_cond::mark_t::value_t))
       {
-	// Report the skipped test if both automata are not
-	// complemented, or the --verbose option is used,
-	if (!verbose && (icomp || jcomp))
-	  return false;
-	std::cerr << "info: building ";
-	if (icomp)
-	  std::cerr << "Comp(N" << i << ')';
-	else
-	  std::cerr << 'P' << i;
-	if (jcomp)
-	  std::cerr << "*Comp(P" << j << ')';
-	else
-	  std::cerr << "*N" << j;
-	std::cerr << " requires more acceptance sets than supported\n";
-	return false;
+        // Report the skipped test if both automata are not
+        // complemented, or the --verbose option is used,
+        if (!verbose && (icomp || jcomp))
+          return false;
+        std::cerr << "info: building ";
+        if (icomp)
+          std::cerr << "Comp(N" << i << ')';
+        else
+          std::cerr << 'P' << i;
+        if (jcomp)
+          std::cerr << "*Comp(P" << j << ')';
+        else
+          std::cerr << "*N" << j;
+        std::cerr << " requires more acceptance sets than supported\n";
+        return false;
       }
 
     auto prod = spot::product(aut_i, aut_j);
 
     if (verbose)
       {
-	std::cerr << "info: check_empty ";
-	if (icomp)
-	  std::cerr << "Comp(N" << i << ')';
-	else
-	  std::cerr << 'P' << i;
-	if (jcomp)
-	  std::cerr << "*Comp(P" << j << ')';
-	else
-	  std::cerr << "*N" << j;
-	std::cerr << '\n';
+        std::cerr << "info: check_empty ";
+        if (icomp)
+          std::cerr << "Comp(N" << i << ')';
+        else
+          std::cerr << 'P' << i;
+        if (jcomp)
+          std::cerr << "*Comp(P" << j << ')';
+        else
+          std::cerr << "*N" << j;
+        std::cerr << '\n';
       }
 
     auto res = spot::couvreur99(prod)->check();
     if (res)
       {
-	std::ostream& err = global_error();
-	err << "error: ";
-	if (icomp)
-	  err << "Comp(N" << i << ')';
-	else
-	  err << 'P' << i;
-	if (jcomp)
-	  err << "*Comp(P" << j << ')';
-	else
-	  err << "*N" << j;
-	err << " is nonempty";
+        std::ostream& err = global_error();
+        err << "error: ";
+        if (icomp)
+          err << "Comp(N" << i << ')';
+        else
+          err << 'P' << i;
+        if (jcomp)
+          err << "*Comp(P" << j << ')';
+        else
+          err << "*N" << j;
+        err << " is nonempty";
 
-	auto run = res->accepting_run();
-	if (run)
-	  {
-	    std::cerr << "; both automata accept the infinite word\n"
-		      << "       ";
-	    spot::twa_word w(run->reduce());
-	    w.simplify();
-	    example() << w << '\n';
-	  }
-	else
-	  {
-	    std::cerr << '\n';
-	  }
-	end_error();
+        auto run = res->accepting_run();
+        if (run)
+          {
+            std::cerr << "; both automata accept the infinite word\n"
+                      << "       ";
+            spot::twa_word w(run->reduce());
+            w.simplify();
+            example() << w << '\n';
+          }
+        else
+          {
+            std::cerr << '\n';
+          }
+        end_error();
       }
     return !!res;
   }
@@ -721,18 +721,18 @@ namespace
     size_t m = maps.size();
     if (verbose)
       {
-	std::cerr << "info: cross_check {";
-	bool first = true;
-	for (size_t i = 0; i < m; ++i)
-	  if (maps[i])
-	    {
-	      if (first)
-		first = false;
-	      else
-		std::cerr << ',';
-	      std::cerr << l << i;
-	    }
-	std::cerr << "}, state-space #" << p << '/' << products << '\n';
+        std::cerr << "info: cross_check {";
+        bool first = true;
+        for (size_t i = 0; i < m; ++i)
+          if (maps[i])
+            {
+              if (first)
+                first = false;
+              else
+                std::cerr << ',';
+              std::cerr << l << i;
+            }
+        std::cerr << "}, state-space #" << p << '/' << products << '\n';
       }
 
     std::vector<bool> res(m);
@@ -740,53 +740,53 @@ namespace
     unsigned violated = 0;
     for (size_t i = 0; i < m; ++i)
       if (spot::scc_info* m = maps[i])
-	{
-	  // r == true iff the automaton i is accepting.
-	  bool r = false;
-	  for (auto& scc: *m)
-	    if (scc.is_accepting())
-	      {
-		r = true;
-		break;
-	      }
-	  res[i] = r;
-	  if (r)
-	    ++verified;
-	  else
-	    ++violated;
-	}
+        {
+          // r == true iff the automaton i is accepting.
+          bool r = false;
+          for (auto& scc: *m)
+            if (scc.is_accepting())
+              {
+                r = true;
+                break;
+              }
+          res[i] = r;
+          if (r)
+            ++verified;
+          else
+            ++violated;
+        }
     if (verified != 0 && violated != 0)
       {
-	std::ostream& err = global_error();
-	err << "error: {";
-	bool first = true;
-	for (size_t i = 0; i < m; ++i)
-	  if (maps[i] && res[i])
-	    {
-	      if (first)
-		first = false;
-	      else
-		err << ',';
-	      err << l << i;
-	    }
-	err << "} disagree with {";
-	first = true;
-	for (size_t i = 0; i < m; ++i)
-	  if (maps[i] && !res[i])
-	    {
-	      if (first)
-		first = false;
-	      else
-		err << ',';
-	      err << l << i;
-	    }
-	err << "} when evaluating ";
-	if (products > 1)
-	  err << "state-space #" << p << '/' << products << '\n';
-	else
-	  err << "the state-space\n";
-	end_error();
-	return true;
+        std::ostream& err = global_error();
+        err << "error: {";
+        bool first = true;
+        for (size_t i = 0; i < m; ++i)
+          if (maps[i] && res[i])
+            {
+              if (first)
+                first = false;
+              else
+                err << ',';
+              err << l << i;
+            }
+        err << "} disagree with {";
+        first = true;
+        for (size_t i = 0; i < m; ++i)
+          if (maps[i] && !res[i])
+            {
+              if (first)
+                first = false;
+              else
+                err << ',';
+              err << l << i;
+            }
+        err << "} when evaluating ";
+        if (products > 1)
+          err << "state-space #" << p << '/' << products << '\n';
+        else
+          err << "the state-space\n";
+        end_error();
+        return true;
       }
     return false;
   }
@@ -802,9 +802,9 @@ namespace
     auto ps = aut->get_named_prop<const spot::product_states>("product-states");
     for (auto& scc: *m)
       if (scc.is_accepting() || scc.is_trivial())
-	for (auto i: scc.states())
-	  // Get the projection on sspace.
-	  s.insert((*ps)[i].second);
+        for (auto i: scc.states())
+          // Get the projection on sspace.
+          s.insert((*ps)[i].second);
   }
 
   static bool
@@ -834,118 +834,118 @@ namespace
 
     int
     process_string(const std::string& input,
-		   const char* filename,
-		   int linenum)
+                   const char* filename,
+                   int linenum)
     {
       auto pf = parse_formula(input);
       if (!pf.f || !pf.errors.empty())
-	{
-	  if (filename)
-	    error_at_line(0, 0, filename, linenum, "parse error:");
-	  pf.format_errors(std::cerr);
-	  return 1;
-	}
+        {
+          if (filename)
+            error_at_line(0, 0, filename, linenum, "parse error:");
+          pf.format_errors(std::cerr);
+          return 1;
+        }
       auto f = pf.f;
 
       int res = process_formula(f, filename, linenum);
 
       if (res && bogus_output)
-	bogus_output->ostream() << input << std::endl;
+        bogus_output->ostream() << input << std::endl;
       if (res && grind_output)
-	{
-	  std::string bogus = input;
-	  std::vector<spot::formula> mutations;
-	  unsigned mutation_count;
-	  unsigned mutation_max;
-	  while	(res)
-	    {
-	      std::cerr << "Trying to find a bogus mutation of ";
-	      if (color_opt)
-		std::cerr << bright_blue;
-	      std::cerr << bogus;
-	      if (color_opt)
-		std::cerr << reset_color;
-	      std::cerr << "...\n";
+        {
+          std::string bogus = input;
+          std::vector<spot::formula> mutations;
+          unsigned mutation_count;
+          unsigned mutation_max;
+          while        (res)
+            {
+              std::cerr << "Trying to find a bogus mutation of ";
+              if (color_opt)
+                std::cerr << bright_blue;
+              std::cerr << bogus;
+              if (color_opt)
+                std::cerr << reset_color;
+              std::cerr << "...\n";
 
-	      mutations = mutate(f);
-	      mutation_count = 1;
-	      mutation_max = mutations.size();
-	      res = 0;
-	      for (auto g: mutations)
-		{
-		  std::cerr << "Mutation " << mutation_count << '/'
-			    << mutation_max << ": ";
-		  f = g;
-		  res = process_formula(g);
-		  if (res)
-		    break;
-		  ++mutation_count;
-		}
-	      if (res)
-		{
-		  if (lbt_input)
-		    bogus = spot::str_lbt_ltl(f);
-		  else
-		    bogus = spot::str_psl(f);
-		  if (bogus_output)
-		    bogus_output->ostream() << bogus << std::endl;
-		}
-	    }
-	  std::cerr << "Smallest bogus mutation found for ";
-	  if (color_opt)
-	    std::cerr << bright_blue;
-	  std::cerr << input;
-	  if (color_opt)
-	    std::cerr << reset_color;
-	  std::cerr << " is ";
-	  if (color_opt)
-	    std::cerr << bright_blue;
-	  std::cerr << bogus;
-	  if (color_opt)
-	    std::cerr << reset_color;
-	  std::cerr << ".\n\n";
-	  grind_output->ostream() << bogus << std::endl;
-	}
+              mutations = mutate(f);
+              mutation_count = 1;
+              mutation_max = mutations.size();
+              res = 0;
+              for (auto g: mutations)
+                {
+                  std::cerr << "Mutation " << mutation_count << '/'
+                            << mutation_max << ": ";
+                  f = g;
+                  res = process_formula(g);
+                  if (res)
+                    break;
+                  ++mutation_count;
+                }
+              if (res)
+                {
+                  if (lbt_input)
+                    bogus = spot::str_lbt_ltl(f);
+                  else
+                    bogus = spot::str_psl(f);
+                  if (bogus_output)
+                    bogus_output->ostream() << bogus << std::endl;
+                }
+            }
+          std::cerr << "Smallest bogus mutation found for ";
+          if (color_opt)
+            std::cerr << bright_blue;
+          std::cerr << input;
+          if (color_opt)
+            std::cerr << reset_color;
+          std::cerr << " is ";
+          if (color_opt)
+            std::cerr << bright_blue;
+          std::cerr << bogus;
+          if (color_opt)
+            std::cerr << reset_color;
+          std::cerr << ".\n\n";
+          grind_output->ostream() << bogus << std::endl;
+        }
       return 0;
     }
 
     void product_stats(statistics_formula* stats, unsigned i,
-			spot::scc_info* sm)
+                        spot::scc_info* sm)
     {
       if (verbose && sm)
-	std::cerr << "info:               " << sm->scc_count()
-		  << " SCCs\n";
+        std::cerr << "info:               " << sm->scc_count()
+                  << " SCCs\n";
       // Statistics
       if (want_stats)
-	{
-	  if (sm)
-	    {
-	      (*stats)[i].product_scc.push_back(sm->scc_count());
-	      spot::twa_statistics s = spot::stats_reachable(sm->get_aut());
-	      (*stats)[i].product_states.push_back(s.states);
-	      (*stats)[i].product_transitions.push_back(s.edges);
-	    }
-	  else
-	    {
-	      double n = nan("");
-	      (*stats)[i].product_scc.push_back(n);
-	      (*stats)[i].product_states.push_back(n);
-	      (*stats)[i].product_transitions.push_back(n);
-	    }
-	}
+        {
+          if (sm)
+            {
+              (*stats)[i].product_scc.push_back(sm->scc_count());
+              spot::twa_statistics s = spot::stats_reachable(sm->get_aut());
+              (*stats)[i].product_states.push_back(s.states);
+              (*stats)[i].product_transitions.push_back(s.edges);
+            }
+          else
+            {
+              double n = nan("");
+              (*stats)[i].product_scc.push_back(n);
+              (*stats)[i].product_states.push_back(n);
+              (*stats)[i].product_transitions.push_back(n);
+            }
+        }
     }
 
     int
     process_formula(spot::formula f,
-		    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0)
     {
       static unsigned round = 0;
 
       // If we need LBT atomic proposition in any of the input or
       // output, relabel the formula.
       if (!f.has_lbt_atomic_props() &&
-	  (runner.has('l') || runner.has('L') || runner.has('T')))
-	f = spot::relabel(f, spot::Pnn);
+          (runner.has('l') || runner.has('L') || runner.has('T')))
+        f = spot::relabel(f, spot::Pnn);
 
       // ---------- Positive Formula ----------
 
@@ -955,30 +955,30 @@ namespace
       // complains.
       std::string fstr = runner.formula();
       if (filename)
-	std::cerr << filename << ':';
+        std::cerr << filename << ':';
       if (linenum)
-	std::cerr << linenum << ':';
+        std::cerr << linenum << ':';
       if (filename || linenum)
-	std::cerr << ' ';
+        std::cerr << ' ';
       if (color_opt)
-	std::cerr << bright_blue;
+        std::cerr << bright_blue;
       std::cerr << fstr << '\n';
       if (color_opt)
-	std::cerr << reset_color;
+        std::cerr << reset_color;
 
       // Make sure we do not translate the same formula twice.
       if (!allow_dups)
-	{
-	  if (!unique_set.insert(f).second)
-	    {
-	      std::cerr
-		<< ("warning: This formula or its negation has already"
-		    " been checked.\n         Use --allow-dups if it "
-		    "should not be ignored.\n")
-		<< std::endl;
-	      return 0;
-	    }
-	}
+        {
+          if (!unique_set.insert(f).second)
+            {
+              std::cerr
+                << ("warning: This formula or its negation has already"
+                    " been checked.\n         Use --allow-dups if it "
+                    "should not be ignored.\n")
+                << std::endl;
+              return 0;
+            }
+        }
 
 
       int problems = 0;
@@ -1002,337 +1002,337 @@ namespace
       formulas.push_back(fstr);
 
       for (size_t n = 0; n < m; ++n)
-	{
-	  bool prob;
-	  pos[n] = runner.translate(n, 'P', pstats, prob);
-	  problems += prob;
+        {
+          bool prob;
+          pos[n] = runner.translate(n, 'P', pstats, prob);
+          problems += prob;
 
-	  // If the automaton is deterministic, compute its complement
-	  // as well.  Note that if we have computed statistics
-	  // already, there is no need to call is_deterministic()
-	  // again.
-	  if (!no_complement && pos[n]
-	      && ((want_stats && !(*pstats)[n].nondeterministic)
-		  || (!want_stats && is_deterministic(pos[n]))))
-	    comp_pos[n] = dtwa_complement(pos[n]);
-	}
+          // If the automaton is deterministic, compute its complement
+          // as well.  Note that if we have computed statistics
+          // already, there is no need to call is_deterministic()
+          // again.
+          if (!no_complement && pos[n]
+              && ((want_stats && !(*pstats)[n].nondeterministic)
+                  || (!want_stats && is_deterministic(pos[n]))))
+            comp_pos[n] = dtwa_complement(pos[n]);
+        }
 
       // ---------- Negative Formula ----------
 
       // The negative formula is only needed when checks are
       // activated.
       if (!no_checks)
-	{
-	  nstats = &vstats[n + 1];
-	  nstats->resize(m);
+        {
+          nstats = &vstats[n + 1];
+          nstats->resize(m);
 
-	  spot::formula nf = spot::formula::Not(f);
+          spot::formula nf = spot::formula::Not(f);
 
-	  if (!allow_dups)
-	    {
-	      bool res = unique_set.insert(nf).second;
-	      // It is not possible to discover that nf has already been
-	      // translated, otherwise that would mean that f had been
-	      // translated too and we would have caught it before.
-	      assert(res);
-	      (void) res;
-	    }
+          if (!allow_dups)
+            {
+              bool res = unique_set.insert(nf).second;
+              // It is not possible to discover that nf has already been
+              // translated, otherwise that would mean that f had been
+              // translated too and we would have caught it before.
+              assert(res);
+              (void) res;
+            }
 
-	  runner.round_formula(nf, round);
-	  formulas.push_back(runner.formula());
+          runner.round_formula(nf, round);
+          formulas.push_back(runner.formula());
 
-	  for (size_t n = 0; n < m; ++n)
-	    {
-	      bool prob;
-	      neg[n] = runner.translate(n, 'N', nstats, prob);
-	      problems += prob;
+          for (size_t n = 0; n < m; ++n)
+            {
+              bool prob;
+              neg[n] = runner.translate(n, 'N', nstats, prob);
+              problems += prob;
 
-	      // If the automaton is deterministic, compute its
-	      // complement as well.  Note that if we have computed
-	      // statistics already, there is no need to call
-	      // is_deterministic() again.
-	      if (!no_complement && neg[n]
-		  && ((want_stats && !(*nstats)[n].nondeterministic)
-		      || (!want_stats && is_deterministic(neg[n]))))
-		comp_neg[n] = dtwa_complement(neg[n]);
-	    }
-	}
+              // If the automaton is deterministic, compute its
+              // complement as well.  Note that if we have computed
+              // statistics already, there is no need to call
+              // is_deterministic() again.
+              if (!no_complement && neg[n]
+                  && ((want_stats && !(*nstats)[n].nondeterministic)
+                      || (!want_stats && is_deterministic(neg[n]))))
+                comp_neg[n] = dtwa_complement(neg[n]);
+            }
+        }
 
       spot::cleanup_tmpfiles();
       ++round;
 
       if (!no_checks)
-	{
-	  std::cerr << "Performing sanity checks and gathering statistics..."
-		    << std::endl;
+        {
+          std::cerr << "Performing sanity checks and gathering statistics..."
+                    << std::endl;
 
-	  auto printsize = [](const spot::const_twa_graph_ptr& aut)
-	    {
-	      std::cerr << aut->num_states() << " st.,"
+          auto printsize = [](const spot::const_twa_graph_ptr& aut)
+            {
+              std::cerr << aut->num_states() << " st.,"
                         << aut->num_edges() << " ed.,"
                         << aut->num_sets() << " sets";
-	    };
+            };
 
-	  if (determinize && !no_complement)
-	    {
-	      bool print_first = verbose;
-	      auto tmp = [&](std::vector<spot::twa_graph_ptr>& from,
-			     std::vector<spot::twa_graph_ptr>& to, unsigned i,
-			     char prefix)
-		{
-		  if (!to[i])
-		    {
-		      if (print_first)
-			{
-			  std::cerr << "info: complementing non-deterministic "
-			    "automata via determinization...\n";
-			  print_first = false;
-			}
-		      spot::postprocessor p;
-		      p.set_type(spot::postprocessor::Generic);
-		      p.set_pref(spot::postprocessor::Deterministic);
-		      p.set_level(spot::postprocessor::Low);
-		      to[i] = dtwa_complement(p.run(from[i]));
-		      if (verbose)
-			{
-			  std::cerr << "info:   " << prefix << i << "\t(";
-			  printsize(from[i]);
-			  std::cerr << ") -> (";
-			  printsize(to[i]);
-			  std::cerr << ")\tComp(" << prefix << i << ")\n";
-			}
-		    }
-		};
-	      for (unsigned i = 0; i < m; ++i)
-		{
-		  tmp(pos, comp_pos, i, 'P');
-		  tmp(neg, comp_neg, i, 'N');
-		}
-	    }
+          if (determinize && !no_complement)
+            {
+              bool print_first = verbose;
+              auto tmp = [&](std::vector<spot::twa_graph_ptr>& from,
+                             std::vector<spot::twa_graph_ptr>& to, unsigned i,
+                             char prefix)
+                {
+                  if (!to[i])
+                    {
+                      if (print_first)
+                        {
+                          std::cerr << "info: complementing non-deterministic "
+                            "automata via determinization...\n";
+                          print_first = false;
+                        }
+                      spot::postprocessor p;
+                      p.set_type(spot::postprocessor::Generic);
+                      p.set_pref(spot::postprocessor::Deterministic);
+                      p.set_level(spot::postprocessor::Low);
+                      to[i] = dtwa_complement(p.run(from[i]));
+                      if (verbose)
+                        {
+                          std::cerr << "info:   " << prefix << i << "\t(";
+                          printsize(from[i]);
+                          std::cerr << ") -> (";
+                          printsize(to[i]);
+                          std::cerr << ")\tComp(" << prefix << i << ")\n";
+                        }
+                    }
+                };
+              for (unsigned i = 0; i < m; ++i)
+                {
+                  tmp(pos, comp_pos, i, 'P');
+                  tmp(neg, comp_neg, i, 'N');
+                }
+            }
 
-	  bool print_first = verbose;
-	  auto tmp = [&](std::vector<spot::twa_graph_ptr>& x, unsigned i,
-			 const char* prefix, const char* suffix)
-	    {
-	      if (!x[i])
-		return;
-	      cleanup_acceptance_here(x[i]);
-	      if (x[i]->acc().uses_fin_acceptance())
-		{
-		  if (verbose)
-		    {
-		      if (print_first)
-			{
-			  std::cerr <<
-			    "info: getting rid of any Fin acceptance...\n";
-			  print_first = false;
-			}
-		      std::cerr << "info:\t" << prefix << i
-				<< suffix << "\t(";
-		      printsize(x[i]);
-		      std::cerr << ") ->";
-		    }
-		  x[i] = remove_fin(x[i]);
-		  if (verbose)
-		    {
-		      std::cerr << " (";
-		      printsize(x[i]);
-		      std::cerr << ")\n";
-		    }
-		}
-	    };
-	  for (unsigned i = 0; i < m; ++i)
-	    {
-	      tmp(pos, i, "     P", " ");
-	      tmp(neg, i, "     N", " ");
-	      tmp(comp_pos, i, "Comp(P", ")");
-	      tmp(comp_neg, i, "Comp(N", ")");
-	    }
+          bool print_first = verbose;
+          auto tmp = [&](std::vector<spot::twa_graph_ptr>& x, unsigned i,
+                         const char* prefix, const char* suffix)
+            {
+              if (!x[i])
+                return;
+              cleanup_acceptance_here(x[i]);
+              if (x[i]->acc().uses_fin_acceptance())
+                {
+                  if (verbose)
+                    {
+                      if (print_first)
+                        {
+                          std::cerr <<
+                            "info: getting rid of any Fin acceptance...\n";
+                          print_first = false;
+                        }
+                      std::cerr << "info:\t" << prefix << i
+                                << suffix << "\t(";
+                      printsize(x[i]);
+                      std::cerr << ") ->";
+                    }
+                  x[i] = remove_fin(x[i]);
+                  if (verbose)
+                    {
+                      std::cerr << " (";
+                      printsize(x[i]);
+                      std::cerr << ")\n";
+                    }
+                }
+            };
+          for (unsigned i = 0; i < m; ++i)
+            {
+              tmp(pos, i, "     P", " ");
+              tmp(neg, i, "     N", " ");
+              tmp(comp_pos, i, "Comp(P", ")");
+              tmp(comp_neg, i, "Comp(N", ")");
+            }
 
-	  // intersection test
-	  for (size_t i = 0; i < m; ++i)
-	    if (pos[i])
-	      for (size_t j = 0; j < m; ++j)
-		if (neg[j])
-		  {
-		    problems +=
-		      check_empty_prod(pos[i], neg[j], i, j, false, false);
+          // intersection test
+          for (size_t i = 0; i < m; ++i)
+            if (pos[i])
+              for (size_t j = 0; j < m; ++j)
+                if (neg[j])
+                  {
+                    problems +=
+                      check_empty_prod(pos[i], neg[j], i, j, false, false);
 
-		    // Deal with the extra complemented automata if we
-		    // have some.
+                    // Deal with the extra complemented automata if we
+                    // have some.
 
-		    // If comp_pos[j] and comp_neg[j] exist for the
-		    // same j, it means pos[j] and neg[j] were both
-		    // deterministic.  In that case, we will want to
-		    // make sure that comp_pos[j]*comp_neg[j] is empty
-		    // to assert the complementary of pos[j] and
-		    // neg[j].  However using comp_pos[j] and
-		    // comp_neg[j] against other translator will not
-		    // give us any more insight than pos[j] and
-		    // neg[j].  So we only do intersection checks with
-		    // a complement automata when one of the two
-		    // translation was not deterministic.
+                    // If comp_pos[j] and comp_neg[j] exist for the
+                    // same j, it means pos[j] and neg[j] were both
+                    // deterministic.  In that case, we will want to
+                    // make sure that comp_pos[j]*comp_neg[j] is empty
+                    // to assert the complementary of pos[j] and
+                    // neg[j].  However using comp_pos[j] and
+                    // comp_neg[j] against other translator will not
+                    // give us any more insight than pos[j] and
+                    // neg[j].  So we only do intersection checks with
+                    // a complement automata when one of the two
+                    // translation was not deterministic.
 
-		    if (i != j && comp_pos[j] && !comp_neg[j])
-		      problems +=
-			check_empty_prod(pos[i], comp_pos[j],
-					 i, j, false, true);
-		    if (i != j && comp_neg[i] && !comp_pos[i])
-		      problems +=
-			check_empty_prod(comp_neg[i], neg[j],
-					 i, j, true, false);
-		    if (comp_pos[i] && comp_neg[j] &&
-			(i == j || (!comp_neg[i] && !comp_pos[j])))
-		      problems +=
-			check_empty_prod(comp_pos[i], comp_neg[j],
-					 i, j, true, true);
-		  }
-	}
+                    if (i != j && comp_pos[j] && !comp_neg[j])
+                      problems +=
+                        check_empty_prod(pos[i], comp_pos[j],
+                                         i, j, false, true);
+                    if (i != j && comp_neg[i] && !comp_pos[i])
+                      problems +=
+                        check_empty_prod(comp_neg[i], neg[j],
+                                         i, j, true, false);
+                    if (comp_pos[i] && comp_neg[j] &&
+                        (i == j || (!comp_neg[i] && !comp_pos[j])))
+                      problems +=
+                        check_empty_prod(comp_pos[i], comp_neg[j],
+                                         i, j, true, true);
+                  }
+        }
       else
-	{
-	  std::cerr << "Gathering statistics..." << std::endl;
-	}
+        {
+          std::cerr << "Gathering statistics..." << std::endl;
+        }
 
       spot::atomic_prop_set* ap = spot::atomic_prop_collect(f);
 
       if (want_stats)
-	for (size_t i = 0; i < m; ++i)
-	  {
-	    (*pstats)[i].product_states.reserve(products);
-	    (*pstats)[i].product_transitions.reserve(products);
-	    (*pstats)[i].product_scc.reserve(products);
-	    if (neg[i])
-	      {
-		(*nstats)[i].product_states.reserve(products);
-		(*nstats)[i].product_transitions.reserve(products);
-		(*nstats)[i].product_scc.reserve(products);
-	      }
-	  }
+        for (size_t i = 0; i < m; ++i)
+          {
+            (*pstats)[i].product_states.reserve(products);
+            (*pstats)[i].product_transitions.reserve(products);
+            (*pstats)[i].product_scc.reserve(products);
+            if (neg[i])
+              {
+                (*nstats)[i].product_states.reserve(products);
+                (*nstats)[i].product_transitions.reserve(products);
+                (*nstats)[i].product_scc.reserve(products);
+              }
+          }
       for (unsigned p = 0; p < products; ++p)
-	{
-	  // build a random state-space.
-	  spot::srand(seed);
+        {
+          // build a random state-space.
+          spot::srand(seed);
 
-	  if (verbose)
-	    std::cerr << "info: building state-space #" << p << '/' << products
-		      << " of " << states  << " states with seed " << seed
-		      << '\n';
+          if (verbose)
+            std::cerr << "info: building state-space #" << p << '/' << products
+                      << " of " << states  << " states with seed " << seed
+                      << '\n';
 
-	  auto statespace = spot::random_graph(states, density, ap, dict);
+          auto statespace = spot::random_graph(states, density, ap, dict);
 
-	  if (verbose)
-	    std::cerr << "info: state-space has "
-		      << statespace->num_edges()
-		      << " edges\n";
+          if (verbose)
+            std::cerr << "info: state-space has "
+                      << statespace->num_edges()
+                      << " edges\n";
 
-	  // Associated SCC maps.
-	  std::vector<spot::scc_info*> pos_map(m);
-	  std::vector<spot::scc_info*> neg_map(m);
-	  for (size_t i = 0; i < m; ++i)
-	    if (pos[i])
-	      {
-		if (verbose)
-		  std::cerr << ("info: building product between state-space and"
-				" P") << i
-			    << " (" << pos[i]->num_states() << " st., "
-			    << pos[i]->num_edges() << " ed.)\n";
+          // Associated SCC maps.
+          std::vector<spot::scc_info*> pos_map(m);
+          std::vector<spot::scc_info*> neg_map(m);
+          for (size_t i = 0; i < m; ++i)
+            if (pos[i])
+              {
+                if (verbose)
+                  std::cerr << ("info: building product between state-space and"
+                                " P") << i
+                            << " (" << pos[i]->num_states() << " st., "
+                            << pos[i]->num_edges() << " ed.)\n";
 
-		spot::scc_info* sm = nullptr;
-		try
-		  {
-		    auto p = spot::product(pos[i], statespace);
-		    if (verbose)
-		      std::cerr << "info:   product has " << p->num_states()
-				<< " st., " << p->num_edges()
-				<< " ed.\n";
-		    sm = new spot::scc_info(p);
-		  }
-		catch (std::bad_alloc&)
-		  {
-		    std::cerr << ("warning: not enough memory to build "
-				  "product of P") << i << " with state-space";
-		    if (products > 1)
-		      std::cerr << " #" << p << '/' << products << '\n';
-		    std::cerr << '\n';
-		    ++oom_count;
-		  }
-		pos_map[i] = sm;
-		product_stats(pstats, i, sm);
-	      }
+                spot::scc_info* sm = nullptr;
+                try
+                  {
+                    auto p = spot::product(pos[i], statespace);
+                    if (verbose)
+                      std::cerr << "info:   product has " << p->num_states()
+                                << " st., " << p->num_edges()
+                                << " ed.\n";
+                    sm = new spot::scc_info(p);
+                  }
+                catch (std::bad_alloc&)
+                  {
+                    std::cerr << ("warning: not enough memory to build "
+                                  "product of P") << i << " with state-space";
+                    if (products > 1)
+                      std::cerr << " #" << p << '/' << products << '\n';
+                    std::cerr << '\n';
+                    ++oom_count;
+                  }
+                pos_map[i] = sm;
+                product_stats(pstats, i, sm);
+              }
 
-	  if (!no_checks)
-	    for (size_t i = 0; i < m; ++i)
-	      if (neg[i])
-		{
-		  if (verbose)
-		    std::cerr << ("info: building product between state-space"
-				  " and N") << i
-			      << " (" << neg[i]->num_states() << " st., "
-			      << neg[i]->num_edges() << " ed.)\n";
+          if (!no_checks)
+            for (size_t i = 0; i < m; ++i)
+              if (neg[i])
+                {
+                  if (verbose)
+                    std::cerr << ("info: building product between state-space"
+                                  " and N") << i
+                              << " (" << neg[i]->num_states() << " st., "
+                              << neg[i]->num_edges() << " ed.)\n";
 
-		  spot::scc_info* sm = nullptr;
-		  try
-		    {
-		      auto p = spot::product(neg[i], statespace);
-		      if (verbose)
-			std::cerr << "info:   product has " << p->num_states()
-				  << " st., " << p->num_edges()
-				  << " ed.\n";
-		      sm = new spot::scc_info(p);
-		    }
-		  catch (std::bad_alloc&)
-		    {
-		      std::cerr << ("warning: not enough memory to build "
-				    "product of N") << i << " with state-space";
-		      if (products > 1)
-			std::cerr << " #" << p << '/' << products << '\n';
-		      std::cerr << '\n';
-		      ++oom_count;
-		    }
+                  spot::scc_info* sm = nullptr;
+                  try
+                    {
+                      auto p = spot::product(neg[i], statespace);
+                      if (verbose)
+                        std::cerr << "info:   product has " << p->num_states()
+                                  << " st., " << p->num_edges()
+                                  << " ed.\n";
+                      sm = new spot::scc_info(p);
+                    }
+                  catch (std::bad_alloc&)
+                    {
+                      std::cerr << ("warning: not enough memory to build "
+                                    "product of N") << i << " with state-space";
+                      if (products > 1)
+                        std::cerr << " #" << p << '/' << products << '\n';
+                      std::cerr << '\n';
+                      ++oom_count;
+                    }
 
-		  neg_map[i] = sm;
-		  product_stats(nstats, i, sm);
-		}
+                  neg_map[i] = sm;
+                  product_stats(nstats, i, sm);
+                }
 
-	  if (!no_checks)
-	    {
-	      // cross-comparison test
-	      problems += cross_check(pos_map, 'P', p);
-	      problems += cross_check(neg_map, 'N', p);
+          if (!no_checks)
+            {
+              // cross-comparison test
+              problems += cross_check(pos_map, 'P', p);
+              problems += cross_check(neg_map, 'N', p);
 
-	      // consistency check
-	      for (size_t i = 0; i < m; ++i)
-		if (pos_map[i] && neg_map[i])
-		  {
-		    if (verbose)
-		      std::cerr << "info: consistency_check (P" << i
-				<< ",N" << i << "), state-space #"
-				<< p << '/' << products << '\n';
-		    if (!(consistency_check(pos_map[i], neg_map[i])))
-		      {
-			++problems;
+              // consistency check
+              for (size_t i = 0; i < m; ++i)
+                if (pos_map[i] && neg_map[i])
+                  {
+                    if (verbose)
+                      std::cerr << "info: consistency_check (P" << i
+                                << ",N" << i << "), state-space #"
+                                << p << '/' << products << '\n';
+                    if (!(consistency_check(pos_map[i], neg_map[i])))
+                      {
+                        ++problems;
 
-			std::ostream& err = global_error();
-			err << "error: inconsistency between P" << i
-			    << " and N" << i;
-			if (products > 1)
-			  err << " for state-space #" << p
-			      << '/' << products << '\n';
-			else
-			  err << '\n';
-			end_error();
-		      }
-		  }
-	    }
+                        std::ostream& err = global_error();
+                        err << "error: inconsistency between P" << i
+                            << " and N" << i;
+                        if (products > 1)
+                          err << " for state-space #" << p
+                              << '/' << products << '\n';
+                        else
+                          err << '\n';
+                        end_error();
+                      }
+                  }
+            }
 
-	  // Cleanup.
-	  if (!no_checks)
-	    for (size_t i = 0; i < m; ++i)
-	      delete neg_map[i];
-	  for (size_t i = 0; i < m; ++i)
-	    delete pos_map[i];
-	  ++seed;
-	}
+          // Cleanup.
+          if (!no_checks)
+            for (size_t i = 0; i < m; ++i)
+              delete neg_map[i];
+          for (size_t i = 0; i < m; ++i)
+            delete pos_map[i];
+          ++seed;
+        }
       std::cerr << std::endl;
       delete ap;
 
@@ -1368,15 +1368,15 @@ print_stats_csv(const char* filename)
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
       if (!opt_omit || vstats[r][t].ok)
-	{
-	  out << '"';
-	  spot::escape_rfc4180(out, formulas[r]);
-	  out << "\",\"";
-	  spot::escape_rfc4180(out, translators[t].name);
-	  out << "\",";
-	  vstats[r][t].to_csv(out, !opt_omit);
-	  out << '\n';
-	}
+        {
+          out << '"';
+          spot::escape_rfc4180(out, formulas[r]);
+          out << "\",\"";
+          spot::escape_rfc4180(out, translators[t].name);
+          out << "\",";
+          vstats[r][t].to_csv(out, !opt_omit);
+          out << '\n';
+        }
 }
 
 static void
@@ -1414,14 +1414,14 @@ print_stats_json(const char* filename)
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
       if (!opt_omit || vstats[r][t].ok)
-	{
-	  if (notfirst)
-	    out << ',';
-	  notfirst = true;
-	  out << "\n    [ " << r << ',' << t << ',';
-	  vstats[r][t].to_csv(out, !opt_omit, "null", false);
-	  out << " ]";
-	}
+        {
+          if (notfirst)
+            out << ',';
+          notfirst = true;
+          out << "\n    [ " << r << ',' << t << ',';
+          vstats[r][t].to_csv(out, !opt_omit, "null", false);
+          out << " ]";
+        }
   out << "\n  ]\n}\n";
 }
 
@@ -1431,7 +1431,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[COMMANDFMT...]",
-		    argp_program_doc, children, nullptr, nullptr };
+                    argp_program_doc, children, nullptr, nullptr };
 
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
@@ -1441,7 +1441,7 @@ main(int argc, char** argv)
 
   if (translators.empty())
     error(2, 0, "No translator to run?  Run '%s --help' for usage.",
-	  program_name);
+          program_name);
 
   if (color_opt == color_if_tty)
     color_opt = isatty(STDERR_FILENO) ? color_always : color_never;
@@ -1459,71 +1459,71 @@ main(int argc, char** argv)
   else
     {
       if (global_error_flag)
-	{
-	  std::ostream& err = global_error();
-	  if (bogus_output)
-	    err << ("error: some error was detected during the above runs.\n"
-		    "       Check file ")
-		<< bogus_output_filename
-		<< " for problematic formulas.";
-	  else
-	    err << ("error: some error was detected during the above runs,\n"
-		    "       please search for 'error:' messages in the above"
-		    " trace.");
-	  err << std::endl;
-	  end_error();
-	}
+        {
+          std::ostream& err = global_error();
+          if (bogus_output)
+            err << ("error: some error was detected during the above runs.\n"
+                    "       Check file ")
+                << bogus_output_filename
+                << " for problematic formulas.";
+          else
+            err << ("error: some error was detected during the above runs,\n"
+                    "       please search for 'error:' messages in the above"
+                    " trace.");
+          err << std::endl;
+          end_error();
+        }
       else if (timeout_count == 0 && ignored_exec_fail == 0 && oom_count == 0)
-	{
-	  std::cerr << "No problem detected." << std::endl;
-	}
+        {
+          std::cerr << "No problem detected." << std::endl;
+        }
       else
-	{
-	  std::cerr << "No major problem detected." << std::endl;
-	}
+        {
+          std::cerr << "No major problem detected." << std::endl;
+        }
 
       unsigned additional_errors = 0U;
       additional_errors += timeout_count > 0;
       additional_errors += ignored_exec_fail > 0;
       additional_errors += oom_count > 0;
       if (additional_errors)
-	{
-	  std::cerr << (global_error_flag ? "Additionally, " : "However, ");
-	  if (timeout_count)
-	    {
-	      if (additional_errors > 1)
-		std::cerr << "\n  - ";
-	      if (timeout_count == 1)
-		std::cerr << "1 timeout occurred";
-	      else
-		std::cerr << timeout_count << " timeouts occurred";
-	    }
+        {
+          std::cerr << (global_error_flag ? "Additionally, " : "However, ");
+          if (timeout_count)
+            {
+              if (additional_errors > 1)
+                std::cerr << "\n  - ";
+              if (timeout_count == 1)
+                std::cerr << "1 timeout occurred";
+              else
+                std::cerr << timeout_count << " timeouts occurred";
+            }
 
-	  if (oom_count)
-	    {
-	      if (additional_errors > 1)
-		std::cerr << "\n  - ";
-	      if (oom_count == 1)
-		std::cerr << "1 state-space product was";
-	      else
-		std::cerr << oom_count << "state-space products were";
-	      std::cerr << " skipped by lack of memory";
-	    }
+          if (oom_count)
+            {
+              if (additional_errors > 1)
+                std::cerr << "\n  - ";
+              if (oom_count == 1)
+                std::cerr << "1 state-space product was";
+              else
+                std::cerr << oom_count << "state-space products were";
+              std::cerr << " skipped by lack of memory";
+            }
 
-	  if (ignored_exec_fail)
-	    {
-	      if (additional_errors > 1)
-		std::cerr << "\n  - ";
-	      if (ignored_exec_fail == 1)
-		std::cerr << "1 non-zero exit status was ignored";
-	      else
-		std::cerr << ignored_exec_fail
-			  << " non-zero exit statuses were ignored";
-	    }
-	  if (additional_errors == 1)
-	    std::cerr << '.';
-	  std::cerr << std::endl;
-	}
+          if (ignored_exec_fail)
+            {
+              if (additional_errors > 1)
+                std::cerr << "\n  - ";
+              if (ignored_exec_fail == 1)
+                std::cerr << "1 non-zero exit status was ignored";
+              else
+                std::cerr << ignored_exec_fail
+                          << " non-zero exit statuses were ignored";
+            }
+          if (additional_errors == 1)
+            std::cerr << '.';
+          std::cerr << std::endl;
+        }
     }
 
   delete bogus_output;

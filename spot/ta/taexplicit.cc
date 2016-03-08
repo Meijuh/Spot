@@ -276,7 +276,7 @@ namespace spot
           bool is_stuttering_transition = (get_tgba_condition()
               == (dest)->get_tgba_condition());
           bool dest_is_livelock_accepting =
-	    dest->is_livelock_accepting_state();
+            dest->is_livelock_accepting_state();
 
           //Before deleting stuttering transitions, propaged back livelock
           //and initial state's properties
@@ -319,7 +319,7 @@ namespace spot
     // they are not cloned.
     if (trans)
       for (auto& t: *trans)
-	delete t;
+        delete t;
     delete trans;
 
     std::unordered_map<int, transitions*, std::hash<int> >::iterator i =
@@ -338,8 +338,8 @@ namespace spot
 
 
   ta_explicit::ta_explicit(const const_twa_ptr& tgba,
-			   unsigned n_acc,
-			   state_ta_explicit* artificial_initial_state):
+                           unsigned n_acc,
+                           state_ta_explicit* artificial_initial_state):
     ta(tgba->get_dict()),
     tgba_(tgba),
     artificial_initial_state_(artificial_initial_state)
@@ -351,7 +351,7 @@ namespace spot
       {
         auto is = add_state(artificial_initial_state);
         assert(is == artificial_initial_state);
-	(void)is;
+        (void)is;
       }
   }
 
@@ -361,8 +361,8 @@ namespace spot
     for (it = states_set_.begin(); it != states_set_.end(); ++it)
       {
         auto* s = const_cast<state_ta_explicit*>
-	  (down_cast<const state_ta_explicit*>(*it));
-	assert(s);
+          (down_cast<const state_ta_explicit*>(*it));
+        assert(s);
         s->free_transitions();
         s->get_tgba_state()->destroy();
         delete s;
@@ -390,11 +390,11 @@ namespace spot
     auto add_state = initial_states_set_.insert(s);
     if (get_artificial_initial_state())
       if (add_state.second)
-	{
-	  auto i =
-	    down_cast<state_ta_explicit*>(get_artificial_initial_state());
-	  create_transition(i, condition, 0U, s);
-	}
+        {
+          auto i =
+            down_cast<state_ta_explicit*>(get_artificial_initial_state());
+          create_transition(i, condition, 0U, s);
+        }
   }
 
   void
@@ -411,9 +411,9 @@ namespace spot
 
   void
   ta_explicit::create_transition(state_ta_explicit* source, bdd condition,
-				 acc_cond::mark_t acceptance_conditions,
-				 const state_ta_explicit* dest,
-				 bool add_at_beginning)
+                                 acc_cond::mark_t acceptance_conditions,
+                                 const state_ta_explicit* dest,
+                                 bool add_at_beginning)
   {
     state_ta_explicit::transition* t = new state_ta_explicit::transition;
     t->dest = dest;

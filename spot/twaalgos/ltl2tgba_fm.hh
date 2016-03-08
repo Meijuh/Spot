@@ -35,18 +35,18 @@ namespace spot
   /// This is based on the following paper.
   /** \verbatim
       @InProceedings{couvreur.99.fm,
-        author	  = {Jean-Michel Couvreur},
+        author    = {Jean-Michel Couvreur},
         title     = {On-the-fly Verification of Temporal Logic},
         pages     = {253--271},
-        editor	  = {Jeannette M. Wing and Jim Woodcock and Jim Davies},
+        editor          = {Jeannette M. Wing and Jim Woodcock and Jim Davies},
         booktitle = {Proceedings of the World Congress on Formal Methods in the
-      		     Development of Computing Systems (FM'99)},
+                           Development of Computing Systems (FM'99)},
         publisher = {Springer-Verlag},
-        series	  = {Lecture Notes in Computer Science},
-        volume	  = {1708},
+        series          = {Lecture Notes in Computer Science},
+        volume          = {1708},
         year      = {1999},
-        address	  = {Toulouse, France},
-        month	  = {September},
+        address          = {Toulouse, France},
+        month          = {September},
         isbn      = {3-540-66587-0}
       }
       \endverbatim */
@@ -71,18 +71,18 @@ namespace spot
   /// conditions) will be merged.  This correspond to an optimization
   /// described in the following paper.
   /** \verbatim
-      @InProceedings{	  sebastiani.03.charme,
-        author	  = {Roberto Sebastiani and Stefano Tonetta},
-        title	  = {"More Deterministic" vs. "Smaller" B{\"u}chi Automata for
-      		     Efficient LTL Model Checking},
+      @InProceedings{          sebastiani.03.charme,
+        author    = {Roberto Sebastiani and Stefano Tonetta},
+        title     = {"More Deterministic" vs. "Smaller" B{\"u}chi Automata for
+                           Efficient LTL Model Checking},
         booktitle = {Proceedings for the 12th Advanced Research Working
-      		     Conference on Correct Hardware Design and Verification
-      		     Methods (CHARME'03)},
+                       Conference on Correct Hardware Design and Verification
+                       Methods (CHARME'03)},
         pages     = {126--140},
         year      = {2003},
-        editor	  = {G. Goos and J. Hartmanis and J. van Leeuwen},
-        volume	  = {2860},
-        series	  = {Lectures Notes in Computer Science},
+        editor          = {G. Goos and J. Hartmanis and J. van Leeuwen},
+        volume          = {2860},
+        series          = {Lectures Notes in Computer Science},
         month     = {October},
         publisher = {Springer-Verlag}
       }
@@ -104,36 +104,36 @@ namespace spot
   /// spot::tl_simplifier.  This idea is taken from the
   /// following paper.
   /** \verbatim
-      @InProceedings{	  thirioux.02.fmics,
-        author	  = {Xavier Thirioux},
+      @InProceedings{          thirioux.02.fmics,
+        author    = {Xavier Thirioux},
         title     = {Simple and Efficient Translation from {LTL} Formulas to
-      		    {B\"u}chi Automata},
+                       {B\"u}chi Automata},
         booktitle = {Proceedings of the 7th International ERCIM Workshop in
-      		     Formal Methods for Industrial Critical Systems (FMICS'02)},
-        series	  = {Electronic Notes in Theoretical Computer Science},
-        volume	  = {66(2)},
+                     Formal Methods for Industrial Critical Systems (FMICS'02)},
+        series    = {Electronic Notes in Theoretical Computer Science},
+        volume    = {66(2)},
         publisher = {Elsevier},
-        editor	  = {Rance Cleaveland and Hubert Garavel},
+        editor    = {Rance Cleaveland and Hubert Garavel},
         year      = {2002},
         month     = jul,
-        address	  = {M{\'a}laga, Spain}
+        address   = {M{\'a}laga, Spain}
       }
       \endverbatim */
   ///
   /// \param unambiguous When true, unambigous TGBA will be produced using
   /// the trick described in the following paper.
   /** \verbatim
-      @InProceedings{	  benedikt.13.tacas,
-        author	  = {Michael Benedikt and Rastislav Lenhardt and James
-      		     Worrell},
+      @InProceedings{          benedikt.13.tacas,
+        author    = {Michael Benedikt and Rastislav Lenhardt and James
+                       Worrell},
         title     = {{LTL} Model Checking of Interval Markov Chains},
         booktitle = {19th International Conference on Tools and Algorithms for
-      		     the Construction and Analysis of Systems (TACAS'13)},
+                           the Construction and Analysis of Systems (TACAS'13)},
         year      = {2013},
         pages     = {32--46},
-        series	  = {Lecture Notes in Computer Science},
-        volume	  = {7795},
-        editor	  = {Nir Piterman and Scott A. Smolka},
+        series    = {Lecture Notes in Computer Science},
+        volume    = {7795},
+        editor    = {Nir Piterman and Scott A. Smolka},
         publisher = {Springer}
       }
       \endverbatim */
@@ -141,10 +141,10 @@ namespace spot
   /// \return A spot::twa_graph that recognizes the language of \a f.
   SPOT_API twa_graph_ptr
   ltl_to_tgba_fm(formula f, const bdd_dict_ptr& dict,
-		 bool exprop = false, bool symb_merge = true,
-		 bool branching_postponement = false,
-		 bool fair_loop_approx = false,
-		 const atomic_prop_set* unobs = nullptr,
-		 tl_simplifier* simplifier = nullptr,
-		 bool unambiguous = false);
+                 bool exprop = false, bool symb_merge = true,
+                 bool branching_postponement = false,
+                 bool fair_loop_approx = false,
+                 const atomic_prop_set* unobs = nullptr,
+                 tl_simplifier* simplifier = nullptr,
+                 bool unambiguous = false);
 }

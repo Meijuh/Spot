@@ -32,12 +32,12 @@ namespace spot
   {
     // Bare words cannot be empty and should start with a letter.
     if (!*str
-	|| !(isalpha(*str) || *str == '_' || *str == '.'))
+        || !(isalpha(*str) || *str == '_' || *str == '.'))
       return false;
     // The remaining of the word must be alphanumeric.
     while (*++str)
       if (!(isalnum(*str) || *str == '_' || *str == '.'))
-	return false;
+        return false;
     return true;
   }
 
@@ -58,7 +58,7 @@ namespace spot
       return false;
     while (*++str)
       if (!(isalnum(*str) || *str == '_'))
-	return false;
+        return false;
     return true;
   }
 

@@ -55,8 +55,8 @@ namespace spot
 
   SPOT_API bool
   is_stutter_invariant(twa_graph_ptr&& aut_f,
-		       twa_graph_ptr&& aut_nf, bdd aps,
-		       int algo = 0);
+                       twa_graph_ptr&& aut_nf, bdd aps,
+                       int algo = 0);
 
   /// \brief Check whether \a aut is stutter-invariant
   ///
@@ -68,5 +68,5 @@ namespace spot
   /// the result will be returned as trival::maybe().
   SPOT_API trival
   check_stutter_invariance(const twa_graph_ptr& aut,
-			   formula f = nullptr);
+                           formula f = nullptr);
 }

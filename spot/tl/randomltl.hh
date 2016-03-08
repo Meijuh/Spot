@@ -44,7 +44,7 @@ namespace spot
   {
   public:
     random_formula(unsigned proba_size,
-		   const atomic_prop_set* ap):
+                   const atomic_prop_set* ap):
       proba_size_(proba_size), proba_(new op_proba[proba_size_]), ap_(ap)
     {
     }
@@ -125,23 +125,23 @@ namespace spot
     /// The default priorities are defined as follows:
     ///
     /** \verbatim
-	ap      n
-	false   1
-	true    1
-	not     1
-	F       1
-	G       1
-	X       1
-	equiv   1
-	implies 1
-	xor     1
-	R       1
-	U       1
-	W       1
-	M       1
-	and     1
-	or      1
-	\endverbatim */
+        ap      n
+        false   1
+        true    1
+        not     1
+        F       1
+        G       1
+        X       1
+        equiv   1
+        implies 1
+        xor     1
+        R       1
+        U       1
+        W       1
+        M       1
+        and     1
+        or      1
+        \endverbatim */
     ///
     /// Where \c n is the number of atomic propositions in the
     /// set passed to the constructor.
@@ -176,16 +176,16 @@ namespace spot
     /// The default priorities are defined as follows:
     ///
     /** \verbatim
-	ap      n
-	false   1
-	true    1
-	not     1
-	equiv   1
-	implies 1
-	xor     1
-	and     1
-	or      1
-	\endverbatim */
+        ap      n
+        false   1
+        true    1
+        not     1
+        equiv   1
+        implies 1
+        xor     1
+        and     1
+        or      1
+        \endverbatim */
     ///
     /// Where \c n is the number of atomic propositions in the
     /// set passed to the constructor.
@@ -215,18 +215,18 @@ namespace spot
     /// The default priorities are defined as follows:
     ///
     /** \verbatim
-	eword    1
-	boolform 1
-	star     1
-	star_b   1
-	equal_b  1
-	goto_b   1
-	and      1
-	andNLM   1
-	or       1
-	concat   1
-	fusion   1
-	\endverbatim */
+        eword    1
+        boolform 1
+        star     1
+        star_b   1
+        equal_b  1
+        goto_b   1
+        and      1
+        andNLM   1
+        or       1
+        concat   1
+        fusion   1
+        \endverbatim */
     ///
     /// Where "boolfrom" designates a Boolean formula generated
     /// by random_boolean.
@@ -260,26 +260,26 @@ namespace spot
     /// The default priorities are defined as follows:
     ///
     /** \verbatim
-	ap      n
-	false   1
-	true    1
-	not     1
-	F       1
-	G       1
-	X       1
-	Closure 1
-	equiv   1
-	implies 1
-	xor     1
-	R       1
-	U       1
-	W       1
-	M       1
-	and     1
-	or      1
-	EConcat 1
-	UConcat 1
-	\endverbatim */
+        ap      n
+        false   1
+        true    1
+        not     1
+        F       1
+        G       1
+        X       1
+        Closure 1
+        equiv   1
+        implies 1
+        xor     1
+        R       1
+        U       1
+        W       1
+        M       1
+        and     1
+        or      1
+        EConcat 1
+        UConcat 1
+        \endverbatim */
     ///
     /// Where \c n is the number of atomic propositions in the
     /// set passed to the constructor.
@@ -306,14 +306,14 @@ namespace spot
 
   public:
     randltlgenerator(int aprops_n, const option_map& opts,
-		     char* opt_pL = nullptr,
-		     char* opt_pS = nullptr,
-		     char* opt_pB = nullptr);
+                     char* opt_pL = nullptr,
+                     char* opt_pS = nullptr,
+                     char* opt_pB = nullptr);
 
     randltlgenerator(atomic_prop_set aprops, const option_map& opts,
-		     char* opt_pL = nullptr,
-		     char* opt_pS = nullptr,
-		     char* opt_pB = nullptr);
+                     char* opt_pL = nullptr,
+                     char* opt_pS = nullptr,
+                     char* opt_pB = nullptr);
 
     ~randltlgenerator();
 

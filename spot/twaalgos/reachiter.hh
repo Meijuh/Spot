@@ -84,13 +84,13 @@ namespace spot
     /// spot::twa_reachable_iterator instance and destroyed when the
     /// instance is destroyed.
     virtual void process_link(const state* in_s, int in,
-			      const state* out_s, int out,
-			      const twa_succ_iterator* si);
+                              const state* out_s, int out,
+                              const twa_succ_iterator* si);
 
   protected:
-    const_twa_ptr aut_;	///< The spot::tgba to explore.
+    const_twa_ptr aut_;        ///< The spot::tgba to explore.
 
-    state_map<int> seen;	///< States already seen.
+    state_map<int> seen;        ///< States already seen.
   };
 
   /// \ingroup twa_generic
@@ -152,13 +152,13 @@ namespace spot
     /// spot::twa_reachable_iterator instance and destroyed when the
     /// instance is destroyed.
     virtual void process_link(const state* in_s, int in,
-			      const state* out_s, int out,
-			      const twa_succ_iterator* si);
+                              const state* out_s, int out,
+                              const twa_succ_iterator* si);
 
   protected:
-    const_twa_ptr aut_;		///< The spot::tgba to explore.
+    const_twa_ptr aut_;                ///< The spot::tgba to explore.
 
-    state_map<int> seen;	///< States already seen.
+    state_map<int> seen;        ///< States already seen.
     struct stack_item
     {
       const state* src;

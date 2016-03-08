@@ -33,9 +33,9 @@ namespace spot
       std::ostringstream out;
       out << "unexpected ";
       if (isprint(*pos))
-	out << '\'' << *pos << '\'';
+        out << '\'' << *pos << '\'';
       else
-	out << "character";
+        out << "character";
       out << " at position " << pos - arg << " in '";
       out << arg << '\'';
       throw std::invalid_argument(out.str());
@@ -48,77 +48,77 @@ namespace spot
     auto start = arg;
     while (*start)
       {
-	while (*start == ' ' || *start == '\t')
-	  ++start;
-	if (!*start)
-	  break;
-	if (*start == ',' || *start == '=')
-	  unexpected_char(arg, start);
-	formula the_ap = nullptr;
+        while (*start == ' ' || *start == '\t')
+          ++start;
+        if (!*start)
+          break;
+        if (*start == ',' || *start == '=')
+          unexpected_char(arg, start);
+        formula the_ap = nullptr;
 
-	if (*start == '"')
-	  {
-	    auto end = ++start;
-	    while (*end && *end != '"')
-	      {
-		if (*end == '\\')
-		  ++end;
-		++end;
-	      }
-	    if (!*end)
-	      {
-		std::string s = "missing closing '\"' in ";
-		s += arg;
-		throw std::invalid_argument(s);
-	      }
-	    std::string ap(start, end - start);
-	    the_ap = formula::ap(ap);
-	    do
-	      ++end;
-	    while (*end == ' ' || *end == '\t');
-	    start = end;
-	  }
-	else
-	  {
-	    auto end = start;
-	    while (*end && *end != ',' && *end != '=')
-	      ++end;
-	    auto rend = end;
-	    while (rend > start && (rend[-1] == ' ' || rend[-1] == '\t'))
-	      --rend;
-	    std::string ap(start, rend - start);
-	    the_ap = formula::ap(ap);
-	    start = end;
-	  }
-	if (*start)
-	  {
-	    if (!(*start == ',' || *start == '='))
-	      unexpected_char(arg, start);
-	    if (*start == '=')
-	      {
-		do
-		  ++start;
-		while (*start == ' ' || *start == '\t');
-		if (*start == '0')
-		  props_neg.insert(the_ap);
-		else if (*start == '1')
-		  props_pos.insert(the_ap);
-		else
-		  unexpected_char(arg, start);
-		the_ap = nullptr;
-		do
-		  ++start;
-		while (*start == ' ' || *start == '\t');
-	      }
-	    if (*start)
-	      {
-		if (*start != ',')
-		  unexpected_char(arg, start);
-		++start;
-	      }
-	  }
-	if (the_ap)
-	  props_exist.insert(the_ap);
+        if (*start == '"')
+          {
+            auto end = ++start;
+            while (*end && *end != '"')
+              {
+                if (*end == '\\')
+                  ++end;
+                ++end;
+              }
+            if (!*end)
+              {
+                std::string s = "missing closing '\"' in ";
+                s += arg;
+                throw std::invalid_argument(s);
+              }
+            std::string ap(start, end - start);
+            the_ap = formula::ap(ap);
+            do
+              ++end;
+            while (*end == ' ' || *end == '\t');
+            start = end;
+          }
+        else
+          {
+            auto end = start;
+            while (*end && *end != ',' && *end != '=')
+              ++end;
+            auto rend = end;
+            while (rend > start && (rend[-1] == ' ' || rend[-1] == '\t'))
+              --rend;
+            std::string ap(start, rend - start);
+            the_ap = formula::ap(ap);
+            start = end;
+          }
+        if (*start)
+          {
+            if (!(*start == ',' || *start == '='))
+              unexpected_char(arg, start);
+            if (*start == '=')
+              {
+                do
+                  ++start;
+                while (*start == ' ' || *start == '\t');
+                if (*start == '0')
+                  props_neg.insert(the_ap);
+                else if (*start == '1')
+                  props_pos.insert(the_ap);
+                else
+                  unexpected_char(arg, start);
+                the_ap = nullptr;
+                do
+                  ++start;
+                while (*start == ' ' || *start == '\t');
+              }
+            if (*start)
+              {
+                if (*start != ',')
+                  unexpected_char(arg, start);
+                ++start;
+              }
+          }
+        if (the_ap)
+          props_exist.insert(the_ap);
       }
   }
 
@@ -135,37 +135,37 @@ namespace spot
 
     for (auto ap: props_exist)
       {
-	int v = d->has_registered_proposition(ap, aut);
-	if (v >= 0)
-	  {
-	    exist &= bdd_ithvar(v);
-	    d->unregister_variable(v, res);
-	  }
+        int v = d->has_registered_proposition(ap, aut);
+        if (v >= 0)
+          {
+            exist &= bdd_ithvar(v);
+            d->unregister_variable(v, res);
+          }
       }
     for (auto ap: props_pos)
       {
-	int v = d->has_registered_proposition(ap, aut);
-	if (v >= 0)
-	  {
-	    restrict &= bdd_ithvar(v);
-	    d->unregister_variable(v, res);
-	  }
+        int v = d->has_registered_proposition(ap, aut);
+        if (v >= 0)
+          {
+            restrict &= bdd_ithvar(v);
+            d->unregister_variable(v, res);
+          }
       }
     for (auto ap: props_neg)
       {
-	int v = d->has_registered_proposition(ap, aut);
-	if (v >= 0)
-	  {
-	    restrict &= bdd_nithvar(v);
-	    d->unregister_variable(v, res);
-	  }
+        int v = d->has_registered_proposition(ap, aut);
+        if (v >= 0)
+          {
+            restrict &= bdd_nithvar(v);
+            d->unregister_variable(v, res);
+          }
       }
 
     transform_accessible(aut, res, [&](unsigned, bdd& cond,
-				       acc_cond::mark_t&, unsigned)
+                                       acc_cond::mark_t&, unsigned)
                          {
-			   cond = bdd_restrict(bdd_exist(cond, exist),
-					       restrict);
+                           cond = bdd_restrict(bdd_exist(cond, exist),
+                                               restrict);
                          });
     return res;
   }

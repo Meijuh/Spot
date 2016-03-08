@@ -93,9 +93,9 @@
 
 // The extra parentheses in assert() is so that this
 // pattern is not caught by the style checker.
-#define SPOT_UNREACHABLE() do {			\
-     assert(!("unreachable code reached"));	\
-     SPOT_UNREACHABLE_BUILTIN();		\
+#define SPOT_UNREACHABLE() do {                        \
+     assert(!("unreachable code reached"));        \
+     SPOT_UNREACHABLE_BUILTIN();                \
    } while (0)
 
 #define SPOT_UNIMPLEMENTED() throw std::runtime_error("unimplemented");

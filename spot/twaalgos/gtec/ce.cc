@@ -32,8 +32,8 @@ namespace spot
     {
     public:
       shortest_path(const state_set* t,
-		    const std::shared_ptr<const couvreur99_check_status>& ecs,
-		    couvreur99_check_result* r)
+                    const std::shared_ptr<const couvreur99_check_status>& ecs,
+                    couvreur99_check_result* r)
         : bfs_steps(ecs->aut), target(t), ecs(ecs), r(r)
       {
       }
@@ -41,22 +41,22 @@ namespace spot
       const state*
       search(const state* start, twa_run::steps& l)
       {
-	return this->bfs_steps::search(filter(start), l);
+        return this->bfs_steps::search(filter(start), l);
       }
 
       const state*
       filter(const state* s)
       {
-	r->inc_ars_prefix_states();
-	auto i = ecs->h.find(s);
-	s->destroy();
-	// Ignore unknown states ...
-	if (i == ecs->h.end())
-	  return nullptr;
-	// ... as well as dead states.
-	if (i->second == -1)
-	  return nullptr;
-	return i->first;
+        r->inc_ars_prefix_states();
+        auto i = ecs->h.find(s);
+        s->destroy();
+        // Ignore unknown states ...
+        if (i == ecs->h.end())
+          return nullptr;
+        // ... as well as dead states.
+        if (i->second == -1)
+          return nullptr;
+        return i->first;
       }
 
       bool
@@ -87,7 +87,7 @@ namespace spot
     unsigned count = 0;
     for (auto i: ecs_->h)
       if (i.second >= scc_root)
-	++count;
+        ++count;
     return count;
   }
 
@@ -107,7 +107,7 @@ namespace spot
     // Register all states from the cycle as target of the BFS.
     state_set ss;
     for (twa_run::steps::const_iterator i = run_->cycle.begin();
-	 i != run_->cycle.end(); ++i)
+         i != run_->cycle.end(); ++i)
       ss.insert(i->s);
     shortest_path shpath(&ss, ecs_, this);
 
@@ -121,27 +121,27 @@ namespace spot
     state_set::const_iterator ps = ss.find(prefix_start);
     if (ps != ss.end())
       {
-	// The initial state is on the cycle.
-	prefix_start->destroy();
-	cycle_entry_point = *ps;
+        // The initial state is on the cycle.
+        prefix_start->destroy();
+        cycle_entry_point = *ps;
       }
     else
       {
-	// This initial state is outside the cycle.  Compute the prefix.
+        // This initial state is outside the cycle.  Compute the prefix.
         cycle_entry_point = shpath.search(prefix_start, run_->prefix);
       }
 
     // Locate cycle_entry_point on the cycle.
     twa_run::steps::iterator cycle_ep_it;
     for (cycle_ep_it = run_->cycle.begin();
-	 cycle_ep_it != run_->cycle.end()
-	   && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)
+         cycle_ep_it != run_->cycle.end()
+           && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)
       continue;
     assert(cycle_ep_it != run_->cycle.end());
 
     // Now shift the cycle so it starts on cycle_entry_point.
     run_->cycle.splice(run_->cycle.end(), run_->cycle,
-		       run_->cycle.begin(), cycle_ep_it);
+                       run_->cycle.begin(), cycle_ep_it);
 
     return run_;
   }
@@ -157,68 +157,68 @@ namespace spot
     //
     // This idea is taken from Product<T>::findWitness in LBTT 1.1.2,
     // which in turn is probably inspired from
-    // @Article{	  latvala.00.fi,
-    //   author	= {Timo Latvala and Keijo Heljanko},
-    //   title		= {Coping With Strong Fairness},
-    //   journal	= {Fundamenta Informaticae},
-    //   year		= {2000},
-    //   volume	= {43},
-    //   number	= {1--4},
-    //   pages		= {1--19},
-    //   publisher	= {IOS Press}
+    // @Article{          latvala.00.fi,
+    //   author        = {Timo Latvala and Keijo Heljanko},
+    //   title                = {Coping With Strong Fairness},
+    //   journal        = {Fundamenta Informaticae},
+    //   year                = {2000},
+    //   volume        = {43},
+    //   number        = {1--4},
+    //   pages                = {1--19},
+    //   publisher        = {IOS Press}
     // }
     const state* substart = ecs_->cycle_seed;
     do
       {
-	struct scc_bfs final: bfs_steps
-	{
-	  const couvreur99_check_status* ecs;
-	  couvreur99_check_result* r;
-	  acc_cond::mark_t& acc_to_traverse;
-	  int scc_root;
+        struct scc_bfs final: bfs_steps
+        {
+          const couvreur99_check_status* ecs;
+          couvreur99_check_result* r;
+          acc_cond::mark_t& acc_to_traverse;
+          int scc_root;
 
-	  scc_bfs(const couvreur99_check_status* ecs,
-		  couvreur99_check_result* r, acc_cond::mark_t& acc_to_traverse)
-	    : bfs_steps(ecs->aut), ecs(ecs), r(r),
-	      acc_to_traverse(acc_to_traverse),
-	      scc_root(ecs->root.top().index)
-	  {
-	  }
+          scc_bfs(const couvreur99_check_status* ecs,
+                  couvreur99_check_result* r, acc_cond::mark_t& acc_to_traverse)
+            : bfs_steps(ecs->aut), ecs(ecs), r(r),
+              acc_to_traverse(acc_to_traverse),
+              scc_root(ecs->root.top().index)
+          {
+          }
 
-	  virtual const state*
-	  filter(const state* s) override
-	  {
-	    auto i = ecs->h.find(s);
-	    s->destroy();
-	    // Ignore unknown states.
-	    if (i == ecs->h.end())
-	      return nullptr;
-	    // Stay in the final SCC.
-	    if (i->second < scc_root)
-	      return nullptr;
-	    r->inc_ars_cycle_states();
-	    return i->first;
-	  }
+          virtual const state*
+          filter(const state* s) override
+          {
+            auto i = ecs->h.find(s);
+            s->destroy();
+            // Ignore unknown states.
+            if (i == ecs->h.end())
+              return nullptr;
+            // Stay in the final SCC.
+            if (i->second < scc_root)
+              return nullptr;
+            r->inc_ars_cycle_states();
+            return i->first;
+          }
 
-	  virtual bool
-	  match(twa_run::step& st, const state* s) override
-	  {
-	    acc_cond::mark_t less_acc =
-	      acc_to_traverse - st.acc;
-	    if (less_acc != acc_to_traverse
-		|| (acc_to_traverse == 0U
-		    && s == ecs->cycle_seed))
-	      {
-		acc_to_traverse = less_acc;
-		return true;
-	      }
-	    return false;
-	  }
+          virtual bool
+          match(twa_run::step& st, const state* s) override
+          {
+            acc_cond::mark_t less_acc =
+              acc_to_traverse - st.acc;
+            if (less_acc != acc_to_traverse
+                || (acc_to_traverse == 0U
+                    && s == ecs->cycle_seed))
+              {
+                acc_to_traverse = less_acc;
+                return true;
+              }
+            return false;
+          }
 
-	} b(ecs_.get(), this, acc_to_traverse);
+        } b(ecs_.get(), this, acc_to_traverse);
 
-	substart = b.search(substart, run_->cycle);
-	assert(substart);
+        substart = b.search(substart, run_->cycle);
+        assert(substart);
       }
     while (acc_to_traverse != 0U || substart != ecs_->cycle_seed);
   }

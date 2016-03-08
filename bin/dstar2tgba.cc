@@ -89,9 +89,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'x':
       {
-	const char* opt = extra_options.parse_options(arg);
-	if (opt)
-	  error(2, 0, "failed to parse --options near '%s'", opt);
+        const char* opt = extra_options.parse_options(arg);
+        if (opt)
+          error(2, 0, "failed to parse --options near '%s'", opt);
       }
       break;
     case ARGP_KEY_ARG:
@@ -125,7 +125,7 @@ namespace
 
     int
     process_automaton(const spot::const_parsed_aut_ptr& haut,
-		      const char* filename)
+                      const char* filename)
     {
       spot::stopwatch sw;
       sw.start();
@@ -151,19 +151,19 @@ namespace
       auto hp = spot::automaton_stream_parser(filename, opt_parse);
       int err = 0;
       while (!abort_run)
-	{
-	  auto haut = hp.parse(spot::make_bdd_dict());
-	  if (!haut->aut && haut->errors.empty())
-	    break;
-	  if (haut->format_errors(std::cerr))
-	    err = 2;
-	  if (!haut->aut)
-	    error(2, 0, "failed to read automaton from %s", filename);
-	  else if (haut->aborted)
-	    err = std::max(err, aborted(haut, filename));
-	  else
+        {
+          auto haut = hp.parse(spot::make_bdd_dict());
+          if (!haut->aut && haut->errors.empty())
+            break;
+          if (haut->format_errors(std::cerr))
+            err = 2;
+          if (!haut->aut)
+            error(2, 0, "failed to read automaton from %s", filename);
+          else if (haut->aborted)
+            err = std::max(err, aborted(haut, filename));
+          else
             process_automaton(haut, filename);
-	}
+        }
       return err;
     }
   };
@@ -175,7 +175,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FILENAMES...]",
-		    argp_program_doc, children, nullptr, nullptr };
+                    argp_program_doc, children, nullptr, nullptr };
 
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
@@ -192,7 +192,7 @@ main(int argc, char** argv)
     {
       dstar_processor processor(post);
       if (processor.run())
-	return 2;
+        return 2;
     }
   catch (const std::runtime_error& e)
     {

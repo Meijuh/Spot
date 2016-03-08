@@ -91,8 +91,8 @@ namespace spot
         inc_states();
         h.add_new_state(s0, BLUE);
         push(st_blue, s0, bddfalse, 0U);
-	auto t = std::static_pointer_cast<tau03_search>
-	  (this->emptiness_check::shared_from_this());
+        auto t = std::static_pointer_cast<tau03_search>
+          (this->emptiness_check::shared_from_this());
         if (dfs_blue())
           return std::make_shared<ndfs_result<tau03_search<heap>, heap>>(t);
         return nullptr;
@@ -123,7 +123,7 @@ namespace spot
 
     private:
       void push(stack_type& st, const state* s,
-		const bdd& label, acc_cond::mark_t acc)
+                const bdd& label, acc_cond::mark_t acc)
       {
         inc_depth();
         twa_succ_iterator* i = a_->succ_iter(s);
@@ -187,7 +187,7 @@ namespace spot
                       << std::endl;
                 typename heap::color_ref c = h.get_color_ref(f.s);
                 assert(!c.is_white());
-		for (auto i: a_->succ(f.s))
+                for (auto i: a_->succ(f.s))
                   {
                    inc_transitions();
                    const state *s_prime = i->dst();
@@ -198,7 +198,7 @@ namespace spot
                     auto acc = i->acc();
                     typename heap::color_ref c_prime = h.get_color_ref(s_prime);
                     assert(!c_prime.is_white());
-		    auto acu = acc | c.get_acc();
+                    auto acu = acc | c.get_acc();
                     if ((c_prime.get_acc() & acu) != acu)
                       {
                         trace << "  a propagation is needed, go down"
@@ -250,7 +250,7 @@ namespace spot
                     trace << "  It is white, pop it" << std::endl;
                     s_prime->destroy();
                   }
-		else if ((c_prime.get_acc() & acu) != acu)
+                else if ((c_prime.get_acc() & acu) != acu)
                   {
                     trace << "  It is blue and propagation "
                           << "is needed, go down" << std::endl;
@@ -302,7 +302,7 @@ namespace spot
         void cumulate_acc(acc_cond::mark_t a)
           {
             assert(!is_white());
-	    *acc |= a;
+            *acc |= a;
           }
         bool is_white() const
           {
@@ -310,7 +310,7 @@ namespace spot
           }
       private:
         color *p;
-	acc_cond::mark_t* acc;
+        acc_cond::mark_t* acc;
       };
 
       explicit_tau03_search_heap(size_t)
@@ -346,8 +346,8 @@ namespace spot
         {
           assert(h.find(s) == h.end());
           h.emplace(std::piecewise_construct,
-		    std::forward_as_tuple(s),
-		    std::forward_as_tuple(c, 0U));
+                    std::forward_as_tuple(s),
+                    std::forward_as_tuple(c, 0U));
         }
 
       void pop_notify(const state*) const

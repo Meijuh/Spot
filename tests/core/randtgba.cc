@@ -82,8 +82,8 @@ std::vector<ec_algo> ec_algos;
 
 static spot::emptiness_check_ptr
 cons_emptiness_check(int num, spot::const_twa_graph_ptr a,
-		     const spot::const_twa_graph_ptr& degen,
-		     unsigned int n_acc)
+                     const spot::const_twa_graph_ptr& degen,
+                     unsigned int n_acc)
 {
   auto inst = ec_algos[num].inst;
   if (n_acc < inst->min_sets() || n_acc > inst->max_sets())
@@ -97,75 +97,75 @@ static void
 syntax(char* prog)
 {
   std::cerr << "Usage: "<< prog << " [OPTIONS...] PROPS..." << std::endl
-	    << std::endl
-	    << "General Options:" << std::endl
-	    << "  -0      suppress default output, just generate the graph"
-	    << " in memory" << std::endl
-	    << "  -1      produce minimal output (for our paper)" << std::endl
-	    << "  -g      output graph in dot format" << std::endl
-	    << "  -s N    seed for the random number generator" << std::endl
-	    << "  -z      display statistics about emptiness-check algorithms"
-	    << std::endl
-	    << "  -Z      like -z, but print extra statistics after the run"
-	    << " of each algorithm" << std::endl
-	    << std::endl
-	    << "Graph Generation Options:" << std::endl
-	    << "  -a N F  number of acceptance conditions and probability that"
-	    << " one is true" << std::endl
-	    << "            [0 0.0]" << std::endl
-	    << "  -d F    density of the graph [0.2]" << std::endl
-	    << "  -n N    number of nodes of the graph [20]" << std::endl
-	    << "  -t F    probability of the atomic propositions to be true"
-	    << " [0.5]" << std::endl
-	    << "  -det    generate a deterministic and complete graph [false]"
-	    << std::endl
-	    << "LTL Formula Generation Options:" << std::endl
-	    << "  -dp     dump priorities, do not generate any formula"
-	    << std::endl
-	    << "  -f N    size of the formula [15]" << std::endl
-	    << "  -F N    number of formulae to generate [0]" << std::endl
-	    << "  -l N    simplify formulae using all available reductions"
-	    << " and reject those" << std::endl
-	    << "            strictly smaller than N" << std::endl
-	    << "  -i FILE do not generate formulae, read them from FILE"
-	    << std::endl
-	    << "  -p S    priorities to use" << std::endl
-	    << "  -S N    skip N formulae before starting to use them"
-	    << std::endl
-	    << "            (useful to replay a specific seed when -u is used)"
-	    << std::endl
-	    << "  -u      generate unique formulae" << std::endl
-	    << std::endl
-	    << "Emptiness-Check Options:" << std::endl
-	    << "  -A FILE use all algorithms listed in FILE" << std::endl
-	    << "  -D      degeneralize TGBA for emptiness-check algorithms that"
-	    << " would" << std::endl
-	    << "            otherwise be skipped (implies -e)" << std::endl
-	    << "  -e N    compare result of all "
-	    << "emptiness checks on N randomly generated graphs" << std::endl
-	    << "  -H      halt on the first statistic difference in algorithms"
-	    << std::endl
-	    << "  -m      try to reduce runs, in a second pass (implies -r)"
             << std::endl
-	    << "  -R N    repeat each emptiness-check and accepting run "
-	    << "computation N times" << std::endl
-	    << "  -r      compute and replay accepting runs (implies -e)"
-	    << std::endl
-	    << "  ar:MODE select the mode MODE for accepting runs computation "
+            << "General Options:" << std::endl
+            << "  -0      suppress default output, just generate the graph"
+            << " in memory" << std::endl
+            << "  -1      produce minimal output (for our paper)" << std::endl
+            << "  -g      output graph in dot format" << std::endl
+            << "  -s N    seed for the random number generator" << std::endl
+            << "  -z      display statistics about emptiness-check algorithms"
+            << std::endl
+            << "  -Z      like -z, but print extra statistics after the run"
+            << " of each algorithm" << std::endl
+            << std::endl
+            << "Graph Generation Options:" << std::endl
+            << "  -a N F  number of acceptance conditions and probability that"
+            << " one is true" << std::endl
+            << "            [0 0.0]" << std::endl
+            << "  -d F    density of the graph [0.2]" << std::endl
+            << "  -n N    number of nodes of the graph [20]" << std::endl
+            << "  -t F    probability of the atomic propositions to be true"
+            << " [0.5]" << std::endl
+            << "  -det    generate a deterministic and complete graph [false]"
+            << std::endl
+            << "LTL Formula Generation Options:" << std::endl
+            << "  -dp     dump priorities, do not generate any formula"
+            << std::endl
+            << "  -f N    size of the formula [15]" << std::endl
+            << "  -F N    number of formulae to generate [0]" << std::endl
+            << "  -l N    simplify formulae using all available reductions"
+            << " and reject those" << std::endl
+            << "            strictly smaller than N" << std::endl
+            << "  -i FILE do not generate formulae, read them from FILE"
+            << std::endl
+            << "  -p S    priorities to use" << std::endl
+            << "  -S N    skip N formulae before starting to use them"
+            << std::endl
+            << "            (useful to replay a specific seed when -u is used)"
+            << std::endl
+            << "  -u      generate unique formulae" << std::endl
+            << std::endl
+            << "Emptiness-Check Options:" << std::endl
+            << "  -A FILE use all algorithms listed in FILE" << std::endl
+            << "  -D      degeneralize TGBA for emptiness-check algorithms that"
+            << " would" << std::endl
+            << "            otherwise be skipped (implies -e)" << std::endl
+            << "  -e N    compare result of all "
+            << "emptiness checks on N randomly generated graphs" << std::endl
+            << "  -H      halt on the first statistic difference in algorithms"
+            << std::endl
+            << "  -m      try to reduce runs, in a second pass (implies -r)"
+            << std::endl
+            << "  -R N    repeat each emptiness-check and accepting run "
+            << "computation N times" << std::endl
+            << "  -r      compute and replay accepting runs (implies -e)"
+            << std::endl
+            << "  ar:MODE select the mode MODE for accepting runs computation "
             << "(implies -r)" << std::endl
-	    << std::endl
-	    << "Where:" << std::endl
-	    << "  F      are floats between 0.0 and 1.0 inclusive" << std::endl
-	    << "  E      are floating values" << std::endl
-	    << "  S      are `KEY=E, KEY=E, ...' strings" << std::endl
-	    << "  N      are positive integers" << std::endl
-	    << "  PROPS  are the atomic properties to use on transitions"
-	    << std::endl
-	    << "Use -dp to see the list of KEYs." << std::endl
-	    << std::endl
-	    << "When -F or -i is used, a random graph a synchronized with"
-	    << " each formula." << std::endl << "If -e N is additionally used"
-	    << " N random graphs are generated for each formula." << std::endl;
+            << std::endl
+            << "Where:" << std::endl
+            << "  F      are floats between 0.0 and 1.0 inclusive" << std::endl
+            << "  E      are floating values" << std::endl
+            << "  S      are `KEY=E, KEY=E, ...' strings" << std::endl
+            << "  N      are positive integers" << std::endl
+            << "  PROPS  are the atomic properties to use on transitions"
+            << std::endl
+            << "Use -dp to see the list of KEYs." << std::endl
+            << std::endl
+            << "When -F or -i is used, a random graph a synchronized with"
+            << " each formula." << std::endl << "If -e N is additionally used"
+            << " N random graphs are generated for each formula." << std::endl;
   exit(2);
 }
 
@@ -190,7 +190,7 @@ to_int_pos(const char* s, const char* arg)
   if (res <= 0)
     {
       std::cerr << "argument of " << arg
-		<< " (" << res << ") must be positive" << std::endl;
+                << " (" << res << ") must be positive" << std::endl;
       exit(1);
     }
   return res;
@@ -203,7 +203,7 @@ to_int_nonneg(const char* s, const char* arg)
   if (res < 0)
     {
       std::cerr << "argument of " << arg
-		<< " (" << res << ") must be nonnegative" << std::endl;
+                << " (" << res << ") must be nonnegative" << std::endl;
       exit(1);
     }
   return res;
@@ -230,7 +230,7 @@ to_float_nonneg(const char* s, const char* arg)
   if (res < 0)
     {
       std::cerr << "argument of " << arg
-		<< " (" << res << ") must be nonnegative" << std::endl;
+                << " (" << res << ") must be nonnegative" << std::endl;
       exit(1);
     }
   return res;
@@ -275,15 +275,15 @@ struct stat_collector
     count(T val)
     {
       if (n++)
-	{
-	  min = std::min(min, val);
-	  max = std::max(max, val);
-	  tot += val;
-	}
+        {
+          min = std::min(min, val);
+          max = std::max(max, val);
+          tot += val;
+        }
       else
-	{
-	  max = min = tot = val;
-	}
+        {
+          max = min = tot = val;
+        }
     }
   };
 
@@ -309,8 +309,8 @@ struct stat_collector
 
   std::ostream&
   display(std::ostream& os,
-	  const alg_1stat_map& m, const std::string& title,
-	  bool total = true) const
+          const alg_1stat_map& m, const std::string& title,
+          bool total = true) const
   {
     std::ios::fmtflags old = os.flags();
     os << std::setw(25) << "" << " | "
@@ -322,23 +322,23 @@ struct stat_collector
        << std::endl;
     os << std::right << std::fixed << std::setprecision(1);
     for (typename alg_1stat_map::const_iterator i = m.begin();
-	 i != m.end(); ++i)
+         i != m.end(); ++i)
       {
-	os << std::setw(25) << i->first << " |"
-	   << std::setw(6) << i->second.min
-	   << ' '
-	   << std::setw(8)
-	   << static_cast<float>(i->second.tot) / i->second.n
-	   << ' '
-	   << std::setw(6) << i->second.max
-	   << " |";
-	if (total)
-	  os << std::setw(6) << i->second.tot;
-	else
-	  os << "      ";
-	os << " |"
-	   << std::setw(4) << i->second.n
-	   << std::endl;
+        os << std::setw(25) << i->first << " |"
+           << std::setw(6) << i->second.min
+           << ' '
+           << std::setw(8)
+           << static_cast<float>(i->second.tot) / i->second.n
+           << ' '
+           << std::setw(6) << i->second.max
+           << " |";
+        if (total)
+          os << std::setw(6) << i->second.tot;
+        else
+          os << "      ";
+        os << " |"
+           << std::setw(4) << i->second.n
+           << std::endl;
       }
     os << std::setw(64) << std::setfill('-') << "" << std::setfill(' ')
        << std::endl;
@@ -382,20 +382,20 @@ struct ar_stat
     int c = run->cycle.size();
     if (n++)
       {
-	min_prefix = std::min(min_prefix, p);
-	max_prefix = std::max(max_prefix, p);
-	tot_prefix += p;
-	min_cycle = std::min(min_cycle, c);
-	max_cycle = std::max(max_cycle, c);
-	tot_cycle += c;
-	min_run = std::min(min_run, c + p);
-	max_run = std::max(max_run, c + p);
+        min_prefix = std::min(min_prefix, p);
+        max_prefix = std::max(max_prefix, p);
+        tot_prefix += p;
+        min_cycle = std::min(min_cycle, c);
+        max_cycle = std::max(max_cycle, c);
+        tot_cycle += c;
+        min_run = std::min(min_run, c + p);
+        max_run = std::max(max_run, c + p);
       }
     else
       {
-	min_prefix = max_prefix = tot_prefix = p;
-	min_cycle = max_cycle = tot_cycle = c;
-	min_run = max_run = c + p;
+        min_prefix = max_prefix = tot_prefix = p;
+        min_cycle = max_cycle = tot_cycle = c;
+        min_run = max_run = c + p;
       }
   }
 };
@@ -411,7 +411,7 @@ ec_ratio_stats_type ec_ratio_stats;
 ec_ratio_stat_type arc_ratio_stats;
 
 typedef std::map<std::string, ar_stat> ar_stats_type;
-ar_stats_type ar_stats;		// Statistics about accepting runs.
+ar_stats_type ar_stats;                // Statistics about accepting runs.
 ar_stats_type mar_stats;        // ... about minimized accepting runs.
 
 
@@ -431,7 +431,7 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
             << std::setw(79) << std::setfill('-') << "" << std::setfill(' ')
             << std::endl;
   for (ar_stats_type::const_iterator i = ar_stats.begin();
-	   i != ar_stats.end(); ++i)
+           i != ar_stats.end(); ++i)
     std::cout << std::setw(25) << i->first << " |"
               << std::setw(6) << i->second.min_prefix
               << ' '
@@ -454,13 +454,13 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
             << std::setw(25) << ""
             << " |          runs         |         total         |"
             << std::endl <<
-	std::setw(25) << "algorithm"
+        std::setw(25) << "algorithm"
             << " |   min   < mean  < max |  pre.   cyc.     runs |   n"
             << std::endl
             << std::setw(79) << std::setfill('-') << "" << std::setfill(' ')
             << std::endl;
   for (ar_stats_type::const_iterator i = ar_stats.begin();
-	   i != ar_stats.end(); ++i)
+           i != ar_stats.end(); ++i)
     std::cout << std::setw(25) << i->first << " |"
               << std::setw(6)
               << i->second.min_run
@@ -485,8 +485,8 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
 
 static spot::formula
 generate_formula(const spot::random_ltl& rl,
-		 spot::tl_simplifier& simp,
-		 int opt_f, int opt_s,
+                 spot::tl_simplifier& simp,
+                 int opt_f, int opt_s,
                  int opt_l = 0, bool opt_u = false)
 {
   static std::set<std::string> unique;
@@ -504,7 +504,7 @@ generate_formula(const spot::random_ltl& rl,
             {
               f = simp.simplify(f);
               if (spot::length(f) < opt_l)
-		continue;
+                continue;
             }
           else
             {
@@ -521,7 +521,7 @@ generate_formula(const spot::random_ltl& rl,
         }
       std::string txt = spot::str_psl(f);
       if (!opt_u || unique.insert(txt).second)
-	return f;
+        return f;
     }
   assert(opt_u);
   std::cerr << "Failed to generate another unique formula."
@@ -586,28 +586,28 @@ main(int argc, char** argv)
   while (++argn < argc)
     {
       if (!strcmp(argv[argn], "-0"))
-	{
-	  opt_0 = true;
-	}
+        {
+          opt_0 = true;
+        }
       else if (!strcmp(argv[argn], "-1"))
-	{
-	  opt_paper = true;
-	  opt_z = true;
-	}
+        {
+          opt_paper = true;
+          opt_z = true;
+        }
       else if (!strcmp(argv[argn], "-a"))
-	{
-	  if (argc < argn + 3)
-	    syntax(argv[0]);
-	  opt_n_acc = to_int_nonneg(argv[++argn], "-a");
-	  opt_a = to_float_nonneg(argv[++argn], "-a");
-	}
+        {
+          if (argc < argn + 3)
+            syntax(argv[0]);
+          opt_n_acc = to_int_nonneg(argv[++argn], "-a");
+          opt_a = to_float_nonneg(argv[++argn], "-a");
+        }
       else if (!strcmp(argv[argn], "-A"))
         {
           if (argc < argn + 2)
             syntax(argv[0]);
-	  if (!opt_ec)
-	    opt_ec = 1;
-	  std::istream* in;
+          if (!opt_ec)
+            opt_ec = 1;
+          std::istream* in;
           if (strcmp(argv[++argn], "-"))
             {
               in = new std::ifstream(argv[argn]);
@@ -619,23 +619,23 @@ main(int argc, char** argv)
                 }
             }
           else
-	    {
-	      in = &std::cin;
-	    }
+            {
+              in = &std::cin;
+            }
 
           while (in->good())
             {
               std::string input;
               if (std::getline(*in, input, '\n').fail())
-		break;
-	      else if (input == "")
-		break;
-	      ec_algo a = { input, nullptr };
-	      ec_algos.push_back(a);
-	    }
+                break;
+              else if (input == "")
+                break;
+              ec_algo a = { input, nullptr };
+              ec_algos.push_back(a);
+            }
 
-	  if (in != &std::cin)
-	    delete in;
+          if (in != &std::cin)
+            delete in;
         }
       else if (!strncmp(argv[argn], "ar:", 3))
         {
@@ -646,37 +646,37 @@ main(int argc, char** argv)
             }
         }
       else if (!strcmp(argv[argn], "-d"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_d = to_float_nonneg(argv[++argn], "-d");
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_d = to_float_nonneg(argv[++argn], "-d");
+        }
       else if (!strcmp(argv[argn], "-D"))
-	{
-	  opt_degen = true;
-	  if (!opt_ec)
-	    opt_ec = 1;
-	}
+        {
+          opt_degen = true;
+          if (!opt_ec)
+            opt_ec = 1;
+        }
       else if (!strcmp(argv[argn], "-det"))
-	{
-	  opt_det = true;
-	}
+        {
+          opt_det = true;
+        }
       else if (!strcmp(argv[argn], "-e"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_ec = to_int_nonneg(argv[++argn], "-e");
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_ec = to_int_nonneg(argv[++argn], "-e");
+        }
       else if (!strcmp(argv[argn], "-g"))
-	{
-	  opt_dot = true;
-	}
+        {
+          opt_dot = true;
+        }
       else if (!strcmp(argv[argn], "-H"))
-	{
-	  if (argc < argn + 1)
-	    syntax(argv[0]);
-	  stop_on_first_difference = true;
-	}
+        {
+          if (argc < argn + 1)
+            syntax(argv[0]);
+          stop_on_first_difference = true;
+        }
       else if (!strcmp(argv[argn], "-i"))
         {
           if (argc < argn + 2)
@@ -696,93 +696,93 @@ main(int argc, char** argv)
             formula_file = &std::cin;
         }
       else if (!strcmp(argv[argn], "-m"))
-	{
-	  opt_reduce = true;
-	  opt_replay = true;
-	  if (!opt_ec)
-	    opt_ec = 1;
-	}
+        {
+          opt_reduce = true;
+          opt_replay = true;
+          if (!opt_ec)
+            opt_ec = 1;
+        }
       else if (!strcmp(argv[argn], "-n"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_n = to_int_pos(argv[++argn], "-n");
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_n = to_int_pos(argv[++argn], "-n");
+        }
       else if (!strcmp(argv[argn], "-r"))
-	{
-	  opt_replay = true;
-	  if (!opt_ec)
-	    opt_ec = 1;
-	}
+        {
+          opt_replay = true;
+          if (!opt_ec)
+            opt_ec = 1;
+        }
       else if (!strcmp(argv[argn], "-R"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_R = to_int_pos(argv[++argn], "-R");
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_R = to_int_pos(argv[++argn], "-R");
+        }
       else if (!strcmp(argv[argn], "-s"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_ec_seed = to_int_nonneg(argv[++argn], "-s");
-	  spot::srand(opt_ec_seed);
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_ec_seed = to_int_nonneg(argv[++argn], "-s");
+          spot::srand(opt_ec_seed);
+        }
       else if (!strcmp(argv[argn], "-S"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_S = to_int_pos(argv[++argn], "-S");
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_S = to_int_pos(argv[++argn], "-S");
+        }
       else if (!strcmp(argv[argn], "-t"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_t = to_float_nonneg(argv[++argn], "-t");
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_t = to_float_nonneg(argv[++argn], "-t");
+        }
       else if (!strcmp(argv[argn], "-z"))
-	{
-	  opt_z = true;
-	}
+        {
+          opt_z = true;
+        }
       else if (!strcmp(argv[argn], "-Z"))
-	{
-	  opt_Z = opt_z = true;
-	}
+        {
+          opt_Z = opt_z = true;
+        }
       else if (!strcmp(argv[argn], "-dp"))
-	{
-	  opt_dp = true;
-	}
+        {
+          opt_dp = true;
+        }
       else if (!strcmp(argv[argn], "-f"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_f = to_int_pos(argv[++argn], "-f");
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_f = to_int_pos(argv[++argn], "-f");
+        }
       else if (!strcmp(argv[argn], "-F"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_F = to_int_nonneg(argv[++argn], "-F");
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_F = to_int_nonneg(argv[++argn], "-F");
+        }
       else if (!strcmp(argv[argn], "-p"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_p = argv[++argn];
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_p = argv[++argn];
+        }
       else if (!strcmp(argv[argn], "-l"))
-	{
-	  if (argc < argn + 2)
-	    syntax(argv[0]);
-	  opt_l = to_int_nonneg(argv[++argn], "-l");
-	}
+        {
+          if (argc < argn + 2)
+            syntax(argv[0]);
+          opt_l = to_int_nonneg(argv[++argn], "-l");
+        }
       else if (!strcmp(argv[argn], "-u"))
-	{
-	  opt_u = true;
-	}
+        {
+          opt_u = true;
+        }
       else
-	{
-	  ap->insert(env.require(argv[argn]));
-	}
+        {
+          ap->insert(env.require(argv[argn]));
+        }
     }
 
   spot::random_ltl rl(ap);
@@ -790,14 +790,14 @@ main(int argc, char** argv)
   if (tok)
     {
       std::cerr << "failed to parse probabilities near `"
-		<< tok << '\'' << std::endl;
+                << tok << '\'' << std::endl;
       exit(2);
     }
 
   if (opt_l > opt_f)
     {
       std::cerr << "-l's argument (" << opt_l << ") should not be larger than "
-		<< "-f's (" << opt_f << ')' << std::endl;
+                << "-f's (" << opt_f << ')' << std::endl;
       exit(2);
     }
 
@@ -811,10 +811,10 @@ main(int argc, char** argv)
     {
       const char** i = default_algos;
       while (*i)
-	{
-	  ec_algo a = { *(i++), nullptr };
-	  ec_algos.push_back(a);
-	}
+        {
+          ec_algo a = { *(i++), nullptr };
+          ec_algos.push_back(a);
+        }
     }
 
   spot::timer_map tm_ec;
@@ -826,18 +826,18 @@ main(int argc, char** argv)
   if (opt_ec)
     {
       for (unsigned i = 0; i < ec_algos.size(); ++i)
-	{
-	  const char* err;
-	  ec_algos[i].inst =
-	    spot::make_emptiness_check_instantiator(ec_algos[i].name.c_str(),
-						    &err);
-	  if (!ec_algos[i].inst)
-	    {
-	      std::cerr << "Parse error after `" << err << '\'' << std::endl;
-	      exit(1);
-	    }
-	  ec_algos[i].inst->options().set(options);
-	}
+        {
+          const char* err;
+          ec_algos[i].inst =
+            spot::make_emptiness_check_instantiator(ec_algos[i].name.c_str(),
+                                                    &err);
+          if (!ec_algos[i].inst)
+            {
+              std::cerr << "Parse error after `" << err << '\'' << std::endl;
+              exit(1);
+            }
+          ec_algos[i].inst->options().set(options);
+        }
     }
 
   do
@@ -845,7 +845,7 @@ main(int argc, char** argv)
       if (opt_F)
         {
           spot::formula f =
-	    generate_formula(rl, simp, opt_f, opt_ec_seed, opt_l, opt_u);
+            generate_formula(rl, simp, opt_f, opt_ec_seed, opt_l, opt_u);
           if (!f)
             exit(1);
           formula = spot::ltl_to_tgba_fm(f, dict, true);
@@ -856,19 +856,19 @@ main(int argc, char** argv)
             {
               std::string input;
               if (std::getline(*formula_file, input, '\n').fail())
-		break;
-	      else if (input == "")
-		break;
+                break;
+              else if (input == "")
+                break;
               auto pf = spot::parse_infix_psl(input, env);
               if (pf.format_errors(std::cerr))
-		{
-		  exit_code = 1;
-		  break;
-		}
+                {
+                  exit_code = 1;
+                  break;
+                }
               formula = spot::ltl_to_tgba_fm(pf.f, dict, true);
               auto* tmp = spot::atomic_prop_collect(pf.f);
               for (auto i: *tmp)
-		apf->insert(i);
+                apf->insert(i);
               delete tmp;
             }
           else
@@ -880,245 +880,245 @@ main(int argc, char** argv)
         }
 
       for (auto i: *ap)
-	apf->insert(i);
+        apf->insert(i);
 
       if (!opt_S)
-	{
-	  do
-	    {
-	      if (opt_ec && !opt_paper)
-		std::cout << "seed: " << opt_ec_seed << std::endl;
-	      spot::srand(opt_ec_seed);
+        {
+          do
+            {
+              if (opt_ec && !opt_paper)
+                std::cout << "seed: " << opt_ec_seed << std::endl;
+              spot::srand(opt_ec_seed);
 
 
-	      spot::twa_graph_ptr a =
-		spot::random_graph(opt_n, opt_d, apf, dict,
-				   opt_n_acc, opt_a, opt_t, opt_det);
-	      if (formula)
-		a = spot::product(formula, a);
+              spot::twa_graph_ptr a =
+                spot::random_graph(opt_n, opt_d, apf, dict,
+                                   opt_n_acc, opt_a, opt_t, opt_det);
+              if (formula)
+                a = spot::product(formula, a);
 
-	      int real_n_acc = a->acc().num_sets();
+              int real_n_acc = a->acc().num_sets();
 
-	      if (opt_dot)
-		{
-		  print_dot(std::cout, a);
-		}
-	      if (!opt_ec)
-		{
-		  if (!opt_0 && !opt_dot)
-		    print_hoa(std::cout, a, nullptr);
-		}
-	      else
-		{
-		  spot::twa_graph_ptr degen = nullptr;
-		  if (opt_degen && real_n_acc > 1)
-		    degen = degeneralize_tba(a);
+              if (opt_dot)
+                {
+                  print_dot(std::cout, a);
+                }
+              if (!opt_ec)
+                {
+                  if (!opt_0 && !opt_dot)
+                    print_hoa(std::cout, a, nullptr);
+                }
+              else
+                {
+                  spot::twa_graph_ptr degen = nullptr;
+                  if (opt_degen && real_n_acc > 1)
+                    degen = degeneralize_tba(a);
 
-		  int n_alg = ec_algos.size();
-		  int n_ec = 0;
-		  int n_empty = 0;
-		  int n_non_empty = 0;
-		  int n_maybe_empty = 0;
-		  spot::unsigned_statistics_copy ostats_ec, ostats_arc;
+                  int n_alg = ec_algos.size();
+                  int n_ec = 0;
+                  int n_empty = 0;
+                  int n_non_empty = 0;
+                  int n_maybe_empty = 0;
+                  spot::unsigned_statistics_copy ostats_ec, ostats_arc;
 
-		  for (int i = 0; i < n_alg; ++i)
-		    {
-		      auto ec = cons_emptiness_check(i, a, degen, real_n_acc);
-		      if (!ec)
-			continue;
-		      ++n_ec;
-		      const std::string algo = ec_algos[i].name;
-		      if (!opt_paper)
-			{
-			  std::cout.width(32);
-			  std::cout << algo << ": ";
-			}
-		      tm_ec.start(algo);
-		      spot::emptiness_check_result_ptr res;
-		      for (int count = opt_R;;)
-			{
-			  res = ec->check();
-			  if (count-- <= 0)
-			    break;
-			  ec = cons_emptiness_check(i, a, degen, real_n_acc);
-			}
-		      tm_ec.stop(algo);
-		      auto ecs = ec->statistics();
-		      if (opt_z && res)
-			{
-			  // Notice that ratios are computed w.r.t. the
-			  // generalized automaton a.
-			  prod_stats = spot::stats_reachable(a);
-			}
-		      else
-			{
-			  // To trigger a division by 0 if used erroneously.
-			  prod_stats.states = 0;
-			  prod_stats.edges = 0;
-			}
+                  for (int i = 0; i < n_alg; ++i)
+                    {
+                      auto ec = cons_emptiness_check(i, a, degen, real_n_acc);
+                      if (!ec)
+                        continue;
+                      ++n_ec;
+                      const std::string algo = ec_algos[i].name;
+                      if (!opt_paper)
+                        {
+                          std::cout.width(32);
+                          std::cout << algo << ": ";
+                        }
+                      tm_ec.start(algo);
+                      spot::emptiness_check_result_ptr res;
+                      for (int count = opt_R;;)
+                        {
+                          res = ec->check();
+                          if (count-- <= 0)
+                            break;
+                          ec = cons_emptiness_check(i, a, degen, real_n_acc);
+                        }
+                      tm_ec.stop(algo);
+                      auto ecs = ec->statistics();
+                      if (opt_z && res)
+                        {
+                          // Notice that ratios are computed w.r.t. the
+                          // generalized automaton a.
+                          prod_stats = spot::stats_reachable(a);
+                        }
+                      else
+                        {
+                          // To trigger a division by 0 if used erroneously.
+                          prod_stats.states = 0;
+                          prod_stats.edges = 0;
+                        }
 
-		      if (opt_z && ecs)
-			{
-			  sc_ec.count(algo, ecs);
-			  if (res)
-			    {
-			      ec_ratio_stats[real_n_acc].count(algo, ecs);
-			      glob_ec_ratio_stats.count(algo, ecs);
-			    }
-			}
+                      if (opt_z && ecs)
+                        {
+                          sc_ec.count(algo, ecs);
+                          if (res)
+                            {
+                              ec_ratio_stats[real_n_acc].count(algo, ecs);
+                              glob_ec_ratio_stats.count(algo, ecs);
+                            }
+                        }
 
-		      if (stop_on_first_difference && ecs)
-			if (!ostats_ec.seteq(*ecs))
-			  {
-			    std::cout << "DIFFERING STATS for emptiness check,"
-				      << " halting... ";
-			    opt_ec = n_alg = opt_F = 0;
-			  }
+                      if (stop_on_first_difference && ecs)
+                        if (!ostats_ec.seteq(*ecs))
+                          {
+                            std::cout << "DIFFERING STATS for emptiness check,"
+                                      << " halting... ";
+                            opt_ec = n_alg = opt_F = 0;
+                          }
 
-		      if (res)
-			{
-			  if (!opt_paper)
-			    std::cout << "acc. run";
-			  ++n_non_empty;
-			  if (opt_replay)
-			    {
-			      spot::twa_run_ptr run;
-			      bool done = false;
-			      tm_ar.start(algo);
-			      for (int count = opt_R;;)
-				{
-				  run = res->accepting_run();
-				  const spot::unsigned_statistics* s
-				    = res->statistics();
-				  if (opt_z && !done)
-				    {
-				      // Count only the first run (the
-				      // other way would be to divide
-				      // the stats by opt_R).
-				      done = true;
-				      sc_arc.count(algo, s);
-				      arc_ratio_stats.count(algo, s);
-				    }
-				  if (stop_on_first_difference && s)
-				    if (!ostats_arc.seteq(*s))
-				      {
-					std::cout << "DIFFERING STATS for "
-						  << "accepting runs,"
-						  << " halting... ";
-					opt_ec = n_alg = opt_F = 0;
-					break;
-				      }
+                      if (res)
+                        {
+                          if (!opt_paper)
+                            std::cout << "acc. run";
+                          ++n_non_empty;
+                          if (opt_replay)
+                            {
+                              spot::twa_run_ptr run;
+                              bool done = false;
+                              tm_ar.start(algo);
+                              for (int count = opt_R;;)
+                                {
+                                  run = res->accepting_run();
+                                  const spot::unsigned_statistics* s
+                                    = res->statistics();
+                                  if (opt_z && !done)
+                                    {
+                                      // Count only the first run (the
+                                      // other way would be to divide
+                                      // the stats by opt_R).
+                                      done = true;
+                                      sc_arc.count(algo, s);
+                                      arc_ratio_stats.count(algo, s);
+                                    }
+                                  if (stop_on_first_difference && s)
+                                    if (!ostats_arc.seteq(*s))
+                                      {
+                                        std::cout << "DIFFERING STATS for "
+                                                  << "accepting runs,"
+                                                  << " halting... ";
+                                        opt_ec = n_alg = opt_F = 0;
+                                        break;
+                                      }
 
-				  if (count-- <= 0 || !run)
-				    break;
-				}
-			      if (!run)
-				{
-				  tm_ar.cancel(algo);
-				  if (!opt_paper)
-				    std::cout << " exists, not computed";
-				}
-			      else
-				{
-				  tm_ar.stop(algo);
-				  std::ostringstream s;
-				  if (!run->replay(s))
-				    {
-				      if (!opt_paper)
-					std::cout << ", but could not replay "
-						  << "it (ERROR!)";
-				      failed_seeds.insert(opt_ec_seed);
-				    }
-				  else
-				    {
-				      if (!opt_paper)
-					std::cout << ", computed";
-				      if (opt_z)
-					ar_stats[algo].count(run);
-				    }
-				  if (opt_z && !opt_paper)
-				    std::cout << " [" << run->prefix.size()
-					      << '+' << run->cycle.size()
-					      << ']';
+                                  if (count-- <= 0 || !run)
+                                    break;
+                                }
+                              if (!run)
+                                {
+                                  tm_ar.cancel(algo);
+                                  if (!opt_paper)
+                                    std::cout << " exists, not computed";
+                                }
+                              else
+                                {
+                                  tm_ar.stop(algo);
+                                  std::ostringstream s;
+                                  if (!run->replay(s))
+                                    {
+                                      if (!opt_paper)
+                                        std::cout << ", but could not replay "
+                                                  << "it (ERROR!)";
+                                      failed_seeds.insert(opt_ec_seed);
+                                    }
+                                  else
+                                    {
+                                      if (!opt_paper)
+                                        std::cout << ", computed";
+                                      if (opt_z)
+                                        ar_stats[algo].count(run);
+                                    }
+                                  if (opt_z && !opt_paper)
+                                    std::cout << " [" << run->prefix.size()
+                                              << '+' << run->cycle.size()
+                                              << ']';
 
-				  if (opt_reduce)
-				    {
-				      auto redrun = run->reduce();
-				      if (!redrun->replay(s))
-					{
-					  if (!opt_paper)
-					    std::cout
-					      << ", but could not replay "
-					      << "its minimization (ERROR!)";
-					  failed_seeds.insert(opt_ec_seed);
-					}
-				      else
-					{
-					  if (!opt_paper)
-					    std::cout << ", reduced";
-					  if (opt_z)
-					    mar_stats[algo].count(redrun);
-					}
-				      if (opt_z && !opt_paper)
-					{
-					  std::cout << " ["
-						    << redrun->prefix.size()
-						    << '+'
-						    << redrun->cycle.size()
-						    << ']';
-					}
-				    }
-				}
-			    }
-			  if (!opt_paper)
-			    std::cout << std::endl;
-			}
-		      else
-			{
-			  if (ec->safe())
-			    {
-			      if (!opt_paper)
-				std::cout << "empty language" << std::endl;
-			      ++n_empty;
-			    }
-			  else
-			    {
-			      if (!opt_paper)
-				std::cout << "maybe empty language"
-					  << std::endl;
-			      ++n_maybe_empty;
-			    }
+                                  if (opt_reduce)
+                                    {
+                                      auto redrun = run->reduce();
+                                      if (!redrun->replay(s))
+                                        {
+                                          if (!opt_paper)
+                                            std::cout
+                                              << ", but could not replay "
+                                              << "its minimization (ERROR!)";
+                                          failed_seeds.insert(opt_ec_seed);
+                                        }
+                                      else
+                                        {
+                                          if (!opt_paper)
+                                            std::cout << ", reduced";
+                                          if (opt_z)
+                                            mar_stats[algo].count(redrun);
+                                        }
+                                      if (opt_z && !opt_paper)
+                                        {
+                                          std::cout << " ["
+                                                    << redrun->prefix.size()
+                                                    << '+'
+                                                    << redrun->cycle.size()
+                                                    << ']';
+                                        }
+                                    }
+                                }
+                            }
+                          if (!opt_paper)
+                            std::cout << std::endl;
+                        }
+                      else
+                        {
+                          if (ec->safe())
+                            {
+                              if (!opt_paper)
+                                std::cout << "empty language" << std::endl;
+                              ++n_empty;
+                            }
+                          else
+                            {
+                              if (!opt_paper)
+                                std::cout << "maybe empty language"
+                                          << std::endl;
+                              ++n_maybe_empty;
+                            }
 
-			}
+                        }
 
-		      if (opt_Z && !opt_paper)
-			ec->print_stats(std::cout);
-		    }
+                      if (opt_Z && !opt_paper)
+                        ec->print_stats(std::cout);
+                    }
 
-		  assert(n_empty + n_non_empty + n_maybe_empty == n_ec);
+                  assert(n_empty + n_non_empty + n_maybe_empty == n_ec);
 
-		  if ((n_empty == 0 && (n_non_empty + n_maybe_empty) != n_ec)
-		      || (n_empty != 0 && n_non_empty != 0))
-		    {
-		      std::cout << "ERROR: not all algorithms agree"
-				<< std::endl;
-		      failed_seeds.insert(opt_ec_seed);
-		    }
-		}
+                  if ((n_empty == 0 && (n_non_empty + n_maybe_empty) != n_ec)
+                      || (n_empty != 0 && n_non_empty != 0))
+                    {
+                      std::cout << "ERROR: not all algorithms agree"
+                                << std::endl;
+                      failed_seeds.insert(opt_ec_seed);
+                    }
+                }
 
-	      if (opt_ec)
-		{
-		  --opt_ec;
-		  ++opt_ec_seed;
-		}
-	    }
-	  while (opt_ec);
-	}
+              if (opt_ec)
+                {
+                  --opt_ec;
+                  ++opt_ec_seed;
+                }
+            }
+          while (opt_ec);
+        }
       else
-	{
-	  --opt_S;
-	  opt_ec_seed += init_opt_ec;
-	}
+        {
+          --opt_S;
+          opt_ec_seed += init_opt_ec;
+        }
 
       if (opt_F)
         --opt_F;
@@ -1130,58 +1130,58 @@ main(int argc, char** argv)
   if (!opt_paper && opt_z)
     {
       if (!sc_ec.empty())
-	{
-	  std::cout << std::endl
-		    << "Statistics about emptiness checks:"
-		    << std::endl;
-	  sc_ec.display(std::cout);
-	}
+        {
+          std::cout << std::endl
+                    << "Statistics about emptiness checks:"
+                    << std::endl;
+          sc_ec.display(std::cout);
+        }
       if (!sc_arc.empty())
-	{
-	  std::cout << std::endl
-		    << "Statistics about accepting run computations:"
-		    << std::endl;
-	  sc_arc.display(std::cout);
-	}
+        {
+          std::cout << std::endl
+                    << "Statistics about accepting run computations:"
+                    << std::endl;
+          sc_arc.display(std::cout);
+        }
       if (!glob_ec_ratio_stats.empty())
-	{
-	  std::cout << std::endl
-		    << "Emptiness check ratios for non-empty automata:"
-		    << std::endl << "all tests"
-		    << std::endl;
-	  glob_ec_ratio_stats.display(std::cout, false);
-	  if (ec_ratio_stats.size() > 1)
-	    for (ec_ratio_stats_type::const_iterator i = ec_ratio_stats.begin();
-		 i != ec_ratio_stats.end(); ++i)
-	      {
-		std::cout << "tests with " << i->first
-			  << " acceptance conditions"
-			  << std::endl;
-		i->second.display(std::cout, false);
-	      }
-	}
+        {
+          std::cout << std::endl
+                    << "Emptiness check ratios for non-empty automata:"
+                    << std::endl << "all tests"
+                    << std::endl;
+          glob_ec_ratio_stats.display(std::cout, false);
+          if (ec_ratio_stats.size() > 1)
+            for (ec_ratio_stats_type::const_iterator i = ec_ratio_stats.begin();
+                 i != ec_ratio_stats.end(); ++i)
+              {
+                std::cout << "tests with " << i->first
+                          << " acceptance conditions"
+                          << std::endl;
+                i->second.display(std::cout, false);
+              }
+        }
       if (!ar_stats.empty())
-	print_ar_stats(ar_stats, "Statistics about accepting runs:");
+        print_ar_stats(ar_stats, "Statistics about accepting runs:");
       if (!mar_stats.empty())
-	print_ar_stats(mar_stats, "Statistics about reduced accepting runs:");
+        print_ar_stats(mar_stats, "Statistics about reduced accepting runs:");
       if (!arc_ratio_stats.empty())
-	{
-	  std::cout << std::endl
-		    << "Accepting run ratios:" << std::endl;
-	  arc_ratio_stats.display(std::cout, false);
-	}
+        {
+          std::cout << std::endl
+                    << "Accepting run ratios:" << std::endl;
+          arc_ratio_stats.display(std::cout, false);
+        }
       if (!tm_ec.empty())
-	{
-	  std::cout << std::endl
-		    << "emptiness checks cumulated timings:" << std::endl;
-	  tm_ec.print(std::cout);
-	}
+        {
+          std::cout << std::endl
+                    << "emptiness checks cumulated timings:" << std::endl;
+          tm_ec.print(std::cout);
+        }
       if (!tm_ar.empty())
-	{
-	  std::cout << std::endl
-		    << "accepting runs cumulated timings:" << std::endl;
-	  tm_ar.print(std::cout);
-	}
+        {
+          std::cout << std::endl
+                    << "accepting runs cumulated timings:" << std::endl;
+          tm_ar.print(std::cout);
+        }
     }
   else if (opt_paper)
     {
@@ -1191,69 +1191,69 @@ main(int argc, char** argv)
       typedef ec_ratio_stat_type::alg_1stat_map::const_iterator ec_iter;
 
       for (unsigned ai = 0; ai < ec_algos.size(); ++ai)
-	{
-	  const std::string algo = ec_algos[ai].name;
+        {
+          const std::string algo = ec_algos[ai].name;
 
-	  int n = -1;
+          int n = -1;
 
-	  std::cout << std::setw(25)  << algo << ' ' << std::setw(8);
+          std::cout << std::setw(25)  << algo << ' ' << std::setw(8);
 
-	  ec_iter i = stats["states"].find(algo);
-	  if (i != stats["states"].end())
-	    {
-	      std::cout << i->second.tot / i->second.n;
-	      n = i->second.n;
-	    }
-	  else
-	    std::cout << "";
-	  std::cout << ' ' << std::setw(8);
+          ec_iter i = stats["states"].find(algo);
+          if (i != stats["states"].end())
+            {
+              std::cout << i->second.tot / i->second.n;
+              n = i->second.n;
+            }
+          else
+            std::cout << "";
+          std::cout << ' ' << std::setw(8);
 
-	  i = stats["transitions"].find(algo);
-	  if (i != stats["transitions"].end())
-	    {
-	      std::cout << i->second.tot / i->second.n;
-	      n = i->second.n;
-	    }
-	  else
-	    std::cout << "";
-	  std::cout << ' ' << std::setw(8);
+          i = stats["transitions"].find(algo);
+          if (i != stats["transitions"].end())
+            {
+              std::cout << i->second.tot / i->second.n;
+              n = i->second.n;
+            }
+          else
+            std::cout << "";
+          std::cout << ' ' << std::setw(8);
 
-	  i = stats["max. depth"].find(algo);
-	  if (i != stats["max. depth"].end())
-	    {
-	      std::cout << i->second.tot / i->second.n;
-	      n = i->second.n;
-	    }
-	  else
-	    std::cout << "";
-	  if (n >= 0)
-	    std::cout << ' ' << std::setw(8) << n;
-	  std::cout << std::endl;
-	}
+          i = stats["max. depth"].find(algo);
+          if (i != stats["max. depth"].end())
+            {
+              std::cout << i->second.tot / i->second.n;
+              n = i->second.n;
+            }
+          else
+            std::cout << "";
+          if (n >= 0)
+            std::cout << ' ' << std::setw(8) << n;
+          std::cout << std::endl;
+        }
 
       std::cout << std::endl << "Accepting run ratios" << std::endl;
       std::cout << std::right << std::fixed << std::setprecision(1);
       ec_ratio_stat_type::stats_alg_map& stats2 = arc_ratio_stats.stats;
 
       for (unsigned ai = 0; ai < ec_algos.size(); ++ai)
-	{
-	  const std::string algo = ec_algos[ai].name;
+        {
+          const std::string algo = ec_algos[ai].name;
 
-	  std::cout << std::setw(25)  << algo << ' ' << std::setw(8);
+          std::cout << std::setw(25)  << algo << ' ' << std::setw(8);
 
-	  ec_iter i = stats2["search space states"].find(algo);
-	  if (i != stats2["search space states"].end())
-	    std::cout << i->second.tot / i->second.n;
-	  else
-	    std::cout << "";
-	  std::cout << ' ' << std::setw(8);
+          ec_iter i = stats2["search space states"].find(algo);
+          if (i != stats2["search space states"].end())
+            std::cout << i->second.tot / i->second.n;
+          else
+            std::cout << "";
+          std::cout << ' ' << std::setw(8);
 
-	  i = stats2["(non unique) states for cycle"].find(algo);
-	  if (i != stats2["(non unique) states for cycle"].end())
-	    std::cout << i->second.tot / i->second.n;
-	  else
-	    std::cout << "";
-	  std::cout << std::endl;
+          i = stats2["(non unique) states for cycle"].find(algo);
+          if (i != stats2["(non unique) states for cycle"].end())
+            std::cout << i->second.tot / i->second.n;
+          else
+            std::cout << "";
+          std::cout << std::endl;
       }
     }
 
@@ -1262,8 +1262,8 @@ main(int argc, char** argv)
       exit_code = 1;
       std::cout << "The check failed for the following seeds:";
       for (std::set<int>::const_iterator i = failed_seeds.begin();
-	   i != failed_seeds.end(); ++i)
-	std::cout << ' ' << *i;
+           i != failed_seeds.end(); ++i)
+        std::cout << ' ' << *i;
       std::cout << std::endl;
     }
 

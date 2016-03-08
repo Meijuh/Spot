@@ -37,25 +37,25 @@ namespace spot
       acc_cond::mark_t acc_;
       std::vector<unsigned> states_; // States of the component
       bool trivial_:1;
-      bool accepting_:1;	// Necessarily accepting
-      bool rejecting_:1;	// Necessarily rejecting
+      bool accepting_:1;        // Necessarily accepting
+      bool rejecting_:1;        // Necessarily rejecting
       bool useful_:1;
     public:
       scc_node():
-	acc_(0U), trivial_(true), accepting_(false),
-	rejecting_(false), useful_(false)
+        acc_(0U), trivial_(true), accepting_(false),
+        rejecting_(false), useful_(false)
       {
       }
 
       scc_node(acc_cond::mark_t acc, bool trivial):
-	acc_(acc), trivial_(trivial), accepting_(false),
-	rejecting_(false), useful_(false)
+        acc_(acc), trivial_(trivial), accepting_(false),
+        rejecting_(false), useful_(false)
       {
       }
 
       bool is_trivial() const
       {
-	return trivial_;
+        return trivial_;
       }
 
       /// \brief True if we are sure that the SCC is accepting
@@ -64,7 +64,7 @@ namespace spot
       /// false if an SCC interesects a mix of Fin and Inf sets.
       bool is_accepting() const
       {
-	return accepting_;
+        return accepting_;
       }
 
       // True if we are sure that the SCC is rejecting
@@ -73,27 +73,27 @@ namespace spot
       /// false if an SCC interesects a mix of Fin and Inf sets.
       bool is_rejecting() const
       {
-	return rejecting_;
+        return rejecting_;
       }
 
       bool is_useful() const
       {
-	return useful_;
+        return useful_;
       }
 
       acc_cond::mark_t acc_marks() const
       {
-	return acc_;
+        return acc_;
       }
 
       const std::vector<unsigned>& states() const
       {
-	return states_;
+        return states_;
       }
 
       const scc_succs& succ() const
       {
-	return succ_;
+        return succ_;
       }
     };
 
@@ -224,6 +224,6 @@ namespace spot
   /// If \a sccinfo is not given, it will be computed.
   SPOT_API std::ostream&
   dump_scc_info_dot(std::ostream& out,
-		    const_twa_graph_ptr aut, scc_info* sccinfo = nullptr);
+                    const_twa_graph_ptr aut, scc_info* sccinfo = nullptr);
 
 }

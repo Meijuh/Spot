@@ -46,21 +46,21 @@ namespace spot
 
     while (!q.empty())
       {
-	y = q.back();
-	q.pop_back();
+        y = q.back();
+        q.pop_back();
 
-	info_[y].mark = false;
-	for (auto x: info_[y].b)
-	  {
-	    assert(info_[x].seen);
-	    // insert y in A(x)
-	    info_[x].del[y] = false;
-	    // unmark x recursively if marked
-	    if (info_[x].mark)
-	      q.push_back(x);
-	  }
-	// empty B(y)
-	info_[y].b.clear();
+        info_[y].mark = false;
+        for (auto x: info_[y].b)
+          {
+            assert(info_[x].seen);
+            // insert y in A(x)
+            info_[x].del[y] = false;
+            // unmark x recursively if marked
+            if (info_[x].mark)
+              q.push_back(x);
+          }
+        // empty B(y)
+        info_[y].b.clear();
       }
   }
 
@@ -84,57 +84,57 @@ namespace spot
 
     while (keep_going && !dfs_.empty())
       {
-	dfs_entry& cur = dfs_.back();
-	if (cur.succ == 0)
-	  cur.succ = aut_->get_graph().state_storage(cur.s).succ;
-	else
-	  cur.succ = aut_->edge_storage(cur.succ).next_succ;
-	if (cur.succ)
-	  {
-	    // Explore one successor.
+        dfs_entry& cur = dfs_.back();
+        if (cur.succ == 0)
+          cur.succ = aut_->get_graph().state_storage(cur.s).succ;
+        else
+          cur.succ = aut_->edge_storage(cur.succ).next_succ;
+        if (cur.succ)
+          {
+            // Explore one successor.
 
-	    // Ignore those that are not on the SCC, or destination
-	    // that have been "virtually" deleted from A(v).
-	    unsigned s = aut_->edge_storage(cur.succ).dst;
+            // Ignore those that are not on the SCC, or destination
+            // that have been "virtually" deleted from A(v).
+            unsigned s = aut_->edge_storage(cur.succ).dst;
 
-	    if ((sm_.scc_of(s) != scc) || (info_[cur.s].del[s]))
-	      continue;
+            if ((sm_.scc_of(s) != scc) || (info_[cur.s].del[s]))
+              continue;
 
-	    info_[s].seen = true;
-	    if (!info_[s].mark)
-	      {
-		push_state(s);
-	      }
-	    else if (!info_[s].reach)
-	      {
-		keep_going = cycle_found(s);
-		cur.f = true;
-	      }
-	    else
-	      {
-		nocycle(cur.s, s);
-	      }
-	  }
-	else
-	  {
-	    // No more successors.
-	    bool f = cur.f;
-	    unsigned v = cur.s;
+            info_[s].seen = true;
+            if (!info_[s].mark)
+              {
+                push_state(s);
+              }
+            else if (!info_[s].reach)
+              {
+                keep_going = cycle_found(s);
+                cur.f = true;
+              }
+            else
+              {
+                nocycle(cur.s, s);
+              }
+          }
+        else
+          {
+            // No more successors.
+            bool f = cur.f;
+            unsigned v = cur.s;
 
-	    dfs_.pop_back();
-	    if (f)
-	      unmark(v);
-	    info_[v].reach = true;
+            dfs_.pop_back();
+            if (f)
+              unmark(v);
+            info_[v].reach = true;
 
-	    // Update the predecessor in the stack if there is one.
-	    if (!dfs_.empty())
-	      {
-		if (f)
-		  dfs_.back().f = true;
-		else
-		  nocycle(dfs_.back().s, v);
-	      }
-	  }
+            // Update the predecessor in the stack if there is one.
+            if (!dfs_.empty())
+              {
+                if (f)
+                  dfs_.back().f = true;
+                else
+                  nocycle(dfs_.back().s, v);
+              }
+          }
       }
 
     // Purge the dfs_ stack, in case we aborted because cycle_found()
@@ -150,8 +150,8 @@ namespace spot
       ++i;
     do
       {
-	std::cout << i->s << ' ';
-	++i;
+        std::cout << i->s << ' ';
+        ++i;
       }
     while (i != dfs_.end());
     std::cout << '\n';

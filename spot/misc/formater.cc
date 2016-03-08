@@ -28,12 +28,12 @@ namespace spot
   {
     for (const char* pos = fmt; *pos; ++pos)
       if (*pos == '%')
-	{
-	  char c = *++pos;
-	  has[c] = true;
-	  if (!c)
-	    break;
-	}
+        {
+          char c = *++pos;
+          has[c] = true;
+          if (!c)
+            break;
+        }
   }
 
   void
@@ -46,17 +46,17 @@ namespace spot
   formater::format(const char* fmt)
     {
       for (const char* pos = fmt; *pos; ++pos)
-	if (*pos != '%')
-	  {
-	    *output_ << *pos;
-	  }
-	else
-	  {
-	    char c = *++pos;
-	    call_[c]->print(*output_, pos);
-	    if (!c)
-	      break;
-	  }
+        if (*pos != '%')
+          {
+            *output_ << *pos;
+          }
+        else
+          {
+            char c = *++pos;
+            call_[c]->print(*output_, pos);
+            if (!c)
+              break;
+          }
       return *output_;
     }
 }

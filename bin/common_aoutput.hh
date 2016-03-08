@@ -75,25 +75,25 @@ class hoa_stat_printer: protected spot::stat_printer
 {
 public:
   hoa_stat_printer(std::ostream& os, const char* format,
-		   stat_style input = no_input)
+                   stat_style input = no_input)
     : spot::stat_printer(os, format)
   {
     if (input == aut_input)
       {
-	declare('A', &haut_acc_);
-	declare('C', &haut_scc_);
-	declare('E', &haut_edges_);
-	declare('G', &haut_gen_acc_);
-	declare('M', &haut_name_);
-	declare('S', &haut_states_);
-	declare('T', &haut_trans_);
+        declare('A', &haut_acc_);
+        declare('C', &haut_scc_);
+        declare('E', &haut_edges_);
+        declare('G', &haut_gen_acc_);
+        declare('M', &haut_name_);
+        declare('S', &haut_states_);
+        declare('T', &haut_trans_);
       }
     declare('<', &csv_prefix_);
     declare('>', &csv_suffix_);
     declare('F', &filename_);
     declare('L', &location_);
     if (input != ltl_input)
-      declare('f', &filename_);	// Override the formula printer.
+      declare('f', &filename_);        // Override the formula printer.
     declare('m', &aut_name_);
     declare('w', &aut_word_);
   }
@@ -107,93 +107,93 @@ public:
   /// to be output.
   std::ostream&
   print(const spot::const_parsed_aut_ptr& haut,
-	const spot::const_twa_graph_ptr& aut,
-	spot::formula f,
-	const char* filename, int loc, double run_time,
-	const char* csv_prefix, const char* csv_suffix)
+        const spot::const_twa_graph_ptr& aut,
+        spot::formula f,
+        const char* filename, int loc, double run_time,
+        const char* csv_prefix, const char* csv_suffix)
   {
     filename_ = filename ? filename : "";
     csv_prefix_ = csv_prefix ? csv_prefix : "";
     csv_suffix_ = csv_suffix ? csv_suffix : "";
     if (loc >= 0 && has('L'))
       {
-	std::ostringstream os;
-	os << loc;
-	location_ = os.str();
+        std::ostringstream os;
+        os << loc;
+        location_ = os.str();
       }
     if (haut)
       {
-	if (loc < 0 && has('L'))
-	  {
-	    std::ostringstream os;
-	    os << haut->loc;
-	    location_ = os.str();
-	  }
+        if (loc < 0 && has('L'))
+          {
+            std::ostringstream os;
+            os << haut->loc;
+            location_ = os.str();
+          }
 
-	if (has('T'))
-	  {
-	    spot::twa_sub_statistics s = sub_stats_reachable(haut->aut);
-	    haut_states_ = s.states;
-	    haut_edges_ = s.edges;
-	    haut_trans_ = s.transitions;
-	  }
-	else if (has('E'))
-	  {
-	    spot::twa_sub_statistics s = sub_stats_reachable(haut->aut);
-	    haut_states_ = s.states;
-	    haut_edges_ = s.edges;
-	  }
-	if (has('M'))
-	  {
-	    auto n = haut->aut->get_named_prop<std::string>("automaton-name");
-	    if (n)
-	      haut_name_ = *n;
-	    else
-	      haut_name_.val().clear();
-	  }
-	if (has('S'))
-	  haut_states_ = haut->aut->num_states();
+        if (has('T'))
+          {
+            spot::twa_sub_statistics s = sub_stats_reachable(haut->aut);
+            haut_states_ = s.states;
+            haut_edges_ = s.edges;
+            haut_trans_ = s.transitions;
+          }
+        else if (has('E'))
+          {
+            spot::twa_sub_statistics s = sub_stats_reachable(haut->aut);
+            haut_states_ = s.states;
+            haut_edges_ = s.edges;
+          }
+        if (has('M'))
+          {
+            auto n = haut->aut->get_named_prop<std::string>("automaton-name");
+            if (n)
+              haut_name_ = *n;
+            else
+              haut_name_.val().clear();
+          }
+        if (has('S'))
+          haut_states_ = haut->aut->num_states();
 
-	if (has('A'))
-	  haut_acc_ = haut->aut->acc().num_sets();
+        if (has('A'))
+          haut_acc_ = haut->aut->acc().num_sets();
 
-	if (has('C'))
-	  haut_scc_ = spot::scc_info(haut->aut).scc_count();
+        if (has('C'))
+          haut_scc_ = spot::scc_info(haut->aut).scc_count();
 
-	if (has('G'))
-	  {
-	    std::ostringstream os;
-	    os << haut->aut->get_acceptance();
-	    haut_gen_acc_ = os.str();
-	  }
+        if (has('G'))
+          {
+            std::ostringstream os;
+            os << haut->aut->get_acceptance();
+            haut_gen_acc_ = os.str();
+          }
       }
 
     if (has('m'))
-	{
-	  auto n = aut->get_named_prop<std::string>("automaton-name");
-	  if (n)
-	    aut_name_ = *n;
-	  else
-	    aut_name_.val().clear();
-	}
+        {
+          auto n = aut->get_named_prop<std::string>("automaton-name");
+          if (n)
+            aut_name_ = *n;
+          else
+            aut_name_.val().clear();
+        }
     if (has('w'))
-	{
-	  auto res = spot::couvreur99(aut)->check();
-	  if (res)
-	    {
-	      auto run = res->accepting_run();
-	      assert(run);
-	      spot::twa_word w(run->reduce());
-	      w.simplify();
-	      std::ostringstream out;
-	      out << w;
-	      aut_word_ = out.str();
-	    }
-	  else
-	    {
-	      aut_word_.val().clear();
-	    }
-	}
+        {
+          auto res = spot::couvreur99(aut)->check();
+          if (res)
+            {
+              auto run = res->accepting_run();
+              assert(run);
+              spot::twa_word w(run->reduce());
+              w.simplify();
+              std::ostringstream out;
+              out << w;
+              aut_word_ = out.str();
+            }
+          else
+            {
+              aut_word_.val().clear();
+            }
+        }
 
     return this->spot::stat_printer::print(aut, f, run_time);
   }
@@ -230,15 +230,15 @@ public:
 
   void
   print(const spot::twa_graph_ptr& aut,
-	spot::formula f = nullptr,
-	// Input location for errors and statistics.
-	const char* filename = nullptr,
-	int loc = -1,
-	// Time and input automaton for statistics
-	double time = 0.0,
-	const spot::const_parsed_aut_ptr& haut = nullptr,
-	const char* csv_prefix = nullptr,
-	const char* csv_suffix = nullptr);
+        spot::formula f = nullptr,
+        // Input location for errors and statistics.
+        const char* filename = nullptr,
+        int loc = -1,
+        // Time and input automaton for statistics
+        double time = 0.0,
+        const spot::const_parsed_aut_ptr& haut = nullptr,
+        const char* csv_prefix = nullptr,
+        const char* csv_suffix = nullptr);
 
   void add_stat(char c, const spot::printable* p);
 };

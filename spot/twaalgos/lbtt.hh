@@ -36,5 +36,5 @@ namespace spot
   //  default to state-based acceptance when the automaton is marked so.
   SPOT_API std::ostream&
   print_lbtt(std::ostream& os, const const_twa_ptr& g,
-	     const char* opt = nullptr);
+             const char* opt = nullptr);
 }

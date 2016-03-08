@@ -89,9 +89,9 @@ public:
   using spot::formater::has;
 
   translator_runner(spot::bdd_dict_ptr dict,
-		    // whether we accept the absence of output
-		    // specifier
-		    bool no_output_allowed = false);
+                    // whether we accept the absence of output
+                    // specifier
+                    bool no_output_allowed = false);
   void string_to_tmp(std::string& str, unsigned n, std::string& tmpname);
   const std::string& formula() const;
   void round_formula(spot::formula f, unsigned serial);

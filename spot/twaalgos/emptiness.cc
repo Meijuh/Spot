@@ -120,24 +120,24 @@ namespace spot
     {
       const char* name;
       emptiness_check_ptr(*construct)(const const_twa_ptr&,
-				      spot::option_map);
+                                      spot::option_map);
       unsigned int min_acc;
       unsigned int max_acc;
     };
 
     ec_algo ec_algos[] =
       {
-	{ "Cou99",     couvreur99,                    0, -1U },
-	{ "CVWY90",    magic_search,                  0,   1 },
-	{ "GV04",      explicit_gv04_check,           0,   1 },
-	{ "SE05",      se05,                          0,   1 },
-	{ "Tau03",     explicit_tau03_search,         1, -1U },
-	{ "Tau03_opt", explicit_tau03_opt_search,     0, -1U },
+        { "Cou99",     couvreur99,                    0, -1U },
+        { "CVWY90",    magic_search,                  0,   1 },
+        { "GV04",      explicit_gv04_check,           0,   1 },
+        { "SE05",      se05,                          0,   1 },
+        { "Tau03",     explicit_tau03_search,         1, -1U },
+        { "Tau03_opt", explicit_tau03_opt_search,     0, -1U },
       };
   }
 
   emptiness_check_instantiator::emptiness_check_instantiator(option_map o,
-							     void* i)
+                                                             void* i)
     : o_(o), info_(i)
   {
   }
@@ -171,21 +171,21 @@ namespace spot
     option_map o;
     if (opt_str)
       {
-	const char* opt_start = opt_str + 1;
-	const char* opt_end = strchr(opt_start, ')');
-	if (!opt_end)
-	  {
-	    *err = opt_start;
-	    return nullptr;
-	  }
-	std::string opt(opt_start, opt_end);
+        const char* opt_start = opt_str + 1;
+        const char* opt_end = strchr(opt_start, ')');
+        if (!opt_end)
+          {
+            *err = opt_start;
+            return nullptr;
+          }
+        std::string opt(opt_start, opt_end);
 
-	const char* res = o.parse_options(opt.c_str());
-	if (res)
-	  {
-	    *err  = opt.c_str() - res + opt_start;
-	    return nullptr;
-	  }
+        const char* res = o.parse_options(opt.c_str());
+        if (res)
+          {
+            *err  = opt.c_str() - res + opt_start;
+            return nullptr;
+          }
       }
 
     if (!opt_str)
@@ -200,19 +200,19 @@ namespace spot
     ec_algo* info = ec_algos;
     for (unsigned i = 0; i < sizeof(ec_algos)/sizeof(*ec_algos); ++i, ++info)
       if (n == info->name)
-	{
-	  *err = nullptr;
+        {
+          *err = nullptr;
 
-	  struct emptiness_check_instantiator_aux:
+          struct emptiness_check_instantiator_aux:
             public emptiness_check_instantiator
-	  {
-	    emptiness_check_instantiator_aux(option_map o, void* i):
-	      emptiness_check_instantiator(o, i)
-	    {
-	    }
-	  };
-	  return std::make_shared<emptiness_check_instantiator_aux>(o, info);
-	}
+          {
+            emptiness_check_instantiator_aux(option_map o, void* i):
+              emptiness_check_instantiator(o, i)
+            {
+            }
+          };
+          return std::make_shared<emptiness_check_instantiator_aux>(o, info);
+        }
     *err = name;
     return nullptr;
   }
@@ -233,13 +233,13 @@ namespace spot
     aut = run.aut;
     for (step s : run.prefix)
       {
-	s.s = s.s->clone();
-	prefix.push_back(s);
+        s.s = s.s->clone();
+        prefix.push_back(s);
       }
     for (step s : run.cycle)
       {
-	s.s = s.s->clone();
-	cycle.push_back(s);
+        s.s = s.s->clone();
+        cycle.push_back(s);
       }
   }
 
@@ -248,8 +248,8 @@ namespace spot
   {
     if (&run != this)
       {
-	this->~twa_run();
-	new(this) twa_run(run);
+        this->~twa_run();
+        new(this) twa_run(run);
       }
     return *this;
   }
@@ -265,7 +265,7 @@ namespace spot
       os << "  " << a->format_state(st.s) << "\n  |  ";
       bdd_print_formula(os, d, st.label);
       if (st.acc)
-	os << '\t' << st.acc;
+        os << '\t' << st.acc;
       os << '\n';
     };
 
@@ -308,7 +308,7 @@ namespace spot
       const state*
       search(const state* start, twa_run::steps& l)
       {
-	return this->bfs_steps::search(filter(start), l);
+        return this->bfs_steps::search(filter(start), l);
       }
 
       const state*
@@ -358,7 +358,7 @@ namespace spot
     do
       {
         assert(seg != cycle.begin());
-	--seg;
+        --seg;
         seen_acc |= seg->acc;
       }
     while (!a->acc().accepting(seen_acc));
@@ -372,10 +372,10 @@ namespace spot
         assert(seg != cycle.end());
         seen_acc |= seg->acc;
 
-	twa_run::step st = { seg->s->clone(), seg->label, seg->acc };
-	res->cycle.push_back(st);
+        twa_run::step st = { seg->s->clone(), seg->label, seg->acc };
+        res->cycle.push_back(st);
 
-	++seg;
+        ++seg;
       }
     while (!a->acc().accepting(seen_acc));
     segment_next = seg == cycle.end() ? cycle.front().s : seg->s;
@@ -388,7 +388,7 @@ namespace spot
         const state* s = shpath.search(segment_next->clone(), res->cycle);
         ss.clear();
         assert(s->compare(segment_start) == 0);
-	(void)s;
+        (void)s;
       }
 
     // Compute the prefix: it's the shortest path from the initial
@@ -396,7 +396,7 @@ namespace spot
 
     // Register all states from the cycle as target of the BFS.
     for (twa_run::steps::const_iterator i = res->cycle.begin();
-	 i != res->cycle.end(); ++i)
+         i != res->cycle.end(); ++i)
       ss.insert(i->s);
 
     const state* prefix_start = a->get_init_state();
@@ -409,27 +409,27 @@ namespace spot
     state_set::const_iterator ps = ss.find(prefix_start);
     if (ps != ss.end())
       {
-	// The initial state is on the cycle.
-	prefix_start->destroy();
-	cycle_entry_point = *ps;
+        // The initial state is on the cycle.
+        prefix_start->destroy();
+        cycle_entry_point = *ps;
       }
     else
       {
-	// This initial state is outside the cycle.  Compute the prefix.
+        // This initial state is outside the cycle.  Compute the prefix.
         cycle_entry_point = shpath.search(prefix_start, res->prefix);
       }
 
     // Locate cycle_entry_point on the cycle.
     twa_run::steps::iterator cycle_ep_it;
     for (cycle_ep_it = res->cycle.begin();
-	 cycle_ep_it != res->cycle.end()
-	   && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)
+         cycle_ep_it != res->cycle.end()
+           && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)
       continue;
     assert(cycle_ep_it != res->cycle.end());
 
     // Now shift the cycle so it starts on cycle_entry_point.
     res->cycle.splice(res->cycle.end(), res->cycle,
-		      res->cycle.begin(), cycle_ep_it);
+                      res->cycle.begin(), cycle_ep_it);
 
     return res;
   }
@@ -446,195 +446,195 @@ namespace spot
 
     if (prefix.empty())
       {
-	l = &cycle;
-	in = "cycle";
-	if (!debug)
-	  os << "No prefix.\nCycle:\n";
+        l = &cycle;
+        in = "cycle";
+        if (!debug)
+          os << "No prefix.\nCycle:\n";
       }
     else
       {
-	l = &prefix;
-	in = "prefix";
-	if (!debug)
-	  os << "Prefix:\n";
+        l = &prefix;
+        in = "prefix";
+        if (!debug)
+          os << "Prefix:\n";
       }
 
     twa_run::steps::const_iterator i = l->begin();
 
     if (s->compare(i->s))
       {
-	if (debug)
-	  os << "ERROR: First state of run (in " << in << "): "
-	     << aut->format_state(i->s)
-	     << "\ndoes not match initial state of automata: "
-	     << aut->format_state(s) << '\n';
-	s->destroy();
-	return false;
+        if (debug)
+          os << "ERROR: First state of run (in " << in << "): "
+             << aut->format_state(i->s)
+             << "\ndoes not match initial state of automata: "
+             << aut->format_state(s) << '\n';
+        s->destroy();
+        return false;
       }
 
     for (; i != l->end(); ++serial)
       {
-	if (debug)
-	  {
-	    // Keep track of the serial associated to each state so we
-	    // can note duplicate states and make the replay easier to read.
-	    auto o = seen.find(s);
-	    std::ostringstream msg;
-	    if (o != seen.end())
-	      {
-		for (auto d: o->second)
-		  msg << " == " << d;
-		o->second.insert(serial);
-		s->destroy();
-		s = o->first;
-	      }
-	    else
-	      {
-		seen[s].insert(serial);
-	      }
-	    os << "state " << serial << " in " << in << msg.str() << ": ";
-	  }
-	else
-	  {
-	    os << "  ";
-	  }
-	os << aut->format_state(s) << '\n';
+        if (debug)
+          {
+            // Keep track of the serial associated to each state so we
+            // can note duplicate states and make the replay easier to read.
+            auto o = seen.find(s);
+            std::ostringstream msg;
+            if (o != seen.end())
+              {
+                for (auto d: o->second)
+                  msg << " == " << d;
+                o->second.insert(serial);
+                s->destroy();
+                s = o->first;
+              }
+            else
+              {
+                seen[s].insert(serial);
+              }
+            os << "state " << serial << " in " << in << msg.str() << ": ";
+          }
+        else
+          {
+            os << "  ";
+          }
+        os << aut->format_state(s) << '\n';
 
-	// expected outgoing transition
-	bdd label = i->label;
-	acc_cond::mark_t acc = i->acc;
+        // expected outgoing transition
+        bdd label = i->label;
+        acc_cond::mark_t acc = i->acc;
 
-	// compute the next expected state
-	const state* next;
-	++i;
-	if (i != l->end())
-	  {
-	    next = i->s;
-	  }
-	else
-	  {
-	    if (l == &prefix)
-	      {
-		l = &cycle;
-		in = "cycle";
-		i = l->begin();
-		if (!debug)
-		  os << "Cycle:\n";
-	      }
-	    next = l->begin()->s;
-	  }
+        // compute the next expected state
+        const state* next;
+        ++i;
+        if (i != l->end())
+          {
+            next = i->s;
+          }
+        else
+          {
+            if (l == &prefix)
+              {
+                l = &cycle;
+                in = "cycle";
+                i = l->begin();
+                if (!debug)
+                  os << "Cycle:\n";
+              }
+            next = l->begin()->s;
+          }
 
-	// browse the actual outgoing transitions
-	twa_succ_iterator* j = aut->succ_iter(s);
-	// When not debugging, S is not used as key in SEEN, so we can
-	// destroy it right now.
-	if (!debug)
-	  s->destroy();
-	if (j->first())
-	  do
-	    {
-	      if (j->cond() != label
-		  || j->acc() != acc)
-		continue;
+        // browse the actual outgoing transitions
+        twa_succ_iterator* j = aut->succ_iter(s);
+        // When not debugging, S is not used as key in SEEN, so we can
+        // destroy it right now.
+        if (!debug)
+          s->destroy();
+        if (j->first())
+          do
+            {
+              if (j->cond() != label
+                  || j->acc() != acc)
+                continue;
 
-	      const state* s2 = j->dst();
-	      if (s2->compare(next))
-		{
-		  s2->destroy();
-		  continue;
-		}
-	      else
-		{
-		  s = s2;
-		  break;
-		}
-	    }
-	  while (j->next());
-	if (j->done())
-	  {
-	    if (debug)
-	      {
-		os << "ERROR: no transition with label="
-		   << bdd_format_formula(aut->get_dict(), label)
-		   << " and acc=" << aut->acc().format(acc)
-		   << " leaving state " << serial
-		   << " for state " << aut->format_state(next) << '\n'
-		   << "The following transitions leave state " << serial
-		   << ":\n";
-		if (j->first())
-		  do
-		    {
-		      const state* s2 = j->dst();
-		      os << "  * label="
-			 << bdd_format_formula(aut->get_dict(),
-					       j->cond())
-			 << " and acc="
-			 << (aut->acc().format
-			     (j->acc()))
-			 << " going to " << aut->format_state(s2) << '\n';
-		      s2->destroy();
-		    }
-		  while (j->next());
-	      }
-	    aut->release_iter(j);
-	    s->destroy();
-	    return false;
-	  }
-	if (debug)
-	  {
-	    os << "transition with label="
-	       << bdd_format_formula(aut->get_dict(), label)
-	       << " and acc=" << aut->acc().format(acc)
-	       << std::endl;
-	  }
-	else
-	  {
-	    os << "  |  ";
-	    bdd_print_formula(os, aut->get_dict(), label);
-	    os << '\t';
-	    aut->acc().format(acc);
-	    os << std::endl;
-	  }
-	aut->release_iter(j);
+              const state* s2 = j->dst();
+              if (s2->compare(next))
+                {
+                  s2->destroy();
+                  continue;
+                }
+              else
+                {
+                  s = s2;
+                  break;
+                }
+            }
+          while (j->next());
+        if (j->done())
+          {
+            if (debug)
+              {
+                os << "ERROR: no transition with label="
+                   << bdd_format_formula(aut->get_dict(), label)
+                   << " and acc=" << aut->acc().format(acc)
+                   << " leaving state " << serial
+                   << " for state " << aut->format_state(next) << '\n'
+                   << "The following transitions leave state " << serial
+                   << ":\n";
+                if (j->first())
+                  do
+                    {
+                      const state* s2 = j->dst();
+                      os << "  * label="
+                         << bdd_format_formula(aut->get_dict(),
+                                               j->cond())
+                         << " and acc="
+                         << (aut->acc().format
+                             (j->acc()))
+                         << " going to " << aut->format_state(s2) << '\n';
+                      s2->destroy();
+                    }
+                  while (j->next());
+              }
+            aut->release_iter(j);
+            s->destroy();
+            return false;
+          }
+        if (debug)
+          {
+            os << "transition with label="
+               << bdd_format_formula(aut->get_dict(), label)
+               << " and acc=" << aut->acc().format(acc)
+               << std::endl;
+          }
+        else
+          {
+            os << "  |  ";
+            bdd_print_formula(os, aut->get_dict(), label);
+            os << '\t';
+            aut->acc().format(acc);
+            os << std::endl;
+          }
+        aut->release_iter(j);
 
-	// Sum acceptance conditions.
-	//
-	// (Beware l and i designate the next step to consider.
-	// Therefore if i is at the beginning of the cycle, `acc'
-	// contains the acceptance conditions of the last transition
-	// in the prefix; we should not account it.)
-	if (l == &cycle && i != l->begin())
-	  {
-	    all_acc |= acc;
-	    if (!all_acc_seen && aut->acc().accepting(all_acc))
-	      {
-		all_acc_seen = true;
-		if (debug)
-		  os << "all acceptance conditions ("
-		     << aut->acc().format(all_acc)
-		     << ") have been seen\n";
-	      }
-	  }
+        // Sum acceptance conditions.
+        //
+        // (Beware l and i designate the next step to consider.
+        // Therefore if i is at the beginning of the cycle, `acc'
+        // contains the acceptance conditions of the last transition
+        // in the prefix; we should not account it.)
+        if (l == &cycle && i != l->begin())
+          {
+            all_acc |= acc;
+            if (!all_acc_seen && aut->acc().accepting(all_acc))
+              {
+                all_acc_seen = true;
+                if (debug)
+                  os << "all acceptance conditions ("
+                     << aut->acc().format(all_acc)
+                     << ") have been seen\n";
+              }
+          }
       }
     s->destroy();
     if (!aut->acc().accepting(all_acc))
       {
-	if (debug)
-	  os << "ERROR: The cycle's acceptance conditions ("
-	     << aut->acc().format(all_acc)
-	     << ") do not\nmatch those of the automaton ("
-	     << aut->acc().format(aut->acc().all_sets())
-	     << ")\n";
-	return false;
+        if (debug)
+          os << "ERROR: The cycle's acceptance conditions ("
+             << aut->acc().format(all_acc)
+             << ") do not\nmatch those of the automaton ("
+             << aut->acc().format(aut->acc().all_sets())
+             << ")\n";
+        return false;
       }
 
     auto o = seen.begin();
     while (o != seen.end())
       {
-	// Advance the iterator before deleting the "key" pointer.
-	const state* ptr = o->first;
-	++o;
-	ptr->destroy();
+        // Advance the iterator before deleting the "key" pointer.
+        const state* ptr = o->first;
+        ++o;
+        ptr->destroy();
       }
 
     return true;
@@ -655,33 +655,33 @@ namespace spot
     auto e = l->end();
     for (auto i = l->begin(); i != e;)
       {
-	bdd label = i->label;
-	acc_cond::mark_t acc = i->acc;
-	unsigned dst;
-	++i;
-	if (i != e)
-	  {
-	    dst = a->state_number(i->s);
-	  }
-	else if (l == &prefix)
-	  {
-	    l = &cycle;
-	    i = l->begin();
-	    e = l->end();
-	    dst = a->state_number(i->s);
-	  }
-	else
-	  {
-	    dst = a->state_number(l->begin()->s);
-	  }
+        bdd label = i->label;
+        acc_cond::mark_t acc = i->acc;
+        unsigned dst;
+        ++i;
+        if (i != e)
+          {
+            dst = a->state_number(i->s);
+          }
+        else if (l == &prefix)
+          {
+            l = &cycle;
+            i = l->begin();
+            e = l->end();
+            dst = a->state_number(i->s);
+          }
+        else
+          {
+            dst = a->state_number(l->begin()->s);
+          }
 
-	for (auto& t: a->out(src))
-	  if (t.dst == dst && t.cond == label && t.acc == acc)
-	    {
-	      (*h)[a->get_graph().index_of_edge(t)] = color;
-	      break;
-	    }
-	src = dst;
+        for (auto& t: a->out(src))
+          if (t.dst == dst && t.cond == label && t.acc == acc)
+            {
+              (*h)[a->get_graph().index_of_edge(t)] = color;
+              break;
+            }
+        src = dst;
       }
     a->set_named_prop("highlight-edges", h);
   }
@@ -717,7 +717,7 @@ namespace spot
       {
         // expected outgoing transition
         bdd label = i->label;
-	acc_cond::mark_t acc = i->acc;
+        acc_cond::mark_t acc = i->acc;
 
         // compute the next expected state
         const state* next;
@@ -737,9 +737,9 @@ namespace spot
           }
 
         // browse the actual outgoing transitions and
-	// look for next;
-	const state* the_next = nullptr;
-	for (auto j: aut->succ(s))
+        // look for next;
+        const state* the_next = nullptr;
+        for (auto j: aut->succ(s))
           {
             if (j->cond() != label
                 || j->acc() != acc)
@@ -748,27 +748,27 @@ namespace spot
             const state* s2 = j->dst();
             if (s2->compare(next) == 0)
               {
-		the_next = s2;
-		break;
-	      }
-	    s2->destroy();
+                the_next = s2;
+                break;
+              }
+            s2->destroy();
           }
         assert(res);
         s->destroy();
-	s = the_next;
+        s = the_next;
 
 
-	auto p = seen.emplace(next, 0);
-	if (p.second)
-	  p.first->second = res->new_state();
-	dst = p.first->second;
+        auto p = seen.emplace(next, 0);
+        if (p.second)
+          p.first->second = res->new_state();
+        dst = p.first->second;
 
-	res->new_edge(src, dst, label, acc);
-	src = dst;
+        res->new_edge(src, dst, label, acc);
+        src = dst;
 
         // Sum acceptance conditions.
         if (l == &cycle && i != l->begin())
-	  seen_acc |= acc;
+          seen_acc |= acc;
       }
 
     s->destroy();

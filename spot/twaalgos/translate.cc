@@ -35,9 +35,9 @@ namespace spot
     comp_susp_ = opt->get("comp-susp", 0);
     if (comp_susp_ == 1)
       {
-	early_susp_ = opt->get("early-susp", 0);
-	skel_wdba_ = opt->get("skel-wdba", -1);
-	skel_simul_ = opt->get("skel-simul", 1);
+        early_susp_ = opt->get("early-susp", 0);
+        skel_wdba_ = opt->get("skel-wdba", -1);
+        skel_simul_ = opt->get("skel-simul", 1);
       }
   }
 
@@ -47,16 +47,16 @@ namespace spot
     switch (level_)
       {
       case High:
-	options.containment_checks = true;
-	options.containment_checks_stronger = true;
-	// fall through
+        options.containment_checks = true;
+        options.containment_checks_stronger = true;
+        // fall through
       case Medium:
-	options.synt_impl = true;
-	// fall through
+        options.synt_impl = true;
+        // fall through
       case Low:
-	options.reduce_basics = true;
-	options.event_univ = true;
-	// fall through
+        options.reduce_basics = true;
+        options.event_univ = true;
+        // fall through
       }
     simpl_owned_ = simpl_ = new tl_simplifier(options, dict);
   }
@@ -66,10 +66,10 @@ namespace spot
     bool unambiguous = (pref_ & postprocessor::Unambiguous);
     if (unambiguous && type_ == postprocessor::Monitor)
       {
-	// Deterministic monitor are unambiguous, so the unambiguous
-	// option is not really relevant for monitors.
-	unambiguous = false;
-	set_pref(pref_ | postprocessor::Deterministic);
+        // Deterministic monitor are unambiguous, so the unambiguous
+        // option is not really relevant for monitors.
+        unambiguous = false;
+        set_pref(pref_ | postprocessor::Deterministic);
       }
 
     formula r = simpl_->simplify(*f);
@@ -82,21 +82,21 @@ namespace spot
     twa_graph_ptr aut;
     if (comp_susp_ > 0)
       {
-	// FIXME: Handle unambiguous_ automata?
-	int skel_wdba = skel_wdba_;
-	if (skel_wdba < 0)
-	  skel_wdba = (pref_ == postprocessor::Deterministic) ? 1 : 2;
+        // FIXME: Handle unambiguous_ automata?
+        int skel_wdba = skel_wdba_;
+        if (skel_wdba < 0)
+          skel_wdba = (pref_ == postprocessor::Deterministic) ? 1 : 2;
 
-	aut = compsusp(r, simpl_->get_dict(), skel_wdba == 0,
-		       skel_simul_ == 0, early_susp_ != 0,
-		       comp_susp_ == 2, skel_wdba == 2, false);
+        aut = compsusp(r, simpl_->get_dict(), skel_wdba == 0,
+                       skel_simul_ == 0, early_susp_ != 0,
+                       comp_susp_ == 2, skel_wdba == 2, false);
       }
     else
       {
-	bool exprop = unambiguous || level_ == postprocessor::High;
-	aut = ltl_to_tgba_fm(r, simpl_->get_dict(), exprop,
-			     true, false, false, nullptr, nullptr,
-			     unambiguous);
+        bool exprop = unambiguous || level_ == postprocessor::High;
+        aut = ltl_to_tgba_fm(r, simpl_->get_dict(), exprop,
+                             true, false, false, nullptr, nullptr,
+                             unambiguous);
       }
     aut = this->postprocessor::run(aut, r);
     return aut;

@@ -43,9 +43,9 @@ namespace spot
     /// These states are acquired by spot::state_product, and will
     /// be destroyed on destruction.
     state_product(const state* left,
-		  const state* right,
-		  fixed_size_pool* pool)
-      :	left_(left), right_(right), count_(1), pool_(pool)
+                  const state* right,
+                  fixed_size_pool* pool)
+      :        left_(left), right_(right), count_(1), pool_(pool)
     {
     }
 
@@ -68,8 +68,8 @@ namespace spot
     virtual state_product* clone() const override;
 
   private:
-    const state* left_;		///< State from the left automaton.
-    const state* right_;	///< State from the right automaton.
+    const state* left_;                ///< State from the left automaton.
+    const state* right_;        ///< State from the right automaton.
     mutable unsigned count_;
     fixed_size_pool* pool_;
 
@@ -120,7 +120,7 @@ namespace spot
   {
   public:
     twa_product_init(const const_twa_ptr& left, const const_twa_ptr& right,
-		      const state* left_init, const state* right_init);
+                      const state* left_init, const state* right_init);
     virtual const state* get_init_state() const override;
   protected:
     const state* left_init_;
@@ -129,18 +129,18 @@ namespace spot
 
   /// \brief on-the-fly TGBA product
   inline twa_product_ptr otf_product(const const_twa_ptr& left,
-				      const const_twa_ptr& right)
+                                      const const_twa_ptr& right)
   {
     return std::make_shared<twa_product>(left, right);
   }
 
   /// \brief on-the-fly TGBA product with forced initial states
   inline twa_product_ptr otf_product_at(const const_twa_ptr& left,
-					const const_twa_ptr& right,
-					const state* left_init,
-					const state* right_init)
+                                        const const_twa_ptr& right,
+                                        const state* left_init,
+                                        const state* right_init)
   {
     return std::make_shared<twa_product_init>(left, right,
-					      left_init, right_init);
+                                              left_init, right_init);
   }
 }

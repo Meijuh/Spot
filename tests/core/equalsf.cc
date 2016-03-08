@@ -66,152 +66,152 @@ main(int argc, char** argv)
     {
       ++line;
       std::cerr << line << ": " << s << '\n';
-      if (s[0] == '#')		// Skip comments
-	continue;
+      if (s[0] == '#')                // Skip comments
+        continue;
       std::vector<std::string> formulas;
       {
-	std::istringstream ss(s);
-	std::string form;
-	while (std::getline(ss, form, ','))
-	  {
-	    std::string tmp;
-	    while (form.size() > 0 && form.back() == '\\'
-		   && std::getline(ss, tmp, ','))
-	      {
-		form.back() = ',';
-		form += tmp;
-	      }
-	    formulas.push_back(form);
-	  }
+        std::istringstream ss(s);
+        std::string form;
+        while (std::getline(ss, form, ','))
+          {
+            std::string tmp;
+            while (form.size() > 0 && form.back() == '\\'
+                   && std::getline(ss, tmp, ','))
+              {
+                form.back() = ',';
+                form += tmp;
+              }
+            formulas.push_back(form);
+          }
       }
 
       unsigned size = formulas.size();
-      if (size == 0)		// Skip empty lines
-	continue;
+      if (size == 0)                // Skip empty lines
+        continue;
 
       if (size == 1)
-	{
-	  std::cerr << "Not enough formulas on line " << line << '\n';
-	  return 2;
-	}
+        {
+          std::cerr << "Not enough formulas on line " << line << '\n';
+          return 2;
+        }
 
       auto pf2 = spot::parse_infix_psl(formulas[size - 1]);
 
       if (pf2.format_errors(std::cerr))
-	return 2;
+        return 2;
       auto f2 = pf2.f;
 
       for (unsigned n = 0; n < size - 1; ++n)
-	{
+        {
 
-	  auto pf1 = spot::parse_infix_psl(formulas[n]);
+          auto pf1 = spot::parse_infix_psl(formulas[n]);
 
-	  if (check_first && pf1.format_errors(std::cerr))
-	    return 2;
-	  auto f1 = pf1.f;
+          if (check_first && pf1.format_errors(std::cerr))
+            return 2;
+          auto f1 = pf1.f;
 
-	  int exit_code = 0;
+          int exit_code = 0;
 
-	  {
+          {
 #if defined UNABBREV || defined NENOFORM
-	    spot::formula tmp;
+            spot::formula tmp;
 #endif
 #ifdef UNABBREV
-	    tmp = f1;
-	    f1 = spot::unabbreviate(f1, UNABBREV);
-	    f1.dump(std::cout) << std::endl;
+            tmp = f1;
+            f1 = spot::unabbreviate(f1, UNABBREV);
+            f1.dump(std::cout) << std::endl;
 #endif
 #ifdef NENOFORM
-	    tmp = f1;
-	    f1 = spot::negative_normal_form(f1);
-	    f1.dump(std::cout) << std::endl;
+            tmp = f1;
+            f1 = spot::negative_normal_form(f1);
+            f1.dump(std::cout) << std::endl;
 #endif
 #ifdef REDUC
-	    spot::tl_simplifier_options opt(true, true, true,
-						  false, false);
+            spot::tl_simplifier_options opt(true, true, true,
+                                                  false, false);
 #  ifdef EVENT_UNIV
-	    opt.favor_event_univ = true;
+            opt.favor_event_univ = true;
 #  endif
-	    spot::tl_simplifier simp(opt);
-	    {
-	      spot::formula tmp;
-	      tmp = f1;
-	      f1 = simp.simplify(f1);
+            spot::tl_simplifier simp(opt);
+            {
+              spot::formula tmp;
+              tmp = f1;
+              f1 = simp.simplify(f1);
 
-	      if (!simp.are_equivalent(f1, tmp))
-		{
-		  std::cerr
-		    << "Source and simplified formulae are not equivalent!\n";
-		  spot::print_psl(std::cerr << "Simplified: ", f1) << '\n';
-		  exit_code = 1;
-		}
-	    }
-	    f1.dump(std::cout) << std::endl;
+              if (!simp.are_equivalent(f1, tmp))
+                {
+                  std::cerr
+                    << "Source and simplified formulae are not equivalent!\n";
+                  spot::print_psl(std::cerr << "Simplified: ", f1) << '\n';
+                  exit_code = 1;
+                }
+            }
+            f1.dump(std::cout) << std::endl;
 #endif
 #ifdef REDUC_TAU
-	    spot::tl_simplifier_options opt(false, false, false,
-						  true, false);
-	    spot::tl_simplifier simp(opt);
-	    {
-	      spot::formula tmp;
-	      tmp = f1;
-	      f1 = simp.simplify(f1);
+            spot::tl_simplifier_options opt(false, false, false,
+                                                  true, false);
+            spot::tl_simplifier simp(opt);
+            {
+              spot::formula tmp;
+              tmp = f1;
+              f1 = simp.simplify(f1);
 
-	      if (!simp.are_equivalent(f1, tmp))
-		{
-		  std::cerr
-		    << "Source and simplified formulae are not equivalent!\n";
-		  spot::print_psl(std::cerr << "Simplified: ", f1) << '\n';
-		  exit_code = 1;
-		}
-	    }
-	    f1.dump(std::cout) << std::endl;
+              if (!simp.are_equivalent(f1, tmp))
+                {
+                  std::cerr
+                    << "Source and simplified formulae are not equivalent!\n";
+                  spot::print_psl(std::cerr << "Simplified: ", f1) << '\n';
+                  exit_code = 1;
+                }
+            }
+            f1.dump(std::cout) << std::endl;
 #endif
 #ifdef REDUC_TAUSTR
-	    spot::tl_simplifier_options opt(false, false, false,
-						  true, true);
-	    spot::tl_simplifier simp(opt);
-	    {
-	      spot::formula tmp;
-	      tmp = f1;
-	      f1 = simp.simplify(f1);
+            spot::tl_simplifier_options opt(false, false, false,
+                                                  true, true);
+            spot::tl_simplifier simp(opt);
+            {
+              spot::formula tmp;
+              tmp = f1;
+              f1 = simp.simplify(f1);
 
-	      if (!simp.are_equivalent(f1, tmp))
-		{
-		  std::cerr
-		    << "Source and simplified formulae are not equivalent!\n";
-		  spot::print_psl(std::cerr << "Simplified: ", f1) << '\n';
-		  exit_code = 1;
-		}
-	    }
-	    f1.dump(std::cout) << std::endl;
+              if (!simp.are_equivalent(f1, tmp))
+                {
+                  std::cerr
+                    << "Source and simplified formulae are not equivalent!\n";
+                  spot::print_psl(std::cerr << "Simplified: ", f1) << '\n';
+                  exit_code = 1;
+                }
+            }
+            f1.dump(std::cout) << std::endl;
 #endif
 
-	    exit_code |= f1 != f2;
+            exit_code |= f1 != f2;
 
 #if (!defined(REDUC) && !defined(REDUC_TAU) && !defined(REDUC_TAUSTR))
-	    spot::tl_simplifier simp;
+            spot::tl_simplifier simp;
 #endif
 
-	    if (!simp.are_equivalent(f1, f2))
-	      {
+            if (!simp.are_equivalent(f1, f2))
+              {
 #if (!defined(REDUC) && !defined(REDUC_TAU) && !defined(REDUC_TAUSTR))
-		std::cerr
-		  << "Source and destination formulae are not equivalent!\n";
+                std::cerr
+                  << "Source and destination formulae are not equivalent!\n";
 #else
-		std::cerr
-		  << "Simpl. and destination formulae are not equivalent!\n";
+                std::cerr
+                  << "Simpl. and destination formulae are not equivalent!\n";
 #endif
-		exit_code = 1;
-	      }
+                exit_code = 1;
+              }
 
 #if NEGATE
-	    exit_code ^= 1;
+            exit_code ^= 1;
 #endif
-	    if (exit_code)
-	      return exit_code;
-	  }
-	}
+            if (exit_code)
+              return exit_code;
+          }
+        }
     }
 
   assert(spot::fnode::instances_check());

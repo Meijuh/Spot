@@ -59,7 +59,7 @@ namespace spot
   /// instead.
   SPOT_API twa_graph_ptr
   scc_filter(const const_twa_graph_ptr& aut, bool remove_all_useless = false,
-	     scc_info* given_si = nullptr);
+             scc_info* given_si = nullptr);
 
   /// \brief Prune unaccepting SCCs.
   ///
@@ -70,8 +70,8 @@ namespace spot
   /// property.
   SPOT_API twa_graph_ptr
   scc_filter_states(const const_twa_graph_ptr& aut,
-		    bool remove_all_useless = false,
-		    scc_info* given_si = nullptr);
+                    bool remove_all_useless = false,
+                    scc_info* given_si = nullptr);
 
   /// \brief Prune unaccepting SCCs, superfluous acceptance
   /// sets, and suspension variables.
@@ -85,6 +85,6 @@ namespace spot
   /// other use.
   SPOT_API twa_graph_ptr
   scc_filter_susp(const const_twa_graph_ptr& aut, bool remove_all_useless,
-		  bdd suspvars, bdd ignoredvars, bool early_susp,
-		  scc_info* given_si = nullptr);
+                  bdd suspvars, bdd ignoredvars, bool early_susp,
+                  scc_info* given_si = nullptr);
 }

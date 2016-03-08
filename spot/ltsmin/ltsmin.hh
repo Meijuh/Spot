@@ -67,9 +67,9 @@ namespace spot
     // to enable compression, 2 to enable a faster compression that only
     // work if all variables are smaller than 2^28.
     kripke_ptr kripke(const atomic_prop_set* to_observe,
-		      bdd_dict_ptr dict,
-		      formula dead = formula::tt(),
-		      int compress = 0) const;
+                      bdd_dict_ptr dict,
+                      formula dead = formula::tt(),
+                      int compress = 0) const;
 
     /// Number of variables in a state
     int state_size() const;

@@ -41,8 +41,8 @@ spot::twa_graph_ptr
 read_automaton(const char* filename, spot::bdd_dict_ptr& dict)
 {
   auto p = spot::parse_aut(filename, dict,
-			   spot::default_environment::instance(),
-			   opt_parse);
+                           spot::default_environment::instance(),
+                           opt_parse);
   if (p->format_errors(std::cerr))
     error(2, 0, "failed to read automaton from %s", filename);
   if (p->aborted)
@@ -86,5 +86,5 @@ parse_opt_hoaread(int key, char* arg, struct argp_state*)
 
 
 const struct argp hoaread_argp = { options, parse_opt_hoaread,
-				   nullptr, nullptr, nullptr,
-				   nullptr, nullptr };
+                                   nullptr, nullptr, nullptr,
+                                   nullptr, nullptr };

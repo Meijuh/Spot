@@ -35,7 +35,7 @@ namespace spot
         title =   {Enumerating the Cycles of a Digraph: A New
                    Preprocessing Strategy},
         journal = {Information Sciences},
-        year = 	  {1982},
+        year =           {1982},
         volume =  {27},
         number =  {3},
         pages =   {163--182},
@@ -80,7 +80,7 @@ namespace spot
     struct state_info
     {
       state_info(unsigned num)
-	: seen(false), reach(false), mark(false), del(num)
+        : seen(false), reach(false), mark(false), del(num)
       {
       }
       bool seen;

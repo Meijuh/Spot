@@ -83,11 +83,11 @@ namespace spot
   /// TGBA \a tgba_to_convert.
   SPOT_API ta_explicit_ptr
   tgba_to_ta(const const_twa_ptr& tgba_to_convert, bdd atomic_propositions_set,
-	     bool degeneralized = true,
-	     bool artificial_initial_state_mode = true,
-	     bool single_pass_emptiness_check = false,
-	     bool artificial_livelock_state_mode = false,
-	     bool no_livelock = false);
+             bool degeneralized = true,
+             bool artificial_initial_state_mode = true,
+             bool single_pass_emptiness_check = false,
+             bool artificial_livelock_state_mode = false,
+             bool no_livelock = false);
 
   /// \ingroup tgba_ta
   /// \brief Build a spot::tgta_explicit* (TGTA) from an LTL formula.
@@ -100,5 +100,5 @@ namespace spot
   ///  language as the TGBA \a tgba_to_convert.
   SPOT_API tgta_explicit_ptr
   tgba_to_tgta(const const_twa_ptr& tgba_to_convert,
-	       bdd atomic_propositions_set);
+               bdd atomic_propositions_set);
 }

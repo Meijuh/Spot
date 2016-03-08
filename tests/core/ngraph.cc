@@ -39,7 +39,7 @@ dot_state(std::ostream& out, const spot::digraph<void, TL>&, unsigned)
 template <typename SL, typename TL>
 void
 dot_state(std::ostream& out, const spot::digraph<SL, TL>& g, unsigned n,
-	  std::string name)
+          std::string name)
 {
   out << " [label=\"" << name << "\\n" << g.state_data(n) << "\"]\n";
 }
@@ -47,7 +47,7 @@ dot_state(std::ostream& out, const spot::digraph<SL, TL>& g, unsigned n,
 template <typename TL>
 void
 dot_state(std::ostream& out, const spot::digraph<void, TL>&, unsigned,
-	  std::string name)
+          std::string name)
 {
   out << " [label=\"" << name << "\"]\n";
 }
@@ -79,10 +79,10 @@ dot(std::ostream& out, const spot::digraph<SL, TL>& g)
       out << ' ' << s;
       dot_state(out, g, s);
       for (auto& t: g.out(s))
-	{
-	  out << ' ' << s << " -> " << t.dst;
-	  dot_trans(out, g, t);
-	}
+        {
+          out << ' ' << s << " -> " << t.dst;
+          dot_trans(out, g, t);
+        }
     }
   out << "}\n";
 }
@@ -99,10 +99,10 @@ dot(std::ostream& out, const spot::named_graph<G1, G2, G3, G4>& g)
       out << ' ' << s;
       dot_state(out, gg, s, g.get_name(s));
       for (auto& t: gg.out(s))
-	{
-	  out << ' ' << s << " -> " << t.dst;
-	  dot_trans(out, gg, t);
-	}
+        {
+          out << ' ' << s << " -> " << t.dst;
+          dot_trans(out, gg, t);
+        }
     }
   out << "}\n";
 }
@@ -285,9 +285,9 @@ static bool f7()
   for (auto& t: g.out(s1))
     {
       for (auto& tt: t.dst)
-	{
-	  f += t.label * g.state_data(tt);
-	}
+        {
+          f += t.label * g.state_data(tt);
+        }
     }
   return f == 15;
 }
@@ -423,13 +423,13 @@ int main()
   bool a8 = f8();
   bool a9 = f9();
   std::cout << a1 << ' '
-	    << a2 << ' '
-	    << a3 << ' '
-	    << a4 << ' '
-	    << a5 << ' '
-	    << a6 << ' '
-	    << a7 << ' '
-	    << a8 << ' '
-	    << a9 << '\n';
+            << a2 << ' '
+            << a3 << ' '
+            << a4 << ' '
+            << a5 << ' '
+            << a6 << ' '
+            << a7 << ' '
+            << a8 << ' '
+            << a9 << '\n';
   return !(a1 && a2 && a3 && a4 && a5 && a6 && a7 && a8 && a9);
 }

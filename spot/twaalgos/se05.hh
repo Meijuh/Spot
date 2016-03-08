@@ -132,7 +132,7 @@ namespace spot
   ///
   SPOT_API emptiness_check_ptr
   bit_state_hashing_se05_search(const const_twa_ptr& a, size_t size,
-				option_map o = option_map());
+                                option_map o = option_map());
 
 
   /// \brief Wrapper for the two se05 implementations.

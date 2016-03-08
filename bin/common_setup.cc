@@ -129,7 +129,7 @@ parse_opt_misc(int key, char*, struct argp_state* state)
       break;
     case OPT_USAGE:
       argp_state_help(state, state->out_stream,
-		      ARGP_HELP_USAGE | ARGP_HELP_EXIT_OK);
+                      ARGP_HELP_USAGE | ARGP_HELP_EXIT_OK);
       break;
     case OPT_VERSION:
       display_version(state->out_stream, state);
@@ -143,8 +143,8 @@ parse_opt_misc(int key, char*, struct argp_state* state)
 
 
 const struct argp misc_argp = { options, parse_opt_misc,
-				nullptr, nullptr, nullptr, nullptr, nullptr };
+                                nullptr, nullptr, nullptr, nullptr, nullptr };
 
 const struct argp misc_argp_hidden = { options_hidden, parse_opt_misc,
-				       nullptr, nullptr, nullptr,
-				       nullptr, nullptr };
+                                       nullptr, nullptr, nullptr,
+                                       nullptr, nullptr };

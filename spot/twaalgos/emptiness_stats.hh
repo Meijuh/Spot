@@ -75,14 +75,14 @@ namespace spot
     seteq(const unsigned_statistics& o)
     {
       if (!set)
-	{
-	  for (auto& i: o.stats)
-	    stats[i.first] = (o.*i.second)();
-	  set = true;
-	  return true;
-	}
+        {
+          for (auto& i: o.stats)
+            stats[i.first] = (o.*i.second)();
+          set = true;
+          return true;
+        }
       if (*this == o)
-	return true;
+        return true;
       return false;
     }
 
@@ -94,13 +94,13 @@ namespace spot
     operator==(const unsigned_statistics_copy& o) const
     {
       for (auto& i: stats)
-	{
-	  auto i2 = o.stats.find(i.first);
-	  if (i2 == o.stats.end())
-	    return false;
-	  if (i.second != i2->second)
-	    return false;
-	}
+        {
+          auto i2 = o.stats.find(i.first);
+          if (i2 == o.stats.end())
+            return false;
+          if (i.second != i2->second)
+            return false;
+        }
       return true;
     }
 
@@ -125,13 +125,13 @@ namespace spot
     : states_(0), transitions_(0), depth_(0), max_depth_(0)
     {
       stats["states"] =
-	static_cast<unsigned_statistics::unsigned_fun>(&ec_statistics::states);
+        static_cast<unsigned_statistics::unsigned_fun>(&ec_statistics::states);
       stats["transitions"] =
-	static_cast<unsigned_statistics::unsigned_fun>
-	  (&ec_statistics::transitions);
+        static_cast<unsigned_statistics::unsigned_fun>
+          (&ec_statistics::transitions);
       stats["max. depth"] =
-	static_cast<unsigned_statistics::unsigned_fun>
-	  (&ec_statistics::max_depth);
+        static_cast<unsigned_statistics::unsigned_fun>
+          (&ec_statistics::max_depth);
     }
 
     void
@@ -157,7 +157,7 @@ namespace spot
     {
       depth_ += n;
       if (depth_ > max_depth_)
-	max_depth_ = depth_;
+        max_depth_ = depth_;
     }
 
     void
@@ -192,10 +192,10 @@ namespace spot
     }
 
   private :
-    unsigned states_;		/// number of disctint visited states
-    unsigned transitions_;	/// number of visited transitions
-    unsigned depth_;		/// maximal depth of the stack(s)
-    unsigned max_depth_;	/// maximal depth of the stack(s)
+    unsigned states_;                /// number of disctint visited states
+    unsigned transitions_;        /// number of visited transitions
+    unsigned depth_;                /// maximal depth of the stack(s)
+    unsigned max_depth_;        /// maximal depth of the stack(s)
   };
 
   /// \brief Accepting Run Search statistics.
@@ -210,11 +210,11 @@ namespace spot
       : prefix_states_(0), cycle_states_(0)
     {
       stats["(non unique) states for prefix"] =
-	static_cast<unsigned_statistics::unsigned_fun>
-	  (&ars_statistics::ars_prefix_states);
+        static_cast<unsigned_statistics::unsigned_fun>
+          (&ars_statistics::ars_prefix_states);
       stats["(non unique) states for cycle"] =
-	static_cast<unsigned_statistics::unsigned_fun>
-	  (&ars_statistics::ars_cycle_states);
+        static_cast<unsigned_statistics::unsigned_fun>
+          (&ars_statistics::ars_cycle_states);
     }
 
     void
@@ -242,8 +242,8 @@ namespace spot
     }
 
   private:
-    unsigned prefix_states_;	/// states visited to construct the prefix
-    unsigned cycle_states_;	/// states visited to construct the cycle
+    unsigned prefix_states_;        /// states visited to construct the prefix
+    unsigned cycle_states_;        /// states visited to construct the cycle
   };
 
   /// \brief Accepting Cycle Search Space statistics
@@ -257,8 +257,8 @@ namespace spot
     acss_statistics()
     {
       stats["search space states"] =
-	static_cast<unsigned_statistics::unsigned_fun>
-	  (&acss_statistics::acss_states);
+        static_cast<unsigned_statistics::unsigned_fun>
+          (&acss_statistics::acss_states);
     }
 
     virtual

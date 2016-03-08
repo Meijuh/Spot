@@ -43,7 +43,7 @@ namespace spot
     void check() const
     {
       if (count_ < 0)
-	throw std::runtime_error("too many SAT clauses (more than INT_MAX)");
+        throw std::runtime_error("too many SAT clauses (more than INT_MAX)");
     }
 
     clause_counter& operator++()

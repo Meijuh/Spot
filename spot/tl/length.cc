@@ -30,14 +30,14 @@ namespace spot
   {
     int len = 0;
     f.traverse([&len](const formula& x)
-	       {
-		 auto s = x.size();
-		 if (s > 1)
-		   len += s - 1;
-		 else
-		   ++len;
-		 return false;
-	       });
+               {
+                 auto s = x.size();
+                 if (s > 1)
+                   len += s - 1;
+                 else
+                   ++len;
+                 return false;
+               });
     return len;
   }
 
@@ -46,31 +46,31 @@ namespace spot
   {
     int len = 0;
     f.traverse([&len](const formula& x)
-	       {
-		 if (x.is_boolean())
-		   {
-		     ++len;
-		     return true;
-		   }
-		 auto s = x.size();
-		 if (s > 2)
-		   {
-		     int b = 0;
-		     for (const auto& y: x)
-		       if (y.is_boolean())
-			 ++b;
-		     len += s - b * 2 + 1;
-		   }
-		 else if (s > 1)
-		   {
-		     len += s - 1;
-		   }
-		 else
-		   {
-		     ++len;
-		   }
-		 return false;
-	       });
+               {
+                 if (x.is_boolean())
+                   {
+                     ++len;
+                     return true;
+                   }
+                 auto s = x.size();
+                 if (s > 2)
+                   {
+                     int b = 0;
+                     for (const auto& y: x)
+                       if (y.is_boolean())
+                         ++b;
+                     len += s - b * 2 + 1;
+                   }
+                 else if (s > 1)
+                   {
+                     len += s - 1;
+                   }
+                 else
+                   {
+                     ++len;
+                   }
+                 return false;
+               });
     return len;
   }
 

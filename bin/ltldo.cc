@@ -151,57 +151,57 @@ namespace
 
       spot::twa_graph_ptr res = nullptr;
       if (timed_out)
-	{
-	  problem = false;	// A timeout is considered benign
-	  std::cerr << "warning: timeout during execution of command \""
-		    << cmd << "\"\n";
-	  ++timeout_count;
-	}
+        {
+          problem = false;        // A timeout is considered benign
+          std::cerr << "warning: timeout during execution of command \""
+                    << cmd << "\"\n";
+          ++timeout_count;
+        }
       else if (WIFSIGNALED(es))
-	{
-	  problem = true;
-	  es = WTERMSIG(es);
-	  std::cerr << "error: execution of command \"" << cmd
-		    << "\" terminated by signal " << es << ".\n";
-	}
+        {
+          problem = true;
+          es = WTERMSIG(es);
+          std::cerr << "error: execution of command \"" << cmd
+                    << "\" terminated by signal " << es << ".\n";
+        }
       else if (WIFEXITED(es) && WEXITSTATUS(es) != 0)
-	{
-	  problem = true;
-	  es = WEXITSTATUS(es);
-	  std::cerr << "error: execution of command \"" << cmd
-		    << "\" returned exit code " << es << ".\n";
-	}
+        {
+          problem = true;
+          es = WEXITSTATUS(es);
+          std::cerr << "error: execution of command \"" << cmd
+                    << "\" returned exit code " << es << ".\n";
+        }
       else if (output.val())
-	{
-	  problem = false;
-	  auto aut = spot::parse_aut(output.val()->name(), dict,
-				     spot::default_environment::instance(),
-				     opt_parse);
-	  if (!aut->errors.empty())
-	    {
-	      problem = true;
-	      std::cerr << "error: failed to parse the automaton "
-		"produced by \"" << cmd << "\".\n";
-	      aut->format_errors(std::cerr);
-	      res = nullptr;
-	    }
-	  else if (aut->aborted)
-	    {
-	      problem = true;
-	      std::cerr << "error: command \"" << cmd
-			<< "\" aborted its output.\n";
-	      res = nullptr;
-	    }
-	  else
-	    {
-	      res = aut->aut;
-	    }
-	}
-      else			// No automaton output
-	{
-	  problem = false;
-	  res = nullptr;
-	}
+        {
+          problem = false;
+          auto aut = spot::parse_aut(output.val()->name(), dict,
+                                     spot::default_environment::instance(),
+                                     opt_parse);
+          if (!aut->errors.empty())
+            {
+              problem = true;
+              std::cerr << "error: failed to parse the automaton "
+                "produced by \"" << cmd << "\".\n";
+              aut->format_errors(std::cerr);
+              res = nullptr;
+            }
+          else if (aut->aborted)
+            {
+              problem = true;
+              std::cerr << "error: command \"" << cmd
+                        << "\" aborted its output.\n";
+              res = nullptr;
+            }
+          else
+            {
+              res = aut->aut;
+            }
+        }
+      else                        // No automaton output
+        {
+          problem = false;
+          res = nullptr;
+        }
 
       output.cleanup();
       return res;
@@ -234,18 +234,18 @@ namespace
 
     int
     process_string(const std::string& input,
-		   const char* filename,
-		   int linenum)
+                   const char* filename,
+                   int linenum)
     {
       spot::parsed_formula pf = parse_formula(input);
 
       if (!pf.f || !pf.errors.empty())
-	{
-	  if (filename)
-	    error_at_line(0, 0, filename, linenum, "parse error:");
-	  pf.format_errors(std::cerr);
-	  return 1;
-	}
+        {
+          if (filename)
+            error_at_line(0, 0, filename, linenum, "parse error:");
+          pf.format_errors(std::cerr);
+          return 1;
+        }
 
       inputf = input;
       process_formula(pf.f, filename, linenum);
@@ -255,43 +255,43 @@ namespace
 
     int
     process_formula(spot::formula f,
-		    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0)
     {
       std::unique_ptr<spot::relabeling_map> relmap;
 
       // If atomic propositions are incompatible with one of the
       // output, relabel the formula.
       if ((!f.has_lbt_atomic_props() &&
-	   (runner.has('l') || runner.has('L') || runner.has('T')))
-	  || (!f.has_spin_atomic_props() &&
-	      (runner.has('s') || runner.has('S'))))
-	{
-	  relmap.reset(new spot::relabeling_map);
-	  f = spot::relabel(f, spot::Pnn, relmap.get());
-	}
+           (runner.has('l') || runner.has('L') || runner.has('T')))
+          || (!f.has_spin_atomic_props() &&
+              (runner.has('s') || runner.has('S'))))
+        {
+          relmap.reset(new spot::relabeling_map);
+          f = spot::relabel(f, spot::Pnn, relmap.get());
+        }
 
       static unsigned round = 1;
       runner.round_formula(f, round);
 
       unsigned ts = translators.size();
       for (unsigned t = 0; t < ts; ++t)
-	{
-	  bool problem;
-	  double translation_time;
-	  auto aut = runner.translate(t, problem, translation_time);
-	  if (problem)
-	    error_at_line(2, 0, filename, linenum, "aborting here");
-	  if (aut)
-	    {
-	      if (relmap)
-		relabel_here(aut, relmap.get());
-	      aut = post.run(aut, f);
-	      cmdname = translators[t].name;
-	      roundval = round;
-	      printer.print(aut, f, filename, linenum, translation_time,
-			    nullptr, prefix, suffix);
-	    };
-	}
+        {
+          bool problem;
+          double translation_time;
+          auto aut = runner.translate(t, problem, translation_time);
+          if (problem)
+            error_at_line(2, 0, filename, linenum, "aborting here");
+          if (aut)
+            {
+              if (relmap)
+                relabel_here(aut, relmap.get());
+              aut = post.run(aut, f);
+              cmdname = translators[t].name;
+              roundval = round;
+              printer.print(aut, f, filename, linenum, translation_time,
+                            nullptr, prefix, suffix);
+            };
+        }
       spot::cleanup_tmpfiles();
       ++round;
       return 0;
@@ -305,7 +305,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[COMMANDFMT...]",
-		    argp_program_doc, children, nullptr, nullptr };
+                    argp_program_doc, children, nullptr, nullptr };
 
   // Disable post-processing as much as possible by default.
   level = spot::postprocessor::Low;
@@ -319,7 +319,7 @@ main(int argc, char** argv)
 
   if (translators.empty())
     error(2, 0, "No translator to run?  Run '%s --help' for usage.",
-	  program_name);
+          program_name);
 
   setup_sig_handler();
 
@@ -332,7 +332,7 @@ main(int argc, char** argv)
     {
       processor p(post);
       if (p.run())
-	return 2;
+        return 2;
     }
   catch (const std::runtime_error& e)
     {

@@ -49,8 +49,8 @@ static const argp_option options[] =
   };
 
 const struct argp finput_argp = { options, parse_opt_finput,
-				  nullptr, nullptr, nullptr,
-				  nullptr, nullptr };
+                                  nullptr, nullptr, nullptr,
+                                  nullptr, nullptr };
 
 int
 parse_opt_finput(int key, char* arg, struct argp_state*)
@@ -105,15 +105,15 @@ job_processor::~job_processor()
 
 int
 job_processor::process_string(const std::string& input,
-			      const char* filename,
-			      int linenum)
+                              const char* filename,
+                              int linenum)
 {
   auto pf = parse_formula(input);
 
   if (!pf.f || !pf.errors.empty())
     {
       if (filename)
-	error_at_line(0, 0, filename, linenum, "parse error:");
+        error_at_line(0, 0, filename, linenum, "parse error:");
       pf.format_errors(std::cerr);
       return 1;
     }
@@ -122,7 +122,7 @@ job_processor::process_string(const std::string& input,
 
 int
 job_processor::process_stream(std::istream& is,
-			      const char* filename)
+                              const char* filename)
 {
   int error = 0;
   int linenum = 1;
@@ -141,148 +141,148 @@ job_processor::process_stream(std::istream& is,
   while (!abort_run && std::getline(is, line))
     if (!line.empty())
       {
-	if (col_to_read == 0)
-	  {
-	    error |= process_string(line, filename, linenum++);
-	  }
-	else // We are reading column COL_TO_READ in a CSV file.
-	  {
-	    // If the line we have read contains an odd number
-	    // of double-quotes, then it is an incomplete CSV line
-	    // that should be completed by the next lines.
-	    unsigned dquotes = 0;
-	    std::string fullline;
-	    unsigned csvlines = 0;
-	    do
-	      {
-		++csvlines;
-		size_t s = line.size();
-		for (unsigned i = 0; i < s; ++i)
-		  dquotes += line[i] == '"';
-		if (fullline.empty())
-		  fullline = line;
-		else
-		  (fullline += '\n') += line;
-		if (!(dquotes &= 1))
-		  break;
-	      }
-	    while (std::getline(is, line));
-	    if (dquotes)
-	      error_at_line(2, errno, filename, linenum,
-			    "mismatched double-quote, "
-			    "reached EOF while parsing this line");
+        if (col_to_read == 0)
+          {
+            error |= process_string(line, filename, linenum++);
+          }
+        else // We are reading column COL_TO_READ in a CSV file.
+          {
+            // If the line we have read contains an odd number
+            // of double-quotes, then it is an incomplete CSV line
+            // that should be completed by the next lines.
+            unsigned dquotes = 0;
+            std::string fullline;
+            unsigned csvlines = 0;
+            do
+              {
+                ++csvlines;
+                size_t s = line.size();
+                for (unsigned i = 0; i < s; ++i)
+                  dquotes += line[i] == '"';
+                if (fullline.empty())
+                  fullline = line;
+                else
+                  (fullline += '\n') += line;
+                if (!(dquotes &= 1))
+                  break;
+              }
+            while (std::getline(is, line));
+            if (dquotes)
+              error_at_line(2, errno, filename, linenum,
+                            "mismatched double-quote, "
+                            "reached EOF while parsing this line");
 
-	    // Now that we have a full CSV line, extract the right
-	    // column.
+            // Now that we have a full CSV line, extract the right
+            // column.
 
-	    const char* str = fullline.c_str();
-	    const char* col1_start = str;
-	    // Delimiters for the extracted column.
-	    const char* coln_start = str;
-	    const char* coln_end = nullptr;
-	    // The current column.  (1-based)
-	    int colnum = 1;
-	    // Whether we are parsing a double-quoted string.
-	    bool instring = false;
-	    // Note that RFC 4180 has strict rules about
-	    // double-quotes: ① if a field is double-quoted, the first
-	    // and last characters of the field should be
-	    // double-quotes; ② if a field contains a double-quote
-	    // then it should be double quoted, and the occurrences
-	    // of double-quotes should be doubled.  Therefore a CSV file
-	    // may no contain a line such as:
-	    //    foo,bar"ba""z",12
-	    // Tools have different interpretation of such a line.
-	    // For instance Python's pandas.read_csv() function will
-	    // load the second field verbatim as the string 'bar"ba""z"',
-	    // while R's read.csv() function will load it as the
-	    // string 'barba"z'.  We use this second interpretation, because
-	    // it also makes it possible to parse CSVs fields formatted
-	    // with leading spaces (often for cosmetic purpose).  When
-	    // extracting the second field of
-	    //    foo, "ba""z", 12
-	    // we will return ' baz' and the leading space will be ignored
-	    // by our LTL formula parser.
-	    while (*str)
-	      {
-		switch (*str)
-		  {
-		  case '"':
-		    // Doubled double-quotes are used to escape
-		    // double-quotes.
-		    if (instring && str[1] == '"')
-		      ++str;
-		    else
-		      instring = !instring;
-		    break;
-		  case ',':
-		    if (!instring)
-		      {
-			if (col_to_read == colnum)
-			  coln_end = str;
-			++colnum;
-			if (col_to_read == colnum)
-			  coln_start = str + 1;
-		      }
-		    break;
-		  }
-		// Once we have the end delimiter for our target
-		// column, we have all we need.
-		if (coln_end)
-		  break;
-		++str;
-	      }
-	    if (!*str)
-	      {
-		if (colnum != col_to_read)
-		  // Skip this line as it has no enough columns.
-		  continue;
-		else
-		  // The target columns ends at the end of the line.
-		  coln_end = str;
-	      }
+            const char* str = fullline.c_str();
+            const char* col1_start = str;
+            // Delimiters for the extracted column.
+            const char* coln_start = str;
+            const char* coln_end = nullptr;
+            // The current column.  (1-based)
+            int colnum = 1;
+            // Whether we are parsing a double-quoted string.
+            bool instring = false;
+            // Note that RFC 4180 has strict rules about
+            // double-quotes: ① if a field is double-quoted, the first
+            // and last characters of the field should be
+            // double-quotes; ② if a field contains a double-quote
+            // then it should be double quoted, and the occurrences
+            // of double-quotes should be doubled.  Therefore a CSV file
+            // may no contain a line such as:
+            //    foo,bar"ba""z",12
+            // Tools have different interpretation of such a line.
+            // For instance Python's pandas.read_csv() function will
+            // load the second field verbatim as the string 'bar"ba""z"',
+            // while R's read.csv() function will load it as the
+            // string 'barba"z'.  We use this second interpretation, because
+            // it also makes it possible to parse CSVs fields formatted
+            // with leading spaces (often for cosmetic purpose).  When
+            // extracting the second field of
+            //    foo, "ba""z", 12
+            // we will return ' baz' and the leading space will be ignored
+            // by our LTL formula parser.
+            while (*str)
+              {
+                switch (*str)
+                  {
+                  case '"':
+                    // Doubled double-quotes are used to escape
+                    // double-quotes.
+                    if (instring && str[1] == '"')
+                      ++str;
+                    else
+                      instring = !instring;
+                    break;
+                  case ',':
+                    if (!instring)
+                      {
+                        if (col_to_read == colnum)
+                          coln_end = str;
+                        ++colnum;
+                        if (col_to_read == colnum)
+                          coln_start = str + 1;
+                      }
+                    break;
+                  }
+                // Once we have the end delimiter for our target
+                // column, we have all we need.
+                if (coln_end)
+                  break;
+                ++str;
+              }
+            if (!*str)
+              {
+                if (colnum != col_to_read)
+                  // Skip this line as it has no enough columns.
+                  continue;
+                else
+                  // The target columns ends at the end of the line.
+                  coln_end = str;
+              }
 
-	    // Skip the line if it has an empty field.
-	    if (coln_start == coln_end)
-	      continue;
+            // Skip the line if it has an empty field.
+            if (coln_start == coln_end)
+              continue;
 
-	    // save the contents before and after that columns for the
-	    // %< and %> escapes (ignoring the trailing and leading
-	    // commas).
-	    prefix = (col_to_read != 1) ?
-	      strndup(col1_start, coln_start - col1_start - 1) : nullptr;
-	    suffix = (*coln_end != 0) ? strdup(coln_end + 1) : nullptr;
-	    std::string field(coln_start, coln_end);
-	    // Remove double-quotes if any.
-	    if (field.find('"') != std::string::npos)
-	      {
-		unsigned dst = 0;
-		bool instring = false;
-		for (; coln_start != coln_end; ++coln_start)
-		  if (*coln_start == '"')
-		    // A doubled double-quote instead a double-quoted
-		    // string is an escaped double-quote.
-		    if (instring && coln_start[1] == '"')
-		      field[dst++] = *++coln_start;
-		    else
-		      instring = !instring;
-		  else
-		    field[dst++] = *coln_start;
-		field.resize(dst);
-	      }
-	    error |= process_string(field, filename, linenum);
-	    linenum += csvlines;
-	    if (prefix)
-	      {
-		free(prefix);
-		prefix = nullptr;
-	      }
-	    if (suffix)
-	      {
-		free(suffix);
-		suffix = nullptr;
-	      }
-	  }
+            // save the contents before and after that columns for the
+            // %< and %> escapes (ignoring the trailing and leading
+            // commas).
+            prefix = (col_to_read != 1) ?
+              strndup(col1_start, coln_start - col1_start - 1) : nullptr;
+            suffix = (*coln_end != 0) ? strdup(coln_end + 1) : nullptr;
+            std::string field(coln_start, coln_end);
+            // Remove double-quotes if any.
+            if (field.find('"') != std::string::npos)
+              {
+                unsigned dst = 0;
+                bool instring = false;
+                for (; coln_start != coln_end; ++coln_start)
+                  if (*coln_start == '"')
+                    // A doubled double-quote instead a double-quoted
+                    // string is an escaped double-quote.
+                    if (instring && coln_start[1] == '"')
+                      field[dst++] = *++coln_start;
+                    else
+                      instring = !instring;
+                  else
+                    field[dst++] = *coln_start;
+                field.resize(dst);
+              }
+            error |= process_string(field, filename, linenum);
+            linenum += csvlines;
+            if (prefix)
+              {
+                free(prefix);
+                prefix = nullptr;
+              }
+            if (suffix)
+              {
+                free(suffix);
+                suffix = nullptr;
+              }
+          }
       }
   return error;
 }
@@ -315,23 +315,23 @@ job_processor::process_file(const char* filename)
       long int col = strtol(slash + 1, &end, 10);
       // strtol ate all remaining characters and NN is positive
       if (errno == 0 && !*end && col != 0)
-	{
-	  col_to_read = col;
-	  if (real_filename)
-	    free(real_filename);
-	  real_filename = strndup(filename, slash - filename);
+        {
+          col_to_read = col;
+          if (real_filename)
+            free(real_filename);
+          real_filename = strndup(filename, slash - filename);
 
-	  // Special case for stdin.
-	  if (real_filename[0] == '-' && real_filename[1] == 0)
-	    return process_stream(std::cin, real_filename);
+          // Special case for stdin.
+          if (real_filename[0] == '-' && real_filename[1] == 0)
+            return process_stream(std::cin, real_filename);
 
-	  std::ifstream input(real_filename);
-	  if (input)
-	    return process_stream(input, real_filename);
+          std::ifstream input(real_filename);
+          if (input)
+            return process_stream(input, real_filename);
 
-	  error(2, errno, "cannot open '%s' nor '%s'",
-		filename, real_filename);
-	}
+          error(2, errno, "cannot open '%s' nor '%s'",
+                filename, real_filename);
+        }
     }
 
   error(2, saved_errno, "cannot open '%s'", filename);
@@ -345,11 +345,11 @@ job_processor::run()
   for (auto& j: jobs)
     {
       if (!j.file_p)
-	error |= process_string(j.str);
+        error |= process_string(j.str);
       else
-	error |= process_file(j.str);
+        error |= process_file(j.str);
       if (abort_run)
-	break;
+        break;
     }
   return error;
 }

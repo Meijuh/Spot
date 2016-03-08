@@ -62,36 +62,36 @@ main(int argc, char** argv)
       std::cout << "========================================================\n";
       std::cout << line << ": " << s << '\n';
       if (s.empty() || s[0] == '#') // Skip comments
-	continue;
+        continue;
 
       std::vector<std::string> tokens;
       {
-	std::istringstream ss(s);
-	std::string form;
-	while (std::getline(ss, form, ','))
-	  {
-	    std::string tmp;
-	    while (form.size() > 0 && form.back() == '\\'
-		   && std::getline(ss, tmp, ','))
-	      {
-		form.back() = ',';
-		form += tmp;
-	      }
-	    tokens.push_back(form);
-	  }
+        std::istringstream ss(s);
+        std::string form;
+        while (std::getline(ss, form, ','))
+          {
+            std::string tmp;
+            while (form.size() > 0 && form.back() == '\\'
+                   && std::getline(ss, tmp, ','))
+              {
+                form.back() = ',';
+                form += tmp;
+              }
+            tokens.push_back(form);
+          }
       }
 
       if (tokens.size() != 2)
-	{
-	  std::cerr << "Expecting two tokens on input line.\n";
-	  exit(2);
-	}
+        {
+          std::cerr << "Expecting two tokens on input line.\n";
+          exit(2);
+        }
 
       int runs = atoi(tokens[0].c_str());
 
       auto pf = spot::parse_infix_psl(tokens[1]);
       if (pf.format_errors(std::cerr))
-	return 2;
+        return 2;
       auto f = pf.f;
 
       auto d = spot::make_bdd_dict();
@@ -99,103 +99,103 @@ main(int argc, char** argv)
       // Build many different automata from this formula.
       spot::const_twa_ptr aut[4];
       {
-	auto a = spot::ltl_to_taa(f, d);
-	aut[0] = a;
-	auto all = spot::twa::prop_set::all();
-	aut[1] = spot::degeneralize_tba(spot::make_twa_graph(a, all));
+        auto a = spot::ltl_to_taa(f, d);
+        aut[0] = a;
+        auto all = spot::twa::prop_set::all();
+        aut[1] = spot::degeneralize_tba(spot::make_twa_graph(a, all));
       }
       {
-	auto a = spot::ltl_to_tgba_fm(f, d);
-	aut[2] = a;
-	aut[3] = spot::degeneralize(a);
+        auto a = spot::ltl_to_tgba_fm(f, d);
+        aut[2] = a;
+        aut[3] = spot::degeneralize(a);
       }
 
       const char* algos[] = {
-	"Cou99", "Cou99(shy)",
-	"CVWY90", "CVWY90(bsh=10M)", "CVWY90(repeated)",
-	"SE05", "SE05(bsh=10M)", "SE05(repeated)",
-	"Tau03_opt", "GV04",
+        "Cou99", "Cou99(shy)",
+        "CVWY90", "CVWY90(bsh=10M)", "CVWY90(repeated)",
+        "SE05", "SE05(bsh=10M)", "SE05(repeated)",
+        "Tau03_opt", "GV04",
       };
 
       for (auto& algo: algos)
-	{
-	  const char* err;
-	  auto i = spot::make_emptiness_check_instantiator(algo, &err);
-	  if (!i)
-	    {
-	      std::cerr << "Failed to parse `" << err <<  '\'' << std::endl;
-	      exit(2);
-	    }
+        {
+          const char* err;
+          auto i = spot::make_emptiness_check_instantiator(algo, &err);
+          if (!i)
+            {
+              std::cerr << "Failed to parse `" << err <<  '\'' << std::endl;
+              exit(2);
+            }
 
-	  for (unsigned j = 0; j < sizeof(aut)/sizeof(*aut); ++j)
-	    {
-	      auto a = aut[j];
-	      std::cout << "** Testing aut[" << j << "] using " << algo << '\n';
-	      unsigned n_acc = a->acc().num_sets();
-	      unsigned n_max = i->max_sets();
-	      if (n_max < n_acc)
-		{
-		  std::cout << "Skipping because automaton has " << n_acc
-			    << " acceptance sets, and " << algo
-			    << " accepts at most " << n_max << ".\n";
-		  continue;
-		}
-	      unsigned n_min = i->min_sets();
-	      if (n_min > n_acc)
-		{
-		  std::cout << "Skipping because automaton has " << n_acc
-			    << " acceptance sets, and " << algo
-			    << " wants at least " << n_min << ".\n";
-		  continue;
-		}
+          for (unsigned j = 0; j < sizeof(aut)/sizeof(*aut); ++j)
+            {
+              auto a = aut[j];
+              std::cout << "** Testing aut[" << j << "] using " << algo << '\n';
+              unsigned n_acc = a->acc().num_sets();
+              unsigned n_max = i->max_sets();
+              if (n_max < n_acc)
+                {
+                  std::cout << "Skipping because automaton has " << n_acc
+                            << " acceptance sets, and " << algo
+                            << " accepts at most " << n_max << ".\n";
+                  continue;
+                }
+              unsigned n_min = i->min_sets();
+              if (n_min > n_acc)
+                {
+                  std::cout << "Skipping because automaton has " << n_acc
+                            << " acceptance sets, and " << algo
+                            << " wants at least " << n_min << ".\n";
+                  continue;
+                }
 
-	      auto ec = i->instantiate(a);
-	      bool search_many = i->options().get("repeated");
-	      assert(ec);
-	      int ce_found = 0;
-	      do
-		{
-		  if (auto res = ec->check())
-		    {
-		      ++ce_found;
-		      std::cout << ce_found << " counterexample found\n";
-		      if (auto run = res->accepting_run())
-			{
-			  spot::print_dot(std::cout, run->as_twa());
-			}
-		      std::cout << '\n';
-		      if (runs == 0)
-			{
-			  std::cerr << "ERROR: Expected no counterexample.\n";
-			  exit(1);
-			}
-		    }
-		  else
-		    {
-		      if (ce_found)
-			std::cout << "No more counterexample found.\n\n";
-		      else
-			std::cout << "No counterexample found.\n\n";
-		      break;
-		    }
-		}
-	      while (search_many);
+              auto ec = i->instantiate(a);
+              bool search_many = i->options().get("repeated");
+              assert(ec);
+              int ce_found = 0;
+              do
+                {
+                  if (auto res = ec->check())
+                    {
+                      ++ce_found;
+                      std::cout << ce_found << " counterexample found\n";
+                      if (auto run = res->accepting_run())
+                        {
+                          spot::print_dot(std::cout, run->as_twa());
+                        }
+                      std::cout << '\n';
+                      if (runs == 0)
+                        {
+                          std::cerr << "ERROR: Expected no counterexample.\n";
+                          exit(1);
+                        }
+                    }
+                  else
+                    {
+                      if (ce_found)
+                        std::cout << "No more counterexample found.\n\n";
+                      else
+                        std::cout << "No counterexample found.\n\n";
+                      break;
+                    }
+                }
+              while (search_many);
 
-	      // The expected number of runs is only for TAA translations
-	      if (search_many && runs > ce_found && j < 2)
-		{
-		  std::cerr << "ERROR: only " << ce_found
-			    << " counterexamples founds, expected at least "
-			    << runs << '\n';
-		  exit(1);
-		}
-	      if (!search_many && ec->safe() && runs && !ce_found)
-		{
-		  std::cerr << "ERROR: expected a counterexample.\n";
-		  exit(1);
-		}
-	    }
-	}
+              // The expected number of runs is only for TAA translations
+              if (search_many && runs > ce_found && j < 2)
+                {
+                  std::cerr << "ERROR: only " << ce_found
+                            << " counterexamples founds, expected at least "
+                            << runs << '\n';
+                  exit(1);
+                }
+              if (!search_many && ec->safe() && runs && !ce_found)
+                {
+                  std::cerr << "ERROR: expected a counterexample.\n";
+                  exit(1);
+                }
+            }
+        }
     }
 
   assert(spot::fnode::instances_check());

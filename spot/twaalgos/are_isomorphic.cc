@@ -116,13 +116,13 @@ namespace spot
     trival prop_det = ref_->prop_deterministic();
     if (prop_det)
       {
-	ref_deterministic_ = true;
+        ref_deterministic_ = true;
       }
     else
       {
-	// Count the number of state even if we know that the
-	// automaton is non-deterministic, as this can be used to
-	// decide if two automata are non-isomorphic.
+        // Count the number of state even if we know that the
+        // automaton is non-deterministic, as this can be used to
+        // decide if two automata are non-isomorphic.
         nondet_states_ = spot::count_nondet_states(ref_);
         ref_deterministic_ = (nondet_states_ == 0);
       }
@@ -136,12 +136,12 @@ namespace spot
     if (ref_deterministic_)
       {
         if (autdet || (!autdet && spot::is_deterministic(aut)))
-	  return are_isomorphic_det(ref_, aut);
+          return are_isomorphic_det(ref_, aut);
       }
     else
       {
         if (autdet || nondet_states_ != spot::count_nondet_states(aut))
-	  return false;
+          return false;
       }
 
     auto tmp = make_twa_graph(aut, twa::prop_set::all());
@@ -159,7 +159,7 @@ namespace spot
 
   bool
   isomorphism_checker::are_isomorphic(const const_twa_graph_ptr ref,
-				      const const_twa_graph_ptr aut)
+                                      const const_twa_graph_ptr aut)
   {
     if (trivially_different(ref, aut))
       return false;

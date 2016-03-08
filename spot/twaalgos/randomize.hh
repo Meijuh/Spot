@@ -29,6 +29,6 @@ namespace spot
   /// leaving this state.
   SPOT_API void
   randomize(twa_graph_ptr& aut,
-	    bool randomize_states = true,
-	    bool randomize_edges = true);
+            bool randomize_states = true,
+            bool randomize_edges = true);
 }
