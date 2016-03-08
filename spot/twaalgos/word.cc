@@ -93,6 +93,8 @@ namespace spot
   std::ostream&
   operator<<(std::ostream& os, const twa_word& w)
   {
+    if (w.cycle.empty())
+      throw std::runtime_error("a twa_word may not have an empty cycle");
     auto d = w.get_dict();
     if (!w.prefix.empty())
       for (auto& i: w.prefix)
@@ -100,7 +102,6 @@ namespace spot
 	  bdd_print_formula(os, d, i);
 	  os << "; ";
 	}
-    assert(!w.cycle.empty());
     bool notfirst = false;
     os << "cycle{";
     for (auto& i: w.cycle)
