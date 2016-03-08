@@ -163,9 +163,16 @@ autfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
 #+begin_example
       --acc-sets=RANGE       keep automata whose number of acceptance sets are
                              in RANGE
+      --accept-word=WORD     keep automata that accept WORD
+      --ap=RANGE             match automata with a number of atomic
+                             propositions in RANGE
       --are-isomorphic=FILENAME   keep automata that are isomorphic to the
                              automaton in FILENAME
       --edges=RANGE          keep automata whose number of edges are in RANGE
+      --equivalent-to=FILENAME   keep automata thare are equivalent
+                             (language-wise) to the automaton in FILENAME
+      --included-in=FILENAME keep automata whose languages are included in that
+                             of the automaton from FILENAME
       --intersect=FILENAME   keep automata whose languages have an non-empty
                              intersection with the automaton from FILENAME
       --is-complete          keep complete automata
@@ -175,6 +182,7 @@ autfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
       --is-terminal          keep only terminal automata
       --is-unambiguous       keep only unambiguous automata
       --is-weak              keep only weak automata
+      --reject-word=WORD     keep automata that reject WORD
       --states=RANGE         keep automata whose number of states are in RANGE
   -u, --unique               do not output the same automaton twice (same in
                              the sense that they are isomorphic)
@@ -716,3 +724,31 @@ rm -f example.hoa aut-ex1.hoa
 ltl2tgba 'a U b U c' | autfilt --accept-word 'b; cycle{c}' -q  &&
 echo "word accepted"
 #+END_SRC
+
+
+Here is an example where we generate an infinite stream of random LTL
+formulas using [[file:randltl.org][=randltl=]], convert them all to automata using
+[[file:ltl2tgba.org][=ltl2tgba=]], filter out the first 10 automata that accept both the
+words =a&!b;cycle{!a&!b}= and =!a&!b;cycle{a&b}= yet reject any word
+of the form =cycle{b}=, and display the associated formula (which was
+stored as the name of the automaton by =ltl2tgba=).
+
+#+BEGIN_SRC sh :results verbatim :export both
+randltl -n -1 a b | ltlfilt --simplify --uniq | ltl2tgba -F- |
+  autfilt --accept-word='a&!b;cycle{!a&!b}' --accept-word='!a&!b;cycle{a&b}' \
+          --reject-word='cycle{b}' --stats=%M -n 10
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+F!b
+!b
+F(!a & !b)
+(!a & (XX!a | (!a W F!b))) R !b
+F(Fb R !b)
+Fa R F!b
+Fa U !b
+!b & X(!b W Ga)
+Fb R F!b
+XF!b U (!b & (!a | G!b))
+#+end_example

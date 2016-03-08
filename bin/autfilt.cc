@@ -70,7 +70,7 @@ Exit status:\n\
 // Keep this list sorted
 enum {
   OPT_ACC_SETS = 256,
-  OPT_ACC_WORD,
+  OPT_ACCEPT_WORD,
   OPT_AP_N,
   OPT_ARE_ISOMORPHIC,
   OPT_CLEAN_ACC,
@@ -101,6 +101,7 @@ enum {
   OPT_PRODUCT_AND,
   OPT_PRODUCT_OR,
   OPT_RANDOMIZE,
+  OPT_REJECT_WORD,
   OPT_REM_AP,
   OPT_REM_DEAD,
   OPT_REM_UNREACH,
@@ -226,9 +227,15 @@ static const argp_option options[] =
       "keep automata whose number of edges are in RANGE", 0 },
     { "acc-sets", OPT_ACC_SETS, "RANGE", 0,
       "keep automata whose number of acceptance sets are in RANGE", 0 },
-    { "accept-word", OPT_ACC_WORD, "WORD", 0,
-      "keep automata that recognize WORD", 0 },
+    { "accept-word", OPT_ACCEPT_WORD, "WORD", 0,
+      "keep automata that accept WORD", 0 },
+    { "reject-word", OPT_REJECT_WORD, "WORD", 0,
+      "keep automata that reject WORD", 0 },
     RANGE_DOC_FULL,
+    { nullptr, 0, nullptr, 0,
+      "WORD is lasso-shaped and written as 'BF;BF;...;BF;cycle{BF;...;BF}' "
+      "where BF are arbitrary Boolean formulas.  The 'cycle{...}' part is "
+      "mandatory, but the prefix can be omitted.", 0 },
     { nullptr, 0, nullptr, 0,
       "If any option among --small, --deterministic, or --any is given, "
       "then the simplification level defaults to --high unless specified "
@@ -284,6 +291,7 @@ static struct opt_t
   spot::exclusive_ap excl_ap;
   spot::remove_ap rem_ap;
   std::vector<spot::twa_graph_ptr> acc_words;
+  std::vector<spot::twa_graph_ptr> rej_words;
 }* opt;
 
 static bool opt_merge = false;
@@ -366,7 +374,7 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_ACC_SETS:
       opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
-    case OPT_ACC_WORD:
+    case OPT_ACCEPT_WORD:
       try
 	{
 	  opt->acc_words.push_back(spot::parse_word(arg, opt->dict)
@@ -537,6 +545,18 @@ parse_opt(int key, char* arg, struct argp_state*)
 	  randomize_st = true;
 	}
       break;
+    case OPT_REJECT_WORD:
+      try
+	{
+	  opt->rej_words.push_back(spot::parse_word(arg, opt->dict)
+				   ->as_automaton());
+	}
+      catch (const spot::parse_error& e)
+	{
+	  error(2, 0, "failed to parse the argument of --reject-word:\n%s",
+		e.what());
+	}
+      break;
     case OPT_REM_AP:
       opt->rem_ap.add_ap(arg);
       break;
@@ -673,6 +693,13 @@ namespace
       if (matched && !opt->acc_words.empty())
 	for (auto& word_aut: opt->acc_words)
 	  if (spot::product(aut, word_aut)->is_empty())
+	    {
+	      matched = false;
+	      break;
+	    }
+      if (matched && !opt->rej_words.empty())
+	for (auto& word_aut: opt->rej_words)
+	  if (!spot::product(aut, word_aut)->is_empty())
 	    {
 	      matched = false;
 	      break;

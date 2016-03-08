@@ -2,12 +2,15 @@ New in spot 1.99.8a (not yet released)
 
   Command-line tools:
 
-  * autfilt has a new option: --accept-word=WORD, that filters automata
-    that accept WORD.  This option can be used several times, and will
-    filter automata that accept all words.
+  * autfilt has two new options: --accept-word=WORD and
+    --reject-word=WORD for filtering automata that accept or reject
+    some word.  The option may be used multiple times.
 
   Library:
 
+  * The parse_word() function can be used to parse a lasso-shaped
+    word and build a twa_word.  The twa_word::as_automaton()
+    method can be used to create an automaton out of that.
   * twa::ap_var() renamed to twa::ap_vars().
   * emptiness_check_instantiator::min_acceptance_conditions() and
     emptiness_check_instantiator::max_acceptance_conditions() renamed

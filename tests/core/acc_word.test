@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+. ./defs
 
 # The --accept-word option filters automata that accept the given word
 # If several words are given, it filters automata that accept ALL words
@@ -29,4 +30,32 @@ ltl2tgba -f 'a U b' |
     autfilt --accept-word='cycle{!a}' --accept-word='a;cycle{b}' -q
 
 ltl2tgba -f 'a U b' | autfilt --accept-word='cycle{!b}' -q && exit 1
-:
+
+# An example from the documentation:
+randltl -n -1 a b | ltlfilt --simplify --uniq | ltl2tgba -F- |
+  autfilt --accept-word='a&!b;cycle{!a&!b}' --accept-word='!a&!b;cycle{a&b}' \
+          --reject-word='cycle{b}' --stats=%M -n 3 > out
+cat >expect <<EOF
+F!b
+!b
+F(!a & !b)
+EOF
+diff out expect
+
+# Test syntax errors
+autfilt --reject='foobar' </dev/null 2>error && exit 1
+autfilt --accept='cycle{foo' </dev/null 2>>error && exit 1
+cat error
+cat >expect <<EOF
+autfilt: failed to parse the argument of --reject-word:
+>>> foobar
+          ^
+A twa_word must contain a cycle
+
+autfilt: failed to parse the argument of --accept-word:
+>>> cycle{foo
+             ^
+Missing ';' or '}' after formula
+
+EOF
+diff expect error
