@@ -389,6 +389,7 @@ namespace std {
 %include <spot/graph/graph.hh>
 %nodefaultctor spot::digraph;
 %nodefaultctor spot::internal::state_out;
+%nodefaultctor spot::internal::all_trans;
 %traits_swigtype(spot::internal::edge_storage<unsigned int, unsigned int, unsigned int, spot::internal::boxed_label<spot::twa_graph_edge_data, false> >);
 %fragment(SWIG_Traits_frag(spot::internal::edge_storage<unsigned int, unsigned int, unsigned int, spot::internal::boxed_label<spot::twa_graph_edge_data, false> >));
 
@@ -397,10 +398,17 @@ namespace std {
 			       SWIG_POINTER_OWN);
 }
 
+%typemap(edges, optimal="1") spot::internal::all_trans<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>> {
+  $result = SWIG_NewPointerObj(new $1_ltype($1), $&1_descriptor,
+			       SWIG_POINTER_OWN);
+}
+
 %noexception spot::twa_graph::out;
+%noexception spot::twa_graph::edges;
 %include <spot/twa/twagraph.hh>
 
 %template(twa_graph_state_out) spot::internal::state_out<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>>;
+%template(twa_graph_all_trans) spot::internal::all_trans<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>>;
 %template(twa_graph_edge_boxed_data) spot::internal::boxed_label<spot::twa_graph_edge_data, false>;
 %template(twa_graph_edge_storage) spot::internal::edge_storage<unsigned int, unsigned int, unsigned int, spot::internal::boxed_label<spot::twa_graph_edge_data, false> >;
 
@@ -575,6 +583,14 @@ namespace std {
 
 
 %extend spot::internal::state_out<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>> {
+  swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
+   {
+      return swig::make_forward_iterator(self->begin(), self->begin(),
+				         self->end(), *PYTHON_SELF);
+   }
+}
+
+%extend spot::internal::all_trans<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>> {
   swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
    {
       return swig::make_forward_iterator(self->begin(), self->begin(),

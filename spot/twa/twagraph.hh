@@ -408,11 +408,20 @@ namespace spot
     auto states()
       SPOT_RETURN(g_.states());
 
-    auto edges() const
-      SPOT_RETURN(g_.edges());
-    auto edges()
-      SPOT_RETURN(g_.edges());
+    internal::all_trans<const graph_t>
+    edges() const
+    {
+      return g_.edges();
+    }
+#endif
 
+    internal::all_trans<graph_t>
+    edges()
+    {
+      return g_.edges();
+    }
+
+#ifndef SWIG
     auto edge_vector() const
       SPOT_RETURN(g_.edge_vector());
     auto edge_vector()

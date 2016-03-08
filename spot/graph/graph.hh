@@ -527,11 +527,13 @@ namespace spot
     template <typename Graph>
     class SPOT_API all_trans
     {
+    public:
       typedef typename std::conditional<std::is_const<Graph>::value,
 					const typename Graph::edge_vector_t,
 					typename Graph::edge_vector_t>::type
 	tv_t;
       typedef all_edge_iterator<Graph> iter_t;
+    private:
       tv_t& tv_;
     public:
 
