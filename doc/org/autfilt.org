@@ -720,11 +720,15 @@ $txt
 rm -f example.hoa aut-ex1.hoa
 #+END_SRC
 
-#+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba 'a U b U c' | autfilt --accept-word 'b; cycle{c}' -q  &&
-echo "word accepted"
-#+END_SRC
+The following example checks whether the formula ~a U b U c~ accepts
+the word ~b; cycle{c}~.
 
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba 'a U b U c' |
+  autfilt --accept-word 'b; cycle{c}' -q  && echo "word accepted"
+#+END_SRC
+#+RESULTS:
+: word accepted
 
 Here is an example where we generate an infinite stream of random LTL
 formulas using [[file:randltl.org][=randltl=]], convert them all to automata using
@@ -733,7 +737,7 @@ words =a&!b;cycle{!a&!b}= and =!a&!b;cycle{a&b}= yet reject any word
 of the form =cycle{b}=, and display the associated formula (which was
 stored as the name of the automaton by =ltl2tgba=).
 
-#+BEGIN_SRC sh :results verbatim :export both
+#+BEGIN_SRC sh :results verbatim :exports both
 randltl -n -1 a b | ltlfilt --simplify --uniq | ltl2tgba -F- |
   autfilt --accept-word='a&!b;cycle{!a&!b}' --accept-word='!a&!b;cycle{a&b}' \
           --reject-word='cycle{b}' --stats=%M -n 10
