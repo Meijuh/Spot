@@ -278,6 +278,9 @@ Encoding
 
   * Use UTF-8 for non-ASCII characters.
 
+  * Do not use tabs for indentation in C++ files.  Use only space to
+    prevent issues with people assuming different tab widths.
+
   * If you edit files encoded in Latin-1 (the original default
     encoding for the project), feel free to convert them to UTF-8.
     In emacs the simplest way to convert the file is to add a comment
