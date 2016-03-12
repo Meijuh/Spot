@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -777,6 +777,7 @@ namespace spot
     /// @}
 #undef SPOT_DEF_UNOP
 
+    /// @{
     /// \brief Construct a binary operator
     /// \pre \a o should be one of op::Xor, op::Implies, op::Equiv,
     /// op::U, op::R, op::W, op::M, op::EConcat, op::EConcatMarked,
@@ -801,6 +802,8 @@ namespace spot
     {
       return formula(fnode::binop(o, f.to_node_(), g.to_node_()));
     }
+    ///@}
+
 #endif //SWIG
 
 #ifdef SWIG
