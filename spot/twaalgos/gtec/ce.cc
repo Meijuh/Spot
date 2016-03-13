@@ -28,7 +28,7 @@ namespace spot
 {
   namespace
   {
-    class shortest_path: public bfs_steps
+    class shortest_path final: public bfs_steps
     {
     public:
       shortest_path(const state_set* t,

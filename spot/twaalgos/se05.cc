@@ -325,7 +325,7 @@ namespace spot
         return false;
       }
 
-      class result_from_stack: public emptiness_check_result,
+      class result_from_stack final: public emptiness_check_result,
         public acss_statistics
       {
       public:
@@ -436,14 +436,14 @@ namespace spot
       };
     };
 
-    class explicit_se05_search_heap
+    class explicit_se05_search_heap final
     {
       typedef state_set hcyan_type;
       typedef state_map<color> hash_type;
     public:
       enum { Safe = 1 };
 
-      class color_ref
+      class color_ref final
       {
       public:
         color_ref(hash_type* h, hcyan_type* hc, const state* s)
@@ -569,7 +569,7 @@ namespace spot
       hcyan_type hc; // associate to each cyan state its weight
     };
 
-    class bsh_se05_search_heap
+    class bsh_se05_search_heap final
     {
     private:
       typedef std::unordered_set<const state*,
@@ -577,7 +577,7 @@ namespace spot
     public:
       enum { Safe = 0 };
 
-      class color_ref
+      class color_ref final
       {
       public:
         color_ref(hcyan_type* h, const state* st,

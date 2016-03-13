@@ -39,7 +39,7 @@ namespace spot
   typedef std::vector<formula> vec;
 
   // The name of this class is public, but not its contents.
-  class tl_simplifier_cache
+  class tl_simplifier_cache final
   {
     typedef std::unordered_map<formula, formula> f2f_map;
     typedef std::unordered_map<formula, bdd> f2b_map;

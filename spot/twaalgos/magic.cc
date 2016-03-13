@@ -47,7 +47,7 @@ namespace spot
     /// \brief Emptiness checker on spot::tgba automata having at most one
     /// acceptance condition (i.e. a TBA).
     template <typename heap>
-    class magic_search_ : public emptiness_check, public ec_statistics
+    class magic_search_ final : public emptiness_check, public ec_statistics
     {
     public:
       /// \brief Initialize the Magic Search algorithm on the automaton \a a
@@ -424,12 +424,12 @@ namespace spot
       };
     };
 
-    class explicit_magic_search_heap
+    class explicit_magic_search_heap final
     {
     public:
       enum { Safe = 1 };
 
-      class color_ref
+      class color_ref final
       {
       public:
         color_ref(color* c) :p(c)
@@ -507,12 +507,12 @@ namespace spot
       state_map<color> h;
     };
 
-    class bsh_magic_search_heap
+    class bsh_magic_search_heap final
     {
     public:
       enum { Safe = 0 };
 
-      class color_ref
+      class color_ref final
       {
       public:
         color_ref(unsigned char *b, unsigned char o): base(b), offset(o*2)

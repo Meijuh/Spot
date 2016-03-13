@@ -153,7 +153,7 @@ namespace
     const char* suffix;
   };
 
-  class printable_formula:
+  class printable_formula final:
     public spot::printable_value<const formula_with_location*>
   {
   public:
@@ -171,7 +171,7 @@ namespace
     }
   };
 
-  class formula_printer: protected spot::formater
+  class formula_printer final: protected spot::formater
   {
   public:
     formula_printer(std::ostream& os, const char* format)

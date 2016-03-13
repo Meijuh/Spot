@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -159,7 +159,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 namespace
 {
-  class trans_processor: public job_processor
+  class trans_processor final: public job_processor
   {
   public:
     spot::translator& trans;

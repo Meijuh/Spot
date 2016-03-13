@@ -102,7 +102,7 @@ namespace spot
 
     class translate_dict;
 
-    class ratexp_to_dfa
+    class ratexp_to_dfa final
     {
       typedef twa_graph::namer<formula> namer;
     public:
@@ -129,7 +129,7 @@ namespace spot
     //   "a" variables are promises (written "a" in the paper)
     //   "next" variables are X's operands (the "r_X" variables from the paper)
     //   "var" variables are atomic propositions.
-    class translate_dict
+    class translate_dict final
     {
     public:
 
@@ -1063,7 +1063,7 @@ namespace spot
     // Duret-Lutz's paper "LTL Translation Improvements in Spot 1.0"
     // (IJCCBS 2014), for the optimization.  The PSL stuff is
     // unpublished yet.
-    class ltl_trad_visitor
+    class ltl_trad_visitor final
     {
     public:
       ltl_trad_visitor(translate_dict& dict, bool mark_all = false,
@@ -1663,7 +1663,7 @@ namespace spot
 
     // Check whether a formula can be part of a fair loop.
     // Cache the result for efficiency.
-    class possible_fair_loop_checker
+    class possible_fair_loop_checker final
     {
     public:
       bool
@@ -1680,7 +1680,7 @@ namespace spot
       pfl_map pfl_;
     };
 
-    class formula_canonizer
+    class formula_canonizer final
     {
     public:
       formula_canonizer(translate_dict& d,

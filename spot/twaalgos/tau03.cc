@@ -276,10 +276,10 @@ namespace spot
 
     };
 
-    class explicit_tau03_search_heap
+    class explicit_tau03_search_heap final
     {
     public:
-      class color_ref
+      class color_ref final
       {
       public:
         color_ref(color* c, acc_cond::mark_t* a) :p(c), acc(a)

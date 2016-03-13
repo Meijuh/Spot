@@ -395,12 +395,12 @@ namespace spot
 
     };
 
-    class explicit_tau03_opt_search_heap
+    class explicit_tau03_opt_search_heap final
     {
       typedef state_map<std::pair<weight, acc_cond::mark_t>> hcyan_type;
       typedef state_map<std::pair<color, acc_cond::mark_t>> hash_type;
     public:
-      class color_ref
+      class color_ref final
       {
       public:
         color_ref(hash_type* h, hcyan_type* hc, const state* s,

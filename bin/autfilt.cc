@@ -601,7 +601,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 namespace
 {
-  class hoa_processor: public job_processor
+  class hoa_processor final: public job_processor
   {
   private:
     spot::postprocessor& post;

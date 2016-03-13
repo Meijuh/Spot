@@ -485,7 +485,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 namespace
 {
-  class xtranslator_runner: public translator_runner
+  class xtranslator_runner final: public translator_runner
   {
   public:
     xtranslator_runner(spot::bdd_dict_ptr dict)
@@ -821,7 +821,7 @@ namespace
   typedef
   std::unordered_set<spot::formula> fset_t;
 
-  class processor: public job_processor
+  class processor final: public job_processor
   {
     spot::bdd_dict_ptr dict = spot::make_bdd_dict();
     xtranslator_runner runner;

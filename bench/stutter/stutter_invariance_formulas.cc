@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -40,7 +40,7 @@ const struct argp_child children[] =
 
 namespace
 {
-  class stut_processor: public job_processor
+  class stut_processor final: public job_processor
   {
   public:
     spot::translator& trans;

@@ -229,7 +229,7 @@ namespace spot
 
     // Convert the formula's syntax tree into an undirected graph
     // labeled by subformulas.
-    class formula_to_fgraph final
+    class formula_to_fgraph
     {
     public:
       fgraph& g;

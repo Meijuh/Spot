@@ -57,7 +57,7 @@ namespace spot
 
     // Acceptance set common to all outgoing edges (of the same
     // SCC -- we do not care about the other) of some state.
-    class outgoing_acc
+    class outgoing_acc final
     {
       const_twa_graph_ptr a_;
       typedef std::tuple<acc_cond::mark_t,
@@ -125,7 +125,7 @@ namespace spot
     };
 
     // Order of accepting sets (for one SCC)
-    class acc_order
+    class acc_order final
     {
       std::vector<unsigned> order_;
       acc_cond::mark_t found_;
@@ -162,7 +162,7 @@ namespace spot
     };
 
     // Accepting order for each SCC
-    class scc_orders
+    class scc_orders final
     {
       std::map<int, acc_order> orders_;
       bool skip_levels_;

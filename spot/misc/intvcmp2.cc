@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -326,7 +326,7 @@ namespace spot
     };
 
 
-    class int_array_array_compression:
+    class int_array_array_compression final:
       public stream_compression_base<int_array_array_compression>
     {
     public:
@@ -497,7 +497,7 @@ namespace spot
     };
 
 
-    class int_array_array_decompression:
+    class int_array_array_decompression final:
       public stream_decompression_base<int_array_array_decompression>
     {
     public:

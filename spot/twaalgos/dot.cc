@@ -44,7 +44,7 @@ namespace spot
   {
     constexpr int MAX_BULLET = 20;
 
-    class dotty_output
+    class dotty_output final
     {
       std::ostream& os_;
       bool opt_force_acc_trans_ = false;

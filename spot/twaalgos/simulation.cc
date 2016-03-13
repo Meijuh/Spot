@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -155,7 +155,7 @@ namespace spot
     // The direct_simulation. If Cosimulation is true, we are doing a
     // cosimulation.
     template <bool Cosimulation, bool Sba>
-    class direct_simulation
+    class direct_simulation final
     {
     protected:
       // Shortcut used in update_po and go_to_next_it.

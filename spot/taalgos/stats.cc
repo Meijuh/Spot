@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2008, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -29,7 +29,7 @@ namespace spot
 {
   namespace
   {
-    class stats_bfs : public ta_reachable_iterator_breadth_first
+    class stats_bfs final: public ta_reachable_iterator_breadth_first
     {
     public:
       stats_bfs(const const_ta_ptr a, ta_statistics& s) :

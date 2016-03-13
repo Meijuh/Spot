@@ -30,7 +30,7 @@ namespace spot
 {
   namespace
   {
-    class dotty_bfs : public ta_reachable_iterator_breadth_first
+    class dotty_bfs final: public ta_reachable_iterator_breadth_first
     {
       void
       parse_opts(const char* options)

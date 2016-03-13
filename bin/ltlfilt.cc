@@ -465,7 +465,7 @@ std::unordered_set<spot::formula> fset_t;
 
 namespace
 {
-  class ltl_processor: public job_processor
+  class ltl_processor final: public job_processor
   {
   public:
     spot::tl_simplifier& simpl;

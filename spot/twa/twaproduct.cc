@@ -147,7 +147,8 @@ namespace spot
 
 
     /// \brief Iterate over the successors of a product computed on the fly.
-    class twa_succ_iterator_product: public twa_succ_iterator_product_common
+    class twa_succ_iterator_product final:
+      public twa_succ_iterator_product_common
     {
     public:
       twa_succ_iterator_product(twa_succ_iterator* left,
@@ -212,7 +213,7 @@ namespace spot
 
     /// Iterate over the successors of a product computed on the fly.
     /// This one assumes that LEFT is an iterator over a Kripke structure
-    class twa_succ_iterator_product_kripke:
+    class twa_succ_iterator_product_kripke final:
       public twa_succ_iterator_product_common
     {
     public:

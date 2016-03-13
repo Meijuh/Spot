@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -108,7 +108,7 @@ static const argp_child children[] = {
 
 namespace
 {
-  class mutate_processor: public job_processor
+  class mutate_processor final: public job_processor
   {
   public:
     int

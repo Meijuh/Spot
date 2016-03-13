@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -33,7 +33,7 @@ namespace spot
 {
   namespace
   {
-    class never_claim_output
+    class never_claim_output final
     {
     public:
       std::ostream& os_;

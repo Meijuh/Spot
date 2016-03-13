@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -106,7 +106,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 namespace
 {
-  class dstar_processor: public job_processor
+  class dstar_processor final: public job_processor
   {
   public:
     spot::postprocessor& post;

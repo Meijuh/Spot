@@ -109,7 +109,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 namespace
 {
-  class trans_processor: public job_processor
+  class trans_processor final: public job_processor
   {
   public:
     spot::translator& trans;

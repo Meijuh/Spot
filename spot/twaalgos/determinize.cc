@@ -46,7 +46,7 @@ namespace spot
                          std::vector<size_t>& nb_braces);
   };
 
-  class safra_state
+  class safra_state final
   {
   public:
     using state_t = unsigned;

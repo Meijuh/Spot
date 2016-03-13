@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -184,7 +184,7 @@ namespace spot
       unsigned int bits_left_;
     };
 
-    class int_array_vector_compression:
+    class int_array_vector_compression final:
       public stream_compression_base<int_array_vector_compression>
     {
     public:
@@ -233,7 +233,7 @@ namespace spot
       std::vector<unsigned int>* result_;
     };
 
-    class int_vector_vector_compression:
+    class int_vector_vector_compression final:
       public stream_compression_base<int_vector_vector_compression>
     {
     public:
@@ -277,7 +277,7 @@ namespace spot
       std::vector<unsigned int>& output_;
     };
 
-    class int_array_array_compression:
+    class int_array_array_compression final:
       public stream_compression_base<int_array_array_compression>
     {
     public:
@@ -521,7 +521,7 @@ namespace spot
       unsigned int buffer_bits_;
     };
 
-    class int_vector_vector_decompression:
+    class int_vector_vector_decompression final:
       public stream_decompression_base<int_vector_vector_decompression>
     {
     public:
@@ -572,7 +572,7 @@ namespace spot
       size_t size_;
     };
 
-    class int_vector_array_decompression:
+    class int_vector_array_decompression final:
       public stream_decompression_base<int_vector_array_decompression>
     {
     public:
@@ -622,7 +622,7 @@ namespace spot
       size_t size_;
     };
 
-    class int_array_array_decompression:
+    class int_array_array_decompression final:
       public stream_decompression_base<int_array_array_decompression>
     {
     public:
