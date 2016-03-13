@@ -77,197 +77,139 @@ syntax(char* prog)
   if (slash && (strncmp(slash + 1, "lt-", 3) == 0))
     prog = slash + 4;
 
-  std::cerr << "Usage: "<< prog << " [-f|-l|-taa] [OPTIONS...] formula"
-            << std::endl
-            << "       "<< prog << " [-f|-l|-taa] -F [OPTIONS...] file"
-            << std::endl
-            << "       "<< prog << " -XH [OPTIONS...] file" << std::endl
-            << std::endl
-
-            << "Translate an LTL formula into an automaton, or read the "
-            << "automaton from a file." << std::endl
-            << "Optionally multiply this automaton by another"
-            << " automaton read from a file." << std::endl
-            << "Output the result in various formats, or perform an emptiness "
-            << "check." << std::endl
-            << std::endl
-
-            << "Input options:" << std::endl
-            << "  -F    read the formula from a file, not from the command line"
-            << std::endl
-            << "  -XD   do not compute an automaton, read it from an"
-            << " ltl2dstar file" << std::endl
-            << "  -XDB  like -XD, and convert it to TGBA\n"
-            << "  -XH   do not compute an automaton, read it from a"
-            << " HOA file\n"
-            << "  -XL   do not compute an automaton, read it from an"
-            << " LBTT file" << std::endl
-            << "  -XN   do not compute an automaton, read it from a"
-            << " neverclaim file" << std::endl
-            << "  -Pfile  multiply the formula automaton with the TGBA read"
-            << " from `file'\n"
-            << "  -KPfile multiply the formula automaton with the Kripke"
-            << " structure from `file'\n"
-            << std::endl
-
-            << "Translation algorithm:" << std::endl
-            << "  -f    use Couvreur's FM algorithm for LTL"
-            << " (default)" << std::endl
-            << "  -taa  use Tauriainen's TAA-based algorithm for LTL"
-            << std::endl
-            << "  -u    use Compositional translation"
-            << std::endl
-            << std::endl
-
-            << "Options for Couvreur's FM algorithm (-f):" << std::endl
-            << "  -fr   reduce formula at each step of FM" << std::endl
-            << "          as specified with the -r{1..7} options" << std::endl
-            << "  -fu   build unambiguous automata" << std::endl
-            << "  -L    fair-loop approximation (implies -f)" << std::endl
-            << "  -p    branching postponement (implies -f)" << std::endl
-            << "  -U[PROPS]  consider atomic properties of the formula as "
-            << "exclusive events, and" << std::endl
-            << "        PROPS as unobservables events (implies -f)"
-            << std::endl
-            << "  -x    try to produce a more deterministic automaton "
-            << "(implies -f)" << std::endl
-            << "  -y    do not merge states with same symbolic representation "
-            << "(implies -f)" << std::endl
-            << std::endl
-
-            << "Options for Tauriainen's TAA-based algorithm (-taa):"
-            << std::endl
-            << "  -c    enable language containment checks (implies -taa)"
-            << std::endl
-            << std::endl
-
-            << "Formula simplification (before translation):"
-            << std::endl
-            << "  -r1   reduce formula using basic rewriting" << std::endl
-            << "  -r2   reduce formula using class of eventuality and "
-            << "universality" << std::endl
-            << "  -r3   reduce formula using implication between "
-            << "sub-formulae" << std::endl
-            << "  -r4   reduce formula using all above rules" << std::endl
-            << "  -r5   reduce formula using tau03" << std::endl
-            << "  -r6   reduce formula using tau03+" << std::endl
-            << "  -r7   reduce formula using tau03+ and -r4" << std::endl
-            << "  -rd   display the reduced formula" << std::endl
-            << "  -rD   dump statistics about the simplifier cache" << std::endl
-            << "  -rL   disable basic rewritings producing larger formulas"
-            << std::endl
-            << "  -ru   lift formulae that are eventual and universal"
-            << std::endl << std::endl
-
-            << "Automaton degeneralization (after translation):"
-            << std::endl
-            << "  -DT   degeneralize the automaton as a TBA" << std::endl
-            << "  -DS   degeneralize the automaton as an SBA" << std::endl
-            << "          (append z/Z, o/O, l/L: to turn on/off options "
-            << "(default: zol)\n "
-            << "          z: level resetting, o: adaptive order, "
-            << "l: level cache)\n"
-            << std::endl
-
-            << "Automaton simplifications (after translation):"
-            << std::endl
-            << "  -R3   use SCC to reduce the automaton" << std::endl
-            << "  -R3f  clean more acceptance conditions than -R3" << std::endl
-            << "          "
-            << "(prefer -R3 over -R3f if you degeneralize with -D, -DS, or -N)"
-            << std::endl
-            << "  -RDS  reduce the automaton with direct simulation"
-            << std::endl
-            << "  -RRS  reduce the automaton with reverse simulation"
-            << std::endl
-            << "  -RIS  iterate both direct and reverse simulations"
-            << std::endl
-            << "  -Rm   attempt to WDBA-minimize the automaton" << std::endl
-            << std::endl
-            << "  -RM   attempt to WDBA-minimize the automaton unless the "
-            << "result is bigger" << std::endl
-            << "  -RQ   determinize a TGBA (assuming it's legal!)" << std::endl
-            << std::endl
-
-            << "Automaton conversion:" << std::endl
-            << "  -M    convert into a deterministic minimal monitor "
-            << "(implies -R3 or R3b)" << std::endl
-            << "  -s    convert to explicit automaton, and number states "
-            << "in DFS order" << std::endl
-            << "  -S    convert to explicit automaton, and number states "
-            << "in BFS order" << std::endl
-            << std::endl
-
-            << "Conversion to Testing Automaton:" << std::endl
-             << "  -TA   output a Generalized Testing Automaton (GTA),\n"
-            << "          or a Testing Automaton (TA) with -DS\n"
-             << "  -lv   add an artificial livelock state to obtain a "
-            << "Single-pass (G)TA\n"
-            << "  -sp   convert into a single-pass (G)TA without artificial "
-            << "livelock state\n"
-            << "  -in   do not use an artificial initial state\n"
-            << "  -TGTA output a Transition-based Generalized TA"
-            << std::endl
-            << "  -RT   reduce the (G)TA/TGTA using bisimulation.\n"
-            << std::endl
-
-            << "Options for performing emptiness checks (on TGBA):" << std::endl
-            << "  -e[ALGO]  run emptiness check, expect and compute an "
-            << "accepting run" << std::endl
-            << "  -E[ALGO]  run emptiness check, expect no accepting run"
-            << std::endl
-            << "  -C    compute an accepting run (Counterexample) if it exists"
-            << std::endl
-            << "  -CR   compute and replay an accepting run (implies -C)"
-            << std::endl
-            << "  -G    graph the accepting run seen as an automaton "
-            << " (requires -e)" << std::endl
-            << "  -m    try to reduce accepting runs, in a second pass"
-            << std::endl
-            << "Where ALGO should be one of:" << std::endl
-            << "  Cou99(OPTIONS) (the default)" << std::endl
-            << "  CVWY90(OPTIONS)" << std::endl
-            << "  GV04(OPTIONS)" << std::endl
-            << "  SE05(OPTIONS)" << std::endl
-            << "  Tau03(OPTIONS)" << std::endl
-            << "  Tau03_opt(OPTIONS)" << std::endl
-            << std::endl
-
-            << "If no emptiness check is run, the automaton will be output "
-            << "in dot format" << std::endl << "by default.  This can be "
-            << "changed with the following options." << std::endl
-            << std::endl
-
-            << "Output options (if no emptiness check):" << std::endl
-            << "  -ks   display statistics on the automaton (size only)"
-            << std::endl
-            << "  -kt   display statistics on the automaton (size + "
-            << "subtransitions)"
-            << std::endl
-            << "  -K    dump the graph of SCCs in dot format" << std::endl
-            << "  -KC   list cycles in automaton" << std::endl
-            << "  -KW   list weak SCCs" << std::endl
-            << "  -N    output the never clain for Spin (implies -DS)"
-            << std::endl
-            << "  -NN   output the never clain for Spin, with commented states"
-            << " (implies -DS)" << std::endl
-            << "  -O    tell if a formula represents a safety, guarantee, "
-            << "or obligation property"
-            << std::endl
-            << "  -t    output automaton in LBTT's format" << std::endl
-            << std::endl
-
-            << "Miscellaneous options:" << std::endl
-            << "  -0    produce minimal output dedicated to the paper"
-            << std::endl
-            << "  -8    output UTF-8 formulae" << std::endl
-            << "  -d    turn on traces during parsing" << std::endl
-            << "  -T    time the different phases of the translation"
-            << std::endl
-            << "  -v    display the BDD variables used by the automaton"
-            << std::endl
-            << std::endl;
-
+  std::cerr <<
+    "Usage: " << prog << " [-f|-l|-taa] [OPTIONS...] formula\n"
+    "       " << prog << " [-f|-l|-taa] -F [OPTIONS...] file\n"
+    "       " << prog << " -XH [OPTIONS...] file\n"
+    "\n"
+    "Translate an LTL formula into an automaton, or read the automaton from "
+    "a file.\n"
+    "Optionally multiply this automaton by another automaton read "
+    "from a file.\n"
+    "Output the result in various formats, or perform an emptiness check."
+    "\n\n"
+    "Input options:\n"
+    "  -F    read the formula from a file, not from the command line\n"
+    "  -XD   do not compute an automaton, read it from an ltl2dstar file\n"
+    "  -XDB  like -XD, and convert it to TGBA\n"
+    "  -XH   do not compute an automaton, read it from a HOA file\n"
+    "  -XL   do not compute an automaton, read it from an LBTT file\n"
+    "  -XN   do not compute an automaton, read it from a neverclaim file\n"
+    "  -Pfile  multiply the formula automaton with the TGBA read"
+    " from `file'\n"
+    "  -KPfile multiply the formula automaton with the Kripke"
+    " structure from `file'\n"
+    "\n"
+    "Translation algorithm:\n"
+    "  -f    use Couvreur's FM algorithm for LTL (default)\n"
+    "  -taa  use Tauriainen's TAA-based algorithm for LTL\n"
+    "  -u    use Compositional translation\n"
+    "\n"
+    "Options for Couvreur's FM algorithm (-f):\n"
+    "  -fr   reduce formula at each step of FM\n"
+    "          as specified with the -r{1..7} options\n"
+    "  -fu   build unambiguous automata\n"
+    "  -L    fair-loop approximation (implies -f)\n"
+    "  -p    branching postponement (implies -f)\n"
+    "  -U[PROPS]  consider atomic properties of the formula as "
+    "exclusive events, and\n"
+    "        PROPS as unobservables events (implies -f)\n"
+    "  -x    try to produce a more deterministic automaton "
+    "(implies -f)\n"
+    "  -y    do not merge states with same symbolic representation "
+    "(implies -f)\n"
+    "\n"
+    "Options for Tauriainen's TAA-based algorithm (-taa):\n"
+    "  -c    enable language containment checks (implies -taa)\n"
+    "\n"
+    "Formula simplification (before translation):\n"
+    "  -r1   reduce formula using basic rewriting\n"
+    "  -r2   reduce formula using class of eventuality and universality\n"
+    "  -r3   reduce formula using implication between sub-formulae\n"
+    "  -r4   reduce formula using all above rules\n"
+    "  -r5   reduce formula using tau03\n"
+    "  -r6   reduce formula using tau03+\n"
+    "  -r7   reduce formula using tau03+ and -r4\n"
+    "  -rd   display the reduced formula\n"
+    "  -rD   dump statistics about the simplifier cache\n"
+    "  -rL   disable basic rewritings producing larger formulas\n"
+    "  -ru   lift formulae that are eventual and universal\n"
+    "\n"
+    "Automaton degeneralization (after translation):\n"
+    "  -DT   degeneralize the automaton as a TBA\n"
+    "  -DS   degeneralize the automaton as an SBA\n"
+    "          (append z/Z, o/O, l/L: to turn on/off options "
+    "(default: zol)\n "
+    "          z: level resetting, o: adaptive order, "
+    "l: level cache)\n"
+    "\n"
+    "Automaton simplifications (after translation):\n"
+    "  -R3   use SCCs to remove useless states and acceptance sets\n"
+    "  -R3f  clean more acceptance sets than -R3\n"
+    "          "
+    "(prefer -R3 over -R3f if you degeneralize with -D, -DS, or -N)\n"
+    "  -RDS  reduce the automaton with direct simulation\n"
+    "  -RRS  reduce the automaton with reverse simulation\n"
+    "  -RIS  iterate both direct and reverse simulations\n"
+    "  -Rm   attempt to WDBA-minimize the automaton\n"
+    "  -RM   attempt to WDBA-minimize the automaton unless the "
+    "result is bigger\n"
+    "  -RQ   determinize a TGBA (assuming it's legal!)\n"
+    "\n"
+    "Automaton conversion:\n"
+    "  -M    convert into a det. minimal monitor (implies -R3 or R3b)\n"
+    "  -s    convert to explicit automaton, and number states in DFS order\n"
+    "  -S    convert to explicit automaton, and number states in BFS order\n"
+    "\n"
+    "Conversion to Testing Automaton:\n"
+    "  -TA   output a Generalized Testing Automaton (GTA),\n"
+    "          or a Testing Automaton (TA) with -DS\n"
+    "  -lv   add an artificial livelock state to obtain a Single-pass (G)TA\n"
+    "  -sp   convert into a single-pass (G)TA without artificial "
+    "livelock state\n"
+    "  -in   do not use an artificial initial state\n"
+    "  -TGTA output a Transition-based Generalized TA\n"
+    "  -RT   reduce the (G)TA/TGTA using bisimulation.\n"
+    "\n"
+    "Options for performing emptiness checks (on TGBA):\n"
+    "  -e[ALGO]  run emptiness check, expect and compute an "
+    "accepting run\n"
+    "  -E[ALGO]  run emptiness check, expect no accepting run\n"
+    "  -C    compute an accepting run (Counterexample) if it exists\n"
+    "  -CR   compute and replay an accepting run (implies -C)\n"
+    "  -G    graph the accepting run seen as an automaton (requires -e)\n"
+    "  -m    try to reduce accepting runs, in a second pass\n"
+    "Where ALGO should be one of:\n"
+    "  Cou99(OPTIONS) (the default)\n"
+    "  CVWY90(OPTIONS)\n"
+    "  GV04(OPTIONS)\n"
+    "  SE05(OPTIONS)\n"
+    "  Tau03(OPTIONS)\n"
+    "  Tau03_opt(OPTIONS)\n"
+    "\n"
+    "If no emptiness check is run, the automaton will be output "
+    "in dot format\nby default.  This can be "
+    "changed with the following options.\n"
+    "\n"
+    "Output options (if no emptiness check):\n"
+    "  -ks   display statistics on the automaton (size only)\n"
+    "  -kt   display statistics on the automaton (size + subtransitions)\n"
+    "  -K    dump the graph of SCCs in dot format\n"
+    "  -KC   list cycles in automaton\n"
+    "  -KW   list weak SCCs\n"
+    "  -N    output the never clain for Spin (implies -DS)\n"
+    "  -NN   output the never clain for Spin, with commented states"
+    " (implies -DS)\n"
+    "  -O    tell if a formula represents a safety, guarantee, "
+    "or obligation property\n"
+    "  -t    output automaton in LBTT's format\n"
+    "\n"
+    "Miscellaneous options:\n"
+    "  -0    produce minimal output dedicated to the paper\n"
+    "  -8    output UTF-8 formulae\n"
+    "  -d    turn on traces during parsing\n"
+    "  -T    time the different phases of the translation\n"
+    "  -v    display the BDD variables used by the automaton\n";
   exit(2);
 }
 
@@ -278,7 +220,7 @@ to_int(const char* s)
   int res = strtol(s, &endptr, 10);
   if (*endptr)
     {
-      std::cerr << "Failed to parse `" << s << "' as an integer." << std::endl;
+      std::cerr << "Failed to parse `" << s << "' as an integer.\n";
       exit(1);
     }
   return res;
@@ -815,7 +757,7 @@ checked_main(int argc, char** argv)
                   break;
                 default:
                   std::cerr << "Unknown suboption `" << *c
-                            << "' for option -u" << std::endl;
+                            << "' for option -u\n";
                 }
               ++c;
             }
@@ -864,7 +806,7 @@ checked_main(int argc, char** argv)
   if ((graph_run_tgba_opt)
       && (!echeck_inst || !expect_counter_example))
     {
-      std::cerr << argv[0] << ": error: -G requires -e." << std::endl;
+      std::cerr << argv[0] << ": error: -G requires -e.\n";
       exit(1);
     }
 
@@ -968,7 +910,7 @@ checked_main(int argc, char** argv)
               && (translation != TransFM && translation != TransCompo))
             {
               std::cerr << "Only the FM algorithm can translate PSL formulae;"
-                        << " I'm using it for this formula." << std::endl;
+                        << " I'm using it for this formula.\n";
               translation = TransFM;
             }
 
@@ -1047,7 +989,7 @@ checked_main(int argc, char** argv)
                 {
                   std::cerr << "Error: Without a formula I cannot make "
                             << "sure that the automaton built with -Rm\n"
-                            << "       is correct." << std::endl;
+                            << "       is correct.\n";
                   exit(2);
                 }
             }
@@ -1280,7 +1222,7 @@ checked_main(int argc, char** argv)
                       stats_reachable(testing_automaton).dump(std::cout);
                       break;
                     default:
-                      std::cerr << "unsupported output option" << std::endl;
+                      std::cerr << "unsupported output option\n";
                       exit(1);
                     }
                   tm.stop("producing output");
@@ -1315,7 +1257,7 @@ checked_main(int argc, char** argv)
                       stats_reachable(a).dump(std::cout);
                       break;
                     default:
-                      std::cerr << "unsupported output option" << std::endl;
+                      std::cerr << "unsupported output option\n";
                       exit(1);
                     }
                   tm.stop("producing output");
@@ -1365,7 +1307,7 @@ checked_main(int argc, char** argv)
             {
               std::cerr << echeck_algo << " requires at least "
                         << echeck_inst->min_sets()
-                        << " acceptance sets." << std::endl;
+                        << " acceptance sets.\n";
               exit(1);
             }
           else
@@ -1547,9 +1489,9 @@ checked_main(int argc, char** argv)
                       std::cout << "no accepting run found";
                       if (!ec->safe() && expect_counter_example)
                         {
-                          std::cout << " even if expected" << std::endl;
+                          std::cout << " even if expected\n";
                           std::cout << "this may be due to the use of the bit"
-                                    << " state hashing technique" << std::endl;
+                                    << " state hashing technique\n";
                           std::cout << "you can try to increase the heap size "
                                     << "or use an explicit storage"
                                     << std::endl;
@@ -1566,7 +1508,7 @@ checked_main(int argc, char** argv)
 
                       if (!run)
                         {
-                          std::cout << "an accepting run exists" << std::endl;
+                          std::cout << "an accepting run exists\n";
                         }
                       else
                         {
@@ -1597,7 +1539,7 @@ checked_main(int argc, char** argv)
                   else
                     {
                       std::cout << "an accepting run exists "
-                                << "(use -C to print it)" << std::endl;
+                                << "(use -C to print it)\n";
                     }
                 }
             }
