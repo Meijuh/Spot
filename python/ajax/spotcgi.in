@@ -811,13 +811,13 @@ if output_type == 'r':
             else:
                 unbufprint('<div class="ec-error">Cannot run ' + opt
                            + ' on automata with less than ' + str(n_min)
-                           + ' acceptance condition.<br/>Please build '
+                           + ' acceptance set.<br/>Please build '
                            + 'a degeneralized B&uuml;chi automaton if you '
                            + 'want to try this algorithm.</div>')
         else:
             unbufprint('<div class="ec-error">Cannot run ' + opt
                        + ' on automata with more than ' + str(n_max)
-                       + ' acceptance condition.<br/>Please build '
+                       + ' acceptance set.<br/>Please build '
                        + 'a degeneralized B&uuml;chi automaton if you '
                        + 'want to try this algorithm.</div>')
         if ec_a:
