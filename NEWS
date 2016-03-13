@@ -1,4 +1,4 @@
-New in spot 1.99.8a (not yet released)
+New in spot 1.99.9 (2016-03-14)
 
   Command-line tools:
 
@@ -23,12 +23,13 @@ New in spot 1.99.8a (not yet released)
 
   * The page https://spot.lrde.epita.fr/upgrade2.html should help
     people migrating old C++ code written for Spot 1.2.x, and update
-    it for Spot 2.0.
+    it for (the upcoming) Spot 2.0.
 
   Bug fixes:
 
   * spot/twaalgos/gtec/gtec.hh was incorrectly installed as
   spot/tgbaalgos/gtec/gtec.hh.
+  * The shared libraries should now compile again on Darwin.
 
 New in spot 1.99.8 (2016-02-18)
 
