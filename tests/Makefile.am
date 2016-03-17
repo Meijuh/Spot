@@ -300,7 +300,8 @@ TESTS_ipython = \
   python/product.ipynb \
   python/randaut.ipynb \
   python/randltl.ipynb \
-  python/testingaut.ipynb
+  python/testingaut.ipynb \
+  python/word.ipynb
 
 # TESTS_python contains all tests.  It may includes notebooks we
 # do not consider part of the documentation: those have to start
@@ -326,7 +327,6 @@ TESTS_python = \
   python/satmin.py \
   python/setxor.py \
   python/trival.py \
-  python/word.ipynb \
   $(TESTS_ipython)
 endif
 
