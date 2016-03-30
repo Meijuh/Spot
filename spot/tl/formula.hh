@@ -107,6 +107,10 @@ namespace spot
   class SPOT_API fnode final
   {
     public:
+      /// \brief Clone an fnode.
+      ///
+      /// This simply increment the reference counter.  If the counter
+      /// saturates, the fnode will stay permanently allocated.
       const fnode* clone() const
       {
         // Saturate.
@@ -116,6 +120,11 @@ namespace spot
         return this;
       }
 
+      /// \brief Dereference an fnode.
+      ///
+      /// This decrement the reference counter (unless the counter is
+      /// saturated), and actually deallocate the fnode when the
+      /// counder reaches 0 (unless the fnode denotes a constant).
       void destroy() const
       {
         if (SPOT_LIKELY(refs_))
@@ -125,35 +134,46 @@ namespace spot
           destroy_aux();
       }
 
+      /// \see formula::unbounded
       static constexpr uint8_t unbounded()
       {
         return UINT8_MAX;
       }
 
+      /// \see formula::ap
       static const fnode* ap(const std::string& name);
+      /// \see formula::unop
       static const fnode* unop(op o, const fnode* f);
+      /// \see formula::binop
       static const fnode* binop(op o, const fnode* f, const fnode* g);
+      /// \see formula::multop
       static const fnode* multop(op o, std::vector<const fnode*> l);
+      /// \see formula::bunop
       static const fnode* bunop(op o, const fnode* f,
           uint8_t min, uint8_t max = unbounded());
 
+      /// \see formula::kind
       op kind() const
       {
         return op_;
       }
 
+      /// \see formula::kindstr
       std::string kindstr() const;
 
+      /// \see formula::is
       bool is(op o) const
       {
         return op_ == o;
       }
 
+      /// \see formula::is
       bool is(op o1, op o2) const
       {
         return op_ == o1 || op_ == o2;
       }
 
+      /// \see formula::is
       bool is(std::initializer_list<op> l) const
       {
         const fnode* n = this;
@@ -166,6 +186,7 @@ namespace spot
         return true;
       }
 
+      /// \see formula::get_child_of
       const fnode* get_child_of(op o) const
       {
         if (op_ != o)
@@ -174,6 +195,7 @@ namespace spot
         return nth(0);
       }
 
+      /// \see formula::get_child_of
       const fnode* get_child_of(std::initializer_list<op> l) const
       {
         auto c = this;
@@ -186,38 +208,45 @@ namespace spot
         return c;
       }
 
+      /// \see formula::min
       unsigned min() const
       {
         assert(op_ == op::FStar || op_ == op::Star);
         return min_;
       }
 
+      /// \see formula::max
       unsigned max() const
       {
         assert(op_ == op::FStar || op_ == op::Star);
         return max_;
       }
 
+      /// \see formula::size
       unsigned size() const
       {
         return size_;
       }
 
+      /// \see formula::id
       size_t id() const
       {
         return id_;
       }
 
+      /// \see formula::begin
       const fnode*const* begin() const
       {
         return children;
       }
 
+      /// \see formula::end
       const fnode*const* end() const
       {
         return children + size();
       }
 
+      /// \see formula::nth
       const fnode* nth(unsigned i) const
       {
         if (i >= size())
@@ -225,41 +254,49 @@ namespace spot
         return children[i];
       }
 
+      /// \see formula::ff
       static const fnode* ff()
       {
         return ff_;
       }
 
+      /// \see formula::is_ff
       bool is_ff() const
       {
         return op_ == op::ff;
       }
 
+      /// \see formula::tt
       static const fnode* tt()
       {
         return tt_;
       }
 
+      /// \see formula::is_tt
       bool is_tt() const
       {
         return op_ == op::tt;
       }
 
+      /// \see formula::eword
       static const fnode* eword()
       {
         return ew_;
       }
 
+      /// \see formula::is_eword
       bool is_eword() const
       {
         return op_ == op::eword;
       }
 
+      /// \see formula::is_constant
       bool is_constant() const
       {
         return op_ == op::ff || op_ == op::tt || op_ == op::eword;
       }
 
+      /// \see formula::is_Kleene_star
       bool is_Kleene_star() const
       {
         if (op_ != op::Star)
@@ -267,6 +304,7 @@ namespace spot
         return min_ == 0 && max_ == unbounded();
       }
 
+      /// \see formula::one_star
       static const fnode* one_star()
       {
         if (!one_star_)
@@ -274,11 +312,16 @@ namespace spot
         return one_star_;
       }
 
+      /// \see formula::ap_name
       const std::string& ap_name() const;
+
+      /// \see formula::dump
       std::ostream& dump(std::ostream& os) const;
 
+      /// \see formula::all_but
       const fnode* all_but(unsigned i) const;
 
+      /// \see formula::boolean_count
       unsigned boolean_count() const
       {
         unsigned pos = 0;
@@ -288,111 +331,140 @@ namespace spot
         return pos;
       }
 
+      /// \see formula::boolean_operands
       const fnode* boolean_operands(unsigned* width = nullptr) const;
 
-      /// return true if the unicity map contains only the globally
+      /// \brief safety check for the reference counters
+      ///
+      /// \return true iff the unicity map contains only the globally
       /// pre-allocated formulas.
+      ///
+      /// This is meant to be used as
+      /// \code
+      /// assert(spot::fnode::instances_check());
+      /// \endcode
+      /// at the end of a program.
       static bool instances_check();
 
       ////////////////
       // Properties //
       ////////////////
 
+      /// \see formula::is_boolean
       bool is_boolean() const
       {
         return is_.boolean;
       }
 
+      /// \see formula::is_sugar_free_boolean
       bool is_sugar_free_boolean() const
       {
         return is_.sugar_free_boolean;
       }
 
+      /// \see formula::is_in_nenoform
       bool is_in_nenoform() const
       {
         return is_.in_nenoform;
       }
 
+      /// \see formula::is_syntactic_stutter_invariant
       bool is_syntactic_stutter_invariant() const
       {
         return is_.syntactic_si;
       }
 
+      /// \see formula::is_sugar_free_ltl
       bool is_sugar_free_ltl() const
       {
         return is_.sugar_free_ltl;
       }
 
+      /// \see formula::is_ltl_formula
       bool is_ltl_formula() const
       {
         return is_.ltl_formula;
       }
 
+      /// \see formula::is_psl_formula
       bool is_psl_formula() const
       {
         return is_.psl_formula;
       }
 
+      /// \see formula::is_sere_formula
       bool is_sere_formula() const
       {
         return is_.sere_formula;
       }
 
+      /// \see formula::is_finite
       bool is_finite() const
       {
         return is_.finite;
       }
 
+      /// \see formula::is_eventual
       bool is_eventual() const
       {
         return is_.eventual;
       }
 
+      /// \see formula::is_universal
       bool is_universal() const
       {
         return is_.universal;
       }
 
+      /// \see formula::is_syntactic_safety
       bool is_syntactic_safety() const
       {
         return is_.syntactic_safety;
       }
 
+      /// \see formula::is_syntactic_guarantee
       bool is_syntactic_guarantee() const
       {
         return is_.syntactic_guarantee;
       }
 
+      /// \see formula::is_syntactic_obligation
       bool is_syntactic_obligation() const
       {
         return is_.syntactic_obligation;
       }
 
+      /// \see formula::is_syntactic_recurrence
       bool is_syntactic_recurrence() const
       {
         return is_.syntactic_recurrence;
       }
 
+      /// \see formula::is_syntactic_persistence
       bool is_syntactic_persistence() const
       {
         return is_.syntactic_persistence;
       }
 
+      /// \see formula::is_marked
       bool is_marked() const
       {
         return !is_.not_marked;
       }
 
+      /// \see formula::accepts_eword
       bool accepts_eword() const
       {
         return is_.accepting_eword;
       }
 
+      /// \see formula::has_lbt_atomic_props
       bool has_lbt_atomic_props() const
       {
         return is_.lbt_atomic_props;
       }
 
+      /// \see formula::has_spin_atomic_props
       bool has_spin_atomic_props() const
       {
         return is_.spin_atomic_props;
@@ -579,21 +651,32 @@ namespace spot
   {
     const fnode* ptr_;
     public:
+    /// \brief Create a formula from an fnode.
+    ///
+    /// This constructor is mainly for internal use, as spot::fnode
+    /// object should usually not be manipulated from user code.
     explicit formula(const fnode* f) noexcept
       : ptr_(f)
       {
       }
 
+    /// \brief Create a null formula.
+    ///
+    /// This could be used to default initialize a formula, however
+    /// null formula should be short lived: most algorithms and member
+    /// function assume that formulas should not be null.
     formula(std::nullptr_t) noexcept
       : ptr_(nullptr)
       {
       }
 
+    /// \brief Default initialize a formula to nullptr.
     formula() noexcept
       : ptr_(nullptr)
       {
       }
 
+    /// Clone a formula.
     formula(const formula& f) noexcept
       : ptr_(f.ptr_)
       {
@@ -601,18 +684,27 @@ namespace spot
           ptr_->clone();
       }
 
+    /// Clone a formula.
     formula(formula&& f) noexcept
       : ptr_(f.ptr_)
       {
         f.ptr_ = nullptr;
       }
 
+    /// Destroy a formula.
     ~formula()
     {
       if (ptr_)
         ptr_->destroy();
     }
 
+    /// \brief Reset a formula to null
+    ///
+    /// Note that null formula should be short lived: most algorithms
+    /// and member function assume that formulas should not be null.
+    /// Assigning nullptr to a formula can be useful when cleaning an
+    /// array of formula using multiple passes and marking some
+    /// formula as nullptr before actually erasing them.
     const formula& operator=(std::nullptr_t)
     {
       this->~formula();
@@ -831,52 +923,52 @@ namespace spot
       return binop(op::Name, std::move(f), std::move(g));            \
     }
 #endif // !SWIG
-    /// \brief Construct an Xor formula
+    /// \brief Construct an `Xor` formula
     /// @{
     SPOT_DEF_BINOP(Xor);
     /// @}
 
-    /// \brief Construct an Implies formula
+    /// \brief Construct an `->` formula
     /// @{
     SPOT_DEF_BINOP(Implies);
     /// @}
 
-    /// \brief Construct an Equiv formula
+    /// \brief Construct an `<->` formula
     /// @{
     SPOT_DEF_BINOP(Equiv);
     /// @}
 
-    /// \brief Construct an U formula
+    /// \brief Construct a `U` formula
     /// @{
     SPOT_DEF_BINOP(U);
     /// @}
 
-    /// \brief Construct an R formula
+    /// \brief Construct an `R` formula
     /// @{
     SPOT_DEF_BINOP(R);
     /// @}
 
-    /// \brief Construct an W formula
+    /// \brief Construct a `W` formula
     /// @{
     SPOT_DEF_BINOP(W);
     /// @}
 
-    /// \brief Construct an < formula
+    /// \brief Construct an `M` formula
     /// @{
     SPOT_DEF_BINOP(M);
     /// @}
 
-    /// \brief Construct an <>-> PSL formula
+    /// \brief Construct a `<>->` PSL formula
     /// @{
     SPOT_DEF_BINOP(EConcat);
     /// @}
 
-    /// \brief Construct a marked <>-> PSL formula
+    /// \brief Construct a marked `<>->` PSL formula
     /// @{
     SPOT_DEF_BINOP(EConcatMarked);
     /// @}
 
-    /// \brief Construct an []-> PSL formula
+    /// \brief Construct a `[]->` PSL formula
     /// @{
     SPOT_DEF_BINOP(UConcat);
     /// @}
