@@ -57,10 +57,6 @@ using namespace spot;
   }
 }
 
-namespace std {
-  %template(atomic_prop_set) set<spot::formula>;
-}
-
 %rename(model) spot::ltsmin_model;
 %rename(kripke_raw) spot::ltsmin_model::kripke;
 %include <spot/ltsmin/ltsmin.hh>
