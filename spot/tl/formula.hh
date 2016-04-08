@@ -799,6 +799,20 @@ namespace spot
       return formula(fnode::ap(name));
     }
 
+    /// \brief Build an atomic proposition from... an atomic proposition.
+    ///
+    /// The only practical interest of this methods is for the Python
+    /// bindings, where ap() can therefore work both from string or
+    /// atomic propositions.
+    static formula ap(const formula& a)
+    {
+      if (a.kind() == op::ap)
+        return a;
+      else
+        throw std::invalid_argument("atomic propositions cannot be "
+                                    "constructed from arbitrary formulas");
+    }
+
     /// \brief Build a unary operator.
     /// \pre \a o should be one of op::Not, op::X, op::F, op::G,
     /// op::Closure, op::NegClosure, op::NegClosureMarked.
