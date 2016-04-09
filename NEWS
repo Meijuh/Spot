@@ -6,6 +6,11 @@ New in spot 1.99.9a (not yet released)
   --reject-word=WORD options that were introduced in autfilt in the
   previous version.
 
+  Python:
+
+  * The output of spot.atomic_prop_collect() is printable and
+  can now be passed directly to spot.ltsmin.model.kripke().
+
 New in spot 1.99.9 (2016-03-14)
 
   Command-line tools:
