@@ -232,10 +232,7 @@ static const argp_option options[] =
     { "reject-word", OPT_REJECT_WORD, "WORD", 0,
       "keep automata that reject WORD", 0 },
     RANGE_DOC_FULL,
-    { nullptr, 0, nullptr, 0,
-      "WORD is lasso-shaped and written as 'BF;BF;...;BF;cycle{BF;...;BF}' "
-      "where BF are arbitrary Boolean formulas.  The 'cycle{...}' part is "
-      "mandatory, but the prefix can be omitted.", 0 },
+    WORD_DOC,
     { nullptr, 0, nullptr, 0,
       "If any option among --small, --deterministic, or --any is given, "
       "then the simplification level defaults to --high unless specified "

@@ -48,6 +48,8 @@
 #include <spot/twaalgos/minimize.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/stutter.hh>
+#include <spot/twaalgos/word.hh>
+#include <spot/twaalgos/product.hh>
 
 const char argp_program_doc[] ="\
 Read a list of formulas and output them back after some optional processing.\v\
@@ -57,7 +59,8 @@ Exit status:\n\
   2  if any error has been reported";
 
 enum {
-  OPT_AP_N = 256,
+  OPT_ACCEPT_WORD = 256,
+  OPT_AP_N,
   OPT_BOOLEAN,
   OPT_BOOLEAN_TO_ISOP,
   OPT_BSIZE,
@@ -76,6 +79,7 @@ enum {
   OPT_NEGATE,
   OPT_NNF,
   OPT_OBLIGATION,
+  OPT_REJECT_WORD,
   OPT_RELABEL,
   OPT_RELABEL_BOOL,
   OPT_REMOVE_WM,
@@ -199,7 +203,12 @@ static const argp_option options[] =
     { "invert-match", 'v', nullptr, 0, "select non-matching formulas", 0},
     { "unique", 'u', nullptr, 0,
       "drop formulas that have already been output (not affected by -v)", 0 },
+    { "accept-word", OPT_ACCEPT_WORD, "WORD", 0,
+      "keep formulas that accept WORD", 0 },
+    { "reject-word", OPT_REJECT_WORD, "WORD", 0,
+      "keep formulas that reject WORD", 0 },
     RANGE_DOC_FULL,
+    WORD_DOC,
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Output options:", -20 },
     { "count", 'c', nullptr, 0, "print only a count of matched formulas", 0 },
@@ -275,11 +284,14 @@ static long int match_count = 0;
 // accessing deleted stuff.
 static struct opt_t
 {
+  spot::bdd_dict_ptr dict = spot::make_bdd_dict();
   spot::exclusive_ap excl_ap;
   std::unique_ptr<output_file> output_define = nullptr;
   spot::formula implied_by = nullptr;
   spot::formula imply = nullptr;
   spot::formula equivalent_to = nullptr;
+  std::vector<spot::twa_graph_ptr> acc_words;
+  std::vector<spot::twa_graph_ptr> rej_words;
 }* opt;
 
 static std::string unabbreviate;
@@ -321,6 +333,18 @@ parse_opt(int key, char* arg, struct argp_state*)
     case ARGP_KEY_ARG:
       // FIXME: use stat() to distinguish filename from string?
       jobs.emplace_back(arg, true);
+      break;
+    case OPT_ACCEPT_WORD:
+      try
+        {
+          opt->acc_words.push_back(spot::parse_word(arg, opt->dict)
+                                   ->as_automaton());
+        }
+      catch (const spot::parse_error& e)
+        {
+          error(2, 0, "failed to parse the argument of --accept-word:\n%s",
+                e.what());
+        }
       break;
     case OPT_BOOLEAN:
       boolean = true;
@@ -387,6 +411,18 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_OBLIGATION:
       obligation = true;
+      break;
+    case OPT_REJECT_WORD:
+      try
+        {
+          opt->rej_words.push_back(spot::parse_word(arg, opt->dict)
+                                   ->as_automaton());
+        }
+      catch (const spot::parse_error& e)
+        {
+          error(2, 0, "failed to parse the argument of --reject-word:\n%s",
+                e.what());
+        }
       break;
     case OPT_RELABEL:
     case OPT_RELABEL_BOOL:
@@ -603,24 +639,46 @@ namespace
         || simpl.are_equivalent(f, opt->equivalent_to);
       matched &= !stutter_insensitive || spot::is_stutter_invariant(f);
 
-      // Match obligations and subclasses using WDBA minimization.
-      // Because this is costly, we compute it later, so that we don't
-      // have to compute it on formulas that have been discarded for
-      // other reasons.
-      if (matched && obligation)
+      if (matched && (obligation
+                      || !opt->acc_words.empty()
+                      || !opt->rej_words.empty()))
         {
           auto aut = ltl_to_tgba_fm(f, simpl.get_dict());
-          auto min = minimize_obligation(aut, f);
-          assert(min);
-          if (aut == min)
+
+          if (matched && !opt->acc_words.empty())
+            for (auto& word_aut: opt->acc_words)
+              if (spot::product(aut, word_aut)->is_empty())
+                {
+                  matched = false;
+                  break;
+                }
+
+          if (matched && !opt->rej_words.empty())
+            for (auto& word_aut: opt->rej_words)
+              if (!spot::product(aut, word_aut)->is_empty())
+                {
+                  matched = false;
+                  break;
+                }
+
+          // Match obligations and subclasses using WDBA minimization.
+          // Because this is costly, we compute it later, so that we don't
+          // have to compute it on formulas that have been discarded for
+          // other reasons.
+          if (matched && obligation)
             {
-              // Not an obligation
-              matched = false;
-            }
-          else
-            {
-              matched &= !guarantee || is_terminal_automaton(min);
-              matched &= !safety || is_safety_mwdba(min);
+              auto min = minimize_obligation(aut, f);
+              assert(min);
+              if (aut == min)
+                {
+                  // Not an obligation
+                  matched = false;
+                }
+              else
+                {
+                  matched &= !guarantee || is_terminal_automaton(min);
+                  matched &= !safety || is_safety_mwdba(min);
+                }
             }
         }
 
@@ -676,9 +734,9 @@ main(int argc, char** argv)
 
       if (boolean_to_isop && simplification_level == 0)
         simplification_level = 1;
-      spot::tl_simplifier_options opt(simplification_level);
-      opt.boolean_to_isop = boolean_to_isop;
-      spot::tl_simplifier simpl(opt);
+      spot::tl_simplifier_options tlopt(simplification_level);
+      tlopt.boolean_to_isop = boolean_to_isop;
+      spot::tl_simplifier simpl(tlopt, opt->dict);
 
       ltl_processor processor(simpl);
       if (processor.run())

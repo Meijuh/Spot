@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -19,16 +19,22 @@
 
 #pragma once
 
-#define RANGE_DOC                                                        \
-    { nullptr, 0, nullptr, 0,                                                \
-      "RANGE may have one of the following forms: 'INT', "                \
+#define RANGE_DOC                                                       \
+    { nullptr, 0, nullptr, 0,                                           \
+      "RANGE may have one of the following forms: 'INT', "              \
       "'INT..INT', or '..INT'.\nIn the latter case, the missing number " \
       "is assumed to be 1.", 0 }
 
-#define RANGE_DOC_FULL                                                \
-    { nullptr, 0, nullptr, 0,                                        \
-      "RANGE may have one of the following forms: 'INT', "        \
+#define RANGE_DOC_FULL                                          \
+    { nullptr, 0, nullptr, 0,                                   \
+      "RANGE may have one of the following forms: 'INT', "      \
       "'INT..INT', '..INT', or 'INT..'", 0 }
+
+#define WORD_DOC                                                        \
+    { nullptr, 0, nullptr, 0,                                           \
+      "WORD is lasso-shaped and written as 'BF;BF;...;BF;cycle{BF;...;BF}' " \
+      "where BF are arbitrary Boolean formulas.  The 'cycle{...}' part is " \
+      "mandatory, but the prefix can be omitted.", 0 }
 
 struct range
 {

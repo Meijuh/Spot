@@ -1,6 +1,10 @@
 New in spot 1.99.9a (not yet released)
 
-  Nothing yet.
+  Command-line tools:
+
+  * ltlfilt now also support the --accept-word=WORD and
+  --reject-word=WORD options that were introduced in autfilt in the
+  previous version.
 
 New in spot 1.99.9 (2016-03-14)
 

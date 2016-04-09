@@ -42,6 +42,12 @@ F(!a & !b)
 EOF
 diff out expect
 
+# The same, without using automata explicitly
+randltl -n -1 a b | ltlfilt --simplify --uniq \
+  --accept-word='a&!b;cycle{!a&!b}' --accept-word='!a&!b;cycle{a&b}' \
+  --reject-word='cycle{b}' -n 3 > out
+diff out expect
+
 # Test syntax errors
 autfilt --reject='foobar' </dev/null 2>error && exit 1
 autfilt --accept='cycle{foo' </dev/null 2>>error && exit 1
