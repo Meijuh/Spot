@@ -194,7 +194,7 @@ namespace spot
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
       assert(s);
-      assert(!s->succ || g_.valid_trans(s->succ));
+      assert(!s->succ || g_.is_valid_edge(s->succ));
 
       if (this->iter_cache_)
         {
