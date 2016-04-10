@@ -70,6 +70,8 @@ ORG_FILES = \
   org/g++wrap.in \
   org/init.el.in \
   org/spot.css \
+  org/arch.tex \
+  $(srcdir)/org/arch.png \
   org/autfilt.org \
   org/csv.org \
   org/compile.org \
@@ -109,6 +111,11 @@ $(srcdir)/org/satmin.png: org/satmin.tex
 	cd $(srcdir)/org && \
 	pdflatex -shell-escape satmin.tex && \
 	rm -f satmin.pdf satmin.aux satmin.log
+
+$(srcdir)/org/arch.png: org/arch.tex
+	cd $(srcdir)/org && \
+	pdflatex -shell-escape arch.tex && \
+	rm -f arch.pdf arch.aux arch.log
 
 $(srcdir)/org-stamp: $(ORG_FILES) $(configure_ac)
 	$(MAKE) org && touch $@

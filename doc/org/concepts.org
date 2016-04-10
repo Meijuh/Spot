@@ -946,13 +946,24 @@ from the command-line, Python, or C++.
    :CUSTOM_ID: architecture
    :END:
 
-The Spot project can be broken down into several main parts:
+[[file:arch.png]]
 
-  - =libbddx=: a customized version of [[http://sourceforge.net/projects/buddy/][the BuDDy library]], for manipulating [[#bdd][BDDs]].
-  - =libspot=: the main library, containing a C++11 implementation of all the
+The Spot project can be broken down into several parts, as shown
+above.  Orange boxes are C/C++ libraries.  Red boxes are command-line
+program.  Blue boxes are Python-related.
+
+  - =libbddx= is a customized version of [[http://sourceforge.net/projects/buddy/][the BuDDy library]], for manipulating [[#bdd][BDDs]].
+  - =libspot= is the main library, containing a C++11 implementation of all the
     data structures and algorithms.  This depends on =libddx=.
-  - [[file:tools.org][command-line tools]]: built upon the =libspot= library, exporting some of its
-    features to shell users
-  - Python bindings for =libbddx= and =libspot=: those make it possible to write
-    python scripts for specific tasks, and allow interactive use of the library
-    via environments such a [[http://ipython.org][IPython/Jupyter]].
+  - all the supplied [[file:tools.org][command-line tools]] are built upon the =libspot=
+    library, exporting some of its features to shell users
+  - =libspot-ltsmin= is a library that helps interfacing Spot with
+    dynamic libraries that [[http://fmt.cs.utwente.nl/tools/ltsmin/][LTSmin]] uses to represent state-spaces.  It
+    currently supports libraries generated from promela models using
+    SpinS or a patched version of DiVinE, but you have to install
+    those third-party tools first.  See [[https://gitlab.lrde.epita.fr/spot/spot/blob/next/tests/ltsmin/README][=tests/ltsmin/README=]]
+    for details.
+  - In addition to the C++11 API, we also provide Python bindings for
+    =libspot-ltsmin= and most of =libspot=.  These are available by
+    importing =spot= or =spot.ltsmin=, and have readily usable in an
+    interactive environment such as the [[http://juptter.org][IPython/Jupyter]] notebook.
