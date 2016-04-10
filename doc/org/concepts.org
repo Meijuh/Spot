@@ -952,7 +952,8 @@ The Spot project can be broken down into several parts, as shown
 above.  Orange boxes are C/C++ libraries.  Red boxes are command-line
 program.  Blue boxes are Python-related.
 
-  - =libbddx= is a customized version of [[http://sourceforge.net/projects/buddy/][the BuDDy library]], for manipulating [[#bdd][BDDs]].
+  - =libbddx= is a customized version of [[https://sourceforge.net/projects/buddy/][the BuDDy library]], for
+    manipulating [[#bdd][BDDs]].
   - =libspot= is the main library, containing a C++11 implementation of all the
     data structures and algorithms.  This depends on =libddx=.
   - all the supplied [[file:tools.org][command-line tools]] are built upon the =libspot=
