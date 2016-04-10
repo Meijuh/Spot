@@ -54,7 +54,7 @@ Andersen's lecture notes]].
 
 In Spot, BDDs are one way to represent Boolean formulas, and in
 particular, they are used to labels the edges of [[#buchi][automata]]. Spot uses a
-customized version of [[http://sourceforge.net/projects/buddy/][the BuDDy library]] for manipulating BDDs.
+customized version of [[https://sourceforge.net/projects/buddy/][the BuDDy library]] for manipulating BDDs.
 
 * ω-word
    :PROPERTIES:

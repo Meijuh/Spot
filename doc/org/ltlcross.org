@@ -101,7 +101,7 @@ No problem detected.
 =ltlcross= can only read four kinds of output:
   - Never claims (only if they are restricted to representing an
     automaton using =if=, =goto=, and =skip= statements) such as those
-    output by [[http://spinroot.com/][=spin=]], [[http://www.lsv.ens-cachan.fr/~gastin/ltl2ba/][=ltl2ba=]], [[http://sourceforge.net/projects/ltl3ba/][=ltl3ba=]], or =ltl2tgba --spin=.  The
+    output by [[http://spinroot.com/][=spin=]], [[http://www.lsv.ens-cachan.fr/~gastin/ltl2ba/][=ltl2ba=]], [[https://sourceforge.net/projects/ltl3ba/][=ltl3ba=]], or =ltl2tgba --spin=.  The
     newer syntax introduced by Spin 6.24, using =do= instead of =if=,
     is also supported.
   - [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT's format]], which supports generalized Büchi automata with

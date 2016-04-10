@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2015 Laboratoire de Recherche et Développement de
+## Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 ## l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -42,7 +42,7 @@ while (my $file = readdir(DIR))
     my $html = `(echo '.HEAD <LINK REL="stylesheet" TYPE="text/css" HREF="../spot.css">'
                  echo '.HEAD <meta name="viewport" content="width=device-width, initial-scale=1">'
                  cat $file) | groff -Kutf8 -mandoc -Thtml - -P -r`;
-    $html =~ s|GNU GPL version 3 or later.*http://gnu.org/licenses/gpl.html&gt;|<a href="http://gnu.org/licenses/gpl.html">GNU GPL version 3 or later</a>|s;
+    $html =~ s|GNU GPL version 3 or later.*http://gnu.org/licenses/gpl.html&gt;|<a href="http://www.gnu.org/licenses/gpl.html">GNU GPL version 3 or later</a>|s;
     $html =~ s|<h2>.*?</h2>|<div class="outline-2">$&</div>|smg;
     $html =~ s|(<a href="#.*?">.*?</a><br>\n)+|<div id="table-of-contents"><h2>Table of Contents</h2><div id="text-table-of-contents"><ul>\n$&</ul></div></div>|sm;
     $html =~ s|(<a href="#.*?">.*?</a>)<br>|<li>$1</li>|g;

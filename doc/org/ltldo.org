@@ -19,7 +19,7 @@ any other tool.
 * Example: computing statistics for =ltl3ba=
 
 As a motivating example, consider a scenario where we want to run
-[[http://sourceforge.net/projects/ltl3ba/][=ltl3ba=]] on a set of 10 formulas stored in a file.  For each formula
+[[https://sourceforge.net/projects/ltl3ba/][=ltl3ba=]] on a set of 10 formulas stored in a file.  For each formula
 we would like to compute compute the number of states and edges in the
 Büchi automaton produced by =ltl3ba=.
 
