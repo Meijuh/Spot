@@ -1025,7 +1025,7 @@ namespace spot
     ///
     /// \param newst A vector indicating how each state should be renumbered.
     /// Use -1U to erase a state.
-    /// \param the number of states used (after renumbering)
+    /// \param used_states the number of states used (after renumbering)
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states)
     {
       assert(newst.size() == states_.size());
