@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -553,11 +553,14 @@ namespace spot
       }
     };
 
-  }
+  } // namespace internal
 
 
-  // The actual graph implementation
-
+  /// \brief A directed graph
+  ///
+  /// \tparam State_Data data to attach to states
+  /// \tparam Edge_Data data to attach to edges
+  /// \tparam Alternating whether the automaton should be alternating
   template <typename State_Data, typename Edge_Data, bool Alternating>
   class digraph
   {
@@ -569,6 +572,7 @@ namespace spot
     typedef internal::edge_iterator<digraph> iterator;
     typedef internal::edge_iterator<const digraph> const_iterator;
 
+    /// Whether the automaton is alternating
     static constexpr bool alternating()
     {
       return Alternating;
@@ -603,7 +607,7 @@ namespace spot
     // Number of erased edges.
     unsigned killed_edge_;
   public:
-    /// \brief construct an empty graph
+    /// \brief Construct an empty graph
     ///
     /// Construct an empty graph, and reserve space for \a max_states
     /// states and \a max_trans edges.  These are not hard
@@ -623,24 +627,25 @@ namespace spot
       edges_[0].next_succ = 0;
     }
 
+    /// The number of states in the automaton
     unsigned num_states() const
     {
       return states_.size();
     }
 
+    /// \brief The number of edges in the automaton
+    ///
+    /// Killed edges are omitted.
     unsigned num_edges() const
     {
       return edges_.size() - killed_edge_ - 1;
     }
 
-    bool valid_trans(edge t) const
-    {
-      // Erased edges have their next_succ pointing to
-      // themselves.
-      return (t < edges_.size() &&
-              edges_[t].next_succ != t);
-    }
-
+    /// \brief Create a new states
+    ///
+    /// All arguments are forwarded to the State_Data constructor.
+    ///
+    /// \return a state number
     template <typename... Args>
     state new_state(Args&&... args)
     {
@@ -649,6 +654,12 @@ namespace spot
       return s;
     }
 
+    /// \brief Create n new states
+    ///
+    /// All arguments are forwarded to the State_Data constructor of
+    /// each of the n states.
+    ///
+    /// \return the first state number
     template <typename... Args>
     state new_states(unsigned n, Args&&... args)
     {
@@ -659,6 +670,11 @@ namespace spot
       return s;
     }
 
+    /// @{
+    /// \brief return a reference to the storage of a state
+    ///
+    /// The storage includes any of the user-supplied State_Data, plus
+    /// some custom fields needed to find the outgoing transitions.
     state_storage_t&
     state_storage(state s)
     {
@@ -672,9 +688,13 @@ namespace spot
       assert(s < states_.size());
       return states_[s];
     }
+    ///@}
 
-    // Do not use State_Data& as return type, because State_Data might
-    // be void.
+    ///@{
+    /// \brief return the State_Data associated to a state
+    ///
+    /// This does not use State_Data& as return type, because
+    /// State_Data might be void.
     typename state_storage_t::data_t&
     state_data(state s)
     {
@@ -682,14 +702,19 @@ namespace spot
       return states_[s].data();
     }
 
-    // May not be called on states with no data.
     const typename state_storage_t::data_t&
     state_data(state s) const
     {
       assert(s < states_.size());
       return states_[s].data();
     }
+    ///@}
 
+    ///@{
+    /// \brief return a reference to the storage of an edge
+    ///
+    /// The storage includes any of the user-supplied Edge_Data, plus
+    /// some custom fields needed to find the next transitions.
     edge_storage_t&
     edge_storage(edge s)
     {
@@ -703,7 +728,13 @@ namespace spot
       assert(s < edges_.size());
       return edges_[s];
     }
+    ///@}
 
+    ///@{
+    /// \brief return the Edgeg_Data of an edge.
+    ///
+    /// This does not use Edge_Data& as return type, because
+    /// Edge_Data might be void.
     typename edge_storage_t::data_t&
     edge_data(edge s)
     {
@@ -717,7 +748,13 @@ namespace spot
       assert(s < edges_.size());
       return edges_[s].data();
     }
+    ///@}
 
+    /// \brief Create a new edge
+    ///
+    /// \param src the source state
+    /// \param dst the destination state
+    /// \param args arguments to forward to the Edge_Data constructor
     template <typename... Args>
     edge
     new_edge(state src, out_state dst, Args&&... args)
@@ -737,18 +774,22 @@ namespace spot
       return t;
     }
 
+    /// Convert a storage reference into a state number
     state index_of_state(const state_storage_t& ss) const
     {
       assert(!states_.empty());
       return &ss - &states_.front();
     }
 
+    /// Conveart a storage reference into an edge number
     edge index_of_edge(const edge_storage_t& tt) const
     {
       assert(!edges_.empty());
       return &tt - &edges_.front();
     }
 
+    /// @{
+    /// \brief Return a fake container with all edges leaving \a src
     internal::state_out<digraph>
     out(state src)
     {
@@ -772,7 +813,12 @@ namespace spot
     {
       return out(index_of_state(src));
     }
+    /// @}
 
+    /// @{
+    ///
+    /// \brief Return a fake container with all edges leaving \a src,
+    /// allowing erasure.
     internal::killer_edge_iterator<digraph>
     out_iteraser(state_storage_t& src)
     {
@@ -784,7 +830,11 @@ namespace spot
     {
       return out_iteraser(state_storage(src));
     }
+    ///@}
 
+    /// @{
+    ///
+    /// \brief Return the vector of states.
     const state_vector& states() const
     {
       return states_;
@@ -794,7 +844,12 @@ namespace spot
     {
       return states_;
     }
+    /// @}
 
+    /// @{
+    ///
+    /// \brief Return a fake container with all edges (exluding erased
+    /// edges)
     internal::all_trans<const digraph> edges() const
     {
       return edges_;
@@ -804,12 +859,16 @@ namespace spot
     {
       return edges_;
     }
+    /// @}
 
-    // When using this method, beware that the first entry (edge
-    // #0) is not a real edge, and that any edge with
-    // next_succ pointing to itself is an erased edge.
-    //
-    // You should probably use edges() instead.
+    /// @{
+    /// \brief Return the vector of all edges.
+    ///
+    /// When using this method, beware that the first entry (edge #0)
+    /// is not a real edge, and that any edge with next_succ pointing
+    /// to itself is an erased edge.
+    ///
+    /// You should probably use edges() instead.
     const edge_vector_t& edge_vector() const
     {
       return edges_;
@@ -819,7 +878,26 @@ namespace spot
     {
       return edges_;
     }
+    /// @}
 
+    /// \brief Test whether the given edge is valid.
+    ///
+    /// An edge is valid if its number is less than the total number
+    /// of edges, and it does not correspond to an erased (dead) edge.
+    ///
+    /// \see is_dead_edge()
+    bool is_valid_edge(edge t) const
+    {
+      // Erased edges have their next_succ pointing to
+      // themselves.
+      return (t < edges_.size() &&
+              edges_[t].next_succ != t);
+    }
+
+    /// @{
+    /// \brief Tests whether an edge has been erased.
+    ///
+    /// \see is_valid_edge
     bool is_dead_edge(unsigned t) const
     {
       return edges_[t].next_succ == t;
@@ -829,9 +907,10 @@ namespace spot
     {
       return t.next_succ == index_of_edge(t);
     }
+    /// @}
 
 
-    // To help debugging
+    /// Dump the state and edge storage for debugging
     void dump_storage(std::ostream& o) const
     {
       unsigned tend = edges_.size();
@@ -851,10 +930,11 @@ namespace spot
         }
     }
 
-    // Remove all dead edges.  The edges_ vector is left
-    // in a state that is incorrect and should eventually be fixed by
-    // a call to chain_edges_() before any iteration on the
-    // successor of a state is performed.
+    /// \brief Remove all dead edges.
+    ///
+    /// The edges_ vector is left in a state that is incorrect and
+    /// should eventually be fixed by a call to chain_edges_() before
+    /// any iteration on the successor of a state is performed.
     void remove_dead_edges_()
     {
       if (killed_edge_ == 0)
@@ -867,9 +947,11 @@ namespace spot
       killed_edge_ = 0;
     }
 
-    // This will invalidate all iterators, and also destroy edge
-    // chains.  Call chain_edges_() immediately afterwards
-    // unless you know what you are doing.
+    /// \brief Sort all edge according to a predicate
+    ///
+    /// This will invalidate all iterators, and also destroy edge
+    /// chains.  Call chain_edges_() immediately afterwards unless you
+    /// know what you are doing.
     template<class Predicate = std::less<edge_storage_t>>
     void sort_edges_(Predicate p = Predicate())
     {
@@ -878,8 +960,10 @@ namespace spot
       std::stable_sort(edges_.begin() + 1, edges_.end(), p);
     }
 
-    // Should be called only when it is known that all edges
-    // with the same destination are consecutive in the vector.
+    /// \brief Reconstruct the chain of outgoing edges
+    ///
+    /// Should be called only when it is known that all edges
+    /// with the same destination are consecutive in the vector.
     void chain_edges_()
     {
       state last_src = -1U;
@@ -921,10 +1005,11 @@ namespace spot
       //dump_storage(std::cerr);
     }
 
-    // Rename all the states in the edge vector.  The
-    // edges_ vector is left in a state that is incorrect and
-    // should eventually be fixed by a call to chain_edges_()
-    // before any iteration on the successor of a state is performed.
+    /// \brief Rename all the states in the edge vector.
+    ///
+    /// The edges_ vector is left in a state that is incorrect and
+    /// should eventually be fixed by a call to chain_edges_() before
+    /// any iteration on the successor of a state is performed.
     void rename_states_(const std::vector<unsigned>& newst)
     {
       assert(newst.size() == states_.size());
@@ -936,6 +1021,11 @@ namespace spot
         }
     }
 
+    /// \brief Rename and remove states.
+    ///
+    /// \param newst A vector indicating how each state should be renumbered.
+    /// Use -1U to erase a state.
+    /// \param the number of states used (after renumbering)
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states)
     {
       assert(newst.size() == states_.size());
