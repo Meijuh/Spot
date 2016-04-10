@@ -432,7 +432,7 @@ Internally, instead of representing /acceptance sets/ as actual sets
 of edges, Spot labels each edge of the automaton by a bit-vector that
 lists the acceptance sets an edge belongs to.
 
-There is a flag inside each automaton that tells Spot if an automaton
+There is [[#property-flags][a flag]] inside each automaton that tells Spot if an automaton
 uses state-based or transition-based acceptance.  However, regardless
 of the value of this flag, membership to acceptance sets is always
 stored on transitions.  In the case of an automaton with state-based
@@ -967,3 +967,60 @@ program.  Blue boxes are Python-related.
     =libspot-ltsmin= and most of =libspot=.  These are available by
     importing =spot= or =spot.ltsmin=, and have readily usable in an
     interactive environment such as the [[http://juptter.org][IPython/Jupyter]] notebook.
+* Automaton property flags
+   :PROPERTIES:
+   :CUSTOM_ID: property-flags
+   :END:
+
+
+The automaton class used by Spot to represent ω-Automata is called
+=twa= (because we use TωA as a short for Transition-based
+ω-Automaton).  As its names implies, the =twa= class supports only
+transition-based acceptance, but as [[#trans-acc][discussed previously]] we can
+emulate state-based acceptance using transition-based acceptance by
+ensuring that all transitions leaving a state have the same acceptance
+set membership.  In addition, there is a bit in the =twa= class that
+we can set to indicate that the automaton is meant to be considered
+with state-based acceptance: this allows some algorithms to make
+better choices.
+
+There are actually several property flags that are stored into each
+automaton, and that can be queried or set by algorithms:
+
+| flag name           | meaning when =true=                                                                   |
+|---------------------+---------------------------------------------------------------------------------------|
+| =state_acc=         | automaton should be considered has having state-based acceptance                      |
+| =inherently_weak=   | accepting and rejecting cycles cannot be mixed in the same SCC                        |
+| =weak=              | transitions of an SCC all belong to the same acceptance sets                          |
+| =terminal=          | automaton is weak, accepting SCCs are complete and may not reach rejecting cycles     |
+| =deterministic=     | there is at most one run *recognizing* a word, but not necessarily accepting it       |
+| =unambiguous=       | there is at most one run *accepting* a word (but it might be recognized several time) |
+| =stutter_invariant= | the property recognized by the automaton is [[https://www.lrde.epita.fr/~adl/dl/adl/michaud.15.spin.pdf][stutter-invariant]]                         |
+
+For each flag =flagname=, the =twa= class has a method
+=prop_flagname()= that returns the value of the flag as an instance of
+=trival=, and there is a method =prop_flagname(trival newval)= that
+sets that value.
+
+=trival= instances can take three values: =false=, =true=, or
+=trival::maybe=.  The idea is that algorithms should update flags as a
+side effect of their execution, but only if that does not induce some
+extra cost.  For instance when translating an LTL formula into an
+automaton, we can set the =stutter_invariant= properties to =true= if
+the input formula does not use the =X= operator, but we would leave
+the flag to =trival::maybe= if =X= is used: the presence of such an
+operator =X= does not prevent the formula from being
+stutter-invariant, but it would require additional work to check.
+
+As another example, if you write an algorithm that must check whether
+an automaton is deterministic, do not call the
+=twa::prop_deterministic()= method, because that might return
+=trival::maybe=.  Instead, call =spot::is_deterministic(...)=: that
+will respond in constant time if the =deterministic= property flag was
+either =true= or =false=, otherwise it will actually explore the
+automaton to decide its determinism.
+
+These automata properties are encoded into the [[file:hoa.org::#property-bits][HOA format]], so they can
+be preserved when building a processing pipeline using the shell.
+However the HOA format has support for more properties that do not
+correspond to any =twa= flag.

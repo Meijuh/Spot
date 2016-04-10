@@ -594,7 +594,7 @@ instance it is easier to complement a deterministic automaton that is
 known to be inherently weak.
 
 Spot stores the properties that matters to its algorithms as
-additional bits attached to each automaton.  Currently the HOA parser
+[[file:concepts.org::#property-flags][additional bits attached to each automaton]].  Currently the HOA parser
 ignores all the properties that are unused by Spot.
 
 Some of the supported properties are double-checked when the automaton
