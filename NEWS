@@ -1,15 +1,15 @@
-New in spot 1.99.9a (not yet released)
+New in spot 2.0 (2016-04-11)
 
   Command-line tools:
 
   * ltlfilt now also support the --accept-word=WORD and
-  --reject-word=WORD options that were introduced in autfilt in the
-  previous version.
+    --reject-word=WORD options that were introduced in autfilt in the
+    previous version.
 
   Python:
 
   * The output of spot.atomic_prop_collect() is printable and
-  can now be passed directly to spot.ltsmin.model.kripke().
+    can now be passed directly to spot.ltsmin.model.kripke().
 
   Library:
 
@@ -17,9 +17,11 @@ New in spot 1.99.9a (not yet released)
 
   Documentation:
 
-  * The concepts page (https://spot.lrde.epita.fr/concepts.html)
-  now includes a highlevel description of the architecture, and
-  some notes aboute automata properties.
+  * The concepts page (https://spot.lrde.epita.fr/concepts.html) now
+    includes a highlevel description of the architecture, and some
+    notes aboute automata properties.
+
+  * More Doxygen documentation for spot::formula and spot::digraph.
 
 New in spot 1.99.9 (2016-03-14)
 
