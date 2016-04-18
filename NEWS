@@ -1,6 +1,8 @@
 New in spot 2.0.0a (not yet released)
 
-  Nothing yet.
+  Bug fixes:
+
+  * Typo in documentation of the -H option in --help output.
 
 New in spot 2.0 (2016-04-11)
 
