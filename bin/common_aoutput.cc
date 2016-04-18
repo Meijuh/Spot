@@ -101,7 +101,7 @@ static const argp_option options[] =
       "(+INT) add INT to all set numbers, "
       "(<INT) display at most INT states, "
       "(#) show internal edge numbers", 0 },
-    { "hoaf", 'H', "i|l|m|s|t|v", OPTION_ARG_OPTIONAL,
+    { "hoaf", 'H', "i|k|l|m|s|t|v", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format (default).  Add letters to select "
       "(i) use implicit labels for complete deterministic automata, "
       "(s) prefer state-based acceptance when possible [default], "
