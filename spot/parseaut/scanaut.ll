@@ -76,7 +76,7 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 {eol}			yylloc->lines(yyleng); yylloc->step();
 {eol2}			yylloc->lines(yyleng / 2); yylloc->step();
 [ \t\v\f]+		yylloc->step();
-"/""*"+			{
+"/*"			{
                           orig_cond = YY_START;
 			  BEGIN(in_COMMENT);
 			  comment_level = 1;
@@ -281,13 +281,13 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 
 
 <in_COMMENT>{
-  "/""*"+		++comment_level;
+  "/*"                  ++comment_level;
   [^*/\n\r]*		continue;
   "/"[^*\n\r]*		continue;
-  "*"+[^*/\n\r]*	continue;
-  {eol}			yylloc->lines(yyleng); yylloc->end.column = 1;
+  "*"                   continue;
+  {eol}                 yylloc->lines(yyleng); yylloc->end.column = 1;
   {eol2}		yylloc->lines(yyleng / 2); yylloc->end.column = 1;
-  "*"+"/"		{
+  "*/"                  {
 			  if (--comment_level == 0)
 			    {
 			      yylloc->step();
