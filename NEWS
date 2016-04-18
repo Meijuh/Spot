@@ -3,6 +3,7 @@ New in spot 2.0.0a (not yet released)
   Bug fixes:
 
   * Typo in documentation of the -H option in --help output.
+  * The automaton parser would choke on comments like /******/.
 
 New in spot 2.0 (2016-04-11)
 

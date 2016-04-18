@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Laboratoire de Recherche et Developpement
+# Copyright (C) 2015, 2016 Laboratoire de Recherche et Developpement
 # de l'Epita
 #
 # This file is part of Spot, a model checking library.
@@ -588,3 +588,4 @@ State: 4
 EOF
 
 diff out expected
+autfilt -q expected
