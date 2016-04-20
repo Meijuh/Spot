@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -436,17 +436,15 @@ namespace spot
       return res;
     }
 
-    friend SPOT_API bitvect*
-      ::spot::make_bitvect(size_t bitcount);
+    friend SPOT_API bitvect* make_bitvect(size_t bitcount);
 
     /// Print a bitvect.
     friend SPOT_API std::ostream& operator<<(std::ostream&,
                                              const bitvect&);
 
   private:
-    friend SPOT_API bitvect_array*
-      ::spot::make_bitvect_array(size_t bitcount,
-                                 size_t vectcount);
+    friend SPOT_API bitvect_array* make_bitvect_array(size_t bitcount,
+                                                      size_t vectcount);
 
     size_t size_;
     size_t block_count_;
@@ -516,9 +514,8 @@ namespace spot
       return *reinterpret_cast<const bitvect*>(storage() + index * bvsize_);
     }
 
-    friend SPOT_API bitvect_array*
-      ::spot::make_bitvect_array(size_t bitcount,
-                                 size_t vectcount);
+    friend SPOT_API bitvect_array* make_bitvect_array(size_t bitcount,
+                                                      size_t vectcount);
 
 
     /// Print a bitvect_array.
