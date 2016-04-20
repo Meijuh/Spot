@@ -1,5 +1,10 @@
 New in spot 2.0.0a (not yet released)
 
+  Documentation:
+
+  * Add missing documentation for the option string passed to
+    spot::make_emptiness_check_instantiator().
+
   Bug fixes:
 
   * Typo in documentation of the -H option in --help output.
