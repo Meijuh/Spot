@@ -39,11 +39,18 @@ namespace spot
   /// \addtogroup emptiness_check Emptiness-checks
   /// \ingroup twa_algorithms
   ///
+  /// You can create an emptiness check either by instantiating it
+  /// explicitly (calling one of the functions of \ref
+  /// emptiness_check_algorithms "this list"), or indirectly via
+  /// spot::make_emptiness_check_instantiator().  The latter function
+  /// allows user-options to influence the choice of the
+  /// emptiness-check algorithm used, and the intermediate
+  /// instantiator object can be used to query to properties of the
+  /// emptiness check selected.
+  ///
   /// All emptiness-check algorithms follow the same interface.
   /// Basically once you have constructed an instance of
-  /// spot::emptiness_check (by instantiating a subclass, or calling a
-  /// functions construct such instance; see \ref
-  /// emptiness_check_algorithms "this list"), you should call
+  /// spot::emptiness_check, you should call
   /// spot::emptiness_check::check() to check the automaton.
   ///
   /// If spot::emptiness_check::check() returns 0, then the automaton
@@ -202,7 +209,7 @@ namespace spot
   typedef std::shared_ptr<emptiness_check_instantiator>
     emptiness_check_instantiator_ptr;
 
-  // Dynamically create emptiness checks.  Given their name and options.
+  /// Dynamically create emptiness checks.  Given their name and options.
   class SPOT_API emptiness_check_instantiator
   {
   public:
@@ -239,19 +246,122 @@ namespace spot
     option_map o_;
     void *info_;
   };
-  /// @}
 
   /// \brief Create an emptiness-check instantiator, given the name
   /// of an emptiness check.
   ///
-  /// \a name should have the form \c "name" or \c "name(options)".
+  /// This is a convenient entry point to instantiate an emptiness
+  /// check with user-supplied options.
   ///
-  /// On error, the function returns 0.  If the name of the algorithm
-  /// was unknown, \c *err will be set to \c name.  If some fragment of
+  /// \param name should have the form \c "name" or \c "name(options)".
+  ///
+  /// \return Return an emptiness-check instantiator.  On error, the
+  /// function returns \c nullptr.  If the name of the algorithm was
+  /// unknown, \c *err will be set to \c name.  If some fragment of
   /// the options could not be parsed, \c *err will point to that
   /// fragment.
+  ///
+  /// The following names supported and correspond to different emptiness
+  /// check algorithms:
+  /// - `Cou99` uses `spot::couvreur99()`, that works with Fin-less
+  ///       acceptance conditions, with any number of acceptance sets.
+  ///       The following options can be used:
+  ///     - `shy` Compute all successors of each state, then explore already
+  ///       visited states first. This usually helps to merge SCCs, and
+  ///       thus exit sooner. However because all successors have to be
+  ///       computed and stored, it often consume more memory.
+  ///     - `group` Setting this option is meaningful only when shy is
+  ///       used. If set (the default), the successors of all the states
+  ///       that belong to the same SCC will be considered when choosing
+  ///       a successor. Otherwise, only the successor of the topmost
+  ///       state on the DFS stack are considered.
+  ///     - `poprem` Specifies how the algorithm should handle the
+  ///       destruction of non-accepting maximal strongly connected
+  ///       components. If poprem is set, the algorithm will keep a list
+  ///       of all states of a SCC that are fully processed and should be
+  ///       removed once the MSCC is popped. If poprem is unset (the
+  ///       default), the MSCC will be traversed again (i.e. generating
+  ///       the successors of the root recursively) for deletion. This
+  ///       is a choice between memory and speed.
+  ///
+  ///   Examples:
+  ///   \code
+  ///   Cou99
+  ///   Cou99(shy !group)
+  ///   Cou99(shy group)
+  ///   Cou99(poprem)
+  ///   Cou99(poprem shy !group)
+  ///   Cou99(poprem shy group)
+  ///   \endcode
+  ///
+  /// - `GC04` uses `spot::explicit_gv04_check()` and works on automata
+  ///   with Fin-less acceptance conditions using at most one acceptance
+  ///   set.  No options are supported.
+  ///
+  ///   Example:
+  ///   \code
+  ///   GC04
+  ///   \endcode
+  ///
+  /// - `CVWY90` uses `spot::magic_search()` and work on automata with
+  ///   Fin-less acceptance conditions using at most one acceptance
+  ///   set.  Set option `bsh` to the size of a hash-table if you want
+  ///   to activate bit-state hashing.
+  ///
+  ///   Examples:
+  ///   \code
+  ///   CVWY90
+  ///   CVWY90(bsh=4M)
+  ///   \endcode
+  ///
+  /// - `SE05` uses `spot::se05()` and works on work on automata with
+  ///   Fin-less acceptance conditions using at most one acceptance
+  ///   set.  Set option `bsh` to the size of a hash-table if you want
+  ///   to activate bit-state hashing.
+  ///
+  ///   Examples:
+  ///   \code
+  ///   SE05
+  ///   SE05(bsh=4M)
+  ///   \endcode
+  ///
+  /// - `Tau03` uses `spot::explicit_tau03_search()` and work on automata with
+  ///   Fin-less acceptance conditions using at least one acceptance
+  ///   set.  No options are supported.
+  ///
+  ///   Example:
+  ///   \code
+  ///   Tau03
+  ///   \endcode
+  ///
+  /// - `Tau03_opt` uses `spot::explicit_tau03_opt_search()` and work on
+  /// automata with any Fin-less acceptance.  The following options are
+  /// supported:
+  ///   - `weights` This option is set by default and activates the usage
+  ///     of weights in the top-level DFS as well as in nested DFSs.
+  ///   - `redweights` This option is set by default, and activates the
+  ///     usage of weights in nested DFSs. It is meaningful only if
+  ///     weights is set.
+  ///   - `condstack` This option is unset by default, and activates
+  ///     the use of the "conditional stack" optimization described by
+  ///     Heikki Tauriainen.
+  ///   - ordering This option is unset by default, and activates the
+  ///     use of the "ordering" heuristic described by Heikki Tauriainen
+  ///     in Research Report A96 from the Helsinki University of Technology.
+  ///
+  ///   Example:
+  ///   \code
+  ///   Tau03_opt
+  ///   Tau03_opt(!weights)
+  ///   Tau03_opt(!redweights)
+  ///   Tau03_opt(condstack)
+  ///   Tau03_opt(condstack !weights)
+  ///   Tau03_opt(condstack !redweights)
+  ///   \endcode
   SPOT_API emptiness_check_instantiator_ptr
   make_emptiness_check_instantiator(const char* name, const char** err);
+
+  /// @}
 
 
   /// \addtogroup emptiness_check_algorithms Emptiness-check algorithms

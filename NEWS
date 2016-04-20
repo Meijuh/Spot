@@ -9,6 +9,11 @@ New in spot 2.0a (not yet released)
     is still the default, but we plan to default to version 1.1 in the
     future.
 
+  Documentation:
+
+  * Add missing documentation for the option string passed to
+    spot::make_emptiness_check_instantiator().
+
   Bug fixes:
 
   * Typo in documentation of the -H option in --help output.
