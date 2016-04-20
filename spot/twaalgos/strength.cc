@@ -84,12 +84,11 @@ namespace spot
         delete si;
       if (set)
         {
-          if (terminal && is_term && is_weak)
-            aut->prop_terminal(true);
-          if (is_weak)
-            aut->prop_weak(true);
-          if (is_inweak)
-            aut->prop_inherently_weak(true);
+          if (terminal)
+            aut->prop_terminal(is_term && is_weak);
+          aut->prop_weak(is_weak);
+          if (inweak)
+            aut->prop_inherently_weak(is_inweak);
         }
       if (inweak)
         return is_inweak;
