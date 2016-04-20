@@ -1,5 +1,14 @@
 New in spot 2.0a (not yet released)
 
+  Library:
+
+  * The print_hoa() function will now output version 1.1 of the HOA
+    format when passed the "1.1" option (i.e., use -H1.1 from any
+    command-line tool).  As far as Spot is concerned, this allows
+    negated properties to be expressed.  Version 1 of the HOA format
+    is still the default, but we plan to default to version 1.1 in the
+    future.
+
   Bug fixes:
 
   * Typo in documentation of the -H option in --help output.

@@ -35,7 +35,8 @@ namespace spot
   ///        deterministic automata, (k) state labels when possible,
   ///        (s) state-based acceptance when possible, (t)
   ///        transition-based acceptance, (m) mixed acceptance, (l)
-  ///        single-line output, (v) verbose properties.
+  ///        single-line output, (v) verbose properties, (1.1) use
+  ///        version 1.1 of the HOA format.
   SPOT_API std::ostream&
   print_hoa(std::ostream& os,
             const const_twa_ptr& g,

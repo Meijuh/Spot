@@ -252,12 +252,29 @@ namespace spot
     bool implicit_labels = false;
     bool verbose = false;
     bool state_labels = false;
+    bool v1_1 = false;
 
     if (opt)
       while (*opt)
         {
           switch (char c = *opt++)
             {
+            case '1':
+              if (opt[0] == '.' && opt[1] == '1')
+                {
+                  v1_1 = true;
+                  opt += 2;
+                }
+              else if (opt[0] == '.' && opt[1] == '0')
+                {
+                  v1_1 = false;
+                  opt += 2;
+                }
+              else
+                {
+                  v1_1 = false;
+                }
+              break;
             case 'i':
               implicit_labels = true;
               break;
@@ -297,7 +314,7 @@ namespace spot
     unsigned num_states = aut->num_states();
 
     const char nl = newline ? '\n' : ' ';
-    os << "HOA: v1" << nl;
+    os << (v1_1 ? "HOA: v1.1" : "HOA: v1") << nl;
     auto n = aut->get_named_prop<std::string>("automaton-name");
     if (n)
       escape_str(os << "name: \"", *n) << '"' << nl;
@@ -423,10 +440,16 @@ namespace spot
       prop(" trans-acc");
     if (md.is_colored)
       prop(" colored");
+    else if (verbose && v1_1)
+      prop(" !colored");
     if (md.is_complete)
       prop(" complete");
+    else if (v1_1)
+      prop(" !complete");
     if (md.is_deterministic)
       prop(" deterministic");
+    else if (v1_1)
+      prop(" !deterministic");
     // Deterministic automata are also unambiguous, so writing both
     // properties seems redundant.  People working on unambiguous
     // automata are usually concerned about non-deterministic
@@ -434,16 +457,29 @@ namespace spot
     // in the case of deterministic automata.
     if (aut->prop_unambiguous() && (verbose || !md.is_deterministic))
       prop(" unambiguous");
+    else if (v1_1 && !aut->prop_unambiguous())
+      prop(" !unambiguous");
     if (aut->prop_stutter_invariant())
       prop(" stutter-invariant");
     if (!aut->prop_stutter_invariant())
-      prop(" stutter-sensitive");
+      {
+        if (v1_1)
+          prop(" !stutter-invariant");
+        else
+          prop(" stutter-sensitive");
+      }
     if (aut->prop_terminal())
       prop(" terminal");
     if (aut->prop_weak() && (verbose || aut->prop_terminal() != true))
       prop(" weak");
     if (aut->prop_inherently_weak() && (verbose || aut->prop_weak() != true))
       prop(" inherently-weak");
+    if (v1_1 && !aut->prop_terminal() && (aut->prop_weak() || verbose))
+      prop(" !terminal");
+    if (v1_1 && !aut->prop_weak() && (aut->prop_inherently_weak() || verbose))
+      prop(" !weak");
+    if (v1_1 && !aut->prop_inherently_weak())
+      prop(" !inherently-weak");
     os << nl;
 
     // If we want to output implicit labels, we have to

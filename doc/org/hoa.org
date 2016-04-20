@@ -21,6 +21,13 @@ some information that are useful to better understand the behavior
 of the tools distributed by Spot, and it also look at some lower-level,
 discussing details that are interesting when programming with Spot.
 
+Spot can read files written using either version 1 or version 1.1 of
+the HOA format.  It currently outputs version 1 by default, but
+version 1.1 can be requested from the command-line using option
+=-H1.1=.  Future version of Spot are likely to switch to version 1.1
+of HOA by default, so version 1 can already be requested explicitly
+using =-H1=.
+
 * Format, files, and TωA
 
 Some note about the abbreviation first.  We usually write "HOA format"
@@ -47,6 +54,9 @@ the HOA format, the output may not be exactly the same as the input.
   Only nondeterministic (in the broad sense, meaning "not
   deterministic" or "deterministic") automata are currently supported
   by Spot.
+
+- Automata using explicit alphabet (introduced in version 1.1 of the format
+  via =Alphabet:=) are not supported.
 
 - The maximum number of acceptance sets used is (currently) limited
   to 32.
@@ -671,6 +681,14 @@ particular:
 | =weak=              | trusted | yes    | as stored if (=-Hv= or not =terminal=)      | can be checked with =--check=strength=                           |
 | =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)          | can be checked with =--check=strength=                           |
 | =colored=           | ignored | no     | checked                                     |                                                                  |
+
+The above table is for version 1 of the format.  When version 1.1 is
+selected (using =-H1.1=), some negated properties may be output.  In
+particular, =stutter-sensitive= is replaced by =!stutter-invariant=.
+The logic of not cluttering the output with all of =!terminal=,
+=!weak=, and =!inhenrently-weak= is similar to the positive versions:
+=!inherently-weak= implies =!weak= which in turn implies =!terminal=,
+so only one of those is emitted unless =-Hv= is used.
 
 ** Named properties
 
