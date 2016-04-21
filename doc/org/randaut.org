@@ -476,3 +476,33 @@ Use option =-n= to specify a number of automata to build.  A negative
 value will cause an infinite number of automata to be produced.  This
 generation of multiple automata is useful when piped to another tool
 that can process automata in batches.
+
+Here is an example were we use [[file:autfilt.org][=autfilt=]] to scan an infinite stream
+(=-n -1=) of random parity automata for the first automaton (=-n 1=)
+that have exactly 5 SCCs of particular natures: we want 1 trivial SCC
+(i.e. an SCC with no cycle), 1 rejecting SCC (an SCC without any
+accepting SCCs), 2 inherently weak SCCs (SCCs contains only rejecting
+cycles) among which one should be weak (all transitions should belong
+to the same sets).  This leaves us with one extra SCC that should
+necessarily mix accepting and rejecting cycles.
+
+(Note: the '=.=' argument passed to =--dot= below hides default
+options discussed [[file:oaut.org::#default-dot][on another page]], while '=a=' causes the acceptance
+condition to be displayed and'=s=' shows SCCs.)
+
+#+NAME: randaut7
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut -n -1 --colored -A'parity min odd 4' a b |
+autfilt --sccs=5 --trivial-sccs=1 --rejecting-sccs=1 \
+        --inherently-weak-sccs=2 --weak-sccs=1 -n 1 --dot=.as
+#+END_SRC
+
+#+BEGIN_SRC dot :file randaut7.png :cmdline -Tpng :var txt=randaut7 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:randaut7.png]]
+
+You should be able to find each of the expected type of SCCs in the above picture.
+The green rectangles mark the three SCCs that contain some accepting cycles.

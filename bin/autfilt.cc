@@ -59,6 +59,8 @@
 #include <spot/twaalgos/complement.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/hoa.hh>
+#include <spot/twaalgos/sccinfo.hh>
+#include <spot/twaalgos/isweakscc.hh>
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter omega-automata.\v\
@@ -69,7 +71,8 @@ Exit status:\n\
 
 // Keep this list sorted
 enum {
-  OPT_ACC_SETS = 256,
+  OPT_ACC_SCCS = 256,
+  OPT_ACC_SETS,
   OPT_ACCEPT_WORD,
   OPT_AP_N,
   OPT_ARE_ISOMORPHIC,
@@ -87,6 +90,7 @@ enum {
   OPT_GENERIC,
   OPT_INSTUT,
   OPT_INCLUDED_IN,
+  OPT_INHERENTLY_WEAK_SCCS,
   OPT_INTERSECT,
   OPT_IS_COMPLETE,
   OPT_IS_DETERMINISTIC,
@@ -101,17 +105,22 @@ enum {
   OPT_PRODUCT_AND,
   OPT_PRODUCT_OR,
   OPT_RANDOMIZE,
+  OPT_REJ_SCCS,
   OPT_REJECT_WORD,
   OPT_REM_AP,
   OPT_REM_DEAD,
   OPT_REM_UNREACH,
   OPT_REM_FIN,
   OPT_SAT_MINIMIZE,
+  OPT_SCCS,
   OPT_SEED,
   OPT_SEP_SETS,
   OPT_SIMPLIFY_EXCLUSIVE_AP,
   OPT_STATES,
   OPT_STRIPACC,
+  OPT_TERMINAL_SCCS,
+  OPT_TRIV_SCCS,
+  OPT_WEAK_SCCS,
 };
 
 static const argp_option options[] =
@@ -227,6 +236,29 @@ static const argp_option options[] =
       "keep automata whose number of edges is in RANGE", 0 },
     { "acc-sets", OPT_ACC_SETS, "RANGE", 0,
       "keep automata whose number of acceptance sets is in RANGE", 0 },
+    { "sccs", OPT_SCCS, "RANGE", 0,
+      "keep automata whose number of SCCs is in RANGE", 0 },
+    { "acc-sccs", OPT_ACC_SCCS, "RANGE", 0,
+      "keep automata whose number of non-trivial accepting SCCs is in RANGE",
+      0 },
+    { "accepting-sccs", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
+    { "rej-sccs", OPT_REJ_SCCS, "RANGE", 0,
+      "keep automata whose number of non-trivial rejecting SCCs is in RANGE",
+      0 },
+    { "rejecting-sccs", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
+    { "triv-sccs", OPT_TRIV_SCCS, "RANGE", 0,
+      "keep automata whose number of trivial SCCs is in RANGE", 0 },
+    { "trivial-sccs", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
+    { "inherently-weak-sccs", OPT_INHERENTLY_WEAK_SCCS, "RANGE", 0,
+      "keep automata whose number of accepting inherently-weak SCCs is in "
+      "RANGE.  An accepting SCC is inherently weak if it does not have a "
+      "rejecting cycle.", 0 },
+    { "weak-sccs", OPT_WEAK_SCCS, "RANGE", 0,
+      "keep automata whose number of accepting weak SCCs is in RANGE.  "
+      "In a weak SCC, all transitions belong to the same acceptance sets.", 0 },
+    { "terminal-sccs", OPT_TERMINAL_SCCS, "RANGE", 0,
+      "keep automata whose number of accepting terminal SCCs is in RANGE.  "
+      "Terminal SCCs are weak and complete.", 0 },
     { "accept-word", OPT_ACCEPT_WORD, "WORD", 0,
       "keep automata that accept WORD", 0 },
     { "reject-word", OPT_REJECT_WORD, "WORD", 0,
@@ -303,6 +335,18 @@ static range opt_states = { 0, std::numeric_limits<int>::max() };
 static range opt_edges = { 0, std::numeric_limits<int>::max() };
 static range opt_accsets = { 0, std::numeric_limits<int>::max() };
 static range opt_ap_n = { 0, std::numeric_limits<int>::max() };
+static range opt_sccs = { 0, std::numeric_limits<int>::max() };
+static range opt_acc_sccs = { 0, std::numeric_limits<int>::max() };
+static range opt_rej_sccs = { 0, std::numeric_limits<int>::max() };
+static range opt_triv_sccs = { 0, std::numeric_limits<int>::max() };
+static bool opt_sccs_set = false;
+static bool opt_art_sccs_set = false; // need to classify SCCs as Acc/Rej/Triv.
+static range opt_inhweak_sccs = { 0, std::numeric_limits<int>::max() };
+static bool opt_inhweak_sccs_set = false;
+static range opt_weak_sccs = { 0, std::numeric_limits<int>::max() };
+static bool opt_weak_sccs_set = false;
+static range opt_terminal_sccs = { 0, std::numeric_limits<int>::max() };
+static bool opt_terminal_sccs_set = false;
 static int opt_max_count = -1;
 static bool opt_destut = false;
 static char opt_instut = 0;
@@ -370,6 +414,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_ACC_SETS:
       opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
+      break;
+    case OPT_ACC_SCCS:
+      opt_acc_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
+      opt_art_sccs_set = true;
       break;
     case OPT_ACCEPT_WORD:
       try
@@ -439,6 +487,11 @@ parse_opt(int key, char* arg, struct argp_state*)
         else
           opt->included_in = spot::product_or(opt->included_in, aut);
       }
+      break;
+    case OPT_INHERENTLY_WEAK_SCCS:
+      opt_inhweak_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
+      opt_inhweak_sccs_set = true;
+      opt_art_sccs_set = true;
       break;
     case OPT_INTERSECT:
       opt->intersect = read_automaton(arg, opt->dict);
@@ -542,6 +595,10 @@ parse_opt(int key, char* arg, struct argp_state*)
           randomize_st = true;
         }
       break;
+    case OPT_REJ_SCCS:
+      opt_rej_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
+      opt_art_sccs_set = true;
+      break;
     case OPT_REJECT_WORD:
       try
         {
@@ -569,6 +626,10 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_SAT_MINIMIZE:
       opt_sat_minimize = arg ? arg : "";
       break;
+    case OPT_SCCS:
+      opt_sccs_set = true;
+      opt_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
+      break;
     case OPT_SEED:
       opt_seed = to_int(arg);
       break;
@@ -584,6 +645,20 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_STRIPACC:
       opt_stripacc = true;
+      break;
+    case OPT_TERMINAL_SCCS:
+      opt_terminal_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
+      opt_terminal_sccs_set = true;
+      opt_art_sccs_set = true;
+      break;
+    case OPT_TRIV_SCCS:
+      opt_triv_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
+      opt_art_sccs_set = true;
+      break;
+    case OPT_WEAK_SCCS:
+      opt_weak_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
+      opt_weak_sccs_set = true;
+      opt_art_sccs_set = true;
       break;
     case ARGP_KEY_ARG:
       jobs.emplace_back(arg, true);
@@ -662,8 +737,48 @@ namespace
       matched &= opt_ap_n.contains(aut->ap().size());
       if (opt_is_complete)
         matched &= is_complete(aut);
-      if (opt_is_deterministic)
-        matched &= is_deterministic(aut);
+      if (matched && (opt_sccs_set | opt_art_sccs_set))
+        {
+          spot::scc_info si(aut);
+          unsigned n = si.scc_count();
+          matched = opt_sccs.contains(n);
+
+          if (opt_art_sccs_set && matched)
+            {
+              si.determine_unknown_acceptance();
+              unsigned triv = 0;
+              unsigned acc = 0;
+              unsigned rej = 0;
+              unsigned inhweak = 0;
+              unsigned weak = 0;
+              unsigned terminal = 0;
+              for (unsigned s = 0; s < n; ++s)
+                if (si.is_trivial(s))
+                  {
+                    ++triv;
+                  }
+                else if (si.is_rejecting_scc(s))
+                  {
+                    ++rej;
+                  }
+                else
+                  {
+                    ++acc;
+                    if (opt_inhweak_sccs_set)
+                      inhweak += is_inherently_weak_scc(si, s);
+                    if (opt_weak_sccs_set)
+                      weak += is_weak_scc(si, s);
+                    if (opt_terminal_sccs_set)
+                      terminal += is_terminal_scc(si, s);
+                  }
+              matched &= opt_acc_sccs.contains(acc);
+              matched &= opt_rej_sccs.contains(rej);
+              matched &= opt_triv_sccs.contains(triv);
+              matched &= opt_inhweak_sccs.contains(inhweak);
+              matched &= opt_weak_sccs.contains(weak);
+              matched &= opt_terminal_sccs.contains(terminal);
+            }
+        }
       if (opt_is_deterministic)
         matched &= is_deterministic(aut);
       else if (opt_is_unambiguous)

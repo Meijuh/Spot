@@ -956,3 +956,13 @@ diff out2 expected2
 # Make sure no property are lost
 autfilt -H1.1 out2 > out3
 diff out3 expected2
+
+
+test 2 = `autfilt -c --sccs=4 out`
+test 5 = `autfilt -c --sccs=2 out`
+test 1 = `autfilt -c -v --inherently-weak-sccs=1.. out`
+test 2 = `autfilt -c --weak-sccs=2 out`
+test 14 = `autfilt -c --terminal-sccs=1 out`
+test 2 = `autfilt -c --terminal-sccs=1 --inherently-weak-sccs=2 out`
+test 4 = `autfilt -c --rejecting-sccs=1 --accepting-sccs=1 out`
+test 0 = `autfilt -c --trivial-sccs=1.. out`

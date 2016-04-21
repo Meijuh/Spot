@@ -49,8 +49,8 @@ randltl -n -1 a b | ltlfilt --simplify --uniq \
 diff out expect
 
 # Test syntax errors
-autfilt --reject='foobar' </dev/null 2>error && exit 1
-autfilt --accept='cycle{foo' </dev/null 2>>error && exit 1
+autfilt --reject-w='foobar' </dev/null 2>error && exit 1
+autfilt --accept-w='cycle{foo' </dev/null 2>>error && exit 1
 cat error
 cat >expect <<EOF
 autfilt: failed to parse the argument of --reject-word:
