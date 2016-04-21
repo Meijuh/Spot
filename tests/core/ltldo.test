@@ -134,5 +134,14 @@ test $? = 2
 grep ':.*empty input' stderr
 grep 'ltldo: aborting' stderr
 
+$ltldo ': %s; true>%O' --errors=ignore -f GFa 2>stderr
+test $? = 0
+test -z "`cat stderr`"
+
+$ltldo ': %s; true>%O' --errors=warn -f GFa 2>stderr
+test $? = 0
+grep ':.*empty input' stderr
+
+
 $ltldo '{name} foo/bar/ltl2baextended' -f GFa 2>stderr && exit 1
 grep 'error:.*foo/bar/ltl2baextended -f .*>.*' stderr

@@ -26,6 +26,7 @@
 #include <sys/wait.h>
 
 #include "error.h"
+#include "argmatch.h"
 
 #include "common_setup.hh"
 #include "common_cout.hh"
@@ -48,8 +49,16 @@ const char argp_program_doc[] ="\
 Run LTL/PSL formulas through another program, performing conversion\n\
 of input and output as required.";
 
+enum {
+  OPT_ERRORS = 256,
+};
+
 static const argp_option options[] =
   {
+    { nullptr, 0, nullptr, 0, "Error handling:", 4 },
+    { "errors", OPT_ERRORS, "abort|warn|ignore", 0,
+      "how to deal with tools returning with non-zero exit codes or "
+      "automata that ltldo cannot parse (default: abort)", 0 },
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
@@ -98,13 +107,32 @@ build_percent_list()
   return &more_o_format_argp;
 }
 
+enum errors_type { errors_abort, errors_warn, errors_ignore };
+static errors_type errors_opt;
+
+static char const *const errors_args[] =
+{
+  "stop", "abort",
+  "warn", "print",
+  "ignore", "silent", nullptr
+};
+
+static errors_type const errors_types[] =
+{
+  errors_abort, errors_abort,
+  errors_warn, errors_warn,
+  errors_ignore, errors_ignore
+};
+
+ARGMATCH_VERIFY(errors_args, errors_types);
+
 const struct argp_child children[] =
   {
     { &hoaread_argp, 0, "Parsing of automata:", 3 },
     { &finput_argp, 0, nullptr, 1 },
     { &trans_argp, 0, nullptr, 3 },
-    { &aoutput_argp, 0, nullptr, 4 },
-    { build_percent_list(), 0, nullptr, 5 },
+    { &aoutput_argp, 0, nullptr, 5 },
+    { build_percent_list(), 0, nullptr, 6 },
     { &misc_argp, 0, nullptr, -1 },
     { nullptr, 0, nullptr, 0 }
   };
@@ -114,6 +142,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 {
   switch (key)
     {
+    case OPT_ERRORS:
+      errors_opt = XARGMATCH("--errors", arg, errors_args, errors_types);
+      break;
     case ARGP_KEY_ARG:
       translators.push_back(arg);
       break;
@@ -150,59 +181,64 @@ namespace
       duration = sw.stop();
 
       spot::twa_graph_ptr res = nullptr;
+      problem = false;
       if (timed_out)
         {
-          problem = false;        // A timeout is considered benign
+          // A timeout is considered benign
           std::cerr << "warning: timeout during execution of command \""
                     << cmd << "\"\n";
           ++timeout_count;
         }
       else if (WIFSIGNALED(es))
         {
-          problem = true;
-          es = WTERMSIG(es);
-          std::cerr << "error: execution of command \"" << cmd
-                    << "\" terminated by signal " << es << ".\n";
+          if (errors_opt != errors_ignore)
+            {
+              problem = true;
+              es = WTERMSIG(es);
+              std::cerr << "error: execution of command \"" << cmd
+                        << "\" terminated by signal " << es << ".\n";
+            }
         }
       else if (WIFEXITED(es) && WEXITSTATUS(es) != 0)
         {
-          problem = true;
-          es = WEXITSTATUS(es);
-          std::cerr << "error: execution of command \"" << cmd
-                    << "\" returned exit code " << es << ".\n";
+          if (errors_opt != errors_ignore)
+            {
+              problem = true;
+              es = WEXITSTATUS(es);
+              std::cerr << "error: execution of command \"" << cmd
+                        << "\" returned exit code " << es << ".\n";
+            }
         }
       else if (output.val())
         {
-          problem = false;
           auto aut = spot::parse_aut(output.val()->name(), dict,
                                      spot::default_environment::instance(),
                                      opt_parse);
-          if (!aut->errors.empty())
+          if (!aut->errors.empty() && errors_opt != errors_ignore)
             {
               problem = true;
               std::cerr << "error: failed to parse the automaton "
                 "produced by \"" << cmd << "\".\n";
               aut->format_errors(std::cerr);
-              res = nullptr;
             }
-          else if (aut->aborted)
+          else if (aut->aborted && errors_opt != errors_ignore)
             {
               problem = true;
               std::cerr << "error: command \"" << cmd
                         << "\" aborted its output.\n";
-              res = nullptr;
             }
           else
             {
               res = aut->aut;
             }
         }
-      else                        // No automaton output
+      // Note that res can stay empty if no automaton was output.
+
+      if (problem && errors_opt == errors_ignore)
         {
           problem = false;
           res = nullptr;
         }
-
       output.cleanup();
       return res;
     }
@@ -280,7 +316,13 @@ namespace
           double translation_time;
           auto aut = runner.translate(t, problem, translation_time);
           if (problem)
-            error_at_line(2, 0, filename, linenum, "aborting here");
+            {
+              if (errors_opt == errors_abort)
+                error_at_line(2, 0, filename, linenum, "aborting here");
+              else
+                error_at_line(0, 0, filename, linenum,
+                              "failed to translate this input");
+            }
           if (aut)
             {
               if (relmap)
