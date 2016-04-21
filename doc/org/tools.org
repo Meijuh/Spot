@@ -43,7 +43,7 @@ corresponding commands are hidden.
 - [[file:genltl.org][=genltl=]] Generate LTL formulas from scalable patterns.
 - [[file:ltl2tgba.org][=ltl2tgba=]] Translate LTL/PSL formulas into Büchi automata.
 - [[file:ltl2tgta.org][=ltl2tgta=]] Translate LTL/PSL formulas into Testing automata.
-- [[file:ltlcross.org][=ltlcross=]] Cross-compare LTL/PSL-to-Büchi translators.
+- [[file:ltlcross.org][=ltlcross=]] Cross-compare LTL/PSL-to-automata translators.
 - [[file:ltlgrind.org][=ltlgrind=]] List formulas similar to but simpler than a given LTL/PSL
   formula
 - [[file:dstar2tgba.org][=dstar2tgba=]] Convert automata with any acceptance into variants of

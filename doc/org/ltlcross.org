@@ -3,7 +3,7 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 
-=ltlcross= is a tool for cross-comparing the output of LTL-to-Büchi
+=ltlcross= is a tool for cross-comparing the output of LTL-to-automata
 translators.  It is actually a Spot-based clone of [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], the
 /LTL-to-Büchi Translator Testbench/, that essentially performs the
 same sanity checks.

@@ -1,6 +1,6 @@
 .\" -*- coding: utf-8 -*-
 [NAME]
-ltlcross \- cross-compare LTL/PSL translators to Büchi automata
+ltlcross \- cross-compare LTL/PSL translators to omega-automata
 [EXAMPLES]
 The following commands compare never claims produced by
 .BR ltl2tgba (1),
