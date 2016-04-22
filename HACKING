@@ -34,6 +34,7 @@ since the generated files they produce are distributed.)
     liblocale-gettext-perl or p5-locale-gettext in your distribution)
   A complete LaTeX distribution, including latexmk and extra fonts
     like dsfont.sty.
+  ImageMagick
   Python >= 3.3, IPython >= 2.3
   GraphViz
 
