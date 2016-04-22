@@ -123,6 +123,7 @@
 #include <spot/twaalgos/ltl2taa.hh>
 #include <spot/twaalgos/ltl2tgba_fm.hh>
 #include <spot/twaalgos/compsusp.hh>
+#include <spot/twaalgos/determinize.hh>
 #include <spot/twaalgos/magic.hh>
 #include <spot/twaalgos/minimize.hh>
 #include <spot/twaalgos/neverclaim.hh>
@@ -428,6 +429,7 @@ namespace std {
 %include <spot/twaalgos/ltl2taa.hh>
 %include <spot/twaalgos/ltl2tgba_fm.hh>
 %include <spot/twaalgos/compsusp.hh>
+%include <spot/twaalgos/determinize.hh>
 %include <spot/twaalgos/magic.hh>
 %include <spot/twaalgos/minimize.hh>
 %include <spot/twaalgos/neverclaim.hh>
