@@ -24,6 +24,10 @@ New in spot 2.0a (not yet released)
   * Add missing documentation for the option string passed to
     spot::make_emptiness_check_instantiator().
 
+  Python:
+
+  * The tgba_determinize() function is now accessible in Python.
+
   Bug fixes:
 
   * Typo in documentation of the -H option in --help output.
