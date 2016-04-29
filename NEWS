@@ -17,6 +17,12 @@ New in spot 2.0.0a (not yet released)
   * Fix autfilt to apply --simplify-exclusive-ap only after
     the simplifications of (--small/--deterministic) have
     been performed.
+  * The automaton parser did not fully register atomic propositions
+    for automata read from never claim or as LBTT.
+  * The sub_stats_reachable() function used to count the number
+    of transitions based on the number of atomic propositions
+    actually *used* by the automaton instead of using the number
+    of AP declared.
 
 New in spot 2.0 (2016-04-11)
 

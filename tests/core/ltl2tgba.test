@@ -221,3 +221,6 @@ ltlfilt -q -r -f '{c && {b | [*0]}[:+]}' --equivalent-to 'c & b'
 # test unknown dot options
 ltl2tgba --dot=@ a 2>stderr && exit 1
 grep 'ltl2tgba: unknown option.*@' stderr
+
+# Make sure the count of AP is correct through never claims or LBTT
+ltl2tgba -f a -s | autfilt -q --ap=1 --lbtt | autfilt -q --ap=1

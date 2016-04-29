@@ -738,6 +738,34 @@ namespace spot
     }
     ///@}
 
+
+    /// \brief Register all atomic propositions that have
+    /// already be register by the bdd_dict for this automaton.
+    ///
+    /// This method may only be called on an automaton with an empty
+    /// list of AP.  It will fetch all atomic proposition that have
+    /// been set in the bdd_dict for this particular automaton.
+    ///
+    /// The typical use-case for this function is when the labels of
+    /// an automaton are created by functions such as
+    /// formula_to_bdd().  This is for instance done in the parser
+    /// for never claims or LBTT.
+    void register_aps_from_dict()
+    {
+      if (!aps_.empty())
+        throw std::runtime_error("register_ap_from_dict() may not be"
+                                 " called on an automaton that has already"
+                                 " registered some AP");
+      auto& m = get_dict()->bdd_map;
+      unsigned s = m.size();
+      for (unsigned n = 0; n < s; ++n)
+        if (m[n].refs.find(this) != m[n].refs.end())
+          {
+            aps_.push_back(m[n].f);
+            bddaps_ &= bdd_ithvar(n);
+          }
+    }
+
     /// \brief The vector of atomic propositions registered by this
     /// automaton.
     const std::vector<formula>& ap() const
