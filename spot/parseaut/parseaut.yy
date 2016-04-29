@@ -1529,6 +1529,7 @@ never: "never"
 	 // Pretend that we have declared all states.
 	 for (auto& p: res.info_states)
 	   p.declared = true;
+         res.h->aut->register_aps_from_dict();
        }
 
 nc-states:
@@ -1750,6 +1751,7 @@ lbtt: lbtt-header lbtt-body ENDAUT
 	 res.info_states.resize(res.h->aut->num_states());
 	 for (auto& s: res.info_states)
 	   s.declared = true;
+         res.h->aut->register_aps_from_dict();
       }
     | lbtt-header-states LBTT_EMPTY
       {

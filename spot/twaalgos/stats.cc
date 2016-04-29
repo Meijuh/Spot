@@ -62,7 +62,7 @@ namespace spot
     {
     public:
       sub_stats_bfs(const const_twa_ptr& a, twa_sub_statistics& s)
-        : stats_bfs(a, s), s_(s), seen_(bddtrue)
+        : stats_bfs(a, s), s_(s), seen_(a->ap_vars())
       {
       }
 
@@ -71,24 +71,7 @@ namespace spot
                    const twa_succ_iterator* it) override
       {
         ++s_.edges;
-
         bdd cond = it->cond();
-        bdd newvars = bdd_exist(bdd_support(cond), seen_);
-        if (newvars != bddtrue)
-          {
-            seen_ &= newvars;
-            int count = 0;
-            while (newvars != bddtrue)
-              {
-                ++count;
-                newvars = bdd_high(newvars);
-              }
-            // If we discover one new variable, that means that all
-            // transitions we counted so far are actually double
-            // subtransitions.  If we have two new variables, they where
-            // quadruple transitions, etc.
-            s_.transitions <<= count;
-          }
         while (cond != bddfalse)
           {
             cond -= bdd_satoneset(cond, seen_, bddtrue);
