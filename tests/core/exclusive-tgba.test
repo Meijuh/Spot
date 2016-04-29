@@ -1,6 +1,6 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Laboratoire de Recherche et Développement de
+# Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -160,3 +160,16 @@ run 0 autfilt -H --exclusive-ap=a,b,c --exclusive-ap=d,e \
     --simplify-exclusive-ap automaton >out2
 cat out2
 diff out2 expected-simpl
+
+
+# Example from the paper
+test "6,50,14" = `ltl2tgba -B -f 'F(Ga | (GFb <-> GFc))' --stats='%s,%t,%e'`
+test "6,24,12" = `ltl2tgba -B -f 'F(Ga | (GFb <-> GFc))' |
+                  autfilt --exclusive-ap=a,b,c --stats='%s,%t,%e'`
+test "5,22,10" = `ltl2tgba -B -f 'F(Ga | (GFb <-> GFc))' |
+   autfilt --small --exclusive-ap=a,b,c --stats='%s,%t,%e' --ap=3`
+# The final automaton has 3 atomic propositions before
+# simplifications, but only 2 after that.
+ltl2tgba -B -f 'F(Ga | (GFb <-> GFc))' |
+  autfilt --small --exclusive-ap=a,b,c --simplify-ex --ap=3 > out
+test "5,21,10" = `autfilt out --stats='%s,%t,%e' --ap=2`

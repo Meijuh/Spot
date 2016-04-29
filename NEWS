@@ -33,6 +33,9 @@ New in spot 2.0a (not yet released)
   * Typo in documentation of the -H option in --help output.
   * The automaton parser would choke on comments like /******/.
   * check_strength() should also set negated properties.
+  * Fix autfilt to apply --simplify-exclusive-ap only after
+    the simplifications of (--small/--deterministic) have
+    been performed.
 
 New in spot 2.0 (2016-04-11)
 

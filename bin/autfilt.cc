@@ -826,11 +826,13 @@ namespace
       if (opt_mask_acc)
         aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
 
-      if (!opt->excl_ap.empty())
-        aut = opt->excl_ap.constrain(aut, opt_simplify_exclusive_ap);
-
       if (!opt->rem_ap.empty())
         aut = opt->rem_ap.strip(aut);
+
+      // opt_simplify_exclusive_ap is handled only after
+      // post-processing.
+      if (!opt->excl_ap.empty())
+        aut = opt->excl_ap.constrain(aut, false);
 
       if (opt_destut)
         aut = spot::closure(std::move(aut));
@@ -869,6 +871,9 @@ namespace
         aut = spot::dtwa_complement(ensure_deterministic(aut));
 
       aut = post.run(aut, nullptr);
+
+      if (opt_simplify_exclusive_ap && !opt->excl_ap.empty())
+        aut = opt->excl_ap.constrain(aut, opt_simplify_exclusive_ap);
 
       if (randomize_st || randomize_tr)
         spot::randomize(aut, randomize_st, randomize_tr);
