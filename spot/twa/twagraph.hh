@@ -441,6 +441,12 @@ namespace spot
     /// Remove all unreachable states.
     void purge_unreachable_states();
 
+    /// \brief Remove unused atomic proposition
+    ///
+    /// Remove, from the list of atomic propositions registered by the
+    /// automaton, those that are not actually used by its labels.
+    void remove_unused_ap();
+
     acc_cond::mark_t state_acc_sets(unsigned s) const
     {
       assert((bool)prop_state_acc() || num_sets() == 0);

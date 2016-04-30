@@ -223,6 +223,7 @@ namespace spot
             if (m->num_states() < a->num_states())
               a = m;
           }
+        a->remove_unused_ap();
         if (COMP_)
           a = complete(a);
         return a;
@@ -477,6 +478,8 @@ namespace spot
       }
 
     sim = dba ? dba : sim;
+
+    sim->remove_unused_ap();
 
     if (COMP_)
       sim = complete(sim);

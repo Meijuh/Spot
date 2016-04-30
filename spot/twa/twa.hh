@@ -738,6 +738,10 @@ namespace spot
     }
     ///@}
 
+    /// \brief Unregister an atomic proposition.
+    ///
+    /// \param num the BDD variable number returned by register_ap().
+    void unregister_ap(int num);
 
     /// \brief Register all atomic propositions that have
     /// already be register by the bdd_dict for this automaton.

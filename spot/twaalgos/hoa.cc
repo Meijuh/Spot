@@ -67,7 +67,7 @@ namespace spot
         check_det_and_comp(aut);
         use_implicit_labels = implicit && is_deterministic && is_complete;
         use_state_labels &= state_labels;
-        number_all_ap();
+        number_all_ap(aut);
       }
 
       std::ostream&
@@ -164,12 +164,22 @@ namespace spot
         assert(state_acc || aut->prop_state_acc() != true);
       }
 
-      void number_all_ap()
+      void number_all_ap(const const_twa_graph_ptr& aut)
       {
+        // Make sure that the automaton uses only atomic propositions
+        // that have been registered via twa::register_ap() or some
+        // variant.  If that is not the case, it is a bug that should
+        // be fixed in the function creating the automaton.  Since
+        // that function could be written by the user, throw an
+        // exception rather than using an assert().
         bdd all = bddtrue;
         for (auto& i: sup)
           all &= bdd_support(i.first);
-        all_ap = all;
+        all_ap = aut->ap_vars();
+        if (bdd_exist(all, all_ap) != bddtrue)
+          throw std::runtime_error("print_hoa(): automaton uses "
+                                   "unregistered atomic propositions");
+        all = all_ap;
 
         while (all != bddtrue)
           {
