@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -139,7 +139,7 @@ namespace spot
         if (v >= 0)
           {
             exist &= bdd_ithvar(v);
-            d->unregister_variable(v, res);
+            res->unregister_ap(v);
           }
       }
     for (auto ap: props_pos)
@@ -148,7 +148,7 @@ namespace spot
         if (v >= 0)
           {
             restrict &= bdd_ithvar(v);
-            d->unregister_variable(v, res);
+            res->unregister_ap(v);
           }
       }
     for (auto ap: props_neg)
@@ -157,7 +157,7 @@ namespace spot
         if (v >= 0)
           {
             restrict &= bdd_nithvar(v);
-            d->unregister_variable(v, res);
+            res->unregister_ap(v);
           }
       }
 

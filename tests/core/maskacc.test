@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -95,7 +95,7 @@ cat >expect3 <<EOF
 HOA: v1
 States: 1
 Start: 0
-AP: 0
+AP: 2 "a" "b"
 acc-name: all
 Acceptance: 0 t
 properties: trans-labels explicit-labels state-acc deterministic

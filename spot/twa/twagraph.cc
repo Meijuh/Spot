@@ -287,4 +287,26 @@ namespace spot
       }
     g_.defrag_states(std::move(newst), used_states);
   }
+
+  void twa_graph::remove_unused_ap()
+  {
+    if (ap().empty())
+      return;
+    std::set<bdd> conds;
+    bdd all = ap_vars();
+    for (auto& e: g_.edges())
+      {
+        all = bdd_exist(all, bdd_support(e.cond));
+        if (all == bddtrue)    // All letters are used.
+          return;
+      }
+    auto d = get_dict();
+    while (all != bddtrue)
+      {
+        unregister_ap(bdd_var(all));
+        all = bdd_high(all);
+      }
+  }
+
+
 }

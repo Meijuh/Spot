@@ -1,5 +1,10 @@
 New in spot 2.0.0a (not yet released)
 
+  Library:
+
+  * twa::unregister_ap() and twa_graph::remove_unused_ap() are new
+    methods introduced to fix some of the bugs below.
+
   Documentation:
 
   * Add missing documentation for the option string passed to
@@ -19,10 +24,20 @@ New in spot 2.0.0a (not yet released)
     been performed.
   * The automaton parser did not fully register atomic propositions
     for automata read from never claim or as LBTT.
+  * spot::ltsmin::kripke() had the same issue.
   * The sub_stats_reachable() function used to count the number
     of transitions based on the number of atomic propositions
     actually *used* by the automaton instead of using the number
     of AP declared.
+  * print_hoa() will now output all the atomic propositions that have
+    been registered, not only those that are used in the automaton.
+    (Note that it will also throw an exception if the automaton uses
+    an unregistered AP; this is how some of the above bugs were
+    found.)
+  * The for Small or Deterministic preference, the postprocessor
+    will now unregister atomic propositions that are no longer
+    used in labels.   Simplification of exclusive properties
+    and remove_ap::strip() will do similarly.
 
 New in spot 2.0 (2016-04-11)
 
