@@ -230,6 +230,8 @@ class formula:
                quotes are *not* added)
         - 'q': quote and escape for shell output, using single
                quotes or double quotes depending on the contents.
+        - '[...]': rewrite away all the operators specified in brackets,
+               using spot.unabbreviate().
 
         - ':spec': pass the remaining specification to the
                    formating function for strings.
@@ -239,6 +241,8 @@ class formula:
         syntax = 'f'
         parent = False
         escape = None
+
+        form = self
 
         while spec:
             c, spec = spec[0], spec[1:]
@@ -250,10 +254,16 @@ class formula:
                 escape = c
             elif c == ':':
                 break
+            elif c == '[':
+                pos = spec.find(']')
+                if pos < 0:
+                    raise ValueError("unclosed bracket: [" + spec)
+                form = form.unabbreviate(spec[0:pos])
+                spec = spec[pos+1:]
             else:
                 raise ValueError("unknown format specification: " + c + spec)
 
-        s = self.to_str(syntax, parent)
+        s = form.to_str(syntax, parent)
 
         if escape == 'c':
             o = ostringstream()

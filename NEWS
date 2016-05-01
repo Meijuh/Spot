@@ -55,6 +55,11 @@ New in spot 2.0a (not yet released)
 
   * The tgba_determinize() function is now accessible in Python.
 
+  * The __format__() method for formula support the same
+    operator-rewritting feature introduced in ltldo and ltlcross.
+    So "{:[i]s}".format(f) is the same as
+    "{:s}".format(f.unabbreviate("i")).
+
   Bug fixes:
 
   * Typo in documentation of the -H option in --help output.
