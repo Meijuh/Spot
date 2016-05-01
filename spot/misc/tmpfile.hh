@@ -52,6 +52,9 @@ namespace spot
     typedef std::list<temporary_file*>::iterator cleanpos_t;
 
     SPOT_LOCAL temporary_file(char* name, cleanpos_t cp);
+
+    temporary_file(const temporary_file& other) = delete;
+
     virtual ~temporary_file() override;
 
     const char* name() const
