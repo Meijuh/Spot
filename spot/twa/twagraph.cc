@@ -297,7 +297,7 @@ namespace spot
     for (auto& e: g_.edges())
       {
         all = bdd_exist(all, bdd_support(e.cond));
-        if (all == bddtrue)    // All letters are used.
+        if (all == bddtrue)    // All APs are used.
           return;
       }
     auto d = get_dict();
