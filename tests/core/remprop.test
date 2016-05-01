@@ -112,7 +112,7 @@ State: 0 {0}
 --END--
 EOF
 
-autfilt automaton > output
+autfilt automaton --used-ap=1 --unused-ap=2 > output
 diff automaton output
 
 cat >expect <<EOF
@@ -132,3 +132,6 @@ EOF
 
 autfilt --remove-unused-ap automaton > output
 diff output expect
+
+autfilt output --used-ap=0..1 --unused-ap=0 > output2
+diff output output2

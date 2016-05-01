@@ -15,6 +15,11 @@ New in spot 2.0a (not yet released)
     actually used.  This of course makes sense only for input/output
     formats that declare atomic proposition (HOA & DSTAR).
 
+  * autfilt has two new options to filter automata by count of used or
+    unused atomic propositions: --used-ap=RANGE --unused-ap=RANGE.
+    These differ from --ap=RANGE that only consider *declared* atomic
+    propositions, regardless of whether they are actually used.
+
   Library:
 
   * The print_hoa() function will now output version 1.1 of the HOA

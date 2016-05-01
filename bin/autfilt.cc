@@ -121,6 +121,8 @@ enum {
   OPT_STRIPACC,
   OPT_TERMINAL_SCCS,
   OPT_TRIV_SCCS,
+  OPT_USED_AP_N,
+  OPT_UNUSED_AP_N,
   OPT_WEAK_SCCS,
 };
 
@@ -202,7 +204,13 @@ static const argp_option options[] =
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Filtering options:", 6 },
     { "ap", OPT_AP_N, "RANGE", 0,
-      "match automata with a number of atomic propositions in RANGE", 0 },
+      "match automata with a number of (declared) atomic propositions in RANGE",
+      0 },
+    { "used-ap", OPT_USED_AP_N, "RANGE", 0,
+      "match automata with a number of used atomic propositions in RANGE", 0 },
+    { "unused-ap", OPT_UNUSED_AP_N, "RANGE", 0,
+      "match automata with a number of declared, but unused atomic "
+      "propositions in RANGE", 0 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
     { "isomorphic", 0, nullptr, OPTION_ALIAS | OPTION_HIDDEN, nullptr, 0 },
@@ -338,6 +346,9 @@ static range opt_states = { 0, std::numeric_limits<int>::max() };
 static range opt_edges = { 0, std::numeric_limits<int>::max() };
 static range opt_accsets = { 0, std::numeric_limits<int>::max() };
 static range opt_ap_n = { 0, std::numeric_limits<int>::max() };
+static range opt_used_ap_n = { 0, std::numeric_limits<int>::max() };
+static range opt_unused_ap_n = { 0, std::numeric_limits<int>::max() };
+static bool need_unused_ap_count = false;
 static range opt_sccs = { 0, std::numeric_limits<int>::max() };
 static range opt_acc_sccs = { 0, std::numeric_limits<int>::max() };
 static range opt_rej_sccs = { 0, std::numeric_limits<int>::max() };
@@ -662,6 +673,14 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_triv_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
       opt_art_sccs_set = true;
       break;
+    case OPT_USED_AP_N:
+      opt_used_ap_n = parse_range(arg, 0, std::numeric_limits<int>::max());
+      need_unused_ap_count = true;
+      break;
+    case OPT_UNUSED_AP_N:
+      opt_unused_ap_n = parse_range(arg, 0, std::numeric_limits<int>::max());
+      need_unused_ap_count = true;
+      break;
     case OPT_WEAK_SCCS:
       opt_weak_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
       opt_weak_sccs_set = true;
@@ -677,6 +696,23 @@ parse_opt(int key, char* arg, struct argp_state*)
   return 0;
 }
 
+static int unused_ap(const spot::const_twa_graph_ptr& aut)
+{
+  bdd all = aut->ap_vars();
+  for (auto& e: aut->edges())
+    {
+      all = bdd_exist(all, bdd_support(e.cond));
+      if (all == bddtrue)    // All APs are used.
+        return 0;
+    }
+  int count = 0;
+  while (all != bddtrue)
+    {
+      ++count;
+      all = bdd_high(all);
+    }
+  return count;
+}
 
 namespace
 {
@@ -742,7 +778,13 @@ namespace
       matched &= opt_edges.contains(aut->num_edges());
       matched &= opt_accsets.contains(aut->acc().num_sets());
       matched &= opt_ap_n.contains(aut->ap().size());
-      if (opt_is_complete)
+      if (matched && need_unused_ap_count)
+        {
+          int unused = unused_ap(aut);
+          matched &= opt_unused_ap_n.contains(unused);
+          matched &= opt_used_ap_n.contains(aut->ap().size() - unused);
+        }
+      if (matched && opt_is_complete)
         matched &= is_complete(aut);
       if (matched && (opt_sccs_set | opt_art_sccs_set))
         {
