@@ -110,6 +110,7 @@ enum {
   OPT_REM_AP,
   OPT_REM_DEAD,
   OPT_REM_UNREACH,
+  OPT_REM_UNUSED_AP,
   OPT_REM_FIN,
   OPT_SAT_MINIMIZE,
   OPT_SCCS,
@@ -185,6 +186,8 @@ static const argp_option options[] =
     { "remove-ap", OPT_REM_AP, "AP[=0|=1][,AP...]", 0,
       "remove atomic propositions either by existential quantification, or "
       "by assigning them 0 or 1", 0 },
+    { "remove-unused-ap", OPT_REM_UNUSED_AP, nullptr, 0,
+      "remove declared atomic propositions that are not used", 0 },
     { "remove-unreachable-states", OPT_REM_UNREACH, nullptr, 0,
       "remove states that are unreachable from the initial state", 0 },
     { "remove-dead-states", OPT_REM_DEAD, nullptr, 0,
@@ -365,6 +368,7 @@ static unsigned int opt_keep_states_initial = 0;
 static bool opt_simplify_exclusive_ap = false;
 static bool opt_rem_dead = false;
 static bool opt_rem_unreach = false;
+static bool opt_rem_unused_ap = false;
 static bool opt_sep_sets = false;
 static const char* opt_sat_minimize = nullptr;
 
@@ -623,6 +627,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_REM_UNREACH:
       opt_rem_unreach = true;
       break;
+    case OPT_REM_UNUSED_AP:
+      opt_rem_unused_ap = true;
+      break;
     case OPT_SAT_MINIMIZE:
       opt_sat_minimize = arg ? arg : "";
       break;
@@ -873,7 +880,9 @@ namespace
       aut = post.run(aut, nullptr);
 
       if (opt_simplify_exclusive_ap && !opt->excl_ap.empty())
-        aut = opt->excl_ap.constrain(aut, opt_simplify_exclusive_ap);
+        aut = opt->excl_ap.constrain(aut, true);
+      else if (opt_rem_unused_ap) // constrain(aut, true) already does that
+        aut->remove_unused_ap();
 
       if (randomize_st || randomize_tr)
         spot::randomize(aut, randomize_st, randomize_tr);

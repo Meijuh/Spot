@@ -10,6 +10,11 @@ New in spot 2.0a (not yet released)
     --rejecting-sccs=RANGE, trivial-sccs=RANGE, --terminal-sccs=RANGE,
     --weak-sccs=RANGE, --inherently-weak-sccs=RANGE).
 
+  * autfilt --remove-unused-ap can be used to remove atomic
+    proposition that are declared in the input automaton, but not
+    actually used.  This of course makes sense only for input/output
+    formats that declare atomic proposition (HOA & DSTAR).
+
   Library:
 
   * The print_hoa() function will now output version 1.1 of the HOA
