@@ -20,6 +20,20 @@ New in spot 2.0a (not yet released)
     These differ from --ap=RANGE that only consider *declared* atomic
     propositions, regardless of whether they are actually used.
 
+  * ltlcross and ltldo have a new syntax to specify that an input
+    formula should be written in some given syntax after rewriting
+    some operators away.  For instance the defaults arguments passed
+    to ltl2dstar have been changed from
+         --output-format=hoa %L %O
+    into
+         --output-format=hoa %[WM]L %O
+    where [WM] specifies that operators W and M should be rewritten
+    away.  As a consequence running
+         ltldo ltl2dstar -f 'a M b'
+    will now work and call ltl2dstar on the equivalent formula
+    'b U (a & b)' instead.  The operators that can be listed between
+    brackets are the same as those of ltlfilt --unabbreviate option.
+
   Library:
 
   * The print_hoa() function will now output version 1.1 of the HOA

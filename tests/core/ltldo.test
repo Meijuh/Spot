@@ -25,10 +25,11 @@ ltldo=ltldo
 ltl2tgba=ltl2tgba
 genltl=genltl
 
-run 0 $ltldo -f a -f 'a&b' -t 'echo %f,%s' >output
+run 0 $ltldo -f a -f 'a&b' -f 'a -> b' -t 'echo %f,%s,%[ei]w' >output
 cat >expected <<EOF
-a,a
-(a) & (b),(a) && (b)
+a,a,a=1
+(a) & (b),(a) && (b),(a=1) * (b=1)
+(a) -> (b),(a) -> (b),(a=0) + (b=1)
 EOF
 diff output expected
 

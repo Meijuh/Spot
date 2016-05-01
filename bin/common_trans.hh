@@ -56,6 +56,31 @@ struct quoted_string final: public spot::printable_value<std::string>
   void print(std::ostream& os, const char* pos) const override;
 };
 
+struct quoted_formula final: public spot::printable_value<spot::formula>
+{
+  using spot::printable_value<spot::formula>::operator=;
+  void print(std::ostream& os, const char* pos) const override;
+};
+
+struct filed_formula final: public spot::printable
+{
+  filed_formula(const quoted_formula& ltl) : f_(ltl)
+  {
+  }
+
+  void print(std::ostream& os, const char* pos) const override;
+
+  void new_round(unsigned serial)
+  {
+    serial_ = serial;
+  }
+
+ private:
+  const quoted_formula& f_;
+  unsigned serial_;
+  std::string string_to_tmp(const std::string str, unsigned n) const;
+};
+
 struct printable_result_filename final:
   public spot::printable_value<spot::temporary_file*>
 {
@@ -75,14 +100,8 @@ class translator_runner: protected spot::formater
 protected:
   spot::bdd_dict_ptr dict;
   // Round-specific variables
-  quoted_string string_ltl_spot;
-  quoted_string string_ltl_spin;
-  quoted_string string_ltl_lbt;
-  quoted_string string_ltl_wring;
-  quoted_string filename_ltl_spot;
-  quoted_string filename_ltl_spin;
-  quoted_string filename_ltl_lbt;
-  quoted_string filename_ltl_wring;
+  quoted_formula ltl_formula;
+  filed_formula filename_formula = ltl_formula;
   // Run-specific variables
   printable_result_filename output;
 public:
@@ -92,8 +111,7 @@ public:
                     // whether we accept the absence of output
                     // specifier
                     bool no_output_allowed = false);
-  void string_to_tmp(std::string& str, unsigned n, std::string& tmpname);
-  const std::string& formula() const;
+  std::string formula() const;
   void round_formula(spot::formula f, unsigned serial);
 };
 

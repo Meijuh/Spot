@@ -29,6 +29,7 @@
 #include "error.h"
 
 #include <spot/tl/print.hh>
+#include <spot/tl/unabbrev.hh>
 #include "common_conv.hh"
 #include <spot/misc/escape.hh>
 
@@ -41,11 +42,11 @@ static struct shorthands_t
   shorthands[] = {
     { "lbt", " <%L>%O" },
     { "ltl2ba", " -f %s>%O" },
-    { "ltl2dstar", " --output-format=hoa %L %O"},
+    { "ltl2dstar", " --output-format=hoa %[MW]L %O"},
     { "ltl2tgba", " -H %f>%O" },
     { "ltl3ba", " -f %s>%O" },
     { "ltl3dra", " -f %s>%O" },
-    { "modella", " %L %O" },
+    { "modella", " %[MWei^]L %O" },
     { "spin", " -f %s>%O" },
   };
 
@@ -63,7 +64,7 @@ static void show_shorthands()
         "matching those prefixes.  So for instance\n"
         "  '{DRA} ~/mytools/ltl2dstar-0.5.2'\n"
         "will changed into\n"
-        "  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %L %O'\n");
+        "  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %[MR]L %O'\n");
 }
 
 
@@ -153,6 +154,58 @@ quoted_string::print(std::ostream& os, const char*) const
   spot::quote_shell_string(os, val().c_str());
 }
 
+void quoted_formula::print(std::ostream& os, const char* pos) const
+{
+  spot::formula f = val_;
+  if (*pos == '[')
+    {
+      ++pos;
+      auto end = strchr(pos, ']');
+      auto arg = strndup(pos, end - pos);
+      f = spot::unabbreviate(f, arg);
+      free(arg);
+      pos = end + 1;
+    }
+  std::ostringstream ss;
+  std::ostream* out = &ss;
+  bool quoted = true;
+  switch (*pos)
+    {
+    case 'F':
+    case 'S':
+    case 'L':
+    case 'W':
+      out = &os;
+      quoted = false;
+    }
+  switch (*pos)
+    {
+    case 'f':
+    case 'F':
+      print_psl(*out, f, true);
+      break;
+    case 's':
+    case 'S':
+      print_spin_ltl(*out, f, true);
+      break;
+    case 'l':
+    case 'L':
+      print_lbt_ltl(*out, f);
+      break;
+    case 'w':
+    case 'W':
+      print_wring_ltl(*out, f);
+      break;
+    }
+  if (quoted)
+    {
+      std::string s = ss.str();
+      spot::quote_shell_string(os, s.c_str());
+    }
+}
+
+
+
 printable_result_filename::printable_result_filename()
 {
   val_ = nullptr;
@@ -184,19 +237,42 @@ printable_result_filename::print(std::ostream& os, const char*) const
   spot::quote_shell_string(os, val()->name());
 }
 
+void
+filed_formula::print(std::ostream& os, const char* pos) const
+{
+  std::ostringstream ss;
+  f_.print(ss, pos);
+  os << '\'' << string_to_tmp(ss.str(), serial_) << '\'';
+}
+
+std::string
+filed_formula::string_to_tmp(const std::string str, unsigned n) const
+{
+  char prefix[30];
+  snprintf(prefix, sizeof prefix, "lcr-i%u-", n);
+  spot::open_temporary_file* tmpfile = spot::create_open_tmpfile(prefix);
+  std::string tmpname = tmpfile->name();
+  int fd = tmpfile->fd();
+  ssize_t s = str.size();
+  if (write(fd, str.c_str(), s) != s
+      || write(fd, "\n", 1) != 1)
+    error(2, errno, "failed to write into %s", tmpname.c_str());
+  tmpfile->close();
+  return tmpname;
+}
 
 translator_runner::translator_runner(spot::bdd_dict_ptr dict,
                                      bool no_output_allowed)
   : dict(dict)
 {
-  declare('f', &string_ltl_spot);
-  declare('s', &string_ltl_spin);
-  declare('l', &string_ltl_lbt);
-  declare('w', &string_ltl_wring);
-  declare('F', &filename_ltl_spot);
-  declare('S', &filename_ltl_spin);
-  declare('L', &filename_ltl_lbt);
-  declare('W', &filename_ltl_wring);
+  declare('f', &ltl_formula);
+  declare('s', &ltl_formula);
+  declare('l', &ltl_formula);
+  declare('w', &ltl_formula);
+  declare('F', &filename_formula);
+  declare('S', &filename_formula);
+  declare('L', &filename_formula);
+  declare('W', &filename_formula);
   declare('D', &output);
   declare('H', &output);
   declare('N', &output);
@@ -229,60 +305,28 @@ translator_runner::translator_runner(spot::bdd_dict_ptr dict,
     }
 }
 
-void
-translator_runner::string_to_tmp(std::string& str, unsigned n,
-                                 std::string& tmpname)
-{
-  char prefix[30];
-  snprintf(prefix, sizeof prefix, "lcr-i%u-", n);
-  spot::open_temporary_file* tmpfile = spot::create_open_tmpfile(prefix);
-  tmpname = tmpfile->name();
-  int fd = tmpfile->fd();
-  ssize_t s = str.size();
-  if (write(fd, str.c_str(), s) != s
-      || write(fd, "\n", 1) != 1)
-    error(2, errno, "failed to write into %s", tmpname.c_str());
-  tmpfile->close();
-}
-
-const std::string&
+std::string
 translator_runner::formula() const
 {
   // Pick the most readable format we have...
-  if (!string_ltl_spot.val().empty())
-    return string_ltl_spot;
-  if (!string_ltl_spin.val().empty())
-    return string_ltl_spin;
-  if (!string_ltl_wring.val().empty())
-    return string_ltl_wring;
-  if (!string_ltl_lbt.val().empty())
-    return string_ltl_lbt;
+  if (has('f') || has('F'))
+    return spot::str_psl(ltl_formula, true);
+  if (has('s') || has('S'))
+    return spot::str_spin_ltl(ltl_formula, true);
+  if (has('l') || has('L'))
+    return spot::str_lbt_ltl(ltl_formula);
+  if (has('w') || has('W'))
+    return spot::str_wring_ltl(ltl_formula);
   SPOT_UNREACHABLE();
-  return string_ltl_spot;
+  return spot::str_psl(ltl_formula, true);
 }
 
 void
 translator_runner::round_formula(spot::formula f, unsigned serial)
 {
-  if (has('f') || has('F'))
-    string_ltl_spot = spot::str_psl(f, true);
-  if (has('s') || has('S'))
-    string_ltl_spin = spot::str_spin_ltl(f, true);
-  if (has('l') || has('L'))
-    string_ltl_lbt = spot::str_lbt_ltl(f);
-  if (has('w') || has('W'))
-    string_ltl_wring = spot::str_wring_ltl(f);
-  if (has('F'))
-    string_to_tmp(string_ltl_spot, serial, filename_ltl_spot);
-  if (has('S'))
-    string_to_tmp(string_ltl_spin, serial, filename_ltl_spin);
-  if (has('L'))
-    string_to_tmp(string_ltl_lbt, serial, filename_ltl_lbt);
-  if (has('W'))
-    string_to_tmp(string_ltl_wring, serial, filename_ltl_wring);
+  ltl_formula = f;
+  filename_formula.new_round(serial);
 }
-
-
 
 volatile bool timed_out = false;
 unsigned timeout_count = 0;
@@ -407,6 +451,10 @@ static const argp_option options[] =
       "If either %l, %L, or %T are used, any input formula that does "
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
       "relabeled automatically.\n"
+      "The sequences %f,%s,%l,%w,%F,%S,%L,%W can optionally be \"infixed\""
+      " by a bracketed sequence of operators to unabbreviate before outputing"
+      " the formula.  For instance %[MW]f will rewrite operators M and W"
+      " before outputing it.\n"
       "Furthermore, if COMMANDFMT has the form \"{NAME}CMD\", then only CMD "
       "will be passed to the shell, and NAME will be used to name the tool "
       "in the output.", 4 },

@@ -98,6 +98,14 @@ Performing sanity checks and gathering statistics...
 No problem detected.
 #+end_example
 
+To handle tools that do not support some LTL operators, the character
+sequences ~%f~, ~%s~, ~%l~, ~%w~, ~%F~, ~%S~, ~%L~, and ~%W~ can be
+"infixed" by a bracketed list of operators to rewrite away.  For
+instance if a tool reads LTL formulas from a file in LBT's syntax, but
+does not support operators ~M~ (strong until) and ~W~ (weak until),
+use ~%[WM]L~ instead of just ~%L~; this way operators ~W~ and ~M~ will
+be rewritten using the other supported operators.
+
 =ltlcross= can only read four kinds of output:
   - Never claims (only if they are restricted to representing an
     automaton using =if=, =goto=, and =skip= statements) such as those
@@ -125,7 +133,7 @@ tools:
   - '=ltl2ba -f %s >%O='
   - '=ltl3ba -M0 -f %s >%O=' (less deterministic output, can be smaller)
   - '=ltl3ba -M1 -f %s >%O=' (more deterministic output)
-  - '=modella -r12 -g -e %L %O='
+  - '=modella -r12 -g -e %[MWei^]L %O='
   - '=/path/to/script4lbtt.py %L %O=' (script supplied by [[http://web.archive.org/web/20070214050826/http://estragon.ti.informatik.uni-kiel.de/~fritz/][ltl2nba]] for
     its interface with LBTT)
   - '=ltl2tgba -s %f >%O=' (smaller output, Büchi automaton)
@@ -134,22 +142,22 @@ tools:
   - '=ltl2tgba -H -D %f >%O=' (more deterministic output, TGBA)
   - '=lbt <%L >%O='
   - '~ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD
-    --output-format=hoa %L %O~' deterministic Rabin output in HOA, as
+    --output-format=hoa %[MW]L %O~' deterministic Rabin output in HOA, as
     supported since version 0.5.2 of =ltl2dstar=.
   - '~ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD --automata=streett
-    --output-format=hoa %L %O~' deterministic Streett output in HOA,
+    --output-format=hoa %[MW]L %O~' deterministic Streett output in HOA,
     as supported since version 0.5.2 of =ltl2dstar=.
-  - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L %O=' (Rabin
+  - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %[MW]L %O=' (Rabin
     output in DSTAR format, as supported in older versions of
     =ltl2dstar=.
   - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L - | dstar2tgba
     -s >%O=' (external conversion from Rabin to Büchi done by
     =dstar2tgba= for more reduction of the Büchi automaton than what
     =ltlcross= would provide)
-  - '=java -jar Rabinizer.jar -ltl2dstar %F %O; mv %O.dst %O=' (Rabinizer
+  - '=java -jar Rabinizer.jar -ltl2dstar %[MW]F %O; mv %O.dst %O=' (Rabinizer
     uses the last =%O= argument as a prefix to which it always append =.dst=,
     so we have to rename =%O.dst= as =%O= so that =ltlcross= can find the file)
-  - '~java -jar rabinizer3.1.jar -in=formula -silent -out=std -format=hoa -auto=tr %f >%O~'
+  - '~java -jar rabinizer3.1.jar -in=formula -silent -out=std -format=hoa -auto=tr %[MWR]f >%O~'
     (rabinizer 3.1 can output automata in the HOA format)
   - '=ltl3dra -f %s >%O=' (The HOA format is the default for =ltl2dra=.)
 
@@ -167,18 +175,18 @@ the following words, then the string on the right is appended.
 
   lbt          <%L>%O
   ltl2ba       -f %s>%O
-  ltl2dstar    --output-format=hoa %L %O
+  ltl2dstar    --output-format=hoa %[MW]L %O
   ltl2tgba     -H %f>%O
   ltl3ba       -f %s>%O
-  ltl3dra      -f %f>%O
-  modella      %L %O
+  ltl3dra      -f %s>%O
+  modella      %[MWei^]L %O
   spin         -f %s>%O
 
 Any {name} and directory component is skipped for the purpose of
 matching those prefixes.  So for instance
   '{DRA} ~/mytools/ltl2dstar-0.5.2'
 will changed into
-  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %L %O'
+  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %[MR]L %O'
 #+end_example
 
 What this implies is that running =ltlcross ltl2ba ltl3ba ...= is

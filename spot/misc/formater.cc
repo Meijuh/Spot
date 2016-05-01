@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2016 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,9 +20,18 @@
 #include "config.h"
 #include <spot/misc/formater.hh>
 #include <iostream>
+#include <sstream>
 
 namespace spot
 {
+  static void unclosed_bracket(const char* s)
+  {
+    std::ostringstream ss;
+    ss << '\'' << s << "' has unclosed bracket";
+    throw std::runtime_error(ss.str());
+  }
+
+
   void
   formater::scan(const char* fmt, std::vector<bool>& has) const
   {
@@ -30,6 +39,19 @@ namespace spot
       if (*pos == '%')
         {
           char c = *++pos;
+          // %[...]c
+          const char* mark = pos;
+          if (c == '[')
+            {
+              do
+                {
+                  ++pos;
+                  if (SPOT_UNLIKELY(!*pos))
+                    unclosed_bracket(mark - 1);
+                }
+              while (*pos != ']');
+              c = *++pos;
+            }
           has[c] = true;
           if (!c)
             break;
@@ -53,9 +75,25 @@ namespace spot
         else
           {
             char c = *++pos;
+            const char* next = pos;
+            // in case we have %[...]X... , we want to pass
+            // [...]X... to the printer, and continue after the X once
+            // that is done.
+            if (c == '[')
+              {
+                do
+                  {
+                    ++next;
+                    if (SPOT_UNLIKELY(*next == 0))
+                      unclosed_bracket(pos - 1);
+                  }
+                while (*next != ']');
+                c = *++next;
+              }
             call_[c]->print(*output_, pos);
             if (!c)
               break;
+            pos = next;
           }
       return *output_;
     }
