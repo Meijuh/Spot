@@ -39,17 +39,17 @@ corresponding commands are hidden.
 * Command-line tools
 
 - [[file:randltl.org][=randltl=]] Generate random LTL/PSL formulas.
-- [[file:ltlfilt.org][=ltlfilt=]] Filter and convert LTL/PSL formulas.
+- [[file:ltlfilt.org][=ltlfilt=]] Filter, convert, and transform LTL/PSL formulas.
 - [[file:genltl.org][=genltl=]] Generate LTL formulas from scalable patterns.
 - [[file:ltl2tgba.org][=ltl2tgba=]] Translate LTL/PSL formulas into Büchi automata.
 - [[file:ltl2tgta.org][=ltl2tgta=]] Translate LTL/PSL formulas into Testing automata.
 - [[file:ltlcross.org][=ltlcross=]] Cross-compare LTL/PSL-to-automata translators.
 - [[file:ltlgrind.org][=ltlgrind=]] List formulas similar to but simpler than a given LTL/PSL
-  formula
-- [[file:dstar2tgba.org][=dstar2tgba=]] Convert automata with any acceptance into variants of
-  Büchi automata.
-- [[file:randaut.org][=randaut=]] Generate random automata.
-- [[file:autfilt.org][=autfilt=]] Filter and transform automata.
+  formula.
+- [[file:dstar2tgba.org][=dstar2tgba=]] Convert \omega-automata with any acceptance into
+  variants of Büchi automata.
+- [[file:randaut.org][=randaut=]] Generate random \omega-automata.
+- [[file:autfilt.org][=autfilt=]] Filter, convert, and transform \omega-automata.
 - [[file:ltldo.org][=ltldo=]] Run LTL/PSL formulas through other tools using common [[file:ioltl.org][input]]
   and [[file:oaut.org][output]] interfaces.
 
