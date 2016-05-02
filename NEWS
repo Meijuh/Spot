@@ -10,6 +10,9 @@ New in spot 2.0.0a (not yet released)
   * Add missing documentation for the option string passed to
     spot::make_emptiness_check_instantiator().
 
+  * There is a now a spot(7) man page listing all installed
+    command-line tools.
+
   Python:
 
   * The tgba_determinize() function is now accessible in Python.

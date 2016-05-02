@@ -71,7 +71,8 @@ convenience, you can browse their HTML versions:
 [[./man/ltlfilt.1.html][=ltlfilt=]](1),
 [[./man/randaut.1.html][=randaut=]](1),
 [[./man/randltl.1.html][=randltl=]](1),
-[[./man/spot-x.7.html][=spot-x=]](7).
+[[./man/spot-x.7.html][=spot-x=]](7),
+[[./man/spot.7.html][=spot=]](7).
 
 * Advanced use-cases
 
