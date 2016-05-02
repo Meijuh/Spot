@@ -36,10 +36,10 @@ img{max-width:100%}
 }
 
 thead tr {background: #ffe35e;}
-tbody:nth-child(odd) tr:nth-child(even) {background: #fff0a6;}
-tbody:nth-child(odd) tr:nth-child(odd) {background: #fff7cf;}
-tbody:nth-child(even) tr:nth-child(even) {background: #fff3bc;}
-tbody:nth-child(even) tr:nth-child(odd) {background: #fffbe0;}
+#content tbody:nth-child(odd) tr:nth-child(even) {background: #fff0a6;}
+#content tbody:nth-child(odd) tr:nth-child(odd) {background: #fff7cf;}
+#content tbody:nth-child(even) tr:nth-child(even) {background: #fff3bc;}
+#content tbody:nth-child(even) tr:nth-child(odd) {background: #fffbe0;}
 .org-keyword{font-weight:bold}
 .org-builtin{font-weight:bold}
 .org-preprocessor{font-weight:bold}
