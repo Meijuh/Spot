@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-## Développement de l'Epita (LRDE).
+## Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+## et Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -68,10 +68,10 @@ bin_PROGRAMS = \
   randaut \
   randltl
 
-# Dummy program used just to generate man/spot-x.7 in a way that is
-# consistent with the other man pages (e.g., with a version number that
-# is automatically updated).
-noinst_PROGRAMS = spot-x
+# Dummy programs used just to generate man/spot-x.7 and man/spot.7 in
+# a way that is consistent with the other man pages (e.g., with a
+# version number that is automatically updated).
+noinst_PROGRAMS = spot-x spot
 
 autfilt_SOURCES = autfilt.cc
 ltlfilt_SOURCES = ltlfilt.cc
@@ -85,6 +85,7 @@ ltlgrind_SOURCES = ltlgrind.cc
 ltldo_SOURCES = ltldo.cc
 dstar2tgba_SOURCES = dstar2tgba.cc
 spot_x_SOURCES = spot-x.cc
+spot_SOURCES = spot.cc
 ltlcross_LDADD = $(LDADD) $(LIB_GETHRXTIME)
 
 EXTRA_DIST = options.py

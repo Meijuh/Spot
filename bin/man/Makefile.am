@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+## Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 ## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -37,6 +37,7 @@ dist_man1_MANS = \
   randaut.1 \
   randltl.1
 dist_man7_MANS = \
+  spot.7 \
   spot-x.7
 
 MAINTAINERCLEANFILES = $(dist_man1_MANS) $(dist_man7_MANS)
@@ -74,6 +75,9 @@ randaut.1: $(common_dep) $(srcdir)/randaut.x $(srcdir)/../randaut.cc
 
 spot-x.7: $(common_dep) $(srcdir)/spot-x.x $(srcdir)/../spot-x.cc
 	$(convman7) ../spot-x$(EXEEXT) $(srcdir)/spot-x.x $@
+
+spot.7: $(common_dep) $(srcdir)/spot.x $(srcdir)/../spot.cc
+	$(convman7) ../spot$(EXEEXT) $(srcdir)/spot.x $@
 
 ltlgrind.1: $(common_dep) $(srcdir)/ltlgrind.x $(srcdir)/../ltlgrind.cc
 	$(convman) ../ltlgrind$(EXEEXT) $(srcdir)/ltlgrind.x $@
