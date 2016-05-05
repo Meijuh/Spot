@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- shell-script -*-
-# Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement de
-# l'Epita (LRDE)
+# Copyright (C) 2012, 2013, 2016 Laboratoire de Recherche et
+# Developpement de l'Epita (LRDE)
 #
 # This file is part of Spot, a model checking library.
 #
@@ -20,6 +20,6 @@
 
 . ./defs
 
-$LTLCROSS "$@" --csv=known.csv --json=known.json \
- < "$srcdir/formulae.ltl" 2>&1 |
+$GENLTL --dac-patterns --eh-patterns --sb-patterns |
+$LTLCROSS "$@" --csv=known.csv --json=known.json 2>&1 |
 tee known.log

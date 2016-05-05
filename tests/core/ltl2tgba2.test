@@ -1,0 +1,219 @@
+#!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+# Laboratoire de Recherche et Développement de l'Epita (LRDE).
+# Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
+# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# et Marie Curie.
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+. ./defs
+
+# If the size of automata produced by ltl2tgba on the formulas we
+# commonly use as benchmark, we want to notice it.
+
+set -e
+genltl --dac-patterns --eh-patterns --sb-patterns --format=%F,%L,%f >pos
+(cat pos; ltlfilt --negate pos/3 --format='!%<,%f') | ltlfilt -u -F-/3 >formulas
+
+ltl2tgba -Fformulas/3 --stats='%<,%f, %s,%t' |
+    ltl2tgba -D -F-/3 --stats='%<,%f,%>, %s,%t' |
+    ltl2tgba -B -F-/3 --stats='%<,%f,%>, %s,%t' |
+    ltl2tgba -BD -F-/3 --stats='%<,%>, %s,%t' > output
+
+cat >expected <<EOF
+dac-patterns,1, 1,1, 1,1, 1,1, 1,1
+dac-patterns,2, 3,10, 3,10, 3,10, 3,10
+dac-patterns,3, 2,5, 2,5, 2,5, 2,5
+dac-patterns,4, 3,20, 3,20, 3,20, 3,20
+dac-patterns,5, 2,13, 2,13, 2,13, 2,13
+dac-patterns,6, 2,4, 2,4, 2,4, 2,4
+dac-patterns,7, 2,6, 2,6, 2,6, 2,6
+dac-patterns,8, 3,12, 3,12, 3,12, 3,12
+dac-patterns,9, 2,12, 2,12, 2,12, 2,12
+dac-patterns,10, 2,12, 2,12, 2,12, 2,12
+dac-patterns,11, 5,9, 5,9, 5,9, 5,9
+dac-patterns,12, 7,26, 7,26, 7,26, 7,26
+dac-patterns,13, 6,22, 6,22, 6,22, 6,22
+dac-patterns,14, 7,52, 7,52, 7,52, 7,52
+dac-patterns,15, 6,46, 6,46, 6,46, 6,46
+dac-patterns,16, 1,1, 1,1, 1,1, 1,1
+dac-patterns,17, 3,10, 3,10, 3,10, 3,10
+dac-patterns,18, 2,5, 2,5, 2,5, 2,5
+dac-patterns,19, 3,20, 3,20, 3,20, 3,20
+dac-patterns,20, 2,13, 2,13, 2,13, 2,13
+dac-patterns,21, 2,7, 2,7, 2,7, 2,7
+dac-patterns,22, 3,20, 3,20, 3,20, 3,20
+dac-patterns,23, 5,40, 5,40, 5,40, 5,40
+dac-patterns,24, 3,40, 3,40, 3,40, 3,40
+dac-patterns,25, 2,29, 2,29, 2,29, 2,29
+dac-patterns,26, 2,8, 2,8, 2,8, 2,8
+dac-patterns,27, 3,20, 3,20, 3,20, 3,20
+dac-patterns,28, 3,24, 3,24, 3,24, 3,24
+dac-patterns,29, 3,40, 3,40, 3,40, 3,40
+dac-patterns,30, 3,40, 3,40, 3,40, 3,40
+dac-patterns,31, 3,18, 3,18, 3,18, 3,18
+dac-patterns,32, 4,56, 4,56, 4,56, 4,56
+dac-patterns,33, 4,48, 4,48, 4,48, 4,48
+dac-patterns,34, 4,112, 4,112, 4,112, 4,112
+dac-patterns,35, 3,78, 3,78, 3,78, 3,78
+dac-patterns,36, 3,20, 3,20, 3,20, 3,20
+dac-patterns,37, 4,56, 4,56, 4,56, 4,56
+dac-patterns,38, 4,56, 4,56, 4,56, 4,56
+dac-patterns,39, 4,112, 4,112, 4,112, 4,112
+dac-patterns,40, 3,88, 3,88, 3,88, 3,88
+dac-patterns,41, 6,54, 6,54, 7,56, 7,56
+dac-patterns,42, 6,96, 6,96, 6,96, 6,96
+dac-patterns,43, 5,80, 5,80, 5,80, 5,80
+dac-patterns,44, 10,300, 10,300, 13,372, 13,372
+dac-patterns,45, 10,296, 10,296, 9,280, 9,280
+dac-patterns,46, 4,41, 4,41, 5,50, 5,50
+dac-patterns,47, 4,52, 4,52, 4,52, 4,52
+dac-patterns,48, 3,38, 3,38, 4,50, 4,50
+dac-patterns,49, 4,104, 4,104, 4,104, 4,104
+dac-patterns,50, 6,164, 6,164, 7,188, 7,188
+dac-patterns,51, 4,65, 4,65, 5,78, 5,78
+dac-patterns,52, 4,104, 4,104, 4,104, 4,104
+dac-patterns,53, 3,62, 3,62, 4,78, 4,78
+dac-patterns,54, 4,208, 4,208, 4,208, 4,208
+dac-patterns,55, 6,292, 6,292, 7,324, 7,324
+eh-patterns,1, 2,10, 2,10, 2,10, 2,10
+eh-patterns,2, 3,44, 4,55, 3,44, 4,55
+eh-patterns,3, 7,832, 8,912, 7,832, 8,912
+eh-patterns,4, 2,8, 2,8, 2,8, 2,8
+eh-patterns,5, 4,32, 4,32, 4,32, 4,32
+eh-patterns,6, 3,24, 3,24, 3,24, 3,24
+eh-patterns,7, 3,14, 3,14, 4,18, 4,18
+eh-patterns,8, 2,13, 2,13, 2,13, 2,13
+eh-patterns,9, 5,58, 5,58, 8,80, 8,80
+eh-patterns,10, 1,32, 1,32, 6,192, 6,192
+eh-patterns,11, 2,15, 2,15, 2,15, 2,15
+eh-patterns,12, 4,60, 4,60, 4,60, 4,60
+sb-patterns,1, 2,7, 2,7, 2,7, 2,7
+sb-patterns,2, 3,21, 3,21, 3,21, 3,21
+sb-patterns,3, 3,16, 3,16, 3,16, 3,16
+sb-patterns,4, 3,14, 3,14, 4,18, 4,18
+sb-patterns,5, 3,13, 3,13, 3,13, 3,13
+sb-patterns,6, 4,11, 4,11, 4,11, 4,11
+sb-patterns,7, 3,7, 3,7, 3,7, 3,7
+sb-patterns,8, 2,7, 2,7, 3,9, 3,9
+sb-patterns,9, 3,10, 3,10, 5,14, 5,14
+sb-patterns,10, 2,7, 2,7, 2,7, 2,7
+sb-patterns,11, 1,1, 1,1, 1,1, 1,1
+sb-patterns,12, 1,1, 1,1, 1,1, 1,1
+sb-patterns,13, 2,8, 2,8, 2,8, 2,8
+sb-patterns,14, 2,8, 2,8, 2,8, 2,8
+sb-patterns,16, 3,24, 3,24, 3,24, 3,24
+sb-patterns,17, 1,4, 1,4, 3,12, 3,12
+sb-patterns,18, 1,4, 1,4, 3,12, 3,12
+sb-patterns,19, 4,8, 4,8, 4,8, 4,8
+sb-patterns,20, 5,28, 5,28, 5,28, 5,28
+sb-patterns,21, 4,32, 4,32, 6,48, 6,48
+sb-patterns,22, 3,7, 3,7, 3,7, 3,7
+sb-patterns,23, 6,58, 6,58, 6,58, 6,58
+sb-patterns,24, 4,16, 4,16, 4,16, 4,16
+sb-patterns,25, 3,10, 3,10, 3,10, 3,10
+sb-patterns,26, 1,1, 1,1, 1,1, 1,1
+sb-patterns,27, 2,7, 2,7, 2,7, 2,7
+!dac-patterns,1, 2,4, 2,4, 2,4, 2,4
+!dac-patterns,2, 3,10, 3,10, 3,10, 3,10
+!dac-patterns,3, 3,12, 3,12, 3,12, 3,12
+!dac-patterns,4, 4,32, 4,32, 4,32, 4,32
+!dac-patterns,5, 3,24, 3,24, 3,24, 3,24
+!dac-patterns,6, 1,1, 1,1, 1,1, 1,1
+!dac-patterns,7, 2,7, 2,7, 2,7, 2,7
+!dac-patterns,8, 2,5, 2,5, 2,5, 2,5
+!dac-patterns,9, 3,24, 3,24, 3,24, 3,24
+!dac-patterns,10, 3,23, 3,23, 3,23, 3,23
+!dac-patterns,11, 6,12, 6,12, 6,12, 6,12
+!dac-patterns,12, 7,18, 7,18, 7,18, 7,18
+!dac-patterns,13, 7,28, 7,28, 7,28, 7,28
+!dac-patterns,14, 8,64, 8,64, 8,64, 8,64
+!dac-patterns,15, 7,56, 7,56, 7,56, 7,56
+!dac-patterns,16, 2,4, 2,4, 2,4, 2,4
+!dac-patterns,17, 3,10, 3,10, 3,10, 3,10
+!dac-patterns,18, 3,12, 3,12, 3,12, 3,12
+!dac-patterns,19, 4,32, 4,32, 4,32, 4,32
+!dac-patterns,20, 3,24, 3,24, 3,24, 3,24
+!dac-patterns,21, 2,6, 2,6, 2,6, 2,6
+!dac-patterns,22, 3,18, 3,18, 3,18, 3,18
+!dac-patterns,23, 3,16, 3,16, 3,16, 3,16
+!dac-patterns,24, 4,64, 4,64, 4,64, 4,64
+!dac-patterns,25, 3,48, 3,48, 3,48, 3,48
+!dac-patterns,26, 2,7, 2,7, 2,7, 2,7
+!dac-patterns,27, 3,20, 3,20, 3,20, 3,20
+!dac-patterns,28, 3,23, 3,23, 3,23, 3,23
+!dac-patterns,29, 4,64, 4,64, 4,64, 4,64
+!dac-patterns,30, 4,54, 4,54, 4,54, 4,54
+!dac-patterns,31, 3,20, 3,20, 3,20, 3,20
+!dac-patterns,32, 4,44, 4,44, 4,44, 4,44
+!dac-patterns,33, 4,48, 4,48, 4,48, 4,48
+!dac-patterns,34, 5,160, 5,160, 5,160, 5,160
+!dac-patterns,35, 4,128, 4,128, 4,128, 4,128
+!dac-patterns,36, 3,20, 3,20, 3,20, 3,20
+!dac-patterns,37, 4,44, 4,44, 4,44, 4,44
+!dac-patterns,38, 4,52, 4,52, 4,52, 4,52
+!dac-patterns,39, 5,160, 5,160, 5,160, 5,160
+!dac-patterns,40, 4,128, 4,128, 4,128, 4,128
+!dac-patterns,41, 3,20, 3,20, 3,20, 3,20
+!dac-patterns,42, 4,34, 5,50, 4,34, 5,50
+!dac-patterns,43, 4,60, 4,60, 4,60, 4,60
+!dac-patterns,44, 5,100, 5,100, 5,100, 5,100
+!dac-patterns,45, 4,84, 4,84, 4,84, 4,84
+!dac-patterns,46, 3,24, 3,24, 3,24, 3,24
+!dac-patterns,47, 4,52, 4,52, 4,52, 4,52
+!dac-patterns,48, 4,62, 4,62, 4,62, 4,62
+!dac-patterns,49, 5,160, 5,160, 5,160, 5,160
+!dac-patterns,50, 8,224, 8,224, 9,252, 9,252
+!dac-patterns,51, 3,48, 3,48, 3,48, 3,48
+!dac-patterns,52, 4,104, 4,104, 4,104, 4,104
+!dac-patterns,53, 4,118, 4,118, 4,118, 4,118
+!dac-patterns,54, 5,320, 5,320, 5,320, 5,320
+!dac-patterns,55, 11,540, 11,540, 13,610, 13,610
+!eh-patterns,1, 4,32, 4,32, 4,32, 4,32
+!eh-patterns,2, 4,48, 4,48, 4,48, 4,48
+!eh-patterns,3, 8,960, 8,960, 8,960, 8,960
+!eh-patterns,4, 2,8, 2,8, 3,12, 3,12
+!eh-patterns,5, 3,20, 3,20, 3,20, 3,20
+!eh-patterns,6, 2,12, 2,12, 2,12, 2,12
+!eh-patterns,7, 2,7, 2,7, 3,9, 3,9
+!eh-patterns,8, 3,21, 3,21, 3,21, 3,21
+!eh-patterns,9, 5,80, 5,80, 5,80, 5,80
+!eh-patterns,10, 6,192, 6,192, 6,192, 6,192
+!eh-patterns,11, 2,9, 2,9, 2,9, 2,9
+!eh-patterns,12, 6,103, 6,103, 8,135, 8,135
+!sb-patterns,1, 2,6, 2,6, 2,6, 2,6
+!sb-patterns,5, 2,7, 2,7, 3,12, 3,12
+!sb-patterns,6, 3,11, 4,14, 3,11, 4,14
+!sb-patterns,7, 4,16, 4,16, 4,16, 4,16
+!sb-patterns,9, 4,19, 4,19, 6,27, 6,27
+!sb-patterns,10, 2,6, 2,6, 2,6, 2,6
+!sb-patterns,11, 1,0, 1,0, 1,0, 1,0
+!sb-patterns,12, 1,0, 1,0, 1,0, 1,0
+!sb-patterns,13, 2,7, 2,7, 2,7, 2,7
+!sb-patterns,14, 2,7, 2,7, 2,7, 2,7
+!sb-patterns,16, 2,12, 2,12, 2,12, 2,12
+!sb-patterns,17, 3,12, 3,12, 3,12, 3,12
+!sb-patterns,18, 3,12, 3,12, 3,12, 3,12
+!sb-patterns,19, 3,4, 3,4, 3,4, 3,4
+!sb-patterns,20, 4,37, 5,37, 4,37, 5,37
+!sb-patterns,25, 4,32, 4,32, 4,32, 4,32
+!sb-patterns,26, 2,4, 2,4, 2,4, 2,4
+!sb-patterns,27, 2,6, 2,6, 2,6, 2,6
+EOF
+
+diff output expected

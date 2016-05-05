@@ -216,6 +216,7 @@ TESTS_twa = \
   core/sim2.test \
   core/sim3.test \
   core/ltl2tgba.test \
+  core/ltl2tgba2.test \
   core/ltl2neverclaim.test \
   core/ltl2neverclaim-lbtt.test \
   core/ltlprod.test \

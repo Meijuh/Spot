@@ -3,11 +3,13 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 
-This tool generates LTL formulas according to scalable patterns.
-These pattern are usually taken from the literature (see the man page
-for references).  Sometimes the same pattern is given different names
-in different papers, so we alias different option names to the same
-pattern.
+This tool outputs LTL formulas that either comes from named lists of
+formulas, or from scalable patterns.
+
+These patterns are usually taken from the literature (see the
+[[./man/genltl.1.html][=genltl=]](1) man page for references).  Sometimes the same pattern is
+given different names in different papers, so we alias different
+option names to the same pattern.
 
 #+BEGIN_SRC sh :results verbatim :exports results
 genltl --help | sed -n '/Pattern selection:/,/^$/p' | sed '1d;$d'
@@ -24,8 +26,11 @@ genltl --help | sed -n '/Pattern selection:/,/^$/p' | sed '1d;$d'
       --ccj-beta=RANGE       F(p&X(p&X(p&...X(p)))) & F(q&X(q&X(q&...X(q))))
       --ccj-beta-prime=RANGE F(p&(Xp)&(XXp)&...(X...X(p))) &
                              F(q&(Xq)&(XXq)&...(X...X(q)))
-      --gh-q=RANGE           (F(p1)|G(p2))&(F(p2)|G(p3))&... &(F(pn)|G(p{n+1}))
-
+      --dac-patterns[=RANGE] Dwyer et al. [FMSP'98] Spec. Patterns for LTL
+                             (range should be included in 1..45)
+      --eh-patterns[=RANGE]  Etessami and Holzmann [Concur'00] patterns (range
+                             should be included in 1..12)
+      --gh-q=RANGE           (F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))
       --gh-r=RANGE           (GF(p1)|FG(p2))&(GF(p2)|FG(p3))&...
                              &(GF(pn)|FG(p{n+1}))
       --go-theta=RANGE       !((GF(p1)&GF(p2)&...&GF(pn)) -> G(q->F(r)))
@@ -41,6 +46,8 @@ genltl --help | sed -n '/Pattern selection:/,/^$/p' | sed '1d;$d'
       --rv-counter-carry-linear=RANGE
                              n-bit counter w/ carry (linear size)
       --rv-counter-linear=RANGE   n-bit counter (linear size)
+      --sb-patterns[=RANGE]  Somenzi and Bloem [CAV'00] patterns (range should
+                             be included in 1..27)
       --u-left=RANGE, --gh-u=RANGE
                              (((p1 U p2) U p3) ... U pn)
       --u-right=RANGE, --gh-u2=RANGE, --go-phi=RANGE
@@ -111,5 +118,130 @@ genltl --ccj-alpha=3 --lbt
 This is because most tools using =lbt='s syntax require atomic
 propositions to have the form =pNN=.
 
+
+Three options provide lists of unrelated LTL formulas, taken from the
+literature (see the [[./man/genltl.1.html][=genltl=]](1) man page for references):
+=--dac-patterns=, =--eh-patterns=, and =--sb-patterns=.  With these
+options, the range is used to select a subset of the list of formulas.
+Without range, all formulas are used.  Here is the complete list:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+  genltl --dac --eh --sb --format=%F,%L,%f
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+dac-patterns,1,G!p0
+dac-patterns,2,Fp0 -> (!p1 U p0)
+dac-patterns,3,G(p0 -> G!p1)
+dac-patterns,4,G((p0 & !p1 & Fp1) -> (!p2 U p1))
+dac-patterns,5,G((p0 & !p1) -> (!p2 W p1))
+dac-patterns,6,Fp0
+dac-patterns,7,!p0 W (!p0 & p1)
+dac-patterns,8,G!p0 | F(p0 & Fp1)
+dac-patterns,9,G((p0 & !p1) -> (!p1 W (!p1 & p2)))
+dac-patterns,10,G((p0 & !p1) -> (!p1 U (!p1 & p2)))
+dac-patterns,11,!p0 W (p0 W (!p0 W (p0 W G!p0)))
+dac-patterns,12,Fp0 -> ((!p0 & !p1) U (p0 | ((!p0 & p1) U (p0 | ((!p0 & !p1) U (p0 | ((!p0 & p1) U (p0 | (!p1 U p0)))))))))
+dac-patterns,13,Fp0 -> (!p0 U (p0 & (!p1 W (p1 W (!p1 W (p1 W G!p1))))))
+dac-patterns,14,G((p0 & Fp1) -> ((!p1 & !p2) U (p1 | ((!p1 & p2) U (p1 | ((!p1 & !p2) U (p1 | ((!p1 & p2) U (p1 | (!p2 U p1))))))))))
+dac-patterns,15,G(p0 -> ((!p1 & !p2) U (p2 | ((p1 & !p2) U (p2 | ((!p1 & !p2) U (p2 | ((p1 & !p2) U (p2 | (!p1 W p2) | Gp1)))))))))
+dac-patterns,16,Gp0
+dac-patterns,17,Fp0 -> (p1 U p0)
+dac-patterns,18,G(p0 -> Gp1)
+dac-patterns,19,G((p0 & !p1 & Fp1) -> (p2 U p1))
+dac-patterns,20,G((p0 & !p1) -> (p2 W p1))
+dac-patterns,21,!p0 W p1
+dac-patterns,22,Fp0 -> (!p1 U (p0 | p2))
+dac-patterns,23,G!p0 | F(p0 & (!p1 W p2))
+dac-patterns,24,G((p0 & !p1 & Fp1) -> (!p2 U (p1 | p3)))
+dac-patterns,25,G((p0 & !p1) -> (!p2 W (p1 | p3)))
+dac-patterns,26,G(p0 -> Fp1)
+dac-patterns,27,Fp0 -> ((p1 -> (!p0 U (!p0 & p2))) U p0)
+dac-patterns,28,G(p0 -> G(p1 -> Fp2))
+dac-patterns,29,G((p0 & !p1 & Fp1) -> ((p2 -> (!p1 U (!p1 & p3))) U p1))
+dac-patterns,30,G((p0 & !p1) -> ((p2 -> (!p1 U (!p1 & p3))) W p1))
+dac-patterns,31,Fp0 -> (!p0 U (!p0 & p1 & X(!p0 U p2)))
+dac-patterns,32,Fp0 -> (!p1 U (p0 | (!p1 & p2 & X(!p1 U p3))))
+dac-patterns,33,G!p0 | (!p0 U ((p0 & Fp1) -> (!p1 U (!p1 & p2 & X(!p1 U p3)))))
+dac-patterns,34,G((p0 & Fp1) -> (!p2 U (p1 | (!p2 & p3 & X(!p2 U p4)))))
+dac-patterns,35,G(p0 -> (Fp1 -> (!p1 U (p2 | (!p1 & p3 & X(!p1 U p4))))))
+dac-patterns,36,F(p0 & XFp1) -> (!p0 U p2)
+dac-patterns,37,Fp0 -> (!(!p0 & p1 & X(!p0 U (!p0 & p2))) U (p0 | p3))
+dac-patterns,38,G!p0 | (!p0 U (p0 & (F(p1 & XFp2) -> (!p1 U p3))))
+dac-patterns,39,G((p0 & Fp1) -> (!(!p1 & p2 & X(!p1 U (!p1 & p3))) U (p1 | p4)))
+dac-patterns,40,G(p0 -> ((!(!p1 & p2 & X(!p1 U (!p1 & p3))) U (p1 | p4)) | G!(p2 & XFp3)))
+dac-patterns,41,G((p0 & XFp1) -> XF(p1 & Fp2))
+dac-patterns,42,Fp0 -> (((p1 & X(!p0 U p2)) -> X(!p0 U (p2 & Fp3))) U p0)
+dac-patterns,43,G(p0 -> G((p1 & XFp2) -> X(!p2 U (p2 & Fp3))))
+dac-patterns,44,G((p0 & Fp1) -> (((p2 & X(!p1 U p3)) -> X(!p1 U (p3 & Fp4))) U p1))
+dac-patterns,45,G(p0 -> (((p1 & X(!p2 U p3)) -> X(!p2 U (p3 & Fp4))) U (p2 | G((p1 & X(!p2 U p3)) -> X(!p2 U (p3 & Fp4))))))
+dac-patterns,46,G(p0 -> F(p1 & XFp2))
+dac-patterns,47,Fp0 -> ((p1 -> (!p0 U (!p0 & p2 & X(!p0 U p3)))) U p0)
+dac-patterns,48,G(p0 -> G(p1 -> (p2 & XFp3)))
+dac-patterns,49,G((p0 & Fp1) -> ((p2 -> (!p1 U (!p1 & p3 & X(!p1 U p4)))) U p1))
+dac-patterns,50,G(p0 -> ((p1 -> (!p2 U (!p2 & p3 & X(!p2 U p4)))) U (p2 | G(p1 -> (p3 & XFp4)))))
+dac-patterns,51,G(p0 -> F(p1 & !p2 & X(!p2 U p3)))
+dac-patterns,52,Fp0 -> ((p1 -> (!p0 U (!p0 & p2 & !p3 & X((!p0 & !p3) U p4)))) U p0)
+dac-patterns,53,G(p0 -> G(p1 -> (p2 & !p3 & X(!p3 U p4))))
+dac-patterns,54,G((p0 & Fp1) -> ((p2 -> (!p1 U (!p1 & p3 & !p4 & X((!p1 & !p4) U p5)))) U p1))
+dac-patterns,55,G(p0 -> ((p1 -> (!p2 U (!p2 & p3 & !p4 & X((!p2 & !p4) U p5)))) U (p2 | G(p1 -> (p3 & !p4 & X(!p4 U p5))))))
+eh-patterns,1,p0 U (p1 & Gp2)
+eh-patterns,2,p0 U (p1 & X(p2 U p3))
+eh-patterns,3,p0 U (p1 & X(p2 & F(p3 & XF(p4 & XF(p5 & XFp6)))))
+eh-patterns,4,F(p0 & XGp1)
+eh-patterns,5,F(p0 & X(p1 & XFp2))
+eh-patterns,6,F(p0 & X(p1 U p2))
+eh-patterns,7,FGp0 | GFp1
+eh-patterns,8,G(p0 -> (p1 U p2))
+eh-patterns,9,G(p0 & XF(p1 & XF(p2 & XFp3)))
+eh-patterns,10,GFp0 & GFp1 & GFp2 & GFp3 & GFp4
+eh-patterns,11,(p0 U (p1 U p2)) | (p1 U (p2 U p0)) | (p2 U (p0 U p1))
+eh-patterns,12,G(p0 -> (p1 U (Gp2 | Gp3)))
+sb-patterns,1,p0 U p1
+sb-patterns,2,p0 U (p1 U p2)
+sb-patterns,3,!(p0 U (p1 U p2))
+sb-patterns,4,GFp0 -> GFp1
+sb-patterns,5,Fp0 U Gp1
+sb-patterns,6,Gp0 U p1
+sb-patterns,7,!(Fp0 <-> Fp1)
+sb-patterns,8,!(GFp0 -> GFp1)
+sb-patterns,9,!(GFp0 <-> GFp1)
+sb-patterns,10,p0 R (p0 | p1)
+sb-patterns,11,(Xp0 U Xp1) | !X(p0 U p1)
+sb-patterns,12,(Xp0 U p1) | !X(p0 U (p0 & p1))
+sb-patterns,13,G(p0 -> Fp1) & ((Xp0 U p1) | !X(p0 U (p0 & p1)))
+sb-patterns,14,G(p0 -> Fp1) & ((Xp0 U Xp1) | !X(p0 U p1))
+sb-patterns,15,G(p0 -> Fp1)
+sb-patterns,16,!G(p0 -> X(p1 R p2))
+sb-patterns,17,!(FGp0 | FGp1)
+sb-patterns,18,G(Fp0 & Fp1)
+sb-patterns,19,Fp0 & F!p0
+sb-patterns,20,(p0 & Xp1) R X(((p2 U p3) R p0) U (p2 R p0))
+sb-patterns,21,Gp2 | (G(p0 | GFp1) & G(p2 | GF!p1)) | Gp0
+sb-patterns,22,Gp0 | Gp2 | (G(p0 | FGp1) & G(p2 | FG!p1))
+sb-patterns,23,!(Gp2 | (G(p0 | GFp1) & G(p2 | GF!p1)) | Gp0)
+sb-patterns,24,!(Gp0 | Gp2 | (G(p0 | FGp1) & G(p2 | FG!p1)))
+sb-patterns,25,G(p0 | XGp1) & G(p2 | XG!p1)
+sb-patterns,26,G(p0 | (Xp1 & X!p1))
+sb-patterns,27,p0 | (p1 U p0)
+#+end_example
+
+Note that ~--sb-patterns=2 --sb-patterns=4 --sb-patterns=21..22~ also
+have their complement formula listed as ~--sb-patterns=3
+--sb-patterns=8 --sb-patterns=23..24~.  So if you build the set of
+formula output by =genltl --sb-patterns= plus its negation, it will
+contain only 46 formulas, not 54.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl --sb | ltlfilt --uniq --count
+(genltl --sb; genltl --sb | ltlfilt --negate) | ltlfilt --uniq --count
+#+END_SRC
+#+RESULTS:
+: 27
+: 46
+
 #  LocalWords:  genltl num toc LTL scalable SRC sed gh pn fg FG gf qn
-#  LocalWords:  ccj Xp XXp Xq XXq rv GFp lbt
+#  LocalWords:  ccj Xp XXp Xq XXq rv GFp lbt utf SETUPFILE html dac
+#  LocalWords:  Dwyer et al FMSP Etessami Holzmann sb Somenzi Bloem
+#  LocalWords:  CAV LaTeX Fq Fp pNN Gp XFp XF XGp FGp XG ltlfilt uniq

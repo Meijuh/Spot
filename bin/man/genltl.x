@@ -27,5 +27,19 @@ Proceedings of CAV'01.  LNCS 2102.
 rv
 K. Rozier and M. Vardi: LTL Satisfiability Checking.
 Proceedings of Spin'07.  LNCS 4595.
+.TP
+dac
+M. B. Dwyer and G. S. Avrunin and J. C. Corbett: Property
+Specification Patterns for Finite-state Verification.
+Proceedings of FMSP'98.
+.TP
+eh
+K. Etessami and G. J. Holzmann: Optimizing Büchi Automata.
+Proceedings of Concur'00.  LNCS 1877.
+.TP
+sb
+F. Somenzi and R. Bloem: Efficient Büchi Automata for LTL Formulae.
+Proceedings of CAV'00.  LNCS 1855.
+
 [SEE ALSO]
 .BR randltl (1)

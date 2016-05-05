@@ -19,7 +19,6 @@
 
 EXTRA_DIST = \
   big \
-  formulae.ltl \
   known \
   small \
   tools \

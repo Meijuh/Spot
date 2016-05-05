@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2015 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -65,6 +65,47 @@
 //   series = {Lecture Notes in Computer Science},
 //   publisher = {Springer-Verlag}
 // }
+//
+// @InProceedings{dwyer.98.fmsp,
+//   author = {Matthew B. Dwyer and George S. Avrunin and James C. Corbett},
+//   title         = {Property Specification Patterns for Finite-state
+//                   Verification},
+//   booktitle     = {Proceedings of the 2nd Workshop on Formal Methods in
+//                   Software Practice (FMSP'98)},
+//   publisher     = {ACM Press},
+//   address       = {New York},
+//   editor        = {Mark Ardis},
+//   month         = mar,
+//   year          = {1998},
+//   pages         = {7--15}
+// }
+//
+// @InProceedings{etessami.00.concur,
+//   author = {Kousha Etessami and Gerard J. Holzmann},
+//   title = {Optimizing {B\"u}chi Automata},
+//   booktitle = {Proceedings of the 11th International Conference on
+//                Concurrency Theory (Concur'00)},
+//   pages = {153--167},
+//   year = {2000},
+//   editor = {C. Palamidessi},
+//   volume = {1877},
+//   series = {Lecture Notes in Computer Science},
+//   address = {Pennsylvania, USA},
+//   publisher = {Springer-Verlag}
+// }
+//
+// @InProceedings{somenzi.00.cav,
+//   author = {Fabio Somenzi and Roderick Bloem},
+//   title = {Efficient {B\"u}chi Automata for {LTL} Formul{\ae}},
+//   booktitle = {Proceedings of the 12th International Conference on
+//                Computer Aided Verification (CAV'00)},
+//   pages = {247--263},
+//   year = {2000},
+//   volume = {1855},
+//   series = {Lecture Notes in Computer Science},
+//   address = {Chicago, Illinois, USA},
+//   publisher = {Springer-Verlag}
+// }
 
 #include "common_sys.hh"
 
@@ -88,11 +129,12 @@
 #include <cstring>
 #include <spot/tl/formula.hh>
 #include <spot/tl/relabel.hh>
+#include <spot/tl/parse.hh>
 
 using namespace spot;
 
 const char argp_program_doc[] ="\
-Generate temporal logic formulas from predefined scalable patterns.";
+Generate temporal logic formulas from predefined patterns.";
 
 enum {
   OPT_AND_F = 1,
@@ -101,6 +143,8 @@ enum {
   OPT_CCJ_ALPHA,
   OPT_CCJ_BETA,
   OPT_CCJ_BETA_PRIME,
+  OPT_DAC_PATTERNS,
+  OPT_EH_PATTERNS,
   OPT_GH_Q,
   OPT_GH_R,
   OPT_GO_THETA,
@@ -113,6 +157,7 @@ enum {
   OPT_RV_COUNTER_CARRY,
   OPT_RV_COUNTER_CARRY_LINEAR,
   OPT_RV_COUNTER_LINEAR,
+  OPT_SB_PATTERNS,
   OPT_U_LEFT,
   OPT_U_RIGHT,
   LAST_CLASS,
@@ -126,6 +171,8 @@ const char* const class_name[LAST_CLASS] =
     "ccj-alpha",
     "ccj-beta",
     "ccj-beta-prime",
+    "dac-patterns",
+    "eh-patterns",
     "gh-q",
     "gh-r",
     "go-theta",
@@ -138,6 +185,7 @@ const char* const class_name[LAST_CLASS] =
     "rv-counter-carry",
     "rv-counter-carry-linear",
     "rv-counter-linear",
+    "sb-patterns",
     "u-left",
     "u-right",
   };
@@ -164,8 +212,14 @@ static const argp_option options[] =
       "F(p&X(p&X(p&...X(p)))) & F(q&X(q&X(q&...X(q))))", 0 },
     { "ccj-beta-prime", OPT_CCJ_BETA_PRIME, "RANGE", 0,
       "F(p&(Xp)&(XXp)&...(X...X(p))) & F(q&(Xq)&(XXq)&...(X...X(q)))", 0 },
+    { "dac-patterns", OPT_DAC_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+      "Dwyer et al. [FMSP'98] Spec. Patterns for LTL "
+      "(range should be included in 1..45)", 0 },
+    { "eh-patterns", OPT_EH_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+      "Etessami and Holzmann [Concur'00] patterns "
+      "(range should be included in 1..12)", 0 },
     { "gh-q", OPT_GH_Q, "RANGE", 0,
-      "(F(p1)|G(p2))&(F(p2)|G(p3))&... &(F(pn)|G(p{n+1}))", 0 },
+      "(F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))", 0 },
     { "gh-r", OPT_GH_R, "RANGE", 0,
       "(GF(p1)|FG(p2))&(GF(p2)|FG(p3))&... &(GF(pn)|FG(p{n+1}))", 0},
     { "go-theta", OPT_GO_THETA, "RANGE", 0,
@@ -186,6 +240,9 @@ static const argp_option options[] =
       "n-bit counter w/ carry (linear size)", 0 },
     { "rv-counter-linear", OPT_RV_COUNTER_LINEAR, "RANGE", 0,
       "n-bit counter (linear size)", 0 },
+    { "sb-patterns", OPT_SB_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+      "Somenzi and Bloem [CAV'00] patterns "
+      "(range should be included in 1..27)", 0 },
     { "u-left", OPT_U_LEFT, "RANGE", 0, "(((p1 U p2) U p3) ... U pn)", 0 },
     OPT_ALIAS(gh-u),
     { "u-right", OPT_U_RIGHT, "RANGE", 0, "(p1 U (p2 U (... U pn)))", 0 },
@@ -234,6 +291,15 @@ enqueue_job(int pattern, const char* range_str)
   jobs.push_back(j);
 }
 
+static void
+enqueue_job(int pattern, int min, int max)
+{
+  job j;
+  j.pattern = pattern;
+  j.range = {min, max};
+  jobs.push_back(j);
+}
+
 static int
 parse_opt(int key, char* arg, struct argp_state*)
 {
@@ -261,6 +327,24 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_U_LEFT:
     case OPT_U_RIGHT:
       enqueue_job(key, arg);
+      break;
+    case OPT_DAC_PATTERNS:
+      if (arg)
+        enqueue_job(key, arg);
+      else
+        enqueue_job(key, 1, 55);
+      break;
+    case OPT_EH_PATTERNS:
+      if (arg)
+        enqueue_job(key, arg);
+      else
+        enqueue_job(key, 1, 12);
+      break;
+    case OPT_SB_PATTERNS:
+      if (arg)
+        enqueue_job(key, arg);
+      else
+        enqueue_job(key, 1, 27);
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -716,6 +800,162 @@ ltl_counter_carry(std::string bit, std::string marker,
   return formula::And(std::move(res));
 }
 
+static void bad_number(const char* pattern, int n, int max)
+{
+  std::ostringstream err;
+  err << "no pattern " << n << " for " << pattern
+      << ", supported range is 1.." << max;
+  throw std::runtime_error(err.str());
+}
+
+static formula
+dac_pattern(int n)
+{
+  static const char* formulas[] = {
+    "[](!p0)",
+    "<>p2 -> (!p0 U p2)",
+    "[](p1 -> [](!p0))",
+    "[]((p1 & !p2 & <>p2) -> (!p0 U p2))",
+    "[](p1 & !p2 -> (!p0 W p2))",
+
+    "<>(p0)",
+    "!p2 W (p0 & !p2)",
+    "[](!p1) | <>(p1 & <>p0)",
+    "[](p1 & !p2 -> (!p2 W (p0 & !p2)))",
+    "[](p1 & !p2 -> (!p2 U (p0 & !p2)))",
+
+    "(!p0 W (p0 W (!p0 W (p0 W []!p0))))",
+    "<>p2 -> ((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 |"
+    " ((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 | (!p0 U p2)))))))))",
+    "<>p1 -> (!p1 U (p1 & (!p0 W (p0 W (!p0 W (p0 W []!p0))))))",
+    "[]((p1 & <>p2) -> ((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 |"
+    "((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 | (!p0 U p2))))))))))",
+    "[](p1 -> ((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 | ((!p0 & !p2) U"
+    "(p2 | ((p0 & !p2) U (p2 | (!p0 W p2) | []p0)))))))))",
+
+    "[](p0)",
+    "<>p2 -> (p0 U p2)",
+    "[](p1 -> [](p0))",
+    "[]((p1 & !p2 & <>p2) -> (p0 U p2))",
+    "[](p1 & !p2 -> (p0 W p2))",
+
+    "!p0 W p3",
+    "<>p2 -> (!p0 U (p3 | p2))",
+    "[]!p1 | <>(p1 & (!p0 W p3))",
+    "[]((p1 & !p2 & <>p2) -> (!p0 U (p3 | p2)))",
+    "[](p1 & !p2 -> (!p0 W (p3 | p2)))",
+
+    "[](p0 -> <>p3)",
+    "<>p2 -> (p0 -> (!p2 U (p3 & !p2))) U p2",
+    "[](p1 -> [](p0 -> <>p3))",
+    "[]((p1 & !p2 & <>p2) -> ((p0 -> (!p2 U (p3 & !p2))) U p2))",
+    "[](p1 & !p2 -> ((p0 -> (!p2 U (p3 & !p2))) W p2))",
+
+    "<>p0 -> (!p0 U (p3 & !p0 & X(!p0 U p4)))",
+    "<>p2 -> (!p0 U (p2 | (p3 & !p0 & X(!p0 U p4))))",
+    "([]!p1) | (!p1 U (p1 & <>p0 -> (!p0 U (p3 & !p0 & X(!p0 U p4)))))",
+    "[]((p1 & <>p2) -> (!p0 U (p2 | (p3 & !p0 & X(!p0 U p4)))))",
+    "[](p1 -> (<>p0 -> (!p0 U (p2 | (p3 & !p0 & X(!p0 U p4))))))",
+
+    "(<>(p3 & X<>p4)) -> ((!p3) U p0)",
+    "<>p2 -> ((!(p3 & (!p2) & X(!p2 U (p4 & !p2)))) U (p2 | p0))",
+    "([]!p1) | ((!p1) U (p1 & ((<>(p3 & X<>p4)) -> ((!p3) U p0))))",
+    "[]((p1 & <>p2) -> ((!(p3 & (!p2) & X(!p2 U (p4 & !p2)))) U (p2 | p0)))",
+    "[](p1 -> (!(p3 & (!p2) & X(!p2 U (p4 & !p2))) U (p2 | p0) |"
+    " [](!(p3 & X<>p4))))",
+
+    "[] (p3 & X<> p4 -> X(<>(p4 & <> p0)))",
+    "<>p2 -> (p3 & X(!p2 U p4) -> X(!p2 U (p4 & <> p0))) U p2",
+    "[] (p1 -> [] (p3 & X<> p4 -> X(!p4 U (p4 & <> p0))))",
+    "[] ((p1 & <>p2) -> (p3 & X(!p2 U p4) -> X(!p2 U (p4 & <> p0))) U p2)",
+    "[] (p1 -> (p3 & X(!p2 U p4) -> X(!p2 U (p4 & <> p0))) U (p2 |"
+    "[] (p3 & X(!p2 U p4) -> X(!p2 U (p4 & <> p0)))))",
+
+    "[] (p0 -> <>(p3 & X<>p4))",
+    "<>p2 -> (p0 -> (!p2 U (p3 & !p2 & X(!p2 U p4)))) U p2",
+    "[] (p1 -> [] (p0 -> (p3 & X<> p4)))",
+    "[] ((p1 & <>p2) -> (p0 -> (!p2 U (p3 & !p2 & X(!p2 U p4)))) U p2)",
+    "[] (p1 -> (p0 -> (!p2 U (p3 & !p2 & X(!p2 U p4)))) U (p2 | []"
+    "(p0 -> (p3 & X<> p4))))",
+
+    "[] (p0 -> <>(p3 & !p5 & X(!p5 U p4)))",
+    "<>p2 -> (p0 -> (!p2 U (p3 & !p2 & !p5 & X((!p2 & !p5) U p4)))) U p2",
+    "[] (p1 -> [] (p0 -> (p3 & !p5 & X(!p5 U p4))))",
+    "[] ((p1 & <>p2) -> (p0 -> (!p2 U (p3 & !p2 & !p5 & X((!p2 & !p5) U"
+    " p4)))) U p2)",
+    "[] (p1 -> (p0 -> (!p2 U (p3 & !p2 & !p5 & X((!p2 & !p5) U p4)))) U (p2 |"
+    "[] (p0 -> (p3 & !p5 & X(!p5 U p4)))))",
+  };
+
+  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
+  if (n < 1 || (unsigned) n > max)
+    bad_number("--dac-patterns", n, max);
+  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
+}
+
+static formula
+eh_pattern(int n)
+{
+  static const char* formulas[] = {
+    "p0 U (p1 & G(p2))",
+    "p0 U (p1 & X(p2 U p3))",
+    "p0 U (p1 & X(p2 & (F(p3 & X(F(p4 & X(F(p5 & X(F(p6))))))))))",
+    "F(p0 & X(G(p1)))",
+    "F(p0 & X(p1 & X(F(p2))))",
+    "F(p0 & X(p1 U p2))",
+    "(F(G(p0))) | (G(F(p1)))",
+    "G(p0 -> (p1 U p2))",
+    "G(p0 & X(F(p1 & X(F(p2 & X(F(p3)))))))",
+    "(G(F(p0))) & (G(F(p1))) & (G(F(p2))) & (G(F(p3))) & (G(F(p4)))",
+    "(p0 U (p1 U p2)) | (p1 U (p2 U p0)) | (p2 U (p0 U p1))",
+    "G(p0 -> (p1 U ((G(p2)) | (G(p3)))))",
+  };
+
+  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
+  if (n < 1 || (unsigned) n > max)
+    bad_number("--eh-patterns", n, max);
+  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
+}
+
+static formula
+sb_pattern(int n)
+{
+  static const char* formulas[] = {
+    "p0 U p1",
+    "p0 U (p1 U p2)",
+    "!(p0 U (p1 U p2))",
+    "G(F(p0)) -> G(F(p1))",
+    "(F(p0)) U (G(p1))",
+    "(G(p0)) U p1",
+    "!((F(F(p0))) <-> (F(p)))",
+    "!((G(F(p0))) -> (G(F(p))))",
+    "!((G(F(p0))) <-> (G(F(p))))",
+    "p0 R (p0 | p1)",
+    "(Xp0 U Xp1) | !X(p0 U p1)",
+    "(Xp0 U p1) | !X(p0 U (p0 & p1))",
+    "G(p0 -> F(p1)) & (((X(p0)) U p1) | !X(p0 U (p0 & p1)))",
+    "G(p0 -> F(p1)) & (((X(p0)) U X(p1)) | !X(p0 U p1))",
+    "G(p0 -> F(p1))",
+    "!G(p0 -> X(p1 R p2))",
+    "!(F(G(p0)) | F(G(p1)))",
+    "G(F(p0) & F(p1))",
+    "F(p0) & F(!p0)",
+    "(X(p1) & p2) R X(((p3 U p0) R p2) U (p3 R p2))",
+    "(G(p1 | G(F(p0))) & G(p2 | G(F(!p0)))) | G(p1) | G(p2)",
+    "(G(p1 | F(G(p0))) & G(p2 | F(G(!p0)))) | G(p1) | G(p2)",
+    "!((G(p1 | G(F(p0))) & G(p2 | G(F(!p0)))) | G(p1) | G(p2))",
+    "!((G(p1 | F(G(p0))) & G(p2 | F(G(!p0)))) | G(p1) | G(p2))",
+    "(G(p1 | X(G p0))) & (G (p2 | X(G !p0)))",
+    "G(p1 | (Xp0 & X!p0))",
+    // p0 U p0 can't be represented other than as p0 in Spot
+    "(p0 U p0) | (p1 U p0)",
+  };
+
+  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
+  if (n < 1 || (unsigned) n > max)
+    bad_number("--sb-patterns", n, max);
+  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
+}
 
 static void
 output_pattern(int pattern, int n)
@@ -741,6 +981,12 @@ output_pattern(int pattern, int n)
       break;
     case OPT_CCJ_BETA_PRIME:
       f = formula::And({N_prime_n("p", n), N_prime_n("q", n)});
+      break;
+    case OPT_DAC_PATTERNS:
+      f = dac_pattern(n);
+      break;
+    case OPT_EH_PATTERNS:
+      f = eh_pattern(n);
       break;
     case OPT_GH_Q:
       f = Q_n("p", n);
@@ -777,6 +1023,9 @@ output_pattern(int pattern, int n)
       break;
     case OPT_RV_COUNTER_LINEAR:
       f = ltl_counter("b", "m", n, true);
+      break;
+    case OPT_SB_PATTERNS:
+      f = sb_pattern(n);
       break;
     case OPT_U_LEFT:
       f = bin_n("p", n, op::U, false);
@@ -829,6 +1078,14 @@ main(int argc, char** argv)
     error(1, 0, "Nothing to do.  Try '%s --help' for more information.",
           program_name);
 
-  run_jobs();
+  try
+    {
+      run_jobs();
+    }
+  catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
+
   return 0;
 }
