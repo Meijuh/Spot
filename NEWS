@@ -87,6 +87,8 @@ New in spot 2.0a (not yet released)
     will now unregister atomic propositions that are no longer
     used in labels.   Simplification of exclusive properties
     and remove_ap::strip() will do similarly.
+  * bench/ltl2tgba/ was not working since the source code
+    reorganization of 1.99.7.
 
 New in spot 2.0 (2016-04-11)
 
