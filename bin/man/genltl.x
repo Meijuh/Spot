@@ -17,7 +17,7 @@ J. Geldenhuys and H. Hansen: Larger automata and less
 work for LTL model checking.  Proceedings of Spin'06.  LNCS 3925.
 .TP
 ccj
-J. Cichoń, A. Czubak, and A. Jasiński (DepCoS'09): Minimal Büchi
+J. Cichoń, A. Czubak, and A. Jasiński: Minimal Büchi
 Automata for Certain Classes of LTL Formulas.  Proceedings of DepCoS'09.
 .TP
 go
