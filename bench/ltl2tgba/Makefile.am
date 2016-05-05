@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2013 Laboratoire de Recherche et Développement de
-## l'Epita (LRDE).
+## Copyright (C) 2013, 2016 Laboratoire de Recherche et Développement
+## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -42,13 +42,13 @@ json: $(OUTJSON)
 
 deps = $(srcdir)/tools \
        $(top_srcdir)/configure.ac \
-       $(top_builddir)/src/bin/ltl2tgba
+       $(top_builddir)/bin/ltl2tgba
 
 small.json: $(srcdir)/small $(deps)
 	$(srcdir)/small
 big.json: $(srcdir)/big $(deps)
 	$(srcdir)/big
-known.json: $(srcdir)/known $(srcdir)/formulae.ltl $(deps)
+known.json: $(srcdir)/known $(deps)
 	$(srcdir)/known
 
 results.tex: $(srcdir)/sum.py $(OUTJSON)
