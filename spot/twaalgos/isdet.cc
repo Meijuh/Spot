@@ -66,7 +66,9 @@ namespace spot
     trival d = aut->prop_deterministic();
     if (d.is_known())
       return d.is_true();
-    return !count_nondet_states_aux<false>(aut);
+    bool res = !count_nondet_states_aux<false>(aut);
+    std::const_pointer_cast<twa_graph>(aut)->prop_deterministic(res);
+    return res;
   }
 
   bool

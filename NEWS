@@ -49,6 +49,10 @@ New in spot 2.0a (not yet released)
     is still the default, but we plan to default to version 1.1 in the
     future.
 
+  * is_deterministic(), is_terminal(), is_weak(), and
+    is_inherently_weak() will update the corresponding properties of
+    the automaton as a side-effect of their check.
+
   * twa::unregister_ap() and twa_graph::remove_unused_ap() are new
     methods introduced to fix some of the bugs below.
 

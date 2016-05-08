@@ -49,6 +49,14 @@ diff stdout input
 
 test `autfilt -c --is-weak input` = 0
 
+autfilt -H1.1 -v --is-weak input | grep properties: | tee props
+cat >expected.props <<EOF
+properties: trans-labels explicit-labels state-acc !complete
+properties: deterministic !weak
+EOF
+diff expected.props props
+
+
 # Transition merging
 cat >input <<\EOF
 HOA: v1

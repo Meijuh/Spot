@@ -484,9 +484,10 @@ namespace spot
       prop(" weak");
     if (aut->prop_inherently_weak() && (verbose || aut->prop_weak() != true))
       prop(" inherently-weak");
-    if (v1_1 && !aut->prop_terminal() && (aut->prop_weak() || verbose))
+    if (v1_1 && !aut->prop_terminal() && (verbose || aut->prop_weak() != false))
       prop(" !terminal");
-    if (v1_1 && !aut->prop_weak() && (aut->prop_inherently_weak() || verbose))
+    if (v1_1 && !aut->prop_weak() && (verbose ||
+                                      aut->prop_inherently_weak() != false))
       prop(" !weak");
     if (v1_1 && !aut->prop_inherently_weak())
       prop(" !inherently-weak");

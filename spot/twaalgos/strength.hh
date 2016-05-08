@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE)
+// Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -32,6 +32,10 @@ namespace spot
   ///
   /// \param sm an scc_info object for the automaton if available (it
   /// will be built otherwise).
+  ///
+  /// In addition to returning the result as a Boolean, this will set
+  /// the prop_terminal() property of the automaton as a side-effect,
+  /// so further calls will return in constant-time.
   SPOT_API bool
   is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
 
@@ -45,6 +49,10 @@ namespace spot
   ///
   /// \param sm an scc_info object for the automaton if available (it
   /// will be built otherwise).
+  ///
+  /// In addition to returning the result as a Boolean, this will set
+  /// the prop_weak() property of the automaton as a side-effect,
+  /// so further calls will return in constant-time.
   SPOT_API bool
   is_weak_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
 
@@ -57,6 +65,10 @@ namespace spot
   ///
   /// \param sm an scc_info object for the automaton if available (it
   /// will be built otherwise).
+  ///
+  /// In addition to returning the result as a Boolean, this will set
+  /// the prop_inherently_weak() property of the automaton as a
+  /// side-effect, so further calls will return in constant-time.
   SPOT_API bool
   is_inherently_weak_automaton(const const_twa_graph_ptr& aut,
                                scc_info* sm = nullptr);

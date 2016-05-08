@@ -102,7 +102,10 @@ namespace spot
     trival v = aut->prop_terminal();
     if (v.is_known())
       return v.is_true();
-    return is_type_automaton<true>(std::const_pointer_cast<twa_graph>(aut), si);
+    bool res =
+      is_type_automaton<true>(std::const_pointer_cast<twa_graph>(aut), si);
+    std::const_pointer_cast<twa_graph>(aut)->prop_terminal(res);
+    return res;
   }
 
   bool
@@ -111,8 +114,10 @@ namespace spot
     trival v = aut->prop_weak();
     if (v.is_known())
       return v.is_true();
-    return is_type_automaton<false>(std::const_pointer_cast<twa_graph>(aut),
-                                    si);
+    bool res =
+      is_type_automaton<false>(std::const_pointer_cast<twa_graph>(aut), si);
+    std::const_pointer_cast<twa_graph>(aut)->prop_weak(res);
+    return res;
   }
 
   bool
@@ -121,8 +126,10 @@ namespace spot
     trival v = aut->prop_inherently_weak();
     if (v.is_known())
       return v.is_true();
-    return is_type_automaton<false, true>
+    bool res = is_type_automaton<false, true>
       (std::const_pointer_cast<twa_graph>(aut), si);
+    std::const_pointer_cast<twa_graph>(aut)->prop_inherently_weak(res);
+    return res;
   }
 
   void check_strength(const twa_graph_ptr& aut, scc_info* si)
