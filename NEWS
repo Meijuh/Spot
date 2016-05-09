@@ -1,7 +1,9 @@
 New in spot 2.0.1a (not yet released)
 
-  Nothing yet.
+  Bug fixes:
 
+  * Fix compilation error observed with Clang++ 3.7.1 and GCC 6.1.1
+    headers.
 
 New in spot 2.0.1 (2016-05-09)
 
