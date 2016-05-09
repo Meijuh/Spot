@@ -1047,14 +1047,22 @@ namespace spot
       else
         a = translate(f);
 
+      // Using return std::make_tuple(nullptr, nullptr, nullptr) works
+      // with GCC 6.1.1, but breaks with clang++ 3.7.1 when using the
+      // same header file for <tuple>.  So let's use the output type
+      // explicitly.
+      typedef std::tuple<const_twa_graph_ptr,
+                         const ratexp_to_dfa::namer*,
+                         const state*> res_t;
+
       // If a is null, f has an empty language.
       if (!a.first)
-        return std::forward_as_tuple(nullptr, nullptr, nullptr);
+        return res_t{nullptr, nullptr, nullptr};
 
       auto namer = a.second;
       assert(namer->has_state(f));
       auto st = a.first->state_from_number(namer->get_state(f));
-      return std::forward_as_tuple(a.first, namer, st);
+      return res_t{a.first, namer, st};
     }
 
     // The rewrite rules used here are adapted from Jean-Michel
