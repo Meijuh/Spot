@@ -1,4 +1,4 @@
-New in spot 2.0a (not yet released)
+New in spot 2.0.1a (not yet released)
 
   Command-line tools:
 
@@ -53,29 +53,35 @@ New in spot 2.0a (not yet released)
     is_inherently_weak() will update the corresponding properties of
     the automaton as a side-effect of their check.
 
-  * twa::unregister_ap() and twa_graph::remove_unused_ap() are new
-    methods introduced to fix some of the bugs below.
-
-  Documentation:
-
-  * Add missing documentation for the option string passed to
-    spot::make_emptiness_check_instantiator().
-
-  * There is a now a spot(7) man page listing all installed
-    command-line tools.
-
   Python:
-
-  * The tgba_determinize() function is now accessible in Python.
 
   * The __format__() method for formula support the same
     operator-rewritting feature introduced in ltldo and ltlcross.
     So "{:[i]s}".format(f) is the same as
     "{:s}".format(f.unabbreviate("i")).
 
+
+New in spot 2.0.1 (2016-05-09)
+
+  Library:
+
+  * twa::unregister_ap() and twa_graph::remove_unused_ap() are new
+    methods introduced to fix some of the bugs listed below.
+
+  Documentation:
+
+  * Add missing documentation for the option string passed to
+    spot::make_emptiness_check_instantiator().
+
+  * There is now a spot(7) man page listing all installed
+    command-line tools.
+
+  Python:
+
+  * The tgba_determinize() function is now accessible in Python.
+
   Bug fixes:
 
-  * Typo in documentation of the -H option in --help output.
   * The automaton parser would choke on comments like /******/.
   * check_strength() should also set negated properties.
   * Fix autfilt to apply --simplify-exclusive-ap only after
@@ -93,12 +99,14 @@ New in spot 2.0a (not yet released)
     (Note that it will also throw an exception if the automaton uses
     an unregistered AP; this is how some of the above bugs were
     found.)
-  * The for Small or Deterministic preference, the postprocessor
+  * For Small or Deterministic preference, the postprocessor
     will now unregister atomic propositions that are no longer
     used in labels.   Simplification of exclusive properties
     and remove_ap::strip() will do similarly.
   * bench/ltl2tgba/ was not working since the source code
     reorganization of 1.99.7.
+  * Various typos and minor documentation fixes.
+
 
 New in spot 2.0 (2016-04-11)
 
