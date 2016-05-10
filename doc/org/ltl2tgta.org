@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: =ltl2tgta=
+#+DESCRIPTION: Spot command-line tool for translating LTL into Transition-based Generalized Testing Automata.
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

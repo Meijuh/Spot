@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Converting a never claim into HOA
+#+DESCRIPTION: Code example for parsing and printing ω-automata in Spot
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 

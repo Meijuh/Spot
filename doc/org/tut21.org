@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Custom print of an automaton
+#+DESCRIPTION: Code example for iterating over ω-automata in Spot
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 

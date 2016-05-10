@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: =genltl=
+#+DESCRIPTION: Spot command-line tool that generates LTL formulas from known patterns
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

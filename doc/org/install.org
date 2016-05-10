@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Installing Spot
+#+DESCRIPTION: Different ways to install the Spot package
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: index.html
 

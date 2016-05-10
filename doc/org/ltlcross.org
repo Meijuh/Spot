@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: =ltlcross=
+#+DESCRIPTION: Spot command-line tool for cross-comparing the output of LTL translators.
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

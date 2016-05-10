@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Upgrading from Spot 1.2.6
+#+DESCRIPTION: Help for upgrading code to Spot 2.0
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: index.html
 

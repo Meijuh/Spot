@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: =randltl=
+#+DESCRIPTION: Spot command-line tool for generating random LTL formulas.
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

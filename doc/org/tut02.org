@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Relabeling Formulas
+#+DESCRIPTION: Code example for relabeling formulas in Spot
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 

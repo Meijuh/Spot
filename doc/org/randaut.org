@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: =randaut=
+#+DESCRIPTION: Spot command-line tool for generating random ω-automata.
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

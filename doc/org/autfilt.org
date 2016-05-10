@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: =autfilt=
+#+DESCRIPTION: Spot command-line tool for filtering, tranforming, and converting ω-automata.
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 
