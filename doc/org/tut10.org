@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Translating an LTL formula into a never claim
+#+DESCRIPTION: Code example for translating formulas in Spot
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 

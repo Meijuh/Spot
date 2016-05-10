@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Common input and output options for LTL/PSL formulas
+#+DESCRIPTION: Options for input and output of temporal logic formulas in Spot's command-line tools
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

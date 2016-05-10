@@ -1,4 +1,5 @@
 #+TITLE: Support for the Hanoi Omega Automata (HOA) Format
+#+DESCRIPTION: Details about support of the HOA format in Spot
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

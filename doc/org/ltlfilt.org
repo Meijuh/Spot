@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: =ltlfilt=
+#+DESCRIPTION: Spot command-line tool for filtering, tranforming, and converting LTL formulas.
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Reading and writing CSV files
+#+DESCRIPTION: Examples showing how to read and write CSV files using Spot's command-line tools.
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

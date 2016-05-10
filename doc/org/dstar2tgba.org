@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: =dstar2tgba=
+#+DESCRIPTION: Spot command-line tool for converting automata into Transition-based Generalized Büchi Automata.
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 

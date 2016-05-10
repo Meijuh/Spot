@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Converting Rabin (or Other) to Büchi, and simplifying it
+#+DESCRIPTION: Code example for converting ω-automata in Spot
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 

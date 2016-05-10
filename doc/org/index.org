@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-#+TITLE: Spot
+#+TITLE: Spot: a platform for LTL and ω-automata manipulation
+#+DESCRIPTION: Spot is a library and tool suite for LTL and ω-automata
+#+KEYWORDS: Spot,C++11,library,platform,framework,tool-suite,LTL,PSL,omega-automata
 #+SETUPFILE: setup.org
 #+HTML_HEAD_EXTRA: <style>#org-div-home-and-up { display: none; }</style>
 
-Spot is a C++11 library for ω-automata manipulation and model
+Spot is a C++11 library for LTL, ω-automata manipulation and model
 checking.  It has the following notable features:
 
 - Support for [[file:concepts.org::#ltl][LTL]] (several syntaxes supported) and
@@ -22,11 +24,11 @@ checking.  It has the following notable features:
   weak-DBA, removal of useless SCCs, acceptance-condition
   transformations, determinization, etc.
 - In addition to the C++ interface, most of its algorithms are usable
-  via [[file:tools.org][command-line tools]], and via Python bindings.
-- One command-line tool, called [[file:ltlcross.org][=ltlcross=]], is a rewrite of
-  [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], but with support for PSL and arbitrary acceptance conditions.
-  It could for instance be used to test tools that translate LTL into
-  Rabin automata.
+  via [[file:tools.org][command-line tools]], and via [[file:tut.org][Python bindings]].
+- One command-line tool, called [[file:ltlcross.org][=ltlcross=]], is a rewrite of [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], but
+  with support for PSL and automata with arbitrary acceptance
+  conditions.  It can be used to test tools that translate LTL into
+  ω-automata, or benchmark them.
 
 * Latest version
 

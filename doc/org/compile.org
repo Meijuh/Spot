@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Compiling against Spot
+#+DESCRIPTION: How to compile C++11 programs using Spot
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 
