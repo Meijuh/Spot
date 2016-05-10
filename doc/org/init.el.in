@@ -52,6 +52,8 @@
  <a accesskey=\"h\" href=\"%s\">UP</a> | <a accesskey=\"H\" href=\"%s\">HOME</a>
 </div>")
 
+(setq org-export-html-postamble nil)
+
 (setq org-publish-project-alist
       `(("spot-html"
 	:base-directory "@abs_top_srcdir@/doc/org/"

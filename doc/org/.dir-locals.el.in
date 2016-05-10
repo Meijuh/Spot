@@ -32,6 +32,7 @@
 	      (org-babel-python-command . "@PYTHON@")
 	      (org-babel-C++-compiler . "./g++wrap")
 	      (shell-file-name . "@SHELL@")
+              (org-export-html-postamble . nil)
 	      (org-publish-project-alist
 	       . (("spot-html"
 		   :base-directory "."
