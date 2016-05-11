@@ -624,12 +624,12 @@ positive and negative formulas by the ith translator).
     followed by a cycle that should be repeated infinitely often.
     The cycle part is denoted by =cycle{...}=.
 
-  - Complemented intersection check.  If $P_i$ and $P_j$ are
+  - Complemented intersection check.  If $P_i$ and $N_i$ are
     deterministic, =ltlcross= builds their complements, $Comp(P_i)$
-    and $Comp(P_j)$, and then ensures that $Comp(P_i)\otimes
-    Comp(P_j)$ is empty.  If only one of them is deterministic,
-    for instance $P_i$, we check that $P_j\otimes Comp(P_i)$ for all
-    $j \ne i$; likewise if it's $N_i$ that is deterministic.
+    and $Comp(N_i)$, and then ensures that $Comp(P_i)\otimes
+    Comp(N_i)$ is empty.  If only one of them is deterministic, for
+    instance $P_i$, we check that $P_j\otimes Comp(P_i)$ for all $j
+    \ne i$; likewise if it's $N_i$ that is deterministic.
 
     By default this check is only done for deterministic automata,
     because complementation is relatively cheap is that case (at least
