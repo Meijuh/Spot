@@ -382,7 +382,7 @@ namespace spot
       {
         if (type_ == Generic)
           throw std::runtime_error
-            ("postproc() no yet updated to mix sat-minimize and Generic");
+            ("postproc() not yet updated to mix sat-minimize and Generic");
         unsigned target_acc;
         if (type_ == BA)
           target_acc = 1;
