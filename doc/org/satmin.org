@@ -73,7 +73,7 @@ deterministic automaton for =GF(a <-> XXb)=.  Instead we get a 9-state
 non-deterministic automaton.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltl2tgba -D "GF(a <-> XXb)" --stats='states=%s, det=%d'
+ltl2tgba -D 'GF(a <-> XXb)' --stats='states=%s, det=%d'
 #+END_SRC
 #+RESULTS:
 : states=9, det=0
@@ -88,7 +88,7 @@ On our example, =-x tba-det= successfully produces a deterministic
 TBA, but a non-minimal one:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltl2tgba -D -x tba-det "GF(a <-> XXb)" --stats='states=%s, det=%d'
+ltl2tgba -D -x tba-det 'GF(a <-> XXb)' --stats='states=%s, det=%d'
 #+END_SRC
 #+RESULTS:
 : states=7, det=1
@@ -97,7 +97,7 @@ Option =-x sat-minimize= will turn-on SAT-based minimization.  It also
 implies =-x tba-det=, so there is no need to supply both options.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltl2tgba -D -x sat-minimize "GF(a <-> XXb)" --stats='states=%s, det=%d'
+ltl2tgba -D -x sat-minimize 'GF(a <-> XXb)' --stats='states=%s, det=%d'
 #+END_SRC
 #+RESULTS:
 : states=4, det=1
@@ -106,7 +106,7 @@ We can draw it:
 
 #+NAME: gfaexxb3
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -D -x sat-minimize "GF(a <-> XXb)" -d
+ltl2tgba -D -x sat-minimize 'GF(a <-> XXb)' -d
 #+END_SRC
 #+RESULTS: gfaexxb3
 #+begin_example
@@ -148,14 +148,14 @@ $txt
 #+RESULTS:
 [[file:gfaexxb3.png]]
 
-Clearly this is automaton benefits from the transition-based
+Clearly this automaton benefits from the transition-based
 acceptance.  If we want a traditional Büchi automaton, with
 state-based acceptance, we only need to add the =-B= option.  The
 result will of course be slightly bigger.
 
 #+NAME: gfaexxb4
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -BD -x sat-minimize "GF(a <-> XXb)" -d
+ltl2tgba -BD -x sat-minimize 'GF(a <-> XXb)' -d
 #+END_SRC
 #+RESULTS: gfaexxb4
 #+begin_example
@@ -207,10 +207,10 @@ There are cases where =ltl2tgba='s =tba-det= algorithm fails to produce a determ
 In that case, SAT-based minimization is simply skipped.  For instance:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltl2tgba -D -x sat-minimize "Ga R (F!b & (c U b))" --stats='states=%s, det=%d'
+ltl2tgba -D -x sat-minimize 'G(F(!b & (X!a M (F!a & F!b))) U !b)' --stats='states=%s, det=%d'
 #+END_SRC
 #+RESULTS:
-: states=5, det=1
+: states=5, det=0
 
 The question, of course, is whether there exist a deterministic
 automaton for this formula, in other words: is this a recurrence
@@ -224,10 +224,10 @@ without being syntactic recurrences.)  [[file:ltlfilt.org][=ltlfilt=]] can be in
 print only formulas that are syntactic recurrences:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltlfilt --syntactic-recurrence -f "Ga R (F!b & (c U b))"
+ltlfilt --syntactic-recurrence -f 'G(F(!b & (X!a M (F!a & F!b))) U !b)'
 #+END_SRC
 #+RESULTS:
-: Ga R (F!b & (c U b))
+: G(F(!b & (X!a M (F!a & F!b))) U !b)
 
 Since our input formula was output, it expresses a recurrence property.
 
@@ -237,35 +237,43 @@ output is guaranteed to be deterministic if and only if the input DRA
 expresses a recurrence property.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltlfilt -f "Ga R (F!b & (c U b))" -l |
+ltlfilt --remove-wm -f 'G(F(!b & (X!a M (F!a & F!b))) U !b)' -l |
 ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - - |
 dstar2tgba -D --stats='input(states=%S) output(states=%s, acc-sets=%a, det=%d)'
 #+END_SRC
 #+RESULTS:
 : input(states=11) output(states=9, acc-sets=1, det=1)
 
-In the above command, =ltlfilt= is used to convert the LTL formula
-into =ltl2dstar='s syntax.  Then =ltl2dstar= creates a deterministic
-Rabin automaton (using =ltl2tgba= as an LTL to BA translator), and the
-resulting 11-state DRA is converted into a 9-state DTBA by
-=dstar2tgba=.  Since that result is deterministic, we can conclude
-that the formula was a recurrence.
+#+NAME: size
+#+BEGIN_SRC sh :exports none
+ltlfilt --remove-wm -f 'G(F(!b & (X!a M (F!a & F!b))) U !b)' -l |
+ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - - |
+dstar2tgba -D --stats=$arg
+#+END_SRC
+
+In the above command, =ltldo= is used to convert the LTL formula into
+=ltl2dstar='s syntax.  Then =ltl2dstar= creates a deterministic Rabin
+automaton (using =ltl2tgba= as an LTL to BA translator), and the
+resulting call_size(arg="%S")[:results raw]-state DRA is converted
+into a call_size(arg="%s")[:results raw]-state DTBA by =dstar2tgba=.
+Since that result is deterministic, we can conclude that the formula
+was a recurrence.
 
 As far as SAT-based minimization goes, =dstar2tgba= will take the same
 options as =ltl2tgba=.  For instance we can see that the smallest DTBA
-has 6 states:
+has call_size(arg="%s -x sat-minimize")[:results raw] states:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltlfilt -f "Ga R (F!b & (c U b))" -l |
+ltlfilt --remove-wm -f 'G(F(!b & (X!a M (F!a & F!b))) U !b)' -l |
 ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - - |
 dstar2tgba -D -x sat-minimize --stats='input(states=%S) output(states=%s, acc-sets=%a, det=%d)'
 #+END_SRC
 #+RESULTS:
-: input(states=11) output(states=6, acc-sets=1, det=1)
+: input(states=11) output(states=4, acc-sets=1, det=1)
 
 * More acceptance sets
 
-The formula "=Ga R (F!b & (c U b))=" can in fact be minimized into an
+The formula "=G(F(!b & (X!a M (F!a & F!b))) U !b)=" can in fact be minimized into an
 even smaller automaton if we use multiple acceptance sets.
 
 Unfortunately because =dstar2tgba= does not know the formula being
@@ -276,12 +284,12 @@ number of acceptance sets can however be specified on the command-line
 with option =-x sat-acc=M=.  For instance:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltlfilt -f "Ga R (F!b & (c U b))" -l |
+ltlfilt --remove-wm -f 'G(F(!b & (X!a M (F!a & F!b))) U !b)' -l |
 ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - - |
 dstar2tgba -D -x sat-minimize,sat-acc=2 --stats='input(states=%S) output(states=%s, acc-sets=%a, det=%d)'
 #+END_SRC
 #+RESULTS:
-: input(states=11) output(states=5, acc-sets=2, det=1)
+: input(states=11) output(states=3, acc-sets=2, det=1)
 
 Beware that the size of the SAT problem is exponential in the number
 of acceptance sets (adding one acceptance set, in the input automaton
@@ -370,7 +378,7 @@ For our example, let us first generate a deterministic Rabin
 automaton with [[http://www.ltl2dstar.de/][=ltl2dstar=]].
 
 #+BEGIN_SRC sh :results silent :exports both
-ltlfilt -f "FGa | FGb" -l |
+ltlfilt -f 'FGa | FGb' -l |
 ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds --output-format=hoa - - > output.hoa
 #+END_SRC
 
@@ -769,7 +777,7 @@ its iterations in this file.
 #+BEGIN_SRC sh :results verbatim :exports both
 rm -f stats.csv
 export SPOT_SATLOG=stats.csv
-ltlfilt -f "Ga R (F!b & (c U b))" -l |
+ltlfilt -f 'Ga R (F!b & (c U b))' -l |
 ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - - |
 dstar2tgba -D -x sat-minimize,sat-acc=2 --stats='input(states=%S) output(states=%s, acc-sets=%a, det=%d)'
 cat stats.csv
