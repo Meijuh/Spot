@@ -569,30 +569,30 @@ $txt
 
 #+BEGIN_SRC sh :results verbatim :exports results
 ltl2tgba -s 'p0 | GFp1' > tmp.$$
-ltl2tgba -s6 'p0 | GFp1' | pr -m -t tmp.$$ -
+ltl2tgba -s6 'p0 | GFp1' | pr -w80 -m -t tmp.$$ -
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-never { /* p0 | GFp1 */		    never { /* p0 | GFp1 */
-T0_init:			    T0_init:
-  if				      do
-  :: (p0) -> goto accept_all	      :: atomic { (p0) -> assert(!(p0))
-  :: (!(p0)) -> goto accept_S2	      :: (!(p0)) -> goto accept_S2
-  fi;				      od;
-accept_S2:			    accept_S2:
-  if				      do
-  :: (p1) -> goto accept_S2	      :: (p1) -> goto accept_S2
-  :: (!(p1)) -> goto T0_S3	      :: (!(p1)) -> goto T0_S3
-  fi;				      od;
-T0_S3:				    T0_S3:
-  if				      do
-  :: (p1) -> goto accept_S2	      :: (p1) -> goto accept_S2
-  :: (!(p1)) -> goto T0_S3	      :: (!(p1)) -> goto T0_S3
-  fi;				      od;
-accept_all:			    accept_all:
-  skip				      skip
-}				    }
+never { /* p0 | GFp1 */			never { /* p0 | GFp1 */
+T0_init:				T0_init:
+  if					  do
+  :: (p0) -> goto accept_all		  :: atomic { (p0) -> assert(!(p0)) }
+  :: (!(p0)) -> goto accept_S2		  :: (!(p0)) -> goto accept_S2
+  fi;					  od;
+accept_S2:				accept_S2:
+  if					  do
+  :: (p1) -> goto accept_S2		  :: (p1) -> goto accept_S2
+  :: (!(p1)) -> goto T0_S3		  :: (!(p1)) -> goto T0_S3
+  fi;					  od;
+T0_S3:					T0_S3:
+  if					  do
+  :: (p1) -> goto accept_S2		  :: (p1) -> goto accept_S2
+  :: (!(p1)) -> goto T0_S3		  :: (!(p1)) -> goto T0_S3
+  fi;					  od;
+accept_all:				accept_all:
+  skip					  skip
+}					}
 #+end_example
 
 #+NAME: never-ex1
