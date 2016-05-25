@@ -874,3 +874,7 @@ def sat_minimize(aut, acc=None, colored=False,
 def parse_word(word, dic=_bdd_dict):
     from spot.impl import parse_word as pw
     return pw(word, dic)
+
+def language_containment_checker(dic=_bdd_dict):
+    from spot.impl import language_containment_checker as c
+    return c(dic)

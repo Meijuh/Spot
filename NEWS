@@ -38,7 +38,7 @@ New in spot 2.0.1a (not yet released)
     --eh-patterns=1..12, and --sb-patterns=1..27.  Unlike other options
     these do not output scalable patterns, but simply a list of formulas
     appearing in these three papers: Dwyer et al (FMSP'98), Etessami &
-    Holzmann (Concur'00) Somenzi & Bloem (CAV'00).
+    Holzmann (Concur'00), Somenzi & Bloem (CAV'00).
 
   Library:
 
@@ -53,12 +53,22 @@ New in spot 2.0.1a (not yet released)
     is_inherently_weak() will update the corresponding properties of
     the automaton as a side-effect of their check.
 
+  * language_containment_checker now has default values for all
+    parameters of its constructor.
+
   Python:
 
   * The __format__() method for formula support the same
     operator-rewritting feature introduced in ltldo and ltlcross.
     So "{:[i]s}".format(f) is the same as
     "{:s}".format(f.unabbreviate("i")).
+
+  * Bindings for language_containment_checker were added.
+
+  Documentation:
+
+  * A new example page shows how to test the equivalence of
+    two LTL/PSL formulas.  https://spot.lrde.epita.fr/tut04.html
 
   Bug fixes:
 

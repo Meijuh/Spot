@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire de
+// Copyright (C) 2009, 2010, 2011, 2012, 2014, 2015, 2016 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2006, 2007 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -29,7 +29,7 @@
 namespace spot
 {
   language_containment_checker::language_containment_checker
-  (const bdd_dict_ptr& dict, bool exprop, bool symb_merge,
+  (bdd_dict_ptr dict, bool exprop, bool symb_merge,
    bool branching_postponement, bool fair_loop_approx)
     : dict_(dict), exprop_(exprop), symb_merge_(symb_merge),
       branching_postponement_(branching_postponement),

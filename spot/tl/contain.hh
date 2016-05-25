@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
 // Copyright (C) 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -42,10 +42,11 @@ namespace spot
   public:
     /// This class uses spot::ltl_to_tgba_fm to translate LTL
     /// formulae.  See that function for the meaning of these options.
-    language_containment_checker(const bdd_dict_ptr& dict, bool exprop,
-                                 bool symb_merge,
-                                 bool branching_postponement,
-                                 bool fair_loop_approx);
+    language_containment_checker(bdd_dict_ptr dict = make_bdd_dict(),
+                                 bool exprop = false,
+                                 bool symb_merge = true,
+                                 bool branching_postponement = false,
+                                 bool fair_loop_approx = false);
 
     ~language_containment_checker();
 

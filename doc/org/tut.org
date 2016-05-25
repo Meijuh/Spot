@@ -22,6 +22,7 @@ three interfaces supported by Spot: shell commands, Python, or C++.
 
 - [[file:tut01.org][Parsing and Printing LTL Formulas]]
 - [[file:tut02.org][Relabeling Formulas]]
+- [[file:tut04.org][Testing the equivalence of two LTL formulas]]
 - [[file:tut10.org][Translating an LTL formula into a never claim]]
 - [[file:tut20.org][Converting a never claim into HOA]]
 - [[file:tut30.org][Converting Rabin (or Other) to Büchi, and simplifying it]]

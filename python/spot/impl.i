@@ -94,6 +94,7 @@
 #include <spot/twa/bdddict.hh>
 
 #include <spot/tl/apcollect.hh>
+#include <spot/tl/contain.hh>
 #include <spot/tl/dot.hh>
 #include <spot/tl/nenoform.hh>
 #include <spot/tl/print.hh>
@@ -374,6 +375,7 @@ namespace std {
 %include <spot/twa/twa.hh>
 
 %include <spot/tl/apcollect.hh>
+%include <spot/tl/contain.hh>
 %include <spot/tl/dot.hh>
 %include <spot/tl/nenoform.hh>
 %include <spot/tl/print.hh>

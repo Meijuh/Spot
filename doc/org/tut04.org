@@ -1,0 +1,95 @@
+# -*- coding: utf-8 -*-
+#+TITLE: Testing the equivalence of two formulas
+#+DESCRIPTION: Code example for testing the equivalence of two LTL or PSL formulas
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tut.html
+
+This page show how to test whether two LTL/PSL formulas are equal.
+
+* Shell
+
+Using a =ltlfilt= you can use =--equivalent-to=f= to filter a list of
+LTL formula and retain only those equivalent to =f=.  So this gives an easy
+way to test the equivalence of two formulas:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt -f '(a U b) U a' --equivalent-to 'b U a'
+#+END_SRC
+#+RESULTS:
+: (a U b) U a
+
+Since input formula was output, it means it is equivalent.  Adding
+=-c= to count the number for formula output provide a yes/no answer.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt -c -f '(a U b) U a' --equivalent-to 'b U a'
+#+END_SRC
+#+RESULTS:
+: 1
+
+* Python
+
+In Python, we can test this via a =language_containment_checker=
+object:
+
+#+BEGIN_SRC python :results output :exports both
+import spot
+f = spot.formula("(a U b) U a")
+g = spot.formula("b U a")
+c = spot.language_containment_checker()
+print(c.equal(f, g))
+#+END_SRC
+#+RESULTS:
+: True
+
+The equivalence check is done by converting the formulas $f$ and $g$
+and their negation into four automata $A_f$, $A_{\lnot f}$, $A_g$, and
+$A_{\lnot g}$, and then making sure that $A_f\otimes A_{\lnot g}$ and
+$A_g\otimes A_{\lnot f}$ are empty.
+
+We could also write this check by doing [[file:tut10.org][the translation]] and emptiness
+check ourselves.  For instance:
+
+#+BEGIN_SRC python :results output :exports both
+import spot
+
+def implies(f, g):
+    a_f = f.translate()
+    a_ng = spot.formula_Not(g).translate()
+    return spot.product(a_f, a_ng).is_empty()
+
+def equiv(f, g):
+    return implies(f, g) and implies(g, f)
+
+f = spot.formula("(a U b) U a")
+g = spot.formula("b U a")
+print(equiv(f, g))
+#+END_SRC
+#+RESULTS:
+: True
+
+The =language_containment_checker= object essentially performs the
+same work, but it also implements a cache to avoid translating the
+same formulas multiple times when it is used to test multiple
+equivalence.
+
+* C++
+
+Here is a C++ translation of the first Python example.
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <iostream>
+  #include <spot/tl/parse.hh>
+  #include <spot/tl/contain.hh>
+
+  int main()
+  {
+    spot::formula f = spot::parse_formula("(a U b) U a");
+    spot::formula g = spot::parse_formula("b U a");
+    spot::language_containment_checker c;
+    std::cout << (c.equal(f, g) ? "Equivalent\n" : "Not equivalent\n");
+  }
+#+END_SRC
+
+#+RESULTS:
+: Equivalent
