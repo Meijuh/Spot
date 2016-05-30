@@ -4,7 +4,7 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 
-This page show how to test whether two LTL/PSL formulas are equal.
+This page shows how to test whether two LTL/PSL formulas are equal.
 
 * Shell
 
@@ -18,8 +18,9 @@ ltlfilt -f '(a U b) U a' --equivalent-to 'b U a'
 #+RESULTS:
 : (a U b) U a
 
-Since input formula was output, it means it is equivalent.  Adding
-=-c= to count the number for formula output provide a yes/no answer.
+Since the input formula was output, it means it is equivalent to =b U
+a=.  You may want to add =-c= to count the number of formula output if
+you prefer a 1/0 answer:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltlfilt -c -f '(a U b) U a' --equivalent-to 'b U a'
