@@ -66,6 +66,8 @@ real notebooks instead.
 - [[https://spot.lrde.epita.fr/ipynb/accparse.html][=accparse.ipynb=]] exercises the acceptance condition parser
 - [[https://spot.lrde.epita.fr/ipynb/acc_cond.html][=acc_cond.ipynb=]] documents the interface for manipulating acceptance
   conditions
+- [[https://spot.lrde.epita.fr/ipynb/parity.html][=parity.ipynb=]] documents algorithms for manipulating parity automata
+  in Python
 - [[https://spot.lrde.epita.fr/ipynb/product.html][=product.ipynb=]] shows how to re-implement the product of two automata
   in Python
 - [[https://spot.lrde.epita.fr/ipynb/randltl.html][=randltl.ipynb=]] demonstrates a Python-version of [[file:randltl.org][=randltl=]]
