@@ -87,5 +87,27 @@ namespace spot
   SPOT_API twa_graph_ptr
   change_parity_here(twa_graph_ptr aut, parity_kind kind, parity_style style);
   /// @}
+
+  /// \brief Colorize an automaton with parity acceptance
+  ///
+  /// An automaton is said colored iff all the transitions belong to exactly one
+  /// acceptance set. The algorithm achieves thiat by removing superfluous
+  /// acceptance marks. It may introduce a new set to mark the transitions with
+  /// no acceptance sets and a second set may be introduced to keep the style.
+  /// The input must be an automaton with a parity acceptance, otherwise an
+  /// invalid_argument exception is thrown.
+  ///
+  /// \param aut the input automaton
+  ///
+  /// \param keep_style whether the style of the parity acc is kept.
+  ///
+  /// \return the colorized automaton
+  /// @{
+  SPOT_API twa_graph_ptr
+  colorize_parity(const const_twa_graph_ptr& aut, bool keep_style = false);
+
+  SPOT_API twa_graph_ptr
+  colorize_parity_here(twa_graph_ptr aut, bool keep_style = false);
+  /// @}
   /// @}
 }

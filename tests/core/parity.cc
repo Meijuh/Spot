@@ -22,6 +22,7 @@
 #include <vector>
 #include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/hoa.hh>
+#include <spot/twaalgos/iscolored.hh>
 #include <spot/twaalgos/parity.hh>
 #include <spot/twaalgos/product.hh>
 #include <spot/twaalgos/randomgraph.hh>
@@ -269,6 +270,32 @@ static bool is_almost_colored(spot::const_twa_graph_ptr aut)
   return true;
 }
 
+static bool is_colored_printerr(spot::const_twa_graph_ptr aut)
+{
+  bool result = is_colored(aut);
+  if (!result)
+    {
+      std::cerr << "======Not colored======" << std::endl;
+      spot::print_hoa(std::cerr, aut);
+      std::cerr << std::endl;
+    }
+  return result;
+}
+
+static spot::parity_kind to_parity_kind(bool is_max)
+{
+  if (is_max)
+    return spot::parity_kind_max;
+  return spot::parity_kind_min;
+}
+
+static spot::parity_style to_parity_style(bool is_odd)
+{
+  if (is_odd)
+    return spot::parity_style_odd;
+  return spot::parity_style_even;
+}
+
 int main()
 {
   auto current_bdd = spot::make_bdd_dict();
@@ -323,6 +350,21 @@ int main()
                   assert(is_almost_colored(output)
                          && "change_parity: too many acc on a transition");
                 }
+            // Check colorize_parity
+            for (auto keep_style: { true, false })
+              {
+                auto output = spot::colorize_parity(aut, keep_style);
+                assert(is_colored_printerr(output)
+                       && "colorize_parity: not colored.");
+                assert(are_equiv(aut, output)
+                       && "colorize_parity: not equivalent.");
+                auto target_kind = to_parity_kind(is_max);
+                auto target_style = keep_style ? to_parity_style(is_odd)
+                                    : spot::parity_style_any;
+                assert(is_right_parity(output, target_kind, target_style,
+                                       is_max, is_odd, acc_num_sets)
+                       && "change_parity: wrong acceptance.");
+              }
           }
         }
   return 0;

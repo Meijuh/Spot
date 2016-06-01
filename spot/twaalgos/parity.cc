@@ -146,4 +146,60 @@ namespace spot
                change_style, output_max, current_max);
     return aut;
   }
+
+  twa_graph_ptr
+  colorize_parity(const const_twa_graph_ptr& aut, bool keep_style)
+  {
+    return colorize_parity_here(make_twa_graph(aut, twa::prop_set::all()),
+                                keep_style);
+  }
+
+  twa_graph_ptr
+  colorize_parity_here(twa_graph_ptr aut, bool keep_style)
+  {
+    bool current_max;
+    bool current_odd;
+    if (!aut->acc().is_parity(current_max, current_odd, true))
+      throw new std::invalid_argument("colorize_parity: input "
+                                      "must have a parity acceptance.");
+
+    bool has_empty = false;
+    for (const auto& e: aut->edges())
+      if (!e.acc)
+        {
+          has_empty = true;
+          break;
+        }
+    auto num_sets = aut->num_sets();
+    int incr = 0;
+    if (has_empty)
+      {
+        // If the automaton has a transition that belong to any set, we need to
+        // introduce a new acceptance set.
+        // We may want to add a second acceptance set to keep the style of
+        // the parity acceptance
+        incr = 1 + (keep_style && current_max);
+        num_sets += incr;
+        bool new_style = current_odd == (keep_style || !current_max);
+        auto new_acc = acc_cond::acc_code::parity(current_max,
+                                                  new_style, num_sets);
+        aut->set_acceptance(num_sets, new_acc);
+      }
+    if (current_max)
+      {
+        --incr;
+        for (auto& e: aut->edges())
+          {
+            auto maxset = e.acc.max_set();
+            e.acc = acc_cond::mark_t{maxset ? maxset + incr : incr};
+          }
+      }
+    else
+      {
+        auto unused_mark = num_sets - incr;
+        for (auto& e: aut->edges())
+          e.acc = e.acc ? e.acc.lowest() : acc_cond::mark_t{unused_mark};
+      }
+    return aut;
+  }
 }
