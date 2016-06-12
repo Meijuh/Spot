@@ -297,6 +297,7 @@ TESTS_ipython = \
   python/formulas.ipynb \
   python/highlighting.ipynb \
   python/ltsmin-dve.ipynb \
+  python/ltsmin-pml.ipynb \
   python/piperead.ipynb \
   python/product.ipynb \
   python/randaut.ipynb \

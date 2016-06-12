@@ -106,25 +106,31 @@ class model:
       res += '\n';
     return res
 
-def require(tool):
+def require(*tools):
     """
     Exit with status code 77 if the required tool is not installed.
 
     This function is mostly useful in Spot test suite, where 77 is a
     code used to indicate that some test should be skipped.
     """
-    if tool != "divine":
-        raise ValueError("unsupported argument for require(): " + tool)
     import shutil
-    if shutil.which("divine") == None:
-        print ("divine not available", file=sys.stderr)
-        sys.exit(77)
-    out = subprocess.check_output(['divine', 'compile',
-                                   '--help'], stderr=subprocess.STDOUT)
-    if b'LTSmin' not in out:
-        print ("divine available but no support for LTSmin",
-	       file=sys.stderr)
-        sys.exit(77)
+    for tool in tools:
+        if tool == "divine":
+            if shutil.which("divine") == None:
+                print("divine not available", file=sys.stderr)
+                sys.exit(77)
+            out = subprocess.check_output(['divine', 'compile', '--help'],
+                                          stderr=subprocess.STDOUT)
+            if b'LTSmin' not in out:
+                print("divine available but no support for LTSmin",
+                       file=sys.stderr)
+                sys.exit(77)
+        elif tool == "spins":
+            if shutil.which("spins") == None:
+                print("spins not available", file=sys.stderr)
+                sys.exit(77)
+        else:
+            raise ValueError("unsupported argument for require(): " + tool)
 
 
 # Load IPython specific support if we can.
@@ -166,8 +172,36 @@ try:
                     spot.aux.rm_f(t.name + '.cpp')
                     spot.aux.rm_f(t.name + '2C')
 
+    @magics_class
+    class EditPML(Magics):
+
+        @cell_magic
+        def pml(self, line, cell):
+            if not line:
+               raise ValueError("missing variable name for %%pml")
+            with tempfile.NamedTemporaryFile(dir='.', suffix='.pml') as t:
+                t.write(cell.encode('utf-8'))
+                t.flush()
+
+                try:
+                    p = subprocess.Popen(['spins', t.name],
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.STDOUT,
+                                         universal_newlines=True)
+                    out = p.communicate()
+                    if out[0]:
+                       print(out[0], file=sys.stderr)
+                    ret = p.wait()
+                    if ret:
+                       raise subprocess.CalledProcessError(ret, 'spins')
+                    self.shell.user_ns[line] = load(t.name + '.spins')
+                finally:
+                    spot.aux.rm_f(t.name + '.spins.c')
+                    spot.aux.rm_f(t.name + '.spins')
+
     ip = get_ipython()
     ip.register_magics(EditDVE)
+    ip.register_magics(EditPML)
 
 except (ImportError, NameError):
     pass
