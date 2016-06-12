@@ -296,7 +296,7 @@ TESTS_ipython = \
   python/decompose.ipynb \
   python/formulas.ipynb \
   python/highlighting.ipynb \
-  python/ltsmin.ipynb \
+  python/ltsmin-dve.ipynb \
   python/piperead.ipynb \
   python/product.ipynb \
   python/randaut.ipynb \
