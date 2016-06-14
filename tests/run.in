@@ -48,6 +48,11 @@ test -z "$1" &&
     PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec $PREFIXCMD @PYTHON@
 srcdir="@srcdir@"
 
+# Reset CFLAGS, because some tests call the compiler, and we do not
+# want to inherit parameters likes -std=c11 -fvisibility=hidden
+CFLAGS=
+export CFLAGS
+
 case $1 in
     */*)
 	dir=${1%/*}
