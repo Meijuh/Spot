@@ -433,13 +433,14 @@ namespace spot
         /// it as ((a & b) & Xc) in the graph to isolate the
         /// Boolean operands as a single node.
         formula b = f.boolean_operands(&i);
-        if (b)
+        if (b && b != f)
           {
             res.reserve(sz - i + 1);
             res.push_back(visit(b));
           }
         else
           {
+            i = 0;
             res.reserve(sz);
           }
         for (; i < sz; ++i)
