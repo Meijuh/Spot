@@ -363,7 +363,8 @@ TESTS_ltsmin = \
   ltsmin/finite2.test \
   ltsmin/kripke.test
 
-EXTRA_DIST += ltsmin/beem-peterson.4.dve ltsmin/finite.dve ltsmin/finite.pm
+EXTRA_DIST += ltsmin/beem-peterson.4.dve ltsmin/elevator2.1.pm \
+	ltsmin/finite.dve ltsmin/finite.pm
 
 ltlsmin/kripke.log: core/kripkecat$(EXEEXT)
 
