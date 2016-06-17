@@ -67,3 +67,5 @@ real notebooks instead.
 - [[https://spot.lrde.epita.fr/ipynb/word.html][=word.ipynb=]] example for the =twa_run= and =twa_word= classes.
 - [[https://spot.lrde.epita.fr/ipynb/highlighting.html][=highlighting.ipynb=]] shows how to highlight states or edges in
   automata.
+- [[https://spot.lrde.epita.fr/ipynb/atva16-fig2a.html][=atva16-fig2a.ipynb=]] first example from our [[https://www.lrde.epita.fr/~adl/dl/adl/duret.16.atva2.pdf][ATVA'16 tool paper]].
+- [[https://spot.lrde.epita.fr/ipynb/atva16-fig2b.html][=atva16-fig2b.ipynb=]] second example from our [[https://www.lrde.epita.fr/~adl/dl/adl/duret.16.atva2.pdf][ATVA'16 tool paper]].
