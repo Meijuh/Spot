@@ -82,32 +82,12 @@ convenience, you can browse their HTML versions:
 
 * Citing
 
-If you want to refer to these tools in an article, please cite one of
-the following articles:
+If some of these tools have played a significant role in a work that
+lead to some academic publication, please consider citing Spot.  Our
+[[file:citing.org][citing page]] has a list of papers you could cite.
 
-- *Manipulating LTL formulas using Spot 1.0*, /Alexandre Duret-Lutz/.
-  In Proc. of ATVA'13, LNCS 8172, pp. 442--445.  Hanoi, Vietnam,
-  Oct. 2013.  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.13.atva][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.13.atva.pdf][pdf]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.13.atva.slides.pdf][slides]])
-
-  This focuses on =ltlfilt=, =randltl=, and =ltlcross=.
-
-- *LTL translation improvements in Spot 1.0*, /Alexandre Duret-Lutz/.
-  Int. J. on Critical Computer-Based Systems, 5(1/2):31--54, March 2014.
-  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.14.ijccbs][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.14.ijccbs.draft.pdf][pdf]])
-
-  This describes the translation from LTL to TGBA used by =ltl2tgba=
-  and =ltl2tgta=.
-
-- *Model checking using generalized testing automata*, /Ala Eddine Ben
-  Salem/, /Alexandre Duret-Lutz/, and /Fabrice Kordon/.  In
-  Transactions on Petri Nets and Other Models of Concurrency (ToPNoC
-  VI), 7400:94--112, 2012.  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#bensalem.12.topnoc][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/bensalem.12.topnoc.pdf][pdf]])
-
-  This describes the generalized testing automata produced by =ltl2tgta=.
-
-
-Check the man page for each tool for additional references about the
-algorithms or data sources used.
+Additionally, the man pages of these tools also contains additional
+references about the algorithms or data sources used.
 
 #  LocalWords:  num toc helloworld SRC LTL PSL randltl ltlfilt genltl
 #  LocalWords:  scalable ltl tgba Büchi automata tgta ltlcross eval
