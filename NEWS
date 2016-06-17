@@ -75,11 +75,21 @@ New in spot 2.0.1a (not yet released)
   * A new example page shows how to test the equivalence of
     two LTL/PSL formulas.  https://spot.lrde.epita.fr/tut04.html
 
+New in spot 2.0.2 (2016-06-17)
+
+  Documentation:
+
+  * We now have a citing page at https://spot.lrde.epita.fr/citing.html
+    providing a list of references about Spot.
+  * The Python examples have been augmented with the two examples
+    from our ATVA'16 tool paper.
+
   Bug fixes:
 
   * Fix compilation error observed with Clang++ 3.7.1 and GCC 6.1.1
     headers.
   * Fix an infinite recursion in relabel_bse().
+  * Various small typos and cosmetic cleanups.
 
 New in spot 2.0.1 (2016-05-09)
 
