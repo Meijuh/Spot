@@ -74,6 +74,7 @@ ORG_FILES = \
   $(srcdir)/org/arch.png \
   org/autfilt.org \
   org/csv.org \
+  org/citing.org \
   org/compile.org \
   org/concepts.org \
   org/dstar2tgba.org \
