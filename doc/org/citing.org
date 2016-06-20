@@ -9,7 +9,7 @@
 If you need to cite the Spot project in some academic paper, please
 use the following reference:
 
-- *Spot 2.0 –- a framework for LTL and ω-automata manipulation*,
+- *Spot 2.0 — a framework for LTL and ω-automata manipulation*,
   /Alexandre Duret-Lutz/, /Alexandre Lewkowicz/, /Amaury Fauchille/,
   /Thibaud Michaud/, /Etienne Renault/, and /Laurent Xu/.  To appear
   in Proc. of ATVA'16.  Chiba, Japan, Oct. 2016.  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.16.atva2][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.16.atva2.pdf][pdf]])
