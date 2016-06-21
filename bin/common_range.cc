@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2014, 2016 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -67,6 +67,9 @@ parse_range(const char* str, int missing_left, int missing_right)
           // Parse the next integer.
           char* end2;
           res.max = strtol(end, &end2, 10);
+          if (str == end2)
+            error(1, 0, "invalid range '%s' "
+                  "(should start with digits, dots, or colon)", str);
           if (end == end2)
             error(1, 0, "invalid range '%s' (missing end?)", str);
           if (*end2)

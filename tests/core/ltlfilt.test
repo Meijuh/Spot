@@ -344,4 +344,8 @@ test "`cat out`" = 'GF"a\"\\b"'
 $ltlfilt --lbt-input -f 'G F "a\"\\b"' -l > out
 test "`cat out`" = 'G F "a\"\\b"'
 
+
+$ltlfilt --size=foo=2..3  2>stderr && exit 1
+grep 'invalid range.*should start with' stderr
+
 true
