@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
-# Recherche et Développement de l'Epita (LRDE).
+# Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
+# de Recherche et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -170,12 +170,12 @@ in: Fa & b & GFc & Gd
 -TA -DS -RT          |     12 |    126 |      5
 -TA -DS -lv          |     29 |    315 |     13
 -TA -DS -lv -RT      |     13 |    140 |      4
--TA -DS -sp          |     28 |    309 |     12
--TA -DS -sp -RT      |     12 |    137 |      3
+-TA -DS -sp          |     28 |    306 |     12
+-TA -DS -sp -RT      |     12 |    134 |      3
 -TA -DS -lv -sp      |     29 |    315 |     13
 -TA -DS -lv -sp -RT  |     13 |    140 |      4
--x -TA -DS -in       |     29 |    254 |      9
--x -TA -DS -in -RT   |     12 |     96 |      3
+-x -TA -DS -in       |     29 |    240 |      9
+-x -TA -DS -in -RT   |     12 |     93 |      3
 in: Fa & a & GFc & Gc
 -TGTA                |      4 |      8 |    XXX
 -TGTA -RT            |      3 |      6 |    XXX
@@ -401,15 +401,15 @@ in: FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)
 -TA -lv -sp          |     45 |    676 |      9
 -TA -lv -sp -RT      |     35 |    566 |      4
 -TA -DS              |     54 |    722 |     26
--TA -DS -RT          |     42 |    600 |     19
+-TA -DS -RT          |     42 |    608 |     18
 -TA -DS -lv          |     55 |    800 |     19
--TA -DS -lv -RT      |     44 |    694 |     13
--TA -DS -sp          |     54 |    795 |     18
--TA -DS -sp -RT      |     43 |    683 |     12
+-TA -DS -lv -RT      |     44 |    702 |     13
+-TA -DS -sp          |     54 |    789 |     18
+-TA -DS -sp -RT      |     43 |    686 |     12
 -TA -DS -lv -sp      |     55 |    800 |     19
--TA -DS -lv -sp -RT  |     44 |    694 |     13
--x -TA -DS -in       |     55 |    700 |     11
--x -TA -DS -in -RT   |     39 |    566 |      8
+-TA -DS -lv -sp -RT  |     44 |    702 |     13
+-x -TA -DS -in       |     55 |    694 |     11
+-x -TA -DS -in -RT   |     41 |    597 |      8
 in: G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))
 -TGTA                |     69 |   1539 |    XXX
 -TGTA -RT            |     49 |    935 |    XXX
@@ -422,15 +422,15 @@ in: G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))
 -TA -lv -sp          |     68 |   1443 |     16
 -TA -lv -sp -RT      |     56 |   1179 |     15
 -TA -DS              |    124 |   2964 |     44
--TA -DS -RT          |    100 |   2285 |     42
+-TA -DS -RT          |     96 |   2099 |     42
 -TA -DS -lv          |    125 |   3028 |     42
--TA -DS -lv -RT      |    101 |   2339 |     40
+-TA -DS -lv -RT      |     97 |   2149 |     40
 -TA -DS -sp          |    124 |   3012 |     41
--TA -DS -sp -RT      |    100 |   2324 |     39
+-TA -DS -sp -RT      |     96 |   2134 |     39
 -TA -DS -lv -sp      |    125 |   3028 |     42
--TA -DS -lv -sp -RT  |    101 |   2339 |     40
+-TA -DS -lv -sp -RT  |     97 |   2149 |     40
 -x -TA -DS -in       |    125 |   1838 |     25
--x -TA -DS -in -RT   |     89 |   1344 |     25
+-x -TA -DS -in -RT   |     87 |   1296 |     25
 EOF
 
 sed -n 's/in: \(.*\)/\1/p' checkta.txt > input.txt
