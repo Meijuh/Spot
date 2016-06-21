@@ -519,6 +519,8 @@ namespace spot
                             lvl = std::max(lvl_cache[d.first].first, lvl);
                           else if (use_lvl_cache == 2)
                             lvl = std::min(lvl_cache[d.first].first, lvl);
+                          else
+                            lvl = lvl_cache[d.first].first; // Do not change
                         }
                       lvl_cache[d.first] = std::make_pair(lvl, true);
                     }

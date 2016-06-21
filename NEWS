@@ -2,6 +2,15 @@ New in spot 2.0.2a (Not yet released)
 
   Nothing yet.
 
+  Bug fixes:
+
+  * The degen-lcache=1 option of the degeneralization algorithm (which
+    is a default option) did not behave exactly as documented: instead
+    of reusing the first level ever created for a state where the
+    choice of the level is free, it used the last level used.  This
+    caused some posterior simulation-based reductions to be less
+    efficient at reducing automata (on the average).
+
 New in spot 2.0.2 (2016-06-17)
 
   Documentation:
