@@ -1296,6 +1296,10 @@ namespace spot
     int max_states = om.get("max-states", -1);
     auto accstr = om.get_str("acc");
     bool colored = om.get("colored", 0);
+    int preproc = om.get("preproc", 3);
+
+    // No more om.get() below this.
+    om.report_unused_options();
 
     // Assume we are going to use the input automaton acceptance...
     bool user_supplied_acc = false;
@@ -1327,7 +1331,7 @@ namespace spot
       target_is_buchi = acccond.is_buchi();
     }
 
-    if (int preproc = om.get("preproc", 3))
+    if (preproc)
       {
         postprocessor post;
         auto sba = (state_based && a->prop_state_acc()) ?

@@ -40,9 +40,10 @@ New in spot 2.0.2a (not yet released)
     appearing in these three papers: Dwyer et al (FMSP'98), Etessami &
     Holzmann (Concur'00), Somenzi & Bloem (CAV'00).
 
-  * Arguments passed to -x that are not used are now reported as they
-    might be typos.  (This ocurred a couple of times in our
-    test-suite.)
+  * Arguments passed to -x (in ltl2tgba, ltl2tgta, autfilt, dstar2tgba)
+    that are not used are now reported as they might be typos.
+    This ocurred a couple of times in our test-suite.  A similar
+    check is done the the arguments of autfilt --sat-minimize=...
 
   Library:
 

@@ -28,3 +28,9 @@ ltl2tgba -F- -x ba-simul,foo,bar </dev/null 2>error && exit 1
 grep -v 'ba-simul' error
 grep -- "- 'foo'" error
 grep -- "- 'bar'" error
+
+# Likewise for --sat-minimise
+
+ltl2tgba -f FGa | autfilt -D |
+autfilt --sat-minimize='acc="co-Buchi",other' 2>error && exit 1
+grep "autfilt: option 'other' was not used" error
