@@ -278,7 +278,7 @@ autfilt --merge -Hm input --name="%E->%e edges, %T->%t transitions" > output
 diff output expected
 
 
-cat <<EOF | ltl2tgba -x degen-skip=1 -F- --ba -H > tmp.hoa
+cat <<EOF | ltl2tgba -x degen-lskip=1 -F- --ba -H > tmp.hoa
 a U b
 false
 !b && Xb && GFa

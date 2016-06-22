@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -23,6 +23,7 @@
 #include "config.h"
 #include <cstring>
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <spot/misc/optionmap.hh>
 
@@ -69,7 +70,7 @@ namespace spot
 
         if (*options != '=')
           {
-            options_[name] = (negated ? 0 : 1);
+            set_(name, !negated);
           }
         else if (negated)
           {
@@ -93,8 +94,7 @@ namespace spot
                 while (*options && *options != sep);
                 if (*options != sep)
                   return start - 1;
-                std::string val(start, options);
-                options_str_[name] = val;
+                set_str_(name, std::string(start, options));
                 if (*options)
                   ++options;
               }
@@ -120,7 +120,7 @@ namespace spot
                     return options;
                   }
                 options = val_end;
-                options_[name] = val;
+                set_(name, val);
               }
           }
       }
@@ -130,6 +130,7 @@ namespace spot
   int
   option_map::get(const char* option, int def) const
   {
+    unused_.erase(option);
     auto it = options_.find(option);
     return (it == options_.end()) ? def : it->second;
   }
@@ -137,21 +138,28 @@ namespace spot
   std::string
   option_map::get_str(const char* option, std::string def) const
   {
+    unused_.erase(option);
     auto it = options_str_.find(option);
     return (it == options_str_.end()) ? def : it->second;
   }
 
-  int
-  option_map::operator[](const char* option) const
+  void option_map::set_(const std::string& option, int val)
   {
-    return get(option);
+    options_[option] = val;
+    unused_.insert(option);
+  }
+
+  void option_map::set_str_(const std::string& option, const std::string& val)
+  {
+    options_str_[option] = val;
+    unused_.insert(option);
   }
 
   int
   option_map::set(const char* option, int val, int def)
   {
     int old = get(option, def);
-    options_[option] = val;
+    set_(option, val);
     return old;
   }
 
@@ -159,7 +167,7 @@ namespace spot
   option_map::set_str(const char* option, std::string val, std::string def)
   {
     std::string old = get_str(option, def);
-    options_str_[option] = val;
+    set_str_(option, val);
     return old;
   }
 
@@ -168,11 +176,20 @@ namespace spot
   {
     options_ = o.options_;
     options_str_ = o.options_str_;
+    unused_ = o.unused_;
+  }
+
+  int
+  option_map::operator[](const char* option) const
+  {
+    unused_.erase(option);
+    return get(option);
   }
 
   int&
   option_map::operator[](const char* option)
   {
+    unused_.erase(option);
     return options_[option];
   }
 
@@ -184,5 +201,25 @@ namespace spot
     for (auto p: m.options_str_)
       os << '"' << p.first << "\" = \"" << p.second << "\"\n";
     return os;
+  }
+
+  void option_map::report_unused_options() const
+  {
+    auto s = unused_.size();
+    if (s == 0U)
+      return;
+    std::ostringstream os;
+    if (s == 1U)
+      {
+        os << "option '" << *unused_.begin()
+           << "' was not used (possible typo?)";
+      }
+    else
+      {
+        os << "the following options where not used (possible typos?):";
+        for (auto opt: unused_)
+          os << "\n\t- '" << opt << '\'';
+      }
+    throw std::runtime_error(os.str());
   }
 }

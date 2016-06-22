@@ -189,6 +189,7 @@ TESTS_kripke = \
 TESTS_misc = \
   core/bitvect.test \
   core/intvcomp.test \
+  core/minusx.test \
   core/trival.test
 
 TESTS_twa = \

@@ -1,4 +1,4 @@
-New in spot 2.0.1a (not yet released)
+New in spot 2.0.2a (not yet released)
 
   Command-line tools:
 
@@ -39,6 +39,10 @@ New in spot 2.0.1a (not yet released)
     these do not output scalable patterns, but simply a list of formulas
     appearing in these three papers: Dwyer et al (FMSP'98), Etessami &
     Holzmann (Concur'00), Somenzi & Bloem (CAV'00).
+
+  * Arguments passed to -x that are not used are now reported as they
+    might be typos.  (This ocurred a couple of times in our
+    test-suite.)
 
   Library:
 

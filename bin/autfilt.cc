@@ -1031,6 +1031,9 @@ main(int argc, char** argv)
       hoa_processor processor(post);
       if (processor.run())
         return 2;
+
+      // Diagnose unused -x options
+      extra_options.report_unused_options();
     }
   catch (const std::runtime_error& e)
     {

@@ -230,13 +230,23 @@ main(int argc, char** argv)
     error(2, 0, "No formula to translate?  Run '%s --help' for usage.",
           program_name);
 
-  spot::translator trans(&extra_options);
-  trans.set_pref(pref | comp | sbacc);
-  trans.set_type(type);
-  trans.set_level(level);
+  try
+    {
+      spot::translator trans(&extra_options);
+      trans.set_pref(pref | comp | sbacc);
+      trans.set_type(type);
+      trans.set_level(level);
 
-  trans_processor processor(trans);
-  if (processor.run())
-    return 2;
+      trans_processor processor(trans);
+      if (processor.run())
+        return 2;
+      // Diagnose unused -x options
+      extra_options.report_unused_options();
+    }
+  catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
+
   return 0;
 }

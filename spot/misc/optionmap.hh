@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2015 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE)
+// Copyright (C) 2013, 2015, 2016 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE)
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -26,6 +26,7 @@
 #include <string>
 #include <map>
 #include <iosfwd>
+#include <set>
 
 namespace spot
 {
@@ -86,6 +87,9 @@ namespace spot
     std::string set_str(const char* option,
                         std::string val, std::string def = {});
 
+    /// \brief Raise a runtime_error if some option haven't been used.
+    void report_unused_options() const;
+
     /// Acquire all the settings of \a o.
     void set(const option_map& o);
 
@@ -99,5 +103,12 @@ namespace spot
   private:
     std::map<std::string, int> options_;
     std::map<std::string, std::string> options_str_;
+    // Unused values.  Initially they will store all options, and they
+    // will be erased as they are used.  The resulting set can be used
+    // for diagnosing errors.
+    mutable std::set<std::string> unused_;
+
+    void set_(const std::string&, int val);
+    void set_str_(const std::string&, const std::string& val);
   };
 }
