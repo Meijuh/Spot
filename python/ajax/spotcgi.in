@@ -695,10 +695,8 @@ elif buchi_type == 'i':
     degen = True
     neverclaim = True
 
-if output_type == 't':
-    ta_type = form.getfirst('tf', 't')
-    if ta_type == 't':
-        degen = True
+if output_type == 't' and ta_type == 't':
+    degen = True
 
 if prune_scc:
     # Do not suppress all useless acceptance conditions if
@@ -769,8 +767,8 @@ if output_type == 't':
         if bisimulation:
             tautomaton = spot.minimize_tgta(tautomaton)
     else:
-        tautomaton = spot.tgba_to_ta(degen, propset,
-                                     True, True, singlepass, livelock)
+        tautomaton = spot.tgba_to_ta(degen, propset, ta_type == 't',
+                                     True, singlepass, livelock)
         if bisimulation:
             tautomaton = spot.minimize_ta(tautomaton)
     dont_run_dot = print_stats(tautomaton, ta = True)
