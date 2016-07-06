@@ -12,6 +12,7 @@ New in spot 2.0.2a (Not yet released)
     efficient at reducing automata (on the average).
   * The generalized testing automata displayed by the on-line
     translator were incorrect (those output by ltl2tgta were OK).
+  * ltl2tgta should not offer options --ba, --monitor, --tgba and such.
 
 New in spot 2.0.2 (2016-06-17)
 
