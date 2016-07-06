@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2011, 2012, 2015 Laboratoire de Recherche
-## et Développement de l'Epita (LRDE).
+## Copyright (C) 2011, 2012, 2015, 2016 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -20,8 +20,8 @@
 nodist_noinst_SCRIPTS = spotcgi.py
 EXTRA_DIST = $(srcdir)/spotcgi.in README trans.html css/trans.css	\
   css/tipTip.css js/jquery.tipTip.minified.js js/jquery.ba-bbq.min.js	\
-  js/jquery.ba-dotimeout.min.js logos/lip6sys64.png logos/lrde64.png	\
-  logos/spot64s.png logos/mail.png css/loading.gif protocol.txt
+  js/jquery.ba-dotimeout.min.js logos/spot64s.png logos/mail.png	\
+  css/loading.gif protocol.txt
 
 CLEANFILES = $(nodist_noinst_SCRIPTS)
 
