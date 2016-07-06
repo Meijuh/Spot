@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,8 +23,9 @@
 #include <spot/twaalgos/postproc.hh>
 #include <argp.h>
 
-extern const struct argp post_argp;             // postprocessing enabled
+extern const struct argp post_argp;          // postprocessing enabled
 extern const struct argp post_argp_disabled; // postprocessing disabled
+extern const struct argp post_argp_nooutput; // no output option
 
 extern spot::postprocessor::output_type type;
 extern spot::postprocessor::output_pref pref;

@@ -39,7 +39,7 @@ enum {
   OPT_TGBA,
 };
 
-static const argp_option options[] =
+static constexpr const argp_option options[] =
   {
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
@@ -61,6 +61,23 @@ static const argp_option options[] =
     { "deterministic", 'D', nullptr, 0, "prefer deterministic automata "
       "(combine with --generic to be sure to obtain a deterministic "
       "automaton)", 0 },
+    { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
+      "or deterministic", 0 },
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Simplification level:", 21 },
+    { "low", OPT_LOW, nullptr, 0, "minimal optimizations (fast)", 0 },
+    { "medium", OPT_MEDIUM, nullptr, 0, "moderate optimizations", 0 },
+    { "high", OPT_HIGH, nullptr, 0,
+      "all available optimizations (slow, default)", 0 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
+  };
+
+static constexpr const argp_option options_nooutput[] =
+  {
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
+    { "small", OPT_SMALL, nullptr, 0, "prefer small automata (default)", 0 },
+    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
     { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
       "or deterministic", 0 },
     /**************************************************/
@@ -167,5 +184,8 @@ parse_opt_post(int key, char*, struct argp_state*)
 const struct argp post_argp = { options, parse_opt_post,
                                 nullptr, nullptr, nullptr, nullptr, nullptr };
 const struct argp post_argp_disabled = { options_disabled, parse_opt_post,
+                                         nullptr, nullptr, nullptr,
+                                         nullptr, nullptr };
+const struct argp post_argp_nooutput = { options_nooutput, parse_opt_post,
                                          nullptr, nullptr, nullptr,
                                          nullptr, nullptr };
