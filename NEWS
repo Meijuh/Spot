@@ -88,6 +88,8 @@ New in spot 2.0.2a (not yet released)
     choice of the level is free, it used the last level used.  This
     caused some posterior simulation-based reductions to be less
     efficient at reducing automata (on the average).
+  * The generalized testing automata displayed by the on-line
+    translator were incorrect (those output by ltl2tgta were OK).
 
 New in spot 2.0.2 (2016-06-17)
 
