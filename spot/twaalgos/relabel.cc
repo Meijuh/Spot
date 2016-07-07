@@ -27,6 +27,7 @@ namespace spot
     bddPair* pairs = bdd_newpair();
     auto d = aut->get_dict();
     std::vector<int> vars;
+    std::set<int> newvars;
     vars.reserve(relmap->size());
     for (auto& p: *relmap)
       {
@@ -34,10 +35,15 @@ namespace spot
         int newv = aut->register_ap(p.second);
         bdd_setpair(pairs, oldv, newv);
         vars.push_back(oldv);
+        newvars.insert(newv);
       }
     for (auto& t: aut->edges())
       t.cond = bdd_replace(t.cond, pairs);
+    // Erase all the old variable that are not reused in the new set.
+    // (E.g., if we relabel a&p0 into p0&p1 we should not unregister
+    // p0)
     for (auto v: vars)
-      aut->unregister_ap(v);
+      if (newvars.find(v) == newvars.end())
+        aut->unregister_ap(v);
   }
 }
