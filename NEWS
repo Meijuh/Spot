@@ -91,6 +91,10 @@ New in spot 2.0.2a (not yet released)
   * The generalized testing automata displayed by the on-line
     translator were incorrect (those output by ltl2tgta were OK).
   * ltl2tgta should not offer options --ba, --monitor, --tgba and such.
+  * the relabel() function could incorrectly unregister old atomic
+    propositions even if they are still used in the output (e.g., if
+    a&p0 is relabeled to p0&p1).  This could cause ltldo and on-line
+    translator to report errors.
 
 New in spot 2.0.2 (2016-06-17)
 

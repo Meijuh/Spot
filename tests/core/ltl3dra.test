@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Laboratoire de Recherche et
+# Copyright (C) 2015, 2016 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -35,3 +35,9 @@ ltlcross 'ltl2tgba' 'ltl3dra' -f '(<>((((p0) &&
 && ([](p3))) || ((p1) && (!([](p3)))))))) || ((!(p0)) && ([](((!(p1))
 && ([](p3))) || ((p1) && (!([](p3))))))))) && (((p0) && (!(<>(p2))))
 || ((!(p0)) && (<>(p2)))))))'
+
+
+# This used to trigger an assertion because the formula "a=0"&p0 was
+# relabeled p0&p1, and then p0 was unregistered despite being one of
+# the new variables.
+ltldo ltl3dra -f '"a=0" & p0' | grep 'AP: 2.*p0'
