@@ -291,34 +291,39 @@ namespace spot
 
   namespace
   {
-    class state_history : public std::vector<bool>
+    using state_history_value_t = unsigned;
+
+    class state_history : public std::vector<state_history_value_t>
     {
     public:
+
+      using value_t = state_history_value_t;
+
       state_history(unsigned left_num_sets, unsigned right_num_sets) :
         left_num_sets_(left_num_sets),
         right_num_sets_(right_num_sets)
       {
-        resize(left_num_sets * right_num_sets * 2, false);
+        resize(left_num_sets + right_num_sets, 0);
       }
 
-      bool get_e(unsigned left, unsigned right) const
+      value_t get_left(value_t right) const
       {
-        return get(left, right, true);
+        return get(right, true);
       }
 
-      bool get_f(unsigned left, unsigned right) const
+      value_t get_right(value_t left) const
       {
-        return get(left, right, false);
+        return get(left, false);
       }
 
-      void set_e(unsigned left, unsigned right, bool val)
+      void set_left(value_t right, value_t val)
       {
-        set(left, right, true, val);
+        set(right, true, val);
       }
 
-      void set_f(unsigned left, unsigned right, bool val)
+      void set_right(value_t left, value_t val)
       {
-        set(left, right, false, val);
+        set(left, false, val);
       }
 
       unsigned get_left_num_sets() const
@@ -331,40 +336,186 @@ namespace spot
         return right_num_sets_;
       }
 
-    private:
-      unsigned left_num_sets_;
-      unsigned right_num_sets_;
-
-      bool get(unsigned left, unsigned right, bool first) const
+      value_t get_max_acc_set() const
       {
-        return at(left * right_num_sets_ * 2 + right * 2 + (first ? 1 : 0));
+        // i is the index of the resulting automaton acceptance set
+        // If i is even, it means that the according set is a set with
+        // transitions that need to be infinitly often as the
+        // acceptance is a parity even. Then k, the index of the
+        // first automaton must be even too.
+        unsigned l = right_num_sets_;
+        while (l-- > 0)
+          {
+            auto k = get_left(l);
+            bool can_jump = (k & l & 1) != 1;
+            if (!can_jump)
+              --k;
+            auto new_l = get_right(k);
+            if (new_l >= l)
+              return k + l;
+            else if (can_jump)
+              l = new_l + 1;
+          }
+        return 0;
       }
 
-      void set(unsigned left, unsigned right, bool first, bool val)
+      state_history make_succ(value_t left_acc_set, value_t right_acc_set) const
       {
-        at(left * right_num_sets_ * 2 + right * 2 + (first ? 1 : 0)) = val;
+        auto mat = state_history(*this);
+        mat.clean_here();
+        for (unsigned i = 0; i < right_num_sets_; ++i)
+          {
+            auto old = mat.get_left(i);
+            mat.set_left(i, std::max(left_acc_set, old));
+          }
+        for (unsigned i = 0; i < left_num_sets_; ++i)
+          {
+            auto old = mat.get_right(i);
+            mat.set_right(i, std::max(right_acc_set, old));
+          }
+        return mat;
+      }
+
+      void clean_here()
+      {
+        auto mat = state_history(*this);
+        for (unsigned l = 0; l < right_num_sets_; ++l)
+          {
+            set_left(l, 0);
+            for (unsigned k = 0; k < left_num_sets_; ++k)
+              {
+                if (mat.get_right(k) < l)
+                  set_left(l, std::min(mat.get_left(l), k));
+                else
+                  break;
+              }
+          }
+        for (unsigned k = 0; k < left_num_sets_; ++k)
+          {
+            set_right(k, 0);
+            for (unsigned l = 0; l < right_num_sets_; ++l)
+              {
+                if (mat.get_left(l) < k)
+                  set_right(k, std::min(mat.get_right(k), l));
+                else
+                  break;
+              }
+          }
+      }
+
+    private:
+      const unsigned left_num_sets_;
+      const unsigned right_num_sets_;
+
+      value_t get(value_t index, bool first) const
+      {
+        return at(index + (first ? 0 : right_num_sets_));
+      }
+
+      void set(value_t index, bool first, value_t val)
+      {
+        at(index + (first ? 0 : right_num_sets_)) = val;
       }
     };
 
-    typedef std::tuple<unsigned, unsigned, state_history>
-      product_state;
+    struct state_history_hash
+    {
+      size_t
+      operator()(const state_history& mat) const
+      {
+        unsigned result = 0;
+        for (unsigned i = 0; i < mat.get_left_num_sets(); ++i)
+          result = wang32_hash(result ^ wang32_hash(mat.get_right(i)));
+        for (unsigned i = 0; i < mat.get_right_num_sets(); ++i)
+          result = wang32_hash(result ^ wang32_hash(mat.get_left(i)));
+        return result;
+      }
+    };
+
+    using sh_label_t = unsigned;
+
+    class state_history_set
+    {
+    private:
+      using value_t = state_history::value_t;
+
+    public:
+      sh_label_t
+      push_state_history(state_history sh)
+      {
+        auto p = sh2l_.emplace(sh, 0);
+        if (p.second)
+          {
+            l2sh_.push_back(p.first);
+            p.first->second = l2sh_.size() - 1;
+          }
+        return p.first->second;
+      }
+
+      std::pair<sh_label_t, value_t>
+      push_state_history(sh_label_t label,
+                         value_t left_acc_set, value_t right_acc_set)
+      {
+        state_history new_sh = l2sh_[label]->first;
+        auto succ = new_sh.make_succ(left_acc_set, right_acc_set);
+        auto max_acc_set = succ.get_max_acc_set();
+        return std::make_pair(push_state_history(succ), max_acc_set);
+      }
+
+      std::pair<sh_label_t, value_t>
+      get_succ(sh_label_t current_sh,
+               value_t left_acc_set, value_t right_acc_set)
+      {
+        auto f_args = std::make_tuple(current_sh, left_acc_set, right_acc_set);
+        auto p = succ_.emplace(f_args, std::make_pair(0, 0));
+        if (p.second)
+          {
+            p.first->second =
+              push_state_history(current_sh, left_acc_set, right_acc_set);
+          }
+        return p.first->second;
+      }
+
+    private:
+      using sh_dict_t = std::unordered_map<const state_history,
+                                           value_t,
+                                           state_history_hash>;
+      sh_dict_t sh2l_;
+
+      struct sh_succ_hash
+      {
+        size_t
+        operator()(std::tuple<sh_label_t, value_t, value_t> x) const
+        {
+          return wang32_hash(std::get<0>(x) ^ wang32_hash(std::get<1>(x)
+                             ^ wang32_hash(std::get<2>(x))));
+        }
+      };
+      std::unordered_map<std::tuple<sh_label_t, value_t, value_t>,
+                                    std::pair<sh_label_t, value_t>,
+                                    sh_succ_hash> succ_;
+      std::vector<sh_dict_t::const_iterator> l2sh_;
+    };
+
+    using product_state_t = std::tuple<unsigned, unsigned, sh_label_t>;
 
     struct product_state_hash
     {
       size_t
-      operator()(product_state s) const
+      operator()(product_state_t s) const
       {
-        auto result = wang32_hash(std::get<0>(s) ^ wang32_hash(std::get<1>(s)));
-        return result ^ (std::hash<std::vector<bool>>()(std::get<2>(s)) << 1);
+        return wang32_hash(std::get<0>(s) ^ wang32_hash(std::get<1>(s)
+                           ^ wang32_hash(std::get<2>(s))));
       }
     };
+
 
     twa_graph_ptr
     parity_product_aux(twa_graph_ptr& left, twa_graph_ptr& right)
     {
-      std::unordered_map<product_state, std::pair<unsigned, unsigned>,
-                         product_state_hash> s2n;
-      std::queue<std::pair<product_state, unsigned>> todo;
+      std::unordered_map<product_state_t, unsigned, product_state_hash> s2n;
+      state_history_set sh_set;
+      std::queue<std::pair<product_state_t, unsigned>> todo;
       auto res = make_twa_graph(left->get_dict());
       res->copy_ap_of(left);
       res->copy_ap_of(right);
@@ -378,73 +529,30 @@ namespace spot
       res->set_named_prop("product-states", v);
 
       auto new_state =
-        [&](const state_history& current_history,
+        [&](const sh_label_t sh_label,
             unsigned left_state, unsigned right_state,
             unsigned left_acc_set, unsigned right_acc_set)
         -> std::pair<unsigned, unsigned>
         {
-          product_state x(left_state, right_state, current_history);
-          auto& mat = std::get<2>(x);
-          for (unsigned i = 0; i < left_num_sets; ++i)
-            for (unsigned j = 0; j < right_num_sets; ++j)
-            {
-              auto e_ij = current_history.get_e(i, j);
-              auto f_ij = current_history.get_f(i, j);
-              auto left_in_i = left_acc_set >= i;
-              auto right_in_j = right_acc_set >= j;
-              if (e_ij && f_ij)
-              {
-                mat.set_e(i, j, left_in_i);
-                mat.set_f(i, j, right_in_j);
-              }
-              else
-              {
-                mat.set_e(i, j, e_ij || left_in_i);
-                mat.set_f(i, j, f_ij || right_in_j);
-              }
-            }
-          auto p = s2n.emplace(x, std::make_pair(0, 0));
+          auto succ = sh_set.get_succ(sh_label, left_acc_set, right_acc_set);
+          product_state_t x(left_state, right_state, succ.first);
+          auto p = s2n.emplace(x, 0);
           if (p.second)                 // This is a new state
           {
-            p.first->second.first = res->new_state();
-            p.first->second.second = 0;
-            for (unsigned i = z_size - 1; i > 0
-                 && p.first->second.second == 0; --i)
-            {
-              // i is the index of the resulting automaton acceptance set
-              // If i is even, it means that the according set is a set with
-              // transitions that need to be infinitly often as the acceptance
-              // is a parity even. Then k, the index of the first automaton must
-              // be even too.
-              unsigned k = 0;
-              if (i >= right_num_sets)
-                k = i - right_num_sets + 1;
-              unsigned var = 2 - i % 2;
-              k += k & ~var & 1;
-              unsigned max_k = std::min(i + 1, left_num_sets);
-              while (k < max_k)
-              {
-                unsigned l = i - k;
-                if (mat.get_e(k, l) && mat.get_f(k, l))
-                {
-                  p.first->second.second = i;
-                  break;
-                }
-                k += var;
-              }
-              v->push_back(std::make_pair(left_state, right_state));
-            }
-            todo.emplace(x, p.first->second.first);
+            auto new_state = res->new_state();
+            p.first->second = new_state;
+            v->push_back(std::make_pair(left_state, right_state));
+            todo.emplace(x, new_state);
           }
-          return p.first->second;
+          return std::make_pair(p.first->second, succ.second);
         };
 
       state_history init_state_history(left_num_sets, right_num_sets);
-      product_state init_state(left->get_init_state_number(),
-                               right->get_init_state_number(),
-                               init_state_history);
+      auto init_sh_label = sh_set.push_state_history(init_state_history);
+      product_state_t init_state(left->get_init_state_number(),
+                               right->get_init_state_number(), init_sh_label);
       auto init_state_index = res->new_state();
-      s2n.emplace(init_state, std::make_pair(init_state_index, 0));
+      s2n.emplace(init_state, init_state_index);
       todo.emplace(init_state, init_state_index);
       res->set_init_state(init_state_index);
 
