@@ -1,4 +1,4 @@
-New in spot 2.0.2a (not yet released)
+New in spot 2.0.3a (not yet released)
 
   Command-line tools:
 
@@ -80,21 +80,23 @@ New in spot 2.0.2a (not yet released)
   * A new example page shows how to test the equivalence of
     two LTL/PSL formulas.  https://spot.lrde.epita.fr/tut04.html
 
+New in spot 2.0.3 (2016-07-11)
+
   Bug fixes:
 
   * The degen-lcache=1 option of the degeneralization algorithm (which
     is a default option) did not behave exactly as documented: instead
     of reusing the first level ever created for a state where the
-    choice of the level is free, it used the last level used.  This
-    caused some posterior simulation-based reductions to be less
+    choice of the level is free, it reused the last level ever used.
+    This caused some posterior simulation-based reductions to be less
     efficient at reducing automata (on the average).
-  * The generalized testing automata displayed by the on-line
+  * The generalized testing automata displayed by the online
     translator were incorrect (those output by ltl2tgta were OK).
   * ltl2tgta should not offer options --ba, --monitor, --tgba and such.
   * the relabel() function could incorrectly unregister old atomic
-    propositions even if they are still used in the output (e.g., if
-    a&p0 is relabeled to p0&p1).  This could cause ltldo and on-line
-    translator to report errors.
+    propositions even when they were still used in the output (e.g.,
+    if a&p0 is relabeled to p0&p1).  This could cause ltldo and the
+    online translator to report errors.
 
 New in spot 2.0.2 (2016-06-17)
 
