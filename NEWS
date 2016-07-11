@@ -70,8 +70,8 @@ New in spot 2.0.2a (not yet released)
 
   * Bindings for language_containment_checker were added.
 
-  * Under IPython the spot.ltsmin modules nows offers a
-    %%pml magic do define promela models, compile them
+  * Under IPython the spot.ltsmin modules now offers a
+    %%pml magic to define promela models, compile them
     with spins, and dynamically load them.   This is
     akin to the %%dve magic that was already supported.
 
