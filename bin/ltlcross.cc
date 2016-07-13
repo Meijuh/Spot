@@ -1053,17 +1053,39 @@ namespace
       spot::cleanup_tmpfiles();
       ++round;
 
+      auto printsize = [](const spot::const_twa_graph_ptr& aut)
+        {
+          std::cerr << aut->num_states() << " st.,"
+          << aut->num_edges() << " ed.,"
+          << aut->num_sets() << " sets";
+        };
+
+      if (verbose)
+        {
+          std::cerr << "info: collected automata:\n";
+          auto tmp = [&](std::vector<spot::twa_graph_ptr>& x, unsigned i,
+                         const char prefix)
+            {
+              std::cerr << "info:   " << prefix << i << "\t(";
+              printsize(x[i]);
+              std::cerr << ')';
+              if (is_deterministic(x[i]))
+                std::cerr << " deterministic";
+              if (is_complete(x[i]))
+                std::cerr << " complete";
+              std::cerr << '\n';
+            };
+          for (unsigned i = 0; i < m; ++i)
+            {
+              tmp(pos, i, 'P');
+              tmp(neg, i, 'N');
+            }
+        }
+
       if (!no_checks)
         {
           std::cerr << "Performing sanity checks and gathering statistics..."
                     << std::endl;
-
-          auto printsize = [](const spot::const_twa_graph_ptr& aut)
-            {
-              std::cerr << aut->num_states() << " st.,"
-                        << aut->num_edges() << " ed.,"
-                        << aut->num_sets() << " sets";
-            };
 
           if (determinize && !no_complement)
             {
@@ -1108,7 +1130,6 @@ namespace
             {
               if (!x[i])
                 return;
-              cleanup_acceptance_here(x[i]);
               if (x[i]->acc().uses_fin_acceptance())
                 {
                   if (verbose)
@@ -1124,6 +1145,7 @@ namespace
                       printsize(x[i]);
                       std::cerr << ") ->";
                     }
+                  cleanup_acceptance_here(x[i]);
                   x[i] = remove_fin(x[i]);
                   if (verbose)
                     {
@@ -1131,6 +1153,11 @@ namespace
                       printsize(x[i]);
                       std::cerr << ")\n";
                     }
+                }
+              else
+                {
+                  // Remove useless sets nonetheless.
+                  cleanup_acceptance_here(x[i]);
                 }
             };
           for (unsigned i = 0; i < m; ++i)
