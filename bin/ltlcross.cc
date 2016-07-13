@@ -1008,12 +1008,8 @@ namespace
           problems += prob;
 
           // If the automaton is deterministic, compute its complement
-          // as well.  Note that if we have computed statistics
-          // already, there is no need to call is_deterministic()
-          // again.
-          if (!no_complement && pos[n]
-              && ((want_stats && !(*pstats)[n].nondeterministic)
-                  || (!want_stats && is_deterministic(pos[n]))))
+          // as well.
+          if (!no_complement && pos[n] && is_deterministic(pos[n]))
             comp_pos[n] = dtwa_complement(pos[n]);
         }
 
@@ -1048,12 +1044,8 @@ namespace
               problems += prob;
 
               // If the automaton is deterministic, compute its
-              // complement as well.  Note that if we have computed
-              // statistics already, there is no need to call
-              // is_deterministic() again.
-              if (!no_complement && neg[n]
-                  && ((want_stats && !(*nstats)[n].nondeterministic)
-                      || (!want_stats && is_deterministic(neg[n]))))
+              // complement as well.
+              if (!no_complement && neg[n] && is_deterministic(neg[n]))
                 comp_neg[n] = dtwa_complement(neg[n]);
             }
         }

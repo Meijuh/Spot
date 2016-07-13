@@ -50,6 +50,8 @@ namespace spot
           if (!count && nondet_states)
             break;
         }
+      std::const_pointer_cast<twa_graph>(aut)
+        ->prop_deterministic(!nondet_states);
       return nondet_states;
     }
   }
@@ -57,6 +59,8 @@ namespace spot
   unsigned
   count_nondet_states(const const_twa_graph_ptr& aut)
   {
+    if (aut->prop_deterministic())
+      return 0;
     return count_nondet_states_aux<true>(aut);
   }
 
@@ -66,9 +70,7 @@ namespace spot
     trival d = aut->prop_deterministic();
     if (d.is_known())
       return d.is_true();
-    bool res = !count_nondet_states_aux<false>(aut);
-    std::const_pointer_cast<twa_graph>(aut)->prop_deterministic(res);
-    return res;
+    return !count_nondet_states_aux<false>(aut);
   }
 
   bool
