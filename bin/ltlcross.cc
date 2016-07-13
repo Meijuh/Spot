@@ -1184,8 +1184,8 @@ namespace
                     if (comp_pos[i] && comp_neg[j] &&
                         (i == j || (!comp_neg[i] && !comp_pos[j])))
                       problems +=
-                        check_empty_prod(comp_pos[i], comp_neg[j],
-                                         i, j, true, true);
+                        check_empty_prod(comp_neg[j], comp_pos[i],
+                                         j, i, true, true);
                   }
         }
       else

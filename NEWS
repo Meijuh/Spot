@@ -80,6 +80,12 @@ New in spot 2.0.3a (not yet released)
   * A new example page shows how to test the equivalence of
     two LTL/PSL formulas.  https://spot.lrde.epita.fr/tut04.html
 
+  Bug fixes:
+
+  * When ltlcross found a bug using a product of complemented
+    automata, the error message would report "Comp(Ni)*Comp(Pj)" as
+    non-empty while the actual culprit was "Comp(Nj)*Comp(Pi)".
+
 New in spot 2.0.3 (2016-07-11)
 
   Bug fixes:
