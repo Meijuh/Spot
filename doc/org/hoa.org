@@ -191,10 +191,6 @@ State: 2
 [0] 2 {1}
 #+END_SRC
 
-#+BEGIN_SRC sh :results silent :exports results
-rm -f stvstracc.hoa
-#+END_SRC
-
 Even if an input HOA file uses only state-based acceptance, Spot
 internally stores it using transition-based acceptance.  However in
 that case the TωA will have a property flag indicating that it actually
@@ -301,10 +297,6 @@ State: 2
 [!0] 1 {0 1}
 [0] 2 {0 1}
 --END--
-#+END_SRC
-
-#+BEGIN_SRC sh :results silent :exports results
-rm sba.hoa
 #+END_SRC
 
 By default, the output uses either state-based acceptance, or
@@ -583,10 +575,6 @@ State: 1
 State: 2
 [!1] 2
 [!1] 1
-#+END_SRC
-
-#+BEGIN_SRC sh :results silent :exports results
-rm -f stvstrlab.hoa
 #+END_SRC
 
 The HOA printer has an option to output automata using state-based
@@ -969,3 +957,147 @@ Command-line tools with a HOA output all have a =--check= option that
 can be used to request additional checks such as testing whether the
 automaton is stutter-invariant, unambiguous, (inherently) weak, and
 terminal.
+* Extensions
+   :PROPERTIES:
+   :CUSTOM_ID: extensions
+   :END:
+
+Spot supports two additional headers that are not part of the standard
+HOA format.  These are =spot.highlight.states= and
+=spot.highlight.edges=.  These are used to decorate states and edges
+with colors.
+
+#+NAME: decorate
+#+BEGIN_SRC sh :results verbatim :exports code
+cat >decorate.hoa <<EOF
+HOA: v1.1
+States: 3
+Start: 1
+AP: 2 "a" "b"
+Acceptance: 0 t
+spot.highlight.states: 1 0 2 3
+spot.highlight.edges: 1 1 2 2
+--BODY--
+State: 0
+[t] 0         /* edge #1 */
+State: 1
+[t] 2         /* edge #2 */
+State: 2
+[1] 0         /* edge #3 */
+[0&!1] 2      /* edge #4 */
+--END--
+EOF
+
+autfilt decorate.hoa -d'.#'
+#+END_SRC
+
+#+RESULTS: decorate
+#+begin_example
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  node [style="filled", fillcolor="#ffffa0"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label=<0>]
+  0 -> 0 [label=<1>, taillabel="#1", style=bold, color="#F17CB0"]
+  1 [label=<1>, style="bold,filled", color="#5DA5DA"]
+  1 -> 2 [label=<1>, taillabel="#2", style=bold, color="#FAA43A"]
+  2 [label=<2>, style="bold,filled", color="#B276B2"]
+  2 -> 0 [label=<b>, taillabel="#3"]
+  2 -> 2 [label=<a &amp; !b>, taillabel="#4"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file decorate.png :cmdline -Tpng :var txt=decorate :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:decorate.png]]
+
+
+On the above example, we call =autfilt= with option =-d#= to display
+edges numbers, which helps identifying the edges to highlight.  The
+headers ~spot.highlight.states:~ and ~spot.highlight.edges:~ gives a
+list of alternating state/edges numbers and color numbers.
+
+So in the above file,
+#+BEGIN_SRC sh :results verbatim :exports results :wrap SRC hoa
+grep spot.highlight decorate.hoa
+#+END_SRC
+#+RESULTS:
+#+BEGIN_SRC hoa
+spot.highlight.states: 1 0 2 3
+spot.highlight.edges: 1 1 2 2
+#+END_SRC
+specifies that states =#1= should have color =0=, state =#2= should have
+color =3=, edge =#1= should have color =1=, and edge =#2= should have
+color =2=.
+
+State numbers obviously correspond to the state numbers used in the
+HOA file, and are 0-based.  Edge numbers are 1-based (because that is
+how they are actually stored in Spot), and numbered in the order they
+appear in the HOA file.
+
+The color palette is currently the same that is used for coloring
+acceptance sets.  This might change in the future.
+
+The automaton parser will not complain if these headers are used in
+the =HOA: v1= file, even if =v1= disallows dots in header names.
+However the automaton printer is more rigorous and will only output
+these lines when version 1.1 is selected.
+
+Compare:
+
+#+BEGIN_SRC sh :results verbatim :exports both :wrap SRC hoa
+autfilt -H1 decorate.hoa; echo
+autfilt -H1.1 decorate.hoa
+#+END_SRC
+#+RESULTS:
+#+BEGIN_SRC hoa
+HOA: v1
+States: 3
+Start: 1
+AP: 2 "a" "b"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[t] 0
+State: 1
+[t] 2
+State: 2
+[1] 0
+[0&!1] 2
+--END--
+
+HOA: v1.1
+States: 3
+Start: 1
+AP: 2 "a" "b"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc !complete
+properties: deterministic
+spot.highlight.states: 1 0 2 3
+spot.highlight.edges: 1 1 2 2
+--BODY--
+State: 0
+[t] 0
+State: 1
+[t] 2
+State: 2
+[1] 0
+[0&!1] 2
+--END--
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent :exports results
+rm -f stvstracc.hoa sba.hoa stvstrlab.hoa decorate.hoa
+#+END_SRC

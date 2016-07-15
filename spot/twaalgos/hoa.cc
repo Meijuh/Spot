@@ -493,6 +493,28 @@ namespace spot
       prop(" !inherently-weak");
     os << nl;
 
+    // highlighted states and edges are only output in the 1.1 format,
+    // because we use a dot in the header name.
+    if (v1_1)
+      {
+        if (auto hstates = aut->get_named_prop
+            <std::map<unsigned, unsigned>>("highlight-states"))
+          {
+            os << "spot.highlight.states:";
+            for (auto& p: *hstates)
+              os << ' ' << p.first << ' ' << p.second;
+            os << nl;
+          }
+        if (auto hedges = aut->get_named_prop
+            <std::map<unsigned, unsigned>>("highlight-edges"))
+          {
+            os << "spot.highlight.edges:";
+            for (auto& p: *hedges)
+              os << ' ' << p.first << ' ' << p.second;
+            os << nl;
+          }
+      }
+
     // If we want to output implicit labels, we have to
     // fill a vector with all destinations in order.
     std::vector<unsigned> out;

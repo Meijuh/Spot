@@ -1014,4 +1014,12 @@ digraph G {
 EOF
 diff output9 expected9
 
+# spot.hightlight.edges and spot.hightlight.states are not valid HOA
+# v1 output, so they should only but output for HOA 1.1
+autfilt input9 -H1 | autfilt -H1  | grep highlight && exit 1
+autfilt input9 -H1 | autfilt -H1.1 | grep highlight && exit 1
+autfilt -H1.1 input9 | autfilt -H1.1 | grep highlight
+autfilt -H1.1 input9 | autfilt -d > output9b
+diff output9 output9b
+
 test 2 = `ltl2tgba 'GFa' 'a U b' 'a U b U c'| autfilt --ap=2..3 --count`
