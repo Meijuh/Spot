@@ -692,15 +692,18 @@ The logic of not cluttering the output with all of =!terminal=,
 so only one of those is emitted unless =-Hv= is used.
 
 ** Named properties
+   :PROPERTIES:
+   :CUSTOM_ID: named-properties
+   :END:
 
 In addition to the bit properties discussed above, a TωA can carry
 named properties of any type.  When attaching a property to a TωA, you
 only supply a name for the property, a pointer, and an optional
 destructor function.
 
-They are currently two named properties related to the HOA format.
+They are currently two [[file:concepts.org::#named-properties][named properties]] related to the HOA format.
 
-- =name= :: Is a string that stores the name of the automaton (the one given after =name:= in the HOA format)
+- =automaton-name= :: Is a string that stores the name of the automaton (the one given after =name:= in the HOA format)
 - =state-names= :: is a vector of strings that stores the name of the states (in case states are named in the HOA format)
 
 You can see these properties being preserved when an automaton is read and then immediately output:

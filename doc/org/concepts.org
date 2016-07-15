@@ -1026,3 +1026,47 @@ These automata properties are encoded into the [[file:hoa.org::#property-bits][H
 be preserved when building a processing pipeline using the shell.
 However the HOA format has support for more properties that do not
 correspond to any =twa= flag.
+
+* Named properties for automata
+   :PROPERTIES:
+   :CUSTOM_ID: named-properties
+   :END:
+
+In addition to [[#proeprty-flags][property flags]], automata in Spot can be tied to an
+arbitrary number of objects via a system of named properties that is
+implemented mostly as an =std::map= between =std::string= and =void*=.
+
+A property can be used to store additional information about the
+automaton, that is not usually available via the automaton interface.
+The property can be set via the =twa::set_named_prop(key, value)=
+method, and queried with the =twa::get_named_prop<type>(key)= template
+method.
+
+Here is a list of named properties currently used inside Spot:
+
+| key name            | (pointed) value type           | description                                                                                                                       |
+|---------------------+--------------------------------+-----------------------------------------------------------------------------------------------------------------------------------|
+| ~automaton-name~    | ~std::string~                  | A name for the automaton, for instance to display in the HOA format.                                                              |
+| ~product-states~    | ~const spot::product_states~   | A vector of pair of states giving the left and right operand of each state in a product automaton.                                |
+| ~state-names~       | ~std::vector<std::string>~     | A vector naming each state of the automaton, for display purpose.                                                                 |
+| ~highlight-edges~   | ~std::map<unsigned, unsigned>~ | A map of (edge number, color number) for highlighting the output.                                                                 |
+| ~highlight-states~  | ~std::map<unsigned, unsigned>~ | A map of (state number, color number) for highlighting the output.                                                                |
+| ~incomplete-states~ | ~std::set<unsigned>~           | A set of states numbers that should be displayed as incomplete.  Used internally by ~print_dot()~ when truncating large automata. |
+
+Objects referenced via named properties are automatically destroyed
+when the automaton is destroyed, but this can be altered by passing a
+custom destructor as a third parameter to =twa::set_named_prop()=.
+
+These properties should be considered short-lived.  They are usually
+not propagated to new automata that are created via transformation,
+unless the algorithme has been explicitely implemented to preserve
+that property.  Algorithm that update the automaton in place should
+probably call =release_named_properties()= to ensure they do not
+inadvertently keep a stale property.
+
+Most of the above properties are related to the graphical display of
+automata, or to their output in the [[file:hoa.org::#named-properties][HOA format]].  So they are usually
+set right before the automaton is output.  The notable exception is
+=product-states=, which is a property present in automata returned by
+=spot::product()= function in case it is necessary to know the origins
+of each state.

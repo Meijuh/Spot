@@ -961,6 +961,9 @@ namespace spot
     ///
     /// When the automaton is destroyed, the \a destructor function will
     /// be called to destroy the attached object.
+    ///
+    /// See https://spot.lrde.epita.fr/concepts.html#named-properties
+    /// for a list of named properties used by Spot.
     void set_named_prop(std::string s,
                         void* val, std::function<void(void*)> destructor);
 
@@ -975,6 +978,9 @@ namespace spot
     ///
     /// The object will be automatically destroyed when the automaton
     /// is destroyed.
+    ///
+    /// See https://spot.lrde.epita.fr/concepts.html#named-properties
+    /// for a list of named properties used by Spot.
     template<typename T>
     void set_named_prop(std::string s, T* val)
     {
@@ -993,6 +999,9 @@ namespace spot
     /// not include the pointer.
     ///
     /// Returns a nullptr if no such named property exists.
+    ///
+    /// See https://spot.lrde.epita.fr/concepts.html#named-properties
+    /// for a list of named properties used by Spot.
     template<typename T>
     T* get_named_prop(std::string s) const
     {
