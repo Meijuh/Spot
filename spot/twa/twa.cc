@@ -23,6 +23,7 @@
 #include <spot/twa/twa.hh>
 #include <spot/twa/twagraph.hh>
 #include <spot/twaalgos/gtec/gtec.hh>
+#include <spot/twaalgos/word.hh>
 #include <spot/twaalgos/remfin.hh>
 #include <utility>
 
@@ -67,6 +68,42 @@ namespace spot
         a = remove_fin(aa);
       }
     return !couvreur99(a)->check();
+  }
+
+  twa_run_ptr
+  twa::accepting_run() const
+  {
+    if (acc().uses_fin_acceptance())
+      throw std::runtime_error("twa::accepting_run() does not work with "
+                               "Fin acceptance (but twa:is_empty() and "
+                               "twa::accepting_run() can)");
+    auto res = couvreur99(shared_from_this())->check();
+    if (!res)
+      return nullptr;
+    return res->accepting_run();
+  }
+
+  twa_word_ptr
+  twa::accepting_word() const
+  {
+    auto a = shared_from_this();
+    if (a->acc().uses_fin_acceptance())
+      {
+        auto aa = std::dynamic_pointer_cast<const twa_graph>(a);
+        if (!aa)
+          aa = make_twa_graph(a, prop_set::all());
+        a = remove_fin(aa);
+      }
+    if (auto run = a->accepting_run())
+      {
+        auto w = make_twa_word(run->reduce());
+        w->simplify();
+        return w;
+      }
+    else
+      {
+        return nullptr;
+      }
   }
 
   void

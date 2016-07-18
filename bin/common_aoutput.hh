@@ -178,15 +178,10 @@ public:
         }
     if (has('w'))
         {
-          auto res = spot::couvreur99(aut)->check();
-          if (res)
+          if (auto word = aut->accepting_word())
             {
-              auto run = res->accepting_run();
-              assert(run);
-              spot::twa_word w(run->reduce());
-              w.simplify();
               std::ostringstream out;
-              out << w;
+              out << *word;
               aut_word_ = out.str();
             }
           else

@@ -1019,9 +1019,8 @@ namespace
             if (aut->acc().uses_fin_acceptance())
               error(2, 0,
                     "--highlight-word does not yet work with Fin acceptance");
-            if (auto res =
-                spot::couvreur99(spot::product(aut, word_aut.first))->check())
-              res->accepting_run()->project(aut)->highlight(word_aut.second);
+            if (auto run = spot::product(aut, word_aut.first)->accepting_run())
+              run->project(aut)->highlight(word_aut.second);
           }
 
       const double conversion_time = sw.stop();

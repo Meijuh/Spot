@@ -682,8 +682,8 @@ namespace
         std::cerr << '\n';
       }
 
-    auto res = spot::couvreur99(prod)->check();
-    if (res)
+    auto w = prod->accepting_word();
+    if (w)
       {
         std::ostream& err = global_error();
         err << "error: ";
@@ -695,24 +695,12 @@ namespace
           err << "*Comp(P" << j << ')';
         else
           err << "*N" << j;
-        err << " is nonempty";
-
-        auto run = res->accepting_run();
-        if (run)
-          {
-            std::cerr << "; both automata accept the infinite word\n"
-                      << "       ";
-            spot::twa_word w(run->reduce());
-            w.simplify();
-            example() << w << '\n';
-          }
-        else
-          {
-            std::cerr << '\n';
-          }
+        err << " is nonempty; both automata accept the infinite word\n"
+            << "       ";
+        example() << *w << '\n';
         end_error();
       }
-    return !!res;
+    return !!w;
   }
 
   static bool

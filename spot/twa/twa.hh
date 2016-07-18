@@ -39,6 +39,12 @@
 
 namespace spot
 {
+  struct twa_run;
+  typedef std::shared_ptr<twa_run> twa_run_ptr;
+
+  struct twa_word;
+  typedef std::shared_ptr<twa_word> twa_word_ptr;
+
   /// \ingroup twa_essentials
   /// \brief Abstract class for states.
   class SPOT_API state
@@ -821,8 +827,27 @@ namespace spot
     }
     ///@}
 
-    /// Check whether the language of the automaton is empty.
+    /// \brief Check whether the language of the automaton is empty.
     virtual bool is_empty() const;
+
+    /// \brief Return an accepting run if one exists.
+    ///
+    /// Note that this method currently one works for Fin-less
+    /// acceptance.  For acceptance conditions that contain Fin
+    /// acceptance, you can either rely on is_empty() and not use any
+    /// accepting run, or remove Fin acceptance using remove_fin() and
+    /// compute an accepting run on that larger automaton.
+    ///
+    /// Return nullptr if no accepting run were found.
+    virtual twa_run_ptr accepting_run() const;
+
+    /// \brief Return an accepting word if one exists.
+    ///
+    /// Note that this method DO works with Fin
+    /// acceptance.
+    ///
+    /// Return nullptr if no accepting word were found.
+    virtual twa_word_ptr accepting_word() const;
 
   private:
     acc_cond acc_;

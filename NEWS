@@ -97,6 +97,12 @@ New in spot 2.0.3a (not yet released)
     not used anywhere in Spot, and had an obvious bug in its
     implementation, so it cannot be missed by anyone.
 
+  * spot::twa has two new methods that supplement is_empty():
+    twa::accepting_run() and twa::accepting_word().  They compute
+    what their name suggests.  Note that twa::accepting_run(), unlike
+    the two others, is currently restricted to automata with Fin-less
+    acceptance.
+
   Python:
 
   * The __format__() method for formula support the same
