@@ -957,8 +957,9 @@ namespace spot
     /// named properties.  They are used for instance to name all the
     /// state of an automaton.
     ///
-    /// This function attaches the object \a val to the current automaton,
-    /// under the name \a s.
+    /// This function attaches the object \a val to the current
+    /// automaton, under the name \a s and destroy any previous
+    /// property with the same name.
     ///
     /// When the automaton is destroyed, the \a destructor function will
     /// be called to destroy the attached object.
@@ -974,12 +975,12 @@ namespace spot
     /// named properties.  They are used for instance to name all the
     /// state of an automaton.
     ///
+    /// This function attaches the object \a val to the current
+    /// automaton, under the name \a s and destroy any previous
+    /// property with the same name.
     ///
-    /// This function attaches the object \a val to the current automaton,
-    /// under the name \a s.
-    ///
-    /// When the automaton is destroyed, the \a destructor function will
-    /// be called to destroy the attached object.
+    /// When the automaton is destroyed, the attached object will be
+    /// destroyed with \c delete.
     ///
     /// See https://spot.lrde.epita.fr/concepts.html#named-properties
     /// for a list of named properties used by Spot.
@@ -1019,11 +1020,35 @@ namespace spot
     template<typename T>
     T* get_named_prop(std::string s) const
     {
-      void* p = get_named_prop_(s);
-      if (!p)
+      if (void* p = get_named_prop_(s))
+        return static_cast<T*>(p);
+      else
         return nullptr;
-      return static_cast<T*>(p);
     }
+
+    /// \brief Create or retrieve a named property
+    ///
+    /// Arbitrary objects can be attached to automata.  Those are called
+    /// named properties.  They are used for instance to name all the
+    /// state of an automaton.
+    ///
+    /// This function create a property object of a given type, and
+    /// attached it to \a name if not such property exist, or it
+    /// returns
+    ///
+    /// See https://spot.lrde.epita.fr/concepts.html#named-properties
+    /// for a list of named properties used by Spot.
+    template<typename T>
+    T* get_or_set_named_prop(std::string s)
+    {
+      if (void* p = get_named_prop_(s))
+        return static_cast<T*>(p);
+
+      auto tmp = new T;
+      set_named_prop(s, tmp);
+      return tmp;
+    }
+
 #endif
 
     /// \brief Destroy all named properties.

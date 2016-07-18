@@ -648,7 +648,8 @@ namespace spot
     if (!a)
       throw std::runtime_error("highlight() only work for twa_graph");
 
-    auto h = new std::map<unsigned, unsigned>; // highlighted edges
+    auto h = a->get_or_set_named_prop<std::map<unsigned, unsigned>>
+      ("highlight-edges");
 
     unsigned src = a->get_init_state_number();
     auto l = prefix.empty() ? &cycle : &prefix;
@@ -683,7 +684,6 @@ namespace spot
             }
         src = dst;
       }
-    a->set_named_prop("highlight-edges", h);
   }
 
   twa_graph_ptr

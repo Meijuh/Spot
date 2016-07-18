@@ -79,18 +79,24 @@ namespace spot
     if (aut->prop_deterministic())
       return;
     unsigned ns = aut->num_states();
-    auto* highlight = new std::map<unsigned, unsigned>;
+    auto* highlight = aut->get_or_set_named_prop<std::map<unsigned, unsigned>>
+      ("highlight-states");
+    bool deterministic = true;
     for (unsigned src = 0; src < ns; ++src)
       {
         bdd available = bddtrue;
         for (auto& t: aut->out(src))
           if (!bdd_implies(t.cond, available))
-            highlight->emplace(src, color);
+            {
+              (*highlight)[src] = color;
+              deterministic = false;
+            }
           else
-            available -= t.cond;
+            {
+              available -= t.cond;
+            }
       }
-    aut->prop_deterministic(highlight->empty());
-    aut->set_named_prop("highlight-states", highlight);
+    aut->prop_deterministic(deterministic);
   }
 
   void
@@ -99,7 +105,9 @@ namespace spot
     if (aut->prop_deterministic())
       return;
     unsigned ns = aut->num_states();
-    auto* highlight = new std::map<unsigned, unsigned>;
+    auto* highlight = aut->get_or_set_named_prop<std::map<unsigned, unsigned>>
+      ("highlight-edges");
+    bool deterministic = true;
     for (unsigned src = 0; src < ns; ++src)
       {
         // Make a first pass to gather non-deterministic labels
@@ -107,17 +115,21 @@ namespace spot
         bdd extra = bddfalse;
         for (auto& t: aut->out(src))
           if (!bdd_implies(t.cond, available))
-            extra |= (t.cond - available);
+            {
+              extra |= (t.cond - available);
+              deterministic = false;
+            }
           else
-            available -= t.cond;
+            {
+              available -= t.cond;
+            }
         // Second pass to gather the relevant edges.
-        if (extra != bddfalse)
+        if (!deterministic)
           for (auto& t: aut->out(src))
             if ((t.cond & extra) != bddfalse)
-              highlight->emplace(aut->get_graph().index_of_edge(t), color);
+              (*highlight)[aut->get_graph().index_of_edge(t)] = color;
       }
-    aut->prop_deterministic(highlight->empty());
-    aut->set_named_prop("highlight-edges", highlight);
+    aut->prop_deterministic(deterministic);
   }
 
   bool
