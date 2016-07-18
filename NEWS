@@ -28,6 +28,10 @@ New in spot 2.0.3a (not yet released)
     where NUM is a color number.  Additionally --highlight-nondet=NUM
     is a shorthand for using the two.
 
+  * autfilt can now highlight a run matching a given word using the
+    --highlight-word=[NUM,]WORD option.  However currently this only
+    work on automata with Fin-less acceptance.
+
   * ltlcross and ltldo have a new syntax to specify that an input
     formula should be written in some given syntax after rewriting
     some operators away.  For instance the defaults arguments passed
@@ -84,6 +88,10 @@ New in spot 2.0.3a (not yet released)
 
   * language_containment_checker now has default values for all
     parameters of its constructor.
+
+  * spot::twa_run has a new method, project(), that can be used to
+    project a run found in a product onto one of the original operand.
+    This is for instance used by autfilt --highlight-word.
 
   Python:
 

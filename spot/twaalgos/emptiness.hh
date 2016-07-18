@@ -408,6 +408,16 @@ namespace spot
     /// but is no longer than this one.
     twa_run_ptr reduce() const;
 
+    /// \brief Project an accepting run
+    ///
+    /// This only works if the automaton associated to this run has
+    /// been created with otf_product() or product(), and \a other is
+    /// one of the two operands of the product.
+    ///
+    /// Use the \a right Boolean to specify whether \a other was a
+    /// left or right operand.
+    twa_run_ptr project(const const_twa_ptr& other, bool right = false);
+
     /// \brief Replay a run.
     ///
     /// This is similar to <code>os << run;</code>, except that the

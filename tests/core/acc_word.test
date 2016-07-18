@@ -20,6 +20,8 @@
 
 . ./defs
 
+set -e
+
 # The --accept-word option filters automata that accept the given word
 # If several words are given, it filters automata that accept ALL words
 ltl2tgba 'G!a' | autfilt --accept-word 'b; cycle{!a}' -q
@@ -65,3 +67,73 @@ Missing ';' or '}' after formula
 
 EOF
 diff expect error
+
+
+ltl2tgba 'a U b' | autfilt -H1.1 --highlight-word='cycle{b}' >out
+cat >expected <<EOF
+HOA: v1.1
+name: "a U b"
+States: 2
+Start: 1
+AP: 2 "b" "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc !complete
+properties: deterministic stutter-invariant terminal
+spot.highlight.edges: 1 1 2 1
+--BODY--
+State: 0 {0}
+[t] 0
+State: 1
+[0] 0
+[!0&1] 1
+--END--
+EOF
+diff expected out
+
+ltl2tgba 'Fa & Fb' |
+    autfilt -H1.1 \
+            --highlight-word='2,!a&!b;cycle{!a&b;a&b}' \
+            --highlight-word='3,!a&!b;cycle{a&!b;a&b}' >out
+cat >expected <<EOF
+HOA: v1.1
+name: "Fa & Fb"
+States: 4
+Start: 2
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic stutter-invariant terminal
+spot.highlight.edges: 1 3 2 3 5 3 6 3 7 2 8 2
+--BODY--
+State: 0 {0}
+[t] 0
+State: 1
+[1] 0
+[!1] 1
+State: 2
+[0&1] 0
+[0&!1] 1
+[!0&!1] 2
+[!0&1] 3
+State: 3
+[0] 0
+[!0] 3
+--END--
+EOF
+diff expected out
+
+
+for w in ',!a&!b;cycle{!a&b;a&b}' '-1,cycle{a}' '1 cycle{a}'; do
+    autfilt --highlight-word="$w" </dev/null 2>stderr && exit 1
+    test $? -eq 2
+    cat stderr
+    grep 'failed to parse the argument of --highlight-word' stderr
+done
+
+
+# highlight-word does not yet work with Fin acceptance
+ltl2tgba -G -D 'FGa' | autfilt --highlight-word='cycle{a}' 2>stderr && exit 1
+test $? -eq 2
+grep 'highlight-word.*Fin' stderr

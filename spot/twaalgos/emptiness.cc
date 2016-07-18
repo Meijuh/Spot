@@ -32,6 +32,7 @@
 #include <spot/twaalgos/tau03.hh>
 #include <spot/twaalgos/tau03opt.hh>
 #include <spot/twa/bddprint.hh>
+#include <spot/twaalgos/product.hh>
 
 namespace spot
 {
@@ -434,6 +435,68 @@ namespace spot
     return res;
   }
 
+  twa_run_ptr twa_run::project(const const_twa_ptr& other, bool right)
+  {
+    unsigned shift = 0;
+    if (right)
+      shift = aut->num_sets() - other->num_sets();
+    auto res = std::make_shared<twa_run>(other);
+    if (auto ps = aut->get_named_prop<const product_states>("product-states"))
+      {
+        auto a = std::dynamic_pointer_cast<const twa_graph>(aut);
+        if (!a)
+          throw std::runtime_error("twa_run::project() confused: "
+                                   "product-states found in a non-twa_graph");
+        auto oth = std::dynamic_pointer_cast<const twa_graph>(other);
+        if (!oth)
+          throw std::runtime_error("twa_run::project() confused: "
+                                   "other ought to be a twa_graph");
+        if (right)
+          {
+            for (auto& i: prefix)
+              {
+                unsigned s = (*ps)[a->state_number(i.s)].second;
+                res->prefix.emplace_back(oth->state_from_number(s),
+                                         i.label, i.acc >> shift);
+              }
+            for (auto& i: cycle)
+              {
+                unsigned s = (*ps)[a->state_number(i.s)].second;
+                res->cycle.emplace_back(oth->state_from_number(s),
+                                        i.label, i.acc >> shift);
+              }
+          }
+        else
+          {
+            auto all = oth->acc().all_sets();
+            for (auto& i: prefix)
+              {
+                unsigned s = (*ps)[a->state_number(i.s)].first;
+                res->prefix.emplace_back(oth->state_from_number(s),
+                                         i.label, i.acc & all);
+              }
+            for (auto& i: cycle)
+              {
+                unsigned s = (*ps)[a->state_number(i.s)].first;
+                res->cycle.emplace_back(oth->state_from_number(s),
+                                        i.label, i.acc & all);
+              }
+          }
+      }
+    else
+      {
+        auto all = other->acc().all_sets();
+        for (auto& i: prefix)
+          res->prefix.emplace_back(aut->project_state(i.s, other),
+                                   i.label, (i.acc >> shift) & all);
+        for (auto& i: cycle)
+          res->cycle.emplace_back(aut->project_state(i.s, other),
+                                  i.label, (i.acc >> shift) & all);
+      }
+    return res;
+  }
+
+
   bool twa_run::replay(std::ostream& os, bool debug) const
   {
     const state* s = aut->get_init_state();
@@ -677,7 +740,7 @@ namespace spot
           }
 
         for (auto& t: a->out(src))
-          if (t.dst == dst && t.cond == label && t.acc == acc)
+          if (t.dst == dst && bdd_implies(label, t.cond) && t.acc == acc)
             {
               (*h)[a->get_graph().index_of_edge(t)] = color;
               break;

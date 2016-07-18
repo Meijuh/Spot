@@ -61,6 +61,7 @@
 #include <spot/twaalgos/hoa.hh>
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/isweakscc.hh>
+#include <spot/twaalgos/gtec/gtec.hh>
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter omega-automata.\v\
@@ -91,6 +92,7 @@ enum {
   OPT_HIGHLIGHT_NONDET,
   OPT_HIGHLIGHT_NONDET_EDGES,
   OPT_HIGHLIGHT_NONDET_STATES,
+  OPT_HIGHLIGHT_WORD,
   OPT_INSTUT,
   OPT_INCLUDED_IN,
   OPT_INHERENTLY_WEAK_SCCS,
@@ -283,15 +285,19 @@ static const argp_option options[] =
     { "sat-minimize", OPT_SAT_MINIMIZE, "options", OPTION_ARG_OPTIONAL,
       "minimize the automaton using a SAT solver (only works for deterministic"
       " automata)", 0 },
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Decoration (for -d and -H1.1 output):", 8 },
     { "highlight-nondet-states", OPT_HIGHLIGHT_NONDET_STATES, "NUM",
       OPTION_ARG_OPTIONAL, "highlight nondeterministic states with color NUM",
-      0},
+      0 },
     { "highlight-nondet-edges", OPT_HIGHLIGHT_NONDET_EDGES, "NUM",
       OPTION_ARG_OPTIONAL, "highlight nondeterministic edges with color NUM",
-      0},
+      0 },
     { "highlight-nondet", OPT_HIGHLIGHT_NONDET, "NUM",
       OPTION_ARG_OPTIONAL,
       "highlight nondeterministic states and edges with color NUM", 0},
+    { "highlight-word", OPT_HIGHLIGHT_WORD, "[NUM,]WORD", 0,
+      "highlight one run matching WORD using color NUM", 0},
     /**************************************************/
     { nullptr, 0, nullptr, 0,
       "If any option among --small, --deterministic, or --any is given, "
@@ -349,6 +355,7 @@ static struct opt_t
   spot::remove_ap rem_ap;
   std::vector<spot::twa_graph_ptr> acc_words;
   std::vector<spot::twa_graph_ptr> rej_words;
+  std::vector<std::pair<spot::twa_graph_ptr, unsigned>> hl_words;
 }* opt;
 
 static bool opt_merge = false;
@@ -518,6 +525,39 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_HIGHLIGHT_NONDET_EDGES:
       opt_highlight_nondet_edges = arg ? to_pos_int(arg) : 1;
       break;
+    case OPT_HIGHLIGHT_WORD:
+      {
+        char* endptr;
+        int res = strtol(arg, &endptr, 10);
+        if (endptr == arg)
+          {
+            res = 1;
+          }
+        else
+          {
+            if (res < 0)
+              error(2, 0, "failed to parse the argument of --highlight-word: "
+                    "%d is not positive", res);
+            while (std::isspace(*endptr))
+              ++endptr;
+            if (*endptr != ',')
+              error(2, 0, "failed to parse the argument of --highlight-word: "
+                    "%d should be followed by a comma and WORD", res);
+            arg = endptr + 1;
+          }
+        try
+          {
+            opt->hl_words.emplace_back(spot::parse_word(arg, opt->dict)
+                                       ->as_automaton(), res);
+          }
+        catch (const spot::parse_error& e)
+          {
+            error(2, 0, "failed to parse the argument of --highlight-word:\n%s",
+                  e.what());
+          }
+      }
+      break;
+
     case OPT_INSTUT:
       if (!arg || (arg[0] == '1' && arg[1] == 0))
         opt_instut = 1;
@@ -972,6 +1012,17 @@ namespace
         spot::highlight_nondet_states(aut, opt_highlight_nondet_states);
       if (opt_highlight_nondet_edges >= 0)
         spot::highlight_nondet_edges(aut, opt_highlight_nondet_edges);
+
+      if (!opt->hl_words.empty())
+        for (auto& word_aut: opt->hl_words)
+          {
+            if (aut->acc().uses_fin_acceptance())
+              error(2, 0,
+                    "--highlight-word does not yet work with Fin acceptance");
+            if (auto res =
+                spot::couvreur99(spot::product(aut, word_aut.first))->check())
+              res->accepting_run()->project(aut)->highlight(word_aut.second);
+          }
 
       const double conversion_time = sw.stop();
 
