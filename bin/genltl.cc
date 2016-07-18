@@ -161,6 +161,8 @@ enum {
   OPT_U_LEFT,
   OPT_U_RIGHT,
   LAST_CLASS,
+  OPT_POSITIVE,
+  OPT_NEGATIVE,
 };
 
 const char* const class_name[LAST_CLASS] =
@@ -251,6 +253,12 @@ static const argp_option options[] =
     RANGE_DOC,
   /**************************************************/
     { nullptr, 0, nullptr, 0, "Output options:", -20 },
+    { "negative", OPT_NEGATIVE, nullptr, 0,
+      "output the negated versions of all formulas", 0 },
+    OPT_ALIAS(negated),
+    { "positive", OPT_POSITIVE, nullptr, 0,
+      "output the positive versions of all formulas (done by default, unless"
+      " --negative is specified without --positive)", 0 },
     { nullptr, 0, nullptr, 0, "The FORMAT string passed to --format may use "
       "the following interpreted sequences:", -19 },
     { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -273,7 +281,8 @@ struct job
 
 typedef std::vector<job> jobs_t;
 static jobs_t jobs;
-
+bool opt_positive = false;
+bool opt_negative = false;
 
 const struct argp_child children[] =
   {
@@ -345,6 +354,12 @@ parse_opt(int key, char* arg, struct argp_state*)
         enqueue_job(key, arg);
       else
         enqueue_job(key, 1, 27);
+      break;
+    case OPT_POSITIVE:
+      opt_positive = true;
+      break;
+    case OPT_NEGATIVE:
+      opt_negative = true;
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -1042,7 +1057,16 @@ output_pattern(int pattern, int n)
   if (output_format == lbt_output && !f.has_lbt_atomic_props())
     f = relabel(f, Pnn);
 
-  output_formula_checked(f, class_name[pattern - 1], n);
+  if (opt_positive || !opt_negative)
+    {
+      output_formula_checked(f, class_name[pattern - 1], n);
+    }
+  if (opt_negative)
+    {
+      std::string tmp = "!";
+      tmp += class_name[pattern - 1];
+      output_formula_checked(spot::formula::Not(f), tmp.c_str(), n);
+    }
 }
 
 static void

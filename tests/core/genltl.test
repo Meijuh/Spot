@@ -1,0 +1,80 @@
+#!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2016 Laboratoire de Recherche et Développement
+# de l'Epita (LRDE).
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+. ./defs
+set -e
+
+run 0 genltl --dac=1..5 --eh=1..5 --pos --neg --format="%F:%L %f" >output
+cat >expected <<EOF
+dac-patterns:1 G!p0
+!dac-patterns:1 !G!p0
+dac-patterns:2 Fp0 -> (!p1 U p0)
+!dac-patterns:2 !(Fp0 -> (!p1 U p0))
+dac-patterns:3 G(p0 -> G!p1)
+!dac-patterns:3 !G(p0 -> G!p1)
+dac-patterns:4 G((p0 & !p1 & Fp1) -> (!p2 U p1))
+!dac-patterns:4 !G((p0 & !p1 & Fp1) -> (!p2 U p1))
+dac-patterns:5 G((p0 & !p1) -> (!p2 W p1))
+!dac-patterns:5 !G((p0 & !p1) -> (!p2 W p1))
+eh-patterns:1 p0 U (p1 & Gp2)
+!eh-patterns:1 !(p0 U (p1 & Gp2))
+eh-patterns:2 p0 U (p1 & X(p2 U p3))
+!eh-patterns:2 !(p0 U (p1 & X(p2 U p3)))
+eh-patterns:3 p0 U (p1 & X(p2 & F(p3 & XF(p4 & XF(p5 & XFp6)))))
+!eh-patterns:3 !(p0 U (p1 & X(p2 & F(p3 & XF(p4 & XF(p5 & XFp6))))))
+eh-patterns:4 F(p0 & XGp1)
+!eh-patterns:4 !F(p0 & XGp1)
+eh-patterns:5 F(p0 & X(p1 & XFp2))
+!eh-patterns:5 !F(p0 & X(p1 & XFp2))
+EOF
+diff expected output
+
+genltl --dac=1..5 --eh=1..5 --neg --format="%L %f" >output
+cat >expected <<EOF
+1 !G!p0
+2 !(Fp0 -> (!p1 U p0))
+3 !G(p0 -> G!p1)
+4 !G((p0 & !p1 & Fp1) -> (!p2 U p1))
+5 !G((p0 & !p1) -> (!p2 W p1))
+1 !(p0 U (p1 & Gp2))
+2 !(p0 U (p1 & X(p2 U p3)))
+3 !(p0 U (p1 & X(p2 & F(p3 & XF(p4 & XF(p5 & XFp6))))))
+4 !F(p0 & XGp1)
+5 !F(p0 & X(p1 & XFp2))
+EOF
+diff expected output
+
+genltl --dac=1..5 --eh=1..5 --pos --format="%f" >output
+cat >expected <<EOF
+G!p0
+Fp0 -> (!p1 U p0)
+G(p0 -> G!p1)
+G((p0 & !p1 & Fp1) -> (!p2 U p1))
+G((p0 & !p1) -> (!p2 W p1))
+p0 U (p1 & Gp2)
+p0 U (p1 & X(p2 U p3))
+p0 U (p1 & X(p2 & F(p3 & XF(p4 & XF(p5 & XFp6)))))
+F(p0 & XGp1)
+F(p0 & X(p1 & XFp2))
+EOF
+diff expected output
+
+genltl --dac=1..5 --eh=1..5 >output2
+diff output output2

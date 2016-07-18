@@ -42,16 +42,20 @@ New in spot 2.0.3a (not yet released)
     'b U (a & b)' instead.  The operators that can be listed between
     brackets are the same as those of ltlfilt --unabbreviate option.
 
-  * genltl has three new options: --dac-patterns=1..45,
+  * genltl has learned three new families: --dac-patterns=1..45,
     --eh-patterns=1..12, and --sb-patterns=1..27.  Unlike other options
     these do not output scalable patterns, but simply a list of formulas
     appearing in these three papers: Dwyer et al (FMSP'98), Etessami &
     Holzmann (Concur'00), Somenzi & Bloem (CAV'00).
 
+  * genltl has two additional options, --positive and --negative, to
+    control wether formulas should be output after negation or not (or
+    both).
+
   * Arguments passed to -x (in ltl2tgba, ltl2tgta, autfilt, dstar2tgba)
     that are not used are now reported as they might be typos.
     This ocurred a couple of times in our test-suite.  A similar
-    check is done the the arguments of autfilt --sat-minimize=...
+    check is done for the arguments of autfilt --sat-minimize=...
 
   Library:
 
