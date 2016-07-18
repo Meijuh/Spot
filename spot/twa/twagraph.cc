@@ -45,6 +45,7 @@ namespace spot
 
   void twa_graph::merge_edges()
   {
+    set_named_prop("highlight-edges", nullptr);
     g_.remove_dead_edges_();
 
     typedef graph_t::edge_storage_t tr_t;
@@ -272,8 +273,7 @@ namespace spot
   void twa_graph::defrag_states(std::vector<unsigned>&& newst,
                                 unsigned used_states)
   {
-    auto* names = get_named_prop<std::vector<std::string>>("state-names");
-    if (names)
+    if (auto* names = get_named_prop<std::vector<std::string>>("state-names"))
       {
         unsigned size = names->size();
         for (unsigned s = 0; s < size; ++s)
@@ -284,6 +284,18 @@ namespace spot
             (*names)[dst] = std::move((*names)[s]);
           }
         names->resize(used_states);
+      }
+    if (auto hs = get_named_prop<std::map<unsigned, unsigned>>
+        ("highlight-states"))
+      {
+        std::map<unsigned, unsigned> hs2;
+        for (auto p: *hs)
+          {
+            unsigned dst = newst[p.first];
+            if (dst != -1U)
+              hs2[dst] = p.second;
+          }
+        std::swap(*hs, hs2);
       }
     g_.defrag_states(std::move(newst), used_states);
   }

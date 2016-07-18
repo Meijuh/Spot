@@ -508,9 +508,24 @@ namespace spot
         if (auto hedges = aut->get_named_prop
             <std::map<unsigned, unsigned>>("highlight-edges"))
           {
+            // Numbering edges is a delicate process.  The
+            // "highlight-edges" property uses edges numbers that are
+            // indices in the "edges" vector.  However these edges
+            // need not be sorted.  When edges are output in HOA, they
+            // are output with increasing source state number, and the
+            // edges number expected in the HOA file should use that
+            // order.  So we need to make a first pass on the
+            // automaton to number all edges as they will be output.
+            unsigned maxedge = aut->edge_vector().size();
+            std::vector<unsigned> renum(maxedge);
+            unsigned edge = 0;
+            for (unsigned i = 0; i < num_states; ++i)
+              for (auto& t: aut->out(i))
+                renum[aut->get_graph().index_of_edge(t)] = ++edge;
             os << "spot.highlight.edges:";
             for (auto& p: *hedges)
-              os << ' ' << p.first << ' ' << p.second;
+              if (p.first < maxedge) // highlighted edges could come from user
+                os << ' ' << renum[p.first] << ' ' << p.second;
             os << nl;
           }
       }

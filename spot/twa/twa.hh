@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <spot/twa/fwd.hh>
 #include <spot/twa/acc.hh>
 #include <spot/twa/bdddict.hh>
@@ -952,7 +953,7 @@ namespace spot
 #ifndef SWIG
     /// \brief Declare a named property
     ///
-    /// Arbitrary object can be attached to automata.  Those are called
+    /// Arbitrary objects can be attached to automata.  Those are called
     /// named properties.  They are used for instance to name all the
     /// state of an automaton.
     ///
@@ -969,15 +970,16 @@ namespace spot
 
     /// \brief Declare a named property
     ///
-    /// Arbitrary object can be attached to automata.  Those are called
+    /// Arbitrary objects can be attached to automata.  Those are called
     /// named properties.  They are used for instance to name all the
     /// state of an automaton.
+    ///
     ///
     /// This function attaches the object \a val to the current automaton,
     /// under the name \a s.
     ///
-    /// The object will be automatically destroyed when the automaton
-    /// is destroyed.
+    /// When the automaton is destroyed, the \a destructor function will
+    /// be called to destroy the attached object.
     ///
     /// See https://spot.lrde.epita.fr/concepts.html#named-properties
     /// for a list of named properties used by Spot.
@@ -986,6 +988,18 @@ namespace spot
     {
       set_named_prop(s, val, [](void *p) { delete static_cast<T*>(p); });
     }
+
+    /// \brief Erase a named property
+    ///
+    /// Arbitrary objects can be attached to automata.  Those are called
+    /// named properties.  They are used for instance to name all the
+    /// state of an automaton.
+    ///
+    /// This function removes the property \a s if it exists.
+    ///
+    /// See https://spot.lrde.epita.fr/concepts.html#named-properties
+    /// for a list of named properties used by Spot.
+    void set_named_prop(std::string s, std::nullptr_t);
 
     /// \brief Retrieve a named property
     ///

@@ -70,6 +70,17 @@ namespace spot
   }
 
   void
+  twa::set_named_prop(std::string s, std::nullptr_t)
+  {
+    auto p = named_prop_.find(s);
+    if (p == named_prop_.end())
+      return;
+    p->second.second(p->second.first);
+    named_prop_.erase(p);
+    return;
+  }
+
+  void
   twa::set_named_prop(std::string s,
                       void* val, std::function<void(void*)> destructor)
   {

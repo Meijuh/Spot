@@ -21,6 +21,7 @@
 #include <iostream>
 #include <spot/twa/twagraph.hh>
 #include <spot/twaalgos/dot.hh>
+#include <spot/twaalgos/hoa.hh>
 #include <spot/tl/defaultenv.hh>
 
 static void f1()
@@ -84,7 +85,7 @@ static void f1()
   spot::print_dot(std::cout, tg);
 }
 
-// Test purge with named states.
+// Test purge with named and highlighted states.
 static void f2()
 {
   auto d = spot::make_bdd_dict();
@@ -93,20 +94,44 @@ static void f2()
   auto s1 = tg->new_state();
   auto s2 = tg->new_state();
   auto s3 = tg->new_state();
-  (void) s1;
   (void) s2;
-  std::vector<std::string>* names;
-  names = new std::vector<std::string>({"s1", "s2", "s3"});
-
-  tg->set_named_prop<std::vector<std::string>>("state-names", names);
+  tg->set_named_prop("state-names",
+                     new std::vector<std::string>({"s1", "s2", "s3"}));
+  {
+    auto hs = new std::map<unsigned, unsigned>;
+    hs->emplace(s1, 5);
+    hs->emplace(s3, 7);
+    tg->set_named_prop("highlight-states", hs);
+  }
   tg->set_init_state(s3);
   spot::print_dot(std::cout, tg);
   tg->purge_unreachable_states();
   spot::print_dot(std::cout, tg);
 }
 
+// Make sure the HOA printer adjusts the highlighted edges numbers
+static void f3()
+{
+  auto d = spot::make_bdd_dict();
+  auto tg = make_twa_graph(d);
+
+  auto hs = new std::map<unsigned, unsigned>;
+  tg->set_named_prop("highlight-edges", hs);
+
+  auto s1 = tg->new_state();
+  auto s2 = tg->new_state();
+  auto s3 = tg->new_state();
+  tg->set_init_state(s3);
+  hs->emplace(tg->new_edge(s3, s2, bddtrue), 1);
+  hs->emplace(tg->new_edge(s2, s1, bddtrue), 2);
+  hs->emplace(tg->new_edge(s1, s1, bddtrue), 3);
+
+  spot::print_hoa(std::cout, tg, "1.1") << '\n';
+}
+
 int main()
 {
   f1();
   f2();
+  f3();
 }

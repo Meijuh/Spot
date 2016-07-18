@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -27,6 +27,9 @@ namespace spot
   ///
   /// Make a random permutation of the state, and of the edges
   /// leaving this state.
+  ///
+  /// This function preserves state names, and highlighted states,
+  /// but it does not preserve highlighted edges.
   SPOT_API void
   randomize(twa_graph_ptr& aut,
             bool randomize_states = true,

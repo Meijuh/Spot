@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -50,6 +50,14 @@ namespace spot
               (*nn)[nums[i]] = (*sn)[i];
             aut->set_named_prop("state-names", nn);
           }
+        if (auto hs = aut->get_named_prop<std::map<unsigned, unsigned>>
+            ("highlight-states"))
+          {
+            std::map<unsigned, unsigned> hs2;
+            for (auto p: *hs)
+              hs2[nums[p.first]] = p.second;
+            std::swap(*hs, hs2);
+          }
       }
     if (randomize_edges)
       {
@@ -57,7 +65,7 @@ namespace spot
         auto& v = g.edge_vector();
         mrandom_shuffle(v.begin() + 1, v.end());
       }
-
+    aut->set_named_prop("highlight-edges", nullptr);
     typedef twa_graph::graph_t::edge_storage_t tr_t;
     g.sort_edges_([](const tr_t& lhs, const tr_t& rhs)
                         { return lhs.src < rhs.src; });
