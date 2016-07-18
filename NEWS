@@ -93,6 +93,10 @@ New in spot 2.0.3a (not yet released)
     project a run found in a product onto one of the original operand.
     This is for instance used by autfilt --highlight-word.
 
+    The old spot::project_twa_run() function has been removed: it was
+    not used anywhere in Spot, and had an obvious bug in its
+    implementation, so it cannot be missed by anyone.
+
   Python:
 
   * The __format__() method for formula support the same

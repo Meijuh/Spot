@@ -286,7 +286,7 @@ that provide a function with a similar service.
 | ~tgbaalgos/neverclaim.hh~          | ~spot/twaalgos/neverclaim.hh~      |                                                  |
 | ~tgbaalgos/postproc.hh~            | ~spot/twaalgos/postproc.hh~        |                                                  |
 | ~tgbaalgos/powerset.hh~            | ~spot/twaalgos/powerset.hh~        |                                                  |
-| ~tgbaalgos/projrun.hh~             | ~spot/twaalgos/projrun.hh~         |                                                  |
+| ~tgbaalgos/projrun.hh~             | ~spot/twaalgos/emptiness.hh~       | use =twa_run::project()= since Spot 2.1          |
 | ~tgbaalgos/randomgraph.hh~         | ~spot/twaalgos/randomgraph.hh~     |                                                  |
 | ~tgbaalgos/reachiter.hh~           | ~spot/twaalgos/reachiter.hh~       |                                                  |
 | ~tgbaalgos/reducerun.hh~           | ~spot/twaalgos/emptiness.hh~       | now =twa_run::reduce()=                          |
