@@ -231,4 +231,8 @@ run 0 ltl2tgba -D -F input/1 --stats='%f,%s' > output
 cat output
 diff input output
 
+ltl2tgba -f 'Ga & FGb' -f 'Ga | FGb' > out.hoa
+test "`autfilt --nondet-states=1 --stats=%M out.hoa`" = "Ga & FGb"
+test "`autfilt --nondet-states=2 --stats=%M out.hoa`" = "Ga | FGb"
+
 true

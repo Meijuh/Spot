@@ -20,6 +20,9 @@ New in spot 2.0.3a (not yet released)
     These differ from --ap=RANGE that only consider *declared* atomic
     propositions, regardless of whether they are actually used.
 
+  * autfilt can filter automata by count of nondeterministsic states
+    with --nondet-states=RANGE.
+
   * autfilt has two new options to highlight non-determinism:
     --highlight-nondet-states=NUM and --highlight-nondet-states=NUM
     where NUM is a color number.  Additionally --highlight-nondet=NUM

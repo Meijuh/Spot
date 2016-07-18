@@ -105,6 +105,7 @@ enum {
   OPT_KEEP_STATES,
   OPT_MASK_ACC,
   OPT_MERGE,
+  OPT_NONDET_STATES,
   OPT_PRODUCT_AND,
   OPT_PRODUCT_OR,
   OPT_RANDOMIZE,
@@ -182,6 +183,8 @@ static const argp_option options[] =
       "keep automata whose number of states is in RANGE", 0 },
     { "edges", OPT_EDGES, "RANGE", 0,
       "keep automata whose number of edges is in RANGE", 0 },
+    { "nondet-states", OPT_NONDET_STATES, "RANGE", 0,
+      "keep automata whose number of nondeterministic states is in RANGE", 0 },
     { "acc-sets", OPT_ACC_SETS, "RANGE", 0,
       "keep automata whose number of acceptance sets is in RANGE", 0 },
     { "sccs", OPT_SCCS, "RANGE", 0,
@@ -375,6 +378,8 @@ static range opt_weak_sccs = { 0, std::numeric_limits<int>::max() };
 static bool opt_weak_sccs_set = false;
 static range opt_terminal_sccs = { 0, std::numeric_limits<int>::max() };
 static bool opt_terminal_sccs_set = false;
+static range opt_nondet_states = { 0, std::numeric_limits<int>::max() };
+static bool opt_nondet_states_set = false;
 static int opt_max_count = -1;
 static bool opt_destut = false;
 static char opt_instut = 0;
@@ -560,24 +565,6 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_IS_WEAK:
       opt_is_weak = true;
       break;
-    case OPT_MERGE:
-      opt_merge = true;
-      break;
-    case OPT_MASK_ACC:
-      {
-        for (auto res : to_longs(arg))
-          {
-            if (res < 0)
-              error(2, 0, "acceptance sets should be non-negative:"
-                    " --mask-acc=%ld", res);
-            if (static_cast<unsigned long>(res)
-                > sizeof(spot::acc_cond::mark_t::value_t))
-              error(2, 0, "this implementation does not support that many"
-                    " acceptance sets: --mask-acc=%ld", res);
-            opt_mask_acc.set(res);
-          }
-        break;
-      }
     case OPT_KEEP_STATES:
       {
         std::vector<long> values = to_longs(arg);
@@ -596,6 +583,28 @@ parse_opt(int key, char* arg, struct argp_state*)
         opt_rem_unreach = true;
         break;
       }
+    case OPT_MERGE:
+      opt_merge = true;
+      break;
+    case OPT_MASK_ACC:
+      {
+        for (auto res : to_longs(arg))
+          {
+            if (res < 0)
+              error(2, 0, "acceptance sets should be non-negative:"
+                    " --mask-acc=%ld", res);
+            if (static_cast<unsigned long>(res)
+                > sizeof(spot::acc_cond::mark_t::value_t))
+              error(2, 0, "this implementation does not support that many"
+                    " acceptance sets: --mask-acc=%ld", res);
+            opt_mask_acc.set(res);
+          }
+        break;
+      }
+    case OPT_NONDET_STATES:
+      opt_nondet_states = parse_range(arg, 0, std::numeric_limits<int>::max());
+      opt_nondet_states_set = true;
+      break;
     case OPT_PRODUCT_AND:
       {
         auto a = read_automaton(arg, opt->dict);
@@ -856,6 +865,8 @@ namespace
               matched &= opt_terminal_sccs.contains(terminal);
             }
         }
+      if (opt_nondet_states_set)
+        matched &= opt_nondet_states.contains(spot::count_nondet_states(aut));
       if (opt_is_deterministic)
         matched &= is_deterministic(aut);
       else if (opt_is_unambiguous)
