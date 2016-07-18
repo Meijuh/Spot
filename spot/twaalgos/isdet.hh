@@ -46,12 +46,32 @@ namespace spot
   SPOT_API bool
   is_deterministic(const const_twa_graph_ptr& aut);
 
+  /// \brief Highlight nondeterministic states
+  ///
+  /// A state is nondeterministic if it has two outgoing edges whose
+  /// labels are not incompatibles.
+  ///
+  /// \param aut the automaton to process
+  /// \param color the color to give to nondeterministic states.
+  SPOT_API void
+  highlight_nondet_states(twa_graph_ptr& aut, unsigned color);
+
+  /// \brief Highlight nondeterministic edges
+  ///
+  /// An edge is nondeterministic if there exist another edge leaving
+  /// the same source state, with a compatible label (i.e., the
+  /// conjunction of the two labels is not false).
+  ///
+  /// \param aut the automaton to process
+  /// \param color the color to give to nondeterministic edges.
+  SPOT_API void
+  highlight_nondet_edges(twa_graph_ptr& aut, unsigned color);
+  /// @}
+
   /// \brief Return true iff \a aut is complete.
   ///
   /// An automaton is complete if its translation relation is total,
   /// i.e., each state as a successor for any possible configuration.
   SPOT_API bool
   is_complete(const const_twa_graph_ptr& aut);
-
-  /// @}
 }

@@ -88,6 +88,9 @@ enum {
   OPT_EQUIVALENT_TO,
   OPT_EXCLUSIVE_AP,
   OPT_GENERIC,
+  OPT_HIGHLIGHT_NONDET,
+  OPT_HIGHLIGHT_NONDET_EDGES,
+  OPT_HIGHLIGHT_NONDET_STATES,
   OPT_INSTUT,
   OPT_INCLUDED_IN,
   OPT_INHERENTLY_WEAK_SCCS,
@@ -201,6 +204,16 @@ static const argp_option options[] =
     { "sat-minimize", OPT_SAT_MINIMIZE, "options", OPTION_ARG_OPTIONAL,
       "minimize the automaton using a SAT solver (only works for deterministic"
       " automata)", 0 },
+    { "highlight-nondet-states", OPT_HIGHLIGHT_NONDET_STATES, "NUM",
+      OPTION_ARG_OPTIONAL, "highlight nondeterministic states with color NUM",
+      0},
+    { "highlight-nondet-edges", OPT_HIGHLIGHT_NONDET_EDGES, "NUM",
+      OPTION_ARG_OPTIONAL, "highlight nondeterministic edges with color NUM",
+      0},
+    { "highlight-nondet", OPT_HIGHLIGHT_NONDET, "NUM",
+      OPTION_ARG_OPTIONAL,
+      "highlight nondeterministic states and edges with color NUM", 0},
+
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Filtering options:", 6 },
     { "ap", OPT_AP_N, "RANGE", 0,
@@ -382,6 +395,8 @@ static bool opt_rem_unreach = false;
 static bool opt_rem_unused_ap = false;
 static bool opt_sep_sets = false;
 static const char* opt_sat_minimize = nullptr;
+static int opt_highlight_nondet_states = -1;
+static int opt_highlight_nondet_edges = -1;
 
 static spot::twa_graph_ptr
 ensure_deterministic(const spot::twa_graph_ptr& aut)
@@ -484,6 +499,18 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt->equivalent_pos = read_automaton(arg, opt->dict);
       opt->equivalent_neg =
         spot::dtwa_complement(ensure_deterministic(opt->equivalent_pos));
+      break;
+    case OPT_HIGHLIGHT_NONDET:
+      {
+        int v = arg ? to_pos_int(arg) : 1;
+        opt_highlight_nondet_edges = opt_highlight_nondet_states = v;
+        break;
+      }
+    case OPT_HIGHLIGHT_NONDET_STATES:
+      opt_highlight_nondet_states = arg ? to_pos_int(arg) : 1;
+      break;
+    case OPT_HIGHLIGHT_NONDET_EDGES:
+      opt_highlight_nondet_edges = arg ? to_pos_int(arg) : 1;
       break;
     case OPT_INSTUT:
       if (!arg || (arg[0] == '1' && arg[1] == 0))
@@ -928,6 +955,11 @@ namespace
 
       if (randomize_st || randomize_tr)
         spot::randomize(aut, randomize_st, randomize_tr);
+
+      if (opt_highlight_nondet_states >= 0)
+        spot::highlight_nondet_states(aut, opt_highlight_nondet_states);
+      if (opt_highlight_nondet_edges >= 0)
+        spot::highlight_nondet_edges(aut, opt_highlight_nondet_edges);
 
       const double conversion_time = sw.stop();
 

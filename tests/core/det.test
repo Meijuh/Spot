@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+# Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -141,6 +141,79 @@ diff out.tgba ex.tgba
 run 0 ltl2tgba -H '(0 R Xa) R (a xor Fa)' > out.hoa
 grep deterministic out.hoa && exit 1
 
+# We can highlight nondeterminism
+autfilt -H1.1 --highlight-nondet-states=1 \
+        --highlight-nondet-edges=2 out.hoa >out-nd.hoa
+cat >expected-nd.hoa <<EOF
+HOA: v1.1
+name: "XGa R (!a & Fa)"
+States: 2
+Start: 1
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc !complete
+properties: !deterministic
+spot.highlight.states: 1 1
+spot.highlight.edges: 2 2 3 2
+--BODY--
+State: 0 {0}
+[0] 0
+State: 1
+[!0] 0
+[!0] 1
+--END--
+EOF
+diff expected-nd.hoa out-nd.hoa
+
+# While we are at it, make sure randomize preserves highlighted states
+# (but not highlighted edges, at least until someone implement it).
+autfilt -H1.1 --seed=3 --randomize out-nd.hoa > rand.hoa
+cat >expected-rand.hoa <<EOF
+HOA: v1.1
+name: "XGa R (!a & Fa)"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc !complete
+properties: !deterministic
+spot.highlight.states: 0 1
+--BODY--
+State: 0
+[!0] 0
+[!0] 1
+State: 1 {0}
+[0] 1
+--END--
+EOF
+diff expected-rand.hoa rand.hoa
+
+# --highlight-nondet=N is a short for
+# --highlight-nondet-states=N --highlight-nondet-edges=N
+autfilt -H1.1 --seed=3 --randomize --highlight-nondet=5 out-nd.hoa > rand2.hoa
+cat >expected-rand2.hoa <<EOF
+HOA: v1.1
+name: "XGa R (!a & Fa)"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc !complete
+properties: !deterministic
+spot.highlight.states: 0 5
+spot.highlight.edges: 1 5 2 5
+--BODY--
+State: 0
+[!0] 0
+[!0] 1
+State: 1 {0}
+[0] 1
+--END--
+EOF
+diff expected-rand2.hoa rand2.hoa
 
 # These highlighted a bug in the bitvector routines because their
 # state count is a multiple of 64.

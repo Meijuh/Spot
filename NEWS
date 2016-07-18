@@ -20,6 +20,11 @@ New in spot 2.0.3a (not yet released)
     These differ from --ap=RANGE that only consider *declared* atomic
     propositions, regardless of whether they are actually used.
 
+  * autfilt has two new options to highlight non-determinism:
+    --highlight-nondet-states=NUM and --highlight-nondet-states=NUM
+    where NUM is a color number.  Additionally --highlight-nondet=NUM
+    is a shorthand for using the two.
+
   * ltlcross and ltldo have a new syntax to specify that an input
     formula should be written in some given syntax after rewriting
     some operators away.  For instance the defaults arguments passed
@@ -61,9 +66,13 @@ New in spot 2.0.3a (not yet released)
     was secretly able of reading that since 1.99.8, but that is now
     documented at https://spot.lrde.epita.fr/hoa.html#extensions
 
+  * highlight_nondet_states() and highlight_nondet_edges() are
+    new functions that define the above two named properties.
+
   * is_deterministic(), is_terminal(), is_weak(), and
-    is_inherently_weak(), count_nondet_states() will update the
-    corresponding properties of the automaton as a side-effect of
+    is_inherently_weak(), count_nondet_states(),
+    highlight_nondet_edges(), highlight_nondet_states() will update
+    the corresponding properties of the automaton as a side-effect of
     their check.
 
   * language_containment_checker now has default values for all

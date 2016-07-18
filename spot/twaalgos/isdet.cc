@@ -73,6 +73,53 @@ namespace spot
     return !count_nondet_states_aux<false>(aut);
   }
 
+  void
+  highlight_nondet_states(twa_graph_ptr& aut, unsigned color)
+  {
+    if (aut->prop_deterministic())
+      return;
+    unsigned ns = aut->num_states();
+    auto* highlight = new std::map<unsigned, unsigned>;
+    for (unsigned src = 0; src < ns; ++src)
+      {
+        bdd available = bddtrue;
+        for (auto& t: aut->out(src))
+          if (!bdd_implies(t.cond, available))
+            highlight->emplace(src, color);
+          else
+            available -= t.cond;
+      }
+    aut->prop_deterministic(highlight->empty());
+    aut->set_named_prop("highlight-states", highlight);
+  }
+
+  void
+  highlight_nondet_edges(twa_graph_ptr& aut, unsigned color)
+  {
+    if (aut->prop_deterministic())
+      return;
+    unsigned ns = aut->num_states();
+    auto* highlight = new std::map<unsigned, unsigned>;
+    for (unsigned src = 0; src < ns; ++src)
+      {
+        // Make a first pass to gather non-deterministic labels
+        bdd available = bddtrue;
+        bdd extra = bddfalse;
+        for (auto& t: aut->out(src))
+          if (!bdd_implies(t.cond, available))
+            extra |= (t.cond - available);
+          else
+            available -= t.cond;
+        // Second pass to gather the relevant edges.
+        if (extra != bddfalse)
+          for (auto& t: aut->out(src))
+            if ((t.cond & extra) != bddfalse)
+              highlight->emplace(aut->get_graph().index_of_edge(t), color);
+      }
+    aut->prop_deterministic(highlight->empty());
+    aut->set_named_prop("highlight-edges", highlight);
+  }
+
   bool
   is_complete(const const_twa_graph_ptr& aut)
   {
