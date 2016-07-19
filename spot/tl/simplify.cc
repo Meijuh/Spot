@@ -1644,7 +1644,9 @@ namespace spot
                         && c_->contained(bo, b)))
                   return b;
                 // if !a => b, then a U b = Fb
-                if (c_->implication_neg(a, b, false))
+                // if a eventual && b => a, then a U b = Fb
+                if (c_->implication_neg(a, b, false)
+                    || (a.is_eventual() && c_->implication(b, a)))
                   return recurse(formula::F(b));
                 // if a => b, then a U (b U c) = (b U c)
                 // if a => b, then a U (b W c) = (b W c)
@@ -1677,7 +1679,9 @@ namespace spot
                 if (c_->implication(b, a))
                   return b;
                 // if b => !a, then a R b = Gb
-                if (c_->implication_neg(b, a, true))
+                // if a universal && a => b, then a R b = Gb
+                if (c_->implication_neg(b, a, true)
+                    || (a.is_universal() && c_->implication(a, b)))
                   return recurse(formula::G(b));
                 // if b => a, then a R (b R c) = b R c
                 // if b => a, then a R (b M c) = b M c

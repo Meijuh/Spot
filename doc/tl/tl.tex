@@ -1720,7 +1720,9 @@ In the following rewritings rules, $f\simp g$ means that $g$ was
 proved to be implied by $f$ using either of the above two methods.
 Additionally, implications denoted by $f\Simp g$ are only checked if
 the ``\verb|tl_simplifier_options::containment_checks_stronger|''
-option is set (otherwise the rewriting rule is not applied).
+option is set (otherwise the rewriting rule is not applied).  As in
+the previous section, formulas $e$ and $u$ represent respectively
+pure eventualities and purely universal formulas.
 
 \begin{equation*}
 \begin{array}{cccr@{\,}l}
@@ -1731,6 +1733,7 @@ option is set (otherwise the rewriting rule is not applied).
 \text{if}& f\simp g        &\text{then}& f\U g &\equiv g \\
 \text{if}& (f\U g)\Simp g  &\text{then}& f\U g &\equiv g \\
 \text{if}& (\NOT f)\simp g &\text{then}& f\U g &\equiv \F g \\
+\text{if}& g\simp e        &\text{then}& e\U g &\equiv \F g \\
 \text{if}& f\simp g        &\text{then}& f\U (g \U h) &\equiv g \U h \\
 \text{if}& f\simp g        &\text{then}& f\U (g \W h) &\equiv g \W h \\
 \text{if}& g\simp f        &\text{then}& f\U (g \U h) &\equiv f \U h \\
@@ -1753,6 +1756,7 @@ option is set (otherwise the rewriting rule is not applied).
 \text{if}& g\simp h        &\text{then}& (f\U g) \W h &\equiv (f \U g) \OR h \\
 \text{if}& g\simp f        &\text{then}& f\R g &\equiv g \\
 \text{if}& g\simp \NOT f   &\text{then}& f\R g &\equiv \G g \\
+\text{if}& u\simp g        &\text{then}& u\R g &\equiv \G g \\
 \text{if}& g\simp f        &\text{then}& f\R (g \R h) &\equiv g \R h \\
 \text{if}& g\simp f        &\text{then}& f\R (g \M h) &\equiv g \M h \\
 \text{if}& f\simp g        &\text{then}& f\R (g \R h) &\equiv f \R h \\
@@ -1771,8 +1775,8 @@ option is set (otherwise the rewriting rule is not applied).
 \end{array}
 \end{equation*}
 
-The above rules were collected from various
-sources~\cite{somenzi.00.cav,tauriainen.03.a83,babiak.12.tacas} and
+Many of the above rules were collected from the
+literature~\cite{somenzi.00.cav,tauriainen.03.a83,babiak.12.tacas} and
 sometimes generalized to support operators such as $\M$ and $\W$.
 
 \appendix
