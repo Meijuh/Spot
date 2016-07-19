@@ -127,6 +127,10 @@ New in spot 2.0.3a (not yet released)
     with spins, and dynamically load them.   This is
     akin to the %%dve magic that was already supported.
 
+  * The %%dve and %%pml magics honor the SPOT_TMPDIR and
+    TMPDIR environment variables.  This especially helps
+    when the current directory is read-only.
+
   Documentation:
 
   * A new example page shows how to test the equivalence of

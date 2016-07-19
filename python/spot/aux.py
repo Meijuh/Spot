@@ -26,6 +26,7 @@ import subprocess
 import sys
 import os
 import errno
+import contextlib
 
 def extend(*classes):
     """
@@ -80,3 +81,13 @@ def rm_f(filename):
     except OSError as e:
         if e.errno != errno.ENOENT:
             raise
+
+@contextlib.contextmanager
+def tmpdir():
+    cwd = os.getcwd()
+    tmpdir = os.environ.get('SPOT_TMPDIR') or os.environ.get('TMPDIR') or '.'
+    try:
+        os.chdir(tmpdir)
+        yield
+    finally:
+        os.chdir(cwd)

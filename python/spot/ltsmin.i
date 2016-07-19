@@ -149,28 +149,27 @@ try:
         def dve(self, line, cell):
             if not line:
                raise ValueError("missing variable name for %%dve")
-            # DiViNe prefers when files are in the current directory
-            # so write cell into local file
-            with tempfile.NamedTemporaryFile(dir='.', suffix='.dve') as t:
-                t.write(cell.encode('utf-8'))
-                t.flush()
+            with spot.aux.tmpdir():
+               with tempfile.NamedTemporaryFile(dir='.', suffix='.dve') as t:
+                   t.write(cell.encode('utf-8'))
+                   t.flush()
 
-                try:
-                    p = subprocess.Popen(['divine', 'compile',
-                                          '--ltsmin', t.name],
-                                         stdout=subprocess.PIPE,
-                                         stderr=subprocess.STDOUT,
-                                         universal_newlines=True)
-                    out = p.communicate()
-                    if out[0]:
-                       print(out[0], file=sys.stderr)
-                    ret = p.wait()
-                    if ret:
-                       raise subprocess.CalledProcessError(ret, 'divine')
-                    self.shell.user_ns[line] = load(t.name + '2C')
-                finally:
-                    spot.aux.rm_f(t.name + '.cpp')
-                    spot.aux.rm_f(t.name + '2C')
+                   try:
+                       p = subprocess.Popen(['divine', 'compile',
+                                             '--ltsmin', t.name],
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.STDOUT,
+                                            universal_newlines=True)
+                       out = p.communicate()
+                       if out[0]:
+                          print(out[0], file=sys.stderr)
+                       ret = p.wait()
+                       if ret:
+                          raise subprocess.CalledProcessError(ret, 'divine')
+                       self.shell.user_ns[line] = load(t.name + '2C')
+                   finally:
+                       spot.aux.rm_f(t.name + '.cpp')
+                       spot.aux.rm_f(t.name + '2C')
 
     @magics_class
     class EditPML(Magics):
@@ -179,25 +178,26 @@ try:
         def pml(self, line, cell):
             if not line:
                raise ValueError("missing variable name for %%pml")
-            with tempfile.NamedTemporaryFile(dir='.', suffix='.pml') as t:
-                t.write(cell.encode('utf-8'))
-                t.flush()
+            with spot.aux.tmpdir():
+               with tempfile.NamedTemporaryFile(dir='.', suffix='.pml') as t:
+                   t.write(cell.encode('utf-8'))
+                   t.flush()
 
-                try:
-                    p = subprocess.Popen(['spins', t.name],
-                                         stdout=subprocess.PIPE,
-                                         stderr=subprocess.STDOUT,
-                                         universal_newlines=True)
-                    out = p.communicate()
-                    if out[0]:
-                       print(out[0], file=sys.stderr)
-                    ret = p.wait()
-                    if ret:
-                       raise subprocess.CalledProcessError(ret, 'spins')
-                    self.shell.user_ns[line] = load(t.name + '.spins')
-                finally:
-                    spot.aux.rm_f(t.name + '.spins.c')
-                    spot.aux.rm_f(t.name + '.spins')
+                   try:
+                       p = subprocess.Popen(['spins', t.name],
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.STDOUT,
+                                            universal_newlines=True)
+                       out = p.communicate()
+                       if out[0]:
+                          print(out[0], file=sys.stderr)
+                       ret = p.wait()
+                       if ret:
+                          raise subprocess.CalledProcessError(ret, 'spins')
+                       self.shell.user_ns[line] = load(t.name + '.spins')
+                   finally:
+                       spot.aux.rm_f(t.name + '.spins.c')
+                       spot.aux.rm_f(t.name + '.spins')
 
     ip = get_ipython()
     ip.register_magics(EditDVE)
