@@ -34,12 +34,36 @@ namespace spot
     out->copy_acceptance_of(aut);
     out->copy_ap_of(aut);
     out->prop_copy(aut, p);
+
     std::vector<std::string>* names = nullptr;
     std::set<unsigned>* incomplete = nullptr;
+
+    // Old highlighting maps
+    typedef std::map<unsigned, unsigned> hmap;
+    hmap* ohstates = nullptr;
+    hmap* ohedges = nullptr;
+    const_twa_graph_ptr aut_g = nullptr;
+    // New highlighting maps
+    hmap* nhstates = nullptr;
+    hmap* nhedges = nullptr;
+
     if (preserve_names)
       {
         names = new std::vector<std::string>;
         out->set_named_prop("state-names", names);
+
+        // If the input is a twa_graph and we were asked to preserve
+        // names, also preserve highlights.
+        aut_g = std::dynamic_pointer_cast<const twa_graph>(aut);
+        if (aut_g)
+          {
+            ohstates = aut->get_named_prop<hmap>("highlight-states");
+            if (ohstates)
+              nhstates = out->get_or_set_named_prop<hmap>("highlight-states");
+            ohedges = aut->get_named_prop<hmap>("highlight-edges");
+            if (ohedges)
+              nhedges = out->get_or_set_named_prop<hmap>("highlight-edges");
+          }
       }
 
     // States already seen.
@@ -56,6 +80,12 @@ namespace spot
             todo.push_back(p.first);
             if (names)
               names->push_back(aut->format_state(s));
+            if (ohstates)
+              {
+                auto q = ohstates->find(aut_g->state_number(s));
+                if (q != ohstates->end())
+                  nhstates->emplace(p.first->second, q->second);
+              }
           }
         else
           {
@@ -73,6 +103,7 @@ namespace spot
         todo.pop_front();
         for (auto* t: aut->succ(src1))
           {
+            unsigned edgenum = 0;
             if (SPOT_UNLIKELY(max_states < out->num_states()))
               {
                 // If we have reached the max number of state, never try
@@ -85,11 +116,18 @@ namespace spot
                     incomplete->insert(src2);
                     continue;
                   }
-                out->new_edge(src2, i->second, t->cond(), t->acc());
+                edgenum = out->new_edge(src2, i->second, t->cond(), t->acc());
               }
             else
               {
-                out->new_edge(src2, new_state(t->dst()), t->cond(), t->acc());
+                edgenum =
+                  out->new_edge(src2, new_state(t->dst()), t->cond(), t->acc());
+              }
+            if (ohedges)
+              {
+                auto q = ohedges->find(aut_g->edge_number(t));
+                if (q != ohedges->end())
+                  nhedges->emplace(edgenum, q->second);
               }
           }
       }

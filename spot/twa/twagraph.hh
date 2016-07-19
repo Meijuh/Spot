@@ -318,10 +318,15 @@ namespace spot
       return format_state(state_number(st));
     }
 
-    twa_graph_edge_data& edge_data(const twa_succ_iterator* it)
+    unsigned edge_number(const twa_succ_iterator* it) const
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
-      return g_.edge_data(i->pos());
+      return i->pos();
+    }
+
+    twa_graph_edge_data& edge_data(const twa_succ_iterator* it)
+    {
+      return g_.edge_data(edge_number(it));
     }
 
     twa_graph_edge_data& edge_data(unsigned t)
@@ -331,8 +336,7 @@ namespace spot
 
     const twa_graph_edge_data& edge_data(const twa_succ_iterator* it) const
     {
-      auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
-      return g_.edge_data(i->pos());
+      return g_.edge_data(edge_number(it));
     }
 
     const twa_graph_edge_data& edge_data(unsigned t) const
@@ -342,8 +346,7 @@ namespace spot
 
     edge_storage_t& edge_storage(const twa_succ_iterator* it)
     {
-      auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
-      return g_.edge_storage(i->pos());
+      return g_.edge_storage(edge_number(it));
     }
 
     edge_storage_t& edge_storage(unsigned t)
@@ -354,8 +357,7 @@ namespace spot
     const edge_storage_t
       edge_storage(const twa_succ_iterator* it) const
     {
-      auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
-      return g_.edge_storage(i->pos());
+      return g_.edge_storage(edge_number(it));
     }
 
     const edge_storage_t edge_storage(unsigned t) const
