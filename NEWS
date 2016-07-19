@@ -2,6 +2,32 @@ New in spot 2.0.3a (not yet released)
 
   Command-line tools:
 
+  * All tools that input formulas or automata (i.e., autfilt,
+    dstar2tgba, ltl2tgba, ltl2tgta, ltlcross, ltldo, ltlfilt,
+    ltlgrind) now have a more homogeneous handling of the default
+    input.
+
+    - If no formula/automaton have been specified, and the standard
+    input is a not a tty, then the default is to read that. This is a
+    change for ltl2tgba and ltl2tgta.  In particular, it simplifies
+
+        genltl --dac | ltl2tgba -F- | autfilt ...
+
+    into
+
+        genltl --dac | ltl2tgba | autfilt ...
+
+    - If standard input is a tty and no other input has been
+    specified, then an error message is printed.  This is a change for
+    autfilt, dstar2tgba, ltlcross, ltldo, ltlfilt, ltlgrind, that used
+    to expect the user to type formula or automata at the terminal,
+    confusing people.
+
+    - All tools now accept - as a shorthand for -F-, to force reading
+    input from the standard input (regardless of whether it is a tty
+    or not).  This is a change for ltl2tgba, ltl2tgta, ltlcross, and
+    ltldo.
+
   * ltldo has a new option --errors=... to specify how to deal
     with errors from executed tools.
 

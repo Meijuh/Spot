@@ -421,9 +421,9 @@ For instance here is a complex command that will
 1. generate an infinite stream of random LTL formulas with [[file:randltl.org][=randltl=]],
 2. use [[file:ltlfilt.org][=ltlfilt=]] to rewrite the W and M operators away (=--remove-wm=),
    simplify the formulas (=-r=), remove duplicates (=u=) as well as
-   formulas that have a size less then 3 (=--size-min=3=),
-3. use =head= to keep only 10 of such formula
-4. loop to process each of these formula:
+   formulas that have a size less then 3 (=--size-min=3=), and
+   keep only the 10 first formulas (=-n 10=)
+3. loop to process each of these formula:
    - print it
    - then convert the formula into =ltl2dstar='s input format, process
      it with =ltl2dstar= (using =ltl2tgba= as the actual LTL->BA
@@ -438,8 +438,7 @@ deterministic, and =%p= whether the automaton is complete.
 
 #+BEGIN_SRC sh :results verbatim :exports both
 randltl -n -1 --tree-size=10..14 a b c |
-ltlfilt --remove-wm -r -u --size-min=3 |
-head -n 10 |
+ltlfilt --remove-wm -r -u --size-min=3 -n 10 |
 while read f; do
   echo "$f"
   ltlfilt -l -f "$f" |

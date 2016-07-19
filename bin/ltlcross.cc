@@ -408,7 +408,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       products = 0;
       break;
     case ARGP_KEY_ARG:
-      translators.push_back(arg);
+      if (arg[0] == '-' && !arg[1])
+        jobs.emplace_back(arg, true);
+      else
+        translators.push_back(arg);
       break;
     case OPT_AUTOMATA:
       opt_automata = true;
@@ -1443,8 +1446,7 @@ main(int argc, char** argv)
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
-  if (jobs.empty())
-    jobs.emplace_back("-", 1);
+  check_no_formula();
 
   if (translators.empty())
     error(2, 0, "No translator to run?  Run '%s --help' for usage.",

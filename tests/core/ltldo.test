@@ -44,7 +44,7 @@ diff output expected
 
 # Test timeouts.  This test should take 2*2 seconds.
 $genltl --or-g=1..2 |
-run 0 $ltldo -F- -t 'sleep 10; echo %f' -T1 -t 'sleep 10; echo %f' \
+run 0 $ltldo -t 'sleep 10; echo %f' -T1 -t 'sleep 10; echo %f' \
 	     >output 2>stderr
 test -z "`cat output`"
 test 4 = `grep -c warning: stderr`

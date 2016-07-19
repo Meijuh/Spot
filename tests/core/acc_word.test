@@ -34,7 +34,7 @@ ltl2tgba -f 'a U b' |
 ltl2tgba -f 'a U b' | autfilt --accept-word='cycle{!b}' -q && exit 1
 
 # An example from the documentation:
-randltl -n -1 a b | ltlfilt --simplify --uniq | ltl2tgba -F- |
+randltl -n -1 a b | ltlfilt --simplify --uniq | ltl2tgba |
   autfilt --accept-word='a&!b;cycle{!a&!b}' --accept-word='!a&!b;cycle{a&b}' \
           --reject-word='cycle{b}' --stats=%M -n 3 > out
 cat >expect <<EOF

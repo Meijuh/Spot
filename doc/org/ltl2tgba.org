@@ -835,7 +835,7 @@ For instance we can study the size of the automata generated for the
 right-nested =U= formulas as follows:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-genltl --u-right=1..8 | ltl2tgba -F - --stats '%s states and %e edges for "%f"'
+genltl --u-right=1..8 | ltl2tgba --stats '%s states and %e edges for "%f"'
 #+END_SRC
 #+RESULTS:
 : 2 states and 2 edges for "p1"
@@ -847,7 +847,11 @@ genltl --u-right=1..8 | ltl2tgba -F - --stats '%s states and %e edges for "%f"'
 : 7 states and 28 edges for "p1 U (p2 U (p3 U (p4 U (p5 U (p6 U p7)))))"
 : 8 states and 36 edges for "p1 U (p2 U (p3 U (p4 U (p5 U (p6 U (p7 U p8))))))"
 
-Here =-F -= means that formulas should be read from the standard input.
+Note that because no formula have been passed as argument to
+=ltl2tgba=, it defaulted to reading them from standard input.  Such a
+behaviour can be requested explicitly with =-F -= if needed (e.g., to
+read from standard input in addition to processing other formula
+supplied with =-f=).
 
 When computing the size of an automaton, we distinguish /transitions/
 and /edges/.  An edge between two states is labeled by a Boolean

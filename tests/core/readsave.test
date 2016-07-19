@@ -115,9 +115,8 @@ diff stdout stdout2
 # exercise both %M and %m.  The nonexistant file should never be
 # open, because the input stream is infinite and autfilt should
 # stop after 10 automata.
-randltl -n -1 a b |
-    ltl2tgba -H -F - |
-    autfilt -F- -F nonexistant --states=3 --edges=..10 --acc-sets=1.. \
+randltl -n -1 a b | ltl2tgba |
+    autfilt -F - -F nonexistant --states=3 --edges=..10 --acc-sets=1.. \
 	     --name='%M, %S states' --stats='<%m>, %e, %a' -n 10 > output
 cat >expected <<EOF
 <F(b | Ga), 3 states>, 5, 1
@@ -278,7 +277,7 @@ autfilt --merge -Hm input --name="%E->%e edges, %T->%t transitions" > output
 diff output expected
 
 
-cat <<EOF | ltl2tgba -x degen-lskip=1 -F- --ba -H > tmp.hoa
+ltl2tgba -x degen-lskip=1 --ba > tmp.hoa <<EOF
 a U b
 false
 !b && Xb && GFa

@@ -1015,18 +1015,18 @@ using =autfilt -n5=.
 
 #+BEGIN_SRC sh :results verbatim :exports both
 randltl -n -1 a b |
-ltl2tgba -F- |
+ltl2tgba |
 autfilt --states=3 --stats='!(%M)' |
-ltl2tgba -F- |
+ltl2tgba |
 autfilt --states=3 --stats=%M -n5
 #+END_SRC
 
 #+RESULTS:
-: G(F!a & XF(a | G!b))
-: GFb | G(!b & FG!b)
-: !a & F((a | b) & (!a | !b))
-: !a | (b R a)
-: !b & X(!b U a)
+: G(b | F(b & Fa))
+: (!a | b | (!b & (b W Ga))) & (a | (!b & (b | (!b M F!a))))
+: (!a | (!a R b)) & (a | (a U !b))
+: !a & F((!a | FG!a) & (a | GFa))
+: X(!b W a)
 
 Note that the above result can also be obtained without using
 =autfilt= and automata names.  We can use the fact that =ltl2tgba
@@ -1045,13 +1045,15 @@ head -n5 | cut -d, -f2              # return the five first formulas
 #+END_SRC
 
 #+RESULTS:
-: G(F!a & XF(a | G!b))
-: GFb | G(!b & FG!b)
-: !a & F((!a | !b) & (a | b))
-: !a | (b R a)
-: !b & X(!b U a)
+: G(b | F(b & Fa))
+: (!a | b | (!b & (b W Ga))) & (a | (!b & (b | (!b M F!a))))
+: (!a | (!a R b)) & (a | (a U !b))
+: !a & F((!a | FG!a) & (a | GFa))
+: X(!b W a)
 
-
+Note that the =-F-= argument in the first call to =ltl2tgba= is
+superfluous as the tool default to reading from its standard input.
+But we put it there for symmetry with the second call.
 
 #  LocalWords:  num toc html syntaxes ltl tgba sed utf UTF lbtt SCCs
 #  LocalWords:  GraphViz's hoaf HOA LBTT's neverclaim ba SPOT's Gb cn

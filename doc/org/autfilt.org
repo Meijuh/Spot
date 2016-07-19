@@ -739,7 +739,7 @@ of the form =cycle{b}=, and display the associated formula (which was
 stored as the name of the automaton by =ltl2tgba=).
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randltl -n -1 a b | ltlfilt --simplify --uniq | ltl2tgba -F- |
+randltl -n -1 a b | ltlfilt --simplify --uniq | ltl2tgba |
   autfilt --accept-word='a&!b;cycle{!a&!b}' --accept-word='!a&!b;cycle{a&b}' \
           --reject-word='cycle{b}' --stats=%M -n 10
 #+END_SRC

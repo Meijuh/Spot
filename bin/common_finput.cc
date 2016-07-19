@@ -18,10 +18,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "common_finput.hh"
+#include "common_setup.hh"
 #include "error.h"
 
 #include <fstream>
 #include <cstring>
+#include <unistd.h>
 
 enum {
   OPT_LBT = 1,
@@ -352,4 +354,26 @@ job_processor::run()
         break;
     }
   return error;
+}
+
+void check_no_formula()
+{
+  if (!jobs.empty())
+    return;
+  if (isatty(STDIN_FILENO))
+    error(2, 0, "No formula to translate?  Run '%s --help' for help.\n"
+          "Use '%s -' to force reading formulas from the standard "
+          "input.", program_name, program_name);
+  jobs.emplace_back("-", true);
+}
+
+void check_no_automaton()
+{
+  if (!jobs.empty())
+    return;
+  if (isatty(STDIN_FILENO))
+    error(2, 0, "No automaton to process?  Run '%s --help' for help.\n"
+          "Use '%s -' to force reading automata from the standard "
+          "input.", program_name, program_name);
+  jobs.emplace_back("-", true);
 }

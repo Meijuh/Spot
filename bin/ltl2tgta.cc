@@ -24,6 +24,7 @@
 #include <fstream>
 
 #include <argp.h>
+#include <unistd.h>
 #include "error.h"
 
 #include "common_setup.hh"
@@ -147,7 +148,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case ARGP_KEY_ARG:
       // FIXME: use stat() to distinguish filename from string?
-      jobs.emplace_back(arg, false);
+      if (*arg == '-' && !arg[1])
+        jobs.emplace_back(arg, true);
+      else
+        jobs.emplace_back(arg, false);
       break;
 
     default:
@@ -226,9 +230,7 @@ main(int argc, char** argv)
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
-  if (jobs.empty())
-    error(2, 0, "No formula to translate?  Run '%s --help' for usage.",
-          program_name);
+  check_no_formula();
 
   try
     {

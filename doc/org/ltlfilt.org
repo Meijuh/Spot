@@ -15,8 +15,9 @@ formulas.)  It can be used to perform a number of tasks.  Essentially:
 Because it read and write formulas, =ltlfilt= accepts
 all the [[file:ioltl.org][common input and output options]].
 
-Additionally, if no =-f= or =-F= option is specified, =ltlfilt=
-will read formulas from the standard input.
+Additionally, if no =-f= or =-F= option is specified, and =ltlfilt=
+will read formulas from the standard input if it is not connected to a
+terminal.
 
 For instance the following will convert two LTL formulas expressed
 using infix notation (with different names supported for the same

@@ -22,7 +22,7 @@
 set -e
 
 # make sure option -x reports unknown arguments
-ltl2tgba -F- -x foo </dev/null 2>error && exit 1
+ltl2tgba - -x foo </dev/null 2>error && exit 1
 grep "ltl2tgba: option 'foo' was not used" error
 ltl2tgba -F- -x ba-simul,foo,bar </dev/null 2>error && exit 1
 grep -v 'ba-simul' error

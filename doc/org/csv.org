@@ -45,7 +45,7 @@ formulas, and show the resulting number of states (=%s=) and edges
 (=%e=) of the automaton constructed for each formula.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-genltl --and-gf=1..5 --u-left=1..5 | ltl2tgba -F- --stats '%f,%s,%e'
+genltl --and-gf=1..5 --u-left=1..5 | ltl2tgba --stats '%f,%s,%e'
 #+END_SRC
 #+RESULTS:
 #+begin_example

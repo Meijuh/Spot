@@ -152,7 +152,7 @@ run 0 $autfilt --check input > output
 test `grep -c unambiguous output` = 0
 
 # Check 1000 random PSL formulas
-randltl --psl -n 1000 3 | $ltl2tgba -U -F- -H |
+randltl --psl -n 1000 3 | $ltl2tgba -U -H |
   $autfilt -v --is-unamb --stats=%M && exit 1
 
 cat >input <<EOF

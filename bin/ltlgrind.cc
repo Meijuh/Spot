@@ -189,8 +189,7 @@ main(int argc, char* argv[])
 
   mut_opts |= opt_all;
 
-  if (jobs.empty())
-    jobs.push_back(job("-", true));
+  check_no_formula();
 
   mutate_processor processor;
   if (processor.run())

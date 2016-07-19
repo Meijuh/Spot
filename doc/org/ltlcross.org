@@ -44,8 +44,9 @@ The core of =ltlcross= is a loop that does the following steps:
 
 * Formula selection
 
-Formulas to translate should be specified using the [[file:ioltl.org][common input options]].
-Standard input is read if no =-f= or =-F= option is given.
+Formulas to translate should be specified using the [[file:ioltl.org][common input
+options]].  Standard input is read if it is not connected to a terminal,
+and no =-f= or =-F= options are given.
 
 * Configuring translators
 

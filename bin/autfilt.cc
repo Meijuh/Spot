@@ -1116,8 +1116,7 @@ main(int argc, char** argv)
       if (pref_set && !level_set)
         level = spot::postprocessor::High;
 
-      if (jobs.empty())
-        jobs.emplace_back("-", true);
+      check_no_automaton();
 
       if (opt->are_isomorphic)
         {

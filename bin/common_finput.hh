@@ -77,3 +77,8 @@ public:
   char* prefix;
   char* suffix;
 };
+
+// Report and error message or add a default job depending on whether
+// the input is a tty.
+void check_no_formula();
+void check_no_automaton();

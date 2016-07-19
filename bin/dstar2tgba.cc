@@ -180,8 +180,7 @@ main(int argc, char** argv)
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
-  if (jobs.empty())
-    jobs.emplace_back("-", true);
+  check_no_automaton();
 
   spot::postprocessor post(&extra_options);
   post.set_pref(pref | comp | sbacc);
