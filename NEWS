@@ -111,9 +111,11 @@ New in spot 2.0.3a (not yet released)
     implies that "autfilt --check=stutter" will now label all
     automata, not just deterministic automata.
 
-  * New LTL simplification rules:
+  * New LTL and PSL simplification rules:
     - if e is pure eventuality and g => e, then e U g = Fg
     - if u is purely universal and u => g, then u R g = Gg
+    - {s[*0..j]}[]->b = {s[*1..j]}[]->b
+    - {s[*0..j]}<>->b = {s[*1..j]}<>->b
 
   Python:
 

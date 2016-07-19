@@ -1290,14 +1290,20 @@ namespace spot
             return f;
           case op::Star:
             {
+              if (!f.accepts_eword())
+                return f;
               formula h = f[0];
-              auto min = f.min();
-              if (h.accepts_eword())
-                min = 0;
-              if (min == 0)
-                h = f.max() == formula::unbounded()
-                  ? c_->star_normal_form(h)
-                  : c_->star_normal_form_bounded(h);
+              auto min = 0;
+              if (f.max() == formula::unbounded())
+                {
+                  h = c_->star_normal_form(h);
+                }
+              else
+                {
+                  h = c_->star_normal_form_bounded(h);
+                  if (h.accepts_eword())
+                    min = 1;
+                }
               return formula::Star(h, min, f.max());
             }
           }
@@ -1359,12 +1365,19 @@ namespace spot
                 // b W !s
                 return recurse(formula::binop(op_w, b, ns));
               }
+            // {s[*0..j]}[]->b = {s[*1..j]}[]->b
+            // {s[*0..j]}<>->b = {s[*1..j]}<>->b
+            if (min == 0)
+              return recurse(formula::binop(bindop,
+                                            formula::Star(s, 1, max), b));
+
             if (opt_.reduce_size_strictly)
               return orig;
             // {s[*i..j]}[]->b = {s;s;...;s[*1..j-i+1]}[]->b
             // = {s}[]->X({s}[]->X(...[]->X({s[*1..j-i+1]}[]->b)))
             // if i>0 and s does not accept the empty word
-            if (min == 0 || s.accepts_eword())
+            assert(min > 0);
+            if (s.accepts_eword())
               return orig;
             --min;
             if (max != formula::unbounded())

@@ -42,7 +42,7 @@ do
       grep -E 'properties:.* (unambiguous|deterministic)'
 done
 
-for f in FGa '(({p1[*0..1]}[]-> 0) R XFp0)'
+for f in FGa '{[*1..4]}<>-> (p1 & (p1 U p0))'
 do
   $ltl2tgba -H "$f" | $autfilt -qv --is-unambiguous
   $ltl2tgba -UH "$f" | $autfilt -q --is-unambiguous

@@ -1565,7 +1565,8 @@ presence of \samp{$\AND$} operators, but unfortunately not when the
 
 We extend the above definition to bounded repetitions with:
 \begin{align*}
-  r\STAR{\mvar{i}..\mvar{j}} & \equiv r^\square\STAR{\0..\mvar{j}}\quad\text{if}\quad\varepsilon\VDash r\STAR{\mvar{i}..\mvar{j}}
+  r\STAR{\mvar{i}..\mvar{j}} & \equiv r^\square\STAR{0..\mvar{j}}\quad\text{if}\quad\varepsilon\VDash r\STAR{\mvar{i}..\mvar{j}}\text{~and~}\varepsilon\not\VDash r^\square\\
+  r\STAR{\mvar{i}..\mvar{j}} & \equiv r^\square\STAR{1..\mvar{j}}\quad\text{if}\quad\varepsilon\VDash r\STAR{\mvar{i}..\mvar{j}}\text{~and~}\varepsilon\VDash r^\square
 \end{align*}
 where $r^\square$ is recursively defined as follows:
 \begin{align*}
@@ -1603,6 +1604,7 @@ denoted with $\equiV$ can be disabled by setting the
   \sere{\STAR{}}\Asuffix f &\equiv \G f\\
   \sere{b\STAR{}}\Asuffix f &\equiv f \W \NOT b\\
   \sere{b\PLUS{}}\Asuffix f &\equiv f \W \NOT b\\
+  \sere{r\STAR{0..\mvar{j}}}\Asuffix f &\equiv \sere{r\STAR{1..\mvar{j}}}\Asuffix f \\
   \sere{r\STAR{\mvar{i}..\mvar{j}}}\Asuffix f &\equiV
     \sere{r}\Asuffix \X(
     \sere{r}\Asuffix \X(\ldots
@@ -1618,6 +1620,7 @@ denoted with $\equiV$ can be disabled by setting the
   \sere{\STAR{}}\Esuffix f &\equiv \F f\\
   \sere{b\STAR{}}\Esuffix f &\equiv f \M b\\
   \sere{b\PLUS{}}\Esuffix f &\equiv f \M b\\
+  \sere{r\STAR{0..\mvar{j}}}\Esuffix f &\equiv \sere{r\STAR{1..\mvar{j}}}\Esuffix f \\
   \sere{r\STAR{\mvar{i}..\mvar{j}}}\Esuffix f &\equiV
     \sere{r}\Esuffix \X(
     \sere{r}\Esuffix \X(\ldots
@@ -1632,7 +1635,7 @@ denoted with $\equiV$ can be disabled by setting the
   \sere{r_1\OR r_2}\Esuffix f &\equiV (\sere{r_1}\Esuffix f)\OR(\sere{r_2}\Esuffix f)
 \end{align*}
 
-Here are basic the rewritings for the weak closure and its negation:
+Here are the basic rewritings for the weak closure and its negation:
 \begin{align*}
   \sere{r\STAR{}}&\equiv \sere{r}&
   \nsere{r\STAR{}}&\equiv \nsere{r}\\
