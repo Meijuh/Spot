@@ -128,6 +128,7 @@
 #include <spot/twaalgos/magic.hh>
 #include <spot/twaalgos/minimize.hh>
 #include <spot/twaalgos/neverclaim.hh>
+#include <spot/twaalgos/randomize.hh>
 #include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/sccfilter.hh>
@@ -435,6 +436,7 @@ namespace std {
 %include <spot/twaalgos/magic.hh>
 %include <spot/twaalgos/minimize.hh>
 %include <spot/twaalgos/neverclaim.hh>
+%include <spot/twaalgos/randomize.hh>
 %include <spot/twaalgos/remfin.hh>
 %include <spot/twaalgos/strength.hh>
 %include <spot/twaalgos/sccfilter.hh>
