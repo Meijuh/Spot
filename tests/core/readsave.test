@@ -938,7 +938,8 @@ Start: 1
 AP: 0
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels trans-acc inherently-weak
+properties: trans-labels explicit-labels trans-acc stutter-invariant
+properties: inherently-weak
 --BODY--
 State: 0
 [t] 1 {0}

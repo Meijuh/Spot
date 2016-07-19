@@ -60,13 +60,17 @@ namespace spot
 
   /// \brief Check whether \a aut is stutter-invariant
   ///
-  /// This procedure only works if \a aut is deterministic, or if the
-  /// equivalent formula \a f is given.  The stutter-invariant property
-  /// of the automaton is updated and also returned.
+  /// This procedure requires the negation of \a aut to
+  /// be computed.  This is easily done of \a aut is deterministic
+  /// or if a formula represented by \a aut is known.  Otherwise
+  /// \a aut will be complemented by determinization, which can
+  /// be expansive.   The determinization can be forbidden using
+  /// the \a do_not_determinize flag.
   ///
-  /// If no formula is given and the automaton is not deterministic,
+  /// If no complemented automaton could be constructed, the
   /// the result will be returned as trival::maybe().
   SPOT_API trival
   check_stutter_invariance(const twa_graph_ptr& aut,
-                           formula f = nullptr);
+                           formula f = nullptr,
+                           bool do_not_determinize = false);
 }

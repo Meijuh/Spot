@@ -29,6 +29,7 @@
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/complement.hh>
 #include <spot/twaalgos/remfin.hh>
+#include <spot/twaalgos/postproc.hh>
 #include <spot/twa/twaproduct.hh>
 #include <spot/twa/bddprint.hh>
 #include <deque>
@@ -606,7 +607,8 @@ namespace spot
   }
 
   trival
-  check_stutter_invariance(const twa_graph_ptr& aut, formula f)
+  check_stutter_invariance(const twa_graph_ptr& aut, formula f,
+                           bool do_not_determinize)
   {
     trival is_stut = aut->prop_stutter_invariant();
     if (is_stut.is_known())
@@ -619,12 +621,18 @@ namespace spot
       }
     else
       {
-        // If the automaton is deterministic, we
-        // know how to complement it.
-        aut->prop_deterministic(is_deterministic(aut));
-        if (!aut->prop_deterministic())
-          return trival::maybe();
-        neg = remove_fin(dtwa_complement(aut));
+        twa_graph_ptr tmp = aut;
+        if (!is_deterministic(aut))
+          {
+            if (do_not_determinize)
+              return trival::maybe();
+            spot::postprocessor p;
+            p.set_type(spot::postprocessor::Generic);
+            p.set_pref(spot::postprocessor::Deterministic);
+            p.set_level(spot::postprocessor::Low);
+            tmp = p.run(aut);
+          }
+        neg = dtwa_complement(tmp);
       }
 
     is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),

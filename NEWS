@@ -103,9 +103,14 @@ New in spot 2.0.3a (not yet released)
     the two others, is currently restricted to automata with Fin-less
     acceptance.
 
+  * spot::check_stutter_invariance() can now work on non-deterministic
+    automata for which no corresponding formula is known.  This
+    implies that "autfilt --check=stutter" will now label all
+    automata, not just deterministic automata.
+
   Python:
 
-  * The __format__() method for formula support the same
+  * The __format__() method for formula supports the same
     operator-rewritting feature introduced in ltldo and ltlcross.
     So "{:[i]s}".format(f) is the same as
     "{:s}".format(f.unabbreviate("i")).
@@ -114,7 +119,7 @@ New in spot 2.0.3a (not yet released)
 
   * Bindings for randomize() were added.
 
-  * Under IPython the spot.ltsmin modules now offers a
+  * Under IPython the spot.ltsmin module now offers a
     %%pml magic to define promela models, compile them
     with spins, and dynamically load them.   This is
     akin to the %%dve magic that was already supported.

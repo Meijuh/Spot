@@ -1,7 +1,7 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -42,7 +42,7 @@ $autfilt --states=12 prod.hoa -q
 #
 # We just run those without checking the output, it is enough to
 # trigger assertions in the HOA output routines.
-run 0 $ltl2tgba -H 'X(a U b)' > det.hoa
+$ltl2tgba -H 'X(a U b)' > det.hoa
 run 0 $autfilt --destut det.hoa -H
 run 0 $autfilt --instut=1 det.hoa -H
 run 0 $autfilt --instut=2 det.hoa -H
@@ -72,16 +72,33 @@ EOF
 
 diff output expected
 
-run 0 $ltl2tgba -H 'F(a & X(!a & b))' > input
-grep stutter-invariant input && exit 1
+$ltl2tgba -H 'F(a & X(!a & b))' > input
+grep ' stutter-invariant' input && exit 1
 run 0 $ltl2tgba --check=stutter 'F(a & X(!a & b))' > input.2
-grep stutter-invariant input.2
+grep ' stutter-invariant' input.2
 run 0 $autfilt --check=stutter input > input.2
-grep stutter-invariant input.2
+grep ' stutter-invariant' input.2
 
-run 0 $ltl2tgba -H 'F(a & X(a & b))' > input
+$ltl2tgba 'F(a & X(a & b))' > input
 grep stutter-invariant input && exit 1
-run 0 $ltl2tgba --check=stutter 'F(a & X(a & b))' > input.2
-grep stutter-sensitive input.2
+# HOA v1.1 calls it "!stutter-invariant"
+run 0 $ltl2tgba -H1.1 --check=stutter 'F(a & X(a & b))' > input.2
+grep '!stutter-invariant' input.2
+# HOA v1 has no name, so we use "stutter-sensitive"
 run 0 $autfilt --check=stutter input > input.2
 grep stutter-sensitive input.2
+
+$ltl2tgba 'F(a & X(!a & Gb))' > input
+grep stutter-invariant input && exit 1
+grep deterministic input && exit 1
+# This will involve a complementation
+run 0 $autfilt --check=stutter input > input.2
+grep ' stutter-invariant' input.2
+
+$ltl2tgba 'F(a & X(a & Gb))' > input
+grep stutter input && exit 1
+grep deterministic input && exit 1
+# This will involve a complementation
+run 0 $autfilt -H1.1 --check=stutter input > input.2
+grep '!deterministic' input.2
+grep '!stutter-invariant' input.2

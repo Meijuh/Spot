@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+# Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -95,3 +95,7 @@ State: 4 {0}
 --END--
 EOF
 diff out.hoa expected
+
+# Test the stutter-invariant check on Rabin
+autfilt --trust-hoa=no --check=stutter out.hoa -H1.1 |
+    grep ' stutter-invariant'
