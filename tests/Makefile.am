@@ -248,6 +248,7 @@ TESTS_twa = \
   core/dra2dba.test \
   core/unambig.test \
   core/ltlcross4.test \
+  core/streett.test \
   core/ltl3dra.test \
   core/ltl2dstar.test \
   core/ltl2dstar2.test \
