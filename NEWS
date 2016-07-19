@@ -23,6 +23,9 @@ New in spot 2.0.3a (not yet released)
   * autfilt can filter automata by count of nondeterministsic states
     with --nondet-states=RANGE.
 
+  * autfilt can filter automata representing stutter-invariant
+    properties with --is-stutter-invariant.
+
   * autfilt has two new options to highlight non-determinism:
     --highlight-nondet-states=NUM and --highlight-nondet-states=NUM
     where NUM is a color number.  Additionally --highlight-nondet=NUM

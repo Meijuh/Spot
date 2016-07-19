@@ -100,8 +100,9 @@ enum {
   OPT_IS_COMPLETE,
   OPT_IS_DETERMINISTIC,
   OPT_IS_EMPTY,
-  OPT_IS_UNAMBIGUOUS,
+  OPT_IS_STUTTER_INVARIANT,
   OPT_IS_TERMINAL,
+  OPT_IS_UNAMBIGUOUS,
   OPT_IS_WEAK,
   OPT_IS_INHERENTLY_WEAK,
   OPT_KEEP_STATES,
@@ -163,10 +164,12 @@ static const argp_option options[] =
       "keep deterministic automata", 0 },
     { "is-empty", OPT_IS_EMPTY, nullptr, 0,
       "keep automata with an empty language", 0 },
-    { "is-unambiguous", OPT_IS_UNAMBIGUOUS, nullptr, 0,
-      "keep only unambiguous automata", 0 },
+    { "is-stutter-invariant", OPT_IS_STUTTER_INVARIANT, nullptr, 0,
+      "keep automata representing stutter-invariant properties", 0 },
     { "is-terminal", OPT_IS_TERMINAL, nullptr, 0,
       "keep only terminal automata", 0 },
+    { "is-unambiguous", OPT_IS_UNAMBIGUOUS, nullptr, 0,
+      "keep only unambiguous automata", 0 },
     { "is-weak", OPT_IS_WEAK, nullptr, 0,
       "keep only weak automata", 0 },
     { "is-inherently-weak", OPT_IS_INHERENTLY_WEAK, nullptr, 0,
@@ -365,6 +368,7 @@ static bool opt_is_unambiguous = false;
 static bool opt_is_terminal = false;
 static bool opt_is_weak = false;
 static bool opt_is_inherently_weak = false;
+static bool opt_is_stutter_invariant = false;
 static bool opt_invert = false;
 static range opt_states = { 0, std::numeric_limits<int>::max() };
 static range opt_edges = { 0, std::numeric_limits<int>::max() };
@@ -596,11 +600,14 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_IS_INHERENTLY_WEAK:
       opt_is_inherently_weak = true;
       break;
-    case OPT_IS_UNAMBIGUOUS:
-      opt_is_unambiguous = true;
+    case OPT_IS_STUTTER_INVARIANT:
+      opt_is_stutter_invariant = true;
       break;
     case OPT_IS_TERMINAL:
       opt_is_terminal = true;
+      break;
+    case OPT_IS_UNAMBIGUOUS:
+      opt_is_unambiguous = true;
       break;
     case OPT_IS_WEAK:
       opt_is_weak = true;
@@ -944,6 +951,12 @@ namespace
               matched = false;
               break;
             }
+      if (opt_is_stutter_invariant)
+        {
+          check_stutter_invariance(aut);
+          assert(aut->prop_stutter_invariant().is_known());
+          matched &= aut->prop_stutter_invariant().is_true();
+        }
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)

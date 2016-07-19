@@ -86,6 +86,7 @@ run 0 $ltl2tgba -H1.1 --check=stutter 'F(a & X(a & b))' > input.2
 grep '!stutter-invariant' input.2
 # HOA v1 has no name, so we use "stutter-sensitive"
 run 0 $autfilt --check=stutter input > input.2
+test `autfilt -c -v --is-stutter-invariant input` = 1
 grep stutter-sensitive input.2
 
 $ltl2tgba 'F(a & X(!a & Gb))' > input
@@ -93,6 +94,7 @@ grep stutter-invariant input && exit 1
 grep deterministic input && exit 1
 # This will involve a complementation
 run 0 $autfilt --check=stutter input > input.2
+test `autfilt -c --is-stutter-invariant input` = 1
 grep ' stutter-invariant' input.2
 
 $ltl2tgba 'F(a & X(a & Gb))' > input
@@ -100,5 +102,6 @@ grep stutter input && exit 1
 grep deterministic input && exit 1
 # This will involve a complementation
 run 0 $autfilt -H1.1 --check=stutter input > input.2
+test `autfilt -c --is-stutter-invariant input` = 0
 grep '!deterministic' input.2
 grep '!stutter-invariant' input.2

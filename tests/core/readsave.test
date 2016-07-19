@@ -930,6 +930,7 @@ State: 1
 EOF
 test `autfilt -c --is-inherently-weak input7` = 1
 test `autfilt -c --is-weak input7` = 0
+test `autfilt -c --is-stutter-invariant input7` = 1
 autfilt --check input7 -H >output7
 cat >expected7 <<EOF
 HOA: v1
