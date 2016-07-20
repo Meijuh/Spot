@@ -359,7 +359,33 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
                              sets
 #+end_example
 
+* Decorations
+
+Decorations work by coloring some states or edges in the automaton.
+They are only useful when the automaton is output in Dot format (with
+=--dot= or =-d=) or HOA v1.1 format (with =-H1.1= or =--hoa=1.1=).
+
+#+BEGIN_SRC sh :results verbatim :exports results
+autfilt --help | sed -n '/^ *Decorations.*:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+
+#+RESULTS:
+:       --highlight-nondet[=NUM]   highlight nondeterministic states and edges
+:                              with color NUM
+:       --highlight-nondet-edges[=NUM]
+:                              highlight nondeterministic edges with color NUM
+:       --highlight-nondet-states[=NUM]
+:                              highlight nondeterministic states with color NUM
+:       --highlight-word=[NUM,]WORD
+:                              highlight one run matching WORD using color NUM
+
+Color numbers are indices in some unspecified color palette.  It is
+the same palette that is currently used to display colored acceptance
+sets, but this might change in the future.
+
 * Examples
+
+** Acceptance transformations
 
 Here is an automaton with transition-based acceptance:
 
@@ -622,6 +648,7 @@ $txt
 #+RESULTS:
 [[file:autfilt-ex5.png]]
 
+** Atomic proposition removal
 
 Atomic propositions can be removed from an automaton in three ways:
 - use ~--remove-ap=a~ to remove =a= by existential quantification, i.e., both =a= and its negation will be replaced by true.
@@ -717,16 +744,14 @@ $txt
 #+RESULTS:
 [[file:autfilt-ex6c.png]]
 
-#+BEGIN_SRC sh :results silent :exports results
-rm -f example.hoa aut-ex1.hoa
-#+END_SRC
+** Testing word acceptance
 
 The following example checks whether the formula ~a U b U c~ accepts
-the word ~b; cycle{c}~.
+the word ~a&!b&!c; cycle{!a&!b&c}~.
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltl2tgba 'a U b U c' |
-  autfilt --accept-word 'b; cycle{c}' -q  && echo "word accepted"
+  autfilt --accept-word 'a&!b&!c; cycle{!a&!b&c}' -q  && echo "word accepted"
 #+END_SRC
 #+RESULTS:
 : word accepted
@@ -770,7 +795,7 @@ Rabin automata that have exactly 4 states:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 randltl -n -1 a b | ltlfilt --simplify --remove-wm |
-  ltldo ltl2dstar --name=%f | autfilt --states=4 --stats=%M -n 5
+    ltldo ltl2dstar --name=%f | autfilt --states=4 --stats=%M -n 5
 #+END_SRC
 
 #+RESULTS:
@@ -779,3 +804,145 @@ randltl -n -1 a b | ltlfilt --simplify --remove-wm |
 : (a & !b & (b | (F!a U (!b & F!a)))) | (!a & (b | (!b & (Ga R (b | Ga)))))
 : (a & (a U !b)) | (!a & (!a R b))
 : a | G((a & GFa) | (!a & FG!a))
+
+** Decorations
+   :PROPERTIES:
+   :CUSTOM_ID: decorations
+   :END:
+
+We know from a previous exemple that formula =a U b U c= accepts the
+word =b; cycle{c}=.  We can actually highlight the corresponding
+run in the automaton:
+
+#+NAME: highlight-word
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba 'a U b U c' | autfilt --highlight-word='a&!b&!c; cycle{!a&!b&c}' -d
+#+END_SRC
+
+#+RESULTS: highlight-word
+#+begin_example
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  node [style="filled", fillcolor="#ffffa0"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 2
+  0 [label="0", peripheries=2]
+  0 -> 0 [label=<1>, style=bold, color="#F17CB0"]
+  1 [label="1"]
+  1 -> 0 [label=<c>]
+  1 -> 1 [label=<b &amp; !c>]
+  2 [label="2"]
+  2 -> 0 [label=<c>, style=bold, color="#F17CB0"]
+  2 -> 1 [label=<!a &amp; b &amp; !c>]
+  2 -> 2 [label=<a &amp; !c>, style=bold, color="#F17CB0"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfilt-hlword.png :cmdline -Tpng :var txt=highlight-word :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfilt-hlword.png]]
+
+
+We can change the color by prefixing the word with a number and a
+comma.  Also it is possible to highlight multiple words, but a
+transition may only have one color so late highlights will overwrite
+previous ones.
+
+#+NAME: highlight-word2
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba 'a U b U c' |
+  autfilt --highlight-word=5,'a&!b&!c; cycle{!a&!b&c}' \
+          --highlight-word=4,'!a&b&!c; cycle{!a&!b&c}' -d
+#+END_SRC
+
+#+RESULTS: highlight-word2
+#+begin_example
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  node [style="filled", fillcolor="#ffffa0"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 2
+  0 [label="0", peripheries=2]
+  0 -> 0 [label=<1>, style=bold, color="#60BD68"]
+  1 [label="1"]
+  1 -> 0 [label=<c>, style=bold, color="#60BD68"]
+  1 -> 1 [label=<b &amp; !c>]
+  2 [label="2"]
+  2 -> 0 [label=<c>, style=bold, color="#F15854"]
+  2 -> 1 [label=<!a &amp; b &amp; !c>, style=bold, color="#60BD68"]
+  2 -> 2 [label=<a &amp; !c>, style=bold, color="#F15854"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfilt-hlword2.png :cmdline -Tpng :var txt=highlight-word2 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfilt-hlword2.png]]
+
+
+
+Another useful thing to highlight is nondeterminism.  One can
+highlight states or edges where nondeterministic choices need to be
+made.
+
+#+NAME: highlight-nondet
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba 'F((b R a) W Gb)' |
+    autfilt --highlight-nondet-states=5 --highlight-nondet-edges=1 -d
+#+END_SRC
+
+#+RESULTS: highlight-nondet
+#+begin_example
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  node [style="filled", fillcolor="#ffffa0"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label="0"]
+  0 -> 0 [label=<b<br/><font color="#5DA5DA">⓿</font>>]
+  1 [label="1", style="bold,filled", color="#F15854"]
+  1 -> 0 [label=<!a &amp; b>, style=bold, color="#5DA5DA"]
+  1 -> 1 [label=<1>, style=bold, color="#5DA5DA"]
+  1 -> 2 [label=<a &amp; b>]
+  1 -> 3 [label=<a &amp; !b>]
+  2 [label="2"]
+  2 -> 0 [label=<!a &amp; b>]
+  2 -> 2 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 3 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  3 [label="3"]
+  3 -> 2 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  3 -> 3 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfilt-hlnondet.png :cmdline -Tpng :var txt=highlight-nondet :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfilt-hlnondet.png]]
+
+
+#+BEGIN_SRC sh :results silent :exports results
+rm -f example.hoa aut-ex1.hoa
+#+END_SRC

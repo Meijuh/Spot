@@ -964,7 +964,7 @@ terminal.
 
 Spot supports two additional headers that are not part of the standard
 HOA format.  These are =spot.highlight.states= and
-=spot.highlight.edges=.  These are used to decorate states and edges
+=spot.highlight.edges=.  These are used to [[file:autfilt.org::#decoration][decorate states and edges]]
 with colors.
 
 #+NAME: decorate

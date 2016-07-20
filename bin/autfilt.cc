@@ -289,7 +289,7 @@ static const argp_option options[] =
       "minimize the automaton using a SAT solver (only works for deterministic"
       " automata)", 0 },
     /**************************************************/
-    { nullptr, 0, nullptr, 0, "Decoration (for -d and -H1.1 output):", 8 },
+    { nullptr, 0, nullptr, 0, "Decorations (for -d and -H1.1 output):", 8 },
     { "highlight-nondet-states", OPT_HIGHLIGHT_NONDET_STATES, "NUM",
       OPTION_ARG_OPTIONAL, "highlight nondeterministic states with color NUM",
       0 },
