@@ -143,6 +143,10 @@ New in spot 2.0.3a (not yet released)
     - {s[*0..j]}[]->b = {s[*1..j]}[]->b
     - {s[*0..j]}<>->b = {s[*1..j]}<>->b
 
+  * spot::twa::succ_iterable renamed to
+    spot::internal::twa_succ_iterable to make it clear this is not for
+    public consumption.
+
   Python:
 
   * The __format__() method for formula supports the same

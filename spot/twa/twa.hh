@@ -515,6 +515,43 @@ namespace spot
           it_ = nullptr;
       }
     };
+
+#ifndef SWIG
+    /// \brief Helper class to iterate over the successor of a state
+    /// using the on-the-fly interface
+    ///
+    /// This one emulates an STL-like container with begin()/end()
+    /// methods so that it can be iterated using a ranged-for.
+    class twa_succ_iterable
+    {
+    protected:
+      const twa* aut_;
+      twa_succ_iterator* it_;
+    public:
+      twa_succ_iterable(const twa* aut, twa_succ_iterator* it)
+        : aut_(aut), it_(it)
+      {
+      }
+
+      twa_succ_iterable(twa_succ_iterable&& other)
+        : aut_(other.aut_), it_(other.it_)
+      {
+        other.it_ = nullptr;
+      }
+
+      ~twa_succ_iterable(); // Defined in this file after twa
+
+      internal::succ_iterator begin()
+      {
+        return it_->first() ? it_ : nullptr;
+      }
+
+      internal::succ_iterator end()
+      {
+        return nullptr;
+      }
+    };
+#endif // SWIG
   }
 
   /// \defgroup twa TωA (Transition-based ω-Automata)
@@ -591,47 +628,6 @@ namespace spot
     bdd_dict_ptr dict_;
   public:
 
-#ifndef SWIG
-    /// \brief Helper class to iterate over the successor of a state
-    /// using the on-the-fly interface
-    ///
-    /// This one emulates an STL-like container with begin()/end()
-    /// methods so that it can be iterated using a ranged-for.
-    class succ_iterable
-    {
-    protected:
-      const twa* aut_;
-      twa_succ_iterator* it_;
-    public:
-      succ_iterable(const twa* aut, twa_succ_iterator* it)
-        : aut_(aut), it_(it)
-      {
-      }
-
-      succ_iterable(succ_iterable&& other)
-        : aut_(other.aut_), it_(other.it_)
-      {
-        other.it_ = nullptr;
-      }
-
-      ~succ_iterable()
-      {
-        if (it_)
-          aut_->release_iter(it_);
-      }
-
-      internal::succ_iterator begin()
-      {
-        return it_->first() ? it_ : nullptr;
-      }
-
-      internal::succ_iterator end()
-      {
-        return nullptr;
-      }
-    };
-#endif
-
     virtual ~twa();
 
     /// \brief Get the initial state of the automaton.
@@ -675,12 +671,12 @@ namespace spot
     ///      while (i->next());
     ///    aut->release_iter(i);
     /// \endcode
-    succ_iterable
+    internal::twa_succ_iterable
     succ(const state* s) const
     {
       return {this, succ_iter(s)};
     }
-#endif
+ #endif
 
     /// \brief Release an iterator after usage.
     ///
@@ -1400,6 +1396,17 @@ namespace spot
     }
 
   };
+
+#ifndef SWIG
+  namespace internal
+  {
+    inline twa_succ_iterable::~twa_succ_iterable()
+    {
+      if (it_)
+        aut_->release_iter(it_);
+    }
+  }
+#endif // SWIG
 
   /// \addtogroup twa_representation TωA representations
   /// \ingroup twa
