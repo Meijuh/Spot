@@ -662,9 +662,9 @@ namespace spot
 
     /// \brief Create a null formula.
     ///
-    /// This could be used to default initialize a formula, however
+    /// This could be used to default-initialize a formula, however
     /// null formula should be short lived: most algorithms and member
-    /// function assume that formulas should not be null.
+    /// functions assume that formulas should not be null.
     formula(std::nullptr_t) noexcept
       : ptr_(nullptr)
       {
@@ -684,7 +684,7 @@ namespace spot
           ptr_->clone();
       }
 
-    /// Clone a formula.
+    /// Move-construct a formula.
     formula(formula&& f) noexcept
       : ptr_(f.ptr_)
       {
