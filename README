@@ -87,6 +87,14 @@ flags specific to Spot:
       --disable-assert
       --enable-optimizations
 
+   --enable-glibgxx-debug
+     Enable the debugging version libstdc++
+     https://gcc.gnu.org/onlinedocs/libstdc++/manual/debug_mode_semantics.html
+     Note that the debugging version og libstdc++ is incompatible with
+     the regular version.  So if Spot is compiled with this option, all
+     client code should be compiled with -D_GLIBCXX_DEBUG as well.  This
+     options should normally only be useful to run Spot's test-suite.
+
 Here are the meaning of the fine-tuning options, in case
 --enable/disable-devel is not enough.
 

@@ -145,6 +145,7 @@ fi
 adl_ENABLE_DEBUG
 ad_GCC_OPTIM
 adl_NDEBUG
+adl_ENABLE_GLIBCXX_DEBUG
 
 spot_INTEL
 if test x$enable_warnings = xyes; then

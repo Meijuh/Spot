@@ -574,7 +574,8 @@ namespace spot
       {
         // Pick a random code and put it at the end
         int p1 = mrand(s--);
-        std::swap(codes[p1], codes[s]);
+        if (p1 != s) // https://gcc.gnu.org/bugzilla//show_bug.cgi?id=59603
+          std::swap(codes[p1], codes[s]);
         // and another one
         int p2 = mrand(s);
 

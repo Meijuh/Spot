@@ -27,3 +27,13 @@ AC_DEFUN([adl_ENABLE_DEVEL],
    enable_optimizations=${enable_optimizations--O}
  fi
 ])
+
+
+AC_DEFUN([adl_ENABLE_GLIBCXX_DEBUG],
+[AC_ARG_ENABLE([glibcxx-debug],
+  [AC_HELP_STRING([--enable-glibcxx-debug],
+    [turn on use the libstdc++ debug mode (see README)])])
+if test x$enable_glibcxx_debug = xyes; then
+  CPPFLAGS="$CPPFLAGS -D_GLIBCXX_DEBUG"
+fi
+])
