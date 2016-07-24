@@ -346,6 +346,22 @@ Exporting symbols
   * Read http://www.akkadia.org/drepper/dsohowto.pdf for more
     information about how shared libraries work and why.
 
+Assertions
+----------
+
+  * There are different types of assertions.  Plain assert() is OK for
+    invariants or post-conditions.  When asserting a pre-condition,
+    carefully consider who the caller might be: if it can be in
+    user-code (either in C++ or Python), throw an exception
+    (std::runtime_error, std::invalid_argument, and spot::parse_error
+    are the three exception types catched by the Python bindings).
+
+  * Do not call assert() in public *.hh files: even if the installed
+    libspot has been compiled with -DNDEBUG, the *.hh files will be
+    recompiled by users, probably without -DNDEBUG.  So use
+    SPOT_ASSERT() instead of assert(), this ensure asserts are only
+    used inside libspot for debug builds.
+
 Comments
 --------
 
@@ -361,7 +377,8 @@ Comments
 Formating
 ---------
 
-  * Braces are always on their own line.
+  * Braces around instruction blocks are always on their own line.
+    Braces around initializers lists need not be on their own.
 
   * Text within braces is two-space indented.
 

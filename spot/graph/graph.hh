@@ -373,7 +373,7 @@ namespace spot
         if (src_.succ_tail == this->t_)
           {
             src_.succ_tail = prev_;
-            assert(next == 0);
+            SPOT_ASSERT(next == 0);
           }
 
         // Erased edges have themselves as next_succ.
@@ -678,14 +678,12 @@ namespace spot
     state_storage_t&
     state_storage(state s)
     {
-      assert(s < states_.size());
       return states_[s];
     }
 
     const state_storage_t&
     state_storage(state s) const
     {
-      assert(s < states_.size());
       return states_[s];
     }
     ///@}
@@ -698,14 +696,12 @@ namespace spot
     typename state_storage_t::data_t&
     state_data(state s)
     {
-      assert(s < states_.size());
       return states_[s].data();
     }
 
     const typename state_storage_t::data_t&
     state_data(state s) const
     {
-      assert(s < states_.size());
       return states_[s].data();
     }
     ///@}
@@ -718,14 +714,12 @@ namespace spot
     edge_storage_t&
     edge_storage(edge s)
     {
-      assert(s < edges_.size());
       return edges_[s];
     }
 
     const edge_storage_t&
     edge_storage(edge s) const
     {
-      assert(s < edges_.size());
       return edges_[s];
     }
     ///@}
@@ -738,14 +732,12 @@ namespace spot
     typename edge_storage_t::data_t&
     edge_data(edge s)
     {
-      assert(s < edges_.size());
       return edges_[s].data();
     }
 
     const typename edge_storage_t::data_t&
     edge_data(edge s) const
     {
-      assert(s < edges_.size());
       return edges_[s].data();
     }
     ///@}
@@ -759,13 +751,11 @@ namespace spot
     edge
     new_edge(state src, out_state dst, Args&&... args)
     {
-      assert(src < states_.size());
-
       edge t = edges_.size();
       edges_.emplace_back(dst, 0, src, std::forward<Args>(args)...);
 
       edge st = states_[src].succ_tail;
-      assert(st < t || !st);
+      SPOT_ASSERT(st < t || !st);
       if (!st)
         states_[src].succ = t;
       else
@@ -777,14 +767,14 @@ namespace spot
     /// Convert a storage reference into a state number
     state index_of_state(const state_storage_t& ss) const
     {
-      assert(!states_.empty());
+      SPOT_ASSERT(!states_.empty());
       return &ss - &states_.front();
     }
 
     /// Conveart a storage reference into an edge number
     edge index_of_edge(const edge_storage_t& tt) const
     {
-      assert(!edges_.empty());
+      SPOT_ASSERT(!edges_.empty());
       return &tt - &edges_.front();
     }
 
@@ -1012,7 +1002,7 @@ namespace spot
     /// any iteration on the successor of a state is performed.
     void rename_states_(const std::vector<unsigned>& newst)
     {
-      assert(newst.size() == states_.size());
+      SPOT_ASSERT(newst.size() == states_.size());
       unsigned tend = edges_.size();
       for (unsigned t = 1; t < tend; t++)
         {
@@ -1028,8 +1018,8 @@ namespace spot
     /// \param used_states the number of states used (after renumbering)
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states)
     {
-      assert(newst.size() == states_.size());
-      assert(used_states > 0);
+      SPOT_ASSERT(newst.size() == states_.size());
+      SPOT_ASSERT(used_states > 0);
 
       //std::cerr << "\nbefore defrag\n";
       //dump_storage(std::cerr);
@@ -1080,7 +1070,7 @@ namespace spot
           tr.next_succ = newidx[tr.next_succ];
           tr.dst = newst[tr.dst];
           tr.src = newst[tr.src];
-          assert(tr.dst != -1U);
+          SPOT_ASSERT(tr.dst != -1U);
         }
 
       // Adjust succ and succ_tails pointers in all states.

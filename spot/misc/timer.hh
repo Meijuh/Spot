@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -91,7 +91,7 @@ namespace spot
     void
     start()
     {
-      assert(!running);
+      SPOT_ASSERT(!running);
       running = true;
 #ifdef SPOT_HAVE_TIMES
       struct tms tmp;
@@ -115,7 +115,7 @@ namespace spot
 #else
       total_.utime += clock() - start_.utime;
 #endif
-      assert(running);
+      SPOT_ASSERT(running);
       running = false;
     }
 
@@ -194,8 +194,9 @@ namespace spot
     cancel(const std::string& name)
     {
       tm_type::iterator i = tm.find(name);
-      assert(i != tm.end());
-      assert(0 < i->second.second);
+      if (SPOT_UNLIKELY(i == tm.end()))
+        throw std::invalid_argument("timer_map::cancel(): unknown name");
+      SPOT_ASSERT(0 < i->second.second);
       if (0 == --i->second.second)
         tm.erase(i);
     }
@@ -205,7 +206,8 @@ namespace spot
     timer(const std::string& name) const
     {
       tm_type::const_iterator i = tm.find(name);
-      assert(i != tm.end());
+      if (SPOT_UNLIKELY(i == tm.end()))
+        throw std::invalid_argument("timer_map::timer(): unknown name");
       return i->second.first;
     }
 

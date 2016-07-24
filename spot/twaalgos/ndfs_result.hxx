@@ -109,7 +109,7 @@ namespace spot
       const stack_type& stb = ms_->get_st_blue();
       const stack_type& str = ms_->get_st_red();
 
-      assert(!stb.empty());
+      SPOT_ASSERT(!stb.empty());
 
       acc_cond::mark_t covered_acc = 0U;
       accepting_transitions_list acc_trans;
@@ -128,8 +128,8 @@ namespace spot
                 i = stb.begin();
               transition t = { i->s->clone(), j->label, j->acc,
                                j->s->clone() };
-              assert(h_.has_been_visited(t.source));
-              assert(h_.has_been_visited(t.dest));
+              SPOT_ASSERT(h_.has_been_visited(t.source));
+              SPOT_ASSERT(h_.has_been_visited(t.dest));
               acc_trans.push_back(t);
             }
           else
@@ -148,8 +148,8 @@ namespace spot
                     {
                       transition t = { i->s->clone(), j->label, j->acc,
                                        j->s->clone() };
-                      assert(h_.has_been_visited(t.source));
-                      assert(h_.has_been_visited(t.dest));
+                      SPOT_ASSERT(h_.has_been_visited(t.source));
+                      SPOT_ASSERT(h_.has_been_visited(t.dest));
                       acc_trans.push_back(t);
                       covered_acc |= j->acc;
                     }
@@ -160,8 +160,8 @@ namespace spot
                 {
                   transition t = { i->s->clone(), j->label, j->acc,
                                    j->s->clone() };
-                  assert(h_.has_been_visited(t.source));
-                  assert(h_.has_been_visited(t.dest));
+                  SPOT_ASSERT(h_.has_been_visited(t.source));
+                  SPOT_ASSERT(h_.has_been_visited(t.dest));
                   acc_trans.push_back(t);
                   covered_acc |= j->acc;
                 }
@@ -174,8 +174,8 @@ namespace spot
                     {
                       transition t = { i->s->clone(), j->label, j->acc,
                                        j->s->clone() };
-                      assert(h_.has_been_visited(t.source));
-                      assert(h_.has_been_visited(t.dest));
+                      SPOT_ASSERT(h_.has_been_visited(t.source));
+                      SPOT_ASSERT(h_.has_been_visited(t.dest));
                       acc_trans.push_back(t);
                       covered_acc |= j->acc;
                     }
@@ -186,13 +186,13 @@ namespace spot
       if (!a_->acc().accepting(covered_acc))
         {
           bool b = dfs(start, acc_trans, covered_acc);
-          assert(b);
+          SPOT_ASSERT(b);
           (void) b;
         }
 
       start->destroy();
 
-      assert(!acc_trans.empty());
+      SPOT_ASSERT(!acc_trans.empty());
 
       auto run = std::make_shared<twa_run>(automaton());
       // construct run->cycle from acc_trans.
@@ -254,7 +254,7 @@ namespace spot
     bool dfs(const state* target, accepting_transitions_list& acc_trans,
              acc_cond::mark_t& covered_acc)
     {
-      assert(h_.has_been_visited(target));
+      SPOT_ASSERT(h_.has_been_visited(target));
       stack_type st1;
 
       state_set seen, dead;
@@ -303,8 +303,8 @@ namespace spot
                         {
                           transition t = { f.s->clone(), label, acc,
                                            s_prime->clone() };
-                          assert(h_.has_been_visited(t.source));
-                          assert(h_.has_been_visited(t.dest));
+                          SPOT_ASSERT(h_.has_been_visited(t.source));
+                          SPOT_ASSERT(h_.has_been_visited(t.dest));
                           acc_trans.push_back(t);
                           covered_acc |= acc;
                           if (a_->acc().accepting(covered_acc))
@@ -345,8 +345,8 @@ namespace spot
                       transition t = { st1.front().s->clone(),
                                        f_dest.label, f_dest.acc,
                                        f_dest.s->clone() };
-                      assert(h_.has_been_visited(t.source));
-                      assert(h_.has_been_visited(t.dest));
+                      SPOT_ASSERT(h_.has_been_visited(t.source));
+                      SPOT_ASSERT(h_.has_been_visited(t.dest));
                       acc_trans.push_back(t);
                       covered_acc |= f_dest.acc;
                       if (a_->acc().accepting(covered_acc))
@@ -446,7 +446,7 @@ namespace spot
       const state* res = s.search(start->clone(), path);
       if (res)
         {
-          assert(res->compare(target) == 0);
+          SPOT_ASSERT(res->compare(target) == 0);
           return true;
         }
       else
@@ -531,7 +531,7 @@ namespace spot
     void construct_cycle(twa_run_ptr run,
                          const accepting_transitions_list& acc_trans)
     {
-      assert(!acc_trans.empty());
+      SPOT_ASSERT(!acc_trans.empty());
       transition current = acc_trans.front();
       // insert the first accepting transition in the cycle
       ndfsr_trace << "the initial accepting transition is from "
@@ -579,10 +579,10 @@ namespace spot
               min_path<true> s(this, a_, target, h_);
               const state* res = s.search(current.dest->clone(), run->cycle);
               // init current to the corresponding transition.
-              assert(res);
+              SPOT_ASSERT(res);
               ndfsr_trace << a_->format_state(res) << " reached" << std::endl;
               i = target.find(res);
-              assert(i != target.end());
+              SPOT_ASSERT(i != target.end());
             }
           else
             {
@@ -611,8 +611,8 @@ namespace spot
           target.emplace(begin, tmp);
           min_path<true> s(this, a_, target, h_);
           const state* res = s.search(current.dest->clone(), run->cycle);
-          assert(res);
-          assert(res->compare(begin) == 0);
+          SPOT_ASSERT(res);
+          SPOT_ASSERT(res->compare(begin) == 0);
           (void)res;
         }
     }
@@ -648,7 +648,7 @@ namespace spot
           // This initial state is outside the cycle.  Compute the prefix.
           min_path<false> s(this, a_, target, h_);
           cycle_entry_point = s.search(prefix_start, run->prefix);
-          assert(cycle_entry_point);
+          SPOT_ASSERT(cycle_entry_point);
           cycle_entry_point = cycle_entry_point->clone();
         }
 
@@ -658,7 +658,7 @@ namespace spot
            cycle_ep_it != run->cycle.end()
              && cycle_entry_point->compare(cycle_ep_it->s); ++cycle_ep_it)
         continue;
-      assert(cycle_ep_it != run->cycle.end());
+      SPOT_ASSERT(cycle_ep_it != run->cycle.end());
       cycle_entry_point->destroy();
 
       // Now shift the cycle so it starts on cycle_entry_point.

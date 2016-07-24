@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -58,6 +58,18 @@
   #define SPOT_DLL
 #endif
 
+
+// We should not call assert() in headers.  For the rare cases where
+// we do really want to call assert(), use spot_assert__ instead.
+// Else use SPOT_ASSERT so the assert() are removed from user's
+// builds.
+#define spot_assert__ assert
+#if defined(SPOT_BUILD) or defined(SPOT_DEBUG)
+  #define SPOT_ASSERT(x) spot_assert__(x)
+#else
+  #define SPOT_ASSERT(x) while (0)
+#endif
+
 // SPOT_API is used for the public API symbols. It either DLL imports
 // or DLL exports (or does nothing for static build) SPOT_LOCAL is
 // used for non-api symbols that may occur in header files.
@@ -93,9 +105,9 @@
 
 // The extra parentheses in assert() is so that this
 // pattern is not caught by the style checker.
-#define SPOT_UNREACHABLE() do {                        \
-     assert(!("unreachable code reached"));        \
-     SPOT_UNREACHABLE_BUILTIN();                \
+#define SPOT_UNREACHABLE() do {                         \
+     SPOT_ASSERT(!("unreachable code reached"));      \
+     SPOT_UNREACHABLE_BUILTIN();                        \
    } while (0)
 
 #define SPOT_UNIMPLEMENTED() throw std::runtime_error("unimplemented");

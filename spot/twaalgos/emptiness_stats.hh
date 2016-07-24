@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -43,7 +43,7 @@ namespace spot
     get(const char* str) const
     {
       auto i = stats.find(str);
-      assert(i != stats.end());
+      SPOT_ASSERT(i != stats.end());
       return (this->*i->second)();
     }
 
@@ -163,7 +163,7 @@ namespace spot
     void
     dec_depth(unsigned n = 1)
     {
-      assert(depth_ >= n);
+      SPOT_ASSERT(depth_ >= n);
       depth_ -= n;
     }
 

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -50,7 +50,7 @@ namespace spot
     translator(tl_simplifier* simpl, const option_map* opt = nullptr)
       : postprocessor(opt), simpl_(simpl), simpl_owned_(nullptr)
     {
-      assert(simpl);
+      SPOT_ASSERT(simpl);
       setup_opt(opt);
     }
 

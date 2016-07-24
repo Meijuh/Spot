@@ -42,7 +42,7 @@ namespace spot
     virtual int compare(const spot::state* other) const override
     {
       auto o = down_cast<const kripke_graph_state*>(other);
-      assert(o);
+      SPOT_ASSERT(o);
 
       // Do not simply return "other - this", it might not fit in an int.
       if (o < this)
@@ -129,7 +129,7 @@ namespace spot
 
     virtual kripke_graph_state* dst() const override
     {
-      assert(!done());
+      SPOT_ASSERT(!done());
       return const_cast<kripke_graph_state*>
         (&g_->state_data(g_->edge_storage(p_).dst));
     }
@@ -169,7 +169,9 @@ namespace spot
 
     void set_init_state(graph_t::state s)
     {
-      assert(s < num_states());
+      if (SPOT_UNLIKELY(s >= num_states()))
+        throw std::invalid_argument
+          ("set_init_state() called with nonexisiting state");
       init_number_ = s;
     }
 
@@ -193,8 +195,8 @@ namespace spot
     succ_iter(const spot::state* st) const override
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
-      assert(s);
-      assert(!s->succ || g_.is_valid_edge(s->succ));
+      SPOT_ASSERT(s);
+      SPOT_ASSERT(!s->succ || g_.is_valid_edge(s->succ));
 
       if (this->iter_cache_)
         {
@@ -212,7 +214,7 @@ namespace spot
     state_number(const state* st) const
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
-      assert(s);
+      SPOT_ASSERT(s);
       return s - &g_.state_storage(0);
     }
 

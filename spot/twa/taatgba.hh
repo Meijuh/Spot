@@ -209,7 +209,7 @@ namespace spot
     virtual std::string format_state(const spot::state* s) const override
     {
       const spot::set_state* se = down_cast<const spot::set_state*>(s);
-      assert(se);
+      SPOT_ASSERT(se);
       const state_set* ss = se->get_state();
       return format_state_set(ss);
     }
@@ -279,7 +279,7 @@ namespace spot
       if (ss->size() == 1)
       {
         i2 = state_name_map_.find(*i1);
-        assert(i2 != state_name_map_.end());
+        SPOT_ASSERT(i2 != state_name_map_.end());
         return "{" + label_to_string(i2->second) + "}";
       }
       else
@@ -288,7 +288,7 @@ namespace spot
         while (i1 != ss->end())
         {
           i2 = state_name_map_.find(*i1++);
-          assert(i2 != state_name_map_.end());
+          SPOT_ASSERT(i2 != state_name_map_.end());
           res += label_to_string(i2->second);
           res += ",";
         }

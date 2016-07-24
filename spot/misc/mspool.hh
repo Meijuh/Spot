@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2015 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE)
+// Copyright (C) 2011, 2013, 2015, 2016 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -107,7 +107,7 @@ namespace spot
     void
     deallocate (const void* ptr, size_t size)
     {
-      assert(ptr);
+      SPOT_ASSERT(ptr);
       size = fixsize(size);
       block_* b = reinterpret_cast<block_*>(const_cast<void*>(ptr));
       block_*& f = freelist_[size];

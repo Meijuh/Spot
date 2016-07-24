@@ -45,7 +45,7 @@ namespace spot
     virtual int compare(const spot::state* other) const override
     {
       auto o = down_cast<const twa_graph_state*>(other);
-      assert(o);
+      SPOT_ASSERT(o);
 
       // Do not simply return "other - this", it might not fit in an int.
       if (o < this)
@@ -145,19 +145,19 @@ namespace spot
 
     virtual const twa_graph_state* dst() const override
     {
-      assert(!done());
+      SPOT_ASSERT(!done());
       return &g_->state_data(g_->edge_storage(p_).dst);
     }
 
     virtual bdd cond() const override
     {
-      assert(!done());
+      SPOT_ASSERT(!done());
       return g_->edge_data(p_).cond;
     }
 
     virtual acc_cond::mark_t acc() const override
     {
-      assert(!done());
+      SPOT_ASSERT(!done());
       return g_->edge_data(p_).acc;
     }
 
@@ -251,7 +251,9 @@ namespace spot
 
     void set_init_state(state_num s)
     {
-      assert(s < num_states());
+      if (SPOT_UNLIKELY(s >= num_states()))
+        throw std::invalid_argument
+          ("set_init_state() called with nonexisiting state");
       init_number_ = s;
     }
 
@@ -278,8 +280,8 @@ namespace spot
     succ_iter(const state* st) const override
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
-      assert(s);
-      assert(!s->succ || g_.is_valid_edge(s->succ));
+      SPOT_ASSERT(s);
+      SPOT_ASSERT(!s->succ || g_.is_valid_edge(s->succ));
 
       if (this->iter_cache_)
         {
@@ -296,7 +298,7 @@ namespace spot
     state_number(const state* st) const
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
-      assert(s);
+      SPOT_ASSERT(s);
       return s - &g_.state_storage(0);
     }
 
@@ -451,7 +453,11 @@ namespace spot
 
     acc_cond::mark_t state_acc_sets(unsigned s) const
     {
-      assert((bool)prop_state_acc() || num_sets() == 0);
+      if (SPOT_UNLIKELY(!((bool)prop_state_acc() || num_sets() == 0)))
+        throw std::runtime_error
+          ("state_acc_sets() should only be called on "
+           "automata with state-based acceptance");
+
       for (auto& t: g_.out(s))
         // Stop at the first edge, since the remaining should be
         // labeled identically.
@@ -461,7 +467,10 @@ namespace spot
 
     bool state_is_accepting(unsigned s) const
     {
-      assert((bool)prop_state_acc() || num_sets() == 0);
+      if (SPOT_UNLIKELY(!((bool)prop_state_acc() || num_sets() == 0)))
+        throw std::runtime_error
+          ("state_is_accepting() should only be called on "
+           "automata with state-based acceptance");
       for (auto& t: g_.out(s))
         // Stop at the first edge, since the remaining should be
         // labeled identically.

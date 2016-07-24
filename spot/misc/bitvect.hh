@@ -191,7 +191,7 @@ namespace spot
 
     bool get(size_t pos) const
     {
-      assert(pos < size_);
+      SPOT_ASSERT(pos < size_);
       const size_t bpb = 8 * sizeof(block_t);
       return storage_[pos / bpb] & (1UL << (pos % bpb));
     }
@@ -248,21 +248,21 @@ namespace spot
 
     void set(size_t pos)
     {
-      assert(pos < size_);
+      SPOT_ASSERT(pos < size_);
       const size_t bpb = 8 * sizeof(block_t);
       storage_[pos / bpb] |= 1UL << (pos % bpb);
     }
 
     void clear(size_t pos)
     {
-      assert(pos < size_);
+      SPOT_ASSERT(pos < size_);
       const size_t bpb = 8 * sizeof(block_t);
       storage_[pos / bpb] &= ~(1UL << (pos % bpb));
     }
 
     void flip(size_t pos)
     {
-      assert(pos < size_);
+      SPOT_ASSERT(pos < size_);
       const size_t bpb = 8 * sizeof(block_t);
       storage_[pos / bpb] ^= (1UL << (pos % bpb));
     }
@@ -270,7 +270,7 @@ namespace spot
 
     bitvect& operator|=(const bitvect& other)
     {
-      assert(other.size_ <= size_);
+      SPOT_ASSERT(other.size_ <= size_);
       unsigned m = std::min(other.block_count_, block_count_);
       for (size_t i = 0; i < m; ++i)
         storage_[i] |= other.storage_[i];
@@ -279,7 +279,7 @@ namespace spot
 
     bitvect& operator&=(const bitvect& other)
     {
-      assert(other.size_ <= size_);
+      SPOT_ASSERT(other.size_ <= size_);
       unsigned m = std::min(other.block_count_, block_count_);
       for (size_t i = 0; i < m; ++i)
         storage_[i] &= other.storage_[i];
@@ -288,7 +288,7 @@ namespace spot
 
     bitvect& operator^=(const bitvect& other)
     {
-      assert(other.size_ <= size_);
+      SPOT_ASSERT(other.size_ <= size_);
       unsigned m = std::min(other.block_count_, block_count_);
       for (size_t i = 0; i < m; ++i)
         storage_[i] ^= other.storage_[i];
@@ -297,7 +297,7 @@ namespace spot
 
     bitvect& operator-=(const bitvect& other)
     {
-      assert(other.block_count_ <= block_count_);
+      SPOT_ASSERT(other.block_count_ <= block_count_);
       for (size_t i = 0; i < other.block_count_; ++i)
         storage_[i] &= ~other.storage_[i];
       return *this;
@@ -305,7 +305,7 @@ namespace spot
 
     bool is_subset_of(const bitvect& other) const
     {
-      assert(other.block_count_ >= block_count_);
+      SPOT_ASSERT(other.block_count_ >= block_count_);
 
       size_t i;
       const size_t bpb = 8 * sizeof(bitvect::block_t);
@@ -391,8 +391,8 @@ namespace spot
     // to \a end (excluded).
     bitvect* extract_range(size_t begin, size_t end)
     {
-      assert(begin <= end);
-      assert(end <= size());
+      SPOT_ASSERT(begin <= end);
+      SPOT_ASSERT(end <= size());
       size_t count = end - begin;
       bitvect* res = make_bitvect(count);
       res->make_empty();
@@ -423,13 +423,13 @@ namespace spot
               ++indexb;
               res->push_back(storage_[indexb], bpb);
               count -= bpb;
-              assert(indexb != indexe || count == 0);
+              SPOT_ASSERT(indexb != indexe || count == 0);
             }
           if (count > 0)
             {
               ++indexb;
-              assert(indexb == indexe);
-              assert(count == end % bpb);
+              SPOT_ASSERT(indexb == indexe);
+              SPOT_ASSERT(count == end % bpb);
               res->push_back(storage_[indexb], count);
             }
         }
@@ -495,7 +495,7 @@ namespace spot
     /// Return the bit-vector at \a index.
     bitvect& at(const size_t index)
     {
-      assert(index < size_);
+      SPOT_ASSERT(index < size_);
       return *reinterpret_cast<bitvect*>(storage() + index * bvsize_);
     }
 
@@ -510,7 +510,7 @@ namespace spot
     /// Return the bit-vector at \a index.
     const bitvect& at(const size_t index) const
     {
-      assert(index < size_);
+      SPOT_ASSERT(index < size_);
       return *reinterpret_cast<const bitvect*>(storage() + index * bvsize_);
     }
 

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -108,7 +108,6 @@ namespace spot
 
     const scc_node& node(unsigned scc) const
     {
-      assert(scc < node_.size());
       return node_[scc];
     }
 
@@ -132,7 +131,6 @@ namespace spot
 
     unsigned scc_of(unsigned st) const
     {
-      assert(st < sccof_.size());
       return sccof_[st];
     }
 
@@ -162,7 +160,7 @@ namespace spot
     /// \brief Get number of the SCC containing the initial state.
     unsigned initial() const
     {
-      assert(scc_count() - 1 == scc_of(aut_->get_init_state_number()));
+      SPOT_ASSERT(scc_count() - 1 == scc_of(aut_->get_init_state_number()));
       return scc_count() - 1;
     }
 

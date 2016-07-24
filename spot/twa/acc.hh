@@ -58,13 +58,13 @@ namespace spot
 
       bool operator==(unsigned o) const
       {
-        assert(o == 0U);
+        SPOT_ASSERT(o == 0U);
         return id == o;
       }
 
       bool operator!=(unsigned o) const
       {
-        assert(o == 0U);
+        SPOT_ASSERT(o == 0U);
         return id != o;
       }
 
@@ -1115,7 +1115,7 @@ namespace spot
 
     mark_t mark(unsigned u) const
     {
-      assert(u < num_sets());
+      SPOT_ASSERT(u < num_sets());
       return 1U << u;
     }
 

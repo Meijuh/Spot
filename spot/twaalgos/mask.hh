@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -66,7 +66,7 @@ namespace spot
         todo.pop_back();
 
         unsigned new_src = seen[old_src];
-        assert(new_src != -1U);
+        SPOT_ASSERT(new_src != -1U);
 
         for (auto& t: old->out(old_src))
           {
@@ -112,7 +112,7 @@ namespace spot
         trans(t.src, cond, acc, t.dst);
         // Having the same number of states should assure that state ids are
         // equivilent in old and cpy.
-        assert(t.src < cpy->num_states() && t.dst < cpy->num_states());
+        SPOT_ASSERT(t.src < cpy->num_states() && t.dst < cpy->num_states());
         if (cond != bddfalse)
           cpy->new_edge(t.src, t.dst, cond, acc);
       }

@@ -300,8 +300,11 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
 	    */priv/*|*/bin/*);;
 	    *)
 	      $GREP '#.*include.*priv/' $tmp &&
-		  diag 'Do not include private headers in public headers.'
+		diag 'Do not include private headers in public headers.'
+              $GREP -v '#' $tmp | $GREP 'assert[	 ]*(.*)' &&
+                diag 'Use SPOT_ASSERT() instead of assert() in public headers.'
 	      ;;
+
 	  esac
 	  ;;
 	*.cc)
@@ -312,8 +315,8 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
 	    $GREP '^[	 ]*class[	 ]' $tmp &&
 	      diag 'Private definitions must be in anonymous namespace.'
 	  fi
-    e$GREP '	' $tmp &&
-	diag 'Use spaces instead of tabular.'
+          e$GREP '	' $tmp &&
+	      diag 'Use spaces instead of tabs.'
 	  ;;
       esac
       case $file in

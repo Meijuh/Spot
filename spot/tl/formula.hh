@@ -191,7 +191,9 @@ namespace spot
       {
         if (op_ != o)
           return nullptr;
-        assert(size_ == 1);
+        if (SPOT_UNLIKELY(size_ != 1))
+          throw std::invalid_argument
+            ("get_child_of() expecting single-child node");
         return nth(0);
       }
 
@@ -211,14 +213,18 @@ namespace spot
       /// \see formula::min
       unsigned min() const
       {
-        assert(op_ == op::FStar || op_ == op::Star);
+        if (SPOT_UNLIKELY(op_ != op::FStar && op_ != op::Star))
+          throw std::invalid_argument
+            ("min() only works on Star and FStar nodes");
         return min_;
       }
 
       /// \see formula::max
       unsigned max() const
       {
-        assert(op_ == op::FStar || op_ == op::Star);
+        if (SPOT_UNLIKELY(op_ != op::FStar && op_ != op::Star))
+          throw std::invalid_argument
+            ("max() only works on Star and FStar nodes");
         return max_;
       }
 
@@ -580,8 +586,8 @@ namespace spot
     bool
       operator()(const fnode* left, const fnode* right) const
       {
-        assert(left);
-        assert(right);
+        SPOT_ASSERT(left);
+        SPOT_ASSERT(right);
         if (left == right)
           return false;
 

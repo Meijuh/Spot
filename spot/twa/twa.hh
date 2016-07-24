@@ -129,7 +129,7 @@ namespace spot
     bool
     operator()(const state* left, const state* right) const
     {
-      assert(left);
+      SPOT_ASSERT(left);
       return left->compare(right) < 0;
     }
   };
@@ -152,7 +152,7 @@ namespace spot
     bool
     operator()(const state* left, const state* right) const
     {
-      assert(left);
+      SPOT_ASSERT(left);
       return 0 == left->compare(right);
     }
   };
@@ -176,7 +176,7 @@ namespace spot
     size_t
     operator()(const state* that) const
     {
-      assert(that);
+      SPOT_ASSERT(that);
       return that->hash();
     }
   };
@@ -280,7 +280,7 @@ namespace spot
     operator()(shared_state left,
                shared_state right) const
     {
-      assert(left);
+      SPOT_ASSERT(left);
       return left->compare(right.get()) < 0;
     }
   };
@@ -308,7 +308,7 @@ namespace spot
     operator()(shared_state left,
                shared_state right) const
     {
-      assert(left);
+      SPOT_ASSERT(left);
       return 0 == left->compare(right.get());
     }
   };
@@ -336,7 +336,7 @@ namespace spot
     size_t
     operator()(shared_state that) const
     {
-      assert(that);
+      SPOT_ASSERT(that);
       return that->hash();
     }
   };
