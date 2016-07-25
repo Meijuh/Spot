@@ -180,6 +180,9 @@ New in spot 2.0.3a (not yet released)
     automata, the error message would report "Comp(Ni)*Comp(Pj)" as
     non-empty while the actual culprit was "Comp(Nj)*Comp(Pi)".
 
+  * Fix some non-deterministic execution of minimize_wdba(), causing
+    test-suite failures with the future G++ 7, and clang 3.9.
+
 New in spot 2.0.3 (2016-07-11)
 
   Bug fixes:

@@ -49,9 +49,9 @@
 
 namespace spot
 {
-  // FIXME: do we really want to use unordered_set instead of set here?
-  // This calls for benchmarking.
-  typedef state_set hash_set;
+  // This is called hash_set for historical reason, but we need the
+  // order inside hash_set to be deterministic.
+  typedef std::set<const state*, state_ptr_less_than> hash_set;
   typedef state_map<unsigned> hash_map;
 
   namespace
