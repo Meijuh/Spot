@@ -26,8 +26,10 @@
 		      (org-babel-do-load-languages 'org-babel-load-languages
 						   '((sh . t)
 						     (python . t)
+                                                     (plantuml . t)
 						     (dot . t)
 						     (C . t)))))
+              (org-plantuml-jar-path . "./plantuml.jar")
 	      (org-confirm-babel-evaluate . nil)
 	      (org-babel-python-command . "@PYTHON@")
 	      (org-babel-C++-compiler . "./g++wrap")

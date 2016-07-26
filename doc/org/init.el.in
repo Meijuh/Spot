@@ -23,9 +23,10 @@
  '((sh . t)
    (dot . t)
    (python . t)
+   (plantuml . t)
    (C . t)))
 (setq org-confirm-babel-evaluate nil)
-
+(setq org-plantuml-jar-path "./plantuml.jar")
 (setq org-babel-python-command "@PYTHON@")
 (setq org-babel-C++-compiler "./g++wrap")
 (setq shell-file-name "@SHELL@")

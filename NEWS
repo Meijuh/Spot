@@ -171,6 +171,8 @@ New in spot 2.0.3a (not yet released)
 
   * A new example page shows how to test the equivalence of
     two LTL/PSL formulas.  https://spot.lrde.epita.fr/tut04.html
+  * A new page discusses explicit vs. on-the-fly interfaces for
+    exploring automata in C++.  https://spot.lrde.epita.fr/tut50.html
   * The concepts.html page now lists all named properties
     used by automata.
 

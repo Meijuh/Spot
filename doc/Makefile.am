@@ -58,8 +58,11 @@ dist_pkgdata_DATA = $(srcdir)/spot.tag
 org:
 	cd $(top_builddir) && $(MAKE) doc/org/init.el
 	rm -rf $(srcdir)/userdoc
-	$(MAKE) org-man
+	$(MAKE) org-man org/plantuml.jar
 	$(EMACS) --batch -Q -l org/init.el
+
+org/plantuml.jar:
+	wget http://downloads.sourceforge.net/project/plantuml/plantuml.jar -O org/plantuml.jar
 
 org-man:
 	mkdir -p $(srcdir)/userdoc/man
@@ -103,6 +106,7 @@ ORG_FILES = \
   org/tut21.org \
   org/tut22.org \
   org/tut30.org \
+  org/tut50.org \
   org/upgrade2.org \
   org/satmin.org \
   org/satmin.tex \
@@ -137,3 +141,5 @@ dist-hook: optipng
 .PHONY: optipng
 optipng:
 	-(optipng -v >/dev/null) && optipng -o5 $(distdir)/userdoc/*.png
+
+DISTCLEANFILES = org/plantuml.jar
