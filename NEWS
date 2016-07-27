@@ -146,6 +146,11 @@ New in spot 2.0.3a (not yet released)
     spot::internal::twa_succ_iterable to make it clear this is not for
     public consumption.
 
+  * spot::fair_kripke::state_acceptance_conditions() renamed to
+    spot::fair_kripke::state_acceptance_mark() for consistency.  This
+    is backward incompatible, but we are not aware of any actual use
+    of this method.
+
   Python:
 
   * The __format__() method for formula supports the same
