@@ -43,7 +43,7 @@
 #define Random(i) ( (rand() % (i)) + 1 )
 #define isEven(src) (!((src) & 0x1))
 #define hasFactor(src,n) ( (((src)!=(n)) && ((src)%(n) == 0)) )
-#define BitIsSet(src,b) ( ((src) & (1<<(b))) != 0 )
+#define BitIsSet(src,b) ( ((src) & (1U<<(b))) != 0 )
 
 #define CHECKTIMES 20
 
@@ -115,7 +115,7 @@ static unsigned int u64_mod(UINT64 dividend, unsigned int divisor)
   int i;
 
   u64_shl(&dividend, &remainder);
-  
+
   for (i=0 ; i<64 ; ++i)
   {
     if (remainder >= divisor)
@@ -145,7 +145,7 @@ static unsigned int numberOfBits(unsigned int src)
 
   if (src == 0)
     return 0;
-  
+
   for (b=(sizeof(unsigned int)*8)-1 ; b>0 ; --b)
     if (BitIsSet(src,b))
       return b+1;
@@ -166,10 +166,10 @@ static int isWitness(unsigned int witness, unsigned int src)
     unsigned int x = d;
 
     d = u64_mulmod(d,d,src);
-    
+
     if (d == 1  &&  x != 1  &&  x != src-1)
       return 1;
-    
+
     if (BitIsSet(src-1,i))
       d = u64_mulmod(d,witness,src);
   }
@@ -280,12 +280,12 @@ void testMul(unsigned int a, unsigned int b)
 void testMod(unsigned int a, unsigned int b, unsigned int c)
 {
   UINT64 x = u64_mul(a,b);
-  
+
   long long z1 = (long long)a * (long long)b;
   long long z2 = ((long long)x.hi << 32) + (long long)x.lo;
   unsigned int m1 = z1 % c;
   unsigned int m2 = u64_mod(x,c);
-  
+
   if (z1 != z2)
     printf("%d * %d = %lld,%lld\n", a, b, z1, z2);
 
@@ -311,11 +311,10 @@ int main()
       printf("ERROR");
     /*printf("\n");*/
   }
-  
+
   return 0;
 }
 #endif
 
 
 /* EOF */
-
