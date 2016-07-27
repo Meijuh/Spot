@@ -462,9 +462,9 @@ package spot {
 
     class succ_iterator {
       succ_iterator(twa_succ_iterator*)
-      bool operator==(succ_iterator) const
-      bool operator!=(succ_iterator) const
-      const twa_succ_iterator* operator*() const
+      bool operator==(succ_iterator)
+      bool operator!=(succ_iterator)
+      const twa_succ_iterator* operator*()
       void operator++()
     }
   }
@@ -500,13 +500,14 @@ package spot {
   }
 
   abstract class state {
-    +{abstract}int compare(const state*) const
-    +{abstract}size_t hash() const
-    +{abstract}state* clone() const
-    +void destroy() const
+    +{abstract}int compare(const state*)
+    +{abstract}size_t hash()
+    +{abstract}state* clone()
+    +void destroy()
     #~state()
   }
   }
+
 
 
   class twa_graph
