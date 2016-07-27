@@ -313,7 +313,7 @@ namespace spot
       }
 
       const state*
-      filter(const state* s)
+      filter(const state* s) override
       {
         state_set::const_iterator i = seen.find(s);
         if (i == seen.end())
@@ -327,7 +327,7 @@ namespace spot
       }
 
       bool
-      match(twa_run::step&, const state* dest)
+      match(twa_run::step&, const state* dest) override
       {
         return target->find(dest) != target->end();
       }

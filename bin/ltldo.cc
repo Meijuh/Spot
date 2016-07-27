@@ -274,7 +274,7 @@ namespace
     int
     process_string(const std::string& input,
                    const char* filename,
-                   int linenum)
+                   int linenum) override
     {
       spot::parsed_formula pf = parse_formula(input);
 
@@ -294,7 +294,7 @@ namespace
 
     int
     process_formula(spot::formula f,
-                    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0) override
     {
       std::unique_ptr<spot::relabeling_map> relmap;
 

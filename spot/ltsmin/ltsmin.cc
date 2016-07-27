@@ -84,7 +84,7 @@ namespace spot
     ////////////////////////////////////////////////////////////////////////
     // STATE
 
-    struct spins_state: public state
+    struct spins_state final: public state
     {
       spins_state(int s, fixed_size_pool* p)
         : pool(p), size(s), count(1)
@@ -98,25 +98,25 @@ namespace spot
           hash_value = wang32_hash(hash_value ^ vars[i]);
       }
 
-      spins_state* clone() const
+      spins_state* clone() const override
       {
         ++count;
         return const_cast<spins_state*>(this);
       }
 
-      void destroy() const
+      void destroy() const override
       {
         if (--count)
           return;
         pool->deallocate(this);
       }
 
-      size_t hash() const
+      size_t hash() const override
       {
         return hash_value;
       }
 
-      int compare(const state* other) const
+      int compare(const state* other) const override
       {
         if (this == other)
           return 0;
@@ -143,7 +143,7 @@ namespace spot
       int vars[0];
     };
 
-    struct spins_compressed_state: public state
+    struct spins_compressed_state final: public state
     {
       spins_compressed_state(int s, multiple_size_pool* p)
         : pool(p), size(s), count(1)
@@ -157,25 +157,25 @@ namespace spot
           hash_value = wang32_hash(hash_value ^ vars[i]);
       }
 
-      spins_compressed_state* clone() const
+      spins_compressed_state* clone() const override
       {
         ++count;
         return const_cast<spins_compressed_state*>(this);
       }
 
-      void destroy() const
+      void destroy() const override
       {
         if (--count)
           return;
         pool->deallocate(this, sizeof(*this) + size * sizeof(*vars));
       }
 
-      size_t hash() const
+      size_t hash() const override
       {
         return hash_value;
       }
 
-      int compare(const state* other) const
+      int compare(const state* other) const override
       {
         if (this == other)
           return 0;

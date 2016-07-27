@@ -826,7 +826,7 @@ namespace
     int
     process_string(const std::string& input,
                    const char* filename,
-                   int linenum)
+                   int linenum) override
     {
       auto pf = parse_formula(input);
       if (!pf.f || !pf.errors.empty())
@@ -928,7 +928,7 @@ namespace
 
     int
     process_formula(spot::formula f,
-                    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0) override
     {
       static unsigned round = 0;
 

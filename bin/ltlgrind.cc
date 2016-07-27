@@ -113,7 +113,7 @@ namespace
   public:
     int
     process_formula(spot::formula f, const char* filename = nullptr,
-                    int linenum = 0)
+                    int linenum = 0) override
     {
       auto mutations =
         spot::mutate(f, mut_opts, max_output, mutation_nb, opt_sort);

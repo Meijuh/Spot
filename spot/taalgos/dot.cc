@@ -141,7 +141,7 @@ namespace spot
       }
 
       void
-      start()
+      start() override
       {
         os_ << "digraph G {\n";
 
@@ -198,13 +198,13 @@ namespace spot
       }
 
       void
-      end()
+      end() override
       {
         os_ << '}' << std::endl;
       }
 
       void
-      process_state(const state* s, int n)
+      process_state(const state* s, int n) override
       {
 
         std::string style;
@@ -223,7 +223,7 @@ namespace spot
       }
 
       void
-      process_link(int in, int out, const ta_succ_iterator* si)
+      process_link(int in, int out, const ta_succ_iterator* si) override
       {
         bdd_dict_ptr d = t_automata_->get_dict();
         std::string label =

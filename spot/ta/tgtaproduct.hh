@@ -60,18 +60,14 @@ namespace spot
     ~tgta_succ_iterator_product();
 
     // iteration
-    bool first();
-    bool next();
-    bool done() const;
+    bool first() override;
+    bool next() override;
+    bool done() const override;
 
     // inspection
-    state_product*
-    dst() const;
-    bdd
-    cond() const;
-
-    acc_cond::mark_t
-    acc() const;
+    state_product* dst() const override;
+    bdd cond() const override;
+    acc_cond::mark_t acc() const override;
 
   private:
     //@{

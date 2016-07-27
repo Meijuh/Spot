@@ -175,7 +175,7 @@ namespace
 
     int
     process_formula(spot::formula f,
-                    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0) override
     {
       auto aut = trans.run(&f);
 

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -347,7 +347,7 @@ public:
   {
   }
 
-  virtual int compare(const spot::state* other) const
+  int compare(const spot::state* other) const override
   {
     auto o = down_cast<const my_state*>(other);
     assert(o);
@@ -360,19 +360,18 @@ public:
     return 0;
   }
 
-  virtual size_t hash() const
+  size_t hash() const override
   {
     return
       reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
   }
 
-  virtual my_state*
-  clone() const
+  my_state* clone() const override
   {
     return const_cast<my_state*>(this);
   }
 
-  virtual void destroy() const
+  void destroy() const override
   {
   }
 

@@ -201,10 +201,6 @@ namespace spot
     ~ta_succ_iterator()
     {
     }
-    /// \brief Get the changeset on the transition leading to current successor.
-    ///
-    /// This is a boolean function of atomic propositions.
-    virtual bdd cond() const = 0;
   };
 
 #ifndef SWIG

@@ -97,7 +97,8 @@ namespace spot
 
     virtual ~kripke();
 
-    virtual acc_cond::mark_t state_acceptance_conditions(const state*) const;
+    virtual
+      acc_cond::mark_t state_acceptance_conditions(const state*) const override;
   };
 
   typedef std::shared_ptr<kripke> kripke_ptr;

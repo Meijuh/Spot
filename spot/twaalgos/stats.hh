@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Copyright (C) 2008, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -66,7 +66,7 @@ namespace spot
     }
 
     virtual void
-    print(std::ostream& os, const char*) const;
+    print(std::ostream& os, const char*) const override;
   };
 
   /// \brief prints various statistics about a TGBA

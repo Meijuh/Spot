@@ -36,13 +36,13 @@ namespace spot
       }
 
       void
-      process_state(const state* s, int)
+      process_state(const state* s, int) override
       {
         states_set_.insert(s);
       }
 
       void
-      process_link(int, int, const ta_succ_iterator*)
+      process_link(int, int, const ta_succ_iterator*) override
       {
       }
 

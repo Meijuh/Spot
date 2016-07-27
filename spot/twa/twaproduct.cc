@@ -107,7 +107,7 @@ namespace spot
 
       virtual bool next_non_false_() = 0;
 
-      bool first()
+      bool first() override
       {
         if (!right_)
           return false;
@@ -125,12 +125,12 @@ namespace spot
         return next_non_false_();
       }
 
-      bool done() const
+      bool done() const override
       {
         return !right_ || right_->done();
       }
 
-      const state_product* dst() const
+      const state_product* dst() const override
       {
         return new(pool_->allocate()) state_product(left_->dst(),
                                                     right_->dst(),
@@ -171,7 +171,7 @@ namespace spot
         return right_->next();
       }
 
-      bool next_non_false_()
+      bool next_non_false_() override
       {
         assert(!done());
         do
@@ -190,19 +190,19 @@ namespace spot
         return false;
       }
 
-      bool next()
+      bool next() override
       {
         if (step_())
           return next_non_false_();
         return false;
       }
 
-      bdd cond() const
+      bdd cond() const override
       {
         return current_cond_;
       }
 
-      acc_cond::mark_t acc() const
+      acc_cond::mark_t acc() const override
       {
         return left_->acc() | (right_->acc() << prod_->left_acc().num_sets());
       }
@@ -229,7 +229,7 @@ namespace spot
       {
       }
 
-      bool next_non_false_()
+      bool next_non_false_() override
       {
         // All the transitions of left_ iterator have the
         // same label, because it is a Kripke structure.
@@ -250,7 +250,7 @@ namespace spot
         return false;
       }
 
-      bool next()
+      bool next() override
       {
         if (left_->next())
           return true;
@@ -260,12 +260,12 @@ namespace spot
         return false;
       }
 
-      bdd cond() const
+      bdd cond() const override
       {
         return current_cond_;
       }
 
-      acc_cond::mark_t acc() const
+      acc_cond::mark_t acc() const override
       {
         return right_->acc();
       }

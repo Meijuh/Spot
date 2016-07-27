@@ -398,7 +398,7 @@ namespace spot
           return nullptr;
       }
 
-      const state* filter(const state* s)
+      const state* filter(const state* s) override
       {
         if (!h.has_been_visited(s)
             || seen.find(s) != seen.end()
@@ -412,9 +412,10 @@ namespace spot
         return s;
       }
 
-      void finalize(const std::map<const state*, twa_run::step,
-                                   state_ptr_less_than>&,
-                    const twa_run::step&, const state*, twa_run::steps&)
+      void
+      finalize(const std::map<const state*,
+                              twa_run::step, state_ptr_less_than>&,
+               const twa_run::step&, const state*, twa_run::steps&) override
       {
       }
 
@@ -423,7 +424,7 @@ namespace spot
         return seen;
       }
 
-      bool match(twa_run::step&, const state* dest)
+      bool match(twa_run::step&, const state* dest) override
       {
         return target->compare(dest) == 0;
       }
@@ -493,7 +494,7 @@ namespace spot
           return nullptr;
       }
 
-      const state* filter(const state* s)
+      const state* filter(const state* s) override
       {
         ndfsr_trace << "filter: " << a_->format_state(s);
         if (!h.has_been_visited(s) || seen.find(s) != seen.end())
@@ -514,7 +515,7 @@ namespace spot
         return s;
       }
 
-      bool match(twa_run::step&, const state* dest)
+      bool match(twa_run::step&, const state* dest) override
       {
         ndfsr_trace << "match: " << a_->format_state(dest)
                     << std::endl;

@@ -97,7 +97,7 @@ namespace spot
       ///
       /// \return non null pointer iff the algorithm has found an
       /// accepting path.
-      virtual emptiness_check_result_ptr check()
+      virtual emptiness_check_result_ptr check() override
       {
         if (!st_blue.empty())
             return nullptr;
@@ -113,7 +113,7 @@ namespace spot
         return nullptr;
       }
 
-      virtual std::ostream& print_stats(std::ostream &os) const
+      virtual std::ostream& print_stats(std::ostream &os) const override
       {
         os << states() << " distinct nodes visited" << std::endl;
         os << transitions() << " transitions explored" << std::endl;

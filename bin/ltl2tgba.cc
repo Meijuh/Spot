@@ -125,7 +125,7 @@ namespace
 
     int
     process_formula(spot::formula f,
-                    const char* filename = nullptr, int linenum = 0)
+                    const char* filename = nullptr, int linenum = 0) override
     {
       // This should not happen, because the parser we use can only
       // read PSL/LTL formula, but since our formula type can

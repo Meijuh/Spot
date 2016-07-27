@@ -45,7 +45,7 @@ namespace spot
       }
 
       const state*
-      filter(const state* s)
+      filter(const state* s) override
       {
         r->inc_ars_prefix_states();
         auto i = ecs->h.find(s);
@@ -60,7 +60,7 @@ namespace spot
       }
 
       bool
-      match(twa_run::step&, const state* dest)
+      match(twa_run::step&, const state* dest) override
       {
         return target->find(dest) != target->end();
       }

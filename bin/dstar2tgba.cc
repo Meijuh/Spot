@@ -118,7 +118,7 @@ namespace
     }
 
     int
-    process_formula(spot::formula, const char*, int)
+    process_formula(spot::formula, const char*, int) override
     {
       SPOT_UNREACHABLE();
     }
@@ -146,7 +146,7 @@ namespace
     }
 
     int
-    process_file(const char* filename)
+    process_file(const char* filename) override
     {
       auto hp = spot::automaton_stream_parser(filename, opt_parse);
       int err = 0;

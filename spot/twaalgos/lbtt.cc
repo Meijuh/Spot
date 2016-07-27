@@ -74,7 +74,7 @@ namespace spot
 
 
       void
-      process_state(const state* s, int n, twa_succ_iterator*)
+      process_state(const state* s, int n, twa_succ_iterator*) override
       {
         --n;
         if (n == 0)
@@ -93,7 +93,7 @@ namespace spot
 
       void
       process_link(const state*, int,
-                   const state*, int out, const twa_succ_iterator* si)
+                   const state*, int out, const twa_succ_iterator* si) override
       {
         body_ << out - 1 << ' ';
         if (!sba_format_)
@@ -107,7 +107,7 @@ namespace spot
       }
 
       void
-      end()
+      end() override
       {
         os_ << seen.size() << ' ';
         if (sba_format_)
