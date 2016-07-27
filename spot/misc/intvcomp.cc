@@ -157,8 +157,8 @@ namespace spot
 
         unsigned int right_bit_count = n - bits_left_;
         unsigned int left = bits >> right_bit_count;
-        push_bits_unchecked(left, bits_left_, (1 << bits_left_) - 1);
-        push_bits_unchecked(bits, right_bit_count, (1 << right_bit_count) - 1);
+        push_bits_unchecked(left, bits_left_, (1U << bits_left_) - 1);
+        push_bits_unchecked(bits, right_bit_count, (1U << right_bit_count) - 1);
       }
 
       void flush()
@@ -388,7 +388,7 @@ namespace spot
 
             look_ <<= fill_size;
             buffer_bits_ -= fill_size;
-            look_ |= (buffer_ >> buffer_bits_) & ((1 << fill_size) - 1);
+            look_ |= (buffer_ >> buffer_bits_) & ((1U << fill_size) - 1);
             look_bits_ += fill_size;
 
             if (buffer_bits_ == 0)
@@ -417,7 +417,7 @@ namespace spot
         if (SPOT_UNLIKELY(look_bits_ < n))
           refill();
         assert(n <= look_bits_);
-        return (look_ >> (look_bits_ - n)) & ((1 << n) - 1);
+        return (look_ >> (look_bits_ - n)) & ((1U << n) - 1);
       }
 
       void skip_n_bits(unsigned int n)
@@ -431,7 +431,7 @@ namespace spot
         if (SPOT_UNLIKELY(look_bits_ < n))
           refill();
         look_bits_ -= n;
-        return (look_ >> look_bits_) & ((1 << n) - 1);
+        return (look_ >> look_bits_) & ((1U << n) - 1);
       }
 
       unsigned int get_32_bits()

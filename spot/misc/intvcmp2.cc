@@ -52,12 +52,12 @@ namespace spot
         static const unsigned bits_width[7] = { 1, 3, 5, 7, 9, 14, 28 };
         static const unsigned max_count[8] = { 30, 10, 6, 4, 3, 2, 1, 0 };
         static const unsigned max_allowed[8] = { 1,
-                                                 (1 << 3) - 1,
-                                                 (1 << 5) - 1,
-                                                 (1 << 7) - 1,
-                                                 (1 << 9) - 1,
-                                                 (1 << 14) - 1,
-                                                 (1 << 28) - 1,
+                                                 (1U << 3) - 1,
+                                                 (1U << 5) - 1,
+                                                 (1U << 7) - 1,
+                                                 (1U << 9) - 1,
+                                                 (1U << 14) - 1,
+                                                 (1U << 28) - 1,
                                                  -1U };
         // If we have only X data to compress and they fit with the
         // current bit width, the following table tells us we should
@@ -397,36 +397,36 @@ namespace spot
               case 0x01:
               case 0x02:
               case 0x03:
-                self().write_data_at(0,  !!(val & (1 << 29)));
-                self().write_data_at(1,  !!(val & (1 << 28)));
-                self().write_data_at(2,  !!(val & (1 << 27)));
-                self().write_data_at(3,  !!(val & (1 << 26)));
-                self().write_data_at(4,  !!(val & (1 << 25)));
-                self().write_data_at(5,  !!(val & (1 << 24)));
-                self().write_data_at(6,  !!(val & (1 << 23)));
-                self().write_data_at(7,  !!(val & (1 << 22)));
-                self().write_data_at(8,  !!(val & (1 << 21)));
-                self().write_data_at(9,  !!(val & (1 << 20)));
-                self().write_data_at(10, !!(val & (1 << 19)));
-                self().write_data_at(11, !!(val & (1 << 18)));
-                self().write_data_at(12, !!(val & (1 << 17)));
-                self().write_data_at(13, !!(val & (1 << 16)));
-                self().write_data_at(14, !!(val & (1 << 15)));
-                self().write_data_at(15, !!(val & (1 << 14)));
-                self().write_data_at(16, !!(val & (1 << 13)));
-                self().write_data_at(17, !!(val & (1 << 12)));
-                self().write_data_at(18, !!(val & (1 << 11)));
-                self().write_data_at(19, !!(val & (1 << 10)));
-                self().write_data_at(20, !!(val & (1 <<  9)));
-                self().write_data_at(21, !!(val & (1 <<  8)));
-                self().write_data_at(22, !!(val & (1 <<  7)));
-                self().write_data_at(23, !!(val & (1 <<  6)));
-                self().write_data_at(24, !!(val & (1 <<  5)));
-                self().write_data_at(25, !!(val & (1 <<  4)));
-                self().write_data_at(26, !!(val & (1 <<  3)));
-                self().write_data_at(27, !!(val & (1 <<  2)));
-                self().write_data_at(28, !!(val & (1 <<  1)));
-                self().write_data_at(29, !!(val & (1 <<  0)));
+                self().write_data_at(0,  !!(val & (1U << 29)));
+                self().write_data_at(1,  !!(val & (1U << 28)));
+                self().write_data_at(2,  !!(val & (1U << 27)));
+                self().write_data_at(3,  !!(val & (1U << 26)));
+                self().write_data_at(4,  !!(val & (1U << 25)));
+                self().write_data_at(5,  !!(val & (1U << 24)));
+                self().write_data_at(6,  !!(val & (1U << 23)));
+                self().write_data_at(7,  !!(val & (1U << 22)));
+                self().write_data_at(8,  !!(val & (1U << 21)));
+                self().write_data_at(9,  !!(val & (1U << 20)));
+                self().write_data_at(10, !!(val & (1U << 19)));
+                self().write_data_at(11, !!(val & (1U << 18)));
+                self().write_data_at(12, !!(val & (1U << 17)));
+                self().write_data_at(13, !!(val & (1U << 16)));
+                self().write_data_at(14, !!(val & (1U << 15)));
+                self().write_data_at(15, !!(val & (1U << 14)));
+                self().write_data_at(16, !!(val & (1U << 13)));
+                self().write_data_at(17, !!(val & (1U << 12)));
+                self().write_data_at(18, !!(val & (1U << 11)));
+                self().write_data_at(19, !!(val & (1U << 10)));
+                self().write_data_at(20, !!(val & (1U <<  9)));
+                self().write_data_at(21, !!(val & (1U <<  8)));
+                self().write_data_at(22, !!(val & (1U <<  7)));
+                self().write_data_at(23, !!(val & (1U <<  6)));
+                self().write_data_at(24, !!(val & (1U <<  5)));
+                self().write_data_at(25, !!(val & (1U <<  4)));
+                self().write_data_at(26, !!(val & (1U <<  3)));
+                self().write_data_at(27, !!(val & (1U <<  2)));
+                self().write_data_at(28, !!(val & (1U <<  1)));
+                self().write_data_at(29, !!(val & (1U <<  0)));
                 self().forward(30);
                 break;
               case 0x04: // 01xx - 10 3-bit values.
