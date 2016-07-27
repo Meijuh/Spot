@@ -195,6 +195,9 @@ New in spot 2.0.3a (not yet released)
   * Fix some non-deterministic execution of minimize_wdba(), causing
     test-suite failures with the future G++ 7, and clang 3.9.
 
+  * print_lbtt() had a memory leak when printing states without
+    successors.
+
 New in spot 2.0.3 (2016-07-11)
 
   Bug fixes:

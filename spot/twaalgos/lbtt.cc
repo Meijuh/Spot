@@ -51,7 +51,7 @@ namespace spot
       }
 
       acc_cond::mark_t
-      state_acc_sets(const state *s) const
+      state_acc_sets(const state* s) const
       {
         // If the automaton has a SBA type, it's easier to just query the
         // state_is_accepting() method.
@@ -65,9 +65,9 @@ namespace spot
         // is not terribly efficient since we have to create the
         // iterator.
         twa_succ_iterator* it = aut_->succ_iter(s);
-        if (!it->first())
-          return {};
-        auto res = it->acc();
+        acc_cond::mark_t res = 0U;
+        if (it->first())
+          res = it->acc();
         aut_->release_iter(it);
         return res;
       }
