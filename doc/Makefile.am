@@ -107,6 +107,7 @@ ORG_FILES = \
   org/tut22.org \
   org/tut30.org \
   org/tut50.org \
+  org/tut51.org \
   org/upgrade2.org \
   org/satmin.org \
   org/satmin.tex \

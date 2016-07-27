@@ -179,6 +179,10 @@ New in spot 2.0.3a (not yet released)
   * A new page discusses explicit vs. on-the-fly interfaces for
     exploring automata in C++.  https://spot.lrde.epita.fr/tut50.html
 
+  * Another new page shows how to implement an on-the-fly Kripke
+    structure to implement a custom state space.
+    https://spot.lrde.epita.fr/tut51.html
+
   * The concepts.html page now lists all named properties
     used by automata.
 
