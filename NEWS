@@ -31,37 +31,37 @@ New in spot 2.0.3a (not yet released)
   * ltldo has a new option --errors=... to specify how to deal
     with errors from executed tools.
 
-  * autfilt has several new options to filter automata by count of
-    SCCs (--sccs=RANGE) or by type of SCCs (--accepting-sccs=RANGE,
+  * autfilt learned to filter automata by count of SCCs (--sccs=RANGE)
+    or by type of SCCs (--accepting-sccs=RANGE,
     --rejecting-sccs=RANGE, trivial-sccs=RANGE, --terminal-sccs=RANGE,
     --weak-sccs=RANGE, --inherently-weak-sccs=RANGE).
 
-  * autfilt --remove-unused-ap can be used to remove atomic
-    proposition that are declared in the input automaton, but not
-    actually used.  This of course makes sense only for input/output
-    formats that declare atomic proposition (HOA & DSTAR).
+  * autfilt learned --remove-unused-ap to remove atomic proposition
+    that are declared in the input automaton, but not actually used.
+    This of course makes sense only for input/output formats that
+    declare atomic proposition (HOA & DSTAR).
 
-  * autfilt has two new options to filter automata by count of used or
+  * autfilt learned two options to filter automata by count of used or
     unused atomic propositions: --used-ap=RANGE --unused-ap=RANGE.
     These differ from --ap=RANGE that only consider *declared* atomic
     propositions, regardless of whether they are actually used.
 
-  * autfilt can filter automata by count of nondeterministsic states
-    with --nondet-states=RANGE.
+  * autfilt learned to filter automata by count of nondeterministsic
+    states with --nondet-states=RANGE.
 
-  * autfilt can filter automata representing stutter-invariant
+  * autfilt learned to filter automata representing stutter-invariant
     properties with --is-stutter-invariant.
 
-  * autfilt has two new options to highlight non-determinism:
+  * autfilt learned two new options to highlight non-determinism:
     --highlight-nondet-states=NUM and --highlight-nondet-states=NUM
-    where NUM is a color number.  Additionally --highlight-nondet=NUM
-    is a shorthand for using the two.
+    where NUM is a color number.  Additionally --highlight-nondet=NUM is
+    a shorthand for using the two.
 
-  * autfilt can now highlight a run matching a given word using the
+  * autfilt learned to highlight a run matching a given word using the
     --highlight-word=[NUM,]WORD option.  However currently this only
     work on automata with Fin-less acceptance.
 
-  * ltlcross and ltldo have a new syntax to specify that an input
+  * ltlcross and ltldo learned a new syntax to specify that an input
     formula should be written in some given syntax after rewriting
     some operators away.  For instance the defaults arguments passed
     to ltl2dstar have been changed from
@@ -75,15 +75,14 @@ New in spot 2.0.3a (not yet released)
     'b U (a & b)' instead.  The operators that can be listed between
     brackets are the same as those of ltlfilt --unabbreviate option.
 
-  * genltl has learned three new families: --dac-patterns=1..45,
+  * genltl learned three new families: --dac-patterns=1..45,
     --eh-patterns=1..12, and --sb-patterns=1..27.  Unlike other options
     these do not output scalable patterns, but simply a list of formulas
     appearing in these three papers: Dwyer et al (FMSP'98), Etessami &
     Holzmann (Concur'00), Somenzi & Bloem (CAV'00).
 
-  * genltl has two additional options, --positive and --negative, to
-    control wether formulas should be output after negation or not (or
-    both).
+  * genltl learned two options, --positive and --negative, to control
+    wether formulas should be output after negation or not (or both).
 
   * Arguments passed to -x (in ltl2tgba, ltl2tgta, autfilt, dstar2tgba)
     that are not used are now reported as they might be typos.
@@ -171,8 +170,10 @@ New in spot 2.0.3a (not yet released)
 
   * A new example page shows how to test the equivalence of
     two LTL/PSL formulas.  https://spot.lrde.epita.fr/tut04.html
+
   * A new page discusses explicit vs. on-the-fly interfaces for
     exploring automata in C++.  https://spot.lrde.epita.fr/tut50.html
+
   * The concepts.html page now lists all named properties
     used by automata.
 
