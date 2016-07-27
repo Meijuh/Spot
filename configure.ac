@@ -135,6 +135,8 @@ esac
 
 AM_CONDITIONAL([USE_PYTHON], [test "x${enable_python:-yes}" = xyes])
 
+AM_CONDITIONAL([USE_LTSMIN], [test "x${enable_shared:-yes}" = xyes])
+
 if test "x${enable_python:-yes}" = xyes; then
   AC_MSG_NOTICE([You may configure with --disable-python ]dnl
 [if you do not need Python bindings.])

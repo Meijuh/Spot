@@ -354,6 +354,7 @@ EXTRA_DIST = \
 
 ############################## LTSMIN ##############################
 
+if USE_LTSMIN
 check_PROGRAMS += ltsmin/modelcheck
 
 ltsmin_modelcheck_SOURCES = ltsmin/modelcheck.cc
@@ -374,6 +375,7 @@ EXTRA_DIST += ltsmin/beem-peterson.4.dve ltsmin/elevator2.1.pm \
 	ltsmin/finite.dve ltsmin/finite.pm
 
 ltlsmin/kripke.log: core/kripkecat$(EXEEXT)
+endif
 
 
 ############################## SANITY ##############################
