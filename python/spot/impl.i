@@ -163,14 +163,16 @@ using namespace spot;
 %}
 
 
-// Swig come with iterators that implement a decrement method.
-// This is not supported in our "successor" iterators.
+// Swig come with iterators that implement a decrement method.  This
+// is not supported in our "successor" iterators.  Also we want
+// iterators to return pointers so that data can be modified during
+// iteration.
 %fragment("ForwardIterator_T","header",fragment="SwigPyIterator_T") {
 namespace swig
 {
   template<typename OutIterator,
 	   typename ValueType =
-	   typename std::iterator_traits<OutIterator>::value_type,
+	   typename std::iterator_traits<OutIterator>::pointer,
 	   typename FromOper = from_oper<ValueType> >
   class ForwardIterator_T :  public SwigPyIterator_T<OutIterator>
   {
@@ -191,7 +193,7 @@ namespace swig
       if (base::current == end) {
 	throw stop_iteration();
       } else {
-	return from(static_cast<const value_type&>(*(base::current)));
+	return from(static_cast<value_type>(&*(base::current)));
       }
     }
 

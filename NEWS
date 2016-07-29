@@ -165,6 +165,9 @@ New in spot 2.0.3a (not yet released)
 
   * Bindings for randomize() were added.
 
+  * Iterating over edges via "aut.out(s)" or "aut.edges()"
+    now allows modifying the edge fields.
+
   * Under IPython the spot.ltsmin module now offers a
     %%pml magic to define promela models, compile them
     with spins, and dynamically load them.   This is
