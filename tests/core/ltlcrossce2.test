@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Laboratoire de Recherche et
+# Copyright (C) 2015, 2016 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -70,3 +70,39 @@ grep 'error: P1\*N1 is nonempty' errors
 grep 'error: Comp..1.\*Comp..1. is nonempty' errors
 test `grep cycle errors | wc -l` = 3
 test `grep '^error:' errors | wc -l` = 4
+
+
+cat >fake <<\EOF
+#!/bin/sh
+case $1 in
+"G((p0) & (X(F((p1) & (X(F((p2) & (X(F(p3))))))))))")
+
+# genltl --eh=9 | ltldo modella  -Hl | fmt
+cat <<\END
+HOA: v1 States: 1 Start: 0 AP: 0 acc-name: Buchi Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic --BODY--
+State: 0 --END--
+END
+;;
+"!(G((p0) & (X(F((p1) & (X(F((p2) & (X(F(p3)))))))))))")
+# genltl --neg --eh=9 | ltldo modella  -Hl | fmt
+cat <<\END
+HOA: v1 States: 10 Start: 0 AP: 4 "p0" "p1" "p2" "p3" acc-name: Buchi
+Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc
+--BODY-- State: 0 [!0] 1 [0] 2 [0] 3 State: 1 [t] 4 State: 2 [!0] 1 [0]
+2 [0] 3 State: 3 [!1] 5 [1] 6 State: 4 {0} [t] 4 State: 5 {0} [!1] 5 [1]
+6 State: 6 [!2] 7 [2] 8 State: 7 {0} [!2] 7 [2] 8 State: 8 [!3] 9 State:
+9 {0} [!3] 9 --END--
+END
+;;
+esac
+EOF
+chmod +x fake
+
+genltl --eh=9 | ltlcross 'ltl2tgba' './fake %f >%O' 2>errors && exit 1
+cat errors
+grep 'error: P0\*Comp(P1) is nonempty' errors
+grep 'error: {P0} disagree with {P1}' errors
+grep 'P0 accepts' errors
+test `grep cycle errors | wc -l` = 2
+test `grep '^error:' errors | wc -l` = 3

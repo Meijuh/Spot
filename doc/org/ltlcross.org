@@ -656,7 +656,10 @@ positive and negative formulas by the ith translator).
 
     A cross-comparison failure could be displayed as:
 
-    : error: {P0,P2,P3,P4,P5,P6,P7,P8,P9} disagree with {P1} when evaluating the state-space
+    : error: {P0,P2} disagree with {P1} when evaluating the state-space
+    :        the following word(s) are not accepted by {P1}:
+    :  P0 accepts: p0 & !p1 & !p2 & p3; p0 & p1 & !p2 & p3; p0 & p1 & p2 & p3; cycle{p0 & p1 & p2 & p3; p0 & p1 & !p2 & !p3; p0 & p1 & p2 & !p3; p0 & p1 & !p2 & !p3}
+    :  P2 accepts: p0 & !p1 & !p2 & p3; cycle{p0 & p1 & !p2 & !p3; p0 & p1 & p2 & p3; p0 & p1 & !p2 & p3}
 
     If =--products=N= is used with =N= greater than one, the number of
     the state-space is also printed.  This number is of no use by

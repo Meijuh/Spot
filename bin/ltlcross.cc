@@ -761,6 +761,7 @@ namespace
               err << l << i;
             }
         err << "} disagree with {";
+        std::ostringstream os;
         first = true;
         for (size_t i = 0; i < m; ++i)
           if (maps[i] && !res[i])
@@ -768,14 +769,22 @@ namespace
               if (first)
                 first = false;
               else
-                err << ',';
-              err << l << i;
+                os << ',';
+              os << l << i;
             }
-        err << "} when evaluating ";
+        err << os.str() << "} when evaluating ";
         if (products > 1)
           err << "state-space #" << p << '/' << products << '\n';
         else
           err << "the state-space\n";
+        err << "       the following word(s) are not accepted by {"
+            << os.str() << "}:\n";
+        for (size_t i = 0; i < m; ++i)
+          if (maps[i] && res[i])
+            {
+              global_error() << "  " << l << i << " accepts: ";
+              example() << *maps[i]->get_aut()->accepting_word() << '\n';
+            }
         end_error();
         return true;
       }
