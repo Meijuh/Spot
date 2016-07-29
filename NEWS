@@ -130,7 +130,7 @@ New in spot 2.0.3a (not yet released)
 
   * spot::twa has two new methods that supplement is_empty():
     twa::accepting_run() and twa::accepting_word().  They compute
-    what their name suggests.  Note that twa::accepting_run(), unlike
+    what their names suggest.  Note that twa::accepting_run(), unlike
     the two others, is currently restricted to automata with Fin-less
     acceptance.
 
