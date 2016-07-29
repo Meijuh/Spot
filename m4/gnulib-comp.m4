@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2015 Free Software Foundation, Inc.
+# Copyright (C) 2002-2016 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,6 +65,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module getopt-posix:
   # Code from module gettext-h:
   # Code from module gettimeofday:
+  # Code from module hard-locale:
   # Code from module include_next:
   # Code from module intprops:
   # Code from module isatty:
@@ -206,6 +207,7 @@ AC_SUBST([LTALLOCA])
     gl_PREREQ_GETTIMEOFDAY
   fi
   gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
+  gl_HARD_LOCALE
   gl_FUNC_ISATTY
   if test $REPLACE_ISATTY = 1; then
     AC_LIBOBJ([isatty])
@@ -268,11 +270,11 @@ AC_SUBST([LTALLOCA])
   fi
   gl_MODULE_INDICATOR([mkstemps])
   gl_STDLIB_MODULE_INDICATOR([mkstemps])
-  gl_MSVC_INVAL
+  AC_REQUIRE([gl_MSVC_INVAL])
   if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
     AC_LIBOBJ([msvc-inval])
   fi
-  gl_MSVC_NOTHROW
+  AC_REQUIRE([gl_MSVC_NOTHROW])
   if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
     AC_LIBOBJ([msvc-nothrow])
   fi
@@ -568,6 +570,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/getopt_int.h
   lib/gettext.h
   lib/gettimeofday.c
+  lib/hard-locale.c
+  lib/hard-locale.h
   lib/intprops.h
   lib/isatty.c
   lib/itold.c
@@ -668,6 +672,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/gettimeofday.m4
   m4/glibc21.m4
   m4/gnulib-common.m4
+  m4/hard-locale.m4
   m4/include_next.m4
   m4/intmax_t.m4
   m4/inttypes_h.m4

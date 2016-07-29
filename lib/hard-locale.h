@@ -1,7 +1,6 @@
-/* Default definition for ARGP_ERR_EXIT_STATUS
-   Copyright (C) 1997, 2009-2016 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
-   Written by Miles Bader <miles@gnu.ai.mit.edu>.
+/* Determine whether a locale is hard.
+
+   Copyright (C) 1999, 2003-2004, 2009-2016 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,15 +15,11 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#ifndef HARD_LOCALE_H_
+# define HARD_LOCALE_H_ 1
 
-#include <sysexits.h>
+# include <stdbool.h>
 
-#include "argp.h"
+bool hard_locale (int);
 
-/* The exit status that argp will use when exiting due to a parsing error.
-   If not defined or set by the user program, this defaults to EX_USAGE from
-   <sysexits.h>.  */
-error_t argp_err_exit_status = EX_USAGE;
+#endif /* HARD_LOCALE_H_ */

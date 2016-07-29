@@ -304,7 +304,11 @@ struct stat_collector
       return;
     spot::unsigned_statistics::stats_map::const_iterator i;
     for (i = s->stats.begin(); i != s->stats.end(); ++i)
-      stats[i->first][algorithm].count(convertor(i->first, (s->*i->second)()));
+      {
+        auto u = (s->*i->second)();
+        auto t = convertor(i->first, u);
+        stats[i->first][algorithm].count(t);
+      }
   }
 
   std::ostream&
