@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -21,6 +21,7 @@
 #include <map>
 #include <utility>
 #include <spot/twaalgos/sbacc.hh>
+#include <spot/twaalgos/sccinfo.hh>
 
 namespace spot
 {
@@ -28,6 +29,26 @@ namespace spot
   {
     if (old->prop_state_acc())
       return old;
+
+    scc_info si(old);
+
+    unsigned ns = old->num_states();
+    acc_cond::mark_t all = old->acc().all_sets();
+    std::vector<acc_cond::mark_t> common_in(ns, all);
+    std::vector<acc_cond::mark_t> common_out(ns, all);
+    std::vector<acc_cond::mark_t> one_in(ns, 0U);
+    for (auto& e: old->edges())
+      if (si.scc_of(e.src) == si.scc_of(e.dst))
+        {
+          common_in[e.dst] &= e.acc;
+          common_out[e.src] &= e.acc;
+          one_in[e.dst] = e.acc;
+        }
+    for (unsigned s = 0; s < ns; ++s)
+      common_out[s] |= common_in[s];
+    for (auto& e: old->edges())
+      if (si.scc_of(e.src) == si.scc_of(e.dst))
+        one_in[e.dst] = (e.acc - common_out[e.src]);
 
     auto res = make_twa_graph(old->get_dict());
     res->copy_ap_of(old);
@@ -54,28 +75,39 @@ namespace spot
         return p.first->second;
       };
 
-    // Find any edge going into the initial state, and use its
-    // acceptance as mark.
-    acc_cond::mark_t init_acc = 0U;
     unsigned old_init = old->get_init_state_number();
-    for (auto& t: old->edges())
-      if (t.dst == old_init)
-        {
-          init_acc = t.acc;
-          break;
-        }
+    acc_cond::mark_t init_acc = 0U;
+    if (!si.is_rejecting_scc(si.scc_of(old_init)))
+      // Use any edge going into the initial state to set the first
+      // acceptance mark.
+      init_acc = one_in[old_init] | common_out[init_acc];
 
     res->set_init_state(new_state(old_init, init_acc));
     while (!todo.empty())
       {
         auto one = todo.back();
         todo.pop_back();
+        unsigned scc_src = si.scc_of(one.first.first);
+        bool maybe_accepting = !si.is_rejecting_scc(scc_src);
         for (auto& t: old->out(one.first.first))
-          res->new_edge(one.second,
-                        new_state(t.dst, t.acc),
-                        t.cond,
-                        one.first.second);
+          {
+            unsigned scc_dst = si.scc_of(t.dst);
+            acc_cond::mark_t acc = 0U;
+            bool dst_acc = si.is_accepting_scc(scc_dst);
+            if (maybe_accepting && scc_src == scc_dst)
+              acc = t.acc - common_out[t.src];
+            else if (dst_acc)
+              // We enter a new accepting SCC. Use any edge going into
+              // t.dst from this SCC to set the initial acceptance mark.
+              acc = one_in[t.dst];
+            if (dst_acc)
+              acc |= common_out[t.dst];
+            common_out[t.dst];
+            res->new_edge(one.second, new_state(t.dst, acc),
+                          t.cond, one.first.second);
+          }
       }
+    res->merge_edges();
     return res;
   }
 }

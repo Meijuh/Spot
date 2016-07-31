@@ -117,6 +117,12 @@ New in spot 2.0.3a (not yet released)
     the corresponding properties of the automaton as a side-effect of
     their check.
 
+  * the sbacc() function, used by "ltl2tgba -S" and "autfilt -S" to
+    convert automata to state-based acceptance, learned some tricks
+    (using SCCs, pulling accepting marks common to all outgoing edges,
+    and pushing acceptance marks common to all incoming edges) to
+    reduce the number of additional states needed.
+
   * language_containment_checker now has default values for all
     parameters of its constructor.
 
