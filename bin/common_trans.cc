@@ -560,6 +560,12 @@ exec_command(const char* cmd)
     return;
   }
  use_shell:
+  // Try /bin/sh first, because it is faster to not do any PATH
+  // lookup.
+  static bool has_bin_sh = true;
+  if (has_bin_sh)
+    execl("/bin/sh", "sh", "-c", start, nullptr);
+  has_bin_sh = false;
   execlp("sh", "sh", "-c", start, nullptr);
   error(2, errno, "failed to run 'sh'");
   SPOT_UNREACHABLE();
