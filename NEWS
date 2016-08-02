@@ -31,6 +31,10 @@ New in spot 2.0.3a (not yet released)
   * ltldo has a new option --errors=... to specify how to deal
     with errors from executed tools.
 
+  * ltlcross and ltldo learned to bypass the shell when executing
+    simple commands (with support for single or double-quoted
+    argument, and redicretion of stdin and stdout, but nothing more).
+
   * autfilt learned to filter automata by count of SCCs (--sccs=RANGE)
     or by type of SCCs (--accepting-sccs=RANGE,
     --rejecting-sccs=RANGE, trivial-sccs=RANGE, --terminal-sccs=RANGE,

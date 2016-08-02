@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <iomanip>
 
 #include "error.h"
@@ -385,6 +386,186 @@ setup_sig_handler()
   sigaction(SIGTERM, &sa, nullptr);
 }
 
+
+static char*
+get_arg(const char*& cmd)
+{
+  const char* start = cmd;
+  std::string arg;
+  while (int c = *cmd)
+    {
+      switch (c)
+        {
+          // Those characters can have special meaning for the shell.
+        case '`':
+        case '~':
+        case '|':
+        case ';':
+        case '!':
+        case '?':
+        case '(':
+        case ')':
+        case '[':
+        case ']':
+        case '{':
+        case '}':
+        case '$':
+        case '*':
+        case '&':
+        case '#':
+        case '\\':
+        case '>':
+        case '<':
+        case ' ':
+        case '\n':
+        case '\t':
+          goto end_loop;
+        case '\'':
+          {
+            int d = 0;
+            while ((d = *++cmd))
+              {
+                if (d == '\'')
+                  break;
+                arg.push_back(d);
+              }
+            if (d == 0)
+              return nullptr;
+          }
+          break;
+        case '"':
+          {
+            int d = 0;
+            while ((d = *++cmd))
+              {
+                if (d == '\"')
+                  break;
+                // Backslash can only be used to escape \, $, `, and "
+                if (d == '\\' && strchr("\\$`\"", *cmd))
+                  d = *++cmd;
+                else if (strchr("\\$`", d))
+                  return nullptr;
+                arg.push_back(d);
+              }
+            if (d == 0)
+              return nullptr;
+          }
+          break;
+        default:
+          arg.push_back(c);
+          break;
+        }
+      ++cmd;
+    }
+ end_loop:
+  if (cmd == start)             // Not the same as arg.empty()
+    return nullptr;
+  return strndup(arg.c_str(), arg.size());
+}
+
+static void
+skip_ws(const char*& cmd)
+{
+  while (isspace(*cmd))
+    ++cmd;
+}
+
+
+// Commands are run via 'sh -c' so we get all the expressive power of
+// the shell.  However starting a shell for each translation is slow.
+// To mitigate that, if the command to run is simple: we run it
+// directly, bypassing the shell.   Our definition of simple is:
+//   - a single command
+//   - can have single or double-quoted arguments
+//   - can have >stderr and <stdin redirection
+// In particular, variable interpolation is not supported.  Complex
+// redirections (>& and such) are not support.  Chains of commands
+// (pipes, semi-colons, etc.) are not supported.
+static void
+exec_command(const char* cmd)
+{
+  std::vector<char*> result;
+  const char* start = cmd;
+  char* stdin = nullptr;
+  char* stdout = nullptr;
+
+  while (*cmd)
+    {
+      skip_ws(cmd);
+
+      switch (*cmd)
+        {
+        case '<':
+          {
+            if (cmd > start && isdigit(cmd[-1]))
+              goto use_shell;
+            ++cmd;
+            skip_ws(cmd);
+            if (stdin)
+              free(stdin);
+            stdin = get_arg(cmd);
+            if (stdin == nullptr)
+              goto use_shell;
+            break;
+          }
+        case '>':
+          {
+            if (cmd > start && isdigit(cmd[-1]))
+              goto use_shell;
+            ++cmd;
+            skip_ws(cmd);
+            if (stdout)
+              free(stdout);
+            stdout = get_arg(cmd);
+            if (stdout == nullptr)
+              goto use_shell;
+            break;
+          }
+        default:
+          {
+            char* tmp = get_arg(cmd);
+            if (tmp == nullptr)
+              goto use_shell;
+            result.push_back(tmp);
+            break;
+          }
+        }
+    }
+  {
+    if (stdin)
+      {
+        int fd0 = open(stdin, O_RDONLY, 0644);
+        if (fd0 < 0)
+          error(2, errno, "failed to open '%s'", stdin);
+        if (dup2(fd0, 0) < 0)
+          error(2, errno, "dup2() failed");
+        if (close(fd0) < 0)
+          error(2, errno, "close() failed");
+      }
+    if (stdout)
+      {
+        int fd1 = creat(stdout, 0644);
+        if (fd1 < 0)
+          error(2, errno, "failed to open '%s'", stdout);
+        if (dup2(fd1, 1) < 0)
+          error(2, errno, "dup2() failed");
+        if (close(fd1) < 0)
+          error(2, errno, "close() failed");
+      }
+
+    result.push_back(nullptr);
+    execvp(result[0], result.data());
+    error(2, errno, "failed to run '%s'", result[0]);
+    SPOT_UNREACHABLE();
+    return;
+  }
+ use_shell:
+  execlp("sh", "sh", "-c", start, nullptr);
+  error(2, errno, "failed to run 'sh'");
+  SPOT_UNREACHABLE();
+  return;
+}
+
 int
 exec_with_timeout(const char* cmd)
 {
@@ -399,8 +580,7 @@ exec_with_timeout(const char* cmd)
   if (child_pid == 0)
     {
       setpgid(0, 0);
-      execlp("sh", "sh", "-c", cmd, nullptr);
-      error(2, errno, "failed to run 'sh'");
+      exec_command(cmd);
       // never reached
       return -1;
     }
