@@ -33,17 +33,34 @@ New in spot 2.0.3a (not yet released)
 
   * ltlcross and ltldo learned to bypass the shell when executing
     simple commands (with support for single or double-quoted
-    argument, and redicretion of stdin and stdout, but nothing more).
+    arguments, and redirection of stdin and stdout, but nothing more).
+
+  * ltlcross and ltldo learned a new syntax to specify that an input
+    formula should be written in some given syntax after rewriting
+    some operators away.  For instance the defaults arguments passed
+    to ltl2dstar have been changed from
+         --output-format=hoa %L %O
+    into
+         --output-format=hoa %[WM]L %O
+    where [WM] specifies that operators W and M should be rewritten
+    away.  As a consequence running
+         ltldo ltl2dstar -f 'a M b'
+    will now work and call ltl2dstar on the equivalent formula
+    'b U (a & b)' instead.  The operators that can be listed between
+    brackets are the same as those of ltlfilt --unabbreviate option.
+
+  * ltlcross learned to show some counterexamples when diagnosing
+    failures of cross-comparison checks against random state spaces.
 
   * autfilt learned to filter automata by count of SCCs (--sccs=RANGE)
     or by type of SCCs (--accepting-sccs=RANGE,
     --rejecting-sccs=RANGE, trivial-sccs=RANGE, --terminal-sccs=RANGE,
     --weak-sccs=RANGE, --inherently-weak-sccs=RANGE).
 
-  * autfilt learned --remove-unused-ap to remove atomic proposition
+  * autfilt learned --remove-unused-ap to remove atomic propositions
     that are declared in the input automaton, but not actually used.
     This of course makes sense only for input/output formats that
-    declare atomic proposition (HOA & DSTAR).
+    declare atomic propositions (HOA & DSTAR).
 
   * autfilt learned two options to filter automata by count of used or
     unused atomic propositions: --used-ap=RANGE --unused-ap=RANGE.
@@ -64,23 +81,6 @@ New in spot 2.0.3a (not yet released)
   * autfilt learned to highlight a run matching a given word using the
     --highlight-word=[NUM,]WORD option.  However currently this only
     work on automata with Fin-less acceptance.
-
-  * ltlcross and ltldo learned a new syntax to specify that an input
-    formula should be written in some given syntax after rewriting
-    some operators away.  For instance the defaults arguments passed
-    to ltl2dstar have been changed from
-         --output-format=hoa %L %O
-    into
-         --output-format=hoa %[WM]L %O
-    where [WM] specifies that operators W and M should be rewritten
-    away.  As a consequence running
-         ltldo ltl2dstar -f 'a M b'
-    will now work and call ltl2dstar on the equivalent formula
-    'b U (a & b)' instead.  The operators that can be listed between
-    brackets are the same as those of ltlfilt --unabbreviate option.
-
-  * ltlcross learned to show some counterexamples when diagnosing
-    failures of cross-comparison checks against random state spaces.
 
   * genltl learned three new families: --dac-patterns=1..45,
     --eh-patterns=1..12, and --sb-patterns=1..27.  Unlike other options
@@ -196,7 +196,7 @@ New in spot 2.0.3a (not yet released)
     exploring automata in C++.  https://spot.lrde.epita.fr/tut50.html
 
   * Another new page shows how to implement an on-the-fly Kripke
-    structure to implement a custom state space.
+    structure for a custom state space.
     https://spot.lrde.epita.fr/tut51.html
 
   * The concepts.html page now lists all named properties
