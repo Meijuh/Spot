@@ -207,6 +207,7 @@ TESTS_twa = \
   core/complete.test \
   core/complement.test \
   core/remfin.test \
+  core/gragsa.test \
   core/dstar.test \
   core/readsave.test \
   core/ltldo.test \

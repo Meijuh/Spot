@@ -82,6 +82,9 @@ New in spot 2.0.3a (not yet released)
     --highlight-word=[NUM,]WORD option.  However currently this only
     work on automata with Fin-less acceptance.
 
+  * autfilt learned two options --generalized-rabin and
+    --generalized-streett to convert the acceptance conditions.
+
   * genltl learned three new families: --dac-patterns=1..45,
     --eh-patterns=1..12, and --sb-patterns=1..27.  Unlike other options
     these do not output scalable patterns, but simply a list of formulas
@@ -126,6 +129,10 @@ New in spot 2.0.3a (not yet released)
     (using SCCs, pulling accepting marks common to all outgoing edges,
     and pushing acceptance marks common to all incoming edges) to
     reduce the number of additional states needed.
+
+  * to_generalized_rabin() and to_generalized_streett() are two new
+    functions that convert the acceptance condition as requested
+    without changing the transition structure.
 
   * language_containment_checker now has default values for all
     parameters of its constructor.

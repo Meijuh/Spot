@@ -27,6 +27,7 @@
 
 #include <argp.h>
 #include "error.h"
+#include "argmatch.h"
 
 #include "common_setup.hh"
 #include "common_finput.hh"
@@ -62,6 +63,7 @@
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/isweakscc.hh>
 #include <spot/twaalgos/gtec/gtec.hh>
+#include <spot/twaalgos/totgba.hh>
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter omega-automata.\v\
@@ -88,7 +90,8 @@ enum {
   OPT_EDGES,
   OPT_EQUIVALENT_TO,
   OPT_EXCLUSIVE_AP,
-  OPT_GENERIC,
+  OPT_GENERALIZED_RABIN,
+  OPT_GENERALIZED_STREETT,
   OPT_HIGHLIGHT_NONDET,
   OPT_HIGHLIGHT_NONDET_EDGES,
   OPT_HIGHLIGHT_NONDET_STATES,
@@ -252,6 +255,20 @@ static const argp_option options[] =
       "put the acceptance condition in Conjunctive Normal Form", 0 },
     { "remove-fin", OPT_REM_FIN, nullptr, 0,
       "rewrite the automaton without using Fin acceptance", 0 },
+    { "generalized-rabin", OPT_GENERALIZED_RABIN,
+      "unique-inf|share-inf", OPTION_ARG_OPTIONAL,
+      "rewrite the acceptance condition as generalized Rabin; the default "
+      "\"unique-inf\" option uses the generalized Rabin definition from the "
+      "HOA format; the \"share-inf\" option allows clauses to share Inf sets, "
+      "therefore reducing the number of sets", 0 },
+    { "gra", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
+    { "generalized-streett", OPT_GENERALIZED_STREETT,
+      "unique-fin|share-fin", OPTION_ARG_OPTIONAL,
+      "rewrite the acceptance condition as generalized Streett;"
+      " the \"share-fin\" option allows clauses to share Fin sets,"
+      " therefore reducing the number of sets; the default"
+      " \"unique-fin\" does not", 0 },
+    { "gsa", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     { "cleanup-acceptance", OPT_CLEAN_ACC, nullptr, 0,
       "remove unused acceptance sets from the automaton", 0 },
     { "complement", OPT_COMPLEMENT, nullptr, 0,
@@ -329,6 +346,7 @@ static const struct argp_child children[] =
     { nullptr, 0, nullptr, 0 }
   };
 
+
 typedef spot::twa_graph::graph_t::edge_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static long int match_count = 0;
@@ -336,6 +354,30 @@ static spot::option_map extra_options;
 static bool randomize_st = false;
 static bool randomize_tr = false;
 static int opt_seed = 0;
+
+enum gra_type { GRA_NO = 0, GRA_SHARE_INF = 1, GRA_UNIQUE_INF = 2 };
+static gra_type opt_gra = GRA_NO;
+static char const *const gra_args[] =
+{
+  "default", "share-inf", "hoa", "unique-inf", nullptr
+};
+static gra_type const gra_types[] =
+{
+  GRA_UNIQUE_INF, GRA_SHARE_INF, GRA_UNIQUE_INF, GRA_UNIQUE_INF
+};
+ARGMATCH_VERIFY(gra_args, gra_types);
+
+enum gsa_type { GSA_NO = 0, GSA_SHARE_FIN = 1, GSA_UNIQUE_FIN = 2 };
+static gsa_type opt_gsa = GSA_NO;
+static char const *const gsa_args[] =
+{
+  "default", "share-fin", "unique-fin", nullptr
+};
+static gsa_type const gsa_types[] =
+{
+  GSA_UNIQUE_FIN, GSA_SHARE_FIN, GSA_UNIQUE_FIN
+};
+ARGMATCH_VERIFY(gsa_args, gsa_types);
 
 // We want all these variables to be destroyed when we exit main, to
 // make sure it happens before all other global variables (like the
@@ -516,6 +558,20 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt->equivalent_pos = read_automaton(arg, opt->dict);
       opt->equivalent_neg =
         spot::dtwa_complement(ensure_deterministic(opt->equivalent_pos));
+      break;
+    case OPT_GENERALIZED_RABIN:
+      if (arg)
+        opt_gra = XARGMATCH("--generalized-rabin", arg, gra_args, gra_types);
+      else
+        opt_gra = GRA_UNIQUE_INF;
+      opt_gsa = GSA_NO;
+      break;
+    case OPT_GENERALIZED_STREETT:
+      if (arg)
+        opt_gsa = XARGMATCH("--generalized-streett", arg, gsa_args, gsa_types);
+      else
+        opt_gsa = GSA_UNIQUE_FIN;
+      opt_gra = GRA_NO;
       break;
     case OPT_HIGHLIGHT_NONDET:
       {
@@ -1012,6 +1068,11 @@ namespace
         aut = spot::dtwa_complement(ensure_deterministic(aut));
 
       aut = post.run(aut, nullptr);
+
+      if (opt_gra)
+        aut = spot::to_generalized_rabin(aut, opt_gra == GRA_SHARE_INF);
+      if (opt_gsa)
+        aut = spot::to_generalized_streett(aut, opt_gsa == GSA_SHARE_FIN);
 
       if (opt_simplify_exclusive_ap && !opt->excl_ap.empty())
         aut = opt->excl_ap.constrain(aut, true);

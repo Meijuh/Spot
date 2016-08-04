@@ -329,7 +329,7 @@ namespace spot
     // Handle false specifically.  We want the output
     // an automaton with Acceptance: t, that has a single
     // state without successor.
-    if (cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Fin)
+    if (cnf.is_f())
       {
         assert(cnf.front().mark == 0U);
         res = make_twa_graph(aut->get_dict());
@@ -356,5 +356,204 @@ namespace spot
         t.acc = new_m;
       }
     return res;
+  }
+
+  namespace
+  {
+    // If the DNF is
+    //  Fin(1)&Inf(2)&Inf(4) | Fin(2)&Fin(3)&Inf(1) |
+    //  Inf(1)&Inf(3) | Inf(1)&Inf(2) | Fin(4)
+    // this returns the following vector of pairs:
+    //  [({1}, {2,4})
+    //   ({2,3}, {1}),
+    //   ({}, {1,3}),
+    //   ({}, {2}),
+    //   ({4}, t)]
+    static std::vector<std::pair<acc_cond::mark_t, acc_cond::mark_t>>
+    split_dnf_acc(const acc_cond::acc_code& acc)
+    {
+      std::vector<std::pair<acc_cond::mark_t, acc_cond::mark_t>> res;
+      if (acc.empty())
+        {
+          res.emplace_back(0U, 0U);
+          return res;
+        }
+      auto pos = &acc.back();
+      if (pos->op == acc_cond::acc_op::Or)
+        --pos;
+      auto start = &acc.front();
+      while (pos > start)
+        {
+          if (pos->op == acc_cond::acc_op::Fin)
+            {
+              // We have only a Fin term, without Inf.  In this case
+              // only, the Fin() may encode a disjunction of sets.
+              for (auto s: pos[-1].mark.sets())
+                res.emplace_back(acc_cond::mark_t({s}), 0U);
+              pos -= pos->size + 1;
+            }
+          else
+            {
+              // We have a conjunction of Fin and Inf sets.
+              auto end = pos - pos->size - 1;
+              acc_cond::mark_t fin = 0U;
+              acc_cond::mark_t inf = 0U;
+              while (pos > end)
+                {
+                  switch (pos->op)
+                    {
+                    case acc_cond::acc_op::And:
+                      --pos;
+                      break;
+                    case acc_cond::acc_op::Fin:
+                      fin |= pos[-1].mark;
+                      assert(pos[-1].mark.count() == 1);
+                      pos -= 2;
+                      break;
+                    case acc_cond::acc_op::Inf:
+                      inf |= pos[-1].mark;
+                      pos -= 2;
+                      break;
+                    case acc_cond::acc_op::FinNeg:
+                    case acc_cond::acc_op::InfNeg:
+                    case acc_cond::acc_op::Or:
+                      SPOT_UNREACHABLE();
+                      break;
+                    }
+                }
+              assert(pos == end);
+              res.emplace_back(fin, inf);
+            }
+        }
+      return res;
+    }
+
+
+    static twa_graph_ptr
+    to_generalized_rabin_aux(const const_twa_graph_ptr& aut,
+                             bool share_inf, bool complement)
+    {
+      auto res = cleanup_acceptance(aut);
+      auto oldacc = res->get_acceptance();
+      if (complement)
+        res->set_acceptance(res->acc().num_sets(), oldacc.complement());
+
+      {
+        std::vector<unsigned> pairs;
+        if (res->acc().is_generalized_rabin(pairs))
+          {
+            if (complement)
+              res->set_acceptance(res->acc().num_sets(), oldacc);
+            return res;
+          }
+      }
+      auto dnf = res->get_acceptance().to_dnf();
+      if (dnf.is_f())
+        {
+          if (complement)
+            res->set_acceptance(0, acc_cond::acc_code::t());
+          return res;
+        }
+
+      auto v = split_dnf_acc(dnf);
+
+      // Decide how we will rename each input set.
+      //
+      // inf_rename is only used if hoa_style=false, to
+      // reuse previously used Inf sets.
+
+      unsigned ns = res->num_sets();
+      std::vector<acc_cond::mark_t> rename(ns);
+      std::vector<unsigned> inf_rename(ns);
+
+      unsigned next_set = 0;
+      // The output acceptance conditions.
+      acc_cond::acc_code code =
+        complement ? acc_cond::acc_code::t() : acc_cond::acc_code::f();
+      for (auto& i: v)
+        {
+          unsigned fin_set = 0U;
+
+          if (!complement)
+            {
+              for (auto s: i.first.sets())
+                rename[s].set(next_set);
+              fin_set = next_set++;
+            }
+
+          acc_cond::mark_t infsets = 0U;
+
+          if (share_inf)
+            for (auto s: i.second.sets())
+              {
+                unsigned n = inf_rename[s];
+                if (n == 0)
+                  n = inf_rename[s] = next_set++;
+                rename[s].set(n);
+                infsets.set(n);
+              }
+          else                    // HOA style
+            {
+              for (auto s: i.second.sets())
+                {
+                  unsigned n = next_set++;
+                  rename[s].set(n);
+                  infsets.set(n);
+                }
+            }
+
+          // The definition of Streett wants the Fin first in clauses,
+          // so we do the same for generalized Streett since HOA does
+          // not specify anything.  See
+          // https://github.com/adl/hoaf/issues/62
+          if (complement)
+            {
+              for (auto s: i.first.sets())
+                rename[s].set(next_set);
+              fin_set = next_set++;
+
+              auto pair = acc_cond::inf({fin_set});
+              pair |= acc_cond::acc_code::fin(infsets);
+              pair &= std::move(code);
+              code = std::move(pair);
+            }
+          else
+            {
+              auto pair = acc_cond::acc_code::inf(infsets);
+              pair &= acc_cond::fin({fin_set});
+              pair |= std::move(code);
+              code = std::move(pair);
+            }
+        }
+
+      // Fix the automaton
+      res->set_acceptance(next_set, code);
+      for (auto& e: res->edges())
+        {
+          acc_cond::mark_t m = 0U;
+          for (auto s: e.acc.sets())
+            m |= rename[s];
+          e.acc = m;
+        }
+      return res;
+    }
+
+
+  }
+
+
+
+  twa_graph_ptr
+  to_generalized_rabin(const const_twa_graph_ptr& aut,
+                       bool share_inf)
+  {
+    return to_generalized_rabin_aux(aut, share_inf, false);
+  }
+
+  twa_graph_ptr
+  to_generalized_streett(const const_twa_graph_ptr& aut,
+                         bool share_fin)
+  {
+    return to_generalized_rabin_aux(aut, share_fin, true);
   }
 }

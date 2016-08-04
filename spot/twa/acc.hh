@@ -1056,42 +1056,42 @@ namespace spot
     bool check_fin_acceptance() const;
 
   public:
-    acc_code inf(mark_t mark) const
+    static acc_code inf(mark_t mark)
     {
       return acc_code::inf(mark);
     }
 
-    acc_code inf(std::initializer_list<unsigned> vals) const
+    static acc_code inf(std::initializer_list<unsigned> vals)
     {
       return inf(mark_t(vals.begin(), vals.end()));
     }
 
-    acc_code inf_neg(mark_t mark) const
+    static acc_code inf_neg(mark_t mark)
     {
       return acc_code::inf_neg(mark);
     }
 
-    acc_code inf_neg(std::initializer_list<unsigned> vals) const
+    static acc_code inf_neg(std::initializer_list<unsigned> vals)
     {
       return inf_neg(mark_t(vals.begin(), vals.end()));
     }
 
-    acc_code fin(mark_t mark) const
+    static acc_code fin(mark_t mark)
     {
       return acc_code::fin(mark);
     }
 
-    acc_code fin(std::initializer_list<unsigned> vals) const
+    static acc_code fin(std::initializer_list<unsigned> vals)
     {
       return fin(mark_t(vals.begin(), vals.end()));
     }
 
-    acc_code fin_neg(mark_t mark) const
+    static acc_code fin_neg(mark_t mark)
     {
       return acc_code::fin_neg(mark);
     }
 
-    acc_code fin_neg(std::initializer_list<unsigned> vals) const
+    static acc_code fin_neg(std::initializer_list<unsigned> vals)
     {
       return fin_neg(mark_t(vals.begin(), vals.end()));
     }
