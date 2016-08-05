@@ -547,14 +547,16 @@ format.
 ltl2tgba '(Ga -> Gb) W c' -d
 #+END_SRC
 
+#+NAME: oaut-dot1
 #+BEGIN_SRC sh :results verbatim :exports results
 SPOT_DOTEXTRA= ltl2tgba '(Ga -> Gb) W c' --dot=
 #+END_SRC
 
-#+RESULTS:
+#+RESULTS: oaut-dot1
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 1
   0 [label="0"]
@@ -579,37 +581,6 @@ digraph G {
 
 This output should be processed with =dot= to be converted into a
 picture.  For instance use =dot -Tpng= or =dot -Tpdf=.
-
-#+NAME: oaut-dot1
-#+BEGIN_SRC sh :results verbatim :exports none
-SPOT_DOTEXTRA= ltl2tgba '(Ga -> Gb) W c' --dot= | sed 's/\\/\\\\/'
-#+END_SRC
-
-#+RESULTS: oaut-dot1
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 1
-  0 [label="0"]
-  0 -> 0 [label="b\\n{0}"]
-  1 [label="1"]
-  1 -> 0 [label="a & b & !c"]
-  1 -> 1 [label="!a & !c\\n{0}"]
-  1 -> 2 [label="a & !c"]
-  1 -> 3 [label="c"]
-  2 [label="2"]
-  2 -> 1 [label="!a & !c\\n{0}"]
-  2 -> 2 [label="a & !c"]
-  2 -> 3 [label="!a & c"]
-  2 -> 4 [label="a & c"]
-  3 [label="3"]
-  3 -> 3 [label="1\\n{0}"]
-  4 [label="4"]
-  4 -> 3 [label="!a"]
-  4 -> 4 [label="a"]
-}
-#+end_example
 
 #+BEGIN_SRC dot :file oaut-dot1.png :cmdline -Tpng :var txt=oaut-dot1 :exports results
 $txt
@@ -683,13 +654,13 @@ digraph G {
 
 #+NAME: oaut-dot2
 #+BEGIN_SRC sh :results verbatim :exports none
-SPOT_DOTEXTRA= ltl2tgba --dot=vcsna '(Ga -> Gb) W c' | sed 's/\\/\\\\/'
+SPOT_DOTEXTRA= ltl2tgba --dot=vcsna '(Ga -> Gb) W c'
 #+END_SRC
 
 #+RESULTS: oaut-dot2
 #+begin_example
 digraph G {
-  label="(Gb | F!a) W c\\nInf(0)"
+  label="(Gb | F!a) W c\nInf(0)"
   labelloc="t"
   node [shape="circle"]
   I [label="", style=invis, height=0]
@@ -715,16 +686,16 @@ digraph G {
   1 [label="1"]
   2 [label="2"]
   }
-  0 -> 0 [label="b\\n{0}"]
+  0 -> 0 [label="b\n{0}"]
   1 -> 0 [label="a & b & !c"]
-  1 -> 1 [label="!a & !c\\n{0}"]
+  1 -> 1 [label="!a & !c\n{0}"]
   1 -> 2 [label="a & !c"]
   1 -> 3 [label="c"]
-  2 -> 1 [label="!a & !c\\n{0}"]
+  2 -> 1 [label="!a & !c\n{0}"]
   2 -> 2 [label="a & !c"]
   2 -> 3 [label="!a & c"]
   2 -> 4 [label="a & c"]
-  3 -> 3 [label="1\\n{0}"]
+  3 -> 3 [label="1\n{0}"]
   4 -> 3 [label="!a"]
   4 -> 4 [label="a"]
 }
@@ -751,7 +722,7 @@ Here is an example involving all colors:
 
 #+NAME: oaut-dot3
 #+BEGIN_SRC sh :results verbatim :exports none
-SPOT_DOTEXTRA= autfilt --dot=cas <<EOF | sed 's/\\/\\\\/'
+SPOT_DOTEXTRA= autfilt --dot=cas <<EOF
 HOA: v1
 States: 10
 Start: 1
@@ -839,25 +810,25 @@ digraph G {
   1 [label="1"]
   3 [label="3"]
   }
-  0 -> 0 [label="a & b\\n{0,1,2}"]
-  0 -> 0 [label="!a & !b\\n{2}"]
-  0 -> 5 [label="a\\n{2}"]
+  0 -> 0 [label="a & b\n{0,1,2}"]
+  0 -> 0 [label="!a & !b\n{2}"]
+  0 -> 5 [label="a\n{2}"]
   1 -> 4 [label="b"]
   1 -> 3 [label="a & !b"]
   2 -> 0 [label="a"]
   2 -> 7 [label="b"]
-  3 -> 1 [label="a & b\\n{0,1}"]
-  4 -> 4 [label="!b\\n{1,2}"]
+  3 -> 1 [label="a & b\n{0,1}"]
+  4 -> 4 [label="!b\n{1,2}"]
   4 -> 2 [label="b"]
-  5 -> 6 [label="1\\n{1}"]
+  5 -> 6 [label="1\n{1}"]
   6 -> 5 [label="1"]
-  7 -> 7 [label="!a & b\\n{0,2}"]
-  7 -> 7 [label="a & b\\n{0,1}"]
+  7 -> 7 [label="!a & b\n{0,2}"]
+  7 -> 7 [label="a & b\n{0,1}"]
   7 -> 8 [label="1"]
-  8 -> 8 [label="!a & b\\n{0,2}"]
-  8 -> 9 [label="a & b\\n{0,1}"]
-  9 -> 8 [label="!a & b\\n{0,1}"]
-  9 -> 9 [label="a & b\\n{0,2}"]
+  8 -> 8 [label="!a & b\n{0,2}"]
+  8 -> 9 [label="a & b\n{0,1}"]
+  9 -> 8 [label="!a & b\n{0,1}"]
+  9 -> 9 [label="a & b\n{0,2}"]
 }
 #+end_example
 
