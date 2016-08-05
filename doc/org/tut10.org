@@ -119,13 +119,13 @@ T0_S3:
 
 All the translation pipeline (this include simplifying the formula,
 translating the simplified formula into an automaton, and simplifying
-the resulting automaton) is handled by the =spot::translator= object.
-This object can configured by calling =set_type()= to chose the type
-of automaton to output, =set_level()= to set the level of optimization
-(it's high by default), and =set_pref()= to set various preferences
-(like small or deterministic) or characteristic (complete,
-unambiguous) for the resulting automaton. Finally, the output as a
-never claim is done via the =print_never_claim= function.
+the resulting automaton) is handled by the =spot::translator= class.
+An instance of this class can configured by calling =set_type()= to
+chose the type of automaton to output, =set_level()= to set the level
+of optimization (it's high by default), and =set_pref()= to set
+various preferences (like small or deterministic) or characteristic
+(complete, unambiguous) for the resulting automaton. Finally, the
+output as a never claim is done via the =print_never_claim= function.
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>

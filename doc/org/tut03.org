@@ -7,11 +7,11 @@
 This page explains how to build formulas and how to iterate over their
 syntax trees.
 
-We'll first describe how to build a formula from scratch, by using the
-constructor functions associated to each operators, and show that
-basic accessor methods for formulas.  We will do that for C++ first,
-and then Python.  Once these basics are covered, we will show examples
-for traversing and transforming formulas (again in C++ then Python).
+We will first describe how to build a formula from scratch, by using
+the constructors associated to each operators, and show the basic
+accessor methods for formulas.  We will do that for C++ first, and
+then Python.  Once these basics are covered, we will show examples for
+traversing and transforming formulas (again in C++ then Python).
 
 * Constructing formulas
 
@@ -86,7 +86,7 @@ memoization.
 
 Building a formula using these operators is quite straightforward.
 The second part of the following example shows how to print some
-detail of the top-level oeprator in the formula.
+detail of the top-level operator in the formula.
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>
@@ -176,25 +176,26 @@ The Python equivalent is similar:
 ** C++
 
 In Spot, Formula objects are immutable: this allows identical subtrees
-to be shared among multiple formulas.  Algorithm that "transform"
+to be shared among multiple formulas.  Algorithms that "transform"
 formulas (for instance the [[file:tut02.org][relabeling function]]) actually recursively
-traverses the input formula to construct the output formula.
+traverse the input formula to construct the output formula.
 
 Using the operators described in the previous section is enough to
 write algorithms on formulas.  However there are two special methods
 that makes it a lot easier: =traverse= and =map=.
 
-=traverse= takes a function =fun=, and applies it to a subformulas of
-a formula, including the formula itself.  The formula is explored in a
-DFS fashion (without skipping subformula that appear twice).  The
-children of a formula are explored only if =fun= returns =false=.  If
-=fun= returns =true=, that indicates to stop the recursion.
+=traverse= takes a function =fun=, and applies it to each subformulas
+of a given formula, including that starting formula itself.  The
+formula is explored in a DFS fashion (without skipping subformula that
+appear twice).  The children of a formula are explored only if =fun=
+returns =false=.  If =fun= returns =true=, that indicates to stop the
+recursion.
 
 In the following we use a lambda function to count the number of =G=
 in the formula.  We also print each subformula to show the recursion,
 and stop the recursion as soon as we encounter a subformula without
-sugar (the =is_sugar_free_ltl()= method is a constant-time operation,
-that tells whether a formulas contains a =F= or =G= operator) to save
+sugar (the =is_sugar_free_ltl()= method is a constant-time operation
+that tells whether a formula contains a =F= or =G= operator) to save
 time time by not exploring further.
 
 
@@ -241,7 +242,7 @@ b & c & d
 The other useful operation is =map=.  This also takes a functional
 argument, but that function should input a formula and output a
 replacement formula.  =f.map(fun)= applies =fun= to all children of
-=f=, and rebuild a same formula as =f=.
+=f=, and assemble the result under the same top-level operator as =f=.
 
 Here is a demonstration of how to exchange all =F= and =G= operators
 in a formula:
@@ -258,7 +259,7 @@ in a formula:
        return spot::formula::G(xchg_fg(in[0]));
      if (in.is(spot::op::G))
        return spot::formula::F(xchg_fg(in[0]));
-     // No need to transform Boolean subformulas
+     // No need to transform subformulas without F or G
      if (in.is_sugar_free_ltl())
        return in;
      // Apply xchg_fg recursively on any other operator's children
@@ -327,7 +328,7 @@ Here is the =F= and =G= exchange:
         return spot.formula.G(xchg_fg(i[0]));
      if i._is(spot.op_G):
         return spot.formula.F(xchg_fg(i[0]));
-     # No need to transform Boolean subformulas
+     # No need to transform subformulas without F or G
      if i.is_sugar_free_ltl():
         return i;
      # Apply xchg_fg recursively on any other operator's children

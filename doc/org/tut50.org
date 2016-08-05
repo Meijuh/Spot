@@ -211,10 +211,10 @@ syntax of C++ works exactly as if we had typed
 #+END_SRC
 
 In the above =example()= function, the iterators =i= and =end= are
-instance of the =internal::edge_iterator<spot::twa_graph::graph_t>=
+instances of the =internal::edge_iterator<spot::twa_graph::graph_t>=
 class, which redefines enough operators to act like an STL Foward
 Iterator over all outgoing edges of =s=.  Note that the =tmp= and =i=
-objects hold a pointer to the graph, but it does not really matters
+objects hold a pointer to the graph, but it does not really matter
 because the compiler will optimize this away.
 
 In fact after operators are inlined and useless temporary variables
@@ -441,9 +441,9 @@ exploration of an automaton.  Subclasses of =twa= need not represent
 the entire automaton in memory; if they prefer, they can compute it as
 it is explored.
 
-Naturally =twa_graph=, even if they store the automaton graph
-explicitly, are subclasses of =twa=, so they also implement the
-on-the-fly interface, even if they do not have to compute anything.
+Naturally =twa_graph=, even if it stores the automaton graph
+explicitly, is a subclasse of =twa=, so it also implements the
+on-the-fly interface but without computing anything.
 
 ** How this interface works
 
@@ -548,23 +548,23 @@ subclass.
 
 The interface puts few requirement on memory management: we want to be
 able to write automata that can forget about their states (and
-recompute them), so there is no guarantee that reaching twice the same
-state will give return the same pointer.  Even calling
-=get_init_state()= twice could return different pointers.  The only
-way to decide whether two =state*= =s1= and =s2= represent the same
-state is to check that ~s1->compare(s2) == 0~.
+recompute them), so there is no guarantee that reaching the same state
+twice will return the same pointer twice.  Even calling
+=get_init_state()= twice could return two different pointers.  The
+only way to decide whether two =state*= =s1= and =s2= represent the
+same state is to check that ~s1->compare(s2) == 0~.
 
 As far as memory management goes, there are roughly two types of =twa=
 subclasses: those that always create new =state= instances, and those
 that reuse =state= instances (either because they have a cache, or
 because, as in the case of =twa_graph=, they know the entire graph).
 
-From the user's perspective, =state= should never be passed to =delete=
-(their protected destructor will prevent that).  Instead, we should
-call =state::destroy()=.  Doing so allows each subclass to override
-the default behavior of =destroy()= (which is to call =delete=).  States
-can be cloned using the =state::clone()= methode, in which case each
-copy has to be destroyed.
+From the user's perspective, =state= should never be passed to
+=delete= (their protected destructor will prevent that).  Instead, we
+should call =state::destroy()=.  Doing so allows each subclass to
+override the default behavior of =destroy()= (which is to call
+=delete=).  States can be cloned using the =state::clone()= method, in
+which case each copy has to be destroyed.
 
 =twa_succ_iterator= instances are allocated and should be deleted once
 done, but to save some work, they can also be returned to the
@@ -620,7 +620,7 @@ state, it is /usually/ known.
 Let us improve the above loop.  In the previous example, each of
 =first()=, =done()=, =next()= is a virtual method call.  So if there
 are $n$ successors, there will be $1$ call to =first()=, $n$ calls to
-=next()=, and $n+1$ call to =done()=, so a total of $2n$ virtual
+=next()=, and $n+1$ calls to =done()=, so a total of $2n+2$ virtual
 method calls.
 
 However =first()= and =next()= also return a Boolean stating whether
@@ -647,7 +647,7 @@ follows:
 #+END_SRC
 
 Now we have only $1$ call to =first()= and $n$ calls to =next()=,
-so we almost halved to number of virtual calls.
+so we halved to number of virtual calls.
 
 Using C++11's ranged =for= loop, this example can be reduced to the
 following equivalent code:
@@ -698,7 +698,7 @@ passes the iterator back to =aut->release_iter()= for recycling.
 ** Recursive DFS (v1)
 
 We can now write a recursive DFS easily.  The only pain is to keep
-track of the state to =destroy()= them only after we do not need them
+track of the states to =destroy()= them only after we do not need them
 anymore.  This tracking can be done using the data structure we use to
 remember what states we have already seen.
 
@@ -769,7 +769,7 @@ previously (in that case the passed state is destroyed).  The
 =spot::state_unicity_table::is_new()= behaves similarly, but returns
 =nullptr= for states that already exist.
 
-With this class, the recursive code can be simplified to this:
+With this class, the recursive code can be simplified down to this:
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>

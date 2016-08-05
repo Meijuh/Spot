@@ -4,9 +4,9 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 
-The task is to read an LTL formula, relabel all (possibly complex)
-atomic propositions, and provide =#define= statements for each of
-these renamings, writing everything in Spin's syntax.
+The task is to read an LTL formula, relabel all (possibly
+double-quoted) atomic propositions, and provide =#define= statements
+for each of these renamings, writing everything in Spin's syntax.
 
 * Shell
 
@@ -49,6 +49,11 @@ accept_all:
 }
 #+end_example
 
+Aside: another way to work around syntax limitations of tools is to
+use [[file:ltldo.org][=ltldo=]].  On the above example, =ltldo ltl2ba -f '"Proc@Here" U
+("var > 10" | "var < 4")' -s= would produce a never clam with the
+correct atomic proposition, even though =ltl2ba= cannot parse them.
+
 * Python
 
 The =spot.relabel= function takes an optional third parameter that
@@ -73,8 +78,7 @@ print(g.to_str('spin', True))
 
 * C++
 
-The =spot::relabeling_map= is just a =std::map= with a custom
-destructor.
+The =spot::relabeling_map= is just implemented as a =std::map=.
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>

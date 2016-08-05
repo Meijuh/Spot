@@ -28,6 +28,11 @@ ltlfilt -c -f '(a U b) U a' --equivalent-to 'b U a'
 #+RESULTS:
 : 1
 
+Or use =-q= if you only care about the exit status of =ltlfilt=: the
+exist status is =0= if some formula matched, and =1= if no formula
+matched.  (The effect of these =-c= and =-q= options should be
+familiar to =grep= users.)
+
 * Python
 
 In Python, we can test this via a =language_containment_checker=
@@ -38,10 +43,10 @@ import spot
 f = spot.formula("(a U b) U a")
 g = spot.formula("b U a")
 c = spot.language_containment_checker()
-print(c.equal(f, g))
+print("Equivalent" if c.equal(f, g) else "Not equivalent")
 #+END_SRC
 #+RESULTS:
-: True
+: Equivalent
 
 The equivalence check is done by converting the formulas $f$ and $g$
 and their negation into four automata $A_f$, $A_{\lnot f}$, $A_g$, and
@@ -64,15 +69,15 @@ def equiv(f, g):
 
 f = spot.formula("(a U b) U a")
 g = spot.formula("b U a")
-print(equiv(f, g))
+print("Equivalent" if equiv(f, g) else "Not equivalent")
 #+END_SRC
 #+RESULTS:
-: True
+: Equivalent
 
 The =language_containment_checker= object essentially performs the
 same work, but it also implements a cache to avoid translating the
 same formulas multiple times when it is used to test multiple
-equivalence.
+equivalences.
 
 * C++
 

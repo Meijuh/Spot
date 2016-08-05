@@ -6,11 +6,11 @@
 
 This example demonstrates how to iterate over an automaton in C++ and
 Python.  This case uses automata stored entirely in memory as a graph:
-states are numbered by integers, and transitions can be seen as tuple
+states are numbered by integers, and transitions can be seen as tuples
 of the form
 $(\mathit{src},\mathit{dst},\mathit{cond},\mathit{accsets})$ where
-$\mathit{src}$ and $\mathit{dst}$ are integer denoting the extremities
-of the transition, $\mathit{cond}$ is a BDD representing the label
+$\mathit{src}$ and $\mathit{dst}$ are integers denoting the source and
+destination states, $\mathit{cond}$ is a BDD representing the label
 (a.k.a. guard), and $\mathit{accsets}$ is an object of type
 =acc_cond::mark_t= encoding the membership to each acceptance sets
 (=acc_cond::mark_t= is basically a bit vector).
@@ -18,9 +18,9 @@ of the transition, $\mathit{cond}$ is a BDD representing the label
 The interface available for those graph-based automata allows random
 access to any state of the graph, hence the code given bellow can do a
 simple loop over all states of the automaton.  Spot also supports a
-different kind of interface (not demonstrated here) to iterate over
-automata that are constructed on-the-fly and where such a loop would
-be impossible.
+different kind of interface (not demonstrated here) to
+[[file:tut50.org][iterate over automata that are constructed
+on-the-fly]] and where such a loop would be impossible.
 
 First let's create an example automaton in HOA format.  We use =-U= to
 request unambiguous automata, as this allows us to demonstrate how
@@ -38,7 +38,8 @@ Start: 0
 AP: 3 "a" "b" "c"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels trans-acc stutter-invariant
+properties: trans-labels explicit-labels trans-acc unambiguous
+properties: stutter-invariant
 --BODY--
 State: 0
 [0] 1
@@ -102,7 +103,7 @@ corresponding BDD variable number, and then use for instance
   void custom_print(std::ostream& out, spot::twa_graph_ptr& aut)
   {
     // We need the dictionary to print the BDDs that label the edges
-    const auto& dict = aut->get_dict();
+    const spot::bdd_dict_ptr& dict = aut->get_dict();
 
     // Some meta-data...
     out << "Acceptance: " << aut->get_acceptance() << '\n';
@@ -146,7 +147,7 @@ corresponding BDD variable number, and then use for instance
 
         // The out(s) method returns a fake container that can be
         // iterated over as if the contents was the edges going
-        // out of s.  Each of these edge is a quadruplet
+        // out of s.  Each of these edges is a quadruplet
         // (src,dst,cond,acc).  Note that because this returns
         // a reference, the edge can also be modified.
         for (auto& t: aut->out(s))
@@ -169,7 +170,7 @@ Initial state: 0
 Atomic propositions: a (=0) b (=1) c (=2)
 Name: Fa | G(Fb & Fc)
 Deterministic: no
-Unambiguous: maybe
+Unambiguous: yes
 State-Based Acc: maybe
 Terminal: maybe
 Weak: maybe

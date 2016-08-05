@@ -45,7 +45,7 @@ Note that the automaton parser of Spot can read automata written
 either as never claims, in LBTT's format, in ltl2dstar's format or in
 the HOA format, and there is no need to specify which format you
 expect.  Even if our example uses a never claim as input, the code we
-write will work with any of those formats.
+write will read any of those formats.
 
 * Shell
 
@@ -185,18 +185,18 @@ State: 4
 --END--
 #+END_SRC
 
-In automata, transitions guards are represented by BDDs.  The role of
-=bdd_dict= object is to keep track of the correspondence between BDD
-variables and atomic propositions such as =foo= and =bar= in the above
-example.  So each automaton has a shared pointer to some =bdd_dict=
-(this shared pointer is what the =bdd_dict_ptr= type is), and
-operations between automata (like a product) can only work on automata
-that share the same pointer.  Here, when we call the automaton parser,
-we supply the =bdd_dict_ptr= that should be used to do the mapping
-between atomic propositions and BDD variables.  Atomic propositions
-that were not already registered will get a new BDD variable number,
-and while existing atomic propositions will reuse the existing
-variable.
+In the Spot representation of automata, transitions guards are
+represented by BDDs.  The role of the =bdd_dict= object is to keep
+track of the correspondence between BDD variables and atomic
+propositions such as =foo= and =bar= in the above example.  So each
+automaton has a shared pointer to some =bdd_dict= (this shared pointer
+is what the =bdd_dict_ptr= type is), and operations between automata
+(like a product) can only work on automata that share the same
+pointer.  Here, when we call the automaton parser, we supply the
+=bdd_dict_ptr= that should be used to do the mapping between atomic
+propositions and BDD variables.  Atomic propositions that were not
+already registered will get a new BDD variable number, and while
+existing atomic propositions will reuse the existing variable.
 
 In the example for [[file:tut10.org][translating LTL into BA]], we did not specify any
 =bdd_dict=, because the =translator= object will create a new one by
@@ -211,11 +211,12 @@ There are actually different C++ interfaces to the automaton parser,
 depending on your use case.  For instance the parser is able to read a
 stream of automata stored in the same file, so that they could be
 processed in a loop.  For this, you would instanciate a
-=automaton_stream_parser= object and call its =parse()= method in a
-loop.  Each call to this method will either return one automaton, or
-=nullptr= if there is no more automaton to read.  The =parse_aut()=
-function is actually a simple convenience wrapper that instantiates
-an =automaton_stream_parser= and calls its =parse()= method once.
+=spot::automaton_stream_parser= object and call its =parse()= method
+in a loop.  Each call to this method will either return one
+=spot::parsed_aut_ptr=, or =nullptr= if there is no more automaton to
+read.  The =parse_aut()= function is actually a simple convenience
+wrapper that instantiates an =automaton_stream_parser= and calls its
+=parse()= method once.
 
 
 In Python, you can easily iterate over a file containing multiple

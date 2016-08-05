@@ -31,8 +31,9 @@ ltlfilt --lbt-input -f "$formula" --spin -p
 
 The reason the LBT parser has to be explicitly enabled is because of
 some corner cases that have different meanings in the two syntaxes.
-(For instance =t= and =f= are the true constant in LBT's syntax, but
-they are considered as atomic propositions in all the other syntaxes.)
+(For instance =t= and =f= are the true and false constants in LBT's
+syntax, but they are considered as atomic propositions in all the
+other syntaxes.)
 
 * Python bindings
 
@@ -94,17 +95,18 @@ After [[file:compile.org][compiling and executing]] we get:
 : (p1) && (p2) && ([](p0))
 
 Notice that, except for the =<<= operator, the different output
-routines specify in their name the syntax the output, and the type of
-formula they can output.  Here we are only using LTL formulas for
-demonstration, so those three functions are OK with that.   The
-routine used by =<<= is =print_psl()=.
+routines specify in their name the syntax to use for output, and the
+type of formula they can output.  Here we are only using LTL formulas
+for demonstration, and PSL is a superset of LTL, so those three output
+functions are all OK with that.  The routine used by =<<= is
+=print_psl()=, the default syntax used by Spot.
 
 We do not recommend using the =parse_formula()= interface because of
 the potential formulas (like =f= or =t=) that have different meanings
 in the two parsers that are tried.
 
 Instead, depending on whether you want to parse formulas with infix
-syntax, or formulas with prefix syntax, you should call the specific
+syntax, or formulas with prefix syntax, you should call the appropriate
 parser.  Additionally, this give you control over how to print errors.
 
 ** Calling the infix parser explicitly
@@ -133,7 +135,8 @@ Here is how to call the infix parser explicitly:
 
 Note that as its name implies, this parser can read more than LTL
 formulas: the fragment of PSL we support is basically LTL extended
-with regular expressions.
+with regular expressions.  (Refer to the [[https://spot.lrde.epita.fr/tl.pdf][temporal logic specifications]]
+for the syntax and semantics.)
 
 The =parse_infix_psl()= function processes =input=, and returns a
 =spot::parsed_formula= object.  In addition to the =spot::formula= we
@@ -141,16 +144,17 @@ desire (stored as the =spot::parsed_formula::f= attribute), the
 =spot::parsed_formula= also stores any diagnostic collected during the
 parsing.  Those diagnostics are stored in the
 =spot::parsed_formula::errors= attribute, but they can conveniently be
-printed by calling the =spot::parsed::format_errors()= method: this
-method returns true if and only if a diagnostic was output, so this is
-usually used to abort the program with an error status as above.
+printed by calling the =spot::parsed_formula::format_errors()= method:
+this method returns =true= if and only if a diagnostic was output, so
+this is usually used to abort the program with an error status as
+above.
 
 
 The parser usually tries to do some error recovery, so the =f=
-attribute can be non-null even if some parsing errors where returned.
+attribute can be non-null even if some parsing errors were returned.
 For instance if you have input =(a U b))= the parser will complain
 about the extra parenthesis, but it will still return a formula that
-is equivalent to =a U b=.  So you could decide to continue with the
+is equivalent to =a U b=.  You could decide to continue with the
 "fixed" formula if you wish.  Here is an example:
 
 #+BEGIN_SRC C++ :results verbatim :exports both
@@ -231,7 +235,7 @@ you can simply use =parse_infix_psl()= to parse LTL formulas.
 
 There is a potential problem if you design a tool that only works with
 LTL formulas, but call =parse_infix_psl()= to parse user input.  In
-that case, the user might well input a PSL formula and cause problem
+that case, the user might input a PSL formula and cause problem
 down the line.
 
 For instance, let's see what happens if a PSL formulas is passed to
@@ -290,9 +294,9 @@ The first is to simply diagnose non-LTL formulas.
 #+END_SRC
 
 A second (but slightly weird) idea would be to try to simplify the PSL
-formula, and hope that the PSL simplify is able to come up with an
+formula, and hope that the simplifier is able to come up with an
 equivalent LTL formula.  This does not always work, so you need to be
-prepared to reject the formula any way.  In our example, we are lucky
+prepared to reject the formula anyway.  In our example, we are lucky
 (maybe because it was carefully chosen...):
 
 #+BEGIN_SRC C++ :results verbatim :exports both
@@ -411,7 +415,7 @@ specifiers after the second =:= (if any) are the usual [[https://docs.python.org
 specifiers]] (typically alignment choices) and are applied on the string
 produced from the formula.
 
-The complete list of specified that apply to formulas can always be
+The complete list of specifier that apply to formulas can always be
 printed with =help(spot.formula.__format__)=:
 
 #+BEGIN_SRC python :results output :exports results
