@@ -1044,14 +1044,14 @@ method.
 
 Here is a list of named properties currently used inside Spot:
 
-| key name            | (pointed) value type           | description                                                                                                                       |
-|---------------------+--------------------------------+-----------------------------------------------------------------------------------------------------------------------------------|
-| ~automaton-name~    | ~std::string~                  | A name for the automaton, for instance to display in the HOA format.                                                              |
-| ~product-states~    | ~const spot::product_states~   | A vector of pair of states giving the left and right operand of each state in a product automaton.                                |
-| ~state-names~       | ~std::vector<std::string>~     | A vector naming each state of the automaton, for display purpose.                                                                 |
-| ~highlight-edges~   | ~std::map<unsigned, unsigned>~ | A map of (edge number, color number) for highlighting the output.                                                                 |
-| ~highlight-states~  | ~std::map<unsigned, unsigned>~ | A map of (state number, color number) for highlighting the output.                                                                |
-| ~incomplete-states~ | ~std::set<unsigned>~           | A set of states numbers that should be displayed as incomplete.  Used internally by ~print_dot()~ when truncating large automata. |
+| key name            | (pointed) value type           | description                                                                                                                     |
+|---------------------+--------------------------------+---------------------------------------------------------------------------------------------------------------------------------|
+| ~automaton-name~    | ~std::string~                  | name for the automaton, for instance to display in the HOA format                                                               |
+| ~product-states~    | ~const spot::product_states~   | vector of pairs of states giving the left and right operands of each state in a product automaton                               |
+| ~state-names~       | ~std::vector<std::string>~     | vector naming each state of the automaton, for display purpose                                                                  |
+| ~highlight-edges~   | ~std::map<unsigned, unsigned>~ | map of (edge number, color number) for highlighting the output                                                                  |
+| ~highlight-states~  | ~std::map<unsigned, unsigned>~ | map of (state number, color number) for highlighting the output                                                                 |
+| ~incomplete-states~ | ~std::set<unsigned>~           | set of states numbers that should be displayed as incomplete  (used internally by ~print_dot()~ when truncating large automata) |
 
 Objects referenced via named properties are automatically destroyed
 when the automaton is destroyed, but this can be altered by passing a

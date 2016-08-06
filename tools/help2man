@@ -2,7 +2,7 @@
 
 # Generate a short man page from --help and --version output.
 # Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2009,
-# 2010, 2011, 2012, 2015 Free Software Foundation, Inc.
+# 2010, 2011, 2012, 2015, 2016 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -555,8 +555,8 @@ while (length)
 	s/\x84//g;
 
 	# Convert options.
-	s/(^| )(-[][\w-]+(?:=[][\w=\/|()'"-]*)?)/$1 . convert_option $2/mge;
-	s/\((-[][\w-]+(?:=[][\w=\/|()'"-]*)?)\)/"(" . convert_option $1 . ")"/mge;
+	s/(^| )(-[][\w-]+(?:=[][\w=\/|()+<#.'"-]*)?)/$1 . convert_option $2/mge;
+	s/\((-[][\w-]+(?:=[][\w=\/|()+<#.'"-]*)?)\)/"(" . convert_option $1 . ")"/mge;
 
 	# Escape remaining hyphens
 	s/-/\x83/g;

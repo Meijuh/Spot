@@ -13,8 +13,8 @@ now offers several options to adjust the type of automaton output.
 Those options will be covered in more detail below, but here is
 a quick summary:
 
-- =--tgba= (the default) outputs Transition-based Generalized
-Büchi Automata
+- =--tgba= (the default) outputs Transition-based Generalized Büchi
+  Automata
 - =--ba= (or =-B=) outputs state-based Büchi automata
 - =--monitor= (or =-M=) outputs Monitors
 - =--generic --deterministic= (or =-GD=) will do whatever it takes to
@@ -70,7 +70,7 @@ ltl2tgba "Fa & GFb" -d | dot -Tpdf > tgba.pdf
 #+RESULTS:
 
 The result would look like this (note that in this documentation
-we use some [[file:oaut.org][environment variables]] to produce a more colorful
+we use some [[file:oaut.org::#default-dot][environment variables]] to produce a more colorful
 output by default)
 #+NAME: dotex
 #+BEGIN_SRC sh :results verbatim :exports none
@@ -723,8 +723,8 @@ expectations.
 
    The =--generic= (or =-G=) option allows =ltl2tgba= to use more
    complex acceptance.  Combined with =--deterministic= (or =-D=) this
-   allows the use of a determinization algorithm that produce automata
-   with parity acceptance.
+   allows the use of a determinization algorithm that produces
+   automata with parity acceptance.
 
    For instance =FGa= is the typical formula for which not
    deterministic TGBA exists.
@@ -762,7 +762,7 @@ parity acceptance, but =Fin(0)&Inf(1)= can be interpreted either as
 
 The [[./man/spot-x.7.html][=spot-x=]](7) man page lists a few =-x= options (=det-scc=,
 =det-simul=, =det-stutter=) of the determinization algorithm that are
-enable by default, but that you may want to disable for experimental
+enabled by default, but that you may want to disable for experimental
 purpose.
 
 For instance the following deterministic automaton
@@ -796,13 +796,13 @@ ltl2tgba "F(a W FGb)" -x '!det-scc' -G -D -d.a
 * Translating multiple formulas for statistics
 
 If multiple formulas are given to =ltl2tgba=, the corresponding
-automata will be output one after the other.  This is not very
-convenient, since most of these output formats are not designed to
-represent multiple automata, and tools like =dot= will only display
-the first one.
+automata will be output one after the other.  The default output
+format HOA is designed to allow streaming automata this way to build
+processing pipelines, but Spot's automaton parser can also read a
+stream of automata in other formats.
 
-One situation where passing many formulas to =ltl2tgba= is useful is
-in combination with the =--stats=FORMAT= option.  This option will
+Another situation where passing many formulas to =ltl2tgba= is useful
+is in combination with the =--stats=FORMAT= option.  This option will
 output statistics about the translated automata instead of the
 automata themselves.  The =FORMAT= string should indicate which
 statistics should be output, and how they should be output using the
@@ -858,9 +858,9 @@ and /edges/.  An edge between two states is labeled by a Boolean
 formula and may in fact represent several transitions labeled by
 compatible Boolean assignment.
 
-For instance if the atomic propositions are =x= and =y=, an edge labeled
-by the formula =!x= actually represents two transitions labeled respectively
-with =!x&y= and =!x&!y=.
+For instance if the atomic propositions are =x= and =y=, an edge
+labeled by the formula =!x= actually represents two transitions
+labeled respectively with =!x&y= and =!x&!y=.
 
 Two automata with the same structures (states and edges) but differing
 labels, may have a different count of transitions, e.g., if one has

@@ -30,7 +30,7 @@ automaton in LBTT's format may not follow an automaton in
 
 By default the output uses the HOA format.  This can be changed using
 [[file:oaut.org][the common output options]] like =--spin=, =--lbtt=, =--dot=,
-=--hoaf=...
+=--stats=...
 
 #+BEGIN_SRC sh :results silent :exports both
 cat >example.hoa <<EOF
@@ -63,7 +63,7 @@ SPOT_DOTEXTRA= autfilt example.hoa --dot=
 :   0 -> 0 [label="!p0"]
 : }
 
-The =--spin= options implicitly requires a degeneralization:
+The =--spin= option implicitly requires a degeneralization:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 autfilt example.hoa --spin
@@ -84,6 +84,8 @@ T0_S2:
   fi;
 }
 #+end_example
+
+Option =--lbtt= only works for Büchi or generalized Büchi acceptance.
 
 #+BEGIN_SRC sh :results verbatim :exports both
 autfilt example.hoa --lbtt
@@ -154,49 +156,78 @@ automaton.
 
 * Filtering automata
 
-=autfilt= supports multiple ways to filter automata based on different
-characteristics of the automaton.
+=autfilt= offers multiple options to filter automata based on
+different characteristics of the automaton.
 
 #+BEGIN_SRC sh :results verbatim :exports results
 autfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 #+begin_example
-      --acc-sets=RANGE       keep automata whose number of acceptance sets are
+      --acc-sccs=RANGE, --accepting-sccs=RANGE
+                             keep automata whose number of non-trivial
+                             accepting SCCs is in RANGE
+      --acc-sets=RANGE       keep automata whose number of acceptance sets is
                              in RANGE
       --accept-word=WORD     keep automata that accept WORD
-      --ap=RANGE             match automata with a number of atomic
+      --ap=RANGE             match automata with a number of (declared) atomic
                              propositions in RANGE
       --are-isomorphic=FILENAME   keep automata that are isomorphic to the
                              automaton in FILENAME
-      --edges=RANGE          keep automata whose number of edges are in RANGE
+      --edges=RANGE          keep automata whose number of edges is in RANGE
       --equivalent-to=FILENAME   keep automata thare are equivalent
                              (language-wise) to the automaton in FILENAME
       --included-in=FILENAME keep automata whose languages are included in that
                              of the automaton from FILENAME
+      --inherently-weak-sccs=RANGE
+                             keep automata whose number of accepting
+                             inherently-weak SCCs is in RANGE.  An accepting
+                             SCC is inherently weak if it does not have a
+                             rejecting cycle.
       --intersect=FILENAME   keep automata whose languages have an non-empty
                              intersection with the automaton from FILENAME
       --is-complete          keep complete automata
       --is-deterministic     keep deterministic automata
       --is-empty             keep automata with an empty language
       --is-inherently-weak   keep only inherently weak automata
+      --is-stutter-invariant keep automata representing stutter-invariant
+                             properties
       --is-terminal          keep only terminal automata
       --is-unambiguous       keep only unambiguous automata
       --is-weak              keep only weak automata
+      --nondet-states=RANGE  keep automata whose number of nondeterministic
+                             states is in RANGE
+      --rej-sccs=RANGE, --rejecting-sccs=RANGE
+                             keep automata whose number of non-trivial
+                             rejecting SCCs is in RANGE
       --reject-word=WORD     keep automata that reject WORD
-      --states=RANGE         keep automata whose number of states are in RANGE
+      --sccs=RANGE           keep automata whose number of SCCs is in RANGE
+      --states=RANGE         keep automata whose number of states is in RANGE
+      --terminal-sccs=RANGE  keep automata whose number of accepting terminal
+                             SCCs is in RANGE.  Terminal SCCs are weak and
+                             complete.
+      --triv-sccs=RANGE, --trivial-sccs=RANGE
+                             keep automata whose number of trivial SCCs is in
+                             RANGE
+      --unused-ap=RANGE      match automata with a number of declared, but
+                             unused atomic propositions in RANGE
+      --used-ap=RANGE        match automata with a number of used atomic
+                             propositions in RANGE
   -u, --unique               do not output the same automaton twice (same in
                              the sense that they are isomorphic)
   -v, --invert-match         select non-matching automata
+      --weak-sccs=RANGE      keep automata whose number of accepting weak SCCs
+                             is in RANGE.  In a weak SCC, all transitions
+                             belong to the same acceptance sets.
 #+end_example
 
 For instance =--states=2..5 --acc-sets=3= will /keep/ only automata that
 use 3 acceptance sets, and that have between 2 and 5 states.
 
-Except for =--unique=, all these filters can be inverted.  Using
-=--states=2..5 --acc-sets=3 -v= will /drop/ all automata that use 3
-acceptance sets and that have between 2 and 5 states, and keep the
-others.
+Except for =--unique=, all these filters can be inverted using option
+=-v=.  Using =--states=2..5 --acc-sets=3 -v= will /drop/ all automata
+that use 3 acceptance sets and that have between 2 and 5 states, and
+keep the others.
 
 * Simplifying automata
 
@@ -321,6 +352,17 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
                              be true at the same time.  Use this option
                              multiple times to declare independent groups of
                              exclusive propositions.
+      --generalized-rabin[=unique-inf|share-inf], --gra[=unique-inf|share-inf]
+                             rewrite the acceptance condition as generalized
+                             Rabin; the default "unique-inf" option uses the
+                             generalized Rabin definition from the HOA format;
+                             the "share-inf" option allows clauses to share Inf
+                             sets, therefore reducing the number of sets
+      --generalized-streett[=unique-fin|share-fin], --gsa[=unique-fin|share-fin]                                                          rewrite the
+                             acceptance condition as generalized Streett; the
+                             "share-fin" option allows clauses to share Fin
+                             sets, therefore reducing the number of sets; the
+                             default "unique-fin" does not
       --instut[=1|2]         allow more stuttering (two possible algorithms)
       --keep-states=NUM[,NUM...]   only keep specified states.  The first state
                              will be the new initial state.  Implies
@@ -346,8 +388,10 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
       --remove-unreachable-states
                              remove states that are unreachable from the
                              initial state
+      --remove-unused-ap     remove declared atomic propositions that are not
+                             used
       --sat-minimize[=options]   minimize the automaton using a SAT solver
-                             (only work for deterministic automata)
+                             (only works for deterministic automata)
       --separate-sets        if both Inf(x) and Fin(x) appear in the acceptance
                              condition, replace Fin(x) by a new Fin(y) and
                              adjust the automaton

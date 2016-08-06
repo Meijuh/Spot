@@ -872,9 +872,9 @@ export SPOT_DOTEXTRA='edge[arrowhead=vee, arrowsize=.7]'
 The =--stats= option takes format string parameter to specify what and
 how statistics should be output.
 
-Most tool support a common set of statistics about the output
+Most tools support a common set of statistics about the output
 automaton (like =%s= for the number of states, =%t= for transitions,
-=%e= for edges, etc.)  Additional statistics might be available
+=%e= for edges, etc.).  Additional statistics might be available
 depending on what the tool does (for instance [[file:autfilt.org][=autfilt=]] also has =%S=,
 =%T=, and =%E= to display the same statistics about the input
 automaton).  All the available statistics are displayed when a tool is
@@ -1056,13 +1056,12 @@ autfilt -c out-det1.hoa    # Count of deterministic automata
 : 14
 : 6
 
-If you use this feature, beware that the output filename
-is only truncated by the first file that is output to it: so
-if no automaton generate some filename, the existing file
-will be left untouched.  For instance we we run the above
-commands, again, but forcing [[file:randaut.org][=randaut=]] to output 20
-deterministic automata, it may look like we produced more
-than 20 automata:
+If you use this feature, beware that the output filename is only
+truncated once a first automaton is output to it: so if no automaton
+is output for a given filename, the existing file will be left
+untouched.  For instance if we run the above commands again, but
+forcing [[file:randaut.org][=randaut=]] to output 20 *deterministic* automata, it may look
+like we produced more than 20 automata:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 randaut -D -n 20 -Q2 -e1 1 -o out-det%d.hoa
@@ -1082,4 +1081,8 @@ it, prefix the output filename with =>>= as in
 
 : randaut -D -n 20 -Q2 1 -o '>>out-det%d.hoa'
 
-(You need the quotes so that the shell does not interpret '>>'.)
+(You need the quotes so that the shell does not interpret =>>=.)
+
+#+BEGIN_SRC sh :results silent :exports results
+rm -f out-det0.hoa out-det1.hoa
+#+END_SRC

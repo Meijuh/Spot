@@ -35,10 +35,10 @@ u-left,4,((p1 U p2) U p3) U p4
 u-left,5,(((p1 U p2) U p3) U p4) U p5
 #+end_example
 
-Tools that produce automata (like [[file:ltl2tgba.org][=ltl2tgba=]], or [[file:dstar2tgba.org][=dstar2tgba=]]) have a
-=--stats= option that can be used to output various statistics about
-the constructed automaton (these statistics are shown *instead* of
-printing the automaton).
+Tools that produce automata (like [[file:ltl2tgba.org][=ltl2tgba=]], [[file:dstar2tgba.org][=dstar2tgba=]], [[file:autfilt.org][=autfilt=]],
+or [[file:randaut.org][=randaut=]]) have a =--stats= option that can be used to output
+various statistics about the constructed automaton (these statistics
+are shown *instead* of printing the automaton).
 
 For instance, the following command will translate all the previous
 formulas, and show the resulting number of states (=%s=) and edges
@@ -192,8 +192,8 @@ Typical uses of =ltlfilt= on CSV file include:
 
 * Dealing with header lines
 
-Some CSV contain a header lines that should not be processed.
-The CSV file produced by =ltlcross= have such a line:
+Some CSV files contain a header lines that should not be processed.
+For instance the CSV files produced by =ltlcross= have such a line:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 randltl -n 2 a b | ltlfilt --remove-wm |

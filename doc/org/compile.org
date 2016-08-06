@@ -39,8 +39,10 @@ obvisously.  On this page, we are going to assume that you use =g++=
 same user interface.  To successfully build the =hello= program, we
 might need to tell the compiler several things:
 
-1. The language that we use is C++11 (or C++14).  This usually requires
-   passing an option like =-std=c++11=.
+1. The language that we use is C++11 (or C++14).  This usually
+   requires passing an option like =-std=c++11=.  Note that with
+   version 6 of =g++= the default is now to compile C++14, so this
+   option is not necessary.
 2. The C++ preprocessor should be able to find =spot/misc/version.hh=.
    This might require appending another directory to the include
    search path with =-I location=.
