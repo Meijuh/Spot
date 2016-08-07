@@ -816,8 +816,9 @@ namespace spot
               }
             s2->destroy();
           }
-        assert(res);
         s->destroy();
+        if (!the_next)
+          throw std::runtime_error("twa_run::as_twa() unable to replay run");
         s = the_next;
 
 

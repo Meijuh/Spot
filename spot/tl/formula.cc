@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -423,6 +423,7 @@ namespace spot
             {
               for (i = v.begin(); i != v.end(); ++i)
                 (*i)->destroy();
+              assert(abs);
               return abs->clone();
             }
           else
