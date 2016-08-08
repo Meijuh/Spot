@@ -66,6 +66,14 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state* state);
 
 enum stat_style { no_input, aut_input, ltl_input };
 
+
+struct printable_automaton final:
+  public spot::printable_value<spot::const_twa_graph_ptr>
+{
+  using spot::printable_value<spot::const_twa_graph_ptr>::operator=;
+  void print(std::ostream& os, const char* pos) const override;
+};
+
 /// \brief prints various statistics about a TGBA
 ///
 /// This object can be configured to display various statistics
@@ -84,6 +92,7 @@ public:
         declare('C', &haut_scc_);
         declare('E', &haut_edges_);
         declare('G', &haut_gen_acc_);
+        declare('H', &input_aut_);
         declare('M', &haut_name_);
         declare('S', &haut_states_);
         declare('T', &haut_trans_);
@@ -94,6 +103,7 @@ public:
     declare('L', &location_);
     if (input != ltl_input)
       declare('f', &filename_);        // Override the formula printer.
+    declare('h', &output_aut_);
     declare('m', &aut_name_);
     declare('w', &aut_word_);
   }
@@ -121,8 +131,10 @@ public:
         os << loc;
         location_ = os.str();
       }
+    output_aut_ = aut;
     if (haut)
       {
+        input_aut_ = haut->aut;
         if (loc < 0 && has('L'))
           {
             std::ostringstream os;
@@ -190,7 +202,13 @@ public:
             }
         }
 
-    return this->spot::stat_printer::print(aut, f, run_time);
+    auto& res = this->spot::stat_printer::print(aut, f, run_time);
+    // Make sure we do not store the automaton until the next one is
+    // printed, as the registered APs will affect how the next
+    // automata are built.
+    output_aut_ = nullptr;
+    input_aut_ = nullptr;
+    return res;
   }
 
 private:
@@ -207,6 +225,8 @@ private:
   spot::printable_value<unsigned> haut_scc_;
   spot::printable_value<const char*> csv_prefix_;
   spot::printable_value<const char*> csv_suffix_;
+  printable_automaton input_aut_;
+  printable_automaton output_aut_;
 };
 
 

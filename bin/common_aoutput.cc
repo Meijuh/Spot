@@ -152,6 +152,9 @@ static const argp_option io_options[] =
       " minuscules for output):", 4 },
     { "%F", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, F_doc, 0 },
     { "%L", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, L_doc, 0 },
+    { "%H, %h", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "the automaton in HOA format on a single line (use %[opt]H or %[opt]h "
+      "to specify additional options as in --hoa=opt)", 0 },
     { "%M, %m", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "name of the automaton", 0 },
     { "%S, %s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -192,6 +195,9 @@ static const argp_option o_options[] =
       "the following interpreted sequences:", 4 },
     { "%F", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, F_doc, 0 },
     { "%L", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, L_doc, 0 },
+    { "%h", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "the automaton in HOA format on a single line (use %[opt]h "
+      "to specify additional options as in --hoa=opt)", 0 },
     { "%m", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "name of the automaton", 0 },
     { "%s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -395,4 +401,18 @@ void automaton_printer::add_stat(char c, const spot::printable* p)
   namer.declare(c, p);
   statistics.declare(c, p);
   outputnamer.declare(c, p);
+}
+
+void printable_automaton::print(std::ostream& os, const char* pos) const
+{
+  std::string options = "l";
+  if (*pos == '[')
+    {
+      ++pos;
+      auto end = strchr(pos, ']');
+      options = std::string(pos, end - pos);
+      options += 'l';
+      pos = end + 1;
+    }
+  print_hoa(os, val_, options.c_str());
 }

@@ -971,6 +971,17 @@ EOF
 test `autfilt -c --is-inherently-weak input8` = 0
 test `autfilt -c --is-weak input8` = 0
 
+autfilt input8 -Hl >oneline.hoa
+autfilt input8 --stats='%h' >oneline2.hoa
+autfilt input8 --stats='%H' >oneline3.hoa
+autfilt input8 --randomize --stats='%h' >oneline4.hoa
+autfilt input8 --randomize --stats='%H' >oneline5.hoa
+diff oneline.hoa oneline2.hoa
+diff oneline.hoa oneline3.hoa
+diff oneline.hoa oneline4.hoa && exit 1
+diff oneline.hoa oneline5.hoa
+
+
 cat >input9 <<EOF
 HOA: v1
 name: "a U (b U c)"
