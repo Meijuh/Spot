@@ -181,6 +181,12 @@ static const argp_option io_options[] =
       "one word accepted by the output automaton", 0 },
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
+    { "%<", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "the part of the line before the automaton if it "
+      "comes from a column extracted from a CSV file", 4 },
+    { "%>", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "the part of the line after the automaton if it "
+      "comes from a column extracted from a CSV file", 4 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 

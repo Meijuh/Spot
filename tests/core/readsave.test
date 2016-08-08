@@ -1035,3 +1035,8 @@ autfilt -H1.1 input9 | autfilt -d > output9b
 diff output9 output9b
 
 test 2 = `ltl2tgba 'GFa' 'a U b' 'a U b U c'| autfilt --ap=2..3 --count`
+
+# reading CSV with embedded automata
+test 2 = `genltl --dac=1..3 | ltl2tgba --stats='%e,"%h",%s' |
+          dstar2tgba -F-/2 --stats='%<,%>,"%h"' |
+          autfilt --states=2..3 -F-/3 --stats='%<,"%h"' | wc -l`

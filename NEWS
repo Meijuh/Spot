@@ -109,8 +109,12 @@ New in spot 2.0.3a (not yet released)
 
   * The --stats option of autfilt, dstar2tgba, ltl2tgba, ltldo,
     randaut learned to display the output (or input if that makes
-    sense) automaton as a HOA one-liner using %H (or %h), helping to
+    sense) automaton as a HOA one-liner using %h (or %H), helping to
     create CSV files contained automata.
+
+  * autfilt and dstar2tgba learned to read automata from columns in
+    CSV files, specified using the same filename/COLUMN syntax used by
+    tools reading formulas.
 
   * Arguments passed to -x (in ltl2tgba, ltl2tgta, autfilt, dstar2tgba)
     that are not used are now reported as they might be typos.

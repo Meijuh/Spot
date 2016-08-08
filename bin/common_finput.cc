@@ -305,7 +305,7 @@ job_processor::process_file(const char* filename)
   // If we have a filename like "foo/NN" such
   // that:
   // ① foo/NN is not a file (already the case),
-  // ② NN is a number > 0,
+  // ② NN is a number,
   // ③ foo is a file,
   // then it means we want to open foo as
   // a CSV file and process column NN.
@@ -315,7 +315,6 @@ job_processor::process_file(const char* filename)
       char* end;
       errno = 0;
       long int col = strtol(slash + 1, &end, 10);
-      // strtol ate all remaining characters and NN is positive
       if (errno == 0 && !*end && col != 0)
         {
           col_to_read = col;

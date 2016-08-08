@@ -9,8 +9,8 @@ tools to produce an consume CSV files.
 
 * Producing CSV files
 
-All the tools that normally produce formulas (like [[file:genltl.org][=genltl=]], [[file:randltl.org][=randltl=]],
-and [[file:ltlfilt.org][=ltlfilt=]]) have a [[file:ioltl.org][=--format= option]].  That can be used to
+All the tools that normally produce formulas (like [[file:genltl.org][=genltl=]],
+[[file:randltl.org][=randltl=]], and [[file:ltlfilt.org][=ltlfilt=]]) have a [[file:ioltl.org][=--format= option]] that can be used to
 customize the way output is formatted.
 
 For instance here is how we could use =genltl= to generate a CSV file
@@ -38,7 +38,8 @@ u-left,5,(((p1 U p2) U p3) U p4) U p5
 Tools that produce automata (like [[file:ltl2tgba.org][=ltl2tgba=]], [[file:dstar2tgba.org][=dstar2tgba=]], [[file:autfilt.org][=autfilt=]],
 or [[file:randaut.org][=randaut=]]) have a =--stats= option that can be used to output
 various statistics about the constructed automaton (these statistics
-are shown *instead* of printing the automaton).
+are shown *instead* of printing the automaton, but one of those
+allows printing the automaton as a one-liner in the HOA format).
 
 For instance, the following command will translate all the previous
 formulas, and show the resulting number of states (=%s=) and edges
@@ -231,3 +232,51 @@ ltlfilt -F results.csv/-1 --format='%f' --unique
 : 0
 : !G(Fb | F!(b | Gb))
 : G(Fb | F!(b | Gb))
+
+
+* CSV files containing automata
+
+The =--stats= option of tools that generate automata can be used to
+generate CSV files that embed automata.  For instance
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl --dac=1..3 | ltl2tgba --stats='"%f","%e edges","%h"' > csv-aut.csv
+cat csv-aut.csv
+#+END_SRC
+
+#+RESULTS:
+: "G!p0","1 edges","HOA: v1 name: ""G!p0"" States: 1 Start: 0 AP: 1 ""p0"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc colored deterministic stutter-invariant weak --BODY-- State: 0 {0} [!0] 0 --END--"
+: "G!p0 | (!p1 U p0)","5 edges","HOA: v1 name: ""G!p0 | (!p1 U p0)"" States: 3 Start: 2 AP: 2 ""p0"" ""p1"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc colored deterministic stutter-invariant weak --BODY-- State: 0 {0} [!0] 0 State: 1 {0} [t] 1 State: 2 {0} [!0&1] 0 [0] 1 [!0&!1] 2 --END--"
+: "G(!p0 | G!p1)","3 edges","HOA: v1 name: ""G(!p0 | G!p1)"" States: 2 Start: 1 AP: 2 ""p0"" ""p1"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc colored deterministic stutter-invariant weak --BODY-- State: 0 {0} [!1] 0 State: 1 {0} [0&!1] 0 [!0] 1 --END--"
+
+[[file:autfilt.org][=autfilt=]] can process a column of such a CSV file using the same
+syntax we used previously, but by default it will just output the
+automata.  If you want to preserve the entire line, you should use
+=%<= and =%>= in the =--stats= format.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+autfilt csv-aut.csv/3 --states=2..3 --stats='%<,"%h"'
+#+END_SRC
+
+#+RESULTS:
+: "G!p0 | (!p1 U p0)","5 edges","HOA: v1 States: 3 Start: 2 AP: 2 ""p0"" ""p1"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc colored deterministic stutter-invariant weak --BODY-- State: 0 {0} [!0] 0 State: 1 {0} [t] 1 State: 2 {0} [!0&1] 0 [0] 1 [!0&!1] 2 --END--"
+: "G(!p0 | G!p1)","3 edges","HOA: v1 States: 2 Start: 1 AP: 2 ""p0"" ""p1"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc colored deterministic stutter-invariant weak --BODY-- State: 0 {0} [!1] 0 State: 1 {0} [0&!1] 0 [!0] 1 --END--"
+
+
+Another source of automata in CSV format is =ltlcross=.  Using options
+=--automata= it will record the automata produced by each tool into
+the CSV file:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl --dac=1..3 | ltlcross --csv=result.csv --automata ltl2tgba
+cat result.csv
+#+END_SRC
+
+#+RESULTS:
+: "formula","tool","exit_status","exit_code","time","states","edges","transitions","acc","scc","nonacc_scc","terminal_scc","weak_scc","strong_scc","nondet_states","nondet_aut","terminal_aut","weak_aut","strong_aut","ambiguous_aut","complete_aut","product_states","product_transitions","product_scc","automaton"
+: "G(!(p0))","ltl2tgba","ok",0,0.0243614,1,1,1,1,1,0,0,1,0,0,0,0,1,0,0,0,200,2055,2,"HOA: v1 name: ""G!p0"" States: 1 Start: 0 AP: 1 ""p0"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc colored deterministic stutter-invariant weak --BODY-- State: 0 {0} [!0] 0 --END--"
+: "!(G(!(p0)))","ltl2tgba","ok",0,0.0240194,2,3,4,1,2,1,1,0,0,0,0,1,0,0,0,1,400,8272,3,"HOA: v1 name: ""Fp0"" States: 2 Start: 1 AP: 1 ""p0"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc complete deterministic stutter-invariant terminal --BODY-- State: 0 {0} [t] 0 State: 1 [0] 0 [!0] 1 --END--"
+: "(F(p0)) -> ((!(p1)) U (p0))","ltl2tgba","ok",0,0.0248105,3,5,10,1,3,0,1,2,0,0,0,0,1,0,0,0,598,10379,4,"HOA: v1 name: ""(!p1 U p0) | G!p0"" States: 3 Start: 2 AP: 2 ""p1"" ""p0"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc colored deterministic stutter-invariant weak --BODY-- State: 0 {0} [!1] 0 State: 1 {0} [t] 1 State: 2 {0} [0&!1] 0 [1] 1 [!0&!1] 2 --END--"
+: "!((F(p0)) -> ((!(p1)) U (p0)))","ltl2tgba","ok",0,0.0243147,3,5,10,1,3,2,1,0,0,0,0,1,0,0,0,0,598,10398,4,"HOA: v1 name: ""Fp0 & (p1 R !p0)"" States: 3 Start: 1 AP: 2 ""p1"" ""p0"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc deterministic stutter-invariant weak --BODY-- State: 0 {0} [t] 0 State: 1 [!0&!1] 1 [0&!1] 2 State: 2 [1] 0 [!1] 2 --END--"
+: "G((p0) -> (G(!(p1))))","ltl2tgba","ok",0,0.0201896,2,3,5,1,2,0,0,2,0,0,0,0,1,0,0,0,400,5025,2,"HOA: v1 name: ""G(!p0 | G!p1)"" States: 2 Start: 1 AP: 2 ""p0"" ""p1"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc colored deterministic stutter-invariant weak --BODY-- State: 0 {0} [!1] 0 State: 1 {0} [0&!1] 0 [!0] 1 --END--"
+: "!(G((p0) -> (G(!(p1)))))","ltl2tgba","ok",0,0.0194598,3,6,12,1,3,2,1,0,0,0,0,1,0,0,0,1,600,12354,3,"HOA: v1 name: ""F(p0 & Fp1)"" States: 3 Start: 1 AP: 2 ""p0"" ""p1"" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc complete deterministic stutter-invariant terminal --BODY-- State: 0 [!1] 0 [1] 2 State: 1 [0&!1] 0 [!0] 1 [0&1] 2 State: 2 {0} [t] 2 --END--"
