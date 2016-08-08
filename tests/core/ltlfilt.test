@@ -348,4 +348,14 @@ test "`cat out`" = 'G F "a\"\\b"'
 $ltlfilt --size=foo=2..3  2>stderr && exit 1
 grep 'invalid range.*should start with' stderr
 
+
+cat >out <<EOF
+test1,"""a b"" U c"
+"""a b"" U c",test2
+EOF
+ltlfilt out/1 > out.1
+ltlfilt out/2 > out.2
+diff out out.1
+diff out out.2
+
 true

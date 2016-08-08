@@ -94,6 +94,19 @@ New in spot 2.0.3a (not yet released)
   * genltl learned two options, --positive and --negative, to control
     wether formulas should be output after negation or not (or both).
 
+  * The formater used by --format (for ltlfilt, ltlgrind, genltl,
+    randltl) or --stats (for autfilt, dstar2tgba, ltl2tgba, ltldo,
+    randaut) learned to recognize double-quoted fields and double the
+    double-quotes output inbetween as expected from RFC4180-compliant
+    CSV files.  For instance
+      ltl2tgba -f 'a U "b+c"' --stats='"%f",%s'
+    will output
+      "a U ""b+c""",2
+
+  * The --csv-escape option of genltl, ltlfilt, ltlgrind, and randltl
+    is now deprecated.  The option is still here, but hidden and
+    undocumented.
+
   * Arguments passed to -x (in ltl2tgba, ltl2tgta, autfilt, dstar2tgba)
     that are not used are now reported as they might be typos.
     This ocurred a couple of times in our test-suite.  A similar
@@ -1696,7 +1709,7 @@ New in spot 1.2.1 (2013-12-11)
       columns before the formula) and %> (text after) can be used
       with the --format option to alter this output.
 
-    - ltlfile, genltl, randltl, and ltl2tgba have a --csv-escape option
+    - ltlfilt, genltl, randltl, and ltl2tgba have a --csv-escape option
       to help escape formulas in CSV files.
 
     - Please check

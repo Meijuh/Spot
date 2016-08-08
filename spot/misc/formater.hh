@@ -173,8 +173,11 @@ namespace spot
     std::ostream&
     format(std::ostream& output, const char* fmt)
     {
+      std::ostream* tmp = output_;
       set_output(output);
-      return format(fmt);
+      format(fmt);
+      set_output(*tmp);
+      return output;
     }
 
     /// Expand the %-sequences in \a fmt, write the result on \a output_.

@@ -19,8 +19,10 @@
 
 #include "config.h"
 #include <spot/misc/formater.hh>
+#include <spot/misc/escape.hh>
 #include <iostream>
 #include <sstream>
+#include <cstring>
 
 namespace spot
 {
@@ -66,8 +68,22 @@ namespace spot
 
   std::ostream&
   formater::format(const char* fmt)
-    {
-      for (const char* pos = fmt; *pos; ++pos)
+  {
+    for (const char* pos = fmt; *pos; ++pos)
+      {
+        if (*pos == '"')
+          {
+            *output_ << '"';
+            const char* end = strchr(pos + 1, '"');
+            if (!end)
+              continue;
+            std::string tmp(pos + 1, end - (pos + 1));
+            std::ostringstream os;
+            format(os, tmp);
+            escape_rfc4180(*output_, os.str());
+            pos = end;
+            // the end double-quote will be printed below
+          }
         if (*pos != '%')
           {
             *output_ << *pos;
@@ -95,6 +111,7 @@ namespace spot
               break;
             pos = next;
           }
-      return *output_;
-    }
+      }
+    return *output_;
+  }
 }

@@ -74,17 +74,18 @@ ltl2tgba -f Xa -f 'G("switch == on" -> F"tab[3,5] < 12")' --stats '%f,%s,%e'
 
 The second line of this input does no conform to [[https://www.rfc-editor.org/rfc/rfc4180.txt][RFC 4180]] because
 non-escaped fields are not allowed to contain comma or double-quotes.
-To fix this, use =ltl2tgba='s =--csv-escape= option: this causes
-"=%f=" to produce a double-quoted string properly escaped.
+To fix this, simply double-quote the =%f= in the argument to =--stats=:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltl2tgba -f Xa -f 'G("switch == on" -> F"tab[3,5] < 12")' --stats '%f,%s,%e' --csv-escape
+ltl2tgba -f Xa -f 'G("switch == on" -> F"tab[3,5] < 12")' --stats '"%f",%s,%e'
 #+END_SRC
 
 #+RESULTS:
 : "Xa",3,3
 : "G(!""switch == on"" | F""tab[3,5] < 12"")",2,4
 
+The formater will detect your double-quote and automatically double
+any double quote output between them, as per [[https://www.rfc-editor.org/rfc/rfc4180.txt][RFC 4180]].
 
 The tool [[file:ltlcross.org][=ltlcross=]] has its own =--csv=FILENAME= option to format the
 statistics it gathers in a CSV file, but you have very little control
@@ -150,18 +151,6 @@ ltlfilt -F gen.csv/3 --size-min=8 --relabel=abc
 : and-gf,5,GFa & GFb & GFc & GFd & GFe
 : u-left,5,(((a U b) U c) U d) U e
 
-For security, in case a formula may contain double-quotes or
-commas, you should use the =--csv-escape= option:
-
-#+BEGIN_SRC sh :results verbatim :exports both
-ltlfilt -F gen.csv/3 --size-min=8 --relabel=abc --csv-escape
-#+END_SRC
-#+RESULTS:
-: and-gf,3,"GFa & GFb & GFc"
-: and-gf,4,"GFa & GFb & GFc & GFd"
-: and-gf,5,"GFa & GFb & GFc & GFd & GFe"
-: u-left,5,"(((a U b) U c) U d) U e"
-
 The preservation in the output of the text before and after the
 selected column can be altered using the =--format= option.  The =%<=
 escape sequence represent the (comma-separated) data of all the
@@ -173,7 +162,7 @@ string.
 For instance this moves the first two columns after the formulas.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltlfilt -F gen.csv/3 --size-min=8 --csv-escape --format='%f,%<'
+ltlfilt -F gen.csv/3 --size-min=8 --format='"%f",%<'
 #+END_SRC
 #+RESULTS:
 : "GFp1 & GFp2 & GFp3",and-gf,3
@@ -181,14 +170,19 @@ ltlfilt -F gen.csv/3 --size-min=8 --csv-escape --format='%f,%<'
 : "GFp1 & GFp2 & GFp3 & GFp4 & GFp5",and-gf,5
 : "(((p1 U p2) U p3) U p4) U p5",u-left,5
 
+Note that if the =--format= option is not specified, the default
+format is one of: =%f=, =%<,%f=, =%f,%>=, or =%<,%f,%>= depending on
+whether the input CSV had column before and after the selected one.
+Furthermore, the formula field is automatically double-quoted if the
+formula actually use double-quotes, and the input CSV file had more
+than one column.
 
 Typical uses of =ltlfilt= on CSV file include:
 - Filtering lines based on an LTL criterion, as above.
 - Changing the syntax of LTL formulas.  For instance =ltl2tgba='s
   =--stats= option, and =ltlcross='s =--csv= option always output
-  formulas in Spot's format.  If that is inappropriate, simply
-  use =ltlfilt= to rewrite the relevant column in your prefered
-  syntax.
+  formulas in Spot's format.  If that is inappropriate, simply use
+  =ltlfilt= to rewrite the relevant column in your preferred syntax.
 
 * Dealing with header lines
 

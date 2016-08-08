@@ -50,7 +50,9 @@ static const argp_option options[] =
     { "wring", OPT_WRING, nullptr, 0, "output in Wring's syntax", -20 },
     { "utf8", '8', nullptr, 0, "output using UTF-8 characters", -20 },
     { "latex", OPT_LATEX, nullptr, 0, "output using LaTeX macros", -20 },
-    { "csv-escape", OPT_CSV, nullptr, 0,
+    // --csv-escape was deprecated in Spot 2.1, we can remove it at
+    // some point
+    { "csv-escape", OPT_CSV, nullptr, OPTION_HIDDEN,
       "quote the formula for use in a CSV file", -20 },
     { "format", OPT_FORMAT, "FORMAT", 0,
       "specify how each line should be output (default: \"%f\")", -20 },
@@ -268,7 +270,30 @@ output_formula(std::ostream& out,
     {
       if (prefix)
         out << prefix << ',';
-      stream_escapable_formula(out, f, filename, linenum);
+      // For backward compatibility, we still run
+      // stream_escapable_formula when --csv-escape has been given.
+      // But eventually --csv-escape should be removed, and the
+      // formula printed raw.
+      if ((prefix || suffix) && !escape_csv)
+        {
+          std::ostringstream tmp;
+          stream_formula(tmp, f, filename, linenum);
+          std::string tmpstr = tmp.str();
+          if (tmpstr.find_first_of("\",") != std::string::npos)
+            {
+              out << '"';
+              spot::escape_rfc4180(out, tmpstr);
+              out << '"';
+            }
+          else
+            {
+              out << tmpstr;
+            }
+        }
+      else
+        {
+          stream_escapable_formula(out, f, filename, linenum);
+        }
       if (suffix)
         out << ',' << suffix;
     }

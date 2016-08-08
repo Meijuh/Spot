@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013 Laboratoire de Recherche et
+# Copyright (C) 2013, 2016 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -101,9 +101,16 @@ test `wc -l < formulas.2` -eq 168
 test `wc -l < formulas.3` -eq 168
 test `wc -l < formulas.4` -eq 168
 
+# The --csv-escape option is now obsolete and replaced by double
+# quotes in the format string.  So eventually the first two lines
+# should disappear.
 run 0 $ltlfilt formulas.2 --csv-escape --format='%L,%f' > formulas.5
 run 0 $ltlfilt formulas.5/2 --csv-escape --format='%L,%f' > formulas.6
+run 0 $ltlfilt formulas.2 --format='%L,"%f"' > formulas.5a
+run 0 $ltlfilt formulas.5/2 --format='%L,"%f"' > formulas.6a
 cmp formulas.5 formulas.6
+cmp formulas.5 formulas.5a
+cmp formulas.5a formulas.6a
 
 # Make sure ltl2dstar-style litterals always get quoted.
 test "`$ltlfilt -l --lbt-input -f 'G F a'`" = 'G F "a"'
