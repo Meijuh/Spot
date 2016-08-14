@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -40,4 +40,17 @@ output_file::output_file(const char* name)
   if (!*of_)
     error(2, errno, "cannot open '%s'", name);
   os_ = of_;
+}
+
+
+void output_file::close(const std::string& name)
+{
+  // We close of_, not os_, so that we never close std::cout.
+  if (os_)
+    os_->flush();
+  if (of_)
+    of_->close();
+  if (os_ && !*os_)
+    error(2, 0, "error writing to %s",
+          (name == "-") ? "standard output" : name.c_str());
 }

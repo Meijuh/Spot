@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -22,6 +22,7 @@
 #include "common_sys.hh"
 #include <iosfwd>
 #include <fstream>
+#include <error.h>
 
 class output_file
 {
@@ -33,6 +34,8 @@ public:
   // Names that start with ">>" are opened for append.
   // The function calls error() on... error.
   output_file(const char* name);
+
+  void close(const std::string& name);
 
   ~output_file()
   {

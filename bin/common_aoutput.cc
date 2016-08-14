@@ -409,6 +409,13 @@ void automaton_printer::add_stat(char c, const spot::printable* p)
   outputnamer.declare(c, p);
 }
 
+automaton_printer::~automaton_printer()
+{
+  for (auto& p : outputfiles)
+    p.second->close(p.first);
+}
+
+
 void printable_automaton::print(std::ostream& os, const char* pos) const
 {
   std::string options = "l";

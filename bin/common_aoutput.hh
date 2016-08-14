@@ -242,6 +242,7 @@ class automaton_printer
 public:
 
   automaton_printer(stat_style input = no_input);
+  ~automaton_printer();
 
   void
   print(const spot::twa_graph_ptr& aut,

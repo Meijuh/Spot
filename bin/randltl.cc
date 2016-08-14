@@ -31,6 +31,7 @@
 #include "common_range.hh"
 #include "common_r.hh"
 #include "common_conv.hh"
+#include "common_cout.hh"
 
 #include <sstream>
 #include <spot/tl/randomltl.hh>
@@ -327,5 +328,6 @@ main(int argc, char** argv)
       error(2, 0, "%s", e.what());
     }
 
+  flush_cout();
   return 0;
 }

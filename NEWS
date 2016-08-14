@@ -1,6 +1,9 @@
 New in spot 2.1.0a (not yet released)
 
-  Nothing yet.
+  Bugs fixed:
+
+  * Fix several cases where command-line tools would fail to diagnose
+    write errors (e.g. when writing to filesystem that is full).
 
 New in spot 2.1 (2016-08-08)
 

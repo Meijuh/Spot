@@ -1396,6 +1396,7 @@ print_stats_csv(const char* filename)
           vstats[r][t].to_csv(out, !opt_omit);
           out << '\n';
         }
+  outf.close(filename);
 }
 
 static void
@@ -1442,6 +1443,7 @@ print_stats_json(const char* filename)
           out << " ]";
         }
   out << "\n  ]\n}\n";
+  outf.close(filename);
 }
 
 int

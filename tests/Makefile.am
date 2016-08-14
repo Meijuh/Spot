@@ -191,6 +191,7 @@ TESTS_misc = \
   core/bitvect.test \
   core/intvcomp.test \
   core/minusx.test \
+  core/full.test \
   core/trival.test
 
 TESTS_twa = \

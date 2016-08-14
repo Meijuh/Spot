@@ -753,6 +753,7 @@ main(int argc, char** argv)
 
   if (output_format == count_output)
     std::cout << match_count << std::endl;
+  flush_cout();
 
   return one_match ? 0 : 1;
 }

@@ -119,6 +119,7 @@
 #include "common_setup.hh"
 #include "common_output.hh"
 #include "common_range.hh"
+#include "common_cout.hh"
 
 #include <cassert>
 #include <iostream>
@@ -1111,5 +1112,6 @@ main(int argc, char** argv)
       error(2, 0, "%s", e.what());
     }
 
+  flush_cout();
   return 0;
 }

@@ -26,6 +26,7 @@
 #include "common_finput.hh"
 #include "common_output.hh"
 #include "common_conv.hh"
+#include "common_cout.hh"
 
 #include <spot/tl/mutation.hh>
 
@@ -194,5 +195,6 @@ main(int argc, char* argv[])
   mutate_processor processor;
   if (processor.run())
     return 2;
+  flush_cout();
   return 0;
 }

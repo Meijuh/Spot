@@ -1272,5 +1272,6 @@ main(int argc, char** argv)
   if (automaton_format == Count)
     std::cout << match_count << std::endl;
 
+  check_cout();
   return !match_count;
 }
