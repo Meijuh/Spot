@@ -22,6 +22,8 @@
 #include <iostream>
 #include <sstream>
 #include <spot/tl/print.hh>
+#include <spot/tl/length.hh>
+#include <spot/tl/apcollect.hh>
 #include <spot/misc/formater.hh>
 #include <spot/misc/escape.hh>
 #include "common_cout.hh"
@@ -179,12 +181,16 @@ namespace
     formula_printer(std::ostream& os, const char* format)
       : format_(format)
     {
+      declare('a', &ap_num_);
+      declare('b', &bool_size_);
       declare('f', &fl_);
       declare('F', &filename_);
       declare('L', &line_);
+      declare('s', &size_);
       declare('<', &prefix_);
       declare('>', &suffix_);
       set_output(os);
+      prime(format);
     }
 
     std::ostream&
@@ -195,6 +201,17 @@ namespace
       line_ = fl.line;
       prefix_ = fl.prefix ? fl.prefix : "";
       suffix_ = fl.suffix ? fl.suffix : "";
+      auto f = fl_.val()->f;
+      if (has('a'))
+        {
+          auto s = spot::atomic_prop_collect(f);
+          ap_num_ = s->size();
+          delete s;
+        }
+      if (has('b'))
+        bool_size_ = spot::length_boolone(f);
+      if (has('s'))
+        size_ = spot::length(f);
       return format(format_);
     }
 
@@ -205,6 +222,9 @@ namespace
     spot::printable_value<int> line_;
     spot::printable_value<const char*> prefix_;
     spot::printable_value<const char*> suffix_;
+    spot::printable_value<int> size_;
+    spot::printable_value<int> bool_size_;
+    spot::printable_value<int> ap_num_;
   };
 }
 

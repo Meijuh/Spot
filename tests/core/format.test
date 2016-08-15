@@ -1,0 +1,52 @@
+#! /bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2016 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+. ./defs || exit 1
+
+set -e
+
+genltl --dac=1..10 --format='%s,%b,%a,%f' > output
+cat >expected <<EOF
+3,2,1,G!p0
+7,6,2,Fp0 -> (!p1 U p0)
+6,5,2,G(p0 -> G!p1)
+13,9,3,G((p0 & !p1 & Fp1) -> (!p2 U p1))
+10,6,3,G((p0 & !p1) -> (!p2 W p1))
+2,2,1,Fp0
+7,3,2,!p0 W (!p0 & p1)
+9,8,2,G!p0 | F(p0 & Fp1)
+13,6,3,G((p0 & !p1) -> (!p1 W (!p1 & p2)))
+13,6,3,G((p0 & !p1) -> (!p1 U (!p1 & p2)))
+EOF
+diff output expected
+
+genltl --dac | ltlfilt --output='ap-%a.ltl'
+test 4 = `wc -l<ap-1.ltl`
+test 10 = `wc -l<ap-2.ltl`
+test 16 = `wc -l<ap-3.ltl`
+test 13 = `wc -l<ap-4.ltl`
+test 10 = `wc -l<ap-5.ltl`
+test 2 = `wc -l<ap-6.ltl`
+
+genltl --dac --output='ap-%a.ltl2'
+for i in 1 2 3 4 5 6; do
+  cmp ap-$i.ltl ap-$i.ltl2 || exit 1
+done

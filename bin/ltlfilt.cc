@@ -230,6 +230,7 @@ static const argp_option options[] =
       "comes from a column extracted from a CSV file", 0 },
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
+    COMMON_LTL_OUTPUT_SPECS,
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };

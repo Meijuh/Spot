@@ -36,6 +36,15 @@ extern output_format_t output_format;
 extern bool full_parenth;
 extern bool escape_csv;
 
+#define COMMON_LTL_OUTPUT_SPECS                                 \
+    { "%a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,           \
+      "number of atomic propositions used in the formula", 0 }, \
+    { "%s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,           \
+      "the length (or size) of the formula", 0 },               \
+    { "%b", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,           \
+      "the Boolean-length of the formula (i.e., all Boolean "   \
+      "subformulas count as 1)", 0 }
+
 extern const struct argp output_argp;
 
 int parse_opt_output(int key, char* arg, struct argp_state* state);

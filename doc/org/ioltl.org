@@ -199,15 +199,18 @@ output.  Not using the =--format= option is equivalent to using
 =--format=%f=.  The semantic of the available =%=-sequences differ
 from tool to tool:
 
-|           | =%f=           | =%F=           | =%L=              | =%<=         | =%>=          |
-|-----------+----------------+----------------+-------------------+--------------+---------------|
-| [[file:ltlfilt.org][=ltlfilt=]] | output formula | input filename | input line        | leading text | trailing text |
-| [[file:genltl.org][=genltl=]]  | output formula | pattern name   | pattern parameter | (empty)      | (empty)       |
-| [[file:randltl.org][=randltl=]] | output formula | (empty)        | formula number    | (empty)      | (empty)       |
+|            | =%f=           | =%F=           | =%L=              | =%<=         | =%>=          |
+|------------+----------------+----------------+-------------------+--------------+---------------|
+| [[file:ltlfilt.org][=ltlfilt=]]  | output formula | input filename | input line        | leading text | trailing text |
+| [[file:genltl.org][=genltl=]]   | output formula | pattern name   | pattern parameter | (empty)      | (empty)       |
+| [[file:randltl.org][=randltl=]]  | output formula | (empty)        | formula number    | (empty)      | (empty)       |
+| [[file:ltlfilt.org][=ltlgrind=]] | output formula | input filename | input line        | leading text | trailing text |
 
+Other =%=-sequences are supported by these tools, and documented in
+the output of =--help=.
 
 By default everything is output to standard output, so that you can
-redirect the output to a file, and pipe it to another tool.  The the
+redirect the output to a file, and pipe it to another tool.  The
 =--output= (or =-o=) allows you to construct a filename using some of
 the above =%=-sequences.
 

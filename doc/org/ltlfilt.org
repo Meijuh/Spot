@@ -49,9 +49,9 @@ ltlfilt --lbt-input -F scheck.ltl
 #+END_SRC
 #+RESULTS:
 : !(Gp0 | (Gp1 & Fp3))
-: Xp7 | Fp6 | p3
+: p3 | Xp7 | Fp6
 : ((Xp0 & Xp4) U Fp1) & XX(XFp5 U (p0 U XXp3))
-: p0 U ((p0 | p5) & p1)
+: p0 U (p1 & (p0 | p5))
 
 * Altering the formula
 
@@ -255,8 +255,9 @@ ltlfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 #+begin_example
-      --ap=N                 match formulas which use exactly N atomic
-                             propositions
+      --accept-word=WORD     keep formulas that accept WORD
+      --ap=RANGE             match formulas with a number of atomic
+                             propositions in RANGE
       --boolean              match Boolean formulas
       --bsize=RANGE          match formulas with Boolean size in RANGE
       --equivalent-to=FORMULA   match formulas equivalent to FORMULA
@@ -266,6 +267,7 @@ ltlfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
       --imply=FORMULA        match formulas implying FORMULA
       --ltl                  match only LTL formulas (no PSL operator)
       --obligation           match obligation formulas (even pathological)
+      --reject-word=WORD     keep formulas that reject WORD
       --safety               match safety formulas (even pathological)
       --size=RANGE           match formulas with size in RANGE
       --stutter-insensitive, --stutter-invariant
@@ -447,16 +449,39 @@ GF(1 U b)
 (a U b) R b
 #+end_example
 
+* Using =--format= and =--output=
 
-* Using =--format=
+The =--format= option can be used the alter the way formulas are output.
+The list of supported =%=-escape sequences are recalled in the =--help= output:
+#+BEGIN_SRC sh :results verbatim :exports results
+ltlfilt --help | sed -n '/The FORMAT/,/^$/p' | sed '$d'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+ The FORMAT string passed to --format may use the following interpreted
+ sequences:
+  %<                         the part of the line before the formula if it
+                             comes from a column extracted from a CSV file
+  %>                         the part of the line after the formula if it comes
+                             from a column extracted from a CSV file
+  %%                         a single %
+  %a                         number of atomic propositions used in the formula
+  %b                         the Boolean-length of the formula (i.e., all
+                             Boolean subformulas count as 1)
+  %f                         the formula (in the selected syntax)
+  %F                         the name of the input file
+  %L                         the original line number in the input file
+  %s                         the length (or size) of the formula
+#+end_example
 
-The =--format= option can be used the alter the way formulas are output (for instance use
+As a trivial example, use
 #+HTML: <code>--latex --format='$%f$'</code>
-to enclose formula in LaTeX format with =$...$=).  You may also find
-=--format= useful in more complex scenarios.  For instance you could
-print only the line numbers containing formulas matching some
-criterion.  In the following, we print only the numbers of the lines
-of =scheck.ltl= that contain guarantee formulas:
+to enclose formula in LaTeX format with =$...$=.
+
+But =--format= can be useful in more complex scenarios.  For instance
+you could print only the line numbers containing formulas matching
+some criterion.  In the following, we print only the numbers of the
+lines of =scheck.ltl= that contain guarantee formulas:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltlfilt --lbt-input -F scheck.ltl --guarantee --format=%L
@@ -466,11 +491,43 @@ ltlfilt --lbt-input -F scheck.ltl --guarantee --format=%L
 : 3
 : 4
 
+We could also prefix each formula by its size, in order to sort
+the file by formula size:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt --lbt-input scheck.ltl --format='%s,%f' | sort -n
+#+END_SRC
+
+#+RESULTS:
+: 7,p0 U (p1 & (p0 | p5))
+: 7,p3 | Xp7 | Fp6
+: 9,!(Gp0 | (Gp1 & Fp3))
+: 20,((Xp0 & Xp4) U Fp1) & XX(XFp5 U (p0 U XXp3))
+
 [[file:csv.org][More examples of how to use =--format= to create CSV files are on a
 separate page]]
 
+
+The =--output= option interprets its argument as an output filename,
+but after evaluating the =%=-escape sequence for each formula.  This
+makes it very easy to partition a list of formulas in different files.
+For instance here is how to split =scheck.ltl= according to formula
+sizes.
+
 #+BEGIN_SRC sh :results verbatim :exports both
-rm -f ltlex.def ltlex.never
+ltlfilt --lbt-input scheck.ltl --output='scheck-%s.ltl'
+wc -l scheck*.ltl
+#+END_SRC
+
+#+RESULTS:
+:   1 scheck-20.ltl
+:   2 scheck-7.ltl
+:   1 scheck-9.ltl
+:   4 scheck.ltl
+:   8 total
+
+#+BEGIN_SRC sh :results verbatim :exports both
+rm -f ltlex.def ltlex.never scheck.ltl
 #+END_SRC
 
 #  LocalWords:  ltlfilt num toc LTL PSL syntaxes LBT's SRC GFp scheck

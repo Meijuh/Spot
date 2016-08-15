@@ -177,7 +177,8 @@ TESTS_tl = \
   core/reduccmp.test \
   core/uwrm.test \
   core/eventuniv.test \
-  core/stutter-ltl.test
+  core/stutter-ltl.test \
+  core/format.test
 
 TESTS_graph = \
   core/graph.test \
