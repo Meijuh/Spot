@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -34,9 +34,6 @@ namespace spot
   /// the formula.  n-ary operators count for n-1; for instance
   /// <code>a | b | c</code> has length 5, even if there is only as
   /// single <code>|</code> node internally.
-  ///
-  /// If squash_boolean is set, all Boolean formulae are assumed
-  /// to have length one.
   SPOT_API
   int length(formula f);
 
