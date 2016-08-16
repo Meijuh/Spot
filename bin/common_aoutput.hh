@@ -90,12 +90,16 @@ public:
       {
         declare('A', &haut_acc_);
         declare('C', &haut_scc_);
+        declare('D', &haut_deterministic_);
         declare('E', &haut_edges_);
         declare('G', &haut_gen_acc_);
         declare('H', &input_aut_);
         declare('M', &haut_name_);
+        declare('N', &haut_nondetstates_);
+        declare('P', &haut_complete_);
         declare('S', &haut_states_);
         declare('T', &haut_trans_);
+        declare('W', &haut_word_);
       }
     declare('<', &csv_prefix_);
     declare('>', &csv_suffix_);
@@ -172,11 +176,38 @@ public:
         if (has('C'))
           haut_scc_ = spot::scc_info(haut->aut).scc_count();
 
+        if (has('N'))
+          {
+            haut_nondetstates_ = count_nondet_states(haut->aut);
+            haut_deterministic_ = (haut_nondetstates_ == 0);
+          }
+        else if (has('D'))
+          {
+            // This is more efficient than calling count_nondet_state().
+            haut_deterministic_ = is_deterministic(haut->aut);
+          }
+
+        if (has('p'))
+          haut_complete_ = is_complete(haut->aut);
+
         if (has('G'))
           {
             std::ostringstream os;
             os << haut->aut->get_acceptance();
             haut_gen_acc_ = os.str();
+          }
+        if (has('W'))
+          {
+            if (auto word = haut->aut->accepting_word())
+              {
+                std::ostringstream out;
+                out << *word;
+                haut_word_ = out.str();
+              }
+            else
+              {
+                haut_word_.val().clear();
+              }
           }
       }
 
@@ -217,12 +248,16 @@ private:
   spot::printable_value<std::string> haut_name_;
   spot::printable_value<std::string> aut_name_;
   spot::printable_value<std::string> aut_word_;
+  spot::printable_value<std::string> haut_word_;
   spot::printable_value<std::string> haut_gen_acc_;
   spot::printable_value<unsigned> haut_states_;
   spot::printable_value<unsigned> haut_edges_;
   spot::printable_value<unsigned> haut_trans_;
   spot::printable_value<unsigned> haut_acc_;
   spot::printable_value<unsigned> haut_scc_;
+  spot::printable_value<unsigned> haut_deterministic_;
+  spot::printable_value<unsigned> haut_nondetstates_;
+  spot::printable_value<unsigned> haut_complete_;
   spot::printable_value<const char*> csv_prefix_;
   spot::printable_value<const char*> csv_suffix_;
   printable_automaton input_aut_;

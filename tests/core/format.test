@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016 Laboratoire de Recherche et Développement de
 # l'Epita (LRDE).
@@ -50,3 +50,9 @@ genltl --dac --output='ap-%a.ltl2'
 for i in 1 2 3 4 5 6; do
   cmp ap-$i.ltl ap-$i.ltl2 || exit 1
 done
+
+out=`ltl2tgba -f 'GFa' | autfilt --stats='%W,%w' --complement`
+test "$out" = "cycle{a},cycle{!a}"
+test "0,1,0,1" = "`ltl2tgba FGa | autfilt -D --stats='%D,%d,%P,%p'`"
+test "0,0,0,1" = "`ltl2tgba FGa | autfilt -C --stats='%D,%d,%P,%p'`"
+test "1,0" = "`ltl2tgba FGa | autfilt -D --stats='%N,%n'`"

@@ -10,6 +10,9 @@ New in spot 2.1.0a (not yet released)
     or to group formulas by number of atomic propositions:
        genltl --dac --output='ap-%a.ltl'
 
+  * autfilt --stats learned the missing %D, %N, %P, and %W sequences,
+    to complete the existing %d, %n, %p, and %w.
+
   Bugs fixed:
 
   * Fix several cases where command-line tools would fail to diagnose
