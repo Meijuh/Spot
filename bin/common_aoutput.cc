@@ -321,6 +321,159 @@ void setup_default_output_format()
     }
 }
 
+hoa_stat_printer::hoa_stat_printer(std::ostream& os, const char* format,
+                                   stat_style input)
+  : spot::stat_printer(os, format)
+{
+  if (input == aut_input)
+    {
+      declare('A', &haut_acc_);
+      declare('C', &haut_scc_);
+      declare('D', &haut_deterministic_);
+      declare('E', &haut_edges_);
+      declare('G', &haut_gen_acc_);
+      declare('H', &input_aut_);
+      declare('M', &haut_name_);
+      declare('N', &haut_nondetstates_);
+      declare('P', &haut_complete_);
+      declare('S', &haut_states_);
+      declare('T', &haut_trans_);
+      declare('W', &haut_word_);
+    }
+  declare('<', &csv_prefix_);
+  declare('>', &csv_suffix_);
+  declare('F', &filename_);
+  declare('L', &location_);
+  if (input != ltl_input)
+    declare('f', &filename_);        // Override the formula printer.
+  declare('h', &output_aut_);
+  declare('m', &aut_name_);
+  declare('w', &aut_word_);
+}
+
+std::ostream&
+hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
+                        const spot::const_twa_graph_ptr& aut,
+                        spot::formula f,
+                        const char* filename, int loc, double run_time,
+                        const char* csv_prefix, const char* csv_suffix)
+{
+  filename_ = filename ? filename : "";
+  csv_prefix_ = csv_prefix ? csv_prefix : "";
+  csv_suffix_ = csv_suffix ? csv_suffix : "";
+  if (loc >= 0 && has('L'))
+    {
+      std::ostringstream os;
+      os << loc;
+      location_ = os.str();
+    }
+  output_aut_ = aut;
+  if (haut)
+    {
+      input_aut_ = haut->aut;
+      if (loc < 0 && has('L'))
+        {
+          std::ostringstream os;
+          os << haut->loc;
+          location_ = os.str();
+        }
+
+      if (has('T'))
+        {
+          spot::twa_sub_statistics s = sub_stats_reachable(haut->aut);
+          haut_states_ = s.states;
+          haut_edges_ = s.edges;
+          haut_trans_ = s.transitions;
+        }
+      else if (has('E'))
+        {
+          spot::twa_sub_statistics s = sub_stats_reachable(haut->aut);
+          haut_states_ = s.states;
+          haut_edges_ = s.edges;
+        }
+      if (has('M'))
+        {
+          auto n = haut->aut->get_named_prop<std::string>("automaton-name");
+          if (n)
+            haut_name_ = *n;
+          else
+            haut_name_.val().clear();
+        }
+      if (has('S'))
+        haut_states_ = haut->aut->num_states();
+
+      if (has('A'))
+        haut_acc_ = haut->aut->acc().num_sets();
+
+      if (has('C'))
+        haut_scc_ = spot::scc_info(haut->aut).scc_count();
+
+      if (has('N'))
+        {
+          haut_nondetstates_ = count_nondet_states(haut->aut);
+          haut_deterministic_ = (haut_nondetstates_ == 0);
+        }
+      else if (has('D'))
+        {
+          // This is more efficient than calling count_nondet_state().
+          haut_deterministic_ = is_deterministic(haut->aut);
+        }
+
+      if (has('p'))
+        haut_complete_ = is_complete(haut->aut);
+
+      if (has('G'))
+        {
+          std::ostringstream os;
+          os << haut->aut->get_acceptance();
+          haut_gen_acc_ = os.str();
+        }
+      if (has('W'))
+        {
+          if (auto word = haut->aut->accepting_word())
+            {
+              std::ostringstream out;
+              out << *word;
+              haut_word_ = out.str();
+            }
+          else
+            {
+              haut_word_.val().clear();
+            }
+        }
+    }
+
+  if (has('m'))
+    {
+      auto n = aut->get_named_prop<std::string>("automaton-name");
+      if (n)
+        aut_name_ = *n;
+      else
+        aut_name_.val().clear();
+    }
+  if (has('w'))
+    {
+      if (auto word = aut->accepting_word())
+        {
+          std::ostringstream out;
+          out << *word;
+          aut_word_ = out.str();
+        }
+      else
+        {
+          aut_word_.val().clear();
+        }
+    }
+
+  auto& res = this->spot::stat_printer::print(aut, f, run_time);
+  // Make sure we do not store the automaton until the next one is
+  // printed, as the registered APs will affect how the next
+  // automata are built.
+  output_aut_ = nullptr;
+  input_aut_ = nullptr;
+  return res;
+}
+
 automaton_printer::automaton_printer(stat_style input)
   : statistics(std::cout, stats, input),
     namer(name, opt_name, input),
