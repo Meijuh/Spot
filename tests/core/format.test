@@ -59,3 +59,10 @@ test "1,0" = "`ltl2tgba FGa | autfilt -D --stats='%N,%n'`"
 
 test "4" = "`ltl2tgba '(Ga -> Gb)W c' --stats=%c`"
 test "4,5" = "`ltl2tgba '(Ga -> Gb)W c' | autfilt -C --stats=%C,%c`"
+
+out=`ltl2tgba '(Ga->Gb)W c' --stats=%[r]c,%[a]c,%[t]c,%[w]c,%[wT]c,%[W]c,%[Wt]c`
+test "1,3,1,3,2,1,0" = "$out"
+
+ltl2tgba 'a' --stats='%[z]c' 2>stderr && exit 1
+cat stderr
+grep -F "ltl2tgba: unknown option 'z' in '%[z]c'" stderr

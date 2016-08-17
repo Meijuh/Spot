@@ -27,7 +27,8 @@
 #include <spot/twaalgos/reachiter.hh>
 #include <spot/tl/print.hh>
 #include <spot/twaalgos/isdet.hh>
-#include <spot/twaalgos/sccinfo.hh>
+#include <spot/twaalgos/isweakscc.hh>
+#include <cstring>
 
 namespace spot
 {
@@ -123,9 +124,119 @@ namespace spot
     print_psl(os, val_);
   };
 
-  void printable_scc_info::print(std::ostream& os, const char*) const
+  void printable_scc_info::print(std::ostream& os, const char* pos) const
   {
-    os << val_->scc_count();
+    unsigned n = val_->scc_count();
+    if (*pos != '[')
+      {
+        os << n;
+        return;
+      }
+    bool accepting = false;
+    bool rejecting = false;
+    bool trivial = false;
+    bool non_trivial = false;
+    bool terminal = false;
+    bool non_terminal = false;
+    bool weak = false;
+    bool non_weak = false;
+    bool inherently_weak = false;
+    bool non_inherently_weak = false;
+
+    const char* beg = pos;
+    auto error = [&](std::string str)
+      {
+        std::ostringstream tmp;
+        const char* end = std::strchr(pos, ']');
+        tmp << "unknown option '" << str << "' in '%"
+            << std::string(beg, end + 2) << '\'';
+        throw std::runtime_error(tmp.str());
+      };
+
+    do
+    {
+      ++pos;
+      switch (*pos)
+        {
+        case 'a':
+        case 'R':
+          accepting = true;
+          break;
+        case 'A':
+        case 'r':
+          rejecting = true;
+          break;
+        case 'v':
+          trivial = true;
+          break;
+        case 'V':
+          non_trivial = true;
+          break;
+        case 't':
+          terminal = true;
+          break;
+        case 'T':
+          non_terminal = true;
+          break;
+        case 'w':
+          weak = true;
+          break;
+        case 'W':
+          non_weak = true;
+          break;
+        case 'i':
+          if (pos[1] == 'w')
+            inherently_weak = true;
+          else
+            error(std::string(pos, pos + 2));
+          break;
+        case 'I':
+          if (pos[1] == 'W')
+            non_inherently_weak = true;
+          else
+            error(std::string(pos, pos + 2));
+          break;
+        case ' ':
+        case '\t':
+        case '\n':
+        case ',':
+        case ']':
+          break;
+        default:
+          error(std::string(pos, pos + 1));
+        }
+    }
+    while (*pos != ']');
+
+    val_->determine_unknown_acceptance();
+    unsigned count = 0U;
+
+    for (unsigned i = 0; i < n; ++i)
+      {
+        if (accepting && val_->is_rejecting_scc(i))
+          continue;
+        if (rejecting && val_->is_accepting_scc(i))
+          continue;
+        if (trivial && !val_->is_trivial(i))
+          continue;
+        if (non_trivial && val_->is_trivial(i))
+          continue;
+        if (terminal && !is_terminal_scc(*val_, i))
+          continue;
+        if (non_terminal && is_terminal_scc(*val_, i))
+          continue;
+        if (weak && !is_weak_scc(*val_, i))
+          continue;
+        if (non_weak && is_weak_scc(*val_, i))
+          continue;
+        if (inherently_weak && !is_inherently_weak_scc(*val_, i))
+          continue;
+        if (non_inherently_weak && is_inherently_weak_scc(*val_, i))
+          continue;
+        ++count;
+      }
+
+    os << count;
   };
 
 

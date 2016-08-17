@@ -13,10 +13,15 @@ New in spot 2.1.0a (not yet released)
   * autfilt --stats learned the missing %D, %N, %P, and %W sequences,
     to complete the existing %d, %n, %p, and %w.
 
+  * The --stats %c option of ltl2tgba, autfilt, ltldo, and dstar2tgba
+    now accepts option to filter the SCCs to count.  For instance
+    --stats='%[awT]c' will count the SCCs that are (a)ccepting and
+    (w)eak, but (not t)erminal.  See --help for all supported filters.
+
   Bugs fixed:
 
   * Fix several cases where command-line tools would fail to diagnose
-    write errors (e.g. when writing to filesystem that is full).
+    write errors (e.g. when writing to a filesystem that is full).
 
 New in spot 2.1 (2016-08-08)
 

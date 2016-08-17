@@ -167,8 +167,12 @@ static const argp_option io_options[] =
       "number of acceptance sets", 0 },
     { "%G, %g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "acceptance condition (in HOA syntax)", 0 },
-    { "%C, %c", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of SCCs", 0 },
+    { "%C, %c, %[LETTERS]C, %[LETTERS]c", 0, nullptr,
+      OPTION_DOC | OPTION_NO_USAGE,
+      "number of SCCs; you may filter the SCCs to count "
+      "using the following LETTERS, possibly concatenated: (a) accepting, "
+      "(r) rejecting, (v) trivial, (t) terminal, (w) weak, "
+      "(iw) inherently weak. Use uppercase letters to negate them.", 0 },
     { "%N, %n", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states", 0 },
     { "%D, %d", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -216,8 +220,11 @@ static const argp_option o_options[] =
       "number of acceptance sets", 0 },
     { "%g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "acceptance condition (in HOA syntax)", 0 },
-    { "%c", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of SCCs", 0 },
+    { "%c, %[LETTERS]c", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of SCCs; you may filter the SCCs to count "
+      "using the following LETTERS, possibly concatenated: (a) accepting, "
+      "(r) rejecting, (v) trivial, (t) terminal, (w) weak, "
+      "(iw) inherently weak. Use uppercase letters to negate them.", 0 },
     { "%n", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states in output", 0 },
     { "%d", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
