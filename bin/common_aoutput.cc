@@ -406,7 +406,7 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
         haut_acc_ = haut->aut->acc().num_sets();
 
       if (has('C'))
-        haut_scc_ = spot::scc_info(haut->aut).scc_count();
+        haut_scc_.automaton(haut->aut);
 
       if (has('N'))
         {
@@ -471,6 +471,7 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
   // automata are built.
   output_aut_ = nullptr;
   input_aut_ = nullptr;
+  haut_scc_.reset();
   return res;
 }
 

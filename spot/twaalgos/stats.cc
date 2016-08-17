@@ -123,6 +123,12 @@ namespace spot
     print_psl(os, val_);
   };
 
+  void printable_scc_info::print(std::ostream& os, const char*) const
+  {
+    os << val_->scc_count();
+  };
+
+
   stat_printer::stat_printer(std::ostream& os, const char* format)
     : format_(format)
   {
@@ -167,8 +173,12 @@ namespace spot
     if (has('a'))
       acc_ = aut->num_sets();
 
+    // %S was renamed to %c in Spot 1.2, so that autfilt could use %S
+    // and %s to designate the state numbers in input and output
+    // automate.  We still recognize %S an obsolete and undocumented
+    // alias for %c, if it is not overridden by a subclass.
     if (has('c') || has('S'))
-      scc_ = scc_info(aut).scc_count();
+      scc_.automaton(aut);
 
     if (has('n'))
       {
@@ -193,7 +203,9 @@ namespace spot
         gen_acc_ = os.str();
       }
 
-    return format(format_);
+    auto& os = format(format_);
+    scc_.reset(); // Make sure we do not hold a pointer to the automaton
+    return os;
   }
 
 }

@@ -111,7 +111,7 @@ private:
   spot::printable_value<unsigned> haut_edges_;
   spot::printable_value<unsigned> haut_trans_;
   spot::printable_value<unsigned> haut_acc_;
-  spot::printable_value<unsigned> haut_scc_;
+  spot::printable_scc_info haut_scc_;
   spot::printable_value<unsigned> haut_deterministic_;
   spot::printable_value<unsigned> haut_nondetstates_;
   spot::printable_value<unsigned> haut_complete_;

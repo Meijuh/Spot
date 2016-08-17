@@ -71,6 +71,13 @@ namespace spot
       return *this;
     }
 
+    printable_value&
+    operator=(T&& new_val)
+    {
+      val_ = std::move(new_val);
+      return *this;
+    }
+
     virtual void
     print(std::ostream& os, const char*) const override
     {

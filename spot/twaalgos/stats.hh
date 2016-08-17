@@ -23,6 +23,7 @@
 #pragma once
 
 #include <spot/twa/twa.hh>
+#include <spot/twaalgos/sccinfo.hh>
 #include <iosfwd>
 #include <spot/misc/formater.hh>
 
@@ -69,6 +70,24 @@ namespace spot
     print(std::ostream& os, const char*) const override;
   };
 
+  class SPOT_API printable_scc_info final:
+    public spot::printable
+  {
+    std::unique_ptr<scc_info> val_;
+  public:
+    void automaton(const const_twa_graph_ptr& aut)
+    {
+      val_ = std::unique_ptr<scc_info>(new scc_info(aut));
+    }
+
+    void reset()
+    {
+      val_ = nullptr;
+    }
+
+    void print(std::ostream& os, const char* pos) const override;
+  };
+
   /// \brief prints various statistics about a TGBA
   ///
   /// This object can be configured to display various statistics
@@ -95,7 +114,7 @@ namespace spot
     printable_value<unsigned> edges_;
     printable_value<unsigned> trans_;
     printable_value<unsigned> acc_;
-    printable_value<unsigned> scc_;
+    printable_scc_info scc_;
     printable_value<unsigned> nondetstates_;
     printable_value<unsigned> deterministic_;
     printable_value<unsigned> complete_;
