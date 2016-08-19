@@ -439,7 +439,6 @@ HOA: v1
 States: 3
 Start: 0
 AP: 2 "a" "b"
-acc-name: Buchi
 Acceptance: 4 Inf(0)&Fin(1)&Fin(3) | Inf(2)&Inf(3) | Inf(1)
 --BODY--
 State: 0 {3}
