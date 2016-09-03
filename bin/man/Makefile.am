@@ -20,9 +20,9 @@
 common_dep = $(top_srcdir)/configure.ac
 x_to_1 = $(top_builddir)/tools/x-to-1
 convman = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
-          "$(PERL)" "$(top_srcdir)/tools/help2man -N -L 'en_US.UTF-8'"
+          "$(PERL)" "$(top_srcdir)/tools/help2man -N"
 convman7 = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
-          "$(PERL)" "$(top_srcdir)/tools/help2man -s7 -N -L 'en_US.UTF-8'"
+          "$(PERL)" "$(top_srcdir)/tools/help2man -s7 -N"
 
 dist_man1_MANS = \
   autfilt.1 \
