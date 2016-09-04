@@ -245,7 +245,9 @@ namespace spot
     /// \brief Get the condition on the state
     virtual bdd state_condition(const state* s) const override
     {
-      return down_cast<const kripke_graph_state*>(s)->cond();
+      auto gs = down_cast<const kripke_graph_state*>(s);
+      SPOT_ASSERT(gs);
+      return gs->cond();
     }
 
     edge_storage_t& edge_storage(unsigned t)
