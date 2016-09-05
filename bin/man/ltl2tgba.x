@@ -173,7 +173,7 @@ Deian Tabakov and Moshe Y. Vardi: Optimized Temporal Monitors for SystemC.
 Proceedings of RV'10.  LNCS 6418.
 .TP
 \(bu
-Marcelo d’Amorim and Grigoire Roşu: Efficient monitoring of
+Marcelo d'Amorim and Grigoire Roşu: Efficient monitoring of
 ω-languages.  Proceedings of CAV'05.  LNCS 3576.
 
 [BIBLIOGRAPHY]
