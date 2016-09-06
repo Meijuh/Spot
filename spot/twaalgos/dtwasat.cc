@@ -975,7 +975,7 @@ namespace spot
                                                   ta(q2, l,
                                                      d.cacc.mark(m), q3);
                                                 const char* not_ = "¬";
-                                                if (d.cacc.has(biga_, m))
+                                                if (biga_.has(m))
                                                   not_ = "";
                                                 out <<  " ∧ " << not_
                                                     << ta << "FC";
