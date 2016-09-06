@@ -24,7 +24,7 @@ passed to the printer by suffixing the output format with
 .in +4n
 .nf
 .ft C
-% SPOT_DEFAULT_OUTPUT=dot=bar autfilt ...
+% SPOT_DEFAULT_FORMAT=dot=bar autfilt ...
 .fi
 .in -4n
 is the same as running
@@ -42,10 +42,10 @@ it up once for many commands.
 Whenever the \f(CW--dot\fR option is used without argument (even
 implicitely via \fBSPOT_DEFAULT_FORMAT\fR), the contents of this
 variable is used as default argument.  If you have some default
-setting in \fBSPOT_DOTDEFAULT\fR but want to alter them temporarily
-for one call, use \f(CW--dot=.yyy\fR: the dot character will be
-replaced by the contents of the \f(CWSPOT_DOTDEFAULT\fR environment
-variable.
+settings in \fBSPOT_DOTDEFAULT\fR and want to append to options
+\f(CWxyz\fR temporarily for one call, use \f(CW--dot=.xyz\fR:
+the dot character will be replaced by the contents of the
+\f(CWSPOT_DOTDEFAULT\fR environment variable.
 
 .TP
 \fBSPOT_DOTEXTRA\fR
