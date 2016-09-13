@@ -261,6 +261,7 @@ AC_CONFIG_FILES([
   doc/org/init.el
   elisp/Makefile
   lib/Makefile
+  picosat/Makefile
   spot/graph/Makefile
   spot/kripke/Makefile
   spot/ltsmin/Makefile

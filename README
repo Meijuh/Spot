@@ -218,6 +218,7 @@ ltdl/             Libtool's portable dlopen() wrapper library.
 lib/              Gnulib's portability modules.
 utf8/             Nemanja Trifunovic's utf-8 routines.
 elisp/		  Related emacs modes, used for building the documentation.
+picosat/          A distribution of PicoSAT 965 (a satsolver library).
 
 Build-system stuff
 ------------------

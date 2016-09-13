@@ -42,7 +42,8 @@ libspot_la_LIBADD =  \
   tl/libtl.la \
   twaalgos/libtwaalgos.la \
   twa/libtwa.la \
-  ../lib/libgnu.la
+  ../lib/libgnu.la \
+  ../picosat/libpico.la
 
 # Dummy C++ source to cause C++ linking.
 nodist_EXTRA_libspot_la_SOURCES = _.cc

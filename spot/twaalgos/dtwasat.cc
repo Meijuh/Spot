@@ -598,7 +598,7 @@ namespace spot
     typedef std::pair<int, int> sat_stats;
 
     static
-    sat_stats dtwa_to_sat(satsolver solver, const_twa_graph_ptr ref,
+    sat_stats dtwa_to_sat(satsolver& solver, const_twa_graph_ptr ref,
                            dict& d, bool state_based, bool colored)
     {
 #if DEBUG
@@ -628,9 +628,11 @@ namespace spot
       // Number all the SAT variables we may need.
       unsigned ref_size = declare_vars(ref, d, ap, state_based, sm);
 
+      // Tell the satsolver the number of variables
+      solver.adjust_nvars(d.nvars);
+
       // empty automaton is impossible
-      if (d.cand_size == 0)
-          return solver.stats();
+      assert(d.cand_size > 0);
 
 #if DEBUG
       debug_ref_acc = &ref->acc();
@@ -995,7 +997,7 @@ namespace spot
                   }
             }
         }
-      return solver.stats(d.nvars);
+      return solver.stats();
     }
 
     static twa_graph_ptr

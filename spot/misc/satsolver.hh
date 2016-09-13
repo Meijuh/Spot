@@ -26,68 +26,58 @@
 #include <iosfwd>
 #include <initializer_list>
 
+struct PicoSAT; // forward
+
 namespace spot
 {
   class printable;
 
-  class clause_counter
+  /// \brief Interface with a given sat solver.
+  ///
+  /// When created, it checks if SPOT_SATSOLVER env var is set. If so,
+  /// its value is parsed and saved internally. The env variable musb be set
+  /// like this: "<satsolver> [its_options] %I > %O"
+  /// where %I and %O are replaced by input and output files.
+  ///
+  /// The run method permits of course to run the given sat solver.
+  class satsolver_command: formater
   {
   private:
-    int count_;
+    const char* satsolver;
 
   public:
-    clause_counter()
-      : count_(0)
-    {
-    }
+    satsolver_command();
 
-    void check() const
-    {
-      if (count_ < 0)
-        throw std::runtime_error("too many SAT clauses (more than INT_MAX)");
-    }
+    /// \brief Return true if a satsolver is given, false otherwise.
+    bool command_given();
 
-    clause_counter& operator++()
-    {
-      ++count_;
-      check();
-      return *this;
-    }
+    /// \brief Run the given satsolver.
+    int run(printable* in, printable* out);
 
-    clause_counter& operator+=(int n)
-    {
-      count_ += n;
-      check();
-      return *this;
-    }
-
-    int nb_clauses() const
-    {
-      return count_;
-    }
   };
 
   /// \brief Interface with a SAT solver.
   ///
-  /// Call start() to initialize the cnf file. This class provides the
-  /// necessary functions to handle the cnf file, add clauses, count them,
-  /// update the header, add some comments...
-  /// It is not possible to write in the file without having to call these
-  /// functions.
+  /// This class provides the necessary functions to add clauses, comments.
+  /// Depending on SPOT_SATSOLVER, it will use either picosat solver (default)
+  /// or the given satsolver.
   ///
-  /// The satsolver called can be configured via the
-  /// <code>SPOT_SATSOLVER</code> environment variable. It must be this set
-  /// following this: "satsolver -verb=0 %I >%O".
-  ///
+  /// Now that spot is distributed with a satsolver (PicoSAT), it is used by
+  /// default. But another satsolver can be configured via the
+  /// <code>SPOT_SATSOLVER</code> environment variable. It must be set following
+  /// this: "satsolver [options] %I > %O"
   /// where %I and %O are replaced by input and output files.
   class SPOT_API satsolver
   {
   public:
+    /// \brief Construct the sat solver and itinialize variables.
+    /// If no satsolver is provided through SPOT_SATSOLVER env var, a
+    /// distributed version of PicoSAT will be used.
     satsolver();
     ~satsolver();
 
-    /// \brief Initialize private attributes
-    void start();
+    /// \brief Adjust the number of variables used in the cnf formula.
+    void adjust_nvars(int nvars);
 
     /// \brief Add a list of lit. to the current clause.
     void add(std::initializer_list<int> values);
@@ -98,58 +88,109 @@ namespace spot
     /// \breif Get the current number of clauses.
     int get_nb_clauses() const;
 
-    /// \breif Update cnf_file's header with the correct stats.
-    std::pair<int, int> stats(int nvars);
+    /// \brief Get the current number of variables.
+    int get_nb_vars() const;
 
-    /// \breif Create an unsatisfiable cnf_file, return stats about it.
+    /// \brief Returns std::pair<nvars, nclauses>;
     std::pair<int, int> stats();
 
-    /// \breif Add a comment in cnf file.
+    /// \brief Add a comment.
+    /// It should be used only in debug mode after providing a satsolver.
     template<typename T>
-    void comment_rec(T single)
-    {
-      *cnf_stream_ << single << ' ';
-    }
+    void comment_rec(T single);
 
-    /// \breif Add a comment in cnf_file.
+    /// \brief Add comments.
+    /// It should be used only in debug mode after providing a satsolver.
     template<typename T, typename... Args>
-    void comment_rec(T first, Args... args)
-    {
-      *cnf_stream_ << first << ' ';
-      comment_rec(args...);
-    }
+    void comment_rec(T first, Args... args);
 
-    /// \breif Add a comment in the cnf_file, starting with 'c'.
+    /// \brief Add a comment. It will start with "c ".
+    /// It should be used only in debug mode after providing a satsolver.
     template<typename T>
-    void comment(T single)
-    {
-      *cnf_stream_ << "c " << single << ' ';
-    }
+    void comment(T single);
 
-    /// \breif Add comment in the cnf_file, starting with 'c'.
+    /// \brief Add comments. It will start with "c ".
+    /// It should be used only in debug mode after providing a satsolver.
     template<typename T, typename... Args>
-    void comment(T first, Args... args)
-    {
-      *cnf_stream_ << "c " << first << ' ';
-      comment_rec(args...);
-    }
+    void comment(T first, Args... args);
 
     typedef std::vector<int> solution;
     typedef std::pair<int, solution> solution_pair;
+
+    /// \brief Return std::vector<solving_return_code, solution>.
     solution_pair get_solution();
 
-  private:
-    /// \breif End the current clause and increment the counter.
+  private:  // methods
+    /// \brief Initialize cnf streams attributes.
+    void start();
+
+    /// \brief End the current clause and increment the counter.
     void end_clause();
 
-  private:
+    /// \brief Extract the solution of Picosat output.
+    /// Must be called only if SPOT_SATSOLVER env variable is not set.
+    satsolver::solution
+    picosat_get_solution(int res);
+
+  private:  // variables
+    /// \brief A satsolver_command. Check if SPOT_SATSOLVER is given.
+    satsolver_command cmd_;
+
+    // cnf streams and associated clause counter.
+    // The next 2 pointers will be != nullptr if SPOT_SATSOLVER is given.
     temporary_file* cnf_tmp_;
     std::ostream* cnf_stream_;
-    clause_counter* nclauses_;
+    int nclauses_;
+    int nvars_;
 
+    /// \brief Picosat satsolver instance.
+    PicoSAT* psat_;
   };
 
   /// \brief Extract the solution of a SAT solver output.
   SPOT_API satsolver::solution
   satsolver_get_solution(const char* filename);
+
+}
+
+namespace spot
+{
+  template<typename T>
+  void
+  satsolver::comment_rec(T single)
+  {
+    if (!psat_)
+      *cnf_stream_ << ' ' << single;
+  }
+
+  template<typename T, typename... Args>
+  void
+  satsolver::comment_rec(T first, Args... args)
+  {
+    if (!psat_)
+    {
+      *cnf_stream_ << ' ' << first;
+      comment_rec(args...);
+    }
+  }
+
+  template<typename T>
+  void
+  satsolver::comment(T single)
+  {
+    if (!psat_)
+      *cnf_stream_ << "c " << single;
+  }
+
+  template<typename T, typename... Args>
+  void
+  satsolver::comment(T first, Args... args)
+  {
+    if (!psat_)
+    {
+      *cnf_stream_ << "c " << first;
+      comment_rec(args...);
+    }
+  }
+
 }

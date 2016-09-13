@@ -23,66 +23,13 @@
 #include <sstream>
 #include <stdexcept>
 #include <spot/misc/satsolver.hh>
+#include <picosat/picosat.h>
 #include <fstream>
 #include <limits>
 #include <sys/wait.h>
 
 namespace spot
 {
-  namespace
-  {
-    struct satsolver_command: formater
-    {
-      const char* satsolver;
-
-      satsolver_command()
-      {
-        satsolver = getenv("SPOT_SATSOLVER");
-        if (!satsolver)
-          {
-            satsolver = "glucose -verb=0 -model %I >%O";
-            return;
-          }
-        prime(satsolver);
-        if (!has('I'))
-          throw std::runtime_error("SPOT_SATSOLVER should contain %I to "
-                                   "indicate how to use the input filename.");
-        if (!has('O'))
-          throw std::runtime_error("SPOT_SATSOLVER should contain %O to "
-                                   "indicate how to use the output filename.");
-      }
-
-      int
-      run(printable* in, printable* out)
-      {
-        declare('I', in);
-        declare('O', out);
-        std::ostringstream s;
-        format(s, satsolver);
-        int res = system(s.str().c_str());
-        if (res < 0 || (WIFEXITED(res) && WEXITSTATUS(res) == 127))
-          {
-            s << ": failed to execute";
-            throw std::runtime_error(s.str());
-          }
-        // For POSIX shells, "The exit status of a command that
-        // terminated because it received a signal shall be reported
-        // as greater than 128."
-        if (WIFEXITED(res) && WEXITSTATUS(res) >= 128)
-          {
-            s << ": terminated by signal";
-            throw std::runtime_error(s.str());
-          }
-        if (WIFSIGNALED(res))
-          {
-            s << ": terminated by signal " << WTERMSIG(res);
-            throw std::runtime_error(s.str());
-          }
-        return res;
-      }
-    };
-  }
-
   satsolver::solution
   satsolver_get_solution(const char* filename)
   {
@@ -122,17 +69,35 @@ namespace spot
     return sol;
   }
 
+  // In other functions, command_given() won't be called anymore as it is more
+  // easy to check if psat_ was initialized or not.
   satsolver::satsolver()
-    : cnf_tmp_(nullptr), cnf_stream_(nullptr)
+    : cnf_tmp_(nullptr), cnf_stream_(nullptr), nclauses_(0), nvars_(0),
+      psat_(nullptr)
   {
-    start();
+    if (cmd_.command_given())
+    {
+      start();
+    }
+    else
+    {
+      psat_ = picosat_init();
+      picosat_set_seed(psat_, 0);
+    }
   }
 
   satsolver::~satsolver()
   {
-    delete cnf_tmp_;
-    delete cnf_stream_;
-    delete nclauses_;
+    if (psat_)
+    {
+      picosat_reset(psat_);
+      psat_ = nullptr;
+    }
+    else
+    {
+      delete cnf_tmp_;
+      delete cnf_stream_;
+    }
   }
 
   void satsolver::start()
@@ -140,70 +105,192 @@ namespace spot
     cnf_tmp_ = create_tmpfile("sat-", ".cnf");
     cnf_stream_ = new std::ofstream(cnf_tmp_->name(), std::ios_base::trunc);
     cnf_stream_->exceptions(std::ofstream::failbit | std::ofstream::badbit);
-    nclauses_ = new clause_counter();
 
     // Add empty line for the header
     *cnf_stream_ << "                                                 \n";
   }
 
+  // Must be called only when SPOT_SATSOLVER is given
   void satsolver::end_clause()
   {
     *cnf_stream_ << '\n';
-    *nclauses_ += 1;
+    nclauses_ += 1;
+    if (nclauses_ < 0)
+      throw std::runtime_error("too many SAT clauses (more than INT_MAX)");
+  }
+
+  void satsolver::adjust_nvars(int nvars)
+  {
+    if (nvars < 0)
+      throw std::runtime_error("variable number must be at least 0");
+
+    if (psat_)
+    {
+      picosat_adjust(psat_, nvars);
+    }
+    else
+    {
+      if (nvars < nvars_)
+      {
+        throw std::runtime_error(
+            "wrong number of variables, a bigger one was already added");
+      }
+      nvars_ = nvars;
+    }
   }
 
   void satsolver::add(std::initializer_list<int> values)
   {
     for (auto& v : values)
     {
-      *cnf_stream_ << v << ' ';
-      if (!v) // ..., 0)
-        end_clause();
+      if (psat_)
+      {
+        picosat_add(psat_, v);
+      }
+      else
+      {
+        *cnf_stream_ << v << ' ';
+        if (!v) // ..., 0)
+          end_clause();
+
+        if (nvars_ < v)
+          nvars_ = v;
+      }
     }
   }
 
   void satsolver::add(int v)
   {
-    *cnf_stream_ << v << ' ';
-    if (!v) // 0
-      end_clause();
+    if (psat_)
+    {
+      picosat_add(psat_, v);
+    }
+    else
+    {
+      *cnf_stream_ << v << ' ';
+      if (!v) // 0
+        end_clause();
+
+      if (v && nvars_ < v)
+        nvars_ = v;
+    }
   }
 
   int satsolver::get_nb_clauses() const
   {
-    return nclauses_->nb_clauses();
+    if (psat_)
+      return picosat_added_original_clauses(psat_);
+    return nclauses_;
   }
 
-  std::pair<int, int> satsolver::stats(int nvars)
+  int satsolver::get_nb_vars() const
   {
-    int nclaus = nclauses_->nb_clauses();
-    cnf_stream_->seekp(0);
-    *cnf_stream_ << "p cnf " << nvars << ' ' << nclaus;
-    return std::make_pair(nvars, nclaus);
+    if (psat_)
+      return picosat_variables(psat_);
+    return nvars_;
   }
 
   std::pair<int, int> satsolver::stats()
   {
-    *cnf_stream_ << "p cnf 1 2\n-1 0\n1 0\n";
-    return std::make_pair(1, 2);
+    return std::make_pair(get_nb_vars(), get_nb_clauses());
+  }
+
+  satsolver::solution
+  satsolver::picosat_get_solution(int res)
+  {
+    satsolver::solution sol;
+    if (res == PICOSAT_SATISFIABLE)
+    {
+      int nvars = get_nb_vars();
+      for (int lit = 1; lit <= nvars; ++lit)
+      {
+        if (picosat_deref(psat_, lit) > 0)
+          sol.push_back(lit);
+        else
+          sol.push_back(-lit);
+      }
+    }
+    return sol;
   }
 
   satsolver::solution_pair
   satsolver::get_solution()
   {
-    delete cnf_stream_;                // Close the file.
-    cnf_stream_ = nullptr;
-
-    temporary_file* output = create_tmpfile("sat-", ".out");
     solution_pair p;
+    if (psat_)
+    {
+      p.first = 0; // A subprocess was not executed so nothing failed.
+      int res = picosat_sat(psat_, -1); // -1: no limit (number of decisions).
+      p.second = picosat_get_solution(res);
+    }
+    else
+    {
+      // Update header
+      cnf_stream_->seekp(0);
+      *cnf_stream_ << "p cnf " << get_nb_vars() << ' ' << get_nb_clauses();
+      cnf_stream_->seekp(0, std::ios_base::end);
+      if (!*cnf_stream_)
+        throw std::runtime_error("Failed to update cnf header");
 
-    // Make this static, so the SPOT_SATSOLVER lookup is done only on
-    // the first call to run_sat().
-    static satsolver_command cmd;
-
-    p.first = cmd.run(cnf_tmp_, output);
-    p.second = satsolver_get_solution(output->name());
-    delete output;
+      temporary_file* output = create_tmpfile("sat-", ".out");
+      p.first = cmd_.run(cnf_tmp_, output);
+      p.second = satsolver_get_solution(output->name());
+      delete output;
+    }
     return p;
+  }
+
+  satsolver_command::satsolver_command() : satsolver(nullptr)
+  {
+    satsolver = getenv("SPOT_SATSOLVER");
+    if (!satsolver)
+      return;
+
+    prime(satsolver);
+    if (!has('I'))
+      throw std::runtime_error("SPOT_SATSOLVER should contain %I to "
+          "indicate how to use the input filename.");
+    if (!has('O'))
+      throw std::runtime_error("SPOT_SATSOLVER should contain %O to "
+          "indicate how to use the output filename.");
+  }
+
+  bool
+  satsolver_command::command_given()
+  {
+    return satsolver != nullptr;
+  }
+
+  int
+  satsolver_command::run(printable* in, printable* out)
+  {
+    declare('I', in);
+    declare('O', out);
+    std::ostringstream s;
+    format(s, satsolver);
+
+    int res = system(s.str().c_str());
+    if (res < 0 || (WIFEXITED(res) && WEXITSTATUS(res) == 127))
+    {
+      s << ": failed to execute";
+      throw std::runtime_error(s.str());
+    }
+
+    // For POSIX shells, "The exit status of a command that
+    // terminated because it received a signal shall be reported
+    // as greater than 128."
+    if (WIFEXITED(res) && WEXITSTATUS(res) >= 128)
+    {
+      s << ": terminated by signal";
+      throw std::runtime_error(s.str());
+    }
+
+    if (WIFSIGNALED(res))
+    {
+      s << ": terminated by signal " << WTERMSIG(res);
+      throw std::runtime_error(s.str());
+    }
+
+    return res;
   }
 }
