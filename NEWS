@@ -3,7 +3,7 @@ New in spot 2.1.0a (not yet released)
   Command-line tools:
 
   * ltlfilt, randltl, genltl, and ltlgrind learned to display the size
-    (%s), Boolean size (%b), and number of atomic propositions (%b)
+    (%s), Boolean size (%b), and number of atomic propositions (%a)
     with the --format and --output options.  A typical use is to sort
     formulas by size:
        genltl --dac --format='%s,%f' | sort -n | cut -d, -f2
@@ -14,7 +14,7 @@ New in spot 2.1.0a (not yet released)
     to complete the existing %d, %n, %p, and %w.
 
   * The --stats %c option of ltl2tgba, autfilt, ltldo, and dstar2tgba
-    now accepts option to filter the SCCs to count.  For instance
+    now accepts options to filter the SCCs to count.  For instance
     --stats='%[awT]c' will count the SCCs that are (a)ccepting and
     (w)eak, but (not t)erminal.  See --help for all supported filters.
 
