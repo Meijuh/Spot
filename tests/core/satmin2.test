@@ -21,9 +21,6 @@
 . ./defs
 set -e
 
-# Skip if $SATSOLVE is not installed.
-(${SATSOLVER-glucose} --help >/dev/null 2>&1) || exit 77
-
 autfilt=autfilt
 ltlfilt=ltlfilt
 
@@ -152,8 +149,8 @@ properties: trans-labels explicit-labels trans-acc colored complete
 properties: deterministic
 --BODY--
 State: 0
-[0] 0 {0}
-[!0] 0 {1}
+[!0] 0 {0}
+[0] 0 {1}
 --END--
 EOF
 
