@@ -22,6 +22,7 @@ New in spot 2.1.0a (not yet released)
 
   * Fix several cases where command-line tools would fail to diagnose
     write errors (e.g. when writing to a filesystem that is full).
+  * Typos in genltl --help and in the man page spot-x(7).
 
 New in spot 2.1 (2016-08-08)
 
