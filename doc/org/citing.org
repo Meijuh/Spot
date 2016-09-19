@@ -12,7 +12,8 @@ use the following reference:
 - *Spot 2.0 — a framework for LTL and ω-automata manipulation*,
   /Alexandre Duret-Lutz/, /Alexandre Lewkowicz/, /Amaury Fauchille/,
   /Thibaud Michaud/, /Etienne Renault/, and /Laurent Xu/.  To appear
-  in Proc. of ATVA'16.  Chiba, Japan, Oct. 2016.  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.16.atva2][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.16.atva2.pdf][pdf]])
+  in Proc. of ATVA'16, LNCS 9938.  Chiba, Japan, Oct. 2016.  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.16.atva2][bib]] |
+  [[https://www.lrde.epita.fr/~adl/dl/adl/duret.16.atva2.pdf][pdf]])
 
   This provides a quick overview of the entire project (the features
   of the library, [[file:tools.org][the tools]], the Python bindings), and provides many
@@ -64,7 +65,7 @@ be more specific about a particular aspect of Spot.
   Proc. of CAV'15, LNCS 9206, pp. 479--486.  July 2015.  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#babiak.15.cav][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/babiak.15.cav.pdf][pdf]] |
   [[https://www.lrde.epita.fr/~adl/dl/adl/babiak.15.cav.slides.pdf][slides]] | [[https://www.lrde.epita.fr/~adl/dl/adl/babiak.15.cav.poster.pdf][poster]])
 
-  Presents the automaton format [[file:hoa.org][supported by Spot 2.0]] and [[http://adl.github.io/hoaf/support.html][several other
+  Presents the automaton format [[file:hoa.org][supported by Spot]] and [[http://adl.github.io/hoaf/support.html][several other
   tools]].
 
 
