@@ -1,11 +1,11 @@
-New in spot 2.1.0a (not yet released)
+New in spot 2.1.1 (2016-09-20)
 
   Command-line tools:
 
   * ltlfilt, randltl, genltl, and ltlgrind learned to display the size
     (%s), Boolean size (%b), and number of atomic propositions (%a)
-    with the --format and --output options.  A typical use is to sort
-    formulas by size:
+    with the --format and --output options.  A typical use-case is to
+    sort formulas by size:
        genltl --dac --format='%s,%f' | sort -n | cut -d, -f2
     or to group formulas by number of atomic propositions:
        genltl --dac --output='ap-%a.ltl'
