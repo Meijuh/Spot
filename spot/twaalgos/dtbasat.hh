@@ -65,4 +65,20 @@ namespace spot
   dtba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
                               bool state_based = false,
                               int max_states = -1);
+
+  /// \brief Attempt to minimize a det. TBA with a SAT solver.
+  ///
+  /// This acts like dtba_sat_synthetize() and obtains a first minimized
+  /// automaton. Then, incrementally, it encodes the deletion of one state
+  /// and solves it as many time as param value.
+  /// If param >= 0, this process is fully repeated until the minimal automaton
+  /// is found. Otherwise, it continues to delete states one by one
+  /// incrementally until the minimal automaton is found.
+  ///
+  /// If no smaller TBA exist, this returns a null pointer.
+  SPOT_API twa_graph_ptr
+  dtba_sat_minimize_incr(const const_twa_graph_ptr& a,
+                         bool state_based = false,
+                         int max_states = -1,
+                         int param = 2);
 }

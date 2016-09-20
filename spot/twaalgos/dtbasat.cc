@@ -738,11 +738,94 @@ namespace spot
     if (!solution.second.empty())
       res = sat_build(solution.second, d, a, state_based);
 
-    // Print log if env var SPOT_SATLOG is set.
-    print_log(t, target_state_number, res, solver);
+    print_log(t, target_state_number, res, solver); // If SPOT_SATLOG is set.
 
     trace << "dtba_sat_synthetize(...) = " << res << '\n';
     return res;
+  }
+
+  twa_graph_ptr
+  dtba_sat_minimize_incr(const const_twa_graph_ptr& a,
+      bool state_based, int max_states, int sat_incr_steps)
+  {
+    if (!a->acc().is_buchi())
+      throw std::runtime_error
+        (": dtba_sat_minimize_incr() can only work with Büchi acceptance.");
+    const_twa_graph_ptr prev = a;
+    dict d;
+    d.cand_size = (max_states < 0) ?
+      stats_reachable(prev).states - 1 : max_states;
+    if (d.cand_size == 0)
+      return nullptr;
+
+    trace << "dtba_sat_minimize_incr(..., states = " << d.cand_size
+      << ", state_based = " << state_based << ")\n";
+
+    bool naive = sat_incr_steps < 0;
+    trace << "sat_incr_steps: " << sat_incr_steps << '\n';
+
+    twa_graph_ptr next = spot::make_twa_graph(spot::make_bdd_dict());
+    while (next && d.cand_size > 0)
+    {
+      // First iteration of classic solving.
+      satsolver solver;
+      timer_map t1;
+      t1.start("encode");
+      dtba_to_sat(solver, prev, d, state_based);
+      t1.stop("encode");
+      t1.start("solve");
+      satsolver::solution_pair solution = solver.get_solution();
+      t1.stop("solve");
+      next = solution.second.empty() ? nullptr :
+        sat_build(solution.second, d, prev, state_based);
+      print_log(t1, d.cand_size, next, solver); // If SPOT_SATLOG is set.
+
+      trace << "First iteration done\n";
+
+      // Compute the AP used.
+      bdd ap = prev->ap_vars();
+
+      // Incremental solving loop.
+      unsigned orig_cand_size = d.cand_size;
+      unsigned alpha_size = d.alpha_vect.size();
+      for (int k = 0; next && d.cand_size > 0 && (naive || k < sat_incr_steps);
+           ++k)
+      {
+        t1.start("encode");
+        prev = next;
+        int reach_states = stats_reachable(prev).states;
+        cnf_comment("Next iteration: ", reach_states - 1, "\n");
+
+        trace << "Encoding the deletion of state " << reach_states - 1 << '\n';
+
+        // Add new constraints.
+        for (unsigned i = reach_states - 1; i < d.cand_size; ++i)
+          for (unsigned l = 0; l < alpha_size; ++l)
+            for (unsigned j = 0; j < orig_cand_size; ++j)
+              solver.add({-d.transid(j, l, i), 0});
+
+        d.cand_size = reach_states - 1;
+        t1.stop("encode");
+        t1.start("solve");
+        satsolver::solution_pair solution = solver.get_solution();
+        t1.stop("solve");
+        next = solution.second.empty() ? nullptr :
+          sat_build(solution.second, d, prev, state_based);
+        print_log(t1, d.cand_size, next, solver); // If SPOT_SATLOG is set.
+      }
+
+      if (next)
+      {
+        trace << "Starting from scratch\n";
+        prev = next;
+        d = dict();
+        d.cand_size = stats_reachable(prev).states - 1;
+        if (d.cand_size == 0)
+          next = nullptr;
+      }
+    }
+
+    return prev == a ? nullptr : std::const_pointer_cast<spot::twa_graph>(prev);
   }
 
   twa_graph_ptr
