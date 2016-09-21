@@ -1,5 +1,14 @@
-These benchmarks are part of a submitted paper.  Please
-do contact us if you would like a draft of this paper.
+This benchmark was used in the FORTE'14 paper "Mechanizing the
+Minimization of Deterministic Generalized Büchi Automata", by
+Souheib Baarir and Alexandre Duret-Lutz.  The generated data
+used in the paper are at
+
+  https://www.lrde.epita.fr/~adl/forte14/
+
+Note that the encoding used in the SAT-based minimization have evolved
+since the paper, so if you want to reproduce exactly the benchmark
+from the paper, you should download a copy of Spot 1.2.3.
+
 
 To reproduce, follow these instructions:
 
@@ -28,7 +37,7 @@ To reproduce, follow these instructions:
 
    This will read the formulas from file "formulas" and output a file
    "info.ltl", in which each formula is associated to a class (the ①,
-   ②, ②, and ④ of the paper), and a number of acceptance conditions
+   ②, ③, and ④ of the paper), and a number of acceptance conditions
    (the "m" of the paper).
 
 7) Build a makefile to run all experiments
