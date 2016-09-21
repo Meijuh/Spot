@@ -1,8 +1,8 @@
 #!/bin/sh
 
-ltlfilt=../../src/bin/ltlfilt
-ltl2tgba=../../src/bin/ltl2tgba
-dstar2tgba=../../src/bin/dstar2tgba
+ltlfilt=../../bin/ltlfilt
+ltl2tgba=../../bin/ltl2tgba
+dstar2tgba=../../bin/dstar2tgba
 
 # Rename all formulas using a b c... suppress duplicates.
 $ltlfilt --ignore-errors --relabel=abc -u formulas > nodups.ltl
@@ -16,7 +16,7 @@ while read f; do
      echo "$f, trad, $acc, $acc2"
   elif test `$ltl2tgba "$f" -x tba-det -D --stats="%d"` = 1; then
      echo "$f, TCONG, $acc, $acc2"
-  elif test `$ltlfilt --remove-wm -f "$f" -l | ltl2dstar --ltl2nba=spin:$ltl2tgba@-sD - - | $dstar2tgba -D --low --stats="%d"` = 1; then
+  elif test `$ltlfilt --remove-wm -f "$f" -l | ltl2dstar --ltl2nba=spin:$ltl2tgba@-Ds - - | $dstar2tgba -D --low --stats="%d"` = 1; then
      echo "$f, DRA, $acc, $acc2"
   else
      echo "$f, not DBA-realizable, $acc, $acc2"

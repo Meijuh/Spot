@@ -1,8 +1,8 @@
 #!/bin/sh
 
-ltlfilt=../../src/bin/ltlfilt
-ltl2tgba=../../src/bin/ltl2tgba
-dstar2tgba=../../src/bin/dstar2tgba
+ltlfilt=../../bin/ltlfilt
+ltl2tgba=../../bin/ltl2tgba
+dstar2tgba=../../bin/dstar2tgba
 timeout='timeout -sKILL 2h'
 stats=--stats="%s, %e, %t, %a, %c, %d, %p, %r"
 empty='-, -, -, -, -, -, -, -'
@@ -49,7 +49,7 @@ case $type in
 	mindtba=`get_stats DTBA $ltl2tgba "$f" -D -x 'sat-minimize=-1,sat-acc=1'`
 	echo "$f, $accmax, $type, $input, DBA, $dba, minDBA, $mindba, minDTGBA, $mindtgba, minDTBA, $mindtba, dbaminimizer..." 1>&2
 	$ltlfilt --remove-wm -f "$f" -l |
-	ltl2dstar --ltl2nba=spin:$ltl2tgba@-sD - dra.$$
+	ltl2dstar --ltl2nba=spin:$ltl2tgba@-Ds - dra.$$
 	dbamin=`get_dbamin_stats dra.$$`
 	dra=`sed -n 's/States: \(.*\)/\1/p' dra.$$`
 	rm dra.$$
@@ -70,7 +70,7 @@ case $type in
 	    *TCONG*)   dbamin="n/a, n/a"  dra="n/a";;
             *trad*)
 	       $ltlfilt --remove-wm -f "$f" -l |
-	       ltl2dstar --ltl2nba=spin:$ltl2tgba@-sD - dra.$$
+	       ltl2dstar --ltl2nba=spin:$ltl2tgba@-Ds - dra.$$
 	       dbamin=`get_dbamin_stats dra.$$`
 	       dra=`sed -n 's/States: \(.*\)/\1/p' dra.$$`
 	       rm dra.$$
@@ -80,7 +80,7 @@ case $type in
     *DRA*)
 	echo "$f, $accmax, $type... " 1>&2
 	$ltlfilt --remove-wm -f "$f" -l |
-	ltl2dstar --ltl2nba=spin:$ltl2tgba@-sD - dra.$$
+	ltl2dstar --ltl2nba=spin:$ltl2tgba@-Ds - dra.$$
 	input=`get_stats TBA $dstar2tgba dra.$$ -D -x '!wdba-minimize'`
 	echo "$f, $accmax, $type, $input, DBA, ... " 1>&2
 	dba=`get_stats BA $dstar2tgba dra.$$ -BD -x '!wdba-minimize'`

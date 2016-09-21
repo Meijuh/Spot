@@ -93,7 +93,7 @@ G(G!a | F!c | G!b)
 # randltl -n -1 a b c |
 # ltlfilt --remove-wm -r -u --size-min=3 --size-max=15 --syntactic-recurrence |
 # ltlfilt -v --obligation |
-# ../../src/bin/ltl2tgba -F - -x tba-det -D --stats='%d,%f' |
+ ../../bin/ltl2tgba -F - -x tba-det -D --stats='%d,%f' |
 # grep 0, | head -n 30
 
 X(Fc W b) R Fa
