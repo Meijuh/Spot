@@ -968,6 +968,12 @@ namespace spot
               // So we do not consider this rewriting rule by
               // default.  However if favor_event_univ is set,
               // we want to move the GF out of the F.
+              //
+              // Also if this appears inside a G, we want to
+              // reduce it:
+              //     GF(f1 & GF(f2)) = G(F(f1) & GF(f2))
+              //                     = G(F(f1) & F(f2))
+              // But this is handled by the G case.
               if (opt_.favor_event_univ)
                 // F(f1&f2&FG(f3)&FG(f4)&f5&f6) =
                 //                     F(f1&f2) & FG(f3&f4) & f5 & f6
@@ -1113,6 +1119,19 @@ namespace spot
                           if (out != m)
                             return recurse(unop_unop(op::G, op::F, out));
                         }
+                    }
+                  // GF(f1 & f2 & eu1 & eu2) = G(F(f1 & f2) & eu1 & eu2
+                  if (opt_.event_univ && c.is({op::F, op::And}))
+                    {
+                      mospliter s(mospliter::Split_EventUniv,
+                                  c[0], c_);
+                      s.res_EventUniv->
+                        push_back(unop_multop(op::F, op::And,
+                                              std::move(*s.res_other)));
+                      formula res =
+                        formula::G(formula::And(std::move(*s.res_EventUniv)));
+                      if (res != f)
+                        return recurse(res);
                     }
                 }
               // if a => Ga, keep a.

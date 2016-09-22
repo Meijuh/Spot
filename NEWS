@@ -1,5 +1,13 @@
 New in spot 2.1.1a (not yet released)
 
+  Library:
+
+  * New LTL simplification rule:
+
+    - GF(f & q) = G(F(f) & q) if q is
+      purely universal and a pure eventuality.  In particular
+      GF(f & GF(g)) now ultimately simplifies to G(F(f) & F(g)).
+
   Bug fixes:
 
   - Fix spurious uninitialized read reported by valgrind when
