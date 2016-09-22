@@ -491,17 +491,32 @@ namespace spot
 
 
       template<class iter>
-        fnode(op o, iter begin, iter end)
-        {
-          size_t s = std::distance(begin, end);
-          if (s > (size_t) UINT16_MAX)
-            throw std::runtime_error("too many children for formula");
-          size_ = s;
-          auto pos = children;
-          for (auto i = begin; i != end; ++i)
-            *pos++ = *i;
-          setup_props(o);
-        }
+      fnode(op o, iter begin, iter end)
+        // Clang has some optimization where is it able to combine the
+        // 4 movb initializing op_,min_,max_,saturated_ into a single
+        // movl.  Also it can optimize the three byte-comparisons of
+        // is_Kleene_star() into a single masked 32-bit comparison.
+        // The latter optimization triggers warnings from valgrind if
+        // min_ and max_ are not initialized.  So to benefit from the
+        // initialization optimization and the is_Kleene_star()
+        // optimization in Clang, we always initialize min_ and max_
+        // with this compiler.  Do not do it the rest of the time,
+        // since the optimization is not done.
+        : op_(o),
+#if __llvm__
+         min_(0), max_(0),
+#endif
+         saturated_(0)
+      {
+        size_t s = std::distance(begin, end);
+        if (s > (size_t) UINT16_MAX)
+          throw std::runtime_error("too many children for formula");
+        size_ = s;
+        auto pos = children;
+        for (auto i = begin; i != end; ++i)
+          *pos++ = *i;
+        setup_props(o);
+      }
 
       fnode(op o, std::initializer_list<const fnode*> l)
         : fnode(o, l.begin(), l.end())
@@ -509,11 +524,9 @@ namespace spot
       }
 
       fnode(op o, const fnode* f, uint8_t min, uint8_t max)
+        : op_(o), min_(min), max_(max), saturated_(0), size_(1)
       {
-        size_ = 1;
         children[0] = f;
-        min_ = min;
-        max_ = max;
         setup_props(o);
       }
 
@@ -525,7 +538,7 @@ namespace spot
       op op_;                      // operator
       uint8_t min_;                // range minimum (for star-like operators)
       uint8_t max_;                // range maximum;
-      mutable uint8_t saturated_ = 0;
+      mutable uint8_t saturated_;
       uint16_t size_;              // number of children
       mutable uint16_t refs_ = 0;  // reference count - 1;
       size_t id_;                  // Also used as hash.

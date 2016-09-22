@@ -1025,16 +1025,15 @@ namespace spot
 
   void fnode::setup_props(op o)
   {
-    op_ = o;
     id_ = next_id_++;
     // If the counter of formulae ever loops, we want to skip the
     // first three values, because they are permanently associated
     // to constants, and it is convenient to have constants
     // smaller than all other formulas.
-    if (next_id_ == 0)
+    if (SPOT_UNLIKELY(next_id_ == 0))
       next_id_ = 3;
 
-    switch (op_)
+    switch (o)
       {
       case op::ff:
       case op::tt:
