@@ -9,6 +9,7 @@ ltlfilt
 ltlgrind
 randaut
 randltl
+spot
 spot-x
 *.a
 *.1
