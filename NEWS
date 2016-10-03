@@ -1,5 +1,11 @@
 New in spot 2.1.1.dev (not yet released)
 
+  Command-line tools:
+
+  * genltl learned 5 new families of formulas
+    (--tv-f1, --tv-f2, --tv-g1, --tv-g2, --tv-uu)
+    defined in Tabakov & Vardi's RV'10 paper.
+
   Library:
 
   * New LTL simplification rule:

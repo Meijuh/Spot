@@ -106,6 +106,20 @@
 //   address = {Chicago, Illinois, USA},
 //   publisher = {Springer-Verlag}
 // }
+//
+// @InProceedings{tabakov.10.rv,
+//   author = {Deian Tabakov and Moshe Y. Vardi},
+//   title = {Optimized Temporal Monitors for {SystemC}},
+//   booktitle = {Proceedings of the 1st International Conference on Runtime
+// 		  Verification (RV'10)},
+//   pages = {436--451},
+//   year = 2010,
+//   volume = {6418},
+//   series = {Lecture Notes in Computer Science},
+//   month = nov,
+//   publisher = {Springer}
+// }
+
 
 #include "common_sys.hh"
 
@@ -159,6 +173,11 @@ enum {
   OPT_RV_COUNTER_CARRY_LINEAR,
   OPT_RV_COUNTER_LINEAR,
   OPT_SB_PATTERNS,
+  OPT_TV_F1,
+  OPT_TV_F2,
+  OPT_TV_G1,
+  OPT_TV_G2,
+  OPT_TV_UU,
   OPT_U_LEFT,
   OPT_U_RIGHT,
   LAST_CLASS,
@@ -189,6 +208,11 @@ const char* const class_name[LAST_CLASS] =
     "rv-counter-carry-linear",
     "rv-counter-linear",
     "sb-patterns",
+    "tv-f1",
+    "tv-f2",
+    "tv-g1",
+    "tv-g2",
+    "tv-uu",
     "u-left",
     "u-right",
   };
@@ -246,6 +270,12 @@ static const argp_option options[] =
     { "sb-patterns", OPT_SB_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Somenzi and Bloem [CAV'00] patterns "
       "(range should be included in 1..27)", 0 },
+    { "tv-f1", OPT_TV_F1, "RANGE", 0, "G(p -> (q | Xq | ... | XX...Xq)", 0 },
+    { "tv-f2", OPT_TV_F2, "RANGE", 0, "G(p -> (q | X(q | X(... | Xq)))", 0 },
+    { "tv-g1", OPT_TV_G1, "RANGE", 0, "G(p -> (q & Xq & ... & XX...Xq)", 0 },
+    { "tv-g2", OPT_TV_G2, "RANGE", 0, "G(p -> (q & X(q & X(... & Xq)))", 0 },
+    { "tv-uu", OPT_TV_UU, "RANGE", 0,
+      "G(p1 -> (p1 U (p2 & (p2 U (p3 & (p3 U ...))))))", 0 },
     { "u-left", OPT_U_LEFT, "RANGE", 0, "(((p1 U p2) U p3) ... U pn)", 0 },
     OPT_ALIAS(gh-u),
     { "u-right", OPT_U_RIGHT, "RANGE", 0, "(p1 U (p2 U (... U pn)))", 0 },
@@ -335,6 +365,11 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_RV_COUNTER_CARRY:
     case OPT_RV_COUNTER_CARRY_LINEAR:
     case OPT_RV_COUNTER_LINEAR:
+    case OPT_TV_F1:
+    case OPT_TV_F2:
+    case OPT_TV_G1:
+    case OPT_TV_G2:
+    case OPT_TV_UU:
     case OPT_U_LEFT:
     case OPT_U_RIGHT:
       enqueue_job(key, arg);
@@ -405,7 +440,8 @@ E_n(std::string name, int n)
 
 // p & X(p & X(p & ... X(p)))
 static formula
-phi_n(std::string name, int n)
+phi_n(std::string name, int n,
+      op oper = op::And)
 {
   if (n <= 0)
     return formula::tt();
@@ -415,7 +451,7 @@ phi_n(std::string name, int n)
   for (; n > 0; --n)
     {
       if (result)
-        result = And_(p, X_(result));
+        result = formula::multop(oper, {p, X_(result)});
       else
         result = p;
     }
@@ -430,7 +466,8 @@ N_n(std::string name, int n)
 
 // p & X(p) & XX(p) & XXX(p) & ... X^n(p)
 static formula
-phi_prime_n(std::string name, int n)
+phi_prime_n(std::string name, int n,
+            op oper = op::And)
 {
   if (n <= 0)
     return formula::tt();
@@ -442,7 +479,7 @@ phi_prime_n(std::string name, int n)
       if (result)
         {
           p = X_(p);
-          result = And_(result, p);
+          result = formula::multop(oper, {result, p});
         }
       else
         {
@@ -817,6 +854,50 @@ ltl_counter_carry(std::string bit, std::string marker,
   return formula::And(std::move(res));
 }
 
+static formula
+tv_f1(std::string p, std::string q, int n)
+{
+  return G_(Implies_(formula::ap(p), phi_prime_n(q, n, op::Or)));
+}
+
+static formula
+tv_f2(std::string p, std::string q, int n)
+{
+  return G_(Implies_(formula::ap(p), phi_n(q, n, op::Or)));
+}
+
+static formula
+tv_g1(std::string p, std::string q, int n)
+{
+  return G_(Implies_(formula::ap(p), phi_prime_n(q, n)));
+}
+
+static formula
+tv_g2(std::string p, std::string q, int n)
+{
+  return G_(Implies_(formula::ap(p), phi_n(q, n)));
+}
+
+static formula
+tv_uu(std::string name, int n)
+{
+  std::ostringstream p;
+  p << name << n + 1;
+  formula q = formula::ap(p.str());
+  formula f = q;
+
+  for (int i = n; i > 0; --i)
+    {
+      p.str("");
+      p << name << i;
+      q = formula::ap(p.str());
+      f = U_(q, f);
+      if (i > 1)
+        f = And_(q, f);
+    }
+  return G_(Implies_(q,  f));
+}
+
 static void bad_number(const char* pattern, int n, int max)
 {
   std::ostringstream err;
@@ -1043,6 +1124,21 @@ output_pattern(int pattern, int n)
       break;
     case OPT_SB_PATTERNS:
       f = sb_pattern(n);
+      break;
+    case OPT_TV_F1:
+      f = tv_f1("p", "q", n);
+      break;
+    case OPT_TV_F2:
+      f = tv_f2("p", "q", n);
+      break;
+    case OPT_TV_G1:
+      f = tv_g1("p", "q", n);
+      break;
+    case OPT_TV_G2:
+      f = tv_g2("p", "q", n);
+      break;
+    case OPT_TV_UU:
+      f = tv_uu("p", n);
       break;
     case OPT_U_LEFT:
       f = bin_n("p", n, op::U, false);

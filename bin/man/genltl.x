@@ -40,6 +40,10 @@ Proceedings of Concur'00.  LNCS 1877.
 sb
 F. Somenzi and R. Bloem: Efficient Büchi Automata for LTL Formulae.
 Proceedings of CAV'00.  LNCS 1855.
+.TP
+tv
+D. Tabakov and M. Y. Vardi: Optimized Temporal Monitors for SystemC.
+Proceedings of RV'10.  LNCS 6418.
 
 [SEE ALSO]
 .BR randltl (1)
