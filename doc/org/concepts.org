@@ -570,6 +570,7 @@ $txt
 #+BEGIN_SRC sh :results verbatim :exports results
 ltl2tgba -s 'p0 | GFp1' > tmp.$$
 ltl2tgba -s6 'p0 | GFp1' | pr -w80 -m -t tmp.$$ -
+rm tmp.$$
 #+END_SRC
 
 #+RESULTS:
