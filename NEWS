@@ -13,6 +13,14 @@ New in spot 2.1.1.dev (not yet released)
   - Fix spurious uninitialized read reported by valgrind when
     is_Kleene_star() is compiled by clang++.
 
+  - Using "ltlfilt some-large-file --some-costly-filter" could take
+    to a lot of time before displaying the first results, because the
+    output of ltlfilt is buffered: the buffer had to fill up before
+    being flushed.  The issue did not manifest when the input is
+    standard input, because of the C++ feature that reading std::cin
+    should flush std::cout; however it was well visible when reading
+    from files.  Flushing is now done more regularly.
+
 New in spot 2.1.1 (2016-09-20)
 
   Command-line tools:

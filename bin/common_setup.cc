@@ -22,6 +22,7 @@
 
 #include "argp.h"
 #include <cstdlib>
+#include <unistd.h>
 #include <iostream>
 #include <signal.h>
 #include <sys/wait.h>
@@ -83,6 +84,11 @@ setup(char** argv)
   argp_err_exit_status = 2;
 
   std::ios_base::sync_with_stdio(false);
+  // Do not flush std::cout every time we read from std::cin, unless
+  // we are reading from a terminal.  Note that we do flush regularly
+  // in check_cout().
+  if (!isatty(STDIN_FILENO))
+    std::cin.tie(nullptr);
 
   setup_default_output_format();
   setup_sig_handler();
