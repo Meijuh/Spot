@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -76,7 +76,7 @@ namespace spot
                   pos[-1].mark -= p.first;
                   pos[-1].mark |= p.second;
                 }
-            /* fall through */
+            SPOT_FALLTHROUGH;
           case acc_cond::acc_op::Inf:
           case acc_cond::acc_op::InfNeg:
             pos -= 2;

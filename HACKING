@@ -554,6 +554,37 @@ Naming
   * Use *.hxx for the implementation of templates that are private to
     Spot (i.e., not installed) and need to be included multiple times.
 
+SPOT macros
+-----------
+
+  A few macros are defined in misc/common.hh notably:
+
+  * SPOT_FALLTHROUGH should be used to mark fall-throughs in switches:
+
+     switch (foo)
+     {
+       case 1:
+         f();
+         SPOT_FALLTHROUGH;
+       case 2:
+         g();
+         break;
+     }
+
+  * Use SPOT_UNREACHABLE() to mark places that are not reachable but
+    that a compiler might not see as unreachable.
+
+  * Use SPOT_API in front of functions and class that should be
+    exported by the shared library.  See "Exporting symbolss" above.
+
+  * Use SPOT_ASSERT(...) if you ever have to put an assertion in
+    some header file.  See "Assertions" above.
+
+  * Use SPOT_LIKELY / SPOT_UNLIKELY in case you need to help the
+    compiler figure out the commont output of a test.  Do not abuse
+    this without checking the assembly output to make sure the effect
+    is what you desired.
+
 Other style recommandations
 ---------------------------
 

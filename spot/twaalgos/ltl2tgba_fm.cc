@@ -1264,6 +1264,7 @@ namespace spot
             }
           case op::NegClosureMarked:
             has_marked_ = true;
+            SPOT_FALLTHROUGH;
           case op::NegClosure:
             rat_seen_ = true;
             {
@@ -1394,7 +1395,7 @@ namespace spot
             }
           case op::EConcatMarked:
             has_marked_ = true;
-            /* fall through */
+            SPOT_FALLTHROUGH;
           case op::EConcat:
             rat_seen_ = true;
             {

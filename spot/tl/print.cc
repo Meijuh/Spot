@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2012, 2013, 2014, 2015 Laboratoire de
+// Copyright (C) 2008, 2010, 2012, 2013, 2014, 2015, 2016 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE)
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -527,7 +527,7 @@ namespace spot
             emit(KNot);
             if (o == op::NegClosureMarked)
               os_ << (kw_ == utf8_kw ? "̃": "+");
-            // Fall through
+            SPOT_FALLTHROUGH;
           case op::Closure:
             os_ << '{';
             in_ratexp_ = true;

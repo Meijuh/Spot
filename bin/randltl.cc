@@ -289,7 +289,7 @@ main(int argc, char** argv)
               std::cout <<
                 "Use --ltl-priorities to set the following LTL priorities:\n";
               rg.dump_psl_priorities(std::cout);
-              // Fall through.
+              SPOT_FALLTHROUGH;
             case OUTPUTSERE:
               std::cout <<
                 "Use --sere-priorities to set the following SERE priorities:\n";

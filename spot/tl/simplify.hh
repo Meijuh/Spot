@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
-// et Developpement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -58,14 +58,14 @@ namespace spot
         case 3:
           containment_checks = true;
           containment_checks_stronger = true;
-          // fall through
+          SPOT_FALLTHROUGH;
         case 2:
           synt_impl = true;
-          // fall through
+          SPOT_FALLTHROUGH;
         case 1:
           reduce_basics = true;
           event_univ = true;
-          // fall through
+          SPOT_FALLTHROUGH;
         default:
           break;
         }

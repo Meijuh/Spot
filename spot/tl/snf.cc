@@ -19,6 +19,11 @@
 
 #include <spot/tl/snf.hh>
 
+#if defined __clang__
+// See https://llvm.org/bugs/show_bug.cgi?id=30636
+#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
+#endif
+
 namespace spot
 {
   namespace
@@ -65,7 +70,7 @@ namespace spot
                 out = f;
                 break;
               }
-            // Fall through
+            SPOT_FALLTHROUGH;
           case op::OrRat:
           case op::AndNLM:
             // Let F designate expressions that accept [*0],

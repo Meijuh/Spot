@@ -27,6 +27,8 @@ New in spot 2.1.1.dev (not yet released)
     should flush std::cout; however it was well visible when reading
     from files.  Flushing is now done more regularly.
 
+  - Fix compilation warnings when -Wimplicit-fallthrough it enabled.
+
 New in spot 2.1.1 (2016-09-20)
 
   Command-line tools:

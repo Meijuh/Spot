@@ -77,6 +77,7 @@ namespace spot
         {
         case acc_cond::acc_op::And:
           op = html ? " &amp; " : " & ";
+          SPOT_FALLTHROUGH;
         case acc_cond::acc_op::Or:
           {
             unsigned sub = pos - w.size;
@@ -99,6 +100,7 @@ namespace spot
           break;
         case acc_cond::acc_op::InfNeg:
           negated = "!";
+          SPOT_FALLTHROUGH;
         case acc_cond::acc_op::Inf:
           {
             auto a = code[pos - 1].mark.id;
@@ -134,6 +136,7 @@ namespace spot
           break;
         case acc_cond::acc_op::FinNeg:
           negated = "!";
+          SPOT_FALLTHROUGH;
         case acc_cond::acc_op::Fin:
           {
             auto a = code[pos - 1].mark.id;
@@ -347,6 +350,7 @@ namespace spot
                 pos -= 2;
                 break;
               }
+            SPOT_FALLTHROUGH;
           case acc_cond::acc_op::FinNeg:
             return true;
           }
@@ -1017,7 +1021,7 @@ namespace spot
           case acc_cond::acc_op::FinNeg:
             if (pos[-1].mark.count() > 1 && pos > and_scope)
               return false;
-            /* fall through */
+            SPOT_FALLTHROUGH;
           case acc_cond::acc_op::Inf:
           case acc_cond::acc_op::InfNeg:
             pos -= 2;
@@ -1050,7 +1054,7 @@ namespace spot
           case acc_cond::acc_op::InfNeg:
             if (pos[-1].mark.count() > 1 && pos > or_scope)
               return false;
-            /* fall through */
+            SPOT_FALLTHROUGH;
           case acc_cond::acc_op::Fin:
           case acc_cond::acc_op::FinNeg:
             pos -= 2;

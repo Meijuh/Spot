@@ -117,6 +117,20 @@
 //   auto func(int param) SPOT_RETURN(implem_.func(param));
 #define SPOT_RETURN(code) -> decltype(code) { return code; }
 
+// We hope compilers that implement -Wimplicit-fallthrough
+// also support __has_cpp_attribute and some form of [[fallthrough]].
+#ifdef __has_cpp_attribute
+#  if __has_cpp_attribute(fallthrough)
+#    define SPOT_FALLTHROUGH [[fallthrough]]
+#  elif __has_cpp_attribute(clang::fallthrough)
+#    define SPOT_FALLTHROUGH [[clang::fallthrough]]
+#  elif __has_cpp_attribute(gcc::fallthrough)
+#    define SPOT_FALLTHROUGH [[gcc::fallthrough]]
+#  endif
+#endif
+#ifndef SPOT_FALLTHROUGH
+#  define SPOT_FALLTHROUGH while (0)
+#endif
 
 namespace spot
 {

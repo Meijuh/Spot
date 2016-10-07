@@ -154,7 +154,7 @@ namespace spot
         {
         case op::U:
           strong = true;
-          // fall thru
+          SPOT_FALLTHROUGH;
         case op::W:
           if (refined_)
             contained = lcc_->contained(f[0], f[1]);
@@ -186,6 +186,7 @@ namespace spot
           return;
         case op::M: // Strong Release
           strong = true;
+          SPOT_FALLTHROUGH;
         case op::R: // Weak Release
           if (refined_)
             contained = lcc_->contained(f[0], f[1]);
