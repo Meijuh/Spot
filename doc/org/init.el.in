@@ -31,6 +31,14 @@
 (setq org-babel-C++-compiler "./g++wrap")
 (setq shell-file-name "@SHELL@")
 
+(setq org-babel-default-header-args:plantuml
+      '((:results . "file")
+        (:exports . "results")
+        ;; prevent the plantuml logo to annoying appear on top of
+        ;; whatever you are doing when the project compiles in the
+        ;; background.
+        (:java . "-Djava.awt.headless")))
+
 (setenv "PATH"
 	(concat "@abs_top_builddir@/bin" path-separator (getenv "PATH")))
 (setenv "PYTHONPATH"

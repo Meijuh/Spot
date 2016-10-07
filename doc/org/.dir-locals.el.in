@@ -35,6 +35,13 @@
 	      (org-babel-C++-compiler . "./g++wrap")
 	      (shell-file-name . "@SHELL@")
               (org-export-html-postamble . nil)
+              (org-babel-default-header-args:plantuml
+               . ((:results . "file")
+                  (:exports . "results")
+                  ; Prevent the plantuml logo to annoying appear on
+                  ; top of whatever you are doing when the project
+                  ; compiles in the background.
+                  (:java . "-Djava.awt.headless")))
 	      (org-publish-project-alist
 	       . (("spot-html"
 		   :base-directory "."
