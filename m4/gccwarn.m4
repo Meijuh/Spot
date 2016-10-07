@@ -37,6 +37,7 @@ EOF
    Wnoexcept \
    Woverloaded-virtual \
    Wmisleading-indentation \
+   Wimplicit-fallthrough \
    Wlogical-op \
    Wduplicated-cond \
    Wnull-dereference \
