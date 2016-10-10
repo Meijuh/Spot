@@ -129,7 +129,13 @@
 #  endif
 #endif
 #ifndef SPOT_FALLTHROUGH
-#  define SPOT_FALLTHROUGH while (0)
+// Clang 3.5 does not support __has_cpp_attribute but has
+// [[clang::fallthrough]].
+#  if __clang__
+#    define SPOT_FALLTHROUGH [[clang::fallthrough]]
+#  else
+#    define SPOT_FALLTHROUGH while (0)
+#  endif
 #endif
 
 namespace spot
