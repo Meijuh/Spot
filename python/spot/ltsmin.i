@@ -26,7 +26,8 @@
 %module(package="spot", director="1") ltsmin
 
 %include "std_string.i"
-%include "std_set.i"
+%include "exception.i"
+%import(module="spot.impl") "std_set.i"
 %include "std_shared_ptr.i"
 
 %shared_ptr(spot::bdd_dict)

@@ -16,10 +16,10 @@ New in spot 2.1.1.dev (not yet released)
 
   Bug fixes:
 
-  - Fix spurious uninitialized read reported by valgrind when
+  * Fix spurious uninitialized read reported by valgrind when
     is_Kleene_star() is compiled by clang++.
 
-  - Using "ltlfilt some-large-file --some-costly-filter" could take
+  * Using "ltlfilt some-large-file --some-costly-filter" could take
     to a lot of time before displaying the first results, because the
     output of ltlfilt is buffered: the buffer had to fill up before
     being flushed.  The issue did not manifest when the input is
@@ -27,7 +27,10 @@ New in spot 2.1.1.dev (not yet released)
     should flush std::cout; however it was well visible when reading
     from files.  Flushing is now done more regularly.
 
-  - Fix compilation warnings when -Wimplicit-fallthrough it enabled.
+  * Fix compilation warnings when -Wimplicit-fallthrough it enabled.
+
+  * Fix python errors on Darwin when using methods from the spot module
+    inside of the spot.ltsmin submodule.
 
 New in spot 2.1.1 (2016-09-20)
 
