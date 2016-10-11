@@ -61,19 +61,31 @@ diff output expected
 ltl2tgba -BD -x sat-minimize "GF(a <-> XXb)" -H >out
 grep 'properties:.*state-acc' out
 grep 'properties:.*deterministic' out
-ltl2tgba -BD -x 'sat-minimize=3,incr=-1' "GF(a <-> XXb)" -H >out
+ltl2tgba -BD -x 'sat-minimize=3,param=0' "GF(a <-> XXb)" -H >out
 grep 'properties:.*state-acc' out
 grep 'properties:.*deterministic' out
-ltl2tgba -BD -x 'sat-minimize=3,incr=0' "GF(a <-> XXb)" -H >out
+ltl2tgba -BD -x 'sat-minimize=3,param=1' "GF(a <-> XXb)" -H >out
 grep 'properties:.*state-acc' out
 grep 'properties:.*deterministic' out
-ltl2tgba -BD -x 'sat-minimize=3,incr=1' "GF(a <-> XXb)" -H >out
+ltl2tgba -BD -x 'sat-minimize=3,param=2' "GF(a <-> XXb)" -H >out
 grep 'properties:.*state-acc' out
 grep 'properties:.*deterministic' out
-ltl2tgba -BD -x 'sat-minimize=3,incr=2' "GF(a <-> XXb)" -H >out
+ltl2tgba -BD -x 'sat-minimize=3,param=50' "GF(a <-> XXb)" -H >out
 grep 'properties:.*state-acc' out
 grep 'properties:.*deterministic' out
-ltl2tgba -BD -x 'sat-minimize=3,incr=50' "GF(a <-> XXb)" -H >out
+ltl2tgba -BD -x 'sat-minimize=3,param=-1' "GF(a <-> XXb)" -H >out
+grep 'properties:.*state-acc' out
+grep 'properties:.*deterministic' out
+ltl2tgba -BD -x 'sat-minimize=3,param=-0' "GF(a <-> XXb)" -H >out
+grep 'properties:.*state-acc' out
+grep 'properties:.*deterministic' out
+ltl2tgba -BD -x 'sat-minimize=3,param=1' "GF(a <-> XXb)" -H >out
+grep 'properties:.*state-acc' out
+grep 'properties:.*deterministic' out
+ltl2tgba -BD -x 'sat-minimize=3,param=2' "GF(a <-> XXb)" -H >out
+grep 'properties:.*state-acc' out
+grep 'properties:.*deterministic' out
+ltl2tgba -BD -x 'sat-minimize=3,param=50' "GF(a <-> XXb)" -H >out
 grep 'properties:.*state-acc' out
 grep 'properties:.*deterministic' out
 
@@ -116,39 +128,64 @@ EOF
 # automata.
 $autfilt --sat-minimize='acc="Fin(0)|Inf(1)"' test.hoa --stats=%s >output
 test `cat output` = 1
-$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr=-1' test.hoa \
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",assume,param=0' test.hoa \
   --stats=%s >output
 test `cat output` = 1
-$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr=0' test.hoa \
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",assume,param=1' test.hoa \
   --stats=%s >output
 test `cat output` = 1
-$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr=1' test.hoa \
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",assume,param=2' test.hoa \
   --stats=%s >output
 test `cat output` = 1
-$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr=2' test.hoa \
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",assume,param=50' test.hoa \
   --stats=%s >output
 test `cat output` = 1
-$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr=50' test.hoa \
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=-1' test.hoa \
   --stats=%s >output
 test `cat output` = 1
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=0' test.hoa \
+  --stats=%s >output
+test `cat output` = 1
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=1' test.hoa \
+  --stats=%s >output
+test `cat output` = 1
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=2' test.hoa \
+  --stats=%s >output
+test `cat output` = 1
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=50' test.hoa \
+  --stats=%s >output
+test `cat output` = 1
+
 
 # How about a state-based DSA?
 $autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)"' test.hoa \
 	 --stats=%s > output
 test `cat output` = 3
-$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr=-1' test.hoa \
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",assume,param=0' test.hoa \
 	 --stats=%s > output
 test `cat output` = 3
-$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr=0' test.hoa \
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",assume,param=1' test.hoa \
 	 --stats=%s > output
 test `cat output` = 3
-$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr=1' test.hoa \
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",assume,param=2' test.hoa \
 	 --stats=%s > output
 test `cat output` = 3
-$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr=2' test.hoa \
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",assume,param=50' test.hoa \
 	 --stats=%s > output
 test `cat output` = 3
-$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr=50' test.hoa \
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=-1' test.hoa \
+	 --stats=%s > output
+test `cat output` = 3
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=0' test.hoa \
+	 --stats=%s > output
+test `cat output` = 3
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=1' test.hoa \
+	 --stats=%s > output
+test `cat output` = 3
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=2' test.hoa \
+	 --stats=%s > output
+test `cat output` = 3
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)",incr,param=50' test.hoa \
 	 --stats=%s > output
 test `cat output` = 3
 
@@ -162,7 +199,7 @@ grep 'States: 3' output
 grep 'acc-name: parity max even 3' output
 grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
 test 3 = `grep -c 'State: [012] {[012]}' output`
-$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr=-1' \
+$autfilt -S --sat-minimize='acc="parity max even 3",colored,assume,param=0' \
   -H test.hoa > output
 cat output
 grep 'properties:.*colored' output
@@ -170,7 +207,7 @@ grep 'States: 3' output
 grep 'acc-name: parity max even 3' output
 grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
 test 3 = `grep -c 'State: [012] {[012]}' output`
-$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr=0' \
+$autfilt -S --sat-minimize='acc="parity max even 3",colored,assume,param=1' \
   -H test.hoa > output
 cat output
 grep 'properties:.*colored' output
@@ -178,7 +215,7 @@ grep 'States: 3' output
 grep 'acc-name: parity max even 3' output
 grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
 test 3 = `grep -c 'State: [012] {[012]}' output`
-$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr=1' \
+$autfilt -S --sat-minimize='acc="parity max even 3",colored,assume,param=2' \
   -H test.hoa > output
 cat output
 grep 'properties:.*colored' output
@@ -186,7 +223,7 @@ grep 'States: 3' output
 grep 'acc-name: parity max even 3' output
 grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
 test 3 = `grep -c 'State: [012] {[012]}' output`
-$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr=2' \
+$autfilt -S --sat-minimize='acc="parity max even 3",colored,assume,param=50' \
   -H test.hoa > output
 cat output
 grep 'properties:.*colored' output
@@ -194,7 +231,39 @@ grep 'States: 3' output
 grep 'acc-name: parity max even 3' output
 grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
 test 3 = `grep -c 'State: [012] {[012]}' output`
-$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr=50' \
+$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr,param=-1' \
+  -H test.hoa > output
+cat output
+grep 'properties:.*colored' output
+grep 'States: 3' output
+grep 'acc-name: parity max even 3' output
+grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
+test 3 = `grep -c 'State: [012] {[012]}' output`
+$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr,param=0' \
+  -H test.hoa > output
+cat output
+grep 'properties:.*colored' output
+grep 'States: 3' output
+grep 'acc-name: parity max even 3' output
+grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
+test 3 = `grep -c 'State: [012] {[012]}' output`
+$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr,param=1' \
+  -H test.hoa > output
+cat output
+grep 'properties:.*colored' output
+grep 'States: 3' output
+grep 'acc-name: parity max even 3' output
+grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
+test 3 = `grep -c 'State: [012] {[012]}' output`
+$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr,param=2' \
+  -H test.hoa > output
+cat output
+grep 'properties:.*colored' output
+grep 'States: 3' output
+grep 'acc-name: parity max even 3' output
+grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
+test 3 = `grep -c 'State: [012] {[012]}' output`
+$autfilt -S --sat-minimize='acc="parity max even 3",colored,incr,param=50' \
   -H test.hoa > output
 cat output
 grep 'properties:.*colored' output
@@ -237,15 +306,23 @@ State: 0
 EOF
 $autfilt -H --sat-minimize special.hoa > output
 diff output expected
-$autfilt -H --sat-minimize='incr=-1' special.hoa > output
+$autfilt -H --sat-minimize='assume,param=0' special.hoa > output
 diff output expected
-$autfilt -H --sat-minimize='incr=0' special.hoa > output
+$autfilt -H --sat-minimize='assume,param=1' special.hoa > output
 diff output expected
-$autfilt -H --sat-minimize='incr=1' special.hoa > output
+$autfilt -H --sat-minimize='assume,param=2' special.hoa > output
 diff output expected
-$autfilt -H --sat-minimize='incr=2' special.hoa > output
+$autfilt -H --sat-minimize='assume,param=50' special.hoa > output
 diff output expected
-$autfilt -H --sat-minimize='incr=50' special.hoa > output
+$autfilt -H --sat-minimize='incr,param=-1' special.hoa > output
+diff output expected
+$autfilt -H --sat-minimize='incr,param=0' special.hoa > output
+diff output expected
+$autfilt -H --sat-minimize='incr,param=1' special.hoa > output
+diff output expected
+$autfilt -H --sat-minimize='incr,param=2' special.hoa > output
+diff output expected
+$autfilt -H --sat-minimize='incr,param=50' special.hoa > output
 diff output expected
 
 
@@ -266,19 +343,31 @@ EOF
 $autfilt --sat-minimize='acc="Streett 1",max-states=2' foo.hoa \
 	 --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr=-1' foo.hoa \
+$autfilt --sat-minimize='acc="Streett 1",max-states=2,assume,param=0' foo.hoa \
 	 --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr=0' foo.hoa \
+$autfilt --sat-minimize='acc="Streett 1",max-states=2,assume,param=1' foo.hoa \
 	 --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr=1' foo.hoa \
+$autfilt --sat-minimize='acc="Streett 1",max-states=2,assume,param=2' foo.hoa \
 	 --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr=2' foo.hoa \
+$autfilt --sat-minimize='acc="Streett 1",max-states=2,assume,param=50' foo.hoa \
 	 --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr=50' foo.hoa \
+$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr,param=-1' foo.hoa \
+	 --stats=%s >out
+test "`cat out`" = 1
+$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr,param=0' foo.hoa \
+	 --stats=%s >out
+test "`cat out`" = 1
+$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr,param=1' foo.hoa \
+	 --stats=%s >out
+test "`cat out`" = 1
+$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr,param=2' foo.hoa \
+	 --stats=%s >out
+test "`cat out`" = 1
+$autfilt --sat-minimize='acc="Streett 1",max-states=2,incr,param=50' foo.hoa \
 	 --stats=%s >out
 test "`cat out`" = 1
 
@@ -286,19 +375,31 @@ test "`cat out`" = 1
 $autfilt --sat-minimize='acc="Rabin 1",max-states=4' foo.hoa \
 	 --stats=%s >out && exit 1
 test -z "`cat out`"
-$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr=-1' foo.hoa \
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4,assume,param=0' foo.hoa \
 	 --stats=%s >out && exit 1
 test -z "`cat out`"
-$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr=0' foo.hoa \
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4,assume,param=1' foo.hoa \
 	 --stats=%s >out && exit 1
 test -z "`cat out`"
-$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr=1' foo.hoa \
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4,assume,param=2' foo.hoa \
 	 --stats=%s >out && exit 1
 test -z "`cat out`"
-$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr=2' foo.hoa \
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4,assume,param=50' foo.hoa \
 	 --stats=%s >out && exit 1
 test -z "`cat out`"
-$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr=50' foo.hoa \
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr,param=-1' foo.hoa \
+	 --stats=%s >out && exit 1
+test -z "`cat out`"
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr,param=0' foo.hoa \
+	 --stats=%s >out && exit 1
+test -z "`cat out`"
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr,param=1' foo.hoa \
+	 --stats=%s >out && exit 1
+test -z "`cat out`"
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr,param=2' foo.hoa \
+	 --stats=%s >out && exit 1
+test -z "`cat out`"
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4,incr,param=50' foo.hoa \
 	 --stats=%s >out && exit 1
 test -z "`cat out`"
 
@@ -306,18 +407,30 @@ test -z "`cat out`"
 $autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1' foo.hoa \
 	 --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr=-1' \
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,assume,param=0' \
   foo.hoa --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr=0' \
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,assume,param=1' \
   foo.hoa --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr=1' \
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,assume,param=2' \
   foo.hoa --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr=2' \
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,assume,param=50' \
   foo.hoa --stats=%s >out
 test "`cat out`" = 1
-$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr=50' \
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr,param=-1' \
+  foo.hoa --stats=%s >out
+test "`cat out`" = 1
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr,param=0' \
+  foo.hoa --stats=%s >out
+test "`cat out`" = 1
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr,param=1' \
+  foo.hoa --stats=%s >out
+test "`cat out`" = 1
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr,param=2' \
+  foo.hoa --stats=%s >out
+test "`cat out`" = 1
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1,incr,param=50' \
   foo.hoa --stats=%s >out
 test "`cat out`" = 1

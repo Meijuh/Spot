@@ -859,7 +859,7 @@ for fun in ['remove_x', 'relabel', 'relabel_bse',
 def sat_minimize(aut, acc=None, colored=False,
                  state_based=False, states=0,
                  max_states=0, dichotomy=False,
-                 param=0, incr=False):
+                 param=0, incr=False, assume=False):
     args=''
     if acc is not None:
         if type(acc) is not str:
@@ -881,6 +881,8 @@ def sat_minimize(aut, acc=None, colored=False,
         args += ',param=' + str(param)
     if incr:
         args += ',incr'
+    if assume:
+        args += ',assume'
     from spot.impl import sat_minimize as sm
     return sm(aut, args, state_based)
 

@@ -188,8 +188,8 @@ namespace spot
     int scc_filter_ = -1;
     int ba_simul_ = -1;
     bool tba_determinisation_ = false;
-    int incr_ = 0;
     int sat_minimize_ = 0;
+    int param_ = 0;
     int sat_acc_ = 0;
     int sat_states_ = 0;
     bool state_based_ = false;

@@ -297,7 +297,8 @@ namespace spot
     static
     sat_stats dtba_to_sat(satsolver& solver,
                           const const_twa_graph_ptr& ref,
-                          dict& d, bool state_based)
+                          dict& d,
+                          bool state_based)
     {
       // Compute the AP used.
       bdd ap = ref->ap_vars();
@@ -742,6 +743,159 @@ namespace spot
 
     trace << "dtba_sat_synthetize(...) = " << res << '\n';
     return res;
+  }
+
+  static twa_graph_ptr
+  dichotomy_dtba_research(int max,
+                          dict& d,
+                          satsolver& solver,
+                          timer_map& t1,
+                          const_twa_graph_ptr& prev,
+                          bool state_based)
+  {
+    trace << "dichotomy_dtba_research(...)\n";
+    int min = 1;
+    int target = 0;
+    twa_graph_ptr res = nullptr;
+
+    while (min < max)
+    {
+      target = (max + min) / 2;
+      trace << "min:" << min << ", max:" << max << ", target:" << target
+        << '\n';
+
+      solver.assume(d.nvars + target);
+      trace << "solver.assume(" << d.nvars + target << ")\n";
+
+      satsolver::solution_pair solution = solver.get_solution();
+      if (solution.second.empty())
+      {
+        trace << "UNSAT\n";
+        max = target;
+      }
+      else
+      {
+        trace << "SAT\n";
+        res = sat_build(solution.second, d, prev, state_based);
+        min = d.cand_size - stats_reachable(res).states + 1;
+      }
+    }
+
+    trace << "End with max:" << max << ", min:" << min << '\n';
+    if (!res)
+    {
+      trace << "All assumptions are UNSAT, let's try without...";
+      satsolver::solution_pair solution = solver.get_solution();
+      trace << (solution.second.empty() ? "UNSAT!\n" : "SAT\n");
+      res = solution.second.empty() ? nullptr :
+        sat_build(solution.second, d, prev, state_based);
+    }
+
+    t1.stop("solve");
+    print_log(t1, d.cand_size - target, res, solver); // SPOT_SATLOG.
+    return res ? res : std::const_pointer_cast<spot::twa_graph>(prev);
+  }
+
+  twa_graph_ptr
+  dtba_sat_minimize_assume(const const_twa_graph_ptr& a,
+                           bool state_based,
+                           int max_states,
+                           int sat_incr_steps)
+  {
+    if (!a->acc().is_buchi())
+      throw std::runtime_error
+        ("dtba_sat_minimize_assume() can only work with Büchi acceptance");
+    if (sat_incr_steps < 0)
+      throw std::runtime_error("with 'assume' algorithm, sat_incr_steps value "
+                               " must be >= 0");
+
+    const_twa_graph_ptr prev = a;
+    dict d;
+    d.cand_size = (max_states < 0) ?
+      stats_reachable(prev).states - 1 : max_states;
+    if (d.cand_size == 0)
+      return nullptr;
+
+    trace << "dtba_sat_minimize_assume(..., states = " << d.cand_size
+      << ", state_based = " << state_based << ")\n";
+    trace << "sat_incr_steps: " << sat_incr_steps << '\n';
+
+    twa_graph_ptr next = spot::make_twa_graph(spot::make_bdd_dict());
+    while (next && d.cand_size > 0)
+    {
+      // Warns the satsolver of the number of assumptions.
+      int n_assumptions = (int) d.cand_size < sat_incr_steps ?
+        d.cand_size - 1 : sat_incr_steps;
+      trace << "number of assumptions:" << n_assumptions << '\n';
+      satsolver solver;
+      solver.set_nassumptions_vars(n_assumptions);
+
+      // First iteration of classic solving.
+      timer_map t1;
+      t1.start("encode");
+      dtba_to_sat(solver, prev, d, state_based);
+
+      // Compute the AP used.
+      bdd ap = prev->ap_vars();
+
+      // Add all assumptions clauses.
+      unsigned dst = d.cand_size - 1;
+      unsigned alpha_size = d.alpha_vect.size();
+      for (int i = 1; i <= n_assumptions; i++, dst--)
+      {
+        cnf_comment("Next iteration:", dst, "\n");
+        int assume_lit = d.nvars + i;
+
+        cnf_comment("Add clauses to forbid the dst state.\n");
+        for (unsigned l = 0; l < alpha_size; ++l)
+          for (unsigned j = 0; j < d.cand_size; ++j)
+          {
+            cnf_comment(assume_lit, "→ ¬", d.fmt_t(j, l, dst), '\n');
+            solver.add({-assume_lit, -d.transid(j, l, dst), 0});
+          }
+
+        // The assumption which has just been encoded implies the preceding
+        // ones.
+        if (i != 1)
+        {
+          cnf_comment(assume_lit, "→", assume_lit - 1, '\n');
+          solver.add({-assume_lit, assume_lit - 1, 0});
+        }
+      }
+      t1.stop("encode");
+
+      t1.start("solve");
+      if (n_assumptions)
+      {
+        trace << "solver.assume(" << d.nvars + n_assumptions << ")\n";
+        solver.assume(d.nvars + n_assumptions);
+      }
+      satsolver::solution_pair solution = solver.get_solution();
+
+      if (solution.second.empty() && n_assumptions) // UNSAT
+      {
+        trace << "UNSAT\n";
+        return dichotomy_dtba_research(n_assumptions, d, solver, t1, prev,
+                                       state_based);
+      }
+
+      t1.stop("solve");
+      trace << "SAT, restarting from zero\n";
+      next = solution.second.empty() ? nullptr :
+        sat_build(solution.second, d, prev, state_based);
+      print_log(t1, d.cand_size - n_assumptions, next, solver); // SPOT_SATLOG.
+
+      if (next)
+      {
+        prev = next;
+        d = dict();
+        d.cand_size = stats_reachable(prev).states - 1;
+        if (d.cand_size == 0)
+          next = nullptr;
+      }
+    }
+
+    return prev == a ? nullptr : std::const_pointer_cast<spot::twa_graph>(prev);
   }
 
   twa_graph_ptr

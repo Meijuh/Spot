@@ -81,4 +81,23 @@ namespace spot
                          bool state_based = false,
                          int max_states = -1,
                          int param = 2);
+
+  /// \brief Attempt to minimize a deterministic TBA incrementally with a SAT
+  /// solver.
+  ///
+  /// This acts like dtba_sat_synthetize() and obtains a first minimized
+  /// automaton. Then, it adds <param> assumptions, such that each assumption
+  /// removes a new state and implies the previous assumptions. A first
+  /// resolution is attempted assuming the last assumption (thus involving all
+  /// the previous ones). If the problem is SAT several stages have just been
+  /// won and all this process is restarted. Otherwise, we know that the
+  /// minimal automaton can be obtained with fewer assumption. This
+  /// automaton is found dichotomously.
+  ///
+  /// If no smaller TBA exist, this returns a null pointer.
+  SPOT_API twa_graph_ptr
+  dtba_sat_minimize_assume(const const_twa_graph_ptr& a,
+                    bool state_based = false,
+                    int max_states = -1,
+                    int param = 6);
 }

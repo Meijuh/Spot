@@ -74,7 +74,7 @@ namespace spot
   // easy to check if psat_ was initialized or not.
   satsolver::satsolver()
     : cnf_tmp_(nullptr), cnf_stream_(nullptr), nclauses_(0), nvars_(0),
-      psat_(nullptr)
+    nassumptions_vars_(0), nsols_(0), psat_(nullptr)
   {
     if (cmd_.command_given())
     {
@@ -123,21 +123,27 @@ namespace spot
   void satsolver::adjust_nvars(int nvars)
   {
     if (nvars < 0)
-      throw std::runtime_error(": total number of lits. must be at least 0.");
+      throw std::runtime_error("variable number must be at least 0");
 
     if (psat_)
     {
-      picosat_adjust(psat_, nvars);
+      picosat_adjust(psat_, nvars + nassumptions_vars_);
     }
     else
     {
-      if (nvars < nvars_)
+      if (nvars + nassumptions_vars_ < nvars_)
       {
         throw std::runtime_error(
             ": wrong number of variables, a bigger one was already added.");
       }
-      nvars_ = nvars;
+      nvars_ = nvars + nassumptions_vars_;
     }
+    nsols_ = nvars;
+  }
+
+  void satsolver::set_nassumptions_vars(int nassumptions_vars)
+  {
+    nassumptions_vars_ = nassumptions_vars;
   }
 
   void satsolver::add(std::initializer_list<int> values)
@@ -196,6 +202,15 @@ namespace spot
     return std::make_pair(get_nb_vars(), get_nb_clauses());
   }
 
+  void satsolver::assume(int lit)
+  {
+    if (psat_)
+      picosat_assume(psat_, lit);
+    else
+      throw std::runtime_error(
+          "satsolver::assume(...) can not be used with an external satsolver");
+  }
+
   satsolver::solution
   spot::satsolver::satsolver_get_sol(const char* filename)
   {
@@ -249,11 +264,8 @@ namespace spot
   {
     satsolver::solution sol;
     if (res == PICOSAT_SATISFIABLE)
-    {
-      int nvars = get_nb_vars();
-      for (int lit = 1; lit <= nvars; ++lit)
+      for (int lit = 1; lit <= nsols_; ++lit)
         sol.push_back(picosat_deref(psat_, lit) > 0);
-    }
     return sol;
   }
 

@@ -29,6 +29,21 @@ assert aut.is_deterministic()
 min1 = spot.sat_minimize(aut, acc='Rabin 1')
 assert min1.num_sets() == 2
 assert min1.num_states() == 2
+min1 = spot.sat_minimize(aut, acc='Rabin 1', assume=True)
+assert min1.num_sets() == 2
+assert min1.num_states() == 2
+min1 = spot.sat_minimize(aut, acc='Rabin 1', assume=True, param=0)
+assert min1.num_sets() == 2
+assert min1.num_states() == 2
+min1 = spot.sat_minimize(aut, acc='Rabin 1', assume=True, param=1)
+assert min1.num_sets() == 2
+assert min1.num_states() == 2
+min1 = spot.sat_minimize(aut, acc='Rabin 1', assume=True, param=2)
+assert min1.num_sets() == 2
+assert min1.num_states() == 2
+min1 = spot.sat_minimize(aut, acc='Rabin 1', assume=True, param=50)
+assert min1.num_sets() == 2
+assert min1.num_states() == 2
 min1 = spot.sat_minimize(aut, acc='Rabin 1', incr=True)
 assert min1.num_sets() == 2
 assert min1.num_states() == 2
@@ -49,7 +64,19 @@ assert min1.num_sets() == 2
 assert min1.num_states() == 2
 
 
-min2 = spot.sat_minimize(aut, acc='Streett 2', dichotomy=True)
+min2 = spot.sat_minimize(aut, acc='Streett 2', assume=True)
+assert min2.num_sets() == 4
+assert min2.num_states() == 1
+min2 = spot.sat_minimize(aut, acc='Streett 2', assume=True, param=0)
+assert min2.num_sets() == 4
+assert min2.num_states() == 1
+min2 = spot.sat_minimize(aut, acc='Streett 2', assume=True, param=1)
+assert min2.num_sets() == 4
+assert min2.num_states() == 1
+min2 = spot.sat_minimize(aut, acc='Streett 2', assume=True, param=2)
+assert min2.num_sets() == 4
+assert min2.num_states() == 1
+min2 = spot.sat_minimize(aut, acc='Streett 2', assume=True, param=50)
 assert min2.num_sets() == 4
 assert min2.num_states() == 1
 min2 = spot.sat_minimize(aut, acc='Streett 2', incr=True)
@@ -74,6 +101,26 @@ assert min2.num_states() == 1
 
 min3 = spot.sat_minimize(aut, acc='Rabin 2',
                          state_based=True, max_states=5, dichotomy=True)
+assert min3.num_sets() == 4
+assert min3.num_states() == 3
+min3 = spot.sat_minimize(aut, acc='Rabin 2',
+                         state_based=True, max_states=5, assume=True)
+assert min3.num_sets() == 4
+assert min3.num_states() == 3
+min3 = spot.sat_minimize(aut, acc='Rabin 2',
+                         state_based=True, max_states=5, assume=True, param=0)
+assert min3.num_sets() == 4
+assert min3.num_states() == 3
+min3 = spot.sat_minimize(aut, acc='Rabin 2',
+                         state_based=True, max_states=5, assume=True, param=1)
+assert min3.num_sets() == 4
+assert min3.num_states() == 3
+min3 = spot.sat_minimize(aut, acc='Rabin 2',
+                         state_based=True, max_states=5, assume=True, param=2)
+assert min3.num_sets() == 4
+assert min3.num_states() == 3
+min3 = spot.sat_minimize(aut, acc='Rabin 2',
+                         state_based=True, max_states=5, assume=True, param=50)
 assert min3.num_sets() == 4
 assert min3.num_states() == 3
 min3 = spot.sat_minimize(aut, acc='Rabin 2',
@@ -104,6 +151,26 @@ assert min3.num_states() == 3
 
 min4 = spot.sat_minimize(aut, acc='parity max odd 3',
                          colored=True, dichotomy=True)
+assert min4.num_sets() == 3
+assert min4.num_states() == 2
+min4 = spot.sat_minimize(aut, acc='parity max odd 3',
+                         colored=True, assume=True)
+assert min4.num_sets() == 3
+assert min4.num_states() == 2
+min4 = spot.sat_minimize(aut, acc='parity max odd 3',
+                         colored=True, assume=True, param=0)
+assert min4.num_sets() == 3
+assert min4.num_states() == 2
+min4 = spot.sat_minimize(aut, acc='parity max odd 3',
+                         colored=True, assume=True, param=1)
+assert min4.num_sets() == 3
+assert min4.num_states() == 2
+min4 = spot.sat_minimize(aut, acc='parity max odd 3',
+                         colored=True, assume=True, param=2)
+assert min4.num_sets() == 3
+assert min4.num_states() == 2
+min4 = spot.sat_minimize(aut, acc='parity max odd 3',
+                         colored=True, assume=True, param=50)
 assert min4.num_sets() == 3
 assert min4.num_states() == 2
 min4 = spot.sat_minimize(aut, acc='parity max odd 3',
