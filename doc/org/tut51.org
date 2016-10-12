@@ -8,20 +8,20 @@
 Kripke structures, can be defined as ω-automata in which labels are on
 states, and where all runs are accepting (i.e., the acceptance
 condition is =t=).  They are typically used by model checkers to
-represent the state-space of the model to verify.
+represent the state space of the model to verify.
 
 
 * Implementing a toy Kripke structure
 
 In this example, our goal is to implement a Kripke structure that
-constructs its state-space on the fly.  The states of our toy model
+constructs its state space on the fly.  The states of our toy model
 will consist of a pair of modulo-3 integers $(x,y)$; and at any state
 the possible actions will be to increment any one of the two integer
 (nondeterministicaly).  That increment is obviously done modulo 3.
 For instance state $(1,2)$ has two possible successors:
   - $(2,2)$ if =x= was incremented, or
   - $(1,0)$ if =y= was incremented.
-Initially both variables will be 0.  The complete state-space is
+Initially both variables will be 0.  The complete state space is
 expected to have 9 states.  But even if it is small because it is a
 toy example, we do not want to precompute it.  It should be computed
 as needed, using [[file:tut50.org::#on-the-fly-interface][the one-the-fly interface]] previously discussed.
@@ -365,9 +365,9 @@ is an implementation that does this.
 Note that the =demo_succ_iterator::recycle= method was introduced for
 this reason.
 
-* Displaying the state-space
+* Displaying the state space
 
- Here is a short =main= displaying the state-space of our toy Kripke structure.
+ Here is a short =main= displaying the state space of our toy Kripke structure.
 
 #+NAME: demo-1-aux
 #+BEGIN_SRC C++ :exports none :noweb strip-export
@@ -559,7 +559,7 @@ example of class following this convention is =twa_graph=, were states
 returned by the on-the-fly interface are just pointers into the actual
 state vector (which is already known).
 
-Even if the state-space is not already known, it is possible to
+Even if the state space is not already known, it is possible to
 implement the on-the-fly interface in such a way that all =state*=
 pointers returned for a state are unique.  This requires a state
 unicity table into the automaton, and then =state::clone()= and
