@@ -646,6 +646,10 @@ namespace spot
 
           if (t != satdict.revtransid.end())
             {
+              // Ignore unuseful transitions because of reduced cand_size.
+              if (t->second.src >= satdict.cand_size)
+                continue;
+
               // Skip (s,l,d2) if we have already seen some (s,l,d1).
               if (seen_trans.insert(src_cond(t->second.src,
                                              t->second.cond)).second)
