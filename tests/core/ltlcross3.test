@@ -62,6 +62,39 @@ test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
 test `grep '"exit code",1' out.csv | wc -l` -eq 0
 check_csv out.csv
 
+# Additional columns should not be an issue
+run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+               -f a --csv=out.csv --strength 2>stderr
+grep '"exit_status"' out.csv
+grep '"exit_code"' out.csv
+grep '"nonacc_scc","terminal_scc","weak_scc","strong_scc"' out.csv
+grep '"terminal_aut","weak_aut","strong_aut"' out.csv
+grep -v '"ambiguous_aut"' out.csv
+test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
+test `grep '"exit code",1' out.csv | wc -l` -eq 2
+check_csv out.csv
+
+run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+               -f a --csv=out.csv --ambiguous 2>stderr
+grep '"exit_status"' out.csv
+grep '"exit_code"' out.csv
+grep '"ambiguous_aut"' out.csv
+grep -v '"terminal_aut"' out.csv
+test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
+test `grep '"exit code",1' out.csv | wc -l` -eq 2
+check_csv out.csv
+
+run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+               -f a --csv=out.csv --ambiguous --strength 2>stderr
+grep '"exit_status"' out.csv
+grep '"exit_code"' out.csv
+grep '"nonacc_scc","terminal_scc","weak_scc","strong_scc"' out.csv
+grep '"terminal_aut","weak_aut","strong_aut"' out.csv
+grep '"ambiguous_aut"' out.csv
+test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
+test `grep '"exit code",1' out.csv | wc -l` -eq 2
+check_csv out.csv
+
 # Likewise for timeouts
 echo foo >bug
 run 0 ltlcross 'sleep 5; false %f >%N' 'false %f >%N' \

@@ -38,7 +38,7 @@ EOF
 ltlcross -F input 'ltl2tgba --generic -D' --csv=out.csv
 
 # Make sure all the automata produced where deterministic
-cut -d, -f16 < out.csv > det.csv
+cut -d, -f12 < out.csv > det.csv
 cat >expected <<EOF
 "nondet_aut"
 0

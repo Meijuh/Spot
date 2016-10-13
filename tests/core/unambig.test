@@ -228,3 +228,19 @@ State: 2
 --END--
 EOF
 diff output expected
+
+
+ltlcross --ambiguous --automata 'ltl2tgba -U' ltl2tgba -fFGa -fGFa --csv=out
+cut -d, -f13 out >ltlcross.res
+cat >expected <<EOF
+"ambiguous_aut"
+0
+1
+0
+0
+0
+0
+0
+1
+EOF
+diff expected ltlcross.res

@@ -78,7 +78,8 @@ Exit status:\n\
 ";
 
 enum {
-  OPT_AUTOMATA = 256,
+  OPT_AMBIGUOUS = 256,
+  OPT_AUTOMATA,
   OPT_BOGUS,
   OPT_COLOR,
   OPT_CSV,
@@ -94,6 +95,7 @@ enum {
   OPT_SEED,
   OPT_STATES,
   OPT_STOP_ERR,
+  OPT_STRENGTH,
   OPT_VERBOSE,
 };
 
@@ -141,6 +143,12 @@ static const argp_option options[] =
       "do not output statistics for timeouts or failed translations", 0 },
     { "automata", OPT_AUTOMATA, nullptr, 0,
       "store automata (in the HOA format) into the CSV or JSON output", 0 },
+    { "strength", OPT_STRENGTH, nullptr, 0,
+      "output statistics about SCC strengths (non-accepting, terminal, weak, "
+      "strong)", 0 },
+    { "ambiguous", OPT_AMBIGUOUS, nullptr, 0,
+      "output statistics about ambiguous automata", 0 },
+    { "unambiguous", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -2 },
     { "color", OPT_COLOR, "WHEN", OPTION_ARG_OPTIONAL,
@@ -212,6 +220,8 @@ static bool verbose = false;
 static bool ignore_exec_fail = false;
 static unsigned ignored_exec_fail = 0;
 static bool opt_automata = false;
+static bool opt_strength = false;
+static bool opt_ambiguous = false;
 
 static bool global_error_flag = false;
 static unsigned oom_count = 0U;
@@ -303,18 +313,21 @@ struct statistics
            "\"edges\","
            "\"transitions\","
            "\"acc\","
-           "\"scc\","
-           "\"nonacc_scc\","
-           "\"terminal_scc\","
-           "\"weak_scc\","
-           "\"strong_scc\","
-           "\"nondet_states\","
-           "\"nondet_aut\","
-           "\"terminal_aut\","
-           "\"weak_aut\","
-           "\"strong_aut\","
-           "\"ambiguous_aut\","
-           "\"complete_aut\"");
+           "\"scc\",");
+    if (opt_strength)
+      os << ("\"nonacc_scc\","
+             "\"terminal_scc\","
+             "\"weak_scc\","
+             "\"strong_scc\",");
+    os << ("\"nondet_states\","
+           "\"nondet_aut\",");
+    if (opt_strength)
+      os << ("\"terminal_aut\","
+             "\"weak_aut\","
+             "\"strong_aut\",");
+    if (opt_ambiguous)
+      os << "\"ambiguous_aut\",";
+    os << "\"complete_aut\"";
     size_t m = products_avg ? 1U : products;
     for (size_t i = 0; i < m; ++i)
       os << ",\"product_states\",\"product_transitions\",\"product_scc\"";
@@ -335,18 +348,21 @@ struct statistics
            << edges << ','
            << transitions << ','
            << acc << ','
-           << scc << ','
-           << nonacc_scc << ','
-           << terminal_scc << ','
-           << weak_scc << ','
-           << strong_scc << ','
-           << nondetstates << ','
-           << nondeterministic << ','
-           << terminal_aut << ','
-           << weak_aut << ','
-           << strong_aut << ','
-           << ambiguous << ','
-           << complete;
+           << scc << ',';
+        if (opt_strength)
+          os << nonacc_scc << ','
+             << terminal_scc << ','
+             << weak_scc << ','
+             << strong_scc << ',';
+        os << nondetstates << ','
+           << nondeterministic << ',';
+        if (opt_strength)
+          os << terminal_aut << ','
+             << weak_aut << ','
+             << strong_aut << ',';
+        if (opt_ambiguous)
+          os << ambiguous << ',';
+        os << complete;
         if (!products_avg)
           {
             for (size_t i = 0; i < products; ++i)
@@ -374,7 +390,11 @@ struct statistics
       {
         size_t m = products_avg ? 1U : products;
         m *= 3;
-        m += 15;
+        m += 7;
+        if (opt_strength)
+          m += 7;
+        if (opt_ambiguous)
+          ++m;
         os << na;
         for (size_t i = 0; i < m; ++i)
           os << ',' << na;
@@ -476,6 +496,12 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_STOP_ERR:
       stop_on_error = true;
+      break;
+    case OPT_STRENGTH:
+      opt_strength = true;
+      break;
+    case OPT_AMBIGUOUS:
+      opt_ambiguous = true;
       break;
     case OPT_VERBOSE:
       verbose = true;
@@ -611,24 +637,29 @@ namespace
               st->scc = c;
               st->nondetstates = spot::count_nondet_states(res);
               st->nondeterministic = st->nondetstates != 0;
-              for (unsigned n = 0; n < c; ++n)
+              if (opt_strength)
                 {
-                  if (m.is_rejecting_scc(n))
-                    ++st->nonacc_scc;
-                  else if (is_terminal_scc(m, n))
-                    ++st->terminal_scc;
-                  else if (is_weak_scc(m, n))
-                    ++st->weak_scc;
+                  m.determine_unknown_acceptance();
+                  for (unsigned n = 0; n < c; ++n)
+                    {
+                      if (m.is_rejecting_scc(n))
+                        ++st->nonacc_scc;
+                      else if (is_terminal_scc(m, n))
+                        ++st->terminal_scc;
+                      else if (is_weak_scc(m, n))
+                        ++st->weak_scc;
+                      else
+                        ++st->strong_scc;
+                    }
+                  if (st->strong_scc)
+                    st->strong_aut = true;
+                  else if (st->weak_scc)
+                    st->weak_aut = true;
                   else
-                    ++st->strong_scc;
+                    st->terminal_aut = true;
                 }
-              if (st->strong_scc)
-                st->strong_aut = true;
-              else if (st->weak_scc)
-                st->weak_aut = true;
-              else
-                st->terminal_aut = true;
-              st->ambiguous = !spot::is_unambiguous(res);
+              if (opt_ambiguous)
+                st->ambiguous = !spot::is_unambiguous(res);
               st->complete = spot::is_complete(res);
 
               if (opt_automata)

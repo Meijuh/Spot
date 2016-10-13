@@ -229,31 +229,31 @@ ltlcross --csv=results.csv --json=results.json \
 #+END_SRC
 #+RESULTS:
 #+begin_example
--:1: (0)
-Running [P0]: ltl2tgba -s '(0)' >'lcr-o0-HUCuLR'
-Running [P1]: spin -f '(false)' >'lcr-o1-OEpUm3'
-Running [P2]: lbt < 'lcr-i0-KCU1eG' >'lcr-o2-jzzGYe'
-Running [N0]: ltl2tgba -s '(1)' >'lcr-o0-ppQ4cC'
-Running [N1]: spin -f '(true)' >'lcr-o1-0OiIVN'
-Running [N2]: lbt < 'lcr-i0-KZxSAq' >'lcr-o2-EcBREZ'
+-:1: 0
+Running [P0]: ltl2tgba -s '0' >'lcr-o0-HIoc9n'
+Running [P1]: spin -f 'false' >'lcr-o1-69Gi3B'
+Running [P2]: lbt < 'lcr-i0-cYhaYP' >'lcr-o2-CZe2S3'
+Running [N0]: ltl2tgba -s '1' >'lcr-o0-9YEpOh'
+Running [N1]: spin -f 'true' >'lcr-o1-exCCOv'
+Running [N2]: lbt < 'lcr-i0-DMSnRJ' >'lcr-o2-E0H9TX'
 Performing sanity checks and gathering statistics...
 
--:2: (!((1) U (F(!(p0)))))
-Running [P0]: ltl2tgba -s '(!((1) U (F(!(p0)))))' >'lcr-o0-3dS2an'
-Running [P1]: spin -f '(!((true) U (<>(!(p0)))))' >'lcr-o1-SJop2y'
-Running [P2]: lbt < 'lcr-i1-jbIWpb' >'lcr-o2-hBEeUK'
-Running [N0]: ltl2tgba -s '(1) U (F(!(p0)))' >'lcr-o0-Hku1E8'
-Running [N1]: spin -f '(true) U (<>(!(p0)))' >'lcr-o1-8sslEk'
-Running [N2]: lbt < 'lcr-i1-M3MCMW' >'lcr-o2-f6kaEw'
+-:2: !((1) U (F(!(p0))))
+Running [P0]: ltl2tgba -s '!((1) U (F(!(p0))))' >'lcr-o0-ubhgZb'
+Running [P1]: spin -f '!((true) U (<>(!(p0))))' >'lcr-o1-wBnwcq'
+Running [P2]: lbt < 'lcr-i1-D3WcqE' >'lcr-o2-i3VTDS'
+Running [N0]: ltl2tgba -s '(1) U (F(!(p0)))' >'lcr-o0-8F2eS6'
+Running [N1]: spin -f '(true) U (<>(!(p0)))' >'lcr-o1-focrcl'
+Running [N2]: lbt < 'lcr-i1-VgW9wz' >'lcr-o2-GbdTRN'
 Performing sanity checks and gathering statistics...
 
 -:3: (1) U ((G(p0)) | (F(p1)))
-Running [P0]: ltl2tgba -s '(1) U ((G(p0)) | (F(p1)))' >'lcr-o0-0Mu0SU'
-Running [P1]: spin -f '(true) U (([](p0)) || (<>(p1)))' >'lcr-o1-Vhkn66'
-Running [P2]: lbt < 'lcr-i2-tc2zLI' >'lcr-o2-iOQjkj'
-Running [N0]: ltl2tgba -s '(!((1) U ((G(p0)) | (F(p1)))))' >'lcr-o0-eveiNH'
-Running [N1]: spin -f '(!((true) U (([](p0)) || (<>(p1)))))' >'lcr-o1-7hg46T'
-Running [N2]: lbt < 'lcr-i2-XwPNyv' >'lcr-o2-GuXns6'
+Running [P0]: ltl2tgba -s '(1) U ((G(p0)) | (F(p1)))' >'lcr-o0-jj8Ih2'
+Running [P1]: spin -f '(true) U (([](p0)) || (<>(p1)))' >'lcr-o1-JarYMg'
+Running [P2]: lbt < 'lcr-i2-yq4yiv' >'lcr-o2-Lw29NJ'
+Running [N0]: ltl2tgba -s '!((1) U ((G(p0)) | (F(p1))))' >'lcr-o0-mHp6jY'
+Running [N1]: spin -f '!((true) U (([](p0)) || (<>(p1))))' >'lcr-o1-pA7KVc'
+Running [N2]: lbt < 'lcr-i2-ZxXHBr' >'lcr-o2-YadFhG'
 Performing sanity checks and gathering statistics...
 
 No problem detected.
@@ -266,25 +266,25 @@ cat results.csv
 #+END_SRC
 #+RESULTS:
 #+begin_example
-"formula","tool","exit_status","exit_code","time","states","edges","transitions","acc","scc","nonacc_scc","terminal_scc","weak_scc","strong_scc","nondet_states","nondet_aut","terminal_aut","weak_aut","strong_aut","ambiguous_aut","product_states","product_transitions","product_scc"
-"(0)","ltl2tgba -s %f >%O","ok",0,0.0329577,1,1,0,1,1,1,0,0,0,0,0,1,0,0,1,1,0,1
-"(0)","spin -f %s >%O","ok",0,0.00219235,2,2,1,1,2,1,1,0,0,0,0,1,0,0,1,1,0,1
-"(0)","lbt < %L >%O","ok",0,0.0026317,1,0,0,0,1,1,0,0,0,0,0,1,0,0,1,1,0,1
-"(1)","ltl2tgba -s %f >%O","ok",0,0.0429693,1,1,1,1,1,0,1,0,0,0,0,1,0,0,0,200,4062,1
-"(1)","spin -f %s >%O","ok",0,0.00305038,2,2,2,1,2,1,1,0,0,0,0,1,0,0,0,201,4083,2
-"(1)","lbt < %L >%O","ok",0,0.00404441,3,3,3,0,3,2,1,0,0,0,0,1,0,0,0,222,4510,23
-"(!((1) U (F(!(p0)))))","ltl2tgba -s %f >%O","ok",0,0.041792,1,1,1,1,1,0,0,1,0,0,0,0,1,0,0,200,2098,1
-"(!((1) U (F(!(p0)))))","spin -f %s >%O","ok",0,0.00278539,1,1,1,1,1,0,0,1,0,0,0,0,1,0,0,200,2098,1
-"(!((1) U (F(!(p0)))))","lbt < %L >%O","ok",0,0.00347608,2,2,2,0,2,1,0,1,0,0,0,0,1,0,0,201,2110,2
-"(1) U (F(!(p0)))","ltl2tgba -s %f >%O","ok",0,0.046218,2,3,4,1,2,1,1,0,0,0,0,1,0,0,0,400,8356,2
-"(1) U (F(!(p0)))","spin -f %s >%O","ok",0,0.00292604,2,3,5,1,2,1,1,0,0,1,1,1,0,0,1,400,10436,2
-"(1) U (F(!(p0)))","lbt < %L >%O","ok",0,0.00420574,7,13,22,2,7,6,1,0,0,4,1,1,0,0,1,1201,35534,604
-"(1) U ((G(p0)) | (F(p1)))","ltl2tgba -s %f >%O","ok",0,0.0395735,3,5,11,1,3,1,1,1,0,1,1,0,1,0,1,600,11104,4
-"(1) U ((G(p0)) | (F(p1)))","spin -f %s >%O","ok",0,0.00349485,4,8,24,1,4,2,1,1,0,2,1,0,1,0,1,800,24284,4
-"(1) U ((G(p0)) | (F(p1)))","lbt < %L >%O","ok",0,0.00316141,9,17,52,2,9,7,1,1,0,4,1,0,1,0,1,1601,40505,805
-"(!((1) U ((G(p0)) | (F(p1)))))","ltl2tgba -s %f >%O","ok",0,0.0352196,2,4,4,1,1,0,0,0,1,0,0,0,0,1,0,398,3919,3
-"(!((1) U ((G(p0)) | (F(p1)))))","spin -f %s >%O","ok",0,0.00995492,6,18,17,1,4,2,0,1,1,5,1,0,0,1,1,596,8720,4
-"(!((1) U ((G(p0)) | (F(p1)))))","lbt < %L >%O","ok",0,0.0035013,3,6,9,1,2,1,0,0,1,3,1,0,0,1,1,399,5837,4
+"formula","tool","exit_status","exit_code","time","states","edges","transitions","acc","scc","nondet_states","nondet_aut","complete_aut","product_states","product_transitions","product_scc"
+"0","ltl2tgba -s %f >%O","ok",0,0.0299298,1,1,0,1,1,0,0,0,1,0,1
+"0","spin -f %s >%O","ok",0,0.00396246,2,2,1,1,2,0,0,0,1,0,1
+"0","lbt < %L >%O","ok",0,0.00262385,1,0,0,0,1,0,0,0,1,0,1
+"1","ltl2tgba -s %f >%O","ok",0,0.0261614,1,1,1,1,1,0,0,1,200,4199,1
+"1","spin -f %s >%O","ok",0,0.0137128,2,2,2,1,2,0,0,1,201,4220,2
+"1","lbt < %L >%O","ok",0,0.00792516,3,3,3,0,3,0,0,1,222,4653,23
+"!((1) U (F(!(p0))))","ltl2tgba -s %f >%O","ok",0,0.043858,1,1,1,1,1,0,0,0,200,2059,1
+"!((1) U (F(!(p0))))","spin -f %s >%O","ok",0,0.00202537,1,1,1,1,1,0,0,0,200,2059,1
+"!((1) U (F(!(p0))))","lbt < %L >%O","ok",0,0.00331618,2,2,2,0,2,0,0,0,201,2071,2
+"(1) U (F(!(p0)))","ltl2tgba -s %f >%O","ok",0,0.031689,2,3,4,1,2,0,0,1,400,8264,2
+"(1) U (F(!(p0)))","spin -f %s >%O","ok",0,0.0026263,2,3,5,1,2,1,1,1,400,10337,2
+"(1) U (F(!(p0)))","lbt < %L >%O","ok",0,0.00266354,7,13,22,2,7,4,1,1,1201,35191,604
+"(1) U ((G(p0)) | (F(p1)))","ltl2tgba -s %f >%O","ok",0,0.0287222,3,5,11,1,3,1,1,0,600,11358,3
+"(1) U ((G(p0)) | (F(p1)))","spin -f %s >%O","ok",0,0.00167423,4,8,24,1,4,2,1,0,800,24920,4
+"(1) U ((G(p0)) | (F(p1)))","lbt < %L >%O","ok",0,0.0016987,9,17,52,2,9,4,1,0,1601,41559,805
+"!((1) U ((G(p0)) | (F(p1))))","ltl2tgba -s %f >%O","ok",0,0.0308937,2,4,4,1,1,0,0,0,395,3964,1
+"!((1) U ((G(p0)) | (F(p1))))","spin -f %s >%O","ok",0,0.0230605,6,18,17,1,4,5,1,0,592,8891,1
+"!((1) U ((G(p0)) | (F(p1))))","lbt < %L >%O","ok",0,0.00280787,3,6,9,1,2,3,1,0,397,5957,2
 #+end_example
 
 This file can be loaded in any spreadsheet or statistical application.
@@ -309,36 +309,36 @@ cat results.json
     "lbt < %L >%O"
   ],
   "formula": [
-    "(0)",
-    "(1)",
-    "(!((1) U (F(!(p0)))))",
+    "0",
+    "1",
+    "!((1) U (F(!(p0))))",
     "(1) U (F(!(p0)))",
     "(1) U ((G(p0)) | (F(p1)))",
-    "(!((1) U ((G(p0)) | (F(p1)))))"
+    "!((1) U ((G(p0)) | (F(p1))))"
   ],
   "fields":  [
-  "formula","tool","exit_status","exit_code","time","states","edges","transitions","acc","scc","nonacc_scc","terminal_scc","weak_scc","strong_scc","nondet_states","nondet_aut","terminal_aut","weak_aut","strong_aut","ambiguous_aut","product_states","product_transitions","product_scc"
+  "formula","tool","exit_status","exit_code","time","states","edges","transitions","acc","scc","nondet_states","nondet_aut","complete_aut","product_states","product_transitions","product_scc"
   ],
   "inputs":  [ 0, 1 ],
   "results": [
-    [ 0,0,"ok",0,0.0329577,1,1,0,1,1,1,0,0,0,0,0,1,0,0,1,1,0,1 ],
-    [ 0,1,"ok",0,0.00219235,2,2,1,1,2,1,1,0,0,0,0,1,0,0,1,1,0,1 ],
-    [ 0,2,"ok",0,0.0026317,1,0,0,0,1,1,0,0,0,0,0,1,0,0,1,1,0,1 ],
-    [ 1,0,"ok",0,0.0429693,1,1,1,1,1,0,1,0,0,0,0,1,0,0,0,200,4062,1 ],
-    [ 1,1,"ok",0,0.00305038,2,2,2,1,2,1,1,0,0,0,0,1,0,0,0,201,4083,2 ],
-    [ 1,2,"ok",0,0.00404441,3,3,3,0,3,2,1,0,0,0,0,1,0,0,0,222,4510,23 ],
-    [ 2,0,"ok",0,0.041792,1,1,1,1,1,0,0,1,0,0,0,0,1,0,0,200,2098,1 ],
-    [ 2,1,"ok",0,0.00278539,1,1,1,1,1,0,0,1,0,0,0,0,1,0,0,200,2098,1 ],
-    [ 2,2,"ok",0,0.00347608,2,2,2,0,2,1,0,1,0,0,0,0,1,0,0,201,2110,2 ],
-    [ 3,0,"ok",0,0.046218,2,3,4,1,2,1,1,0,0,0,0,1,0,0,0,400,8356,2 ],
-    [ 3,1,"ok",0,0.00292604,2,3,5,1,2,1,1,0,0,1,1,1,0,0,1,400,10436,2 ],
-    [ 3,2,"ok",0,0.00420574,7,13,22,2,7,6,1,0,0,4,1,1,0,0,1,1201,35534,604 ],
-    [ 4,0,"ok",0,0.0395735,3,5,11,1,3,1,1,1,0,1,1,0,1,0,1,600,11104,4 ],
-    [ 4,1,"ok",0,0.00349485,4,8,24,1,4,2,1,1,0,2,1,0,1,0,1,800,24284,4 ],
-    [ 4,2,"ok",0,0.00316141,9,17,52,2,9,7,1,1,0,4,1,0,1,0,1,1601,40505,805 ],
-    [ 5,0,"ok",0,0.0352196,2,4,4,1,1,0,0,0,1,0,0,0,0,1,0,398,3919,3 ],
-    [ 5,1,"ok",0,0.00995492,6,18,17,1,4,2,0,1,1,5,1,0,0,1,1,596,8720,4 ],
-    [ 5,2,"ok",0,0.0035013,3,6,9,1,2,1,0,0,1,3,1,0,0,1,1,399,5837,4 ]
+    [ 0,0,"ok",0,0.0299298,1,1,0,1,1,0,0,0,1,0,1 ],
+    [ 0,1,"ok",0,0.00396246,2,2,1,1,2,0,0,0,1,0,1 ],
+    [ 0,2,"ok",0,0.00262385,1,0,0,0,1,0,0,0,1,0,1 ],
+    [ 1,0,"ok",0,0.0261614,1,1,1,1,1,0,0,1,200,4199,1 ],
+    [ 1,1,"ok",0,0.0137128,2,2,2,1,2,0,0,1,201,4220,2 ],
+    [ 1,2,"ok",0,0.00792516,3,3,3,0,3,0,0,1,222,4653,23 ],
+    [ 2,0,"ok",0,0.043858,1,1,1,1,1,0,0,0,200,2059,1 ],
+    [ 2,1,"ok",0,0.00202537,1,1,1,1,1,0,0,0,200,2059,1 ],
+    [ 2,2,"ok",0,0.00331618,2,2,2,0,2,0,0,0,201,2071,2 ],
+    [ 3,0,"ok",0,0.031689,2,3,4,1,2,0,0,1,400,8264,2 ],
+    [ 3,1,"ok",0,0.0026263,2,3,5,1,2,1,1,1,400,10337,2 ],
+    [ 3,2,"ok",0,0.00266354,7,13,22,2,7,4,1,1,1201,35191,604 ],
+    [ 4,0,"ok",0,0.0287222,3,5,11,1,3,1,1,0,600,11358,3 ],
+    [ 4,1,"ok",0,0.00167423,4,8,24,1,4,2,1,0,800,24920,4 ],
+    [ 4,2,"ok",0,0.0016987,9,17,52,2,9,4,1,0,1601,41559,805 ],
+    [ 5,0,"ok",0,0.0308937,2,4,4,1,1,0,0,0,395,3964,1 ],
+    [ 5,1,"ok",0,0.0230605,6,18,17,1,4,5,1,0,592,8891,1 ],
+    [ 5,2,"ok",0,0.00280787,3,6,9,1,2,3,1,0,397,5957,2 ]
   ]
 }
 #+end_example
@@ -377,10 +377,10 @@ for i in range(0, len(data["tool"])):
         " & ".join(sums)))
 #+END_SRC
 #+RESULTS:
-: tool               & count & time & states & edges & transitions & acc & scc & nonacc_scc & terminal_scc & weak_scc & strong_scc & nondet_states & nondet_aut & terminal_aut & weak_aut & strong_aut & ambiguous_aut & product_states & product_transitions & product_scc \\
-: ltl2tgba -s %f >%O &   6 &    0.0 &    1.7 &    2.5 &    3.5 &    1.0 &    1.5 &    0.5 &    0.5 &    0.3 &    0.2 &    0.2 &    0.2 &    0.5 &    0.3 &    0.2 &    0.3 &  299.8 & 4923.2 &    2.0 \\
-: spin -f %s >%O     &   6 &    0.0 &    2.8 &    5.7 &    8.3 &    1.0 &    2.5 &    1.2 &    0.7 &    0.5 &    0.2 &    1.3 &    0.5 &    0.5 &    0.3 &    0.2 &    0.7 &  366.3 & 8270.2 &    2.3 \\
-: lbt < %L >%O       &   6 &    0.0 &    4.2 &    6.8 &   14.7 &    0.8 &    4.0 &    3.0 &    0.5 &    0.3 &    0.2 &    1.8 &    0.5 &    0.5 &    0.3 &    0.2 &    0.7 &  604.2 & 14749.3 &  239.8 \\
+: tool               & count & time & states & edges & transitions & acc & scc & nondet_states & nondet_aut & complete_aut & product_states & product_transitions & product_scc \\
+: ltl2tgba -s %f >%O &   6 &    0.0 &    1.7 &    2.5 &    3.5 &    1.0 &    1.5 &    0.2 &    0.2 &    0.3 &  299.3 & 4974.0 &    1.5 \\
+: spin -f %s >%O     &   6 &    0.0 &    2.8 &    5.7 &    8.3 &    1.0 &    2.5 &    1.3 &    0.5 &    0.3 &  365.7 & 8404.5 &    1.8 \\
+: lbt < %L >%O       &   6 &    0.0 &    4.2 &    6.8 &   14.7 &    0.8 &    4.0 &    1.8 &    0.5 &    0.3 &  603.8 & 14905.2 &  239.5 \\
 
 The script =bench/ltl2tgba/sum.py= is a more evolved version of the
 above script that generates two kinds of LaTeX tables.
@@ -399,10 +399,14 @@ it does not try to guess who is incorrect.
 
 ** Description of the columns
 
-=formula= and =tool= contain the formula translated and the command
-run to translate it.  In the CSV, these columns contain the actual
-text.  In the JSON output, these column contains an index into the
-=formula= and =tool= table declared separately.
+The number of column output in the CSV or JSON outputs depend on the
+options passed to =ltlcross=. Additional columns will be output if
+=--strength=, =--ambiguous=, =--automata=, or =--product=+N= are used.
+
+Columns =formula= and =tool= contain the formula translated and the
+command run to translate it.  In the CSV, these columns contain the
+actual text.  In the JSON output, these column contains an index into
+the =formula= and =tool= table declared separately.
 
 =exit_status= and =exit_code= are used to indicate if the translator
 successfully produced an automaton, or if it failed.  On successful
@@ -465,7 +469,9 @@ digraph G {
 [[file:edges.png]]
 
 
-=scc= counts the number of strongly-connected components in the automaton.  These SCCs are
+=scc= counts the number of strongly-connected components in the automaton.
+
+If option =--strength= is passed to =ltlcross=, these SCCs are
 also partitioned on four sets based on their strengths:
 - =nonacc_scc= for non-accepting SCCs (such as states A1 and A2 in the
   previous picture)
@@ -484,10 +490,11 @@ automaton as a whole:
 - an automaton is strong if it contains at least one strong SCC.
 
 This classification is used to fill the =terminal_aut=, =weak_aut=,
-=strong_aut= columns with Boolean values.  Only one of these should
-contain =1=.  We usually prefer terminal automata over weak automata,
-and weak automata over strong automata, because the emptiness check
-of terminal (and weak) automata is easier.
+=strong_aut= columns with Boolean values (still only if option
+=--strength= is passed).  Only one of these should contain =1=.  We
+usually prefer terminal automata over weak automata, and weak automata
+over strong automata, because the emptiness check of terminal (and
+weak) automata is easier.
 
 =nondetstates= counts the number of non-deterministic states in the
 automaton.  =nondeterministic= is a Boolean value indicating if the
@@ -497,7 +504,8 @@ showing two automata for =a U b=, the first automaton is deterministic
 a nondeterministic state (state A2 has two possible successors for the
 assignment $ab$) and is therefore not deterministic.
 
-=ambiguous_aut= is a Boolean indicating whether the automaton is
+If option =--aumbiguous= was passed to =ltlcross=, the column
+=ambiguous_aut= holds a Boolean indicating whether the automaton is
 ambiguous, i.e., if there exists a word that can be accepted by at
 least two different runs.
 

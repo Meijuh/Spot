@@ -6,6 +6,12 @@ New in spot 2.1.1.dev (not yet released)
     (--tv-f1, --tv-f2, --tv-g1, --tv-g2, --tv-uu)
     defined in Tabakov & Vardi's RV'10 paper.
 
+  * ltlcross's --csv and --json output was changed to not include
+    information about the ambiguity or strength of the automata by
+    default.   Computing those can be costly and not needed by
+    every user, so it should now be requested explicitely using
+    options --strength and --ambiguous.
+
   Library:
 
   * New LTL simplification rule:
