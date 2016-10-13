@@ -92,8 +92,7 @@ G(G!a | F!c | G!b)
 # Generated with
 # randltl -n -1 a b c |
 # ltlfilt --remove-wm -r -u --size-min=3 --size-max=15 --syntactic-recurrence |
-# ltlfilt -v --obligation |
- ../../bin/ltl2tgba -F - -x tba-det -D --stats='%d,%f' |
+# ltlfilt -v --obligation | ltl2tgba -F - -x tba-det -D --stats='%d,%f' |
 # grep 0, | head -n 30
 
 X(Fc W b) R Fa
