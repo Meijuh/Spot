@@ -1066,6 +1066,8 @@ namespace
           auto tmp = [&](std::vector<spot::twa_graph_ptr>& x, unsigned i,
                          const char prefix)
             {
+              if (!x[i])
+                return;
               std::cerr << "info:   " << prefix << i << "\t(";
               printsize(x[i]);
               std::cerr << ')';
@@ -1094,7 +1096,7 @@ namespace
                              std::vector<spot::twa_graph_ptr>& to, unsigned i,
                              char prefix)
                 {
-                  if (!to[i])
+                  if (from[i] && !to[i])
                     {
                       if (print_first)
                         {

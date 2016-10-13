@@ -32,6 +32,8 @@ New in spot 2.1.1.dev (not yet released)
   * Fix python errors on Darwin when using methods from the spot module
     inside of the spot.ltsmin submodule.
 
+  * Fix ltlcross crash when combining --no-check with --verbose.
+
 New in spot 2.1.1 (2016-09-20)
 
   Command-line tools:
