@@ -59,14 +59,14 @@ To reproduce, follow these instructions:
 
    % make -j4 -f stat.mk
 
-   This will build a CSV file called "all.log".
+   This will build a CSV file called "all.csv".
 
 10) You may generate LaTeX code for the tables with the scripts:
    - tabl.pl: Full data.
    - tabl1.pl, tabl2.pl, tabl3.pl, tabl4.pl: Partial tables as shown
    in the paper.
 
-   All these script takes the CSV file all.log as first argument, and
+   All these script takes the CSV file all.csv as first argument, and
    output LaTeX to their standard output.
 
 

@@ -34,7 +34,7 @@ done < info.ltl
 
 cat > stats.mk <<EOF
 ALL = $all
-all.log: \$(ALL)
+all.csv: \$(ALL)
 	cat \$(ALL) >\$@
 EOF
 cat stats.tmp >> stats.mk
