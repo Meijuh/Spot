@@ -44,55 +44,55 @@ namespace spot
   {
     constexpr int MAX_BULLET = 20;
 
+    static constexpr const char palette[][8] =
+      {
+        "#5DA5DA", /* blue */
+        "#F17CB0", /* pink */
+        "#FAA43A", /* orange */
+        "#B276B2", /* purple */
+        "#60BD68", /* green */
+        "#F15854", /* red */
+        "#B2912F", /* brown */
+        "#4D4D4D", /* gray */
+        "#DECF3F", /* yellow */
+      };
+    constexpr int palette_mod = sizeof(palette) / sizeof(*palette);
+
     class dotty_output final
     {
-      std::ostream& os_;
+      // Keep all 0/false-initialized values together.
+      std::vector<std::string>* sn_ = nullptr;
+      std::map<unsigned, unsigned>* highlight_edges_ = nullptr;
+      std::map<unsigned, unsigned>* highlight_states_ = nullptr;
+      std::vector<std::pair<unsigned, unsigned>>* sprod_ = nullptr;
+      std::set<unsigned>* incomplete_ = nullptr;
+      std::string* name_ = nullptr;
+      acc_cond::mark_t inf_sets_ = 0U;
+      acc_cond::mark_t fin_sets_ = 0U;
+      unsigned opt_shift_sets_ = 0;
+      enum { ShapeAuto = 0, ShapeCircle, ShapeEllipse } opt_shape_ = ShapeAuto;
       bool opt_force_acc_trans_ = false;
-      bool opt_horizontal_ = true;
+      bool opt_vertical_ = false;
       bool opt_name_ = false;
-      enum { ShapeAuto = 0, ShapeCircle, ShapeEllipse }
-        opt_shape_ = ShapeAuto;
       bool opt_show_acc_ = false;
       bool mark_states_ = false;
       bool opt_scc_ = false;
       bool opt_html_labels_ = false;
       bool opt_state_labels_ = false;
-      const_twa_graph_ptr aut_;
-      std::vector<std::string>* sn_ = nullptr;
-      std::map<unsigned, unsigned>* highlight_edges_ = nullptr;
-      std::map<unsigned, unsigned>* highlight_states_ = nullptr;
-      std::vector<std::pair<unsigned, unsigned>>* sprod_ = nullptr;
-      std::set<unsigned>* incomplete_;
-      std::string* name_ = nullptr;
-      acc_cond::mark_t inf_sets_ = 0U;
-      acc_cond::mark_t fin_sets_ = 0U;
       bool opt_rainbow = false;
       bool opt_bullet = false;
       bool opt_bullet_but_buchi = false;
       bool opt_all_bullets = false;
       bool opt_ordered_edges_ = false;
       bool opt_numbered_edges_ = false;
-      bool opt_want_state_names_ = true;
-      unsigned opt_shift_sets_ = 0;
+      bool max_states_given_ = false; // related to max_states_
+
+      const_twa_graph_ptr aut_;
       std::string opt_font_;
       std::string opt_node_color_;
-
-      const char* const palette9[9] =
-        {
-          "#5DA5DA", /* blue */
-          "#F17CB0", /* pink */
-          "#FAA43A", /* orange */
-          "#B276B2", /* purple */
-          "#60BD68", /* green */
-          "#F15854", /* red */
-          "#B2912F", /* brown */
-          "#4D4D4D", /* gray */
-          "#DECF3F", /* yellow */
-        };
-      const char*const* palette = palette9;
-      int palette_mod = 9;
-      unsigned max_states_ = -1U;
-      bool max_states_given_ = false;
+      std::ostream& os_;
+      bool opt_want_state_names_ = true;
+      unsigned max_states_ = -1U; // related to max_states_given_
 
     public:
 
@@ -212,7 +212,7 @@ namespace spot
               }
               break;
             case 'h':
-              opt_horizontal_ = true;
+              opt_vertical_ = false;
               break;
             case 'k':
               opt_state_labels_ = true;
@@ -238,7 +238,7 @@ namespace spot
               opt_scc_ = true;
               break;
             case 'v':
-              opt_horizontal_ = false;
+              opt_vertical_ = true;
               break;
             case 't':
               opt_force_acc_trans_ = true;
@@ -368,7 +368,7 @@ namespace spot
         if (opt_bullet && aut_->num_sets() <= MAX_BULLET)
           opt_all_bullets = true;
         os_ << "digraph G {\n";
-        if (opt_horizontal_)
+        if (!opt_vertical_)
           os_ << "  rankdir=LR\n";
         if (name_ || opt_show_acc_)
           {
@@ -442,7 +442,7 @@ namespace spot
         if (!extra.empty())
           os_ << "  " << extra << '\n';
         os_ << "  I [label=\"\", style=invis, ";
-        os_ << (opt_horizontal_ ? "width" : "height");
+        os_ << (opt_vertical_ ? "height" : "width");
         os_ << "=0]\n  I -> " << aut_->get_init_state_number() << '\n';
       }
 
