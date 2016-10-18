@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -138,10 +138,26 @@ namespace spot
                     }
                 auto& succ = node_.back().succ_;
                 succ.insert(succ.end(), dests.begin(), dests.end());
-                node_.back().accepting_ =
-                  !triv && root_.back().accepting;
-                node_.back().rejecting_ =
-                  triv || !aut->acc().inf_satisfiable(acc);
+                bool accept = !triv && root_.back().accepting;
+                node_.back().accepting_ = accept;
+                bool reject = triv || !aut->acc().inf_satisfiable(acc);
+                // If the SCC acceptance is indeterminate, but has
+                // only one state and one transition, it is
+                // necessarily rejecting, otherwise we would have
+                // found it to be accepting.
+                if (!accept && !reject && nbs.size() == 1)
+                  {
+                    unsigned selfloop = 0;
+                    for (const auto& e: aut->out(nbs.front()))
+                      if (e.src == e.dst)
+                        {
+                          ++selfloop;
+                          if (selfloop > 1)
+                            break;
+                        }
+                    reject = selfloop <= 1;
+                  }
+                node_.back().rejecting_ = reject;
                 root_.pop_back();
               }
             continue;

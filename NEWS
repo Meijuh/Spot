@@ -4,6 +4,10 @@ New in spot 2.1.2.dev (not yet released)
 
   * is_unambiguous() was rewritten in a more efficient way.
 
+  * scc_info learned to determine the acceptance of simple SCCs made
+  of a single self-loop without ressorting to remove_fin() for complex
+  acceptance conditions.
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:
