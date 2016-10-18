@@ -1,5 +1,5 @@
 /*========================================================================
-	       Copyright (C) 1996-2002, 2015 by Jorn Lind-Nielsen
+	       Copyright (C) 1996-2002 by Jorn Lind-Nielsen
 			    All rights reserved
 
     Permission is hereby granted, without written agreement and without
@@ -192,14 +192,19 @@ int bdd_init(int initnodesize, int cs)
 
    bddresized = 0;
 
-   for (n=0 ; n<bddnodesize ; n++)
+   /* Load these globals into local variables to help the
+      optimizer. */
+   int sz = bddnodesize;
+   BddNode* b = bddnodes;
+   for (n=0 ; n<sz ; n++)
    {
-      bddnodes[n].refcou = 0;
-      LOW(n) = -1;
-      LEVEL(n) = 0;
-      bddnodes[n].next = n+1;
+     b->refcou = 0;
+     b->level = 0;
+     b->low = -1;
+     b->next = n+1;
+     ++b;
    }
-   bddnodes[bddnodesize-1].next = 0;
+   bddnodes[sz-1].next = 0;
 
    bddnodes[0].refcou = bddnodes[1].refcou = MAXREF;
    LOW(0) = HIGH(0) = 0;
@@ -1439,14 +1444,19 @@ int bdd_noderesize(int doRehash)
        memset(bddhash + oldsize, 0, (bddnodesize-oldsize)*sizeof(*bddhash));
      }
 
-   for (n=oldsize ; n<bddnodesize ; n++)
+   /* copy these global variables into local variables to help the
+      optimizer */
+   int sz = bddnodesize;
+   BddNode* b = bddnodes + oldsize;
+   for (n=oldsize ; n<sz ; n++)
    {
-      bddnodes[n].refcou = 0;
-      LEVEL(n) = 0;
-      LOW(n) = -1;
-      bddnodes[n].next = n+1;
+     b->refcou = 0;
+     b->level = 0;
+     b->low = -1;
+     b->next = n+1;
+     ++b;
    }
-   bddnodes[bddnodesize-1].next = bddfreepos;
+   bddnodes[sz-1].next = bddfreepos;
    bddfreepos = oldsize;
    bddfreenum += bddnodesize - oldsize;
 
