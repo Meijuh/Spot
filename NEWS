@@ -1,6 +1,8 @@
 New in spot 2.1.2.dev (not yet released)
 
-  Nothing yet.
+  Library:
+
+  * is_unambiguous() was rewritten in a more efficient way.
 
 New in spot 2.1.2 (2016-10-14)
 

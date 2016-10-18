@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -60,6 +60,28 @@ namespace spot
                                 bdd& cond,
                                 acc_cond::mark_t&,
                                 unsigned dst)
+                   {
+                     if (!to_keep[src] || !to_keep[dst])
+                       cond = bddfalse;
+                   }, init);
+    return res;
+  }
+
+  twa_graph_ptr mask_keep_accessible_states(const const_twa_graph_ptr& in,
+                                            std::vector<bool>& to_keep,
+                                            unsigned int init)
+  {
+    if (to_keep.size() < in->num_states())
+      to_keep.resize(in->num_states(), false);
+
+    auto res = make_twa_graph(in->get_dict());
+    res->copy_ap_of(in);
+    res->prop_copy(in, { true, true, true, false });
+    res->copy_acceptance_of(in);
+    transform_accessible(in, res, [&](unsigned src,
+                                      bdd& cond,
+                                      acc_cond::mark_t&,
+                                      unsigned dst)
                    {
                      if (!to_keep[src] || !to_keep[dst])
                        cond = bddfalse;

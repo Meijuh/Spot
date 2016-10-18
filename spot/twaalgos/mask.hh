@@ -140,10 +140,29 @@ namespace spot
 
   /// \brief Keep only the states as specified by \a to_keep.
   ///
-  /// Each index in the vector \a to_keep specifies wether or not to keep that
-  /// state.  The initial state will be set to \a init.
+  /// Each index in the vector \a to_keep specifies wether or not to
+  /// keep the transition that exit this state.  The initial state
+  /// will be set to \a init.
+  ///
+  /// Note that the number of states in the result automaton is the
+  /// same as in the input: only transitions have been removed.
+  ///
+  /// \see mask_keep_accessible_states
   SPOT_API
   twa_graph_ptr mask_keep_states(const const_twa_graph_ptr& in,
                                  std::vector<bool>& to_keep,
                                  unsigned int init);
+
+  /// \brief Keep only the states specified by \a to_keep that are accessible.
+  ///
+  /// Each index in the vector \a to_keep specifies wether or not to
+  /// keep the transition that exit this state.  The initial state
+  /// will be set to \a init.  Only states that are accessible from \a
+  /// init via states in \a to_keep will be preserved.
+  ///
+  /// \see mask_keep_states
+  SPOT_API
+  twa_graph_ptr mask_keep_accessible_states(const const_twa_graph_ptr& in,
+                                            std::vector<bool>& to_keep,
+                                            unsigned int init);
 }
