@@ -330,7 +330,8 @@ namespace spot
             k.resize(aut_->num_states());
           for (auto i: node.states_)
             k[i] = true;
-          if (mask_keep_states(aut_, k, node.states_.front())->is_empty())
+          if (mask_keep_accessible_states(aut_, k, node.states_.front())
+              ->is_empty())
             node.rejecting_ = true;
           else
             node.accepting_ = true;

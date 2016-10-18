@@ -685,7 +685,6 @@ parse_opt(int key, char* arg, struct argp_state*)
               opt_keep_states.resize(res + 1, false);
             opt_keep_states[res] = true;
           }
-        opt_rem_unreach = true;
         break;
       }
     case OPT_MERGE:
@@ -1125,7 +1124,8 @@ namespace
         aut = spot::sl2(std::move(aut));
 
       if (!opt_keep_states.empty())
-        aut = mask_keep_states(aut, opt_keep_states, opt_keep_states_initial);
+        aut = mask_keep_accessible_states(aut, opt_keep_states,
+                                          opt_keep_states_initial);
       if (opt_rem_dead)
         aut->purge_dead_states();
       else if (opt_rem_unreach)

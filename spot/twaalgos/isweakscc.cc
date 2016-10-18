@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// et Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -33,7 +33,7 @@ namespace spot
     auto& states = map.states_of(scc);
     for (auto s: states)
       keep[s] = true;
-    auto sccaut = mask_keep_states(aut, keep, states.front());
+    auto sccaut = mask_keep_accessible_states(aut, keep, states.front());
     sccaut->set_acceptance(sccaut->acc().num_sets(),
                            sccaut->get_acceptance().complement());
     return !sccaut->is_empty();

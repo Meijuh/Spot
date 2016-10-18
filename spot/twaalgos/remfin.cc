@@ -82,10 +82,10 @@ namespace spot
           std::vector<bool> keep(aut->num_states(), false);
           for (auto s: states)
             keep[s] = true;
-          auto sccaut = mask_keep_states(aut, keep, states.front());
+          auto sccaut = mask_keep_accessible_states(aut, keep, states.front());
           // Force SBA to false.  It does not affect the emptiness
           // check result, however it prevent recurring into this
-          // procedure, because empty() will call to_tgba() wich will
+          // procedure, because empty() will call to_tgba() which will
           // call remove_fin()...
           sccaut->prop_state_acc(false);
           // If SCCAUT is empty, the SCC is BA-type (and none
