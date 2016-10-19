@@ -902,7 +902,7 @@ BDD bdd_setxor(BDD l, BDD r)
 NAME    {* bdd\_implies *}
 SECTION {* operator *}
 SHORT   {* check whether one BDD implies another *}
-PROTO   {* int bdd_setxor(BDD l, BDD r) *}
+PROTO   {* int bdd_implies(BDD l, BDD r) *}
 DESCR   {* Check whether $l$ implies $r$, or whether $r$ contains $l$. *}
 RETURN  {* 1 if $l$ implies $r$, 0 otherwise *}
 */
