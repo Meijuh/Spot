@@ -517,6 +517,20 @@ namespace spot
     if (auto maybe = rabin_to_buchi_maybe(aut))
       return maybe;
 
+    {
+      // We want a clean acceptance condition, i.e., one where all
+      // sets are useful.  If that is not the case, clean it first.
+      acc_cond::mark_t unused = aut->acc().all_sets();
+      for (auto& t: aut->edges())
+        {
+          unused -= t.acc;
+          if (!unused)
+            break;
+        }
+      if (unused)
+        return remove_fin(cleanup_acceptance(aut));
+    }
+
     std::vector<acc_cond::acc_code> code;
     std::vector<acc_cond::mark_t> rem;
     std::vector<acc_cond::mark_t> keep;

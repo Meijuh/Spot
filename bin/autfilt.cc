@@ -979,7 +979,7 @@ namespace
         spot::strip_acceptance_here(aut);
       if (opt_merge)
         aut->merge_edges();
-      if (opt_clean_acc || opt_rem_fin)
+      if (opt_clean_acc)
         cleanup_acceptance_here(aut);
       if (opt_sep_sets)
         separate_sets_here(aut);
