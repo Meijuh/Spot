@@ -61,7 +61,7 @@
 //    - run through the automaton and computing the signature of each
 //      state. This function is `update_sig'.
 //    - Enter in a double loop to adapt the partial order, and set
-//      'relation_' accordingly. This function is `update_po'.
+//      'relation_' accordingly.
 // 3. Rename the class (to actualize the name in the previous_class and
 //    in relation_).
 // 4. Building an automaton with the result, with the condition:
@@ -158,7 +158,6 @@ namespace spot
     class direct_simulation final
     {
     protected:
-      // Shortcut used in update_po and go_to_next_it.
       typedef std::map<bdd, bdd, bdd_less_than> map_bdd_bdd;
       int acc_vars;
       acc_cond::mark_t all_inf_;
@@ -383,7 +382,7 @@ namespace spot
       }
 
 
-      // This method rename the color set, update the partial order.
+      // This method renames the color set, updates the partial order.
       void go_to_next_it()
       {
         int nb_new_color = bdd_lstate_.size() - used_var_.size();
@@ -413,44 +412,30 @@ namespace spot
                || (bdd_lstate_.find(bddfalse) != bdd_lstate_.end()
                    && bdd_lstate_.size() == used_var_.size() + 1));
 
-        // Now we make a temporary hash_table which links the tuple
-        // "C^(i-1), N^(i-1)" to the new class coloring.  If we
-        // rename the class before updating the partial order, we
-        // loose the information, and if we make it after, I can't
-        // figure out how to apply this renaming on rel_.
-        // It adds a data structure but it solves our problem.
-        map_bdd_bdd now_to_next;
+        // This vector links the tuple "C^(i-1), N^(i-1)" to the
+        // new class coloring for the next iteration.
+        std::vector<std::pair<bdd, bdd>> now_to_next;
+        unsigned sz = bdd_lstate_.size();
+        now_to_next.reserve(sz);
 
         std::list<bdd>::iterator it_bdd = used_var_.begin();
 
         for (auto& p: bdd_lstate_)
           {
-            // If the signature of a state is bddfalse (no
-            // edges) the class of this state is bddfalse
-            // instead of an anonymous variable. It allows
-            // simplifications in the signature by removing a
-            // edge which has as a destination a state with
-            // no outgoing edge.
+            // If the signature of a state is bddfalse (no edges) the
+            // class of this state is bddfalse instead of an anonymous
+            // variable. It allows simplifications in the signature by
+            // removing an edge which has as a destination a state
+            // with no outgoing edge.
             bdd acc = bddfalse;
             if (p.first != bddfalse)
               acc = *it_bdd;
-            now_to_next[p.first] = acc;
+            now_to_next.emplace_back(p.first, acc);
             ++it_bdd;
           }
 
-        update_po(now_to_next, relation_);
-      }
+        // Update the partial order.
 
-      // This function computes the new po with previous_class_ and
-      // the argument. `now_to_next' contains the relation between the
-      // signature and the future name of the class.  We need a
-      // template parameter because we use this function with a
-      // map_bdd_bdd, but later, we need a list_bdd_bdd. So to
-      // factorize some code we use a template.
-      template <typename container_bdd_bdd>
-      void update_po(const container_bdd_bdd& now_to_next,
-                     map_bdd_bdd& relation)
-      {
         // This loop follows the pattern given by the paper.
         // foreach class do
         // |  foreach class do
@@ -458,28 +443,21 @@ namespace spot
         // |  od
         // od
 
-        for (typename container_bdd_bdd::const_iterator it1
-               = now_to_next.begin();
-             it1 != now_to_next.end();
-             ++it1)
+        for (unsigned n = 0; n < sz; ++n)
           {
-            bdd accu = it1->second;
-            for (typename container_bdd_bdd::const_iterator it2
-                   = now_to_next.begin();
-                 it2 != now_to_next.end();
-                 ++it2)
+            bdd n_sig = now_to_next[n].first;
+            bdd n_class = now_to_next[n].second;
+            for (unsigned m = 0; m < sz; ++m)
               {
-                // Skip the case managed by the initialization of accu.
-                if (it1 == it2)
+                if (n == m)
                   continue;
-
-                if (bdd_implies(it1->first, it2->first))
+                if (bdd_implies(n_sig, now_to_next[m].first))
                   {
-                    accu &= it2->second;
+                    n_class &= now_to_next[m].second;
                     ++po_size_;
                   }
               }
-            relation[it1->second] = accu;
+            relation_[now_to_next[n].second] = n_class;
           }
       }
 
@@ -683,12 +661,7 @@ namespace spot
       // The automaton which is simulated.
       twa_graph_ptr a_;
 
-      // Relation is aimed to represent the same thing than
-      // rel_. The difference is in the way it does.
-      // If A => A /\ A => B, rel will be (!A U B), but relation_
-      // will have A /\ B at the key A. This trick is due to a problem
-      // with the computation of the resulting automaton with the signature.
-      // rel_ will pollute the meaning of the signature.
+      // Implications between classes.
       map_bdd_bdd relation_;
 
       // Represent the class of each state at the previous iteration.
@@ -708,8 +681,7 @@ namespace spot
       // Size of the automaton.
       unsigned int size_a_;
 
-      // Used to know when there is no evolution in the po. Updated
-      // in the `update_po' method.
+      // Used to know when there is no evolution in the partial order.
       unsigned int po_size_;
 
       // All the class variable:
