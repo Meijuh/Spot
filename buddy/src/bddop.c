@@ -931,15 +931,30 @@ int bdd_implies(BDD l, BDD r)
 
   if (LEVEL(l) == LEVEL(r))
     {
-      res = bdd_implies(LOW(l), LOW(r)) && bdd_implies(HIGH(l), HIGH(r));
+      int hl = HIGH(l);
+      int hr = HIGH(r);
+      // Avoid the recursion if the second implication will trivially
+      // fail.
+      if ((ISONE(hl) || ISZERO(hr)) && (hl != hr))
+        res = 0;
+      else
+        res = bdd_implies(LOW(l), LOW(r)) && bdd_implies(hl, hr);
     }
   else if (LEVEL(l) < LEVEL(r))
     {
-      res = bdd_implies(LOW(l), r) && bdd_implies(HIGH(l), r);
+      int hl = HIGH(l);
+      if (ISONE(hl) && (hl != r))
+        res = 0;
+      else
+        res = bdd_implies(LOW(l), r) && bdd_implies(HIGH(l), r);
     }
   else /* LEVEL(l) > LEVEL(r) */
     {
-      res = bdd_implies(l, LOW(r)) && bdd_implies(l, HIGH(r));
+      int hr = HIGH(r);
+      if (ISZERO(hr) && (hr != r))
+        res = 0;
+      else
+        res = bdd_implies(l, LOW(r)) && bdd_implies(l, HIGH(r));
     }
 
   entry->i.a = l;
