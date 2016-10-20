@@ -311,7 +311,7 @@ namespace spot
       const size_t bpb = 8 * sizeof(bitvect::block_t);
       size_t rest = size() % bpb;
       for (i = 0; i < block_count_ - !!rest; ++i)
-        if ((storage_[i] & other.storage_[i]) != other.storage_[i])
+        if ((storage_[i] & other.storage_[i]) != storage_[i])
           return false;
       if (!rest)
         return true;
@@ -320,7 +320,7 @@ namespace spot
       // relevant portion.
       block_t mask = (1UL << rest) - 1;
       return ((storage_[i] & mask & other.storage_[i])
-              == (other.storage_[i] & mask));
+              == (storage_[i] & mask));
     }
 
     bool operator==(const bitvect& other) const
