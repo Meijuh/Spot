@@ -343,7 +343,7 @@ namespace spot
       }
 
       // The core loop of the algorithm.
-      twa_graph_ptr run(std::map<int, bdd>* implications = nullptr)
+      twa_graph_ptr run(std::vector<bdd>* implications = nullptr)
       {
         main_loop();
         return build_result(implications);
@@ -462,7 +462,7 @@ namespace spot
       }
 
       // Build the minimal resulting automaton.
-      twa_graph_ptr build_result(std::map<int, bdd>* implications = nullptr)
+      twa_graph_ptr build_result(std::vector<bdd>* implications = nullptr)
       {
         twa_graph_ptr res = make_twa_graph(a_->get_dict());
         res->copy_ap_of(a_);
@@ -473,6 +473,8 @@ namespace spot
 
         auto* gb = res->create_namer<int>();
 
+        if (implications)
+          implications->resize(bdd_lstate_.size());
         // Create one state per partition.
         for (auto& p: bdd_lstate_)
           {
@@ -711,7 +713,7 @@ namespace spot
 
   twa_graph_ptr
   simulation(const const_twa_graph_ptr& t,
-             std::map<int, bdd>* implications)
+             std::vector<bdd>* implications)
   {
     direct_simulation<false, false> simul(t);
     return simul.run(implications);

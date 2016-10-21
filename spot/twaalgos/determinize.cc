@@ -66,7 +66,7 @@ namespace spot
     compute_succs(const const_twa_graph_ptr& aut,
                   succs_t& res,
                   const scc_info& scc,
-                  const std::map<int, bdd>& implications,
+                  const std::vector<bdd>& implications,
                   const std::vector<bool>& is_connected,
                   std::unordered_map<bdd, unsigned, bdd_hash>& bdd2num,
                   std::vector<bdd>& all_bdds,
@@ -78,14 +78,14 @@ namespace spot
     compute_succ(const const_twa_graph_ptr& aut,
                  const bdd& ap,
                  const scc_info& scc,
-                 const std::map<int, bdd>& implications,
+                 const std::vector<bdd>& implications,
                  const std::vector<bool>& is_connected,
                  bool use_scc,
                  bool use_simulation) const;
     // The outermost brace of each node cannot be green
     void ungreenify_last_brace();
     // When a nodes a implies a node b, remove the node a.
-    void merge_redundant_states(const std::map<int, bdd>& implications,
+    void merge_redundant_states(const std::vector<bdd>& implications,
                                 const scc_info& scc,
                                 const std::vector<bool>& is_connected);
     // Used when creating the list of successors
@@ -252,7 +252,7 @@ namespace spot
   safra_state::compute_succ(const const_twa_graph_ptr& aut,
                             const bdd& ap,
                             const scc_info& scc,
-                            const std::map<int, bdd>& implications,
+                            const std::vector<bdd>& implications,
                             const std::vector<bool>& is_connected,
                             bool use_scc,
                             bool use_simulation) const
@@ -289,7 +289,7 @@ namespace spot
   safra_state::compute_succs(const const_twa_graph_ptr& aut,
                              succs_t& res,
                              const scc_info& scc,
-                             const std::map<int, bdd>& implications,
+                             const std::vector<bdd>& implications,
                              const std::vector<bool>& is_connected,
                              std::unordered_map<bdd, unsigned, bdd_hash>&
                              bdd2num,
@@ -337,7 +337,7 @@ namespace spot
   }
 
   void
-  safra_state::merge_redundant_states(const std::map<int, bdd>& implications,
+  safra_state::merge_redundant_states(const std::vector<bdd>& implications,
                                       const scc_info& scc,
                                       const std::vector<bool>& is_connected)
   {
@@ -590,7 +590,7 @@ namespace spot
 
     // Degeneralize
     twa_graph_ptr aut = spot::degeneralize_tba(a);
-    std::map<int, bdd> implications;
+    std::vector<bdd> implications;
     if (use_simulation)
       {
         aut = spot::scc_filter(aut);
