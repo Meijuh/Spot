@@ -29,58 +29,29 @@
 #include <spot/twaalgos/sccfilter.hh>
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/sepsets.hh>
+#include <spot/twaalgos/isdet.hh>
 #include <spot/misc/bddlt.hh>
 
-// The way we developed this algorithm is the following: We take an
-// automaton, and reverse all these acceptance conditions.  We reverse
-// them to go make the meaning of the signature easier. We are using
-// bdd, and we want to let it make all the simplification. Because of
-// the format of the acceptance condition, it doesn't allow easy
-// simplification. Instead of encoding them as: "a!b!c + !ab!c", we
-// use them as: "ab". We complement them because we want a
-// simplification if the condition of the edge A implies the
-// edge of B, and if the acceptance condition of A is included
-// in the acceptance condition of B. To let the bdd makes the job, we
-// revert them.
-
-// Then, to check if a edge i-dominates another, we'll use the bdd:
-// "sig(transA) = cond(trans) & acc(trans) & implied(class(trans->state))"
-// Idem for sig(transB). The 'implied'
-// (represented by a hash table 'relation_' in the implementation) is
-// a conjunction of all the class dominated by the class of the
-// destination. This is how the relation is included in the
-// signature. It makes the simplifications alone, and the work is
-// done.  The algorithm is cut into several step:
+//  Simulation-based reduction, implemented using bdd-based signatures.
 //
-// 1. Run through the tgba and switch the acceptance condition to their
-//    negation, and initializing relation_ by the 'init_ -> init_' where
-//    init_ is the bdd which represents the class. This function is the
-//    constructor of Simulation.
-// 2. Enter in the loop (run).
-//    - Rename the class.
-//    - run through the automaton and computing the signature of each
-//      state. This function is `update_sig'.
-//    - Enter in a double loop to adapt the partial order, and set
-//      'relation_' accordingly.
-// 3. Rename the class (to actualize the name in the previous_class and
-//    in relation_).
-// 4. Building an automaton with the result, with the condition:
-// "a edge in the original automaton appears in the simulated one
-// iff this edge is included in the set of i-maximal neighbour."
-// This function is `build_output'.
-// The automaton simulated is recomplemented to come back to its initial
-// state when the object Simulation is destroyed.
+//  The signature of a state is a Boolean function (implemented as a
+//  BDD) representing the set of outgoing transitions of that state.
+//  Two states with the same signature are equivalent and can be
+//  merged.
 //
-// Obviously these functions are possibly cut into several little ones.
-// This is just the general development idea.
-
+// We define signatures in a way that implications between signatures
+//  entail language inclusion.  These inclusions are used to remove
+//  redundant transitions, but this occurs implicitly while
+//  transforming the signature into irredundant-sum-of-product before
+//  building the automaton: redundant terms that are left over
+//  correspond to ignored transitions.
+//
+//  See our Spin'13 paper for background on this procedure.
 
 namespace spot
 {
   namespace
   {
-    // Some useful typedef:
-
     // Used to get the signature of the state.
     typedef std::vector<bdd> vector_state_bdd;
 
@@ -88,12 +59,9 @@ namespace spot
     typedef std::map<bdd, std::list<unsigned>,
                      bdd_less_than> map_bdd_lstate;
 
-    typedef std::map<bdd, unsigned, bdd_less_than> map_bdd_state;
-
-
     // This class helps to compare two automata in term of
     // size.
-    struct automaton_size
+    struct automaton_size final
     {
       automaton_size()
         : edges(0),
@@ -250,6 +218,8 @@ namespace spot
               t.acc ^= all_inf;
           }
         assert(a_->num_states() == size_a_);
+
+        want_implications_ = !is_deterministic(a_);
 
         // Now, we have to get the bdd which will represent the
         // class. We register one bdd by state, because in the worst
@@ -447,16 +417,17 @@ namespace spot
           {
             bdd n_sig = now_to_next[n].first;
             bdd n_class = now_to_next[n].second;
-            for (unsigned m = 0; m < sz; ++m)
-              {
-                if (n == m)
-                  continue;
-                if (bdd_implies(n_sig, now_to_next[m].first))
-                  {
-                    n_class &= now_to_next[m].second;
-                    ++po_size_;
-                  }
-              }
+            if (want_implications_)
+              for (unsigned m = 0; m < sz; ++m)
+                {
+                  if (n == m)
+                    continue;
+                  if (bdd_implies(n_sig, now_to_next[m].first))
+                    {
+                      n_class &= now_to_next[m].second;
+                      ++po_size_;
+                    }
+                }
             relation_[now_to_next[n].second] = n_class;
           }
       }
@@ -621,8 +592,8 @@ namespace spot
                                // and "unambiguous" property preserved
                          true, // stutter inv.
                        });
-        if (nb_minato == nb_satoneset && !Cosimulation)
-          res->prop_deterministic(true);
+        if (!Cosimulation)
+          res->prop_deterministic(nb_minato == nb_satoneset);
         if (Sba)
           res->prop_state_acc(true);
         return res;
@@ -685,6 +656,10 @@ namespace spot
 
       // Used to know when there is no evolution in the partial order.
       unsigned int po_size_;
+
+      // Whether to compute implications between classes.  This is costly
+      // and useless for deterministic automata.
+      bool want_implications_;
 
       // All the class variable:
       bdd all_class_var_;

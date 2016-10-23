@@ -13,6 +13,11 @@ New in spot 2.1.2.dev (not yet released)
     not used.  In particular, this helps scc_info to be more efficient
     at deciding the acceptance of SCCs in presence of Fin acceptance.
 
+  * Simulation-based reductions now implement just bisimulations-based
+    reduction on deterministic automata, to save time.  As an example,
+    this halves the run time of
+       genltl --rv-counter=10 | ltl2tgba
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:
