@@ -213,13 +213,12 @@ namespace
     process_automaton(const spot::const_parsed_aut_ptr& haut,
                       const char* filename)
     {
-      spot::stopwatch sw;
-      sw.start();
+      process_timer timer;
+      timer.start();
       auto nba = spot::to_generalized_buchi(haut->aut);
       auto aut = post.run(nba, nullptr);
-      const double conversion_time = sw.stop();
-
-      printer.print(aut, nullptr, filename, -1, conversion_time, haut);
+      timer.stop();
+      printer.print(aut, timer, nullptr, filename, -1, haut);
       flush_cout();
       return 0;
     }

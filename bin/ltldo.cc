@@ -168,7 +168,7 @@ namespace
     }
 
     spot::twa_graph_ptr
-    translate(unsigned int translator_num, bool& problem, double& duration)
+    translate(unsigned int translator_num, bool& problem, process_timer& timer)
     {
       output.reset(translator_num);
 
@@ -178,10 +178,9 @@ namespace
       std::string cmd = command.str();
       //std::cerr << "Running [" << l << translator_num << "]: "
       // << cmd << std::endl;
-      spot::stopwatch sw;
-      sw.start();
+      timer.start();
       int es = exec_with_timeout(cmd.c_str());
-      duration = sw.stop();
+      timer.stop();
 
       spot::twa_graph_ptr res = nullptr;
       problem = false;
@@ -316,8 +315,8 @@ namespace
       for (unsigned t = 0; t < ts; ++t)
         {
           bool problem;
-          double translation_time;
-          auto aut = runner.translate(t, problem, translation_time);
+          process_timer timer;
+          auto aut = runner.translate(t, problem, timer);
           if (problem)
             {
               if (errors_opt == errors_abort)
@@ -333,7 +332,7 @@ namespace
               aut = post.run(aut, f);
               cmdname = translators[t].name;
               roundval = round;
-              printer.print(aut, f, filename, linenum, translation_time,
+              printer.print(aut, timer, f, filename, linenum,
                             nullptr, prefix, suffix);
             };
         }

@@ -341,8 +341,8 @@ main(int argc, char** argv)
 
       for (;;)
         {
-          spot::stopwatch sw;
-          sw.start();
+          process_timer timer;
+          timer.start();
 
           if (ap_count_given.max > 0
               && ap_count_given.min != ap_count_given.max)
@@ -395,10 +395,10 @@ main(int argc, char** argv)
               trials = max_trials;
             }
 
-          auto runtime = sw.stop();
+          timer.stop();
 
-          printer.print(aut, nullptr,
-                        opt_seed_str, automaton_num, runtime, nullptr);
+          printer.print(aut, timer, nullptr,
+                        opt_seed_str, automaton_num, nullptr);
 
           ++automaton_num;
           if (opt_automata > 0 && automaton_num >= opt_automata)

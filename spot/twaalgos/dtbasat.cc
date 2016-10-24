@@ -794,8 +794,10 @@ namespace spot
           }
         out << ','
             << s.first << ',' << s.second << ','
-            << te.utime() << ',' << te.stime() << ','
-            << ts.utime() << ',' << ts.stime() << '\n';
+            << te.utime() + te.cutime() << ','
+            << te.stime() + te.cstime() << ','
+            << ts.utime() + ts.cutime() << ','
+            << ts.stime() + ts.cstime() << '\n';
       }
     static bool show = getenv("SPOT_SATSHOW");
     if (show && res)

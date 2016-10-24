@@ -66,19 +66,22 @@ namespace spot
     }
   };
 
-
   /// A structure to record elapsed time in clock ticks.
   struct time_info
   {
     time_info()
-      : utime(0), stime(0)
+      : utime(0), stime(0), cutime(0), cstime(0)
     {
     }
     clock_t utime;
     clock_t stime;
+    clock_t cutime;
+    clock_t cstime;
   };
 
-  /// A timekeeper that accumulate interval of time.
+  /// A timekeeper that accumulate interval of time in a more detailed way.
+  /// For instance, you can get the time spent with or without children
+  /// processes.
   class timer
   {
   public:
@@ -96,8 +99,10 @@ namespace spot
 #ifdef SPOT_HAVE_TIMES
       struct tms tmp;
       times(&tmp);
-      start_.utime = tmp.tms_utime + tmp.tms_cutime;
-      start_.stime = tmp.tms_stime + tmp.tms_cstime;
+      start_.utime = tmp.tms_utime;
+      start_.cutime = tmp.tms_cutime;
+      start_.stime = tmp.tms_stime;
+      start_.cstime = tmp.tms_cstime;
 #else
       start_.utime = clock();
 #endif
@@ -110,8 +115,10 @@ namespace spot
 #ifdef SPOT_HAVE_TIMES
       struct tms tmp;
       times(&tmp);
-      total_.utime += tmp.tms_utime + tmp.tms_cutime - start_.utime;
-      total_.stime += tmp.tms_stime + tmp.tms_cstime - start_.stime;
+      total_.utime += tmp.tms_utime - start_.utime;
+      total_.cutime += tmp.tms_cutime - start_.cutime;
+      total_.stime += tmp.tms_stime - start_.stime;
+      total_.cstime += tmp.tms_cstime - start_.cstime;
 #else
       total_.utime += clock() - start_.utime;
 #endif
@@ -119,7 +126,8 @@ namespace spot
       running = false;
     }
 
-    /// \brief Return the user time of all accumulated interval.
+    /// \brief Return the user time of the current process (without children)
+    /// of all accumulated interval.
     ///
     /// Any time interval that has been start()ed but not stop()ed
     /// will not be accounted for.
@@ -129,7 +137,18 @@ namespace spot
       return total_.utime;
     }
 
-    /// \brief Return the system time of all accumulated interval.
+    /// \brief Return the user time of children of all accumulated interval.
+    ///
+    /// Any time interval that has been start()ed but not stop()ed
+    /// will not be accounted for.
+    clock_t
+    cutime() const
+    {
+      return total_.cutime;
+    }
+
+    /// \brief Return the system time of the current process (whithout children)
+    /// of all accumulated interval.
     ///
     /// Any time interval that has been start()ed but not stop()ed
     /// will not be accounted for.
@@ -139,6 +158,34 @@ namespace spot
       return total_.stime;
     }
 
+    /// \brief Return the system time of children of all accumulated interval.
+    ///
+    /// Any time interval that has been start()ed but not stop()ed
+    /// will not be accounted for.
+    clock_t
+    cstime() const
+    {
+      return total_.cstime;
+    }
+
+    clock_t get_uscp(bool user, bool system, bool children, bool parent) const
+    {
+      clock_t res = 0;
+
+      if (user && parent)
+        res += utime();
+
+      if (user && children)
+        res += cutime();
+
+      if (system && parent)
+        res += stime();
+
+      if (system && children)
+        res += cstime();
+
+      return res;
+    }
 
     /// \brief Whether the timer is running.
     bool
@@ -152,6 +199,10 @@ namespace spot
     time_info total_;
     bool running;
   };
+
+  // This function declared here must be implemented in each file
+  // that includes this header, well, only if this operator is needed!
+  inline std::ostream& operator<<(std::ostream& os, const timer& dt);
 
   /// \brief A map of timer, where each timer has a name.
   ///

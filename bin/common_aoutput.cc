@@ -20,20 +20,19 @@
 #include "common_sys.hh"
 #include "error.h"
 #include "argmatch.h"
-
 #include "common_aoutput.hh"
 #include "common_post.hh"
 #include "common_cout.hh"
 
+#include <unistd.h>
 #include <spot/twa/bddprint.hh>
-
 #include <spot/twaalgos/dot.hh>
-#include <spot/twaalgos/lbtt.hh>
 #include <spot/twaalgos/hoa.hh>
-#include <spot/twaalgos/neverclaim.hh>
-#include <spot/twaalgos/stutter.hh>
 #include <spot/twaalgos/isunamb.hh>
+#include <spot/twaalgos/lbtt.hh>
+#include <spot/twaalgos/neverclaim.hh>
 #include <spot/twaalgos/strength.hh>
+#include <spot/twaalgos/stutter.hh>
 
 automaton_format_t automaton_format = Hoa;
 static const char* automaton_format_opt = nullptr;
@@ -173,6 +172,11 @@ static const argp_option io_options[] =
       "using the following LETTERS, possibly concatenated: (a) accepting, "
       "(r) rejecting, (v) trivial, (t) terminal, (w) weak, "
       "(iw) inherently weak. Use uppercase letters to negate them.", 0 },
+    { "%R, %[LETTERS]R", 0, nullptr,
+      OPTION_DOC | OPTION_NO_USAGE,
+      "CPU time (excluding parsing), in seconds; Add LETTERS to restrict to"
+      "(u) user time, (s) system time or to omit (p) parent processes, "
+      "(c) children processes.", 0 },
     { "%N, %n", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states", 0 },
     { "%D, %d", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -180,7 +184,7 @@ static const argp_option io_options[] =
     { "%P, %p", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the automaton is complete, 0 otherwise", 0 },
     { "%r", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "processing time (excluding parsing) in seconds", 0 },
+      "wall-clock time elapsed in seconds (excluding parsing)", 0 },
     { "%W, %w", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the automaton", 0 },
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -225,6 +229,11 @@ static const argp_option o_options[] =
       "using the following LETTERS, possibly concatenated: (a) accepting, "
       "(r) rejecting, (v) trivial, (t) terminal, (w) weak, "
       "(iw) inherently weak. Use uppercase letters to negate them.", 0 },
+    { "%R, %[LETTERS]R", 0, nullptr,
+      OPTION_DOC | OPTION_NO_USAGE,
+      "CPU time (excluding parsing), in seconds; Add LETTERS to restrict to"
+      "(u) user time, (s) system time or to omit (p) parent processes, "
+      "(c) children processes.", 0 },
     { "%n", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states in output", 0 },
     { "%d", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -232,7 +241,7 @@ static const argp_option o_options[] =
     { "%p", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the output is complete, 0 otherwise", 0 },
     { "%r", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "processing time (excluding parsing) in seconds", 0 },
+      "wall-clock time elapsed in seconds (excluding parsing)", 0 },
     { "%w", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the output automaton", 0 },
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -351,6 +360,7 @@ hoa_stat_printer::hoa_stat_printer(std::ostream& os, const char* format,
   declare('>', &csv_suffix_);
   declare('F', &filename_);
   declare('L', &location_);
+  declare('R', &timer_);
   if (input != ltl_input)
     declare('f', &filename_);        // Override the formula printer.
   declare('h', &output_aut_);
@@ -362,9 +372,12 @@ std::ostream&
 hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
                         const spot::const_twa_graph_ptr& aut,
                         spot::formula f,
-                        const char* filename, int loc, double run_time,
+                        const char* filename, int loc, process_timer& ptimer,
                         const char* csv_prefix, const char* csv_suffix)
 {
+  timer_ = ptimer.dt;
+  double run_time = ptimer.get_lap_sw();
+
   filename_ = filename ? filename : "";
   csv_prefix_ = csv_prefix ? csv_prefix : "";
   csv_suffix_ = csv_suffix ? csv_suffix : "";
@@ -494,12 +507,13 @@ automaton_printer::automaton_printer(stat_style input)
 
 void
 automaton_printer::print(const spot::twa_graph_ptr& aut,
+                         // Time for statistics
+                         process_timer& ptimer,
                          spot::formula f,
                          // Input location for errors and statistics.
                          const char* filename,
                          int loc,
-                         // Time and input automaton for statistics
-                         double time,
+                         // input automaton for statistics
                          const spot::const_parsed_aut_ptr& haut,
                          const char* csv_prefix,
                          const char* csv_suffix)
@@ -518,7 +532,7 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
   if (opt_name)
     {
       name.str("");
-      namer.print(haut, aut, f, filename, loc, time, csv_prefix, csv_suffix);
+      namer.print(haut, aut, f, filename, loc, ptimer, csv_prefix, csv_suffix);
       aut->set_named_prop("automaton-name", new std::string(name.str()));
     }
 
@@ -526,7 +540,7 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
   if (opt_output)
     {
       outputname.str("");
-      outputnamer.print(haut, aut, f, filename, loc, time,
+      outputnamer.print(haut, aut, f, filename, loc, ptimer,
                         csv_prefix, csv_suffix);
       std::string fname = outputname.str();
       auto p = outputfiles.emplace(fname, nullptr);
@@ -556,7 +570,7 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
       break;
     case Stats:
       statistics.set_output(*out);
-      statistics.print(haut, aut, f, filename, loc, time,
+      statistics.print(haut, aut, f, filename, loc, ptimer,
                        csv_prefix, csv_suffix) << '\n';
       break;
     }
@@ -589,4 +603,71 @@ void printable_automaton::print(std::ostream& os, const char* pos) const
       pos = end + 1;
     }
   print_hoa(os, val_, options.c_str());
+}
+
+void printable_timer::print(std::ostream& os, const char* pos) const
+{
+  double res = 0;
+
+  if (*pos != '[')
+  {
+    res = val_.get_uscp(true, true, true, true);
+    os << res / sysconf(_SC_CLK_TCK);
+    return;
+  }
+
+  bool user = false;
+  bool system = false;
+  bool parent = false;
+  bool children = false;
+
+  const char* beg = pos;
+  auto error = [&](std::string str)
+  {
+    std::ostringstream tmp;
+    const char* end = std::strchr(pos, ']');
+    tmp << "unknown option '" << str << "' in '%" << std::string(beg, end + 2)
+      << '\'';
+    throw std::runtime_error(tmp.str());
+  };
+
+  do
+  {
+    ++pos;
+    switch (*pos)
+    {
+      case 'u':
+        user = true;
+        break;
+      case 's':
+        system = true;
+        break;
+      case 'p':
+        parent = true;
+        break;
+      case 'c':
+        children = true;
+        break;
+      case ' ':
+      case '\t':
+      case '\n':
+      case ',':
+      case ']':
+        break;
+      default:
+        error(std::string(pos, pos + 1));
+    }
+  } while (*pos != ']');
+
+  if (user && !parent && !children)
+    parent = children = true;
+  if (system && !parent && !children)
+    parent = children = true;
+  if (parent && !user && !system)
+    user = system = true;
+  if (children && !user && !system)
+    user = system = true;
+
+  res = val_.get_uscp(user, system, children, parent);
+  os << res / sysconf(_SC_CLK_TCK);
 }

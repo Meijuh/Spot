@@ -963,8 +963,8 @@ namespace
     process_automaton(const spot::const_parsed_aut_ptr& haut,
                       const char* filename)
     {
-      spot::stopwatch sw;
-      sw.start();
+      process_timer timer;
+      timer.start();
 
       // If --stats or --name is used, duplicate the automaton so we
       // never modify the original automaton (e.g. with
@@ -1183,8 +1183,7 @@ namespace
               run->project(aut)->highlight(word_aut.second);
           }
 
-      const double conversion_time = sw.stop();
-
+      timer.stop();
       if (opt->uniq)
         {
           auto tmp =
@@ -1197,8 +1196,7 @@ namespace
 
       ++match_count;
 
-      printer.print(aut, nullptr, filename, -1, conversion_time, haut,
-                    prefix, suffix);
+      printer.print(aut, timer, nullptr, filename, -1, haut, prefix, suffix);
 
       if (opt_max_count >= 0 && match_count >= opt_max_count)
         abort_run = true;

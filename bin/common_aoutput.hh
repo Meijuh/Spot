@@ -20,18 +20,17 @@
 #pragma once
 
 #include "common_sys.hh"
+#include "common_file.hh"
 
 #include <argp.h>
 #include <memory>
-
+#include <spot/misc/timer.hh>
 #include <spot/parseaut/public.hh>
-
-#include <spot/twaalgos/stats.hh>
-#include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/gtec/gtec.hh>
-#include <spot/twaalgos/word.hh>
 #include <spot/twaalgos/isdet.hh>
-#include "common_file.hh"
+#include <spot/twaalgos/sccinfo.hh>
+#include <spot/twaalgos/stats.hh>
+#include <spot/twaalgos/word.hh>
 
 
 // Format for automaton output
@@ -74,6 +73,40 @@ struct printable_automaton final:
   void print(std::ostream& os, const char* pos) const override;
 };
 
+
+struct process_timer
+{
+  void start()
+  {
+    sw.start();
+    dt.start();
+  }
+
+  void stop()
+  {
+    // sw.stop() --> It always returns the duration since the last call to
+    // start(). Therefore, it wont't stop timing, moreover, it can be called
+    // multiple times.
+    sw_lap_ = sw.stop();
+    dt.stop();
+  }
+  double get_lap_sw()
+  {
+    return sw_lap_;
+  }
+
+  spot::timer dt;
+  spot::stopwatch sw;
+  double sw_lap_ = 0;
+};
+
+struct printable_timer final:
+  public spot::printable_value<spot::timer>
+{
+  using spot::printable_value<spot::timer>::operator=;
+  void print(std::ostream& os, const char* pos) const override;
+};
+
 /// \brief prints various statistics about a TGBA
 ///
 /// This object can be configured to display various statistics
@@ -83,7 +116,7 @@ class hoa_stat_printer: protected spot::stat_printer
 {
 public:
   hoa_stat_printer(std::ostream& os, const char* format,
-                   stat_style input = no_input);
+      stat_style input = no_input);
 
   using spot::formater::declare;
   using spot::formater::set_output;
@@ -93,10 +126,10 @@ public:
   /// The \a f argument is not needed if the Formula does not need
   /// to be output.
   std::ostream&
-  print(const spot::const_parsed_aut_ptr& haut,
+    print(const spot::const_parsed_aut_ptr& haut,
         const spot::const_twa_graph_ptr& aut,
         spot::formula f,
-        const char* filename, int loc, double run_time,
+        const char* filename, int loc, process_timer& ptimer,
         const char* csv_prefix, const char* csv_suffix);
 
 private:
@@ -117,6 +150,7 @@ private:
   spot::printable_value<unsigned> haut_complete_;
   spot::printable_value<const char*> csv_prefix_;
   spot::printable_value<const char*> csv_suffix_;
+  printable_timer timer_;
   printable_automaton input_aut_;
   printable_automaton output_aut_;
 };
@@ -132,18 +166,17 @@ class automaton_printer
   std::map<std::string, std::unique_ptr<output_file>> outputfiles;
 
 public:
-
   automaton_printer(stat_style input = no_input);
   ~automaton_printer();
 
   void
   print(const spot::twa_graph_ptr& aut,
+        process_timer& ptimer,
         spot::formula f = nullptr,
         // Input location for errors and statistics.
         const char* filename = nullptr,
         int loc = -1,
         // Time and input automaton for statistics
-        double time = 0.0,
         const spot::const_parsed_aut_ptr& haut = nullptr,
         const char* csv_prefix = nullptr,
         const char* csv_suffix = nullptr);

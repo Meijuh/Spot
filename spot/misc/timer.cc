@@ -27,6 +27,15 @@
 
 namespace spot
 {
+  /*
+  std::ostream& operator<<(std::ostream& os, const timer& dt)
+  {
+    os << "utime<" << dt.utime() << ">, cutime<" << dt.cutime()
+      << ">, stime<" << dt.stime() << ">, cstime<" << dt.cstime() << '>';
+    return os;
+  }
+  */
+
 
   std::ostream&
   timer_map::print(std::ostream& os) const
@@ -39,8 +48,11 @@ namespace spot
       {
         total.utime += i->second.first.utime();
         total.stime += i->second.first.stime();
+        total.cutime += i->second.first.cutime();
+        total.cstime += i->second.first.cstime();
       }
-    clock_t grand_total = total.utime + total.stime;
+    clock_t grand_total = total.utime + total.cutime
+      + total.stime + total.cstime;
 
     os << std::setw(23) << ""
        << "|    user time   |    sys. time   |      total     |"
@@ -61,18 +73,21 @@ namespace spot
         const char* sep = t.is_running() ? "+|" : " |";
 
         os << std::setw(22) << name << sep
-           << std::setw(6) << t.utime() << ' '
+           << std::setw(6) << t.utime() + t.cutime() << ' '
            << std::setw(8) << (total.utime ?
-                               100.0 * t.utime() / total.utime : 0.)
+                               100.0 * (t.utime() + t.cutime())
+                               / (total.utime + total.cutime) : 0.)
            << sep
-           << std::setw(6) << t.stime() << ' '
+           << std::setw(6) << t.stime() + t.cstime() << ' '
            << std::setw(8) << (total.stime ?
-                               100.0 * t.stime() / total.stime : 0.)
+                               100.0 * (t.stime() +t.cstime())
+                               / (total.stime + total.cstime) : 0.)
            << sep
-           << std::setw(6) << t.utime() + t.stime() << ' '
+           << std::setw(6) << t.utime() + t.cutime() + t.stime()
+            + t.cstime() << ' '
            << std::setw(8) << (grand_total ?
-                               (100.0 * (t.utime() + t.stime()) /
-                                grand_total) : 0.)
+                               (100.0 * (t.utime() + t.cutime() + t.stime()
+                                         + t.cstime()) / grand_total) : 0.)
            << sep
            << std::setw(4) << i->second.second
            << std::endl;
@@ -80,10 +95,10 @@ namespace spot
     os << std::setw(79) << std::setfill('-') << "" << std::setfill(' ')
        << std::endl
        << std::setw(22) << "TOTAL" << " |"
-       << std::setw(6) << total.utime << ' '
+       << std::setw(6) << total.utime + total.cutime << ' '
        << std::setw(8) << 100.
        << " |"
-       << std::setw(6) << total.stime << ' '
+       << std::setw(6) << total.stime + total.cstime << ' '
        << std::setw(8) << 100.
        << " |"
        << std::setw(6) << grand_total << ' '

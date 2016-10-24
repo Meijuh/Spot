@@ -6,6 +6,12 @@ New in spot 2.1.2.dev (not yet released)
     LTL over finite words) model checking to LTL model checking.  This
     is based on a transformation by De Giacomo & Vardi (IJCAI'13).
 
+  * autfilt, dstar2tgba, ltl2tgba, ltlcross, ltldo learned to time any
+    task in a more precise way thanks to %R, %[LETTER]R option. User time,
+    system time or children processing time or ... (see --help) can be
+    measured separately. A typical use-case is to exclude time spent
+    inside ltldo by keeping only time spent in each executed tool.
+
   Library:
 
   * from_ltlf() is a new function implementing the --from-ltlf

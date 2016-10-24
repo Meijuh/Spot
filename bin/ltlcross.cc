@@ -39,6 +39,7 @@
 #include "common_file.hh"
 #include "common_finput.hh"
 #include "common_hoaread.hh"
+#include "common_aoutput.hh"
 #include <spot/parseaut/public.hh>
 #include <spot/tl/print.hh>
 #include <spot/tl/apcollect.hh>
@@ -534,11 +535,10 @@ namespace
       std::string cmd = command.str();
       std::cerr << "Running [" << l << translator_num << "]: "
                 << cmd << std::endl;
-      spot::stopwatch sw;
-      sw.start();
+      process_timer timer;
+      timer.start();
       int es = exec_with_timeout(cmd.c_str());
-      double duration = sw.stop();
-
+      timer.stop();
       const char* status_str = nullptr;
 
       spot::twa_graph_ptr res = nullptr;
@@ -619,7 +619,7 @@ namespace
           statistics* st = &(*fstats)[translator_num];
           st->status_str = status_str;
           st->status_code = es;
-          st->time = duration;
+          st->time = timer.get_lap_sw();
 
           // Compute statistics.
           if (res)

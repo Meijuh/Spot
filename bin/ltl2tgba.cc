@@ -139,12 +139,12 @@ namespace
                         s.c_str());
         }
 
-      spot::stopwatch sw;
-      sw.start();
+      process_timer timer;
+      timer.start();
       auto aut = trans.run(&f);
-      const double translation_time = sw.stop();
+      timer.stop();
 
-      printer.print(aut, f, filename, linenum, translation_time, nullptr,
+      printer.print(aut, timer, f, filename, linenum, nullptr,
                     prefix, suffix);
       return 0;
     }
