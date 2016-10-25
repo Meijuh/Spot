@@ -37,7 +37,7 @@ ltlcross=ltlcross
 # (a U X!a) | XG(!b & XFc)
 # XXG(Fa U Xb)
 #
-# Those one where removed because they were too long in the "expected" file.
+# Those ones were removed because they were too long in the "expected" file.
 # We can not exceed 80 characters!
 #
 # p U (q & X(r & F(s & XF(u & XF(v & XFw)))))

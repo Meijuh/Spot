@@ -27,6 +27,8 @@ libpriv_la_SOURCES = \
   bddalloc.hh \
   freelist.cc \
   freelist.hh \
+  satcommon.hh\
+  satcommon.cc\
   trim.cc \
   trim.hh \
   weight.cc \

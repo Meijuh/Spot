@@ -18,12 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <vector>
 #include <spot/misc/satsolver.hh>
 
 int main()
 {
-  spot::satsolver::solution sol = spot::satsolver_get_solution("-");
-  for (spot::satsolver::solution::const_iterator i = sol.begin();
+  std::vector<int> sol = spot::satsolver_get_solution("-");
+  for (std::vector<int>::const_iterator i = sol.begin();
        i != sol.end(); ++i)
     std::cout << ' ' << *i;
   std::cout << '\n';

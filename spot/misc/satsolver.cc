@@ -26,14 +26,15 @@
 #include <picosat/picosat.h>
 #include <fstream>
 #include <limits>
+#include <cassert>
 #include <sys/wait.h>
 
 namespace spot
 {
-  satsolver::solution
+  std::vector<int>
   satsolver_get_solution(const char* filename)
   {
-    satsolver::solution sol;
+    std::vector<int> sol;
     std::istream* in;
     if (filename[0] == '-' && filename[1] == 0)
       in = &std::cin;
@@ -54,7 +55,7 @@ namespace spot
         while (*in >> i)
           {
             if (i == 0)
-              goto done;
+              goto stop;
             sol.emplace_back(i);
           }
         if (!in->eof())
@@ -63,7 +64,7 @@ namespace spot
           // fail bit so that will loop over.
           in->clear();
       }
-  done:
+  stop:
     if (in != &std::cin)
       delete in;
     return sol;
@@ -116,13 +117,13 @@ namespace spot
     *cnf_stream_ << '\n';
     nclauses_ += 1;
     if (nclauses_ < 0)
-      throw std::runtime_error("too many SAT clauses (more than INT_MAX)");
+      throw std::runtime_error(": too many SAT clauses (more than INT_MAX).");
   }
 
   void satsolver::adjust_nvars(int nvars)
   {
     if (nvars < 0)
-      throw std::runtime_error("variable number must be at least 0");
+      throw std::runtime_error(": total number of lits. must be at least 0.");
 
     if (psat_)
     {
@@ -133,7 +134,7 @@ namespace spot
       if (nvars < nvars_)
       {
         throw std::runtime_error(
-            "wrong number of variables, a bigger one was already added");
+            ": wrong number of variables, a bigger one was already added.");
       }
       nvars_ = nvars;
     }
@@ -196,19 +197,62 @@ namespace spot
   }
 
   satsolver::solution
-  satsolver::picosat_get_solution(int res)
+  spot::satsolver::satsolver_get_sol(const char* filename)
+  {
+    satsolver::solution sol;
+    bool empty = true;
+    std::istream* in;
+    in = new std::ifstream(filename);
+    int c;
+    while ((c = in->get()) != EOF)
+      {
+        // If a line does not start with 'v ', ignore it.
+        if (c != 'v' || in->get() != ' ')
+          {
+            in->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+          }
+        // Otherwise, read integers one by one.
+        int i;
+        while (*in >> i)
+          {
+            if (i == 0)
+              goto done;
+
+            if (i > 0 && empty)
+            {
+              empty = false;
+              sol = satsolver::solution(get_nb_vars(), false);
+            }
+
+            if (i > 0 && !empty)
+              sol[i - 1] = true;
+          }
+        if (!in->eof())
+          // If we haven't reached end-of-file, then we just attempted
+          // to extract something that wasn't an integer.  Clear the
+          // fail bit so that will loop over.
+          in->clear();
+      }
+  done:
+    delete in;
+    if (empty)
+    {
+      sol.clear();
+      assert(sol.empty());
+    }
+    return sol;
+  }
+
+  satsolver::solution
+  satsolver::picosat_get_sol(int res)
   {
     satsolver::solution sol;
     if (res == PICOSAT_SATISFIABLE)
     {
       int nvars = get_nb_vars();
       for (int lit = 1; lit <= nvars; ++lit)
-      {
-        if (picosat_deref(psat_, lit) > 0)
-          sol.push_back(lit);
-        else
-          sol.push_back(-lit);
-      }
+        sol.push_back(picosat_deref(psat_, lit) > 0);
     }
     return sol;
   }
@@ -221,7 +265,7 @@ namespace spot
     {
       p.first = 0; // A subprocess was not executed so nothing failed.
       int res = picosat_sat(psat_, -1); // -1: no limit (number of decisions).
-      p.second = picosat_get_solution(res);
+      p.second = picosat_get_sol(res);
     }
     else
     {
@@ -230,11 +274,11 @@ namespace spot
       *cnf_stream_ << "p cnf " << get_nb_vars() << ' ' << get_nb_clauses();
       cnf_stream_->seekp(0, std::ios_base::end);
       if (!*cnf_stream_)
-        throw std::runtime_error("Failed to update cnf header");
+        throw std::runtime_error(": failed to update cnf header.");
 
       temporary_file* output = create_tmpfile("sat-", ".out");
       p.first = cmd_.run(cnf_tmp_, output);
-      p.second = satsolver_get_solution(output->name());
+      p.second = satsolver_get_sol(output->name());
       delete output;
     }
     return p;
@@ -248,10 +292,10 @@ namespace spot
 
     prime(satsolver);
     if (!has('I'))
-      throw std::runtime_error("SPOT_SATSOLVER should contain %I to "
+      throw std::runtime_error(": SPOT_SATSOLVER should contain %I to "
           "indicate how to use the input filename.");
     if (!has('O'))
-      throw std::runtime_error("SPOT_SATSOLVER should contain %O to "
+      throw std::runtime_error(": SPOT_SATSOLVER should contain %O to "
           "indicate how to use the output filename.");
   }
 

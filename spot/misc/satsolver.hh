@@ -114,7 +114,7 @@ namespace spot
     template<typename T, typename... Args>
     void comment(T first, Args... args);
 
-    typedef std::vector<int> solution;
+    typedef std::vector<bool> solution;
     typedef std::pair<int, solution> solution_pair;
 
     /// \brief Return std::vector<solving_return_code, solution>.
@@ -130,7 +130,11 @@ namespace spot
     /// \brief Extract the solution of Picosat output.
     /// Must be called only if SPOT_SATSOLVER env variable is not set.
     satsolver::solution
-    picosat_get_solution(int res);
+    picosat_get_sol(int res);
+
+    /// \brief Extract the solution of a SAT solver output.
+    satsolver::solution
+    satsolver_get_sol(const char* filename);
 
   private:  // variables
     /// \brief A satsolver_command. Check if SPOT_SATSOLVER is given.
@@ -148,9 +152,8 @@ namespace spot
   };
 
   /// \brief Extract the solution of a SAT solver output.
-  SPOT_API satsolver::solution
+  SPOT_API std::vector<int>
   satsolver_get_solution(const char* filename);
-
 }
 
 namespace spot

@@ -17,27 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <iostream>
 #include <fstream>
 #include <sstream>
-#include <spot/twaalgos/dtwasat.hh>
-#include <spot/twaalgos/dtbasat.hh>
 #include <map>
-#include <utility>
-#include <spot/twaalgos/sccinfo.hh>
-#include <spot/twa/bddprint.hh>
-#include <spot/twaalgos/stats.hh>
-#include <spot/tl/defaultenv.hh>
+#include <spot/misc/bddlt.hh>
+#include <spot/misc/optionmap.hh>
 #include <spot/misc/satsolver.hh>
 #include <spot/misc/timer.hh>
-#include <spot/twaalgos/isweakscc.hh>
-#include <spot/twaalgos/isdet.hh>
-#include <spot/twaalgos/dot.hh>
+#include <spot/priv/satcommon.hh>
+#include <spot/twa/bddprint.hh>
 #include <spot/twaalgos/complete.hh>
-#include <spot/misc/optionmap.hh>
-#include <spot/twaalgos/sccfilter.hh>
-#include <spot/twaalgos/sbacc.hh>
+#include <spot/twaalgos/dtbasat.hh>
+#include <spot/twaalgos/dtwasat.hh>
+#include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/postproc.hh>
+#include <spot/twaalgos/sbacc.hh>
+#include <spot/twaalgos/sccfilter.hh>
+#include <spot/twaalgos/sccinfo.hh>
+#include <spot/twaalgos/stats.hh>
 
 // If you set the SPOT_TMPKEEP environment variable the temporary
 // file used to communicate with the sat solver will be left in
@@ -49,6 +46,7 @@
 // of all positive variables in the result and their meaning.
 
 #define DEBUG 0
+
 #if DEBUG
 #define dout out << "c "
 #define cnf_comment(...)  solver.comment(__VA_ARGS__)
@@ -67,140 +65,31 @@ namespace spot
     static const acc_cond* debug_ref_acc = nullptr;
     static const acc_cond* debug_cand_acc = nullptr;
 
-    struct transition
-    {
-      unsigned src;
-      bdd cond;
-      unsigned dst;
-
-      transition(int src, bdd cond, int dst)
-        : src(src), cond(cond), dst(dst)
-      {
-      }
-
-      bool operator<(const transition& other) const
-      {
-        if (this->src < other.src)
-          return true;
-        if (this->src > other.src)
-          return false;
-        if (this->dst < other.dst)
-          return true;
-        if (this->dst > other.dst)
-          return false;
-        return this->cond.id() < other.cond.id();
-      }
-
-      bool operator==(const transition& other) const
-      {
-        return (this->src == other.src
-                && this->dst == other.dst
-                && this->cond.id() == other.cond.id());
-      }
-    };
-
-    struct src_cond
-    {
-      unsigned src;
-      bdd cond;
-
-      src_cond(int src, bdd cond)
-        : src(src), cond(cond)
-      {
-      }
-
-      bool operator<(const src_cond& other) const
-      {
-        if (this->src < other.src)
-          return true;
-        if (this->src > other.src)
-          return false;
-        return this->cond.id() < other.cond.id();
-      }
-
-      bool operator==(const src_cond& other) const
-      {
-        return (this->src == other.src
-                && this->cond.id() == other.cond.id());
-      }
-    };
-
-    struct transition_acc
-    {
-      unsigned src;
-      bdd cond;
-      acc_cond::mark_t acc;
-      unsigned dst;
-
-      transition_acc(int src, bdd cond, acc_cond::mark_t acc, int dst)
-        : src(src), cond(cond), acc(acc), dst(dst)
-      {
-      }
-
-      bool operator<(const transition_acc& other) const
-      {
-        if (this->src < other.src)
-          return true;
-        if (this->src > other.src)
-          return false;
-        if (this->dst < other.dst)
-          return true;
-        if (this->dst > other.dst)
-          return false;
-        if (this->cond.id() < other.cond.id())
-          return true;
-        if (this->cond.id() > other.cond.id())
-          return false;
-        return this->acc < other.acc;
-      }
-
-      bool operator==(const transition_acc& other) const
-      {
-        return (this->src == other.src
-                && this->dst == other.dst
-                && this->cond.id() == other.cond.id()
-                && this->acc == other.acc);
-      }
-    };
-
     struct path
     {
-      unsigned src_cand;
       unsigned src_ref;
-      unsigned dst_cand;
       unsigned dst_ref;
       acc_cond::mark_t acc_cand;
       acc_cond::mark_t acc_ref;
 
-      path(unsigned src_cand, unsigned src_ref)
-        : src_cand(src_cand), src_ref(src_ref),
-          dst_cand(src_cand), dst_ref(src_ref),
+      path(unsigned src_ref)
+        : src_ref(src_ref), dst_ref(src_ref),
           acc_cand(0U), acc_ref(0U)
       {
       }
 
-      path(unsigned src_cand, unsigned src_ref,
-           unsigned dst_cand, unsigned dst_ref,
+     path(unsigned src_ref, unsigned dst_ref,
            acc_cond::mark_t acc_cand, acc_cond::mark_t acc_ref)
-        : src_cand(src_cand), src_ref(src_ref),
-          dst_cand(dst_cand), dst_ref(dst_ref),
+        : src_ref(src_ref), dst_ref(dst_ref),
           acc_cand(acc_cand), acc_ref(acc_ref)
       {
       }
 
       bool operator<(const path& other) const
       {
-        if (this->src_cand < other.src_cand)
-          return true;
-        if (this->src_cand > other.src_cand)
-          return false;
         if (this->src_ref < other.src_ref)
           return true;
         if (this->src_ref > other.src_ref)
-          return false;
-        if (this->dst_cand < other.dst_cand)
-          return true;
-        if (this->dst_cand > other.dst_cand)
           return false;
         if (this->dst_ref < other.dst_ref)
           return true;
@@ -214,41 +103,10 @@ namespace spot
           return true;
         if (this->acc_cand > other.acc_cand)
           return false;
-
         return false;
       }
 
     };
-
-    std::ostream& operator<<(std::ostream& os, const transition& t)
-    {
-      os << '<' << t.src << ','
-         << bdd_format_formula(debug_dict, t.cond)
-         << ',' << t.dst << '>';
-      return os;
-    }
-
-
-    std::ostream& operator<<(std::ostream& os, const transition_acc& t)
-    {
-      os << '<' << t.src << ','
-         << bdd_format_formula(debug_dict, t.cond) << ','
-         << debug_cand_acc->format(t.acc)
-         << ',' << t.dst << '>';
-      return os;
-    }
-
-    std::ostream& operator<<(std::ostream& os, const path& p)
-    {
-      os << '<'
-         << p.src_cand << ','
-         << p.src_ref << ','
-         << p.dst_cand << ','
-         << p.dst_ref << ", "
-         << debug_cand_acc->format(p.acc_cand) << ", "
-         << debug_ref_acc->format(p.acc_ref) << '>';
-      return os;
-    }
 
     // If the DNF is
     //  Fin(1)&Fin(2)&Inf(3) | Fin(0)&Inf(3) | Fin(4)&Inf(5)&Inf(6)
@@ -349,18 +207,15 @@ namespace spot
       }
 
       const_twa_ptr aut;
-      typedef std::map<transition, int> trans_map;
-      typedef std::map<transition_acc, int> trans_acc_map;
-      trans_map transid;
-      trans_acc_map transaccid;
-      typedef std::map<int, transition> rev_map;
-      typedef std::map<int, transition_acc> rev_acc_map;
-      rev_map revtransid;
-      rev_acc_map revtransaccid;
 
-      std::map<path, int> pathid;
+      vars_helper helper;
+      std::vector<bdd> alpha_vect;
+      std::map<path, unsigned> path_map;
+      std::map<bdd, unsigned, bdd_less_than> alpha_map;
+
       int nvars = 0;
-      unsigned cand_size;
+      unsigned int ref_size;
+      unsigned int cand_size;
       unsigned int cand_nacc;
       acc_cond::acc_code cand_acc;
 
@@ -380,6 +235,126 @@ namespace spot
       ~dict()
       {
         aut->get_dict()->unregister_all_my_variables(this);
+      }
+
+      int
+      transid(unsigned src, unsigned cond, unsigned dst)
+      {
+        return helper.get_t(src, cond, dst);
+      }
+
+      int
+      transid(unsigned src, bdd& cond, unsigned dst)
+      {
+#if DEBUG
+        try
+        {
+          return helper.get_t(src, alpha_map.at(cond), dst);
+        }
+        catch (const std::out_of_range& c)
+        {
+          std::cerr << "label of transid " << fmt_t(src, cond, dst)
+            << " not found.\n";
+          throw c;
+        }
+#else
+        return helper.get_t(src, alpha_map[cond], dst);
+#endif
+      }
+
+      int
+      transacc(unsigned src, unsigned cond, unsigned dst, unsigned nacc)
+      {
+        return helper.get_ta(src, cond, dst, nacc);
+      }
+
+      int
+      transacc(unsigned src, bdd& cond, unsigned dst, unsigned nacc)
+      {
+#if DEBUG
+        try
+        {
+          return helper.get_ta(src, alpha_map.at(cond), dst, nacc);
+        }
+        catch (const std::out_of_range& c)
+        {
+          std::cerr << "label of transacc " << fmt_ta(src, cond, dst, nacc)
+            << " not found.\n";
+          throw c;
+        }
+#else
+        return helper.get_ta(src, alpha_map[cond], dst, nacc);
+#endif
+      }
+
+      int
+      pathid(unsigned src_cand, unsigned src_ref, unsigned dst_cand,
+          unsigned dst_ref, acc_cond::mark_t acc_cand = 0U,
+          acc_cond::mark_t acc_ref = 0U)
+      {
+#if DEBUG
+        try
+        {
+          return helper.get_p(
+              path_map.at(path(src_ref, dst_ref, acc_cand, acc_ref)),
+              src_cand, dst_cand);
+        }
+        catch (const std::out_of_range& c)
+        {
+          std::cerr << "path(" << src_ref << ',' << dst_ref << ",...) of pathid"
+            << ' '
+            << fmt_p(src_cand, src_ref, dst_cand, dst_ref, acc_cand, acc_ref)
+            << " not found.\n";
+          throw c;
+        }
+#else
+        return helper.get_p(
+            path_map[path(src_ref, dst_ref, acc_cand, acc_ref)],
+            src_cand, dst_cand);
+#endif
+      }
+
+#if DEBUG
+      int
+      pathid(unsigned path, unsigned src_cand, unsigned dst_cand)
+      {
+        return helper.get_p(path, src_cand, dst_cand);
+      }
+#endif
+
+      std::string
+      fmt_t(unsigned src, bdd& cond, unsigned dst)
+      {
+        return helper.format_t(debug_dict, src, cond, dst);
+      }
+
+      std::string
+      fmt_t(unsigned src, unsigned cond, unsigned dst)
+      {
+        return helper.format_t(debug_dict, src, alpha_vect[cond], dst);
+      }
+
+      std::string
+      fmt_ta(unsigned src, bdd& cond, unsigned dst, unsigned nacc)
+      {
+        return helper.format_ta(debug_dict, debug_cand_acc, src, cond,
+            dst, cacc.mark(nacc));
+      }
+
+      std::string
+      fmt_ta(unsigned src, unsigned cond, unsigned dst, unsigned nacc)
+      {
+        return helper.format_ta(debug_dict, debug_cand_acc, src,
+            alpha_vect[cond], dst, cacc.mark(nacc));
+      }
+
+      std::string
+      fmt_p(unsigned src_cand, unsigned src_ref, unsigned dst_cand,
+          unsigned dst_ref, acc_cond::mark_t acc_cand = 0U,
+          acc_cond::mark_t acc_ref = 0U)
+      {
+        return helper.format_p(debug_cand_acc, debug_ref_acc, src_cand,
+            src_ref, dst_cand, dst_ref, acc_cand, acc_ref);
       }
 
       acc_cond::mark_t
@@ -418,7 +393,7 @@ namespace spot
     };
 
 
-    unsigned declare_vars(const const_twa_graph_ptr& aut,
+    void declare_vars(const const_twa_graph_ptr& aut,
                           dict& d, bdd ap, bool state_based, scc_info& sm)
     {
       d.is_weak_scc = sm.weak_sccs();
@@ -481,118 +456,77 @@ namespace spot
             }
         }
 
-      unsigned ref_size = aut->num_states();
+      d.ref_size = aut->num_states();
 
       if (d.cand_size == -1U)
-        for (unsigned i = 0; i < ref_size; ++i)
+        for (unsigned i = 0; i < d.ref_size; ++i)
           if (sm.reachable_state(i))
             ++d.cand_size;      // Note that we start from -1U the
                                 // cand_size is one less than the
                                 // number of reachable states.
 
-      for (unsigned i = 0; i < ref_size; ++i)
+      // In order to optimize memory usage, src_cand & dst_cand have been
+      // removed from path struct (the reasons are: they were no optimization
+      // on them and their values are known from the beginning).
+      //
+      // However, since some optimizations are based on the following i, k, f,
+      // refhist, it is necessary to associate to each path constructed,
+      // an ID number.
+      //
+      // Given this ID, src_cand, dst_cand, the corresponding litteral can be
+      // retrived thanks to get_prc(...) a vars_helper's method.
+      unsigned path_size = 0;
+      for (unsigned i = 0; i < d.ref_size; ++i)
         {
           if (!sm.reachable_state(i))
             continue;
           unsigned i_scc = sm.scc_of(i);
           bool is_weak = d.is_weak_scc[i_scc];
-
-          for (unsigned j = 0; j < d.cand_size; ++j)
+          for (unsigned k = 0; k < d.ref_size; ++k)
             {
-              for (unsigned k = 0; k < ref_size; ++k)
+              if (!sm.reachable_state(k))
+                continue;
+              if (sm.scc_of(k) != i_scc)
+                continue;
+              size_t sfp = is_weak ? 1 : d.all_ref_acc.size();
+              acc_cond::mark_t sccmarks = d.scc_marks[i_scc];
+              for (size_t fp = 0; fp < sfp; ++fp)
                 {
-                  if (!sm.reachable_state(k))
+                  auto refhist = d.all_ref_acc[fp];
+                  // refhist cannot have more sets than used in the SCC.
+                  if (!is_weak && (sccmarks & refhist) != refhist)
                     continue;
-                  if (sm.scc_of(k) != i_scc)
-                    continue;
-                  for (unsigned l = 0; l < d.cand_size; ++l)
+
+                  size_t sf = d.all_cand_acc.size();
+                  for (size_t f = 0; f < sf; ++f)
                     {
-                      size_t sfp = is_weak ? 1 : d.all_ref_acc.size();
-                      acc_cond::mark_t sccmarks = d.scc_marks[i_scc];
-                      for (size_t fp = 0; fp < sfp; ++fp)
-                        {
-                          auto refhist = d.all_ref_acc[fp];
-                          // refhist cannot have more sets than used in the SCC
-                          if (!is_weak && (sccmarks & refhist) != refhist)
-                            continue;
-
-                          size_t sf = d.all_cand_acc.size();
-                          for (size_t f = 0; f < sf; ++f)
-                            {
-                              path p(j, i, l, k,
-                                     d.all_cand_acc[f], refhist);
-                              d.pathid[p] = ++d.nvars;
-                            }
-
-                        }
+                      path p(i, k, d.all_cand_acc[f], refhist);
+                      d.path_map[p] = path_size++;
                     }
                 }
             }
         }
 
-      if (!state_based)
+      // Fill dict's bdd vetor (alpha_vect) and save each bdd and it's
+      // corresponding index in alpha_map. This is necessary beacause some
+      // loops start from a precise bdd. Therefore, it's useful to know
+      // it's corresponding index to deal with vars_helper.
+      bdd all = bddtrue;
+      for (unsigned j = 0; all != bddfalse; ++j)
         {
-          for (unsigned i = 0; i < d.cand_size; ++i)
-            for (unsigned j = 0; j < d.cand_size; ++j)
-              {
-                bdd all = bddtrue;
-                while (all != bddfalse)
-                  {
-                    bdd one = bdd_satoneset(all, ap, bddfalse);
-                    all -= one;
-
-                    transition t(i, one, j);
-                    d.transid[t] = ++d.nvars;
-                    d.revtransid.emplace(d.nvars, t);
-
-                    // Create the variable for the accepting transition
-                    // immediately afterwards.  It helps parsing the
-                    // result.
-                    for (unsigned n = 0; n < d.cand_nacc; ++n)
-                      {
-                        transition_acc ta(i, one, d.cacc.mark(n), j);
-                        d.transaccid[ta] = ++d.nvars;
-                        d.revtransaccid.emplace(d.nvars, ta);
-                      }
-                  }
-              }
+          bdd one = bdd_satoneset(all, ap, bddfalse);
+          d.alpha_vect.push_back(one);
+          d.alpha_map[d.alpha_vect[j]] = j;
+          all -= one;
         }
-      else // state based
-        {
-          for (unsigned i = 0; i < d.cand_size; ++i)
-            for (unsigned n = 0; n < d.cand_nacc; ++n)
-              {
-                ++d.nvars;
-                for (unsigned j = 0; j < d.cand_size; ++j)
-                  {
-                    bdd all = bddtrue;
-                    while (all != bddfalse)
-                      {
-                        bdd one = bdd_satoneset(all, ap, bddfalse);
-                        all -= one;
 
-                        transition_acc ta(i, one, d.cacc.mark(n), j);
-                        d.transaccid[ta] = d.nvars;
-                        d.revtransaccid.emplace(d.nvars, ta);
-                      }
-                  }
-              }
-          for (unsigned i = 0; i < d.cand_size; ++i)
-            for (unsigned j = 0; j < d.cand_size; ++j)
-              {
-                bdd all = bddtrue;
-                while (all != bddfalse)
-                  {
-                    bdd one = bdd_satoneset(all, ap, bddfalse);
-                    all -= one;
+      // Initialize vars_helper by giving it all the necessary information.
+      // false: means dtwasat, i-e not dtbasat.
+      d.helper.init(d.cand_size, d.alpha_vect.size(), d.cand_size,
+          d.cand_nacc, path_size, state_based, false);
 
-                    transition t(i, one, j);
-                    d.transid[t] = ++d.nvars;
-                    d.revtransid.emplace(d.nvars, t);
-                  }
-              }
-        }
-      return ref_size;
+      // Based on all previous informations, helper knows all litterals.
+      d.helper.declare_all_vars(++d.nvars);
     }
 
     typedef std::pair<int, int> sat_stats;
@@ -604,11 +538,8 @@ namespace spot
 #if DEBUG
       debug_dict = ref->get_dict();
 #endif
-
-      // Compute the AP used in the hard way.
-      bdd ap = bddtrue;
-      for (auto& t: ref->edges())
-        ap &= bdd_support(t.cond);
+      // Compute the AP used.
+      bdd ap = ref->ap_vars();
 
       // Count the number of atomic propositions
       int nap = 0;
@@ -626,162 +557,122 @@ namespace spot
       sm.determine_unknown_acceptance();
 
       // Number all the SAT variables we may need.
-      unsigned ref_size = declare_vars(ref, d, ap, state_based, sm);
+      declare_vars(ref, d, ap, state_based, sm);
 
-      // Tell the satsolver the number of variables
+      // Store alphabet size once for all.
+      unsigned alpha_size = d.alpha_vect.size();
+
+      // Tell the satsolver the number of variables.
       solver.adjust_nvars(d.nvars);
 
-      // empty automaton is impossible
+      // Empty automaton is impossible.
       assert(d.cand_size > 0);
 
 #if DEBUG
       debug_ref_acc = &ref->acc();
       debug_cand_acc = &d.cacc;
-      solver.comment("ref_size:", ref_size, '\n');
-      solver.comment("cand_size:", d.cand_size, '\n');
+      solver.comment("d.ref_size:", d.ref_size, '\n');
+      solver.comment("d.cand_size:", d.cand_size, '\n');
 #endif
       auto& racc = ref->acc();
 
       cnf_comment("symmetry-breaking clauses\n");
       int j = 0;
-      bdd all = bddtrue;
-      while (all != bddfalse)
-         {
-           bdd s = bdd_satoneset(all, ap, bddfalse);
-           all -= s;
-           for (unsigned i = 0; i < d.cand_size - 1; ++i)
-             for (unsigned k = i * nap + j + 2; k < d.cand_size; ++k)
-              {
-                transition t(i, s, k);
-                int ti = d.transid[t];
-                cnf_comment("¬", t, '\n');
-                solver.add({-ti, 0});
-              }
-           ++j;
-         }
+      for (unsigned l = 0; l < alpha_size; ++l, ++j)
+        for (unsigned i = 0; i < d.cand_size - 1; ++i)
+          for (unsigned k = i * nap + j + 2; k < d.cand_size; ++k)
+            {
+              cnf_comment("¬", d.fmt_t(i, l, k), '\n');
+              solver.add({-d.transid(i, l, k), 0});
+            }
+
       if (!solver.get_nb_clauses())
         cnf_comment("(none)\n");
 
       cnf_comment("(8) the candidate automaton is complete\n");
       for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
-        {
-          bdd all = bddtrue;
-          while (all != bddfalse)
-            {
-              bdd s = bdd_satoneset(all, ap, bddfalse);
-              all -= s;
-
+        for (unsigned l = 0; l < alpha_size; ++l)
+          {
 #if DEBUG
-              solver.comment("");
-              for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
-                {
-                  transition t(q1, s, q2);
-                  solver.comment_rec(t, "δ");
-                  if (q2 != d.cand_size)
-                    solver.comment_rec(" ∨ ");
-                }
-              solver.comment_rec('\n');
+            solver.comment("");
+            for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
+              {
+                solver.comment_rec(d.fmt_t(q1, l, q2), "δ");
+                if (q2 != d.cand_size)
+                  solver.comment_rec(" ∨ ");
+              }
+            solver.comment_rec('\n');
 #endif
-
-              for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
-                {
-                  transition t(q1, s, q2);
-                  int ti = d.transid[t];
-
-                  solver.add(ti);
-                }
-              solver.add(0);
-            }
-        }
+            for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
+              solver.add(d.transid(q1, l, q2));
+            solver.add(0);
+          }
 
       cnf_comment("(9) the initial state is reachable\n");
       {
         unsigned init = ref->get_init_state_number();
-        cnf_comment(path(0, init), '\n');
-        solver.add({d.pathid[path(0, init)], 0});
+        cnf_comment(d.fmt_p(0, init, 0, init), '\n');
+        solver.add({d.pathid(0, init, 0, init), 0});
       }
 
       if (colored)
         {
           unsigned nacc = d.cand_nacc;
           cnf_comment("transitions belong to exactly one of the", nacc,
-                       "acceptance set\n");
-          bdd all = bddtrue;
-          while (all != bddfalse)
-            {
-              bdd l = bdd_satoneset(all, ap, bddfalse);
-              all -= l;
-              for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
-                for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
-                  {
-                    for (unsigned i = 0; i < nacc; ++i)
-                      {
-                        transition_acc ti(q1, l, {i}, q2);
-                        int tai = d.transaccid[ti];
-
-                        for (unsigned j = 0; j < nacc; ++j)
-                          if (i != j)
-                            {
-                              transition_acc tj(q1, l, {j}, q2);
-                              int taj = d.transaccid[tj];
-                              solver.add({-tai, -taj, 0});
-                            }
-                      }
-                    for (unsigned i = 0; i < nacc; ++i)
-                      {
-                        transition_acc ti(q1, l, {i}, q2);
-                        int tai = d.transaccid[ti];
-                        solver.add(tai);
-                      }
-                    solver.add(0);
-                  }
-            }
+                      "acceptance set\n");
+          for (unsigned l = 0; l < alpha_size; ++l)
+            for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
+              for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
+                {
+                  for (unsigned i = 0; i < nacc; ++i)
+                    for (unsigned j = 0; j < nacc; ++j)
+                      if (i != j)
+                        solver.add(
+                            {-d.transacc(q1, l, q2, i),
+                             -d.transacc(q1, l, q2, j),
+                             0});
+                  for (unsigned i = 0; i < nacc; ++i)
+                    solver.add(d.transacc(q1, l, q2, i));
+                  solver.add(0);
+                }
         }
 
       if (!d.all_silly_cand_acc.empty())
         {
           cnf_comment("no transition with silly acceptance\n");
-          bdd all = bddtrue;
-          while (all != bddfalse)
-            {
-              bdd l = bdd_satoneset(all, ap, bddfalse);
-              all -= l;
-              for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
-                for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
-                  for (auto& s: d.all_silly_cand_acc)
-                    {
-                      cnf_comment("no (", q1, ',',
-                                  bdd_format_formula(debug_dict, l), ',', s,
-                                  ',', q2, ")\n");
-                      for (unsigned v: s.sets())
-                        {
-                          transition_acc ta(q1, l, d.cacc.mark(v), q2);
-                          int tai = d.transaccid[ta];
-                          assert(tai != 0);
-                          solver.add(-tai);
-                        }
-                      for (unsigned v: d.cacc.comp(s).sets())
-                        {
-                          transition_acc ta(q1, l, d.cacc.mark(v), q2);
-                          int tai = d.transaccid[ta];
-                          assert(tai != 0);
-                          solver.add(tai);
-                        }
-                      solver.add(0);
-                    }
-            }
+          for (unsigned l = 0; l < alpha_size; ++l)
+            for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
+              for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
+                for (auto& s: d.all_silly_cand_acc)
+                  {
+                    cnf_comment("no (", q1, ',',
+                        bdd_format_formula(debug_dict, d.alpha_vect[l]),
+                        ',', s, ',', q2, ")\n");
+                    for (unsigned v: s.sets())
+                      {
+                        int tai = d.transacc(q1, l, q2, v);
+                        assert(tai != 0);
+                        solver.add(-tai);
+                      }
+                    for (unsigned v: d.cacc.comp(s).sets())
+                      {
+                        int tai = d.transacc(q1, l, q2, v);
+                        assert(tai != 0);
+                        solver.add(tai);
+                      }
+                    solver.add(0);
+                  }
         }
 
       for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
-        for (unsigned q1p = 0; q1p < ref_size; ++q1p)
+        for (unsigned q1p = 0; q1p < d.ref_size; ++q1p)
           {
             if (!sm.reachable_state(q1p))
               continue;
             cnf_comment("(10) augmenting paths based on Cand[", q1,
                         "] and Ref[", q1p, "]\n");
-            path p1(q1, q1p);
-            int p1id = d.pathid[p1];
 
+            int p1id = d.pathid(q1, q1p, q1, q1p);
             for (auto& tr: ref->out(q1p))
               {
                 unsigned dp = tr.dst;
@@ -793,29 +684,26 @@ namespace spot
 
                     for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
                       {
-                        transition t(q1, s, q2);
-                        int ti = d.transid[t];
-
-                        path p2(q2, dp);
-                        int succ = d.pathid[p2];
-
+                        int succ = d.pathid(q2, dp, q2, dp);
                         if (p1id == succ)
                           continue;
 
-                        cnf_comment(p1, "∧", t, "δ →", p2, '\n');
-                        solver.add({-p1id, -ti, succ, 0});
+                        cnf_comment(d.fmt_p(q1, q1p, q1, q1p), " ∧ ",
+                                    d.fmt_t(q1, s, q2), "δ → ",
+                                    d.fmt_p(q2, dp, q2, dp), '\n');
+                        solver.add({-p1id, -d.transid(q1, s, q2), succ, 0});
                       }
                   }
               }
           }
 
       // construction of constraints (11,12,13)
-      for (unsigned q1p = 0; q1p < ref_size; ++q1p)
+      for (unsigned q1p = 0; q1p < d.ref_size; ++q1p)
         {
           if (!sm.reachable_state(q1p))
             continue;
           unsigned q1p_scc = sm.scc_of(q1p);
-          for (unsigned q2p = 0; q2p < ref_size; ++q2p)
+          for (unsigned q2p = 0; q2p < d.ref_size; ++q2p)
             {
               if (!sm.reachable_state(q2p))
                 continue;
@@ -841,14 +729,12 @@ namespace spot
                           if (!is_weak && (sccmarks & refhist) != refhist)
                             continue;
 
-                          path p(q1, q1p, q2, q2p,
-                                 d.all_cand_acc[f], refhist);
-
-                          cnf_comment("(11&12&13) paths from ", p,
-                              '\n');
-
-                          int pid = d.pathid[p];
-
+                          acc_cond::mark_t candhist_p = d.all_cand_acc[f];
+                          std::string f_p =
+                              d.fmt_p(q1, q1p, q2, q2p, candhist_p, refhist);
+                          cnf_comment("(11&12&13) paths from ", f_p, '\n');
+                          int pid =
+                            d.pathid(q1, q1p, q2, q2p, candhist_p, refhist);
                           for (auto& tr: ref->out(q2p))
                             {
                               unsigned dp = tr.dst;
@@ -865,9 +751,7 @@ namespace spot
                                       bdd l = bdd_satoneset(all, ap, bddfalse);
                                       all -= l;
 
-                                      transition t(q2, l, q3);
-                                      int ti = d.transid[t];
-
+                                      int ti = d.transid(q2, l, q3);
                                       if (dp == q1p && q3 == q1) // (11,12) loop
                                         {
                                           bool rejloop =
@@ -875,37 +759,26 @@ namespace spot
                                              !racc.accepting
                                              (curacc | d.all_ref_acc[fp]));
 
-                                          auto missing =
-                                            d.cand_acc.
-                                            missing(d.all_cand_acc[f],
-                                                    !rejloop);
+                                          auto missing = d.cand_acc
+                                            .missing(candhist_p, !rejloop);
 
                                           for (auto& v: missing)
                                             {
 #if DEBUG
                                               solver.comment((rejloop ?
-                                                       "(11) " : "(12) "), p,
-                                                  " ∧ ", t, "δ → (");
+                                                       "(11) " : "(12) "), f_p,
+                                                  " ∧ ", d.fmt_t(q2, l, q3),
+                                                  "δ → (");
                                               const char* orsep = "";
                                               for (int s: v)
                                                 {
                                                   if (s < 0)
-                                                    {
-                                                      transition_acc
-                                                        ta(q2, l,
-                                                           d.cacc.mark(-s - 1),
-                                                           q1);
-                                                      solver.comment_rec(orsep,
-                                                        "¬", ta);
-                                                    }
+                                                    solver.comment_rec(orsep,
+                                                      "¬", d.fmt_ta(
+                                                        q2, l, q1, -s - 1));
                                                   else
-                                                    {
-                                                      transition_acc
-                                                        ta(q2, l,
-                                                           d.cacc.mark(s), q1);
-                                                      solver.comment_rec(orsep,
-                                                          ta);
-                                                    }
+                                                    solver.comment_rec(orsep,
+                                                        d.fmt_ta(q2, l, q1, s));
                                                   solver.comment_rec("FC");
                                                   orsep = " ∨ ";
                                                 }
@@ -915,20 +788,16 @@ namespace spot
                                               for (int s: v)
                                                 if (s < 0)
                                                   {
-                                                    transition_acc
-                                                      ta(q2, l,
-                                                         d.cacc.mark(-s - 1),
-                                                         q1);
-                                                    int tai = d.transaccid[ta];
+                                                    int tai =
+                                                      d.transacc(q2, l, q1,
+                                                          -s - 1);
                                                     assert(tai != 0);
                                                     solver.add(-tai);
                                                   }
                                                 else
                                                   {
-                                                    transition_acc
-                                                      ta(q2, l,
-                                                         d.cacc.mark(s), q1);
-                                                    int tai = d.transaccid[ta];
+                                                    int tai =
+                                                      d.transacc(q2, l, q1, s);
                                                     assert(tai != 0);
                                                     solver.add(tai);
                                                   }
@@ -942,47 +811,42 @@ namespace spot
                                           {
                                             acc_cond::mark_t f2 =
                                               d.cand_inf_trim
-                                              (p.acc_cand |
+                                              (candhist_p |
                                                d.all_cand_acc[f]);
                                             acc_cond::mark_t f2p = 0U;
                                             if (!is_weak)
-                                              f2p = d.ref_inf_trim(p.acc_ref |
+                                              f2p = d.ref_inf_trim(refhist |
                                                                    curacc);
-
-                                            path p2(p.src_cand, p.src_ref,
-                                                    q3, dp, f2, f2p);
-                                            int p2id = d.pathid[p2];
+                                            int p2id = d.pathid(
+                                                q1, q1p, q3, dp, f2, f2p);
                                             if (pid == p2id)
                                               continue;
 #if DEBUG
-                                            solver.comment("(13) ", p, " ∧ ",
-                                                 t, "δ ");
+                                            solver.comment("(13) ", f_p, " ∧ ",
+                                                 d.fmt_t(q1, l, q3), "δ ");
 
                                             auto biga_ = d.all_cand_acc[f];
                                             for (unsigned m = 0;
                                                  m < d.cand_nacc; ++m)
                                               {
-                                                transition_acc
-                                                  ta(q2, l,
-                                                     d.cacc.mark(m), q3);
                                                 const char* not_ = "¬";
                                                 if (biga_.has(m))
                                                   not_ = "";
                                                 solver.comment_rec(" ∧ ", not_,
-                                                    ta, "FC");
+                                                    d.fmt_ta(q2, l, q3, m),
+                                                    "FC");
                                               }
-                                            solver.comment_rec(" → ", p2,
-                                                '\n');
+                                            solver.comment_rec(" → ",
+                                                d.fmt_p(q1, q1p, q3, dp, f2,
+                                                  f2p), '\n');
 #endif
                                             solver.add({-pid, -ti});
                                             auto biga = d.all_cand_acc[f];
                                             for (unsigned m = 0;
                                                  m < d.cand_nacc; ++m)
                                               {
-                                                transition_acc
-                                                  ta(q2, l,
-                                                     d.cacc.mark(m), q3);
-                                                int tai = d.transaccid[ta];
+                                                int tai =
+                                                  d.transacc(q2, l, q3, m);
                                                 if (biga.has(m))
                                                   tai = -tai;
                                                 solver.add(tai);
@@ -1004,6 +868,8 @@ namespace spot
     sat_build(const satsolver::solution& solution, dict& satdict,
               const_twa_graph_ptr aut, bool state_based)
     {
+      trace << "sat_build(..., state_based=" << state_based << ")\n";
+
       auto autdict = aut->get_dict();
       auto a = make_twa_graph(autdict);
       a->copy_ap_of(aut);
@@ -1013,90 +879,101 @@ namespace spot
       a->set_acceptance(satdict.cand_nacc, satdict.cand_acc);
       a->new_states(satdict.cand_size);
 
-      // Last transition set in the automaton.
-      unsigned last_aut_trans = -1U;
-      // Last transition read from the SAT result.
-      const transition* last_sat_trans = nullptr;
-
 #if DEBUG
       std::fstream out("dtwa-sat.dbg",
                        std::ios_base::trunc | std::ios_base::out);
       out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-      std::set<int> positive;
 #endif
-
-      dout << "--- transition variables ---\n";
       std::map<int, acc_cond::mark_t> state_acc;
       std::set<src_cond> seen_trans;
-      for (int v: solution)
-        {
-          if (v < 0)  // FIXME: maybe we can have (v < NNN)?
-            continue;
 
-#if DEBUG
-          positive.insert(v);
-#endif
-
-          dict::rev_map::const_iterator t = satdict.revtransid.find(v);
-
-          if (t != satdict.revtransid.end())
+      unsigned alpha_size = satdict.alpha_vect.size();
+      for (unsigned i = 0; i < satdict.cand_size; ++i)
+        for (unsigned j = 0; j < alpha_size; ++j)
+          for (unsigned k = 0; k < satdict.cand_size; ++k)
+          {
+            if (solution[satdict.transid(i, j, k) - 1])
             {
               // Ignore unuseful transitions because of reduced cand_size.
-              if (t->second.src >= satdict.cand_size)
+              if (i >= satdict.cand_size)
                 continue;
 
               // Skip (s,l,d2) if we have already seen some (s,l,d1).
-              if (seen_trans.insert(src_cond(t->second.src,
-                                             t->second.cond)).second)
-                {
-                  acc_cond::mark_t acc = 0U;
-                  if (state_based)
-                    {
-                      auto i = state_acc.find(t->second.src);
-                      if (i != state_acc.end())
-                        acc = i->second;
-                    }
+              if (seen_trans.insert(src_cond(i, satdict.alpha_vect[j])).second)
+              {
+                acc_cond::mark_t acc = 0U;
+                if (state_based)
+                  {
+                    auto tmp = state_acc.find(i);
+                    if (tmp != state_acc.end())
+                      acc = tmp->second;
+                  }
 
-                  last_aut_trans = a->new_edge(t->second.src,
-                                               t->second.dst,
-                                               t->second.cond, acc);
-                  last_sat_trans = &t->second;
+                for (unsigned n = 0; n < satdict.cand_nacc; ++n)
+                  if (solution[satdict.transacc(i, j, k, n) - 1])
+                    acc |= satdict.cacc.mark(n);
 
-                  dout << v << '\t' << t->second << "δ\n";
-                }
+                a->new_edge(i, k, satdict.alpha_vect[j], acc);
+              }
             }
-          else
-            {
-              dict::rev_acc_map::const_iterator ta;
-              ta = satdict.revtransaccid.find(v);
-              // This assumes that the sat solvers output variables in
-              // increasing order.
-              if (ta != satdict.revtransaccid.end())
-                {
-                  dout << v << '\t' << ta->second << "F\n";
+          }
 
-                  if (last_sat_trans &&
-                      ta->second.src == last_sat_trans->src &&
-                      ta->second.cond == last_sat_trans->cond &&
-                      ta->second.dst == last_sat_trans->dst)
-                    {
-                      assert(!state_based);
-                      auto& v = a->edge_data(last_aut_trans).acc;
-                      v |= ta->second.acc;
-                    }
-                  else if (state_based)
-                    {
-                      auto& v = state_acc[ta->second.src];
-                      v |= ta->second.acc;
-                    }
-                }
-            }
-        }
 #if DEBUG
-      dout << "--- pathid variables ---\n";
-      for (auto pit: satdict.pathid)
-        if (positive.find(pit.second) != positive.end())
-          dout << pit.second << '\t' << pit.first << "C\n";
+      dout << "--- transition variables ---\n";
+      for (unsigned i = 0; i < satdict.cand_size; ++i)
+        for (unsigned j = 0; j < alpha_size; ++j)
+          for (unsigned k = 0; k < satdict.cand_size; ++k)
+          {
+            int var = satdict.transid(i, j, k);
+            std::string f_t = satdict.fmt_t(i, j, k);
+            if (solution[var - 1])
+              dout << ' ' << var << "\t " << f_t << '\n';
+            else
+              dout << -var << "\t¬" << f_t << '\n';
+          }
+      dout << "--- transition_acc variables ---\n";
+      if (state_based)
+      {
+        dout << "In state_based mode, there is only 1 litteral for each "
+          "combination of src and nacc, regardless of dst or cond!\n";
+        for (unsigned i = 0; i < satdict.cand_size; ++i)
+          for (unsigned j = 0; j < satdict.cand_nacc; ++j)
+          {
+            int var = satdict.transacc(i, 0, 0, j);
+            std::string f_ta = satdict.fmt_ta(i, 0, 0, j);
+            if (solution[var - 1])
+              dout << ' ' << var << "\t " << f_ta << '\n';
+            else
+              dout << -var << "\t¬" << f_ta << '\n';
+          }
+      }
+      else
+        for (unsigned i = 0; i < satdict.cand_size; ++i)
+          for (unsigned j = 0; j < alpha_size; ++j)
+            for (unsigned k = 0; k < satdict.cand_size; ++k)
+              for (unsigned l = 0; l < satdict.cand_nacc; ++l)
+              {
+                int var = satdict.transacc(i, j, k, l);
+                std::string f_ta = satdict.fmt_ta(i, j, k, l);
+                if (solution[var - 1])
+                  dout << ' ' << var << "\t " << f_ta << '\n';
+                else
+                  dout << -var << "\t¬" << f_ta << '\n';
+              }
+      dout << "--- path_map variables ---\n";
+      for (auto it = satdict.path_map.begin(); it != satdict.path_map.end();
+          ++it)
+        for (unsigned k = 0; k < satdict.cand_size; ++k)
+          for (unsigned l = 0; l < satdict.cand_size; ++l)
+          {
+            int var = satdict.pathid(it->second, k, l);
+            std::string f_p = satdict.fmt_p(k, it->first.src_ref, l,
+                it->first.dst_ref, it->first.acc_cand, it->first.acc_ref);
+            if (solution[var - 1])
+              dout << ' ' << var << "\t " << f_p << '\n';
+            else
+              dout << -var << "\t¬" << f_p << '\n';
+          }
 #endif
 
       a->merge_edges();
@@ -1128,7 +1005,7 @@ namespace spot
 
     timer_map t;
     t.start("encode");
-    sat_stats s = dtwa_to_sat(solver, a, d, state_based, colored);
+    dtwa_to_sat(solver, a, d, state_based, colored);
     t.stop("encode");
     t.start("solve");
     solution = solver.get_solution();
@@ -1138,41 +1015,8 @@ namespace spot
     if (!solution.second.empty())
       res = sat_build(solution.second, d, a, state_based);
 
-    // Always copy the environment variable into a static string,
-    // so that we (1) look it up once, but (2) won't crash if the
-    // environment is changed.
-    static std::string log = []()
-      {
-        auto s = getenv("SPOT_SATLOG");
-        return s ? s : "";
-      }();
-    if (!log.empty())
-      {
-        std::fstream out(log,
-                         std::ios_base::app | std::ios_base::out);
-        out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        const timer& te = t.timer("encode");
-        const timer& ts = t.timer("solve");
-        out << target_state_number << ',';
-        if (res)
-          {
-            twa_sub_statistics st = sub_stats_reachable(res);
-            out << st.states << ',' << st.edges << ',' << st.transitions;
-          }
-        else
-          {
-            out << ",,";
-          }
-        out << ','
-            << s.first << ',' << s.second << ','
-            << te.utime() + te.cutime() << ','
-            << te.stime() + te.cstime() << ','
-            << ts.utime() + ts.cutime() << ','
-            << ts.stime() + ts.cstime() << '\n';
-      }
-    static bool show = getenv("SPOT_SATSHOW");
-    if (show && res)
-      print_dot(std::cout, res);
+    // Print log if env var SPOT_SATLOG is set.
+    print_log(t, target_state_number, res, solver);
 
     trace << "dtwa_sat_synthetize(...) = " << res << '\n';
     return res;
