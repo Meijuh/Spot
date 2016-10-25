@@ -1,23 +1,69 @@
 Overview
 ========
 
-Spot is a model-checking library developed collaboratively by LRDE
-and LIP6. It provides algorithms and data structures to implement
-the automata-theoretic approach to LTL model checking.
+Spot is a model-checking toolkit comprising:
+  - a C++11 library with data-structures and algorithms for working
+    with linear-time temporal logical formulas and ω-automata with
+    any acceptance condition.
+  - a set of command-line tools for easy access to those algorithms,
+    with convenient interfaces to third-party tools also manipulating
+    similar concepts.
+  - Python bindings (including Jupyter interfaces) for the library,
+    making it easier to play with and discover those concepts.
 
-It is mainly meant to be used as a C++ library, but it also comes with
-a few handy command-line utilities, and some Python bindings.
+
+Documentation
+=============
+
+Some documentation can be found in the doc/ directory.
+
+- doc/userdoc/ is basically a local copy of the web-site at
+  https://spot.lrde.epita.fr/.  It contains several explanations and
+  illustrations of the core concepts and tools; it has installation
+  instructions; and also provide several code examples.
+
+- doc/spot.html/ contains documentation for the C++ library.  It is
+  generated automatically from the source code using Doxygen.
+
+- doc/tl/tl.pdf contains documentation about the various temporal
+  logic operators supported by Spot.  It provides semantics, syntax,
+  and gives an exhaustive list of all implemented rewritings.
+
+"make install" will also install man pages for command-line tools.
+(These man pages can also be found in the spot/bin/man/ subdirectory
+of the source tree.)  Additional documentation about these tools can
+also be found in doc/userdoc/.
+
+An important part of the documentation that is missing is the
+documentation of the Python bindings.  Currently all we have is a
+collection of examples, which are all collected at
+http://spot.lrde.epita.fr/tut.html (or doc/userdoc/tut.html in the
+source tree).  This is hardly ideal, but we do not have the resources
+to maintain such a manual for the Python binding by hand.  If you have
+an idea about how to generate a manual for the Python bindings
+automatically, please do contribute!
+
+
+History
+=======
+
+This project started in 2003 at LIP6 (www.lip6.fr).  The main author
+moved to LRDE (www.lrde.epita.fr) in 2007, and all regular
+contributors are now at LRDE.  The web site was moved from
+spot.lip6.fr to spot.lrde.epita.fr in 2015, so do not be surprised if
+you find links to the old site.
+
 
 Keeping in touch
 ================
 
-If you have questions regarding Spot, a bug reports, please send them
-to <spot@lrde.epita.fr>.  This is a public mailing list which you may
-subscribe to at https://www.lrde.epita.fr/mailman/listinfo/spot but you
-should feel free to post without subscribing.
+If you have questions regarding Spot, or bug to report, please send
+them to <spot@lrde.epita.fr>.  This is a public mailing list which you
+may subscribe to at https://www.lrde.epita.fr/mailman/listinfo/spot
+but you should feel free to post without subscribing.
 
-We also run an extremely low traffic list for announcements of
-new releases of Spot.  You may subscribe to that list at
+We also run a low-traffic and read-only list for announcements of new
+releases of Spot.  You may subscribe to that list at
 https://www.lrde.epita.fr/mailman/listinfo/spot-announce
 
 
@@ -90,7 +136,7 @@ flags specific to Spot:
    --enable-glibgxx-debug
      Enable the debugging version libstdc++
      https://gcc.gnu.org/onlinedocs/libstdc++/manual/debug_mode_semantics.html
-     Note that the debugging version og libstdc++ is incompatible with
+     Note that the debugging version of libstdc++ is incompatible with
      the regular version.  So if Spot is compiled with this option, all
      client code should be compiled with -D_GLIBCXX_DEBUG as well.  This
      options should normally only be useful to run Spot's test-suite.
@@ -117,22 +163,6 @@ Here are the meaning of the fine-tuning options, in case
     Whether the compilation should be optimized.  When FLAGS are
     given, use these as optimization flags.  Otherwise, pick working
     flags from a built-in list.
-
-
-Documentation
-=============
-
-Some documentation can be found in the doc/ directory.
-
-- doc/spot.html/ contains documentation for the C++ library.
-
-- doc/tl/tl.pdf contains documentation about the various temporal
-  logic operators supported by Spot
-
-"make install" will install man pages for command-line tools.  (These
-man pages can also be found in the spot/bin/man/ subdirectory of the
-source tree.)  Additional documentation about these tools can be found
-in doc/userdoc/, or online at https://spot.lrde.epita.fr/tools.html
 
 
 
@@ -212,4 +242,7 @@ LocalWords:  optimizations kripkeparse  Automata IPython subdirectory
 LocalWords:  neverparse ltlcounter ltlclasses parallelizing automata
 LocalWords:  wdba WDBA ajax dve DiVinE ltdl Libtool's dlopen userdoc
 LocalWords:  parseaut parsetl priv TGTA taalgos twa twaalgos dtgbasat
-LocalWords:  DTGBA compositional invariance ltsmin SpinS Gnulib's
+LocalWords:  DTGBA compositional invariance ltsmin SpinS Gnulib's PSL
+LocalWords:  Jupyter Doxygen rewritings reimplementation ltlcross utf
+LocalWords:  glibgxx libstdc GLIBCXX Javascript Nemanja Trifunovic's
+LocalWords:  elisp emacs debian
