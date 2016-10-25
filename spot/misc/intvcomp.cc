@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <cassert>
 #include <spot/misc/intvcomp.hh>
+#include <iostream>
 
 namespace spot
 {
@@ -38,7 +39,7 @@ namespace spot
   //  00  encodes "value 0"
   //  010 encodes "value 1"
   //  011 encodes "a value in [2..5]" followed by 2 bits
-  //  100 encodes "a value in [6..22]" followed by 4 bits
+  //  100 encodes "a value in [6..21]" followed by 4 bits
   //  101 encodes "repeat prev. value [1..8] times" followed by 3 bits count
   //  110 encodes "repeat prev. value [9..40] times" followed by 5 bits count
   //  111 encodes "an int value" followed by 32 bits
@@ -74,14 +75,14 @@ namespace spot
             self().push_bits(0x3, 3, 0x7);
             self().push_bits(val - 2, 2, 0x3);
           }
-        else if (val >= 6 && val <= 22)
+        else if (val >= 6 && val <= 21)
           {
             self().push_bits(0x4, 3, 0x7);
             self().push_bits(val - 6, 4, 0xf);
           }
         else
           {
-            assert(val > 22);
+            assert(val > 21);
             self().push_bits(0x7, 3, 0x7);
             self().push_bits(val, 32, -1U);
           }

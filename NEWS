@@ -25,6 +25,9 @@ New in spot 2.1.2.dev (not yet released)
       genltl --go-theta=12 | ltl2tgba --low --any
     is instantaneous as it should be.
 
+  * Compression could encode '6' and '22' in the same way. This issue
+    only appears when using the compression from intvcomp.hh.
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:
