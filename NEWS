@@ -18,6 +18,13 @@ New in spot 2.1.2.dev (not yet released)
     this halves the run time of
        genltl --rv-counter=10 | ltl2tgba
 
+  Bugs:
+
+  * ltl2tgba was alway using the highest settings for the LTL
+    simplifier, ignoring the --low and --medium options.  Now
+      genltl --go-theta=12 | ltl2tgba --low --any
+    is instantaneous as it should be.
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:

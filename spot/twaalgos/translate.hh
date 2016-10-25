@@ -96,6 +96,12 @@ namespace spot
     set_level(optimization_level level)
     {
       level_ = level;
+      if (simpl_owned_)
+        {
+          auto d = simpl_owned_->get_dict();
+          delete simpl_owned_;
+          build_simplifier(d);
+        }
     }
 
     /// \brief Convert \a f into an automaton.
