@@ -1781,15 +1781,11 @@ namespace spot
           }
 
         // Apply the fair-loop approximation if requested.
-        if (fair_loop_approx_)
-          {
+        if (fair_loop_approx_
             // If the source cannot possibly be part of a fair
             // loop, make all possible promises.
-            if (fair_loop_approx_
-                && f != formula::tt()
-                && !pflc_.check(f))
-              t.symbolic &= all_promises_;
-          }
+            && !f.is_tt() && !pflc_.check(f))
+          t.symbolic &= all_promises_;
 
         // Register the reverse mapping if it is not already done.
         if (b2f_.find(t.symbolic) == b2f_.end())

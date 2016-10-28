@@ -30,19 +30,19 @@
 namespace
 {
   typedef spot::twa_graph::graph_t::edge_storage_t tr_t;
-  bool
+  static bool
   tr_t_less_than(const tr_t& t1, const tr_t& t2)
   {
     return t1.cond.id() < t2.cond.id();
   }
 
-  bool
+  static bool
   operator!=(const tr_t& t1, const tr_t& t2)
   {
     return t1.cond.id() != t2.cond.id();
   }
 
-  bool
+  static bool
   are_isomorphic_det(const spot::const_twa_graph_ptr aut1,
                      const spot::const_twa_graph_ptr aut2)
   {
@@ -135,14 +135,12 @@ namespace spot
     trival autdet = aut->prop_deterministic();
     if (ref_deterministic_)
       {
-        if (autdet || (!autdet && spot::is_deterministic(aut)))
-          return are_isomorphic_det(ref_, aut);
-      }
-    else
-      {
-        if (autdet || nondet_states_ != spot::count_nondet_states(aut))
+        if (!spot::is_deterministic(aut))
           return false;
+        return are_isomorphic_det(ref_, aut);
       }
+    if (autdet || nondet_states_ != spot::count_nondet_states(aut))
+      return false;
 
     auto tmp = make_twa_graph(aut, twa::prop_set::all());
     spot::canonicalize(tmp);

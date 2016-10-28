@@ -102,33 +102,13 @@ namespace spot
                 ++it_trans;
               }
 
-          if (transitions_to_livelock_states)
-            {
-              state_ta_explicit::transitions::iterator it_trans;
-
-              for (it_trans = transitions_to_livelock_states->begin();
-                   it_trans != transitions_to_livelock_states->end();
-                   ++it_trans)
-                {
-                  if (artificial_livelock_acc_state)
-                    {
-                      testing_automata->create_transition
-                        (source,
-                         (*it_trans)->condition,
-                         (*it_trans)->acceptance_conditions,
-                         artificial_livelock_acc_state, true);
-                    }
-                  else
-                    {
-                      testing_automata->create_transition
-                        (source,
-                         (*it_trans)->condition,
-                         (*it_trans)->acceptance_conditions,
-                         ((*it_trans)->dest)->stuttering_reachable_livelock,
-                         true);
-                    }
-                }
-            }
+          for (auto* trans: *transitions_to_livelock_states)
+            testing_automata->create_transition
+              (source, trans->condition,
+               trans->acceptance_conditions,
+               artificial_livelock_acc_state ?
+               artificial_livelock_acc_state :
+               trans->dest->stuttering_reachable_livelock, true);
         }
       delete transitions_to_livelock_states;
 
