@@ -37,6 +37,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <iomanip>
+#include <new>
 #include "kernel.h"
 #include "bvecx.h"
 
@@ -190,7 +191,7 @@ ostream &operator<<(ostream &o, const bdd &r)
 	 return o;
       }
 
-      int *set = new int[bddvarnum];
+      int *set = new (std::nothrow) int[bddvarnum];
       if (set == NULL)
       {
 	 bdd_error(BDD_MEMORY);
@@ -252,7 +253,7 @@ ostream &operator<<(ostream &o, const bdd &r)
 	 return o;
       }
 
-      int *set = new int[bddvarnum];
+      int *set = new (std::nothrow) int[bddvarnum];
       if (set == NULL)
       {
 	 bdd_error(BDD_MEMORY);

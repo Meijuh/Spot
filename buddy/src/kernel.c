@@ -774,19 +774,19 @@ void bdd_fprintstat(FILE *ofile)
    fprintf(ofile, "\nCache statistics\n");
    fprintf(ofile, "----------------\n");
 
-   fprintf(ofile, "Unique Access:  %ld\n", s.uniqueAccess);
-   fprintf(ofile, "Unique Chain:   %ld\n", s.uniqueChain);
-   fprintf(ofile, "Unique Hit:     %ld\n", s.uniqueHit);
-   fprintf(ofile, "Unique Miss:    %ld\n", s.uniqueMiss);
+   fprintf(ofile, "Unique Access:  %lu\n", s.uniqueAccess);
+   fprintf(ofile, "Unique Chain:   %lu\n", s.uniqueChain);
+   fprintf(ofile, "Unique Hit:     %lu\n", s.uniqueHit);
+   fprintf(ofile, "Unique Miss:    %lu\n", s.uniqueMiss);
    fprintf(ofile, "=> Hit rate =   %.2f\n",
 	   (s.uniqueHit+s.uniqueMiss > 0) ?
 	   ((float)s.uniqueHit)/((float)s.uniqueHit+s.uniqueMiss) : 0);
-   fprintf(ofile, "Operator Hits:  %ld\n", s.opHit);
-   fprintf(ofile, "Operator Miss:  %ld\n", s.opMiss);
+   fprintf(ofile, "Operator Hits:  %lu\n", s.opHit);
+   fprintf(ofile, "Operator Miss:  %lu\n", s.opMiss);
    fprintf(ofile, "=> Hit rate =   %.2f\n",
 	   (s.opHit+s.opMiss > 0) ?
 	   ((float)s.opHit)/((float)s.opHit+s.opMiss) : 0);
-   fprintf(ofile, "Swap count =    %ld\n", s.swapCount);
+   fprintf(ofile, "Swap count =    %lu\n", s.swapCount);
 }
 
 
@@ -1164,7 +1164,7 @@ BDD bdd_addref(BDD root)
 BDD bdd_delref_nc(BDD root)
 {
 #ifndef NDEBUG
-   if (root < 2  ||  !bddrunning)
+   if (!bddrunning)
       return root;
    if (root >= bddnodesize)
       return bdd_error(BDD_ILLBDD);

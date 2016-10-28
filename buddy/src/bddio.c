@@ -130,7 +130,7 @@ void bdd_fprintall(FILE *ofile)
    {
       if (LOW(n) != -1)
       {
-	 fprintf(ofile, "[%5d - %2d] ", n, bddnodes[n].refcou);
+	 fprintf(ofile, "[%5d - %2u] ", n, bddnodes[n].refcou);
 	 if (filehandler)
 	    filehandler(ofile, bddlevel2var[LEVEL(n)]);
 	 else
