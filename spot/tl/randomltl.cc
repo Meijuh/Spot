@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -412,9 +412,9 @@ namespace spot
     opt_seed_ = opts.get("seed", 0);
     opt_tree_size_min_ = opts.get("tree_size_min", 15);
     opt_tree_size_max_ = opts.get("tree_size_max", 15);
-    opt_unique_ = opts.get("unique", true);
-    opt_wf_ = opts.get("wf", false);
     opt_simpl_level_ = opts.get("simplification_level", 3);
+    opt_unique_ = opts.get("unique", 1);
+    opt_wf_ = opts.get("wf", 0);
 
     const char* tok_pL = nullptr;
     const char* tok_pS = nullptr;

@@ -299,7 +299,7 @@ namespace spot
           SPOT_UNREACHABLE();
         }
       SPOT_UNREACHABLE();
-      return false;
+      return 0U;
     }
   }
 
@@ -532,7 +532,7 @@ namespace spot
     if (max)
       res = odd ? t() : f();
     else
-      res = (sets & 1) == odd ? t() : f();
+      res = ((sets & 1) == odd) ? t() : f();
 
     if (sets == 0)
       return res;

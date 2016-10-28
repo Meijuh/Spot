@@ -425,7 +425,7 @@ namespace spot
     YY_NEW_FILE;
     hoayyreset();
     if (want_interactive)
-      yy_set_interactive(true);
+      yy_set_interactive(1);
     return 0;
   }
 
@@ -461,7 +461,7 @@ namespace spot
     YY_NEW_FILE;
     hoayyreset();
     if (want_interactive)
-      yy_set_interactive(true);
+      yy_set_interactive(1);
     return 0;
   }
 

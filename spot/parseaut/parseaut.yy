@@ -2067,9 +2067,9 @@ static void fix_initial_state(result_& r)
       // Multiple initial states.  We might need to add a fake one,
       // unless one of the actual initial state has no incoming edge.
       auto& aut = r.h->aut;
-      std::vector<unsigned> has_incoming(aut->num_states(), 0);
+      std::vector<unsigned char> has_incoming(aut->num_states(), 0);
       for (auto& t: aut->edges())
-	has_incoming[t.dst] = true;
+	has_incoming[t.dst] = 1;
 
       bool found = false;
       unsigned init = 0;
