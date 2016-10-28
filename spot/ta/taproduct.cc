@@ -297,9 +297,8 @@ namespace spot
   ta_succ_iterator_product*
   ta_product::succ_iter(const state* s) const
   {
-    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
-    assert(s);
-
+    const state_ta_product* stp = down_cast<const state_ta_product*>(s);
+    assert(stp);
     return new ta_succ_iterator_product(stp, ta_.get(), kripke_.get());
   }
 
@@ -307,8 +306,8 @@ namespace spot
   ta_succ_iterator_product*
   ta_product::succ_iter(const spot::state* s, bdd changeset) const
   {
-    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
-    assert(s);
+    const state_ta_product* stp = down_cast<const state_ta_product*>(s);
+    assert(stp);
     return new ta_succ_iterator_product_by_changeset(stp,
                                                      ta_.get(), kripke_.get(),
                                                      changeset);
