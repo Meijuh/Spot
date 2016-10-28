@@ -406,13 +406,14 @@ namespace spot
                                      char* opt_pL,
                                      char* opt_pS,
                                      char* opt_pB)
+    : opt_simpl_level_(opts.get("simplification_level", 3)),
+      simpl_(tl_simplifier_options{opt_simpl_level_})
   {
     aprops_ = aprops;
     output_ = opts.get("output", OUTPUTLTL);
     opt_seed_ = opts.get("seed", 0);
     opt_tree_size_min_ = opts.get("tree_size_min", 15);
     opt_tree_size_max_ = opts.get("tree_size_max", 15);
-    opt_simpl_level_ = opts.get("simplification_level", 3);
     opt_unique_ = opts.get("unique", 1);
     opt_wf_ = opts.get("wf", 0);
 
@@ -470,8 +471,6 @@ namespace spot
                                   + std::string(tok_pB));
 
     spot::srand(opt_seed_);
-    tl_simplifier_options simpl_opts(opt_simpl_level_);
-    tl_simplifier simpl_(simpl_opts);
   }
 
   randltlgenerator::randltlgenerator(int aprops_n,
