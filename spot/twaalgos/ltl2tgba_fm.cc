@@ -1856,11 +1856,6 @@ namespace spot
       {
       }
 
-      transition(const transition& other)
-        : dest(other.dest), prom(other.prom), cond(other.cond)
-      {
-      }
-
       bool operator<(const transition& other) const
       {
         if (dest < other.dest)

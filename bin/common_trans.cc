@@ -133,10 +133,22 @@ translator_spec::translator_spec(const char* spec)
 translator_spec::translator_spec(const translator_spec& other)
   : spec(other.spec), cmd(other.cmd), name(other.name)
 {
-  if (name != spec)
-    name = strdup(name);
   if (cmd != spec)
     cmd = strdup(cmd);
+  if (name != spec)
+    name = strdup(name);
+}
+
+translator_spec& translator_spec::operator=(const translator_spec& other)
+{
+  spec = other.spec;
+  cmd = other.cmd;
+  if (cmd != spec)
+    cmd = strdup(cmd);
+  name = other.name;
+  if (name != spec)
+    name = strdup(name);
+  return *this;
 }
 
 translator_spec::~translator_spec()

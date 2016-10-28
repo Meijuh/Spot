@@ -950,6 +950,15 @@ namespace spot
     {
     }
 
+    acc_cond& operator=(const acc_cond& o)
+    {
+      num_ = o.num_;
+      all_ = o.all_;
+      code_ = o.code_;
+      uses_fin_acceptance_ = o.uses_fin_acceptance_;
+      return *this;
+    }
+
     ~acc_cond()
     {
     }

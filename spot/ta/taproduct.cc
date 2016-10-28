@@ -28,12 +28,6 @@ namespace spot
   ////////////////////////////////////////////////////////////
   // state_ta_product
 
-  state_ta_product::state_ta_product(const state_ta_product& o) :
-    state(), ta_state_(o.get_ta_state()), kripke_state_(
-        o.get_kripke_state()->clone())
-  {
-  }
-
   state_ta_product::~state_ta_product()
   {
     //see ta_product::free_state() method
@@ -61,7 +55,7 @@ namespace spot
   state_ta_product*
   state_ta_product::clone() const
   {
-    return new state_ta_product(*this);
+    return new state_ta_product(ta_state_, kripke_state_);
   }
 
   ////////////////////////////////////////////////////////////

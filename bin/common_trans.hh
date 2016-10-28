@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -45,6 +45,7 @@ struct translator_spec
 
   translator_spec(const char* spec);
   translator_spec(const translator_spec& other);
+  translator_spec& operator=(const translator_spec& other);
   ~translator_spec();
 };
 

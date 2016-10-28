@@ -41,8 +41,7 @@ namespace spot
     {
     }
 
-    /// Copy constructor
-    state_ta_product(const state_ta_product& o);
+    state_ta_product(const state_ta_product& o) = delete;
 
     virtual
     ~state_ta_product();
