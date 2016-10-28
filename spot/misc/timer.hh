@@ -211,13 +211,6 @@ namespace spot
       return i->second.first;
     }
 
-    /// Return the timer \a name.
-    spot::timer&
-    timer(const std::string& name)
-    {
-      return tm[name].first;
-    }
-
     /// \brief Whether there is no timer in the map.
     ///
     /// If empty() return true, then either no timer where ever

@@ -149,7 +149,6 @@ namespace spot
         bdd_info& i = bdd_map[num];
         i.type = acc;
         i.f = f;
-        i.clone_counts = 0;
       }
     bdd_map[num].refs.insert(for_me);
     return num;

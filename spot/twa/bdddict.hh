@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -82,7 +82,6 @@ namespace spot
       var_type type;
       formula f;        // Used unless t==anon.
       ref_set refs;
-      int clone_counts;
     };
     typedef std::vector<bdd_info> bdd_info_map;
     // Map BDD variables to their meaning.

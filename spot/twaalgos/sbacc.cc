@@ -102,7 +102,6 @@ namespace spot
               acc = one_in[t.dst];
             if (dst_acc)
               acc |= common_out[t.dst];
-            common_out[t.dst];
             res->new_edge(one.second, new_state(t.dst, acc),
                           t.cond, one.first.second);
           }
