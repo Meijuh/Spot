@@ -28,6 +28,9 @@ New in spot 2.1.2.dev (not yet released)
   * Compression could encode '6' and '22' in the same way. This issue
     only appears when using the compression from intvcomp.hh.
 
+  * str_sere() and str_utf8_sere() were not returning the same
+    string that print_sere() and print_utf8_sere() would print.
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:

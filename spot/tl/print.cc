@@ -893,7 +893,7 @@ namespace spot
   std::string
   str_sere(formula f, bool full_parent)
   {
-    return str_(f, full_parent, false, spot_kw);
+    return str_(f, full_parent, true, spot_kw);
   }
 
 
@@ -918,7 +918,7 @@ namespace spot
   std::string
   str_utf8_sere(formula f, bool full_parent)
   {
-    return str_(f, full_parent, false, utf8_kw);
+    return str_(f, full_parent, true, utf8_kw);
   }
 
 
