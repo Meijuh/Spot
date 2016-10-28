@@ -182,7 +182,6 @@ namespace spot
   int
   option_map::operator[](const char* option) const
   {
-    unused_.erase(option);
     return get(option);
   }
 
