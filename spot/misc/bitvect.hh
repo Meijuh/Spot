@@ -26,6 +26,7 @@
 #include <iosfwd>
 #include <iostream>
 #include <algorithm>
+#include <new>
 
 namespace spot
 {
@@ -112,8 +113,14 @@ namespace spot
         }
       else
         {
+          auto old = storage_;
           storage_ = static_cast<block_t*>
-            (realloc(storage_, new_block_count * sizeof(block_t)));
+            (realloc(old, new_block_count * sizeof(block_t)));
+          if (!storage_)
+            {
+              free(old);
+              throw std::bad_alloc();
+            }
         }
       block_count_ = new_block_count;
     }
