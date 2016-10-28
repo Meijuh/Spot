@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2011, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2011, 2014, 2015, 2016 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -373,11 +373,11 @@ namespace spot
   couvreur99_check_shy::dump_queue(std::ostream& os)
   {
     os << "--- TODO ---\n";
-    unsigned pos = 0;
+    unsigned lvl = 0;
     for (auto& ti: todo)
       {
-        ++pos;
-        os << '#' << pos << " s:" << ti.s << " n:" << ti.n
+        ++lvl;
+        os << '#' << lvl << " s:" << ti.s << " n:" << ti.n
            << " q:{";
         for (auto qi = ti.q.begin(); qi != ti.q.end();)
           {

@@ -1276,8 +1276,9 @@ namespace spot
         else
           {
             is_.syntactic_safety = false;
-            is_.syntactic_obligation = children[1]->is_syntactic_guarantee();
-            is_.syntactic_recurrence = children[1]->is_syntactic_guarantee();
+            bool g = children[1]->is_syntactic_guarantee();
+            is_.syntactic_obligation = g;
+            is_.syntactic_recurrence = g;
           }
         assert(children[0]->is_sere_formula());
         assert(children[1]->is_psl_formula());
@@ -1305,8 +1306,9 @@ namespace spot
         else
           {
             is_.syntactic_guarantee = false;
-            is_.syntactic_obligation = children[1]->is_syntactic_safety();
-            is_.syntactic_persistence = children[1]->is_syntactic_safety();
+            bool s = children[1]->is_syntactic_safety();
+            is_.syntactic_obligation = s;
+            is_.syntactic_persistence = s;
           }
         assert(children[0]->is_sere_formula());
         assert(children[1]->is_psl_formula());
