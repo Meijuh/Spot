@@ -943,7 +943,7 @@ namespace spot
     // Call spins to compile "foo.prom" as "foo.prom.spins" if the latter
     // does not exist already or is older.
     static void
-    compile_model(std::string& filename, std::string& ext)
+    compile_model(std::string filename, const std::string& ext)
     {
       std::string command;
       std::string compiled_ext;
@@ -969,7 +969,6 @@ namespace spot
       if (stat(filename.c_str(), &s) != 0)
         throw std::runtime_error(std::string("Cannot open ") + filename);
 
-      std::string old = filename;
       filename += compiled_ext;
 
       // Remove any directory, because the new file will
