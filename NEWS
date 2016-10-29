@@ -31,6 +31,8 @@ New in spot 2.1.2.dev (not yet released)
   * str_sere() and str_utf8_sere() were not returning the same
     string that print_sere() and print_utf8_sere() would print.
 
+  * Running the LTL parser in debug-mode would crash.
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:

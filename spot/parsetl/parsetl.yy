@@ -236,8 +236,8 @@ using namespace spot;
 %destructor { $$->destroy(); } <ltl>
 
 %printer { debug_stream() << *$$; } <str>
-%printer { print_psl(debug_stream(), formula($$)); } <ltl>
-%printer { print_sere(debug_stream(), formula($$)); } sere bracedsere
+%printer { print_psl(debug_stream(), formula($$->clone())); } <ltl>
+%printer { print_sere(debug_stream(), formula($$->clone())); } sere bracedsere
 %printer { debug_stream() << $$; } <num>
 %printer { debug_stream() << $$.min << ".." << $$.max; } <minmax>
 
