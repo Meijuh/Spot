@@ -943,7 +943,7 @@ namespace spot
     // Call spins to compile "foo.prom" as "foo.prom.spins" if the latter
     // does not exist already or is older.
     static void
-    compile_model(std::string filename, const std::string& ext)
+    compile_model(std::string& filename, const std::string& ext)
     {
       std::string command;
       std::string compiled_ext;
