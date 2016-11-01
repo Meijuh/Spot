@@ -343,27 +343,21 @@ namespace spot
   {
     std::vector<int> to_remove;
     for (auto& n1: nodes_)
-      {
-        for (auto& n2: nodes_)
-          {
-            if (n1 == n2)
-              continue;
-            // index to see if there is a path from scc2 -> scc1
-            unsigned idx = scc.scc_count() * scc.scc_of(n2.first) +
-              scc.scc_of(n1.first);
-            if (bdd_implies(implications.at(n1.first),
-                            implications.at(n2.first)) && !is_connected[idx])
-              {
-                to_remove.push_back(n1.first);
-              }
-          }
-      }
+      for (auto& n2: nodes_)
+        {
+          if (n1 == n2)
+            continue;
+          // index to see if there is a path from scc2 -> scc1
+          unsigned idx = scc.scc_count() * scc.scc_of(n2.first) +
+            scc.scc_of(n1.first);
+          if (!is_connected[idx] && bdd_implies(implications.at(n1.first),
+                                                implications.at(n2.first)))
+            to_remove.push_back(n1.first);
+        }
     for (auto& n: to_remove)
       {
         for (auto& brace: nodes_[n])
-          {
-            --nb_braces_[brace];
-          }
+          --nb_braces_[brace];
         nodes_.erase(n);
       }
   }
