@@ -33,6 +33,10 @@ New in spot 2.1.2.dev (not yet released)
 
   * Running the LTL parser in debug-mode would crash.
 
+  * tgba_determinize() could produce incorrect deterministic automata
+    when run with use_simulation (the default) on non-simplified
+    automata.
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:

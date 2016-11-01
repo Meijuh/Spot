@@ -321,6 +321,7 @@ TESTS_python = \
   python/accparse2.py \
   python/alarm.py \
   python/bddnqueen.py \
+  python/bugdet.py \
   python/implies.py \
   python/interdep.py \
   python/ltl2tgba.test \

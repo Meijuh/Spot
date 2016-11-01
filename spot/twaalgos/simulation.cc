@@ -582,7 +582,13 @@ namespace spot
               }
           }
 
-        res->purge_unreachable_states();
+        // If we recorded implications for the determinization
+        // procedure, we should not remove unreachable states, as that
+        // will invalidate the contents of the IMPLICATIONS vector.
+        // It's OK not to purge the result, as the determinization
+        // will only explore the reachable part anyway.
+        if (!implications)
+          res->purge_unreachable_states();
 
         delete gb;
         res->prop_copy(original_,
