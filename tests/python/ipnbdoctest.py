@@ -30,13 +30,19 @@ except:
     sys.exit(77)
 
 try:
-    from IPython.kernel import KernelManager
+    from jupyter_client import KernelManager
 except ImportError:
-    from IPython.zmq.blockingkernelmanager \
-      import BlockingKernelManager as KernelManager
+    try:
+        from IPython.kernel import KernelManager
+    except ImportError:
+        from IPython.zmq.blockingkernelmanager \
+          import BlockingKernelManager as KernelManager
 
-# Until Debian ships IPython 3.0, we stick to the v3 format.
-from IPython.nbformat import v3 as nbformat
+# Until Debian Stable ships IPython >3.0, we stick to the v3 format.
+try:
+    from nbformat import v3 as nbformat
+except ImportError:
+    from IPython.nbformat import v3 as nbformat
 
 def compare_png(a64, b64):
     """compare two b64 PNGs (incomplete)"""
