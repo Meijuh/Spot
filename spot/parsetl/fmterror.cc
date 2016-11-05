@@ -89,6 +89,7 @@ namespace spot
           os << '\n' << it.second << "\n\n";
           printed = true;
         }
+      os.flush();
       return printed;
     }
   }
