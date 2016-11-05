@@ -102,6 +102,7 @@
 #include <spot/tl/unabbrev.hh>
 #include <spot/tl/randomltl.hh>
 #include <spot/tl/length.hh>
+#include <spot/tl/ltlf.hh>
 #include <spot/tl/remove_x.hh>
 #include <spot/tl/relabel.hh>
 
@@ -386,6 +387,7 @@ namespace std {
 %include <spot/tl/unabbrev.hh>
 %include <spot/tl/randomltl.hh>
 %include <spot/tl/length.hh>
+%include <spot/tl/ltlf.hh>
 %include <spot/tl/remove_x.hh>
 %include <spot/tl/relabel.hh>
 

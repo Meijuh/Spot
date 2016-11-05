@@ -1,6 +1,15 @@
 New in spot 2.1.2.dev (not yet released)
 
+  Command-line tools:
+
+  * ltlfilt has a new option --from-ltlf to help reducing LTLf (i.e.,
+    LTL over finite words) model checking to LTL model checking.  This
+    is based on a transformation by De Giacomo & Vardi (IJCAI'13).
+
   Library:
+
+  * from_ltlf() is a new function implementing the --from-ltlf
+    transformation described above.
 
   * is_unambiguous() was rewritten in a more efficient way.
 

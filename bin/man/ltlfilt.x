@@ -50,6 +50,13 @@ Automata. Proceedings of CONCUR'00.  LNCS 1877.
 
 Describe the syntactic LTL classes matched by \fB\-\-eventual\fR, and
 \fB\-\-universal\fR.
+.TP
+\(bu
+Giuseppe De Giacomo, Moshe Y. Vardi: Linear Temporal Logic and
+Linear Dynamic Logic on Finite Traces.  Proceedings of IJCAI'13.
+
+Describe the transformation implemented by \fB\-\-from\-ltlf\fR
+to reduce LTLf model checking to LTL model checking.
 [SEE ALSO]
 .BR randltl (1),
 .BR ltldo (1)

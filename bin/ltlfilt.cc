@@ -43,6 +43,7 @@
 #include <spot/tl/remove_x.hh>
 #include <spot/tl/apcollect.hh>
 #include <spot/tl/exclusive.hh>
+#include <spot/tl/ltlf.hh>
 #include <spot/tl/print.hh>
 #include <spot/twaalgos/ltl2tgba_fm.hh>
 #include <spot/twaalgos/minimize.hh>
@@ -71,6 +72,7 @@ enum {
   OPT_EQUIVALENT_TO,
   OPT_EXCLUSIVE_AP,
   OPT_EVENTUAL,
+  OPT_FROM_LTLF,
   OPT_GUARANTEE,
   OPT_IGNORE_ERRORS,
   OPT_IMPLIED_BY,
@@ -143,6 +145,9 @@ static const argp_option options[] =
       "two of them may not be true at the same time.  Use this option "
       "multiple times to declare independent groups of exclusive "
       "propositions.", 0 },
+    { "from-ltlf", OPT_FROM_LTLF, "alive", OPTION_ARG_OPTIONAL,
+      "transform LTLf (finite LTL) to LTL by introducing some 'alive'"
+      " proposition", 0 },
     DECLARE_OPT_R,
     LEVEL_DOC(4),
     /**************************************************/
@@ -277,6 +282,7 @@ static bool stutter_insensitive = false;
 static range ap_n = { -1, -1 };
 static int opt_max_count = -1;
 static long int match_count = 0;
+static const char* from_ltlf = nullptr;
 
 
 // We want all these variables to be destroyed when we exit main, to
@@ -403,6 +409,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       }
     case OPT_LTL:
       ltl = true;
+      break;
+    case OPT_FROM_LTLF:
+      from_ltlf = arg ? arg : "alive";
       break;
     case OPT_NEGATE:
       negate = true;
@@ -559,6 +568,9 @@ namespace
 
       if (negate)
         f = spot::formula::Not(f);
+
+      if (from_ltlf)
+        f = spot::from_ltlf(f, from_ltlf);
 
       if (remove_x)
         {

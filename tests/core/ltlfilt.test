@@ -178,6 +178,35 @@ F(GFa | Gb)
 F(b W GFa)
 EOF
 
+# Restrict to LTL
+run 0 ltlfilt --ltl formulas > formulas2
+mv formulas2 formulas
+
+checkopt --ltl --from-ltlf <<EOF
+(G(!alive | F(a & alive)) | F(alive & G(!alive | b))) & (alive U G!alive)
+F(alive & (G(!alive | F(a & alive)) | G(!alive | b))) & (alive U G!alive)
+F(alive & ((!alive | b) W G(!alive | F(a & alive)))) & (alive U G!alive)
+(G(!alive | F(a & alive)) | G(!alive | b)) & (alive U G!alive)
+((!alive | b) W G(!alive | F(a & alive))) & (alive U G!alive)
+(a U (alive & F(alive & b))) & (alive U G!alive)
+G(!alive | (a & X(alive & b))) & (alive U G!alive)
+X(a & alive) & (alive U G!alive)
+F(a & alive & !X(a & alive) & X(alive & b)) & (alive U G!alive)
+a & (b | c) & (alive U G!alive)
+EOF
+
+checkopt --ltl --from-ltlf='!dead' <<EOF
+(G(dead | F(a & !dead)) | F(!dead & G(b | dead))) & (!dead U Gdead)
+F(!dead & (G(dead | F(a & !dead)) | G(b | dead))) & (!dead U Gdead)
+F(!dead & ((b | dead) W G(dead | F(a & !dead)))) & (!dead U Gdead)
+(G(dead | F(a & !dead)) | G(b | dead)) & (!dead U Gdead)
+((b | dead) W G(dead | F(a & !dead))) & (!dead U Gdead)
+(a U (!dead & F(b & !dead))) & (!dead U Gdead)
+G(dead | (a & X(b & !dead))) & (!dead U Gdead)
+X(a & !dead) & (!dead U Gdead)
+F(a & !dead & !X(a & !dead) & X(b & !dead)) & (!dead U Gdead)
+a & (b | c) & (!dead U Gdead)
+EOF
 
 cat >in <<EOF
 a & Xb & c

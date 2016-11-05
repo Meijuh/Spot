@@ -325,6 +325,7 @@ TESTS_python = \
   python/implies.py \
   python/interdep.py \
   python/ltl2tgba.test \
+  python/ltlf.py \
   python/ltlparse.py \
   python/ltlsimple.py \
   python/minato.py \
