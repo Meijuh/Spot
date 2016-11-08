@@ -35,9 +35,13 @@ LOG_DRIVER = $(TEST_LOG_DRIVER)
 check_SCRIPTS = run
 
 # We try to keep this somehow by strength.  Test basic things first,
-# because such failures will be easier to diagnose and fix.
-TESTS = $(TESTS_sanity) $(TESTS_misc) $(TESTS_tl) $(TESTS_graph) \
-  $(TESTS_kripke) $(TESTS_twa) $(TESTS_python) $(TESTS_ltsmin)
+# because such failures will be easier to diagnose and fix.  The only
+# exception is that we keep TESTS_python at the beginning, because if
+# these tests are run at the same time as some heavy tests in
+# TESTS_twa they can easily fail due to some timeout in the Jupyter
+# communications.
+TESTS = $(TESTS_sanity) $(TESTS_python) $(TESTS_misc) $(TESTS_tl) \
+  $(TESTS_graph) $(TESTS_kripke) $(TESTS_twa) $(TESTS_ltsmin)
 
 distclean-local:
 	find . -name '*.dir' -type d -print | xargs rm -rf

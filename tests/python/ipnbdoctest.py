@@ -153,7 +153,8 @@ def run_cell(kc, cell):
     # print cell.input
     kc.execute(cell.input)
     # wait for finish, maximum 20s
-    kc.get_shell_msg(timeout=20)
+    reply = kc.get_shell_msg(timeout=20)
+    print("reply:\n", reply)
     outs = []
 
     while True:
