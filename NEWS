@@ -6,11 +6,18 @@ New in spot 2.1.2.dev (not yet released)
     LTL over finite words) model checking to LTL model checking.  This
     is based on a transformation by De Giacomo & Vardi (IJCAI'13).
 
+  * "ltldo --stats=%R", which used to display the serial number of the
+    formula processed, was renamed to "ltldo --stats=%#" to free %R
+    for the following feature.
+
   * autfilt, dstar2tgba, ltl2tgba, ltlcross, ltldo learned to time any
-    task in a more precise way thanks to %R, %[LETTER]R option. User time,
-    system time or children processing time or ... (see --help) can be
-    measured separately. A typical use-case is to exclude time spent
-    inside ltldo by keeping only time spent in each executed tool.
+    task in a more precise way thanks to %R, %[LETTER]R option. User
+    or system time, for children or parent, can be measured
+    separately.  A typical use-case is "ltldo --stats='... %[c]R ...'
+    ..." to measure the time spent in the tool ran by ltldo, excluding
+    that of ltldo.  In all tools, the difference between %r
+    (wall-clock time) and %R (process time) can also be used to detect
+    unreliable measurements.
 
   Library:
 

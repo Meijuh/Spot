@@ -66,7 +66,7 @@ static const argp_option options[] =
 
 static const argp_option more_o_format[] =
   {
-    { "%R", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+    { "%#", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "serial number of the formula translated", 0 },
     { "%T", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "tool used for translation", 0 },
@@ -262,7 +262,7 @@ namespace
       : runner(dict), post(post)
     {
       printer.add_stat('T', &cmdname);
-      printer.add_stat('R', &roundval);
+      printer.add_stat('#', &roundval);
       printer.add_stat('f', &inputf);
     }
 
