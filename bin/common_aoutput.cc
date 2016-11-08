@@ -25,6 +25,7 @@
 #include "common_cout.hh"
 
 #include <unistd.h>
+#include <ctime>
 #include <spot/twa/bddprint.hh>
 #include <spot/twaalgos/dot.hh>
 #include <spot/twaalgos/hoa.hh>
@@ -175,8 +176,8 @@ static const argp_option io_options[] =
     { "%R, %[LETTERS]R", 0, nullptr,
       OPTION_DOC | OPTION_NO_USAGE,
       "CPU time (excluding parsing), in seconds; Add LETTERS to restrict to"
-      "(u) user time, (s) system time or to omit (p) parent processes, "
-      "(c) children processes.", 0 },
+      "(u) user time, (s) system time, (p) parent process, "
+      "or (c) children processes.", 0 },
     { "%N, %n", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states", 0 },
     { "%D, %d", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -232,8 +233,8 @@ static const argp_option o_options[] =
     { "%R, %[LETTERS]R", 0, nullptr,
       OPTION_DOC | OPTION_NO_USAGE,
       "CPU time (excluding parsing), in seconds; Add LETTERS to restrict to"
-      "(u) user time, (s) system time or to omit (p) parent processes, "
-      "(c) children processes.", 0 },
+      "(u) user time, (s) system time, (p) parent process, "
+      "or (c) children processes.", 0 },
     { "%n", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states in output", 0 },
     { "%d", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -609,10 +610,20 @@ void printable_timer::print(std::ostream& os, const char* pos) const
 {
   double res = 0;
 
+#ifdef _SC_CLK_TCK
+  const long clocks_per_sec = sysconf(_SC_CLK_TCK);
+#else
+#  ifdef CLOCKS_PER_SEC
+  const long clocks_per_sec = CLOCKS_PER_SEC;
+#  else
+  const long clocks_per_sec = 100;
+#  endif
+#endif
+
   if (*pos != '[')
   {
     res = val_.get_uscp(true, true, true, true);
-    os << res / sysconf(_SC_CLK_TCK);
+    os << res / clocks_per_sec;
     return;
   }
 
@@ -659,15 +670,11 @@ void printable_timer::print(std::ostream& os, const char* pos) const
     }
   } while (*pos != ']');
 
-  if (user && !parent && !children)
+  if (!parent && !children)
     parent = children = true;
-  if (system && !parent && !children)
-    parent = children = true;
-  if (parent && !user && !system)
-    user = system = true;
-  if (children && !user && !system)
+  if (!user && !system)
     user = system = true;
 
   res = val_.get_uscp(user, system, children, parent);
-  os << res / sysconf(_SC_CLK_TCK);
+  os << res / clocks_per_sec;
 }
