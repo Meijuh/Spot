@@ -99,6 +99,15 @@ typedef struct s_BddNode /* Node table entry */
    int next;
 } BddNode;
 
+// This structure is used during initialization of the above
+// structure, to help gcc vectorize the initializing loop.
+typedef struct s_BddNodeInit
+{
+   int z;
+   int low;
+   int high;
+   int next;
+} BddNodeInit;
 
 /*=== KERNEL VARIABLES =================================================*/
 

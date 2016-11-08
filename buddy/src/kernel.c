@@ -195,16 +195,18 @@ int bdd_init(int initnodesize, int cs)
    /* Load these globals into local variables to help the
       optimizer. */
    int sz = bddnodesize;
-   BddNode* b = bddnodes;
+   BddNodeInit* b = (BddNodeInit*)bddnodes;
    for (n=0 ; n<sz ; n++)
    {
-     b->refcou = 0;
-     b->level = 0;
-     b->low = -1;
-     b->next = n+1;
-     ++b;
+     b[n].z = 0;
+     b[n].low = -1;
+     // Initializing HIGH is useless in BuDDy, but it helps the
+     // compiler vectorizing the code, and it helps the processor
+     // write-combining data to memory.
+     b[n].high = 0;
+     b[n].next = n+1;
    }
-   bddnodes[sz-1].next = 0;
+   b[sz-1].next = 0;
 
    bddnodes[0].refcou = bddnodes[1].refcou = MAXREF;
    LOW(0) = HIGH(0) = 0;
@@ -1447,16 +1449,15 @@ int bdd_noderesize(int doRehash)
    /* copy these global variables into local variables to help the
       optimizer */
    int sz = bddnodesize;
-   BddNode* b = bddnodes + oldsize;
+   BddNodeInit* b = (BddNodeInit*)(bddnodes + oldsize);
    for (n=oldsize ; n<sz ; n++)
    {
-     b->refcou = 0;
-     b->level = 0;
-     b->low = -1;
-     b->next = n+1;
-     ++b;
+     b[n].z = 0;
+     b[n].low = -1;
+     b[n].high = 0;
+     b[n].next = n+1;
    }
-   bddnodes[sz-1].next = bddfreepos;
+   b[sz-1].next = bddfreepos;
    bddfreepos = oldsize;
    bddfreenum += bddnodesize - oldsize;
 
