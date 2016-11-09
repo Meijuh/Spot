@@ -956,8 +956,8 @@ namespace spot
               all_props -= label;
 
               formula dest =
-                dict_.bdd_to_sere(bdd_exist(res & label, dict_.var_set));
-
+                dict_.bdd_to_sere(bdd_appex(res, label, bddop_and,
+                                            dict_.var_set));
               f2a_t::const_iterator i = f2a_.find(dest);
               if (i != f2a_.end() && i->second.first == nullptr)
                 continue;
@@ -1421,7 +1421,7 @@ namespace spot
                       all_props -= label;
 
                       formula dest =
-                        dict_.bdd_to_sere(bdd_exist(f1 & label,
+                        dict_.bdd_to_sere(bdd_appex(f1, label, bddop_and,
                                                     dict_.var_set));
 
                       formula dest2 = formula::binop(o, dest, node[1]);
@@ -1505,7 +1505,8 @@ namespace spot
                       all_props -= label;
 
                       formula dest =
-                        dict_.bdd_to_sere(bdd_exist(f1 & label, dict_.var_set));
+                        dict_.bdd_to_sere(bdd_appex(f1, label, bddop_and,
+                                                    dict_.var_set));
 
                       formula dest2 = formula::binop(o, dest, node[1]);
 
