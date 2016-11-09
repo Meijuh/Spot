@@ -569,105 +569,114 @@ static BDD apply_rec(BDD l, BDD r)
    BddCacheData *entry;
    BDD res;
 
-   switch (applyop)
-   {
-    case bddop_and:
-       if (l == r)
-	  return l;
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       if (ISZERO(l) /* ||  ISZERO(r) */)
-	  return 0;
-       if (ISONE(l))
-	  return r;
-       /* if (ISONE(r))
-	  return l; */
-       break;
-    case bddop_or:
-       if (l == r)
-	  return l;
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       if (ISONE(l)  ||  ISONE(r))
-	  return 1;
-       if (ISZERO(l))
-	  return r;
-       /* if (ISZERO(r))
-	  return l; */
-       break;
-    case bddop_xor:
-       if (l == r)
-	  return 0;
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       if (ISZERO(l))
-	  return r;
-       /* if (ISZERO(r))
-	  return l; */
-       break;
-    case bddop_nand:
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       if (ISZERO(l) /* || ISZERO(r) */)
-	  return 1;
-       break;
-    case bddop_nor:
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       if (ISONE(l)  ||  ISONE(r))
-	  return 0;
-       break;
-   case bddop_imp:
-      if (ISZERO(l))
-	 return 1;
-      if (ISONE(l))
-	 return r;
-      if (ISONE(r))
-	 return 1;
-      break;
-   case bddop_biimp:
-      /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-      if (l > r)
-	{
-	  BDD tmp = l;
-	  l = r;
-	  r = tmp;
-	}
-      break;
-   }
+#define APPLY_SHORTCUTS(op, rec)                        \
+   switch (op)                                          \
+     {                                                  \
+     case bddop_and:                                    \
+       if (l == r)                                      \
+         return rec(l);                                 \
+       if (l > r)                                       \
+         {                                              \
+           BDD tmp = l;                                 \
+           l = r;                                       \
+           r = tmp;                                     \
+         }                                              \
+       if (ISZERO(l) /* ||  ISZERO(r) */)               \
+         return 0;                                      \
+       if (ISONE(l))                                    \
+         return rec(r);                                 \
+       break;                                           \
+     case bddop_or:                                     \
+       if (l == r)                                      \
+         return rec(l);                                 \
+       if (l > r)                                       \
+         {                                              \
+           BDD tmp = l;                                 \
+           l = r;                                       \
+           r = tmp;                                     \
+         }                                              \
+       if (ISONE(l)  ||  ISONE(r))                      \
+         return 1;                                      \
+       if (ISZERO(l))                                   \
+         return rec(r);                                 \
+       break;                                           \
+     case bddop_xor:                                    \
+       if (l == r)                                      \
+         return 0;                                      \
+       if (l > r)                                       \
+         {                                              \
+           BDD tmp = l;                                 \
+           l = r;                                       \
+           r = tmp;                                     \
+         }                                              \
+       if (ISZERO(l))                                   \
+         return rec(r);                                 \
+       break;                                           \
+     case bddop_nand:                                   \
+       if (l > r)                                       \
+         {                                              \
+           BDD tmp = l;                                 \
+           l = r;                                       \
+           r = tmp;                                     \
+         }                                              \
+       if (ISZERO(l))                                   \
+         return 1;                                      \
+       break;                                           \
+     case bddop_nor:                                    \
+       if (l > r)                                       \
+         {                                              \
+           BDD tmp = l;                                 \
+           l = r;                                       \
+           r = tmp;                                     \
+         }                                              \
+       if (ISONE(l)  ||  ISONE(r))                      \
+         return 0;                                      \
+       break;                                           \
+     case bddop_invimp: /* l << r = r >> l */           \
+       {                                                \
+         BDD tmp = l;                                   \
+         l = r;                                         \
+         r = tmp;                                       \
+         op = bddop_imp;                                \
+       }                                                \
+       /* fall through */                               \
+     case bddop_imp:                                    \
+       if (ISONE(r) || ISZERO(l))                       \
+         return 1;                                      \
+       if (ISONE(l))                                    \
+         return rec(r);                                 \
+       break;                                           \
+     case bddop_biimp:                                  \
+       if (l == r)                                      \
+         return 1;                                      \
+       if (l > r)                                       \
+         {                                              \
+           BDD tmp = l;                                 \
+           l = r;                                       \
+           r = tmp;                                     \
+         }                                              \
+       if (ISCONST(l))                                  \
+         return 0;                                      \
+       break;                                           \
+     case bddop_less:  /* l < r = r - l */              \
+       {                                                \
+         BDD tmp = l;                                   \
+         l = r;                                         \
+         r = tmp;                                       \
+         op = bddop_diff;                               \
+       }                                                \
+       /* fall through */                               \
+     case bddop_diff:  /* l - r = l &! r */             \
+       if (l == r || ISONE(r))                          \
+         return 0;                                      \
+       if (ISZERO(r))                                   \
+         return rec(l);                                 \
+       break;                                           \
+     }
 
-   if (ISCONST(l)  &&  ISCONST(r))
+   APPLY_SHORTCUTS(applyop, /* id */);
+
+   if (__unlikely(ISCONST(l)  &&  ISCONST(r)))
       res = oprres[applyop][l<<1 | r];
    else
    {
@@ -2204,95 +2213,7 @@ static int appquant_rec(int l, int r)
    BddCacheData *entry;
    int res;
 
-   switch (appexop)
-   {
-    case bddop_and:
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       if (l == 0 /* ||  r == 0 */)
-	  return 0;
-       if (l == r)
-	  return quant_rec(l);
-       if (l == 1)
-	  return quant_rec(r);
-       /* if (r == 1)
-	  return quant_rec(l); */
-       break;
-    case bddop_or:
-       if (l == 1  ||  r == 1)
-	  return 1;
-       if (l == r)
-	  return quant_rec(l);
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       if (l == 0)
-	  return quant_rec(r);
-       /* if (r == 0)
-	  return quant_rec(l); */
-       break;
-    case bddop_xor:
-       if (l == r)
-	  return 0;
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       if (l == 0)
-	  return quant_rec(r);
-       /* if (r == 0)
-	  return quant_rec(l); */
-       break;
-    case bddop_nand:
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       if (l == 0  /* ||  r == 0 */)
-	  return 1;
-       break;
-    case bddop_nor:
-       if (l == 1  ||  r == 1)
-	  return 0;
-       /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       break;
-    case bddop_biimp:
-      /* The operation is commutative, so lets
-	  order the arguments to favor cache hits. */
-       if (l > r)
-	 {
-	   BDD tmp = l;
-	   l = r;
-	   r = tmp;
-	 }
-       break;
-   }
+   APPLY_SHORTCUTS(appexop, quant_rec);
 
    if (ISCONST(l)  &&  ISCONST(r))
       res = oprres[appexop][(l<<1) | r];
