@@ -63,7 +63,7 @@
 #define __USERESIZE /* FIXME */
 
    /* Current auto reord. method and number of automatic reorderings left */
-static int bddreordermethod;
+int bddreordermethod;
 static int bddreordertimes;
 
    /* Flag for disabling reordering temporarily */

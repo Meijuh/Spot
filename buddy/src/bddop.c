@@ -415,7 +415,8 @@ BDD bdd_not(BDD r)
    CHECKa(r, bddfalse);
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE)
+       || setjmp(bddexception) == 0)
    {
       INITREF;
 
@@ -534,7 +535,8 @@ BDD bdd_apply(BDD l, BDD r, int op)
 #endif
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE)
+       || setjmp(bddexception) == 0)
    {
       INITREF;
       applyop = op;
@@ -1001,7 +1003,8 @@ BDD bdd_ite(BDD f, BDD g, BDD h)
    CHECKa(h, bddfalse);
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE)
+       || setjmp(bddexception) == 0)
    {
       INITREF;
 
@@ -1177,7 +1180,8 @@ BDD bdd_restrict(BDD r, BDD var)
       return r;
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE)
+       || setjmp(bddexception) == 0)
    {
       if (varset2svartable(var) < 0)
 	 return bddfalse;
@@ -1274,7 +1278,8 @@ BDD bdd_constrain(BDD f, BDD c)
    CHECKa(c,bddfalse);
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE)
+       || setjmp(bddexception) == 0)
    {
       INITREF;
       miscid = CACHEID_CONSTRAIN;
@@ -1399,7 +1404,8 @@ BDD bdd_replace(BDD r, bddPair *pair)
    CHECKa(r, bddfalse);
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE)
+       || setjmp(bddexception) == 0)
    {
       INITREF;
       replacepair = pair->result;
@@ -1534,7 +1540,8 @@ BDD bdd_compose(BDD f, BDD g, int var)
 #endif
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE) ||
+       setjmp(bddexception) == 0)
    {
       INITREF;
       composelevel = bddvar2level[var];
@@ -1651,7 +1658,8 @@ BDD bdd_veccompose(BDD f, bddPair *pair)
    CHECKa(f, bddfalse);
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE) ||
+       setjmp(bddexception) == 0)
    {
       INITREF;
       replacepair = pair->result;
@@ -1739,7 +1747,8 @@ BDD bdd_simplify(BDD f, BDD d)
    CHECKa(d, bddfalse);
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE)
+       || setjmp(bddexception) == 0)
    {
       INITREF;
       applyop = bddop_or;
@@ -1848,7 +1857,8 @@ static BDD quantify(BDD r, BDD var, int op, int comp, int id)
       return r;
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE)
+       || setjmp(bddexception) == 0)
    {
       if (varset2vartable(var, comp) < 0)
 	 return bddfalse;
@@ -2039,7 +2049,8 @@ static BDD appquantify(BDD l, BDD r, int opr, BDD var,
       return bdd_apply(l,r,opr);
 
  again:
-   if (__likely(setjmp(bddexception) == 0))
+   if (__likely(bddreordermethod == BDD_REORDER_NONE)
+       || setjmp(bddexception) == 0)
    {
       if (varset2vartable(var, comp) < 0)
 	 return bddfalse;

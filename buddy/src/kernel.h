@@ -132,6 +132,9 @@ extern int       bddreorderdisabled;
 extern int       bddresized;
 extern bddCacheStat bddcachestats;
 
+  /* from reorder.c */
+extern int bddreordermethod;
+
 #ifdef CPLUSPLUS
 }
 #endif
