@@ -154,7 +154,6 @@ def run_cell(kc, cell):
     kc.execute(cell.input)
     # wait for finish, maximum 20s
     reply = kc.get_shell_msg(timeout=20)
-    print("reply:\n", reply)
     outs = []
 
     while True:
@@ -211,8 +210,7 @@ def test_notebook(nb):
     km = KernelManager()
     # Do not save the history to disk, as it can yield spurious lock errors.
     # See https://github.com/ipython/ipython/issues/2845
-    km.start_kernel(extra_arguments=['--HistoryManager.hist_file=:memory:'],
-                    stderr=open(os.devnull, 'w'))
+    km.start_kernel(extra_arguments=['--HistoryManager.hist_file=:memory:'])
 
     kc = km.client()
     kc.start_channels()
