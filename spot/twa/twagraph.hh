@@ -439,13 +439,30 @@ namespace spot
     /// extremities and acceptance.
     void merge_edges();
 
-    /// Remove all states without successors.
+    /// \brief Remove all dead states
+    ///
+    /// Dead states are all the states that cannot be part of
+    /// an infinite run of the automaton.  This includes
+    /// states without successors, unreachable states, and states
+    /// that only have dead successors.
+    ///
+    /// \see purge_unreachable_states
     void purge_dead_states();
 
-    /// Remove all unreachable states.
+    /// \brief Remove all unreachable states.
+    ///
+    /// A state is unreachable if it cannot be reached from the initial state.
+    ///
+    /// Use this function if you have declared more states than you
+    /// actually need in the automaton.
+    ///
+    /// purge_dead_states() will remove more states than
+    /// purge_unreachable_states().
+    ///
+    /// \see purge_dead_states
     void purge_unreachable_states();
 
-    /// \brief Remove unused atomic proposition
+    /// \brief Remove unused atomic propositions
     ///
     /// Remove, from the list of atomic propositions registered by the
     /// automaton, those that are not actually used by its labels.
