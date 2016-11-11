@@ -879,17 +879,12 @@ namespace spot
     {
       set_num_sets_(num);
       acc_.set_acceptance(c);
-      if (num == 0)
-        prop_state_acc(true);
     }
 
     /// Copy the acceptance condition of another TωA.
     void copy_acceptance_of(const const_twa_ptr& a)
     {
       acc_ = a->acc();
-      unsigned num = acc_.num_sets();
-      if (num == 0)
-        prop_state_acc(true);
     }
 
     /// Copy the atomic propositions of another TωA
@@ -915,8 +910,6 @@ namespace spot
     {
       set_num_sets_(num);
       acc_.set_generalized_buchi();
-      if (num == 0)
-        prop_state_acc(true);
     }
 
     /// \brief Set Büchi acceptance.
@@ -1092,6 +1085,8 @@ namespace spot
     /// the acceptance set.
     trival prop_state_acc() const
     {
+      if (num_sets() == 0)
+        return true;
       return is.state_based_acc;
     }
 

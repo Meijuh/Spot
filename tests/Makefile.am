@@ -341,6 +341,7 @@ TESTS_python = \
   python/relabel.py \
   python/remfin.py \
   python/satmin.py \
+  python/setacc.py \
   python/setxor.py \
   python/trival.py \
   $(TESTS_ipython)

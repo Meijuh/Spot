@@ -66,6 +66,10 @@ New in spot 2.1.2.dev (not yet released)
   * remove_fin() could produce incorrect result on incomplete
     automata tagged as weak and deterministic.
 
+  * calling set_acceptance() several time on an automaton could result
+    in unexpected behaviors, because set_acceptance(0,...)  used to
+    set the state-based acceptance flag automatically.
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:
