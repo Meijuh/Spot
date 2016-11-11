@@ -40,6 +40,8 @@ New in spot 2.1.2.dev (not yet released)
     this halves the run time of
        genltl --rv-counter=10 | ltl2tgba
 
+  * scc_filter() learned to preserve state names and highlighted states.
+
   Bugs:
 
   * ltl2tgba was alway using the highest settings for the LTL

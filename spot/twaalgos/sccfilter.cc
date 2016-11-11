@@ -330,10 +330,37 @@ namespace spot
       // has one initial state).
       auto init = inout[aut->get_init_state_number()];
       filtered->set_init_state(init < out_n ? init : filtered->new_state());
+
+      if (auto* names =
+          aut->get_named_prop<std::vector<std::string>>("state-names"))
+        {
+          std::cerr << "names\n";
+          unsigned size = names->size();
+          if (size > in_n)
+            size = in_n;
+          auto* new_names = new std::vector<std::string>(out_n);
+          filtered->set_named_prop("state-names", new_names);
+          for (unsigned s = 0; s < size; ++s)
+            {
+              unsigned new_s = inout[s];
+              if (new_s != -1U)
+                (*new_names)[new_s] = (*names)[s];
+            }
+        }
+      if (auto hs =
+          aut->get_named_prop<std::map<unsigned, unsigned>>("highlight-states"))
+        {
+          auto* new_hs = new std::map<unsigned, unsigned>;
+          filtered->set_named_prop("highlight-states", new_hs);
+          for (auto p: *hs)
+            {
+              unsigned new_s = inout[p.first];
+              if (new_s != -1U)
+                new_hs->emplace(new_s, p.second);
+            }
+        }
       return filtered;
     }
-
-
   }
 
   twa_graph_ptr
