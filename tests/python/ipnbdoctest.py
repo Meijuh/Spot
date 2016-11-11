@@ -92,6 +92,8 @@ def sanitize(s):
     s = re.sub(r'height="[0-9.]+pt"', 'height=""', s)
     s = re.sub(r'viewBox="[0-9 .-]*"', 'viewbox=""', s)
     s = re.sub(r'transform="[^"]*"', 'transform=""', s)
+    s = re.sub(r'id="edge[^"]*"', 'id="edge"', s)
+    s = re.sub(r'text-anchor="[^"]*"', 'text-anchor=""', s)
     return s
 
 
