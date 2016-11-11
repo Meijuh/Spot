@@ -63,6 +63,9 @@ New in spot 2.1.2.dev (not yet released)
     already opened file descriptor, it will not close the file
     anymore.
 
+  * remove_fin() could produce incorrect result on incomplete
+    automata tagged as weak and deterministic.
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:

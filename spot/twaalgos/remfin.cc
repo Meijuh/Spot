@@ -452,7 +452,7 @@ namespace spot
     }
 
     static twa_graph_ptr
-    remove_fin_det_weak(const const_twa_graph_ptr& aut)
+    remove_fin_weak(const const_twa_graph_ptr& aut)
     {
       // Clone the original automaton.
       auto res = make_twa_graph(aut,
@@ -462,42 +462,23 @@ namespace spot
                                     true, // determinisitic
                                     true,  // stutter inv.
                                     });
-      res->purge_dead_states();
       scc_info si(res);
 
       // We will modify res in place, and the resulting
       // automaton will only have one acceptance set.
       acc_cond::mark_t all_acc = res->set_buchi();
       res->prop_state_acc(true);
-      res->prop_deterministic(true);
+      unsigned n = res->num_states();
 
-      unsigned sink = res->num_states();
-      for (unsigned src = 0; src < sink; ++src)
+      for (unsigned src = 0; src < n; ++src)
         {
           acc_cond::mark_t acc = 0U;
           unsigned scc = si.scc_of(src);
           if (si.is_accepting_scc(scc) && !si.is_trivial(scc))
             acc = all_acc;
-          // Keep track of all conditions on edge leaving state
-          // SRC, so we can complete it.
-          bdd missingcond = bddtrue;
           for (auto& t: res->out(src))
-            {
-              missingcond -= t.cond;
-              t.acc = acc;
-            }
-          // Complete the original automaton.
-          if (missingcond != bddfalse)
-            {
-              if (res->num_states() == sink)
-                {
-                  res->new_state();
-                  res->new_acc_edge(sink, sink, bddtrue);
-                }
-              res->new_edge(src, sink, missingcond);
-            }
+            t.acc = acc;
         }
-      //res->merge_edges();
       return res;
     }
   }
@@ -507,9 +488,9 @@ namespace spot
     if (!aut->acc().uses_fin_acceptance())
       return std::const_pointer_cast<twa_graph>(aut);
 
-    // FIXME: we should check whether the automaton is weak.
-    if (aut->prop_inherently_weak().is_true() && is_deterministic(aut))
-      return remove_fin_det_weak(aut);
+    // FIXME: we should check whether the automaton is inherently weak.
+    if (aut->prop_weak().is_true())
+      return remove_fin_weak(aut);
 
     if (auto maybe = streett_to_generalized_buchi_maybe(aut))
       return maybe;
