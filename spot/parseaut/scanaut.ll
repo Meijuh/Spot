@@ -38,6 +38,7 @@ static int orig_cond = 0;
 static bool lbtt_s = false;
 static bool lbtt_t = false;
 static unsigned lbtt_states = 0;
+static bool yyin_close = true;
 
 %}
 
@@ -410,15 +411,15 @@ namespace spot
 	if (S_ISFIFO(s.st_mode))
 	  want_interactive = true;
 
-	// Only set yyin once we know we will use
-	// it, so that we do not close it otherwise.
         yyin = stdin;
+        yyin_close = false;
       }
     else
       {
         yyin = fopen(name.c_str(), "r");
         if (!yyin)
 	  return 1;
+        yyin_close = true;
       }
     // Reset the lexer in case a previous parse
     // ended badly.
@@ -441,6 +442,7 @@ namespace spot
   hoayyopen(int fd)
   {
     bool want_interactive = false;
+    yyin_close = false;
 
     yyin = fdopen(fd, "r");
 
@@ -470,8 +472,9 @@ namespace spot
   {
     if (yyin)
       {
-	fclose(yyin);
-	yyin = NULL;
+        if (yyin_close)
+          fclose(yyin);
+        yyin = NULL;
       }
   }
 }

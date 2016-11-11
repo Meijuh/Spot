@@ -59,6 +59,10 @@ New in spot 2.1.2.dev (not yet released)
     when run with use_simulation (the default) on non-simplified
     automata.
 
+  * When the automaton_stream_parser reads an automaton from an
+    already opened file descriptor, it will not close the file
+    anymore.
+
 New in spot 2.1.2 (2016-10-14)
 
   Command-line tools:

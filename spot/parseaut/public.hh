@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -123,7 +123,7 @@ namespace spot
     std::string filename_;
     automaton_parser_options opts_;
   public:
-    /// \brief Parse from a file opened file descriptor.
+    /// \brief Parse from a file.
     ///
     /// \param filename The file to read from.
     /// \param opts Parser options.
@@ -131,6 +131,8 @@ namespace spot
                             automaton_parser_options opts = {});
 
     /// \brief Parse from an already opened file descriptor.
+    ///
+    /// The file descriptor will not be closed.
     ///
     /// \param fd The file descriptor to read from.
     /// \param filename What to display in error messages.
