@@ -990,29 +990,29 @@ each option the overall wall-clock time, CPU-time spent in =ltldo=,
 and CPU-time spent in =ltl2tgba=:
 
 #+BEGIN_SRC  sh :results verbatim :exports both
-genltl --or-gf=1..8 | ltldo '{high}ltl2tgba --high' '{low}ltl2tgba --low' --stats='%T,%f,%r,%[p]R,%[c]R'
+genltl --or-gf=1..8 |
+ltldo '{high}ltl2tgba' '{low}ltl2tgba --low' --stats='%T,%f,%r,%[p]R,%[c]R'
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-high,GFp1,0.0426801,0,0.02
-low,GFp1,0.0291066,0,0.02
-high,GFp1 | GFp2,0.0205379,0,0.01
-low,GFp1 | GFp2,0.0199744,0,0.01
-high,GFp1 | GFp2 | GFp3,0.0220456,0,0.01
-low,GFp1 | GFp2 | GFp3,0.0198975,0,0.01
-high,GFp1 | GFp2 | GFp3 | GFp4,0.0248313,0,0.02
-low,GFp1 | GFp2 | GFp3 | GFp4,0.0201302,0,0.01
-high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5,0.0283126,0,0.03
-low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5,0.0142418,0,0
-high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6,0.0407809,0.01,0.03
-low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6,0.0149713,0,0.01
-high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7,0.130772,0,0.12
-low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7,0.0150355,0,0.01
-high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7 | GFp8,0.610253,0,0.61
-low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7 | GFp8,0.0158546,0,0.01
+high,GFp1,0.0495443,0,0.02
+low,GFp1,0.0427718,0,0.03
+high,GFp1 | GFp2,0.0449237,0,0.03
+low,GFp1 | GFp2,0.0429886,0,0.03
+high,GFp1 | GFp2 | GFp3,0.0477704,0.01,0.03
+low,GFp1 | GFp2 | GFp3,0.0294271,0,0.01
+high,GFp1 | GFp2 | GFp3 | GFp4,0.0250874,0,0.02
+low,GFp1 | GFp2 | GFp3 | GFp4,0.0203729,0,0.01
+high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5,0.0318887,0,0.03
+low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5,0.0207457,0,0.01
+high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6,0.0612968,0,0.05
+low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6,0.0145482,0,0.01
+high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7,0.130631,0,0.12
+low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7,0.0151502,0,0.01
+high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7 | GFp8,0.595865,0,0.59
+low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7 | GFp8,0.0160234,0,0.01
 #+end_example
-
 
 * Naming automata
 
