@@ -47,6 +47,18 @@ New in spot 2.1.2.dev (not yet released)
     to setjmp are now avoided when variable reordering is disabled
     (the default).
 
+  * The twa class has three new methods:
+      aut->intersects(other)
+      aut->intersecting_run(other)
+      aut->intersecting_word(other)
+    currently these are just convenient wrappers around
+      !otf_product(aut, other)->is_empty()
+      otf_product(aut, other)->accepting_run()->project(aut)
+      otf_product(aut, other)->accepting_word()
+    with any Fin-acceptance removal performed before the
+    product.  However the plan is that these can be implemented
+    more efficiently in the future.
+
   Bugs:
 
   * ltl2tgba was always using the highest settings for the LTL

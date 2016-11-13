@@ -824,17 +824,23 @@ namespace spot
     ///@}
 
     /// \brief Check whether the language of the automaton is empty.
+    ///
+    /// If you are calling this method on a product of two automata,
+    /// consider using intersects() instead.
     virtual bool is_empty() const;
 
     /// \brief Return an accepting run if one exists.
     ///
-    /// Note that this method currently onky works for Fin-less
+    /// Note that this method currently only works for Fin-less
     /// acceptance.  For acceptance conditions that contain Fin
     /// acceptance, you can either rely on is_empty() and not use any
     /// accepting run, or remove Fin acceptance using remove_fin() and
     /// compute an accepting run on that larger automaton.
     ///
     /// Return nullptr if no accepting run were found.
+    ///
+    /// If you are calling this method on a product of two automata,
+    /// consider using intersecting_run() instead.
     virtual twa_run_ptr accepting_run() const;
 
     /// \brief Return an accepting word if one exists.
@@ -843,7 +849,43 @@ namespace spot
     /// acceptance.
     ///
     /// Return nullptr if no accepting word were found.
+    ///
+    /// If you are calling this method on a product of two automata,
+    /// consider using intersecting_word() instead.
     virtual twa_word_ptr accepting_word() const;
+
+    /// \brief Check whether the language of this automaton intersects
+    /// that of the \a other automaton.
+    virtual bool intersects(const_twa_ptr other) const;
+
+    /// \brief Return an accepting run recognizing a word accepted by
+    /// two automata.
+    ///
+    /// If \a from_other is true, the returned run will be over the
+    /// \a other automaton.  Otherwise, the run will be over this
+    /// automaton.
+    ///
+    /// Note that this method currently only works if the automaton
+    /// from which the accepting run is extracted uses Fin-less acceptance.
+    /// (The other automaton can have any acceptance condition.)
+    ///
+    /// For acceptance conditions that contain Fin acceptance, you can
+    /// either rely on intersects() and not use any accepting run, or
+    /// remove Fin acceptance using remove_fin() and compute an
+    /// intersecting run on this larger automaton.
+    ///
+    /// Return nullptr if no accepting run were found.
+    virtual twa_run_ptr intersecting_run(const_twa_ptr other,
+                                         bool from_other = false) const;
+
+
+    /// \brief Return a word accepted by two automata.
+    ///
+    /// Note that this method DOES works with Fin
+    /// acceptance.
+    ///
+    /// Return nullptr if no accepting word were found.
+    virtual twa_word_ptr intersecting_word(const_twa_ptr other) const;
 
   private:
     acc_cond acc_;

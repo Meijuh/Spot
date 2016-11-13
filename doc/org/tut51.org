@@ -438,21 +438,12 @@ counterexample:
       spot::formula f = spot::formula::Not(pf.f);
       spot::twa_graph_ptr af = spot::translator(d).run(f);
 
-      // Construct an "on-the-fly product"
+      // Find a run of or demo_kripke that intersects af.
       auto k = std::make_shared<demo_kripke>(d);
-      auto p = spot::otf_product(k, af);
-
-      if (auto run = p->accepting_run())
-        {
-          std::cout << "formula is violated by the following run:\n";
-          // "run" is an accepting run over the product.  Project it on
-          // the Kripke structure before displaying it.
-          std::cout << *run->project(k);
-        }
+      if (auto run = k->intersecting_run(af))
+        std::cout << "formula is violated by the following run:\n" << *run;
       else
-        {
-          std::cout << "formula is verified\n";
-        }
+        std::cout << "formula is verified\n";
    }
  #+END_SRC
 
@@ -496,38 +487,38 @@ passing the option "~k~" to =print_dot()= will fix that.
   <<demo-succ-iter-2>>
 #+END_SRC
 
- #+NAME: demo-3
- #+BEGIN_SRC C++ :exports code :noweb strip-export :results verbatim
-   #include <spot/twaalgos/dot.hh>
-   #include <spot/tl/parse.hh>
-   #include <spot/twaalgos/translate.hh>
-   #include <spot/twa/twaproduct.hh>
-   #include <spot/twaalgos/emptiness.hh>
-   #include <spot/twaalgos/copy.hh>
-   <<demo-3-aux>>
-   int main()
-   {
-     auto d = spot::make_bdd_dict();
+#+NAME: demo-3
+#+BEGIN_SRC C++ :exports code :noweb strip-export :results verbatim
+  #include <spot/twaalgos/dot.hh>
+  #include <spot/tl/parse.hh>
+  #include <spot/twaalgos/translate.hh>
+  #include <spot/twa/twaproduct.hh>
+  #include <spot/twaalgos/emptiness.hh>
+  #include <spot/twaalgos/copy.hh>
+  <<demo-3-aux>>
+  int main()
+  {
+    auto d = spot::make_bdd_dict();
 
-     // Parse the input formula.
-     spot::parsed_formula pf = spot::parse_infix_psl("GF(odd_x) -> GF(odd_y)");
-     if (pf.format_errors(std::cerr))
-       return 1;
+    // Parse the input formula.
+    spot::parsed_formula pf = spot::parse_infix_psl("GF(odd_x) -> GF(odd_y)");
+    if (pf.format_errors(std::cerr))
+      return 1;
 
-     // Translate its negation.
-     spot::formula f = spot::formula::Not(pf.f);
-     spot::twa_graph_ptr af = spot::translator(d).run(f);
+    // Translate its negation.
+    spot::formula f = spot::formula::Not(pf.f);
+    spot::twa_graph_ptr af = spot::translator(d).run(f);
 
-     // Construct an "on-the-fly product"
-     auto k = spot::copy(std::make_shared<demo_kripke>(d), spot::twa::prop_set::all(), true);
-     auto p = spot::otf_product(k, af);
-
-     if (auto run = p->accepting_run())
-       {
-         run->project(k)->highlight(5); // 5 is a color number.
-         spot::print_dot(std::cout, k, ".k");
-       }
-   }
+    // Convert demo_kripke into an explicit graph
+    spot::twa_graph_ptr k = spot::copy(std::make_shared<demo_kripke>(d),
+                                       spot::twa::prop_set::all(), true);
+     // Find a run of or demo_kripke that intersects af.
+    if (auto run = k->intersecting_run(af))
+      {
+        run->highlight(5); // 5 is a color number.
+        spot::print_dot(std::cout, k, ".k");
+      }
+  }
  #+END_SRC
 
  #+BEGIN_SRC dot :file kripke-3.png :cmdline -Tpng :cmd circo :var txt=demo-3 :exportss results
@@ -537,7 +528,7 @@ passing the option "~k~" to =print_dot()= will fix that.
  #+RESULTS:
  [[file:kripke-3.png]]
 
-
+1
 * Possible improvements
 
 The on-the-fly interface, especially as implemented here, involves a

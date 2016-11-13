@@ -25,6 +25,7 @@
 #include <spot/twaalgos/gtec/gtec.hh>
 #include <spot/twaalgos/word.hh>
 #include <spot/twaalgos/remfin.hh>
+#include <spot/twa/twaproduct.hh>
 #include <utility>
 
 namespace spot
@@ -44,6 +45,20 @@ namespace spot
     get_dict()->unregister_all_my_variables(this);
   }
 
+
+  namespace
+  {
+    const_twa_ptr remove_fin_maybe(const const_twa_ptr& a)
+    {
+      if (!a->acc().uses_fin_acceptance())
+        return a;
+      auto aa = std::dynamic_pointer_cast<const twa_graph>(a);
+      if (!aa)
+        aa = make_twa_graph(a, twa::prop_set::all());
+      return remove_fin(aa);
+    }
+  }
+
   state*
   twa::project_state(const state* s,
                       const const_twa_ptr& t) const
@@ -59,15 +74,7 @@ namespace spot
     // FIXME: This should be improved based on properties of the
     // automaton.  For instance we do not need couvreur99 is we know
     // the automaton is weak.
-    auto a = shared_from_this();
-    if (a->acc().uses_fin_acceptance())
-      {
-        auto aa = std::dynamic_pointer_cast<const twa_graph>(a);
-        if (!aa)
-          aa = make_twa_graph(a, prop_set::all());
-        a = remove_fin(aa);
-      }
-    return !couvreur99(a)->check();
+    return !couvreur99(remove_fin_maybe(shared_from_this()))->check();
   }
 
   twa_run_ptr
@@ -86,15 +93,7 @@ namespace spot
   twa_word_ptr
   twa::accepting_word() const
   {
-    auto a = shared_from_this();
-    if (a->acc().uses_fin_acceptance())
-      {
-        auto aa = std::dynamic_pointer_cast<const twa_graph>(a);
-        if (!aa)
-          aa = make_twa_graph(a, prop_set::all());
-        a = remove_fin(aa);
-      }
-    if (auto run = a->accepting_run())
+    if (auto run = remove_fin_maybe(shared_from_this())->accepting_run())
       {
         auto w = make_twa_word(run->reduce());
         w->simplify();
@@ -104,6 +103,36 @@ namespace spot
       {
         return nullptr;
       }
+  }
+
+  bool
+  twa::intersects(const_twa_ptr other) const
+  {
+    auto a1 = remove_fin_maybe(shared_from_this());
+    auto a2 = remove_fin_maybe(other);
+    return !otf_product(a1, a2)->is_empty();
+  }
+
+  twa_run_ptr
+  twa::intersecting_run(const_twa_ptr other, bool from_other) const
+  {
+    auto a = shared_from_this();
+    if (from_other)
+      other = remove_fin_maybe(other);
+    else
+      a = remove_fin_maybe(a);
+    auto run = otf_product(a, other)->accepting_run();
+    if (!run)
+      return nullptr;
+    return run->project(from_other ? other : a);
+  }
+
+  twa_word_ptr
+  twa::intersecting_word(const_twa_ptr other) const
+  {
+    auto a1 = remove_fin_maybe(shared_from_this());
+    auto a2 = remove_fin_maybe(other);
+    return otf_product(a1, a2)->accepting_word();
   }
 
   void
