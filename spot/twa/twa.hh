@@ -828,7 +828,7 @@ namespace spot
 
     /// \brief Return an accepting run if one exists.
     ///
-    /// Note that this method currently one works for Fin-less
+    /// Note that this method currently onky works for Fin-less
     /// acceptance.  For acceptance conditions that contain Fin
     /// acceptance, you can either rely on is_empty() and not use any
     /// accepting run, or remove Fin acceptance using remove_fin() and
@@ -839,7 +839,7 @@ namespace spot
 
     /// \brief Return an accepting word if one exists.
     ///
-    /// Note that this method DO works with Fin
+    /// Note that this method DOES works with Fin
     /// acceptance.
     ///
     /// Return nullptr if no accepting word were found.
