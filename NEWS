@@ -13,11 +13,10 @@ New in spot 2.1.2.dev (not yet released)
   * autfilt, dstar2tgba, ltl2tgba, ltlcross, ltldo learned to measure
     cpu-time (as opposed to wall-time) using --stats=%R.  User or
     system time, for children or parent, can be measured separately by
-    adding additional %[LETTER]R options.  A typical use-case is
-    "ltldo --stats='... %[c]R ...'  ..." to measure the time spent in
-    the tool ran by ltldo, excluding that of ltldo.  In all tools, the
-    difference between %r (wall-clock time) and %R (CPU time) can also
-    be used to detect unreliable measurements.
+    adding additional %[LETTER]R options.  The difference between %r
+    (wall-clock time) and %R (CPU time) can also be used to detect
+    unreliable measurements.  See
+      https://spot.lrde.epita.fr/oaut.html#timing
 
   Library:
 

@@ -875,10 +875,10 @@ how statistics should be output.
 Most tools support a common set of statistics about the output
 automaton (like =%s= for the number of states, =%t= for transitions,
 =%e= for edges, etc.).  Additional statistics might be available
-depending on what the tool does (for instance [[file:autfilt.org][=autfilt=]] also has =%S=,
-=%T=, and =%E= to display the same statistics about the input
-automaton).  All the available statistics are displayed when a tool is
-run with =--help=.
+depending on what the tool does (for instance [[file:autfilt.org][=autfilt=]] also uses
+capitaized letters =%S=, =%T=, and =%E= to display the same statistics
+about the input automaton).  All the available statistics are
+displayed when a tool is run with =--help=.
 
 For instance here are the statistics available in [[file:randaut.org][=randaut=]]:
 
@@ -889,15 +889,28 @@ randaut --help | sed -n '/ sequences:/,/^$/p' | sed '1d;$d'
 #+begin_example
   %%                         a single %
   %a                         number of acceptance sets
-  %c                         number of SCCs
+  %c, %[LETTERS]c            number of SCCs; you may filter the SCCs to count
+                             using the following LETTERS, possibly
+                             concatenated: (a) accepting, (r) rejecting, (v)
+                             trivial, (t) terminal, (w) weak, (iw) inherently
+                             weak. Use uppercase letters to negate them.
   %d                         1 if the output is deterministic, 0 otherwise
   %e                         number of edges
   %F                         seed number
+  %g                         acceptance condition (in HOA syntax)
+  %h                         the automaton in HOA format on a single line (use
+                             %[opt]h to specify additional options as in
+                             --hoa=opt)
   %L                         automaton number
   %m                         name of the automaton
   %n                         number of nondeterministic states in output
   %p                         1 if the output is complete, 0 otherwise
-  %r                         processing time (excluding parsing) in seconds
+  %r                         wall-clock time elapsed in seconds (excluding
+                             parsing)
+  %R, %[LETTERS]R            CPU time (excluding parsing), in seconds; Add
+                             LETTERS to restrict to(u) user time, (s) system
+                             time, (p) parent process, or (c) children
+                             processes.
   %s                         number of states
   %t                         number of transitions
   %w                         one word accepted by the output automaton
@@ -913,7 +926,7 @@ use =R= to summarize the distribution of these values:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 randaut -e0.2 -Q100 -n1000 a --stats %e > size.csv
-R --slave -e "summary(read.csv('size.csv', header=FALSE, col.names='edges'))"
+Rscript -e "summary(read.csv('size.csv', header=FALSE, col.names='edges'))"
 #+END_SRC
 
 #+RESULTS:
@@ -928,6 +941,78 @@ R --slave -e "summary(read.csv('size.csv', header=FALSE, col.names='edges'))"
 For $Q=100$ states and density $D=0.2$ the expected degree of each
 state is $1+(Q-1)D = 1+99\times 0.2 = 20.8$, so the expected number of
 edges should be $20.8\times100=2080$.
+
+* Timing
+  :PROPERTIES:
+  :CUSTOM_ID: timing
+  :END:
+
+Two of the statistics are related to time: =%r= displays wall-clock
+time, while =%R= displays CPU-time.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl --or-gf=1..8 | ltl2tgba --high --stats='%f,%r,%R'
+#+END_SRC
+
+#+RESULTS:
+: GFp1,0.000502296,0
+: GF(p1 | p2),0.000796475,0
+: GF(p1 | p2 | p3),0.00215579,0
+: GF(p1 | p2 | p3 | p4),0.00441474,0
+: GF(p1 | p2 | p3 | p4 | p5),0.00980961,0.01
+: GF(p1 | p2 | p3 | p4 | p5 | p6),0.0255462,0.03
+: GF(p1 | p2 | p3 | p4 | p5 | p6 | p7),0.121033,0.12
+: GF(p1 | p2 | p3 | p4 | p5 | p6 | p7 | p8),0.624101,0.62
+
+Note that =%r= is implemented using the most precise clock available
+and usually has nano-second precision, while =%R= uses the =times()=
+system call (when available) and is usually only precise up to 1/100
+of a second.  However, as a wall-clock time, =%r= will also be
+affected by the load of the machine: if a machine is overloaded, or
+swapping a lot, you may notice a wall-clock time that is significantly
+higher than the CPU time measured by =%R=.
+
+Additional arguments may be passed to =%R= to select the time that
+must be output.  By default, this the CPU-time spent in both user code
+and system calls.  This can be restricted using one of =u= (user) or
+=s= (system).  Also by default this includes the CPU-time for the
+current process and any of its children: adding =p= (parent) and =c=
+(children) will show only the selected time.  Note that few tools
+actually execute other processes: [[file:autfilt.org][=autfilt=]] and [[file:ltl2tgba.org][=ltl2tgba=]] can do so
+when calling a SAT solver for [[file:satmin.org][SAT-based minimization]], and [[file:ltldo.org][=ltldo=]] will
+obviously call any listed tool.  However in the case of =ltldo= the
+measured time is that of executing the other tools, so the result of
+=%[p]R= is likely to be always 0.
+
+Here is an example where we use =ltldo= to benchmark the (default)
+=--high= option of =ltl2tba= against the =--low= option, computing for
+each option the overall wall-clock time, CPU-time spent in =ltldo=,
+and CPU-time spent in =ltl2tgba=:
+
+#+BEGIN_SRC  sh :results verbatim :exports both
+genltl --or-gf=1..8 | ltldo '{high}ltl2tgba --high' '{low}ltl2tgba --low' --stats='%T,%f,%r,%[p]R,%[c]R'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+high,GFp1,0.0426801,0,0.02
+low,GFp1,0.0291066,0,0.02
+high,GFp1 | GFp2,0.0205379,0,0.01
+low,GFp1 | GFp2,0.0199744,0,0.01
+high,GFp1 | GFp2 | GFp3,0.0220456,0,0.01
+low,GFp1 | GFp2 | GFp3,0.0198975,0,0.01
+high,GFp1 | GFp2 | GFp3 | GFp4,0.0248313,0,0.02
+low,GFp1 | GFp2 | GFp3 | GFp4,0.0201302,0,0.01
+high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5,0.0283126,0,0.03
+low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5,0.0142418,0,0
+high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6,0.0407809,0.01,0.03
+low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6,0.0149713,0,0.01
+high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7,0.130772,0,0.12
+low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7,0.0150355,0,0.01
+high,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7 | GFp8,0.610253,0,0.61
+low,GFp1 | GFp2 | GFp3 | GFp4 | GFp5 | GFp6 | GFp7 | GFp8,0.0158546,0,0.01
+#+end_example
+
 
 * Naming automata
 
