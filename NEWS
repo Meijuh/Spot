@@ -1,4 +1,4 @@
-New in spot 2.1.2.dev (not yet released)
+New in spot 2.2 (2016-11-14)
 
   Command-line tools:
 
@@ -34,8 +34,8 @@ New in spot 2.1.2.dev (not yet released)
     not used.  In particular, this helps scc_info to be more efficient
     at deciding the acceptance of SCCs in presence of Fin acceptance.
 
-  * Simulation-based reductions now implement just bisimulations-based
-    reduction on deterministic automata, to save time.  As an example,
+  * Simulation-based reductions now implement just bisimulation-based
+    reductions on deterministic automata, to save time.  As an example,
     this halves the run time of
        genltl --rv-counter=10 | ltl2tgba
 
@@ -54,9 +54,9 @@ New in spot 2.1.2.dev (not yet released)
       !otf_product(aut, other)->is_empty()
       otf_product(aut, other)->accepting_run()->project(aut)
       otf_product(aut, other)->accepting_word()
-    with any Fin-acceptance removal performed before the
-    product.  However the plan is that these can be implemented
-    more efficiently in the future.
+    with any Fin-acceptance removal performed before the product.
+    However the plan is to implement these more efficiently in the
+    future.
 
   Bugs:
 
@@ -72,10 +72,10 @@ New in spot 2.1.2.dev (not yet released)
   * str_sere() and str_utf8_sere() were not returning the same
     string that print_sere() and print_utf8_sere() would print.
 
-  * Running the LTL parser in debug-mode would crash.
+  * Running the LTL parser in debug mode would crash.
 
   * tgba_determinize() could produce incorrect deterministic automata
-    when run with use_simulation (the default) on non-simplified
+    when run with use_simulation=true (the default) on non-simplified
     automata.
 
   * When the automaton_stream_parser reads an automaton from an
@@ -88,12 +88,12 @@ New in spot 2.1.2.dev (not yet released)
   * remove_fin() could produce incorrect result on incomplete
     automata tagged as weak and deterministic.
 
-  * calling set_acceptance() several time on an automaton could result
-    in unexpected behaviors, because set_acceptance(0,...)  used to
-    set the state-based acceptance flag automatically.
+  * calling set_acceptance() several times on an automaton could
+    result in unexpected behaviors, because set_acceptance(0,...)
+    used to set the state-based acceptance flag automatically.
 
   * Some buffering issue caused syntax errors to be displayed out
-    of place on the on-line translator.
+    of place by the on-line translator.
 
 New in spot 2.1.2 (2016-10-14)
 
