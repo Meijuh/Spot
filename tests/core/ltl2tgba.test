@@ -224,3 +224,9 @@ grep 'ltl2tgba: unknown option.*@' stderr
 
 # Make sure the count of AP is correct through never claims or LBTT
 ltl2tgba -f a -s | autfilt -q --ap=1 --lbtt | autfilt -q --ap=1
+
+# Such a large formula will fill the BuDDy unicity table and trigger a
+# resize.  At the time this test is introduced, this is the only place
+# of the test-suite where this resize is triggered, so do not remove
+# it unless you can find another place that triggers that.
+genltl --go-theta=18 | ltl2tgba --low --any -q

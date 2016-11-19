@@ -1,6 +1,8 @@
 New in spot 2.2.0.dev (not yet released)
 
-  Nothing yet.
+  Bugs:
+
+  * The bdd_noderesize() function, as modified in 2.2, would crash.
 
 New in spot 2.2 (2016-11-14)
 
