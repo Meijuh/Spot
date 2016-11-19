@@ -1449,7 +1449,7 @@ int bdd_noderesize(int doRehash)
    /* copy these global variables into local variables to help the
       optimizer */
    int sz = bddnodesize;
-   BddNodeInit* b = (BddNodeInit*)(bddnodes + oldsize);
+   BddNodeInit* b = (BddNodeInit*)(bddnodes);
    for (n=oldsize ; n<sz ; n++)
    {
      b[n].z = 0;
