@@ -1,8 +1,9 @@
-New in spot 2.2.0.dev (not yet released)
+New in spot 2.2.1 (2016-11-21)
 
-  Bugs:
+  Bug fix:
 
-  * The bdd_noderesize() function, as modified in 2.2, would crash.
+  * The bdd_noderesize() function, as modified in 2.2, would always
+    crash.
 
 New in spot 2.2 (2016-11-14)
 
@@ -64,7 +65,7 @@ New in spot 2.2 (2016-11-14)
     However the plan is to implement these more efficiently in the
     future.
 
-  Bugs:
+  Bug fixes:
 
   * ltl2tgba was always using the highest settings for the LTL
     simplifier, ignoring the --low and --medium options.  Now
