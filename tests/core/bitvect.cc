@@ -67,37 +67,6 @@ int main()
   std::cout << "subset? " << w->is_subset_of(*x)
             << ' ' << v->is_subset_of(*w) << '\n';
 
-  for (size_t i = 0; i < 30; ++i)
-    w->emplace_back((i & 3) == 0);
-  ECHO(w);
-  *x &= *w;
-  ECHO(x);
-  x->set_all();
-  ECHO(x);
-
-  ruler();
-
-  w->emplace_back(0x09, 4);
-  ECHO(w);
-  spot::bitvect* y = w->extract_range(0, 71);
-  ECHO(y);
-  delete y;
-  y = w->extract_range(0, 64);
-  ECHO(y);
-  delete y;
-  y = w->extract_range(64, 75);
-  ECHO(y);
-  delete y;
-  y = w->extract_range(0, 75);
-  ECHO(y);
-  delete y;
-  y = w->extract_range(7, 64);
-  ECHO(y);
-  delete y;
-  y = w->extract_range(7, 72);
-  ECHO(y);
-  delete y;
-
   delete v;
   delete w;
   delete x;
@@ -115,8 +84,6 @@ int main()
 
   ruler();
 
-  for (size_t i = 0; i < 12; ++i)
-    a->at(4).emplace_back((i & 2) == 0);
   a->at(6) = a->at(4);
   a->at(8) = a->at(7);
   a->at(6) ^= a->at(8);

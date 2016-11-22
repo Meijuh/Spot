@@ -140,50 +140,6 @@ namespace spot
       return (size_ + bpb - 1) / bpb;
     }
 
-    /// Append one bit.
-    void emplace_back(bool val)
-    {
-      if (size() == capacity())
-        grow();
-      size_t pos = size_++;
-      if (val)
-        set(pos);
-      else
-        clear(pos);
-    }
-
-    /// \brief Append the lowest \a count bits of \a data.
-    void emplace_back(block_t data, unsigned count)
-    {
-      if (size() + count > capacity())
-        grow();
-      const size_t bpb = 8 * sizeof(block_t);
-
-      // Clear the higher bits.
-      if (count != bpb)
-        data &= (1UL << count) - 1;
-
-      size_t n = size() % bpb;
-      size_t i = size_ / bpb;
-      size_ += count;
-      if (n == 0)                // Aligned on block_t boundary
-        {
-          storage_[i] = data;
-        }
-      else                        // Only (bpb-n) bits free in this block.
-        {
-          // Take the lower bpb-n bits of data...
-          block_t mask = (1UL << (bpb - n)) - 1;
-          block_t data1 = (data & mask) << n;
-          mask <<= n;
-          // ... write them on the higher bpb-n bits of last block.
-          storage_[i] = (storage_[i] & ~mask) | data1;
-          // Write the remaining bits in the next block.
-          if (bpb - n < count)
-            storage_[i + 1] = data >> (bpb - n);
-        }
-    }
-
     size_t size() const
     {
       return size_;
@@ -390,57 +346,6 @@ namespace spot
     bool operator<=(const bitvect& other) const
     {
       return !(other < *this);
-    }
-
-    // \brief Extract a range of bits.
-    //
-    // Build a new bit-vector using the bits from \a begin (included)
-    // to \a end (excluded).
-    bitvect* extract_range(size_t begin, size_t end)
-    {
-      SPOT_ASSERT(begin <= end);
-      SPOT_ASSERT(end <= size());
-      size_t count = end - begin;
-      bitvect* res = make_bitvect(count);
-      res->make_empty();
-
-      if (end == begin)
-        return res;
-
-      const size_t bpb = 8 * sizeof(bitvect::block_t);
-
-      size_t indexb = begin / bpb;
-      unsigned bitb = begin % bpb;
-      size_t indexe = (end - 1) / bpb;
-
-      if (indexb == indexe)
-        {
-          block_t data = storage_[indexb];
-          data >>= bitb;
-          res->emplace_back(data, count);
-        }
-      else
-        {
-          block_t data = storage_[indexb];
-          data >>= bitb;
-          res->emplace_back(data, bpb - bitb);
-          count -= bpb - bitb;
-          while (count >= bpb)
-            {
-              ++indexb;
-              res->emplace_back(storage_[indexb], bpb);
-              count -= bpb;
-              SPOT_ASSERT(indexb != indexe || count == 0);
-            }
-          if (count > 0)
-            {
-              ++indexb;
-              SPOT_ASSERT(indexb == indexe);
-              SPOT_ASSERT(count == end % bpb);
-              res->emplace_back(storage_[indexb], count);
-            }
-        }
-      return res;
     }
 
     friend SPOT_API bitvect* make_bitvect(size_t bitcount);
