@@ -1017,9 +1017,10 @@ namespace spot
     lt_dlhandle h = lt_dlopen(file.c_str());
     if (!h)
       {
+        std::string lt_error = lt_dlerror();
         lt_dlexit();
         throw std::runtime_error(std::string("Failed to load '")
-                                 + file + "'.");
+                                 + file + "'.\n" + lt_error);
       }
 
     auto d = std::make_shared<spins_interface>();
@@ -1106,7 +1107,7 @@ namespace spot
           && d->get_type_name
           && d->get_type_value_count
           && d->get_type_value_name))
-      throw std::runtime_error(std::string("Failed resolve some symbol"
+      throw std::runtime_error(std::string("Failed to resolve some symbol "
                                            "while loading '") + file + "'.");
 
     if (d->have_property && d->have_property())
