@@ -375,19 +375,21 @@ check_SCRIPTS += ltsmin/defs
 
 ltsmin/defs: $(top_builddir)/config.status $(srcdir)/core/defs.in
 	$(top_builddir)/config.status --file ltsmin/defs:core/defs.in
+endif
 
+if USE_LTSMIN
 TESTS_ltsmin = \
   ltsmin/check.test \
   ltsmin/finite.test \
   ltsmin/finite2.test \
+  ltsmin/finite3.test \
   ltsmin/kripke.test
 
-EXTRA_DIST += ltsmin/beem-peterson.4.dve ltsmin/elevator2.1.pm \
-	ltsmin/finite.dve ltsmin/finite.pm
+EXTRA_DIST += ltsmin/beem-peterson.4.dve ltsmin/beem-peterson.4.gal \
+  ltsmin/elevator2.1.pm ltsmin/finite.dve ltsmin/finite.pm ltsmin/finite.gal
 
 ltlsmin/kripke.log: core/kripkecat$(EXEEXT)
 endif
-
 
 ############################## SANITY ##############################
 

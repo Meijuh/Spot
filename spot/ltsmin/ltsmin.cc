@@ -948,7 +948,12 @@ namespace spot
       std::string command;
       std::string compiled_ext;
 
-      if (ext == ".prom" || ext == ".pm" || ext == ".pml")
+      if (ext == ".gal")
+        {
+          command = "gal2c " + filename;
+          compiled_ext = "2C";
+        }
+      else if (ext == ".prom" || ext == ".pm" || ext == ".pml")
         {
           command = "spins " + filename;
           compiled_ext = ".spins";
@@ -962,7 +967,8 @@ namespace spot
         {
           throw std::runtime_error(std::string("Unknown extension '")
                                    + ext + "'.  Use '.prom', '.pm', '.pml', "
-                                   "'.dve', '.dve2C', or '.prom.spins'.");
+                                   "'.dve', '.dve2C', '.gal', '.gal2C' or "
+                                   "'.prom.spins'.");
         }
 
       struct stat s;
@@ -980,7 +986,7 @@ namespace spot
       struct stat d;
       if (stat(filename.c_str(), &d) == 0)
         if (s.st_mtime < d.st_mtime)
-          // The .spins or .dve2C is up-to-date, no need to recompile it.
+          // The .spins or .dve2C or .gal2C is up-to-date, no need to compile.
           return;
 
       int res = system(command.c_str());
@@ -1002,7 +1008,7 @@ namespace spot
       file = "./" + file_arg;
 
     std::string ext = file.substr(file.find_last_of("."));
-    if (ext != ".spins" && ext != ".dve2C")
+    if (ext != ".spins" && ext != ".dve2C" && ext != ".gal2C")
       compile_model(file, ext);
 
     if (lt_dlinit())
@@ -1020,9 +1026,10 @@ namespace spot
     d->handle = h;
 
     // SpinS interface.
-    if ((d->get_initial_state = (void (*)(void*))
-        lt_dlsym(h, "spins_get_initial_state")))
+    if (ext == ".spins")
       {
+        d->get_initial_state = (void (*)(void*))
+        lt_dlsym(h, "spins_get_initial_state");
         d->have_property = nullptr;
         d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
         lt_dlsym(h, "spins_get_successor_all");
@@ -1042,6 +1049,30 @@ namespace spot
         lt_dlsym(h, "spins_get_type_value_name");
       }
     // dve2 interface.
+    else if (ext == ".dve2C")
+      {
+        d->get_initial_state = (void (*)(void*))
+        lt_dlsym(h, "get_initial_state");
+        d->have_property = (int (*)())
+        lt_dlsym(h, "have_property");
+        d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
+        lt_dlsym(h, "get_successors");
+        d->get_state_size = (int (*)())
+        lt_dlsym(h, "get_state_variable_count");
+        d->get_state_variable_name = (const char* (*)(int))
+        lt_dlsym(h, "get_state_variable_name");
+        d->get_state_variable_type = (int (*)(int))
+        lt_dlsym(h, "get_state_variable_type");
+        d->get_type_count = (int (*)())
+        lt_dlsym(h, "get_state_variable_type_count");
+        d->get_type_name = (const char* (*)(int))
+        lt_dlsym(h, "get_state_variable_type_name");
+        d->get_type_value_count = (int (*)(int))
+        lt_dlsym(h, "get_state_variable_type_value_count");
+        d->get_type_value_name = (const char* (*)(int, int))
+        lt_dlsym(h, "get_state_variable_type_value");
+      }
+    // .gal2C interface.
     else
       {
         d->get_initial_state = (void (*)(void*))

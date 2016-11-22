@@ -35,6 +35,11 @@ if ! test -x "$(which spins)"; then
   exit 77
 fi
 
+if ! test -x "$(which gal2c)"; then
+  echo "gal2c not installed."
+  exit 77
+fi
+
 set -e
 
 # Promela
@@ -63,6 +68,18 @@ for opt in '' '-z'; do
   run 0 ../modelcheck $opt -e $srcdir/beem-peterson.4.dve \
     '!G(P_0.wait -> F P_0.CS)'
   run 0 ../modelcheck $opt -e $srcdir/beem-peterson.4.dve '!G("pos[1] < 3")'
+done
+
+# gal
+# TODO also compare gal and dve results
+for opt in '' '-z'; do
+  # The three examples from the README.
+  # (Don't run the first one using "run 0" because it would take too much
+  # time with valgrind.).
+
+  run 0 ../modelcheck $opt -e $srcdir/beem-peterson.4.gal \
+    '!G("P_0.state==2" -> F "P_0.state==1")'
+  run 0 ../modelcheck $opt -e $srcdir/beem-peterson.4.gal '!G("pos[1] < 3")'a
 done
 
 # Now check some error messages.
