@@ -196,7 +196,7 @@ namespace spot
 
       void push_data(unsigned int i)
       {
-        result_->push_back(i);
+        result_->emplace_back(i);
       }
 
       const std::vector<unsigned int>*
@@ -246,7 +246,7 @@ namespace spot
 
       void push_data(unsigned int i)
       {
-        output_.push_back(i);
+        output_.emplace_back(i);
       }
 
       bool have_data() const
@@ -543,7 +543,7 @@ namespace spot
       void push_data(int i)
       {
         prev_ = i;
-        result_.push_back(i);
+        result_.emplace_back(i);
         --size_;
       }
 
@@ -551,7 +551,7 @@ namespace spot
       {
         size_ -= i;
         while (i--)
-          result_.push_back(prev_);
+          result_.emplace_back(prev_);
       }
 
       bool have_comp_data() const

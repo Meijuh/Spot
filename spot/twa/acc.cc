@@ -519,7 +519,7 @@ namespace spot
           }
       }
     for (auto i: p)
-      pairs.push_back(i.second);
+      pairs.emplace_back(i.second);
     return (!(seen_fin & seen_inf)
             && (seen_fin | seen_inf) == all_sets());
   }
@@ -568,7 +568,7 @@ namespace spot
     codes.reserve(n_accs);
     for (unsigned i = 0; i < n_accs; ++i)
       {
-        codes.push_back(drand() < 0.5 ? inf({i}) : fin({i}));
+        codes.emplace_back(drand() < 0.5 ? inf({i}) : fin({i}));
         if (reuse > 0.0 && drand() < reuse)
           --i;
       }
@@ -664,9 +664,9 @@ namespace spot
       std::vector<bdd> r;
       for (unsigned i = 0; r.size() < umax; ++i)
         if (used.has(i))
-          r.push_back(bdd_ithvar(base++));
+          r.emplace_back(bdd_ithvar(base++));
         else
-          r.push_back(bddfalse);
+          r.emplace_back(bddfalse);
       return to_bdd_rec(&lhs.back(), &r[0]) == to_bdd_rec(&rhs.back(), &r[0]);
     }
   }
@@ -740,11 +740,11 @@ namespace spot
         if (used.has(i))
           {
             sets[base] = i;
-            r.push_back(bdd_ithvar(base++));
+            r.emplace_back(bdd_ithvar(base++));
           }
         else
           {
-            r.push_back(bddfalse);
+            r.emplace_back(bddfalse);
           }
       }
 
@@ -812,11 +812,11 @@ namespace spot
         if (used.has(i))
           {
             sets[base] = i;
-            r.push_back(bdd_ithvar(base++));
+            r.emplace_back(bdd_ithvar(base++));
           }
         else
           {
-            r.push_back(bddfalse);
+            r.emplace_back(bddfalse);
           }
       }
 
@@ -886,11 +886,11 @@ namespace spot
         if (used.has(i))
           {
             sets[base] = i;
-            r.push_back(bdd_ithvar(base++));
+            r.emplace_back(bdd_ithvar(base++));
           }
         else
           {
-            r.push_back(bddfalse);
+            r.emplace_back(bddfalse);
           }
       }
 
@@ -950,13 +950,13 @@ namespace spot
           {
             sets[base] = i;
             bdd v = bdd_ithvar(base++);
-            r.push_back(v);
+            r.emplace_back(v);
             if (inf.has(i))
               known &= v;
           }
         else
           {
-            r.push_back(bddfalse);
+            r.emplace_back(bddfalse);
           }
       }
 
@@ -984,12 +984,12 @@ namespace spot
             bdd h = bdd_high(cube);
             if (h == bddfalse)        // Negative variable
               {
-                partial.push_back(s);
+                partial.emplace_back(s);
                 cube = bdd_low(cube);
               }
             else                // Positive variable
               {
-                partial.push_back(-s - 1);
+                partial.emplace_back(-s - 1);
                 cube = h;
               }
           }
@@ -1579,7 +1579,7 @@ namespace spot
         v.reserve(num);
         while (num > 0)
           {
-            v.push_back(parse_range(input));
+            v.emplace_back(parse_range(input));
             --num;
           }
         c = acc_cond::acc_code::generalized_rabin(v.begin(), v.end());

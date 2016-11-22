@@ -104,7 +104,7 @@ namespace spot
 
   void exclusive_ap::add_group(std::vector<formula> ap)
   {
-    groups.push_back(ap);
+    groups.emplace_back(ap);
   }
 
   namespace
@@ -130,12 +130,12 @@ namespace spot
 
         for (auto ap: g)
           if (s->find(ap) != s->end())
-            group.push_back(ap);
+            group.emplace_back(ap);
 
         unsigned s = group.size();
         for (unsigned j = 0; j < s; ++j)
           for (unsigned k = j + 1; k < s; ++k)
-            v.push_back(nand(group[j], group[k]));
+            v.emplace_back(nand(group[j], group[k]));
       };
 
     delete s;
@@ -166,7 +166,7 @@ namespace spot
           {
             int v = d->has_registered_proposition(ap, aut);
             if (v >= 0)
-              group.push_back(bdd_nithvar(v));
+              group.emplace_back(bdd_nithvar(v));
           }
 
         unsigned s = group.size();

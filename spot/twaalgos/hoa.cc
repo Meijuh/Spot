@@ -186,7 +186,7 @@ namespace spot
             int v = bdd_var(all);
             all = bdd_high(all);
             ap.insert(std::make_pair(v, vap.size()));
-            vap.push_back(v);
+            vap.emplace_back(v);
           }
 
         if (use_implicit_labels)

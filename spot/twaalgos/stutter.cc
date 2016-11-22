@@ -300,7 +300,7 @@ namespace spot
     stutter_state s(s0, bddfalse);
     ss2num[s] = 0;
     res->new_state();
-    todo.push_back(s);
+    todo.emplace_back(s);
 
     while (!todo.empty())
       {
@@ -325,7 +325,7 @@ namespace spot
 
                 if (r.second)
                   {
-                    todo.push_back(d);
+                    todo.emplace_back(d);
                     unsigned u = res->new_state();
                     assert(u == dest);
                     (void)u;
@@ -439,8 +439,8 @@ namespace spot
 
         for (auto it = trans.begin(); it != trans.end(); ++it)
           {
-            todo.push_back(it.trans());
-            dst2trans[it->dst].push_back(it.trans());
+            todo.emplace_back(it.trans());
+            dst2trans[it->dst].emplace_back(it.trans());
           }
 
         while (!todo.empty())
@@ -465,7 +465,7 @@ namespace spot
                                 ts.cond |= cond;
                                 if (std::find(todo.begin(), todo.end(), t)
                                     == todo.end())
-                                  todo.push_back(t);
+                                  todo.emplace_back(t);
                               }
                             need_new_trans = false;
                             break;
@@ -478,7 +478,7 @@ namespace spot
                                 ts.acc = acc;
                                 if (std::find(todo.begin(), todo.end(), t)
                                     == todo.end())
-                                  todo.push_back(t);
+                                  todo.emplace_back(t);
                               }
                             need_new_trans = false;
                             break;
@@ -490,8 +490,8 @@ namespace spot
                         // invalidated by new_edge().
                         auto dst = t2.dst;
                         auto i = a->new_edge(state, dst, cond, acc);
-                        dst2trans[dst].push_back(i);
-                        todo.push_back(i);
+                        dst2trans[dst].emplace_back(i);
+                        todo.emplace_back(i);
                       }
                   }
               }

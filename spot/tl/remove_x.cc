@@ -47,8 +47,8 @@ namespace spot
           // First line
           std::vector<formula> va1;
           formula npi = formula::Not(i);
-          va1.push_back(i);
-          va1.push_back(formula::U(i, formula::And({npi, c})));
+          va1.emplace_back(i);
+          va1.emplace_back(formula::U(i, formula::And({npi, c})));
 
           for (auto j: aps)
             if (j != i)
@@ -56,22 +56,22 @@ namespace spot
                 // make sure the arguments of OR are created in a
                 // deterministic order
                 auto tmp = formula::U(formula::Not(j), npi);
-                va1.push_back(formula::Or({formula::U(j, npi), tmp}));
+                va1.emplace_back(formula::Or({formula::U(j, npi), tmp}));
               }
-          vo.push_back(formula::And(va1));
+          vo.emplace_back(formula::And(va1));
           // Second line
           std::vector<formula> va2;
-          va2.push_back(npi);
-          va2.push_back(formula::U(npi, formula::And({i, c})));
+          va2.emplace_back(npi);
+          va2.emplace_back(formula::U(npi, formula::And({i, c})));
           for (auto j: aps)
             if (j != i)
               {
                 // make sure the arguments of OR are created in a
                 // deterministic order
                 auto tmp = formula::U(formula::Not(j), i);
-                va2.push_back(formula::Or({formula::U(j, i), tmp}));
+                va2.emplace_back(formula::Or({formula::U(j, i), tmp}));
               }
-          vo.push_back(formula::And(va2));
+          vo.emplace_back(formula::And(va2));
         }
       // Third line
       std::vector<formula> va3;
@@ -80,10 +80,10 @@ namespace spot
           // make sure the arguments of OR are created in a
           // deterministic order
           auto tmp = formula::G(formula::Not(i));
-          va3.push_back(formula::Or({formula::G(i), tmp}));
+          va3.emplace_back(formula::Or({formula::G(i), tmp}));
         }
-      va3.push_back(c);
-      vo.push_back(formula::And(va3));
+      va3.emplace_back(c);
+      vo.emplace_back(formula::And(va3));
       return formula::Or(vo);
     }
   }

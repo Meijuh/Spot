@@ -76,7 +76,7 @@ namespace spot
               p.first->second = res->new_state();
               todo.emplace_back(x, p.first->second);
               assert(p.first->second == v->size());
-              v->push_back(x);
+              v->emplace_back(x);
             }
           return p.first->second;
         };

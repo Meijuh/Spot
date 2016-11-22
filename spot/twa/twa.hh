@@ -728,7 +728,7 @@ namespace spot
       int res = dict_->has_registered_proposition(ap, this);
       if (res < 0)
         {
-          aps_.push_back(ap);
+          aps_.emplace_back(ap);
           res = dict_->register_proposition(ap, this);
           bddaps_ &= bdd_ithvar(res);
         }
@@ -768,7 +768,7 @@ namespace spot
       for (unsigned n = 0; n < s; ++n)
         if (m[n].refs.find(this) != m[n].refs.end())
           {
-            aps_.push_back(m[n].f);
+            aps_.emplace_back(m[n].f);
             bddaps_ &= bdd_ithvar(n);
           }
     }

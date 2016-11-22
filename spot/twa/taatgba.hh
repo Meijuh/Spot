@@ -178,7 +178,7 @@ namespace spot
       t->dst = dst;
       t->condition = bddtrue;
       t->acceptance_conditions = 0U;
-      src->push_back(t);
+      src->emplace_back(t);
       return t;
     }
 
@@ -186,7 +186,7 @@ namespace spot
     create_transition(const label& s, const label& d)
     {
       std::vector<std::string> vec;
-      vec.push_back(d);
+      vec.emplace_back(d);
       return create_transition(s, vec);
     }
 
@@ -266,7 +266,7 @@ namespace spot
       state_set* ss = new state_set;
       for (unsigned i = 0; i < names.size(); ++i)
         ss->insert(add_state(names[i]));
-      state_set_vec_.push_back(ss);
+      state_set_vec_.emplace_back(ss);
       return ss;
     }
 

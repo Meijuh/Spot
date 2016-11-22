@@ -105,7 +105,7 @@ namespace spot
         {
           if ((*i)->is_boolean())
             {
-              b.push_back(*i);
+              b.emplace_back(*i);
               i = v.erase(i);
             }
           else
@@ -230,7 +230,7 @@ namespace spot
             {
               unsigned ps = (*i)->size();
               for (unsigned n = 0; n < ps; ++n)
-                inlined.push_back((*i)->nth(n)->clone());
+                inlined.emplace_back((*i)->nth(n)->clone());
               (*i)->destroy();
               // FIXME: Do not use erase.  See previous FIXME.
               i = v.erase(i);
@@ -242,7 +242,7 @@ namespace spot
           // For concat we have to keep track of the order of
           // all the arguments.
           if (o == op::Concat || o == op::Fusion)
-            inlined.push_back(*i);
+            inlined.emplace_back(*i);
           ++i;
         }
       if (o == op::Concat || o == op::Fusion)
@@ -470,10 +470,10 @@ namespace spot
                       i->destroy();
                       continue;
                     }
-                  tmp.push_back(i);
+                  tmp.emplace_back(i);
                 }
               if (tmp.empty())
-                tmp.push_back(weak_abs);
+                tmp.emplace_back(weak_abs);
               v.swap(tmp);
             }
         }
@@ -1624,7 +1624,7 @@ namespace spot
           v.reserve(s - 1);
           for (unsigned j = 0; j < s; ++j)
             if (i != j)
-              v.push_back(nth(j)->clone());
+              v.emplace_back(nth(j)->clone());
           return multop(o, v);
         }
       default:

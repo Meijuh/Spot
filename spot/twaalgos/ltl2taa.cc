@@ -64,7 +64,7 @@ namespace spot
               std::vector<formula> empty;
               res_->create_transition(init_, empty);
               succ_state ss = { empty, f, empty };
-              succ_.push_back(ss);
+              succ_.emplace_back(ss);
               return;
             }
           case op::eword:
@@ -79,7 +79,7 @@ namespace spot
               taa_tgba::transition* t = res_->create_transition(init_, empty);
               res_->add_condition(t, f);
               succ_state ss = { empty, f, empty };
-              succ_.push_back(ss);
+              succ_.emplace_back(ss);
               return;
             }
           case op::X:
@@ -89,10 +89,10 @@ namespace spot
               std::vector<formula> a;
               if (v.succ_.empty()) // Handle X(0)
                 return;
-              dst.push_back(v.init_);
+              dst.emplace_back(v.init_);
               res_->create_transition(init_, dst);
               succ_state ss = { dst, formula::tt(), a };
-              succ_.push_back(ss);
+              succ_.emplace_back(ss);
               return;
             }
           case op::F:
@@ -165,9 +165,9 @@ namespace spot
                 i1->Q.erase
                   (remove(i1->Q.begin(), i1->Q.end(), v1.init_), i1->Q.end());
 
-              i1->Q.push_back(init_); // Add the initial state
+              i1->Q.emplace_back(init_); // Add the initial state
               if (strong)
-                i1->acc.push_back(f[1]);
+                i1->acc.emplace_back(f[1]);
               t = res_->create_transition(init_, i1->Q);
               res_->add_condition(t, i1->condition);
               if (strong)
@@ -175,13 +175,13 @@ namespace spot
               else
                 for (unsigned i = 0; i < i1->acc.size(); ++i)
                   res_->add_acceptance_condition(t, i1->acc[i]);
-              succ_.push_back(*i1);
+              succ_.emplace_back(*i1);
             }
           for (i2 = v2.succ_.begin(); i2 != v2.succ_.end(); ++i2)
             {
               t = res_->create_transition(init_, i2->Q);
               res_->add_condition(t, i2->condition);
-              succ_.push_back(*i2);
+              succ_.emplace_back(*i2);
             }
           return;
         case op::M: // Strong Release
@@ -207,7 +207,7 @@ namespace spot
                   t = res_->create_transition(init_, u);
                   res_->add_condition(t, f);
                   succ_state ss = { u, f, a };
-                  succ_.push_back(ss);
+                  succ_.emplace_back(ss);
                 }
 
               if (refined_) // Refined rule
@@ -215,19 +215,19 @@ namespace spot
                   (remove(i2->Q.begin(), i2->Q.end(), v2.init_), i2->Q.end());
 
 
-              i2->Q.push_back(init_); // Add the initial state
+              i2->Q.emplace_back(init_); // Add the initial state
               t = res_->create_transition(init_, i2->Q);
               res_->add_condition(t, i2->condition);
 
               if (strong)
                 {
-                  i2->acc.push_back(f[0]);
+                  i2->acc.emplace_back(f[0]);
                   res_->add_acceptance_condition(t, f[0]);
                 }
               else if (refined_)
                 for (unsigned i = 0; i < i2->acc.size(); ++i)
                   res_->add_acceptance_condition(t, i2->acc[i]);
-              succ_.push_back(*i2);
+              succ_.emplace_back(*i2);
             }
           return;
         default:
@@ -243,7 +243,7 @@ namespace spot
         std::vector<ltl2taa_visitor> vs;
         for (unsigned n = 0, s = f.size(); n < s; ++n)
         {
-          vs.push_back(recurse(f[n]));
+          vs.emplace_back(recurse(f[n]));
           if (vs[n].succ_.empty()) // Handle 0
             ok = false;
         }
@@ -268,7 +268,7 @@ namespace spot
                           if (!binary_search(p[n].Q.begin(), p[n].Q.end(),
                                              vs[m].init_))
                             break;
-                          v.push_back(vs[m].init_);
+                          v.emplace_back(vs[m].init_);
                         }
 
                       if (v.size() == f.size())
@@ -277,19 +277,19 @@ namespace spot
                           sort(v.begin(), v.end());
                           for (unsigned m = 0; m < p[n].Q.size(); ++m)
                             if (!binary_search(v.begin(), v.end(), p[n].Q[m]))
-                              Q.push_back(p[n].Q[m]);
-                          Q.push_back(init_);
+                              Q.emplace_back(p[n].Q[m]);
+                          Q.emplace_back(init_);
                           t = res_->create_transition(init_, Q);
                           res_->add_condition(t, p[n].condition);
                           for (unsigned i = 0; i < p[n].acc.size(); ++i)
                             res_->add_acceptance_condition(t, p[n].acc[i]);
-                          succ_.push_back(p[n]);
+                          succ_.emplace_back(p[n]);
                           continue;
                         }
                     }
                   t = res_->create_transition(init_, p[n].Q);
                   res_->add_condition(t, p[n].condition);
-                  succ_.push_back(p[n]);
+                  succ_.emplace_back(p[n]);
                 }
               return;
             }
@@ -299,7 +299,7 @@ namespace spot
                 {
                   t = res_->create_transition(init_, i.Q);
                   res_->add_condition(t, i.condition);
-                  succ_.push_back(i);
+                  succ_.emplace_back(i);
                 }
             return;
           default:
@@ -359,11 +359,11 @@ namespace spot
             for (unsigned i = 0; i < ss.acc.size(); ++i)
             {
               formula g = ss.acc[i];
-              a.push_back(g);
+              a.emplace_back(g);
             }
           }
           succ_state ss = { u, f, a };
-          product.push_back(ss);
+          product.emplace_back(ss);
 
           for (int i = vs.size() - 1; i >= 0; --i)
           {

@@ -141,7 +141,7 @@ namespace spot
     }
 
     /// Append one bit.
-    void push_back(bool val)
+    void emplace_back(bool val)
     {
       if (size() == capacity())
         grow();
@@ -153,7 +153,7 @@ namespace spot
     }
 
     /// \brief Append the lowest \a count bits of \a data.
-    void push_back(block_t data, unsigned count)
+    void emplace_back(block_t data, unsigned count)
     {
       if (size() + count > capacity())
         grow();
@@ -417,18 +417,18 @@ namespace spot
         {
           block_t data = storage_[indexb];
           data >>= bitb;
-          res->push_back(data, count);
+          res->emplace_back(data, count);
         }
       else
         {
           block_t data = storage_[indexb];
           data >>= bitb;
-          res->push_back(data, bpb - bitb);
+          res->emplace_back(data, bpb - bitb);
           count -= bpb - bitb;
           while (count >= bpb)
             {
               ++indexb;
-              res->push_back(storage_[indexb], bpb);
+              res->emplace_back(storage_[indexb], bpb);
               count -= bpb;
               SPOT_ASSERT(indexb != indexe || count == 0);
             }
@@ -437,7 +437,7 @@ namespace spot
               ++indexb;
               SPOT_ASSERT(indexb == indexe);
               SPOT_ASSERT(count == end % bpb);
-              res->push_back(storage_[indexb], count);
+              res->emplace_back(storage_[indexb], count);
             }
         }
       return res;

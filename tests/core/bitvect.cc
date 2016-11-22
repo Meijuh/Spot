@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -68,7 +68,7 @@ int main()
             << ' ' << v->is_subset_of(*w) << '\n';
 
   for (size_t i = 0; i < 30; ++i)
-    w->push_back((i & 3) == 0);
+    w->emplace_back((i & 3) == 0);
   ECHO(w);
   *x &= *w;
   ECHO(x);
@@ -77,7 +77,7 @@ int main()
 
   ruler();
 
-  w->push_back(0x09, 4);
+  w->emplace_back(0x09, 4);
   ECHO(w);
   spot::bitvect* y = w->extract_range(0, 71);
   ECHO(y);
@@ -116,7 +116,7 @@ int main()
   ruler();
 
   for (size_t i = 0; i < 12; ++i)
-    a->at(4).push_back((i & 2) == 0);
+    a->at(4).emplace_back((i & 2) == 0);
   a->at(6) = a->at(4);
   a->at(8) = a->at(7);
   a->at(6) ^= a->at(8);

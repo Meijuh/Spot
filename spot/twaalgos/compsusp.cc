@@ -66,17 +66,17 @@ namespace spot
                 {
                   formula c = f[i];
                   if (c.is_boolean())
-                    res.push_back(c);
+                    res.emplace_back(c);
                   else if (oblig_ && c.is_syntactic_obligation())
-                    oblig.push_back(c);
+                    oblig.emplace_back(c);
                   else if (c.is_eventual() && c.is_universal())
-                    susp.push_back(c);
+                    susp.emplace_back(c);
                   else
-                    res.push_back(recurse(c));
+                    res.emplace_back(recurse(c));
                 }
               if (!oblig.empty())
                 {
-                  res.push_back(recurse(formula::multop(o, oblig)));
+                  res.emplace_back(recurse(formula::multop(o, oblig)));
                 }
               if (!susp.empty())
                 {
@@ -85,7 +85,7 @@ namespace spot
                   formula g = recurse(x);
                   if (o == op::And)
                     {
-                      res.push_back(g);
+                      res.emplace_back(g);
                     }
                   else
                     {
@@ -191,7 +191,7 @@ namespace spot
       p.second = ris;
       unsigned i = res->new_state();
       seen[p] = i;
-      todo.push_back(p);
+      todo.emplace_back(p);
       res->set_init_state(i);
 
       while (!todo.empty())
@@ -252,7 +252,7 @@ namespace spot
                     {
                       dest = res->new_state();
                       seen[d] = dest;
-                      todo.push_back(d);
+                      todo.emplace_back(d);
                     }
 
                   acc_cond::mark_t a = li->acc() | (racc << lsets);

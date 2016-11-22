@@ -54,7 +54,7 @@ namespace spot
           {
             tmp = cpy->new_state();
             seen[old_state] = tmp;
-            todo.push_back(old_state);
+            todo.emplace_back(old_state);
           }
         return tmp;
       };

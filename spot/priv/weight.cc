@@ -52,7 +52,7 @@ namespace spot
     std::vector<unsigned> res;
     for (unsigned n = 0; n < max; ++n)
       if (m[n] > w.m[n])
-        res.push_back(n);
+        res.emplace_back(n);
     return acc_cond::mark_t(res.begin(), res.end());
   }
 

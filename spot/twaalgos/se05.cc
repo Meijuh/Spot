@@ -356,7 +356,7 @@ namespace spot
               if (l == &run->prefix && i->s->compare(target) == 0)
                 l = &run->cycle;
               twa_run::step s = { i->s->clone(), j->label, j->acc };
-              l->push_back(s);
+              l->emplace_back(s);
             }
 
           if (l == &run->prefix && i->s->compare(target) == 0)
@@ -365,14 +365,14 @@ namespace spot
 
           j = ms_->st_red.rbegin();
           twa_run::step s = { i->s->clone(), j->label, j->acc };
-          l->push_back(s);
+          l->emplace_back(s);
 
           i = j; ++j;
           end = ms_->st_red.rend(); --end;
           for (; i != end; ++i, ++j)
             {
               twa_run::step s = { i->s->clone(), j->label, j->acc };
-              l->push_back(s);
+              l->emplace_back(s);
             }
 
           return run;

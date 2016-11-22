@@ -116,7 +116,7 @@ namespace spot
                     {
                       vec v1;
                       vec v2;
-                      v1.push_back(f[0]);
+                      v1.emplace_back(f[0]);
                       bool reverse = false;
                       int i = 1;
                       while (i < mos)
@@ -128,10 +128,10 @@ namespace spot
                               reverse = true;
                               break;
                             }
-                          v1.push_back(f[i++]);
+                          v1.emplace_back(f[i++]);
                         }
                       for (; i < mos; ++i)
-                        v2.push_back(f[i]);
+                        v2.emplace_back(f[i]);
                       formula first = AndNLM_(v1);
                       formula second = AndNLM_(v2);
                       formula ost = formula::one_star();

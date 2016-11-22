@@ -63,7 +63,7 @@ namespace spot
         }
       else
         {
-          labels.push_back(current);
+          labels.emplace_back(current);
           return 1;
         }
     }
@@ -189,7 +189,7 @@ namespace spot
           }
         else
           for (unsigned i = 0; i < nsucc; ++i)
-            labels.push_back(random_labels(props, props_n, t));
+            labels.emplace_back(random_labels(props, props_n, t));
 
         int possibilities = n;
         unsigned dst;

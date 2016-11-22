@@ -34,7 +34,7 @@ namespace spot
         int oldv = aut->register_ap(p.first);
         int newv = aut->register_ap(p.second);
         bdd_setpair(pairs, oldv, newv);
-        vars.push_back(oldv);
+        vars.emplace_back(oldv);
         newvars.insert(newv);
       }
     for (auto& t: aut->edges())

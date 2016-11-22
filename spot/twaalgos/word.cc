@@ -30,9 +30,9 @@ namespace spot
     : dict_(run->aut->get_dict())
   {
     for (auto& i: run->prefix)
-      prefix.push_back(i.label);
+      prefix.emplace_back(i.label);
     for (auto& i: run->cycle)
-      cycle.push_back(i.label);
+      cycle.emplace_back(i.label);
     dict_->register_all_variables_of(run->aut, this);
   }
 
@@ -58,7 +58,7 @@ namespace spot
       if (all != bddfalse)
         {
           cycle.clear();
-          cycle.push_back(all);
+          cycle.emplace_back(all);
         }
     }
     // If the last formula of the prefix is compatible with the
@@ -175,7 +175,7 @@ namespace spot
         if (!pf.errors.empty())
           word_parse_error(word, i, pf);
         atomic_prop_collect(pf.f, &aps);
-        seq.push_back(tls.as_bdd(pf.f));
+        seq.emplace_back(tls.as_bdd(pf.f));
         if (word[ind] == '}')
           return true;
         // Skip blanks after semi-colon

@@ -297,9 +297,9 @@ namespace spot
       inout.reserve(in_n);
       for (unsigned i = 0; i < in_n; ++i)
         if (filter.state(i))
-          inout.push_back(out_n++);
+          inout.emplace_back(out_n++);
         else
-          inout.push_back(-1U);
+          inout.emplace_back(-1U);
 
       filter.fix_acceptance(filtered);
       filtered->new_states(out_n);

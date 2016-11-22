@@ -55,7 +55,7 @@ namespace spot
               b = high;
             }
           assert(b != bddfalse);
-          v.push_back(res);
+          v.emplace_back(res);
         }
       return formula::And(v);
     }

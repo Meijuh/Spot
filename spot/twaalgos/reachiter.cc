@@ -130,7 +130,7 @@ namespace spot
   void
   twa_reachable_iterator_breadth_first::add_state(const state* s)
   {
-    todo.push_back(s);
+    todo.emplace_back(s);
   }
 
   const state*
@@ -170,7 +170,7 @@ namespace spot
     twa_succ_iterator* si = aut_->succ_iter(s);
     process_state(s, sn, si);
     stack_item item = { s, sn, si };
-    todo.push_back(item);
+    todo.emplace_back(item);
     si->first();
   }
 

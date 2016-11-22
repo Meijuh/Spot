@@ -180,7 +180,7 @@ namespace spot
         trace << "    s.lowlink = " << top << std::endl
               << "    s.acc = " << ss.acc << std::endl;
 
-        stack.push_back(ss);
+        stack.emplace_back(ss);
         dftop = top;
         inc_depth();
       }

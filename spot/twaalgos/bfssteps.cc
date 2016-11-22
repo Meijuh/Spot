@@ -69,7 +69,7 @@ namespace spot
     // BFS queue.
     std::deque<const state*> todo;
     // Initial state.
-    todo.push_back(start);
+    todo.emplace_back(start);
 
     while (!todo.empty())
       {
@@ -97,7 +97,7 @@ namespace spot
             // for unvisited states.
             if (father.find(dest) == father.end())
               {
-                todo.push_back(dest);
+                todo.emplace_back(dest);
                 father[dest] = s;
               }
           }

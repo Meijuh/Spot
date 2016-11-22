@@ -161,7 +161,7 @@ namespace spot
         std::vector<unsigned> res;
         unsigned max = a_->num_sets();
         for (unsigned n = 0; n < max && acc.has(n); ++n)
-          res.push_back(n);
+          res.emplace_back(n);
         return acc_cond::mark_t(res.begin(), res.end());
       }
 

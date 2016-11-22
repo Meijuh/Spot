@@ -84,7 +84,7 @@ namespace spot
               m |= pos[-1].mark;
               pos -= 2;
             }
-          res.push_back(m);
+          res.emplace_back(m);
         }
       return res;
     }
@@ -162,7 +162,7 @@ namespace spot
 
     st2gba_state s(in->get_init_state_number());
     bs2num[s] = out->new_state();
-    todo.push_back(s);
+    todo.emplace_back(s);
 
     bool sbacc = in->prop_state_acc().is_true();
 
@@ -234,7 +234,7 @@ namespace spot
             else                // No, this is a new state
               {
                 dest = dres.first->second = out->new_state();
-                todo.push_back(d);
+                todo.emplace_back(d);
               }
             out->new_edge(src, dest, t.cond, acc);
 
@@ -264,7 +264,7 @@ namespace spot
                 else                // No, this is a new state
                   {
                     dest = dres.first->second = out->new_state();
-                    todo.push_back(d);
+                    todo.emplace_back(d);
                   }
                 out->new_edge(src, dest, t.cond);
               }

@@ -247,7 +247,7 @@ namespace spot
             a = bdd_low(a);
             if (h != bddfalse)
               {
-                t.push_back(bm[v]);
+                t.emplace_back(bm[v]);
                 if (a == bddfalse)
                   a = h;
               }
@@ -434,7 +434,7 @@ namespace spot
                 b = high;
               }
             assert(b != bddfalse);
-            v.push_back(res);
+            v.emplace_back(res);
           }
         return formula::multop(o, std::move(v));
       }
@@ -455,7 +455,7 @@ namespace spot
         minato_isop isop(f);
         bdd cube;
         while ((cube = isop.next()) != bddfalse)
-          v.push_back(conj_bdd_to_formula(cube));
+          v.emplace_back(conj_bdd_to_formula(cube));
         return formula::Or(std::move(v));
       }
 
@@ -469,7 +469,7 @@ namespace spot
         minato_isop isop(f);
         bdd cube;
         while ((cube = isop.next()) != bddfalse)
-          v.push_back(conj_bdd_to_sere(cube));
+          v.emplace_back(conj_bdd_to_sere(cube));
         return formula::OrRat(std::move(v));
       }
 
@@ -742,9 +742,9 @@ namespace spot
 
               for (auto g: f)
                 if (g.accepts_eword())
-                  final.push_back(g);
+                  final.emplace_back(g);
                 else
-                  non_final.push_back(g);
+                  non_final.emplace_back(g);
 
               if (non_final.empty())
                 // (a* & b*);c = (a*|b*);c
@@ -780,9 +780,9 @@ namespace spot
                       formula g = f[m];
                       if (n != m)
                         g = formula::Concat({g, star});
-                      conj.push_back(g);
+                      conj.emplace_back(g);
                     }
-                  disj.push_back(formula::AndRat(std::move(conj)));
+                  disj.emplace_back(formula::AndRat(std::move(conj)));
                 }
               return recurse_and_concat(formula::OrRat(std::move(disj)));
             }
@@ -813,9 +813,9 @@ namespace spot
               unsigned s = f.size();
               v.reserve(s);
               for (unsigned n = 1; n < s; ++n)
-                v.push_back(f[n]);
+                v.emplace_back(f[n]);
               if (to_concat_)
-                v.push_back(to_concat_);
+                v.emplace_back(to_concat_);
               return recurse(f[0], formula::Concat(std::move(v)));
             }
           case op::Fusion:
@@ -2092,7 +2092,7 @@ namespace spot
 
                 bdd conds = bdd_existcomp(label, d.var_set);
                 bdd promises = bdd_existcomp(label, d.a_set);
-                dests.push_back(transition(dest, conds, promises));
+                dests.emplace_back(transition(dest, conds, promises));
               }
           }
 

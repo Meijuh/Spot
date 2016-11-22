@@ -144,7 +144,7 @@ namespace spot
       std::vector<State_Name> d;
       d.reserve(dst.size());
       for (auto n: dst)
-        d.push_back(get_state(n));
+        d.emplace_back(get_state(n));
       return g_.new_edge(get_state(src), d, std::forward<Args>(args)...);
     }
 
@@ -156,7 +156,7 @@ namespace spot
       std::vector<state> d;
       d.reserve(dst.size());
       for (auto n: dst)
-        d.push_back(get_state(n));
+        d.emplace_back(get_state(n));
       return g_.new_edge(get_state(src), d, std::forward<Args>(args)...);
     }
   };

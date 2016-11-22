@@ -537,7 +537,7 @@ namespace spot
         {
           // The empty Fin should always come first
           assert(p.first != 0U || rem.empty());
-          rem.push_back(p.first);
+          rem.emplace_back(p.first);
           allfin |= p.first;
           acc_cond::mark_t inf = 0U;
           if (!p.second.empty())
@@ -568,10 +568,10 @@ namespace spot
             {
               has_true_term = true;
             }
-          code.push_back(std::move(p.second));
-          keep.push_back(inf);
+          code.emplace_back(std::move(p.second));
+          keep.emplace_back(inf);
           allinf |= inf;
-          add.push_back(0U);
+          add.emplace_back(0U);
         }
     }
     assert(add.size() > 0);

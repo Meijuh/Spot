@@ -33,7 +33,7 @@ namespace spot
   enumerate_cycles::nocycle(unsigned x, unsigned y)
   {
     // insert x in B(y)
-    info_[y].b.push_back(x);
+    info_[y].b.emplace_back(x);
     // remove y from A(x)
     info_[x].del[y] = true;
   }
@@ -42,7 +42,7 @@ namespace spot
   enumerate_cycles::unmark(unsigned y)
   {
     std::vector<unsigned> q;
-    q.push_back(y);
+    q.emplace_back(y);
 
     while (!q.empty())
       {
@@ -57,7 +57,7 @@ namespace spot
             info_[x].del[y] = false;
             // unmark x recursively if marked
             if (info_[x].mark)
-              q.push_back(x);
+              q.emplace_back(x);
           }
         // empty B(y)
         info_[y].b.clear();

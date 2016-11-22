@@ -647,7 +647,7 @@ namespace spot
         acc_word w;
         w.op = acc_op::And;
         w.size = size();
-        push_back(w);
+        emplace_back(w);
         return *this;
       }
 
@@ -738,7 +738,7 @@ namespace spot
         acc_word w;
         w.op = acc_op::And;
         w.size = size();
-        push_back(w);
+        emplace_back(w);
         return *this;
       }
 
@@ -782,7 +782,7 @@ namespace spot
         acc_word w;
         w.op = acc_op::Or;
         w.size = size();
-        push_back(w);
+        emplace_back(w);
         return *this;
       }
 

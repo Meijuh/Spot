@@ -135,7 +135,7 @@ namespace spot
       t->condition = bddtrue;
       t->acceptance_conditions = 0U;
       t->dst = new taa_tgba::state_set;
-      succ_.push_back(t);
+      succ_.emplace_back(t);
       return;
     }
 
@@ -150,7 +150,7 @@ namespace spot
     std::vector<iterator> pos;
     pos.reserve(bounds.size());
     for (auto i: bounds)
-      pos.push_back(i.first);
+      pos.emplace_back(i.first);
 
     while (pos[0] != bounds[0].second)
     {
@@ -207,10 +207,10 @@ namespace spot
       if (t->condition != bddfalse
           && (i == seen_.end() || j == i->second.end()))
       {
-        seen_[b].push_back(t);
+        seen_[b].emplace_back(t);
         if (i != seen_.end())
           delete b;
-        succ_.push_back(t);
+        succ_.emplace_back(t);
       }
       else
       {

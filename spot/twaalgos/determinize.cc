@@ -315,11 +315,11 @@ namespace spot
                 assert(pair.second);
                 ss = ss.compute_succ(aut, ap, scc, implications, is_connected,
                                      use_scc, use_simulation);
-                colors.push_back(ss.color_);
+                colors.emplace_back(ss.color_);
                 stop = safra2id.find(ss) != safra2id.end();
               }
             // Add color of final transition that loops back
-            colors.push_back(ss.color_);
+            colors.emplace_back(ss.color_);
             unsigned int loop_start = safra2id[ss];
             for (auto& min: safra2id)
               {
@@ -352,7 +352,7 @@ namespace spot
             scc.scc_of(n1.first);
           if (!is_connected[idx] && bdd_implies(implications.at(n1.first),
                                                 implications.at(n2.first)))
-            to_remove.push_back(n1.first);
+            to_remove.emplace_back(n1.first);
         }
     for (auto& n: to_remove)
       {
@@ -515,7 +515,7 @@ namespace spot
             nodes_.emplace(state_num, std::move(braces));
             // First brace has init_state hence one state inside the first
             // braces.
-            nb_braces_.push_back(1);
+            nb_braces_.emplace_back(1);
             // One brace set
             is_green_.push_back(true);
           }
@@ -625,7 +625,7 @@ namespace spot
                 all -= one;
                 auto p = bdd2num.emplace(one, num2bdd.size());
                 if (p.second)
-                  num2bdd.push_back(one);
+                  num2bdd.emplace_back(one);
                 bddnums.emplace_back(p.first->second);
               }
             deltas[t.cond] = std::make_pair(prev, bddnums.size());
@@ -652,7 +652,7 @@ namespace spot
     res->set_init_state(num);
     seen.insert(std::make_pair(init, num));
     std::deque<safra_state> todo;
-    todo.push_back(init);
+    todo.emplace_back(init);
     unsigned sets = 0;
     using succs_t = safra_state::succs_t;
     succs_t succs;
@@ -678,7 +678,7 @@ namespace spot
             else
               {
                 dst_num = res->new_state();
-                todo.push_back(s.first);
+                todo.emplace_back(s.first);
                 seen.insert(std::make_pair(s.first, dst_num));
               }
             if (s.first.color_ != -1U)

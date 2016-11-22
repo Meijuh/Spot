@@ -216,7 +216,7 @@ namespace spot
         if (tid == 0U)
           {
             todo.pop_back();
-            order.push_back(src);
+            order.emplace_back(src);
             continue;
           }
         auto& t = g_.edge_storage(tid);

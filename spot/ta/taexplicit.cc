@@ -158,8 +158,8 @@ namespace spot
           }
         else
           {
-            trans_by_condition->push_back(t);
-            transitions_->push_back(t);
+            trans_by_condition->emplace_back(t);
+            transitions_->emplace_back(t);
           }
 
       }

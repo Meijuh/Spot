@@ -146,7 +146,7 @@ namespace spot
         std::vector<unsigned> res;
         while (b != bddtrue)
           {
-            res.push_back(bdd_var(b) - acc_vars);
+            res.emplace_back(bdd_var(b) - acc_vars);
             b = bdd_high(b);
           }
         return acc_cond::mark_t(res.begin(), res.end());
@@ -238,7 +238,7 @@ namespace spot
         bdd_initial = bdd_ithvar(set_num++);
         bdd init = bdd_ithvar(set_num++);
 
-        used_var_.push_back(init);
+        used_var_.emplace_back(init);
 
         // Initialize all classes to init.
         previous_class_.resize(size_a_);
@@ -348,7 +348,7 @@ namespace spot
       void update_sig()
       {
         for (unsigned s = 0; s < size_a_; ++s)
-          bdd_lstate_[compute_sig(s)].push_back(s);
+          bdd_lstate_[compute_sig(s)].emplace_back(s);
       }
 
 
@@ -363,7 +363,7 @@ namespace spot
         for (int i = 0; i < nb_new_color; ++i)
           {
             assert(!free_var_.empty());
-            used_var_.push_back(bdd_ithvar(free_var_.front()));
+            used_var_.emplace_back(bdd_ithvar(free_var_.front()));
             free_var_.pop();
           }
 

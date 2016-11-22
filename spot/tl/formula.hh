@@ -1018,7 +1018,7 @@ namespace spot
       tmp.reserve(l.size());
       for (auto f: l)
         if (f.ptr_)
-          tmp.push_back(f.ptr_->clone());
+          tmp.emplace_back(f.ptr_->clone());
       return formula(fnode::multop(o, std::move(tmp)));
     }
 
@@ -1029,7 +1029,7 @@ namespace spot
       tmp.reserve(l.size());
       for (auto f: l)
         if (f.ptr_)
-          tmp.push_back(f.to_node_());
+          tmp.emplace_back(f.to_node_());
       return formula(fnode::multop(o, std::move(tmp)));
     }
 #endif // !SWIG
@@ -1628,7 +1628,7 @@ namespace spot
               std::vector<formula> tmp;
               tmp.reserve(size());
               for (auto f: *this)
-                tmp.push_back(trans(f));
+                tmp.emplace_back(trans(f));
               return multop(o, std::move(tmp));
             }
           case op::Star:

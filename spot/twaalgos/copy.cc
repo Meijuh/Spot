@@ -77,9 +77,9 @@ namespace spot
         if (p.second)
           {
             p.first->second = out->new_state();
-            todo.push_back(p.first);
+            todo.emplace_back(p.first);
             if (names)
-              names->push_back(aut->format_state(s));
+              names->emplace_back(aut->format_state(s));
             if (ohstates)
               {
                 auto q = ohstates->find(aut_g->state_number(s));

@@ -167,7 +167,7 @@ namespace spot
   void
   ta_reachable_iterator_breadth_first::add_state(const state* s)
   {
-    todo.push_back(s);
+    todo.emplace_back(s);
   }
 
   const state*

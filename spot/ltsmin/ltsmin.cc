@@ -236,7 +236,7 @@ namespace spot
         new(p->allocate()) spins_state(ctx->state_size, p);
       memcpy(out->vars, dst, ctx->state_size * sizeof(int));
       out->compute_hash();
-      ctx->transitions.push_back(out);
+      ctx->transitions.emplace_back(out);
     }
 
     void transition_callback_compress(void* arg, transition_info_t*, int *dst)
@@ -252,7 +252,7 @@ namespace spot
       spins_compressed_state* out = new(mem) spins_compressed_state(csize, p);
       memcpy(out->vars, ctx->compressed, csize * sizeof(int));
       out->compute_hash();
-      ctx->transitions.push_back(out);
+      ctx->transitions.emplace_back(out);
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -462,7 +462,7 @@ namespace spot
               // Record that X.Y must be equal to Z.
               int v = dict->register_proposition(*ap, d.get());
               one_prop p = { ni->second.num, OP_EQ, ei->second, v };
-              out.push_back(p);
+              out.emplace_back(p);
               free(name);
               continue;
             }
@@ -473,7 +473,7 @@ namespace spot
             {
               int v = dict->register_proposition(*ap, d);
               one_prop p = { var_num, OP_NE, 0, v };
-              out.push_back(p);
+              out.emplace_back(p);
               free(name);
               continue;
             }
@@ -591,7 +591,7 @@ namespace spot
 
           int v = dict->register_proposition(*ap, d);
           one_prop p = { var_num, op, val, v };
-          out.push_back(p);
+          out.emplace_back(p);
         }
 
       if (errors)
@@ -809,7 +809,7 @@ namespace spot
 
             // Add a self-loop to dead-states if we care about these.
             if (res != bddfalse)
-              cc->transitions.push_back(st->clone());
+              cc->transitions.emplace_back(st->clone());
           }
 
         state_condition_last_cc_ = cc;
@@ -861,7 +861,7 @@ namespace spot
 
             // Add a self-loop to dead-states if we care about these.
             if (t == 0 && scond != bddfalse)
-              cc->transitions.push_back(st->clone());
+              cc->transitions.emplace_back(st->clone());
           }
 
         if (iter_cache_)

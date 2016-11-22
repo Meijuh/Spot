@@ -137,24 +137,24 @@ namespace spot
               if (c.is(op::EConcatMarked))
                 {
                   empairs.emplace(c[0], c[1]);
-                  v.push_back(c.map(recurse));
+                  v.emplace_back(c.map(recurse));
                 }
               else if (c.is(op::EConcat))
                 {
-                  elist.push_back(c);
+                  elist.emplace_back(c);
                 }
               else if (c.is(op::NegClosureMarked))
                 {
                   nmset.insert(c[0]);
-                  v.push_back(c.map(recurse));
+                  v.emplace_back(c.map(recurse));
                 }
               else if (c.is(op::NegClosure))
                 {
-                  nlist.push_back(c);
+                  nlist.emplace_back(c);
                 }
               else
                 {
-                  v.push_back(c);
+                  v.emplace_back(c);
                 }
             }
           // Keep only the non-marked EConcat for which we
@@ -162,12 +162,12 @@ namespace spot
           for (auto e:  elist)
             if (empairs.find(std::make_pair(e[0], e[1]))
                 == empairs.end())
-              v.push_back(e);
+              v.emplace_back(e);
           // Keep only the non-marked NegClosure for which we
           // have not seen a similar NegClosureMarked.
           for (auto n: nlist)
             if (nmset.find(n[0]) == nmset.end())
-              v.push_back(n);
+              v.emplace_back(n);
           res = formula::And(v);
         }
         break;

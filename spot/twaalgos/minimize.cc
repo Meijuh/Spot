@@ -293,9 +293,9 @@ namespace spot
           used_var[set_num] = s;
           free_var.erase(set_num);
           if (s > 1)
-            cur_run.push_back(final);
+            cur_run.emplace_back(final);
           else
-            done.push_back(final);
+            done.emplace_back(final);
           for (hash_set::const_iterator i = final->begin();
                i != final->end(); ++i)
             state_set_map[*i] = set_num;
@@ -314,9 +314,9 @@ namespace spot
           used_var[num] = s;
           free_var.erase(num);
           if (s > 1)
-            cur_run.push_back(non_final);
+            cur_run.emplace_back(non_final);
           else
-            done.push_back(non_final);
+            done.emplace_back(non_final);
           for (hash_set::const_iterator i = non_final->begin();
                i != non_final->end(); ++i)
             state_set_map[*i] = num;
@@ -388,7 +388,7 @@ namespace spot
                   // The set was not split.
                   trace << "set " << format_hash_set(bsi->second, det_a)
                         << " was not split" << std::endl;
-                  next_run.push_back(bsi->second);
+                  next_run.emplace_back(bsi->second);
                 }
               else
                 {
@@ -421,13 +421,13 @@ namespace spot
                         {
                           trace << "set " << format_hash_set(set, det_a)
                                 << " is minimal" << std::endl;
-                          done.push_back(set);
+                          done.emplace_back(set);
                         }
                       else
                         {
                           trace << "set " << format_hash_set(set, det_a)
                                 << " should be processed further" << std::endl;
-                          next_run.push_back(set);
+                          next_run.emplace_back(set);
                         }
                     }
                 }

@@ -61,7 +61,7 @@ namespace
         std::sort(signature[s].ingoing.begin(), signature[s].ingoing.end());
         std::sort(signature[s].outgoing.begin(), signature[s].outgoing.end());
         signature[s].classnum = state2class[s];
-        sig2states[signature[s]].push_back(s);
+        sig2states[signature[s]].emplace_back(s);
       }
 
     return sig2states;

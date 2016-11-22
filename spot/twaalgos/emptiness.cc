@@ -235,12 +235,12 @@ namespace spot
     for (step s : run.prefix)
       {
         s.s = s.s->clone();
-        prefix.push_back(s);
+        prefix.emplace_back(s);
       }
     for (step s : run.cycle)
       {
         s.s = s.s->clone();
-        cycle.push_back(s);
+        cycle.emplace_back(s);
       }
   }
 
@@ -374,7 +374,7 @@ namespace spot
         seen_acc |= seg->acc;
 
         twa_run::step st = { seg->s->clone(), seg->label, seg->acc };
-        res->cycle.push_back(st);
+        res->cycle.emplace_back(st);
 
         ++seg;
       }

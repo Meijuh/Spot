@@ -266,7 +266,7 @@ namespace spot
         {
           hash_set* cI = new hash_set;
           cI->insert(*i);
-          done.push_back(cI);
+          done.emplace_back(cI);
 
           used_var[set_num] = 1;
           free_var.erase(set_num);
@@ -284,9 +284,9 @@ namespace spot
           used_var[num] = s;
           free_var.erase(num);
           if (s > 1)
-            cur_run.push_back(G);
+            cur_run.emplace_back(G);
           else
-            done.push_back(G);
+            done.emplace_back(G);
           for (hash_set::const_iterator i = G->begin(); i != G->end(); ++i)
             state_set_map[*i] = num;
 
@@ -304,9 +304,9 @@ namespace spot
           used_var[num] = s;
           free_var.erase(num);
           if (s > 1)
-            cur_run.push_back(F);
+            cur_run.emplace_back(F);
           else
-            done.push_back(F);
+            done.emplace_back(F);
           for (hash_set::const_iterator i = F->begin(); i != F->end(); ++i)
             state_set_map[*i] = num;
         }
@@ -323,9 +323,9 @@ namespace spot
           used_var[num] = s;
           free_var.erase(num);
           if (s > 1)
-            cur_run.push_back(G_F);
+            cur_run.emplace_back(G_F);
           else
-            done.push_back(G_F);
+            done.emplace_back(G_F);
           for (hash_set::const_iterator i = G_F->begin(); i != G_F->end(); ++i)
             state_set_map[*i] = num;
         }
@@ -342,9 +342,9 @@ namespace spot
           used_var[num] = s;
           free_var.erase(num);
           if (s > 1)
-            cur_run.push_back(S);
+            cur_run.emplace_back(S);
           else
-            done.push_back(S);
+            done.emplace_back(S);
           for (hash_set::const_iterator i = S->begin(); i != S->end(); ++i)
             state_set_map[*i] = num;
         }
@@ -432,7 +432,7 @@ namespace spot
                   trace
                     << "set " << format_hash_set(bsi->second, ta_)
                     << " was not split" << std::endl;
-                  next_run.push_back(bsi->second);
+                  next_run.emplace_back(bsi->second);
                 }
               else
                 {
@@ -466,14 +466,14 @@ namespace spot
                           trace
                             << "set " << format_hash_set(set, ta_)
                             << " is minimal" << std::endl;
-                          done.push_back(set);
+                          done.emplace_back(set);
                         }
                       else
                         {
                           trace
                             << "set " << format_hash_set(set, ta_)
                             << " should be processed further" << std::endl;
-                          next_run.push_back(set);
+                          next_run.emplace_back(set);
                         }
                     }
                 }

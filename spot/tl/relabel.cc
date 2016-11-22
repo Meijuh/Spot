@@ -253,8 +253,8 @@ namespace spot
           if (!s.empty())
             {
               formula top = s.top();
-              in.first->second.push_back(top);
-              g[top].push_back(f);
+              in.first->second.emplace_back(top);
+              g[top].emplace_back(f);
               if (!in.second)
                 return;
             }
@@ -291,10 +291,10 @@ namespace spot
                 // Note that we only add an edge in one
                 // direction, because we are building a cycle
                 // between all children anyway.
-                g[pred].push_back(next);
+                g[pred].emplace_back(next);
                 pred = next;
               }
-            g[pred].push_back(f[0]);
+            g[pred].emplace_back(f[0]);
           }
         s.pop();
       }
@@ -436,7 +436,7 @@ namespace spot
         if (b && b != f)
           {
             res.reserve(sz - i + 1);
-            res.push_back(visit(b));
+            res.emplace_back(visit(b));
           }
         else
           {
@@ -444,7 +444,7 @@ namespace spot
             res.reserve(sz);
           }
         for (; i < sz; ++i)
-          res.push_back(visit(f[i]));
+          res.emplace_back(visit(f[i]));
         return formula::multop(f.kind(), res);
       }
     };

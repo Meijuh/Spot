@@ -108,7 +108,7 @@ namespace spot
           {
             if (i == 0)
               goto done;
-            sol.push_back(i);
+            sol.emplace_back(i);
           }
         if (!in->eof())
           // If we haven't reached end-of-file, then we just attempted

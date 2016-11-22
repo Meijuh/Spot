@@ -482,7 +482,7 @@ namespace spot
                 unsigned mos = f.size();
                 vec v;
                 for (unsigned i = 0; i < mos; ++i)
-                  v.push_back(rec(f[i], negated));
+                  v.emplace_back(rec(f[i], negated));
                 op on = o;
                 if (negated)
                   on = o == op::Or ? op::And : op::Or;
@@ -704,7 +704,7 @@ namespace spot
           case op::X:
             if (res_X && !eu)
               {
-                res_X->push_back(f[0]);
+                res_X->emplace_back(f[0]);
                 return;
               }
             break;
@@ -713,13 +713,13 @@ namespace spot
               formula c = f[0];
               if (res_FG && u && c.is(op::G))
                 {
-                  res_FG->push_back(((split_ & Strip_FG) == Strip_FG
+                  res_FG->emplace_back(((split_ & Strip_FG) == Strip_FG
                                      ? c[0] : f));
                   return;
                 }
               if (res_F && !eu)
                 {
-                  res_F->push_back(((split_ & Strip_F) == Strip_F
+                  res_F->emplace_back(((split_ & Strip_F) == Strip_F
                                     ? c : f));
                   return;
                 }
@@ -730,13 +730,13 @@ namespace spot
               formula c = f[0];
               if (res_GF && e && c.is(op::F))
                 {
-                  res_GF->push_back(((split_ & Strip_GF) == Strip_GF
+                  res_GF->emplace_back(((split_ & Strip_GF) == Strip_GF
                                      ? c[0] : f));
                   return;
                 }
               if (res_G && !eu)
                 {
-                  res_G->push_back(((split_ & Strip_G) == Strip_G
+                  res_G->emplace_back(((split_ & Strip_G) == Strip_G
                                     ? c : f));
                   return;
                 }
@@ -746,7 +746,7 @@ namespace spot
           case op::W:
             if (res_U_or_W)
               {
-                res_U_or_W->push_back(f);
+                res_U_or_W->emplace_back(f);
                 return;
               }
             break;
@@ -754,14 +754,14 @@ namespace spot
           case op::M:
             if (res_R_or_M)
               {
-                res_R_or_M->push_back(f);
+                res_R_or_M->emplace_back(f);
                 return;
               }
             break;
           default:
             if (res_Bool && f.is_boolean())
               {
-                res_Bool->push_back(f);
+                res_Bool->emplace_back(f);
                 return;
               }
             break;
@@ -770,21 +770,21 @@ namespace spot
           {
             if (res_EventUniv && e && u)
               {
-                res_EventUniv->push_back(f);
+                res_EventUniv->emplace_back(f);
                 return;
               }
             if (res_Event && e)
               {
-                res_Event->push_back(f);
+                res_Event->emplace_back(f);
                 return;
               }
             if (res_Univ && u)
               {
-                res_Univ->push_back(f);
+                res_Univ->emplace_back(f);
                 return;
               }
           }
-        res_other->push_back(f);
+        res_other->emplace_back(f);
       }
 
       unsigned split_;
@@ -892,7 +892,7 @@ namespace spot
                     mospliter s(mospliter::Split_EventUniv, c, c_);
                     op oc = c.kind();
                     s.res_EventUniv->
-                      push_back(unop_multop(op::X, oc,
+                      emplace_back(unop_multop(op::X, oc,
                                             std::move(*s.res_other)));
                     formula result =
                       formula::multop(oc,
@@ -984,10 +984,10 @@ namespace spot
                                 mospliter::Split_EventUniv,
                                 c, c_);
                     s.res_EventUniv->
-                      push_back(unop_multop(op::F, op::And,
+                      emplace_back(unop_multop(op::F, op::And,
                                             std::move(*s.res_other)));
                     s.res_EventUniv->
-                      push_back(unop_unop_multop(op::F, op::G, op::And,
+                      emplace_back(unop_unop_multop(op::F, op::G, op::And,
                                                  std::move(*s.res_FG)));
                     formula res =
                       formula::And(std::move(*s.res_EventUniv));
@@ -1059,10 +1059,10 @@ namespace spot
                                   mospliter::Split_EventUniv,
                                   c, c_);
                       s.res_EventUniv->
-                        push_back(unop_multop(op::G, op::Or,
+                        emplace_back(unop_multop(op::G, op::Or,
                                               std::move(*s.res_other)));
                       s.res_EventUniv->
-                        push_back(unop_unop_multop(op::G, op::F, op::Or,
+                        emplace_back(unop_unop_multop(op::G, op::F, op::Or,
                                                    std::move(*s.res_GF)));
                       formula res =
                         formula::Or(std::move(*s.res_EventUniv));
@@ -1126,7 +1126,7 @@ namespace spot
                       mospliter s(mospliter::Split_EventUniv,
                                   c[0], c_);
                       s.res_EventUniv->
-                        push_back(unop_multop(op::F, op::And,
+                        emplace_back(unop_multop(op::F, op::And,
                                               std::move(*s.res_other)));
                       formula res =
                         formula::G(formula::And(std::move(*s.res_EventUniv)));
@@ -1158,7 +1158,7 @@ namespace spot
                     unsigned s = c.size();
                     vec v;
                     for (unsigned n = 0; n < s; ++n)
-                      v.push_back(formula::unop(o, c[n]));
+                      v.emplace_back(formula::unop(o, c[n]));
                     return recurse(formula::multop(o == op::Closure
                                                    ? op::Or : op::And, v));
                   }
@@ -1175,7 +1175,7 @@ namespace spot
                       unsigned end = c.size();
                       v.reserve(end);
                       for (unsigned i = 0; i < end; ++i)
-                        v.push_back(formula::unop(o, c[i]));
+                        v.emplace_back(formula::unop(o, c[i]));
                       return recurse(formula::multop(o == op::Closure ?
                                                      op::Or : op::And, v));
                     }
@@ -1209,7 +1209,7 @@ namespace spot
                           vec v;
                           v.reserve(s);
                           for (unsigned n = start; n <= end; ++n)
-                            v.push_back(c[n]);
+                            v.emplace_back(c[n]);
                           tail = formula::Concat(v);
                           tail = formula::unop(o, tail);
                         }
@@ -1252,9 +1252,9 @@ namespace spot
                             unsigned ss = c.size();
                             vec v;
                             v.reserve(ss);
-                            v.push_back(formula::Star(sc, 0, max));
+                            v.emplace_back(formula::Star(sc, 0, max));
                             for (unsigned n = 1; n < ss; ++n)
-                              v.push_back(c[n]);
+                              v.emplace_back(c[n]);
                             formula tail = formula::Concat(v);
                             tail = // {b[*0..j-i]} or !{b[*0..j-i]}
                               formula::unop(o, tail);
@@ -1545,7 +1545,7 @@ namespace spot
             vec v;
             for (unsigned n = 0; n < s; ++n)
               // {r₁}[]->b
-              v.push_back(formula::binop(bindop, a[n], b));
+              v.emplace_back(formula::binop(bindop, a[n], b));
             return recurse(formula::multop(op_and, v));
           }
         return orig;
@@ -1609,7 +1609,7 @@ namespace spot
                       formula b2 = formula::Or(std::move(*s.res_other));
                       if (b2 != b)
                         {
-                          s.res_Event->push_back(formula::binop(o, a, b2));
+                          s.res_Event->emplace_back(formula::binop(o, a, b2));
                           return recurse
                             (formula::Or(std::move(*s.res_Event)));
                         }
@@ -1621,7 +1621,7 @@ namespace spot
                       formula b2 = formula::And(std::move(*s.res_other));
                       if (b2 != b)
                         {
-                          s.res_EventUniv->push_back(formula::binop(o,
+                          s.res_EventUniv->emplace_back(formula::binop(o,
                                                                     a, b2));
                           return recurse
                             (formula::And(std::move(*s.res_EventUniv)));
@@ -1634,7 +1634,7 @@ namespace spot
                       formula a2 = formula::And(std::move(*s.res_other));
                       if (a2 != a)
                         {
-                          s.res_EventUniv->push_back(formula::binop(o,
+                          s.res_EventUniv->emplace_back(formula::binop(o,
                                                                     a2, b));
                           return recurse
                             (formula::And(std::move(*s.res_EventUniv)));
@@ -1647,7 +1647,7 @@ namespace spot
                       formula b2 = formula::And(std::move(*s.res_other));
                       if (b2 != b)
                         {
-                          s.res_Univ->push_back(formula::binop(o, a, b2));
+                          s.res_Univ->emplace_back(formula::binop(o, a, b2));
                           return recurse
                             (formula::And(std::move(*s.res_Univ)));
                         }
@@ -1939,7 +1939,7 @@ namespace spot
         vec res;
         res.reserve(mos);
         for (auto f: mo)
-          res.push_back(f);
+          res.emplace_back(f);
         op o = mo.kind();
 
         // basics reduction do not concern Boolean formulas,
@@ -2093,12 +2093,12 @@ namespace spot
                           vec xgv;
                           xgv.reserve(xgs);
                           for (auto f: xgset)
-                            xgv.push_back(f);
+                            xgv.emplace_back(f);
                           xv.emplace_back(unop_multop(op::G, op::And, xgv));
                         }
                       for (auto f: xset)
                         xv.emplace_back(f);
-                      res.push_back(unop_multop(op::X, op::And, xv));
+                      res.emplace_back(unop_multop(op::X, op::And, xv));
                     }
 
                   // Gather all operands by type.
@@ -2120,7 +2120,7 @@ namespace spot
                   // Xa & Xb & f1...fn = X(a & b & f1...fn)
                   if (!s.res_X->empty() && !opt_.favor_event_univ)
                     {
-                      s.res_X->push_back(allFG);
+                      s.res_X->emplace_back(allFG);
                       allFG = nullptr;
                       s.res_X->insert(s.res_X->begin(),
                                       s.res_EventUniv->begin(),
@@ -2143,23 +2143,23 @@ namespace spot
                               if (f.is(op::G))
                                 {
                                   seen_g = true;
-                                  eu.push_back(f[0]);
+                                  eu.emplace_back(f[0]);
                                 }
                               else
                                 {
-                                  eu.push_back(f);
+                                  eu.emplace_back(f);
                                 }
                             }
                           else
                             {
-                              s.res_other->push_back(f);
+                              s.res_other->emplace_back(f);
                             }
                         }
                       if (seen_g)
                         {
-                          eu.push_back(allFG);
+                          eu.emplace_back(allFG);
                           allFG = nullptr;
-                          s.res_other->push_back(unop_multop(op::G, op::And,
+                          s.res_other->emplace_back(unop_multop(op::G, op::And,
                                                              eu));
                         }
                       else
@@ -2297,10 +2297,10 @@ namespace spot
                       for (auto& f: *s.res_G)
                         if (f.is_eventual())
                           {
-                            event.push_back(f);
+                            event.emplace_back(f);
                             f = nullptr; // Remove it from res_G.
                           }
-                      s.res_X->push_back(unop_multop(op::G, op::And,
+                      s.res_X->emplace_back(unop_multop(op::G, op::And,
                                                      std::move(event)));
                     }
 
@@ -2310,9 +2310,9 @@ namespace spot
                   // Xa & Xb & ... = X(a & b & ...)
                   formula allX = unop_multop(op::X, op::And,
                                              std::move(*s.res_X));
-                  s.res_other->push_back(allX);
-                  s.res_other->push_back(allG);
-                  s.res_other->push_back(allFG);
+                  s.res_other->emplace_back(allX);
+                  s.res_other->emplace_back(allG);
+                  s.res_other->emplace_back(allFG);
                   formula r = formula::And(std::move(*s.res_other));
                   // If we altered the formula in some way, process
                   // it another time.
@@ -2337,13 +2337,13 @@ namespace spot
                             //               = 0      otherwise
                             if (f.min() > 1 || f.max() < 1)
                               return formula::ff();
-                            ares.push_back(f[0]);
+                            ares.emplace_back(f[0]);
                             f = nullptr;
                             break;
                           case op::Fusion:
                             // b && {r1:..:rn} = b && r1 && .. && rn
                             for (auto ri: f)
-                              ares.push_back(ri);
+                              ares.emplace_back(ri);
                             f = nullptr;
                             break;
                           case op::Concat:
@@ -2368,13 +2368,13 @@ namespace spot
                                 }
                               if (nonempty == 1)
                                 {
-                                  ares.push_back(ri);
+                                  ares.emplace_back(ri);
                                 }
                               else if (nonempty == 0)
                                 {
                                   vec sum;
                                   for (auto j: f)
-                                    sum.push_back(j);
+                                    sum.emplace_back(j);
                                   ares.emplace_back(formula::OrRat(sum));
                                 }
                               else
@@ -2385,11 +2385,11 @@ namespace spot
                               break;
                             }
                           default:
-                            ares.push_back(f);
+                            ares.emplace_back(f);
                             f = nullptr;
                             break;
                           }
-                      ares.push_back(b);
+                      ares.emplace_back(b);
                       auto r = formula::AndRat(std::move(ares));
                       // If we altered the formula in some way, process
                       // it another time.
@@ -2419,13 +2419,13 @@ namespace spot
                         continue;
                       if (i.is(op::Concat))
                         {
-                          head1.push_back(h);
-                          tail1.push_back(i.all_but(0));
+                          head1.emplace_back(h);
+                          tail1.emplace_back(i.all_but(0));
                         }
                       else // op::Fusion
                         {
-                          head2.push_back(h);
-                          tail2.push_back(i.all_but(0));
+                          head2.emplace_back(h);
+                          tail2.emplace_back(i.all_but(0));
                         }
                       i = nullptr;
                     }
@@ -2433,13 +2433,13 @@ namespace spot
                     {
                       formula h = formula::And(std::move(head1));
                       formula t = formula::AndRat(std::move(tail1));
-                      s.res_other->push_back(formula::Concat({h, t}));
+                      s.res_other->emplace_back(formula::Concat({h, t}));
                     }
                   if (!head2.empty())
                     {
                       formula h = formula::And(std::move(head2));
                       formula t = formula::AndRat(std::move(tail2));
-                      s.res_other->push_back(formula::Fusion({h, t}));
+                      s.res_other->emplace_back(formula::Fusion({h, t}));
                     }
 
                   // {r1;b1}&&{r2;b2} = {r1&&r2};{b1∧b2}
@@ -2462,13 +2462,13 @@ namespace spot
                         continue;
                       if (i.is(op::Concat))
                         {
-                          tail3.push_back(t);
-                          head3.push_back(i.all_but(s));
+                          tail3.emplace_back(t);
+                          head3.emplace_back(i.all_but(s));
                         }
                       else // op::Fusion
                         {
-                          tail4.push_back(t);
-                          head4.push_back(i.all_but(s));
+                          tail4.emplace_back(t);
+                          head4.emplace_back(i.all_but(s));
                         }
                       i = nullptr;
                     }
@@ -2476,13 +2476,13 @@ namespace spot
                     {
                       formula h = formula::AndRat(std::move(head3));
                       formula t = formula::And(std::move(tail3));
-                      s.res_other->push_back(formula::Concat({h, t}));
+                      s.res_other->emplace_back(formula::Concat({h, t}));
                     }
                   if (!head4.empty())
                     {
                       formula h = formula::AndRat(std::move(head4));
                       formula t = formula::And(std::move(tail4));
-                      s.res_other->push_back(formula::Fusion({h, t}));
+                      s.res_other->emplace_back(formula::Fusion({h, t}));
                     }
 
                   auto r = formula::AndRat(std::move(*s.res_other));
@@ -2651,13 +2651,13 @@ namespace spot
                           vec xfv;
                           xfv.reserve(xfs);
                           for (auto f: xfset)
-                            xfv.push_back(f);
-                          xv.push_back(unop_multop(op::F, op::Or, xfv));
+                            xfv.emplace_back(f);
+                          xv.emplace_back(unop_multop(op::F, op::Or, xfv));
                         }
                       // Also gather the remaining Xa | X(b|c) as X(b|c).
                       for (auto f: xset)
-                        xv.push_back(f);
-                      res.push_back(unop_multop(op::X, op::Or, xv));
+                        xv.emplace_back(f);
+                      res.emplace_back(unop_multop(op::X, op::Or, xv));
                     }
 
                   // Gather all operand by type.
@@ -2679,7 +2679,7 @@ namespace spot
                   // Xa | Xb | f1...fn = X(a | b | f1...fn)
                   if (!s.res_X->empty() && !opt_.favor_event_univ)
                     {
-                      s.res_X->push_back(allGF);
+                      s.res_X->emplace_back(allGF);
                       allGF = nullptr;
                       s.res_X->insert(s.res_X->end(),
                                       s.res_EventUniv->begin(),
@@ -2713,7 +2713,7 @@ namespace spot
                       // (counting the number of "subtransitions"
                       // or, degeneralizing the automaton amplifies
                       // these differences)
-                      s.res_F->push_back(allGF);
+                      s.res_F->emplace_back(allGF);
                       allGF = nullptr;
                       s.res_F->insert(s.res_F->end(),
                                       s.res_EventUniv->begin(),
@@ -2721,7 +2721,7 @@ namespace spot
                     }
                   else if (opt_.favor_event_univ)
                     {
-                      s.res_EventUniv->push_back(allGF);
+                      s.res_EventUniv->emplace_back(allGF);
                       allGF = nullptr;
                       bool seen_f = false;
                       if (s.res_EventUniv->size() > 1)
@@ -2740,7 +2740,7 @@ namespace spot
                               formula eu =
                                 unop_multop(op::F, op::Or,
                                             std::move(*s.res_EventUniv));
-                              s.res_other->push_back(eu);
+                              s.res_other->emplace_back(eu);
                             }
                         }
                       if (!seen_f)
@@ -2882,10 +2882,10 @@ namespace spot
                       for (auto& f: *s.res_F)
                         if (f.is_universal())
                           {
-                            univ.push_back(f);
+                            univ.emplace_back(f);
                             f = nullptr; // Remove it from res_F.
                           }
-                      s.res_X->push_back(unop_multop(op::F, op::Or,
+                      s.res_X->emplace_back(unop_multop(op::F, op::Or,
                                                      std::move(univ)));
                     }
 
@@ -2895,9 +2895,9 @@ namespace spot
                   // Xa | Xb | ... = X(a | b | ...)
                   formula allX = unop_multop(op::X, op::Or,
                                              std::move(*s.res_X));
-                  s.res_other->push_back(allX);
-                  s.res_other->push_back(allF);
-                  s.res_other->push_back(allGF);
+                  s.res_other->emplace_back(allX);
+                  s.res_other->emplace_back(allF);
+                  s.res_other->emplace_back(allGF);
                   formula r = formula::Or(std::move(*s.res_other));
                   // If we altered the formula in some way, process
                   // it another time.
@@ -2961,16 +2961,16 @@ namespace spot
                         continue;
                       if (i.is(op::Concat))
                         {
-                          head1.push_back(h);
-                          tail1.push_back(i.all_but(0));
+                          head1.emplace_back(h);
+                          tail1.emplace_back(i.all_but(0));
                         }
                       else // op::Fusion
                         {
                           formula t = i.all_but(0);
                           if (t.accepts_eword())
                             continue;
-                          head2.push_back(h);
-                          tail2.push_back(t);
+                          head2.emplace_back(h);
+                          tail2.emplace_back(t);
                         }
                       i = nullptr;
                     }
@@ -2978,13 +2978,13 @@ namespace spot
                     {
                       formula h = formula::And(std::move(head1));
                       formula t = formula::AndNLM(std::move(tail1));
-                      s.res_other->push_back(formula::Concat({h, t}));
+                      s.res_other->emplace_back(formula::Concat({h, t}));
                     }
                   if (!head2.empty())
                     {
                       formula h = formula::And(std::move(head2));
                       formula t = formula::AndNLM(std::move(tail2));
-                      s.res_other->push_back(formula::Fusion({h, t}));
+                      s.res_other->emplace_back(formula::Fusion({h, t}));
                     }
 
                   formula r = formula::AndNLM(std::move(*s.res_other));

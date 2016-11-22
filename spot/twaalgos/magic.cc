@@ -346,21 +346,21 @@ namespace spot
           for (; i != end; ++i, ++j)
             {
               twa_run::step s = { i->s->clone(), j->label, j->acc };
-              l->push_back(s);
+              l->emplace_back(s);
             }
 
           l = &run->cycle;
 
           j = ms_->st_red.rbegin();
           twa_run::step s = { i->s->clone(), j->label, j->acc };
-          l->push_back(s);
+          l->emplace_back(s);
 
           i = j; ++j;
           end = ms_->st_red.rend(); --end;
           for (; i != end; ++i, ++j)
             {
               twa_run::step s = { i->s->clone(), j->label, j->acc };
-              l->push_back(s);
+              l->emplace_back(s);
             }
 
           return run;

@@ -121,7 +121,7 @@ namespace spot
         bdd one = bdd_satoneset(all, allap, bddfalse);
         all -= one;
         bdd2num.emplace(one, num2bdd.size());
-        num2bdd.push_back(one);
+        num2bdd.emplace_back(one);
       }
 
     size_t nc = num2bdd.size();        // number of conditions
@@ -167,7 +167,7 @@ namespace spot
       seen[bvi] = num;
       assert(pm.map_.size() == num);
       pm.map_.emplace_back(std::move(ps));
-      toclean.push_back(bvi);
+      toclean.emplace_back(bvi);
     }
 
     // outgoing map
@@ -201,7 +201,7 @@ namespace spot
                 dst_num = res->new_state();
                 auto dst2 = dst->clone();
                 seen[dst2] = dst_num;
-                toclean.push_back(dst2);
+                toclean.emplace_back(dst2);
                 auto ps = bv_to_ps(dst);
                 assert(pm.map_.size() == dst_num);
                 pm.map_.emplace_back(std::move(ps));
@@ -340,7 +340,7 @@ namespace spot
         while (i != dfs_.end());
         if (is_acc)
           {
-            accept_.push_back(ts);
+            accept_.emplace_back(ts);
             all_.insert(ts.begin(), ts.end());
           }
         else

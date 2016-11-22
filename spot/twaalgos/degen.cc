@@ -220,7 +220,7 @@ namespace spot
       {
         // FIXME: revisit this comment once everything compiles again.
         //
-        // The order is arbitrary, but it turns out that using push_back
+        // The order is arbitrary, but it turns out that using emplace_back
         // instead of push_front often gives better results because
         // acceptance sets at the beginning if the cycle are more often
         // used in the automaton.  (This surprising fact is probably
@@ -228,7 +228,7 @@ namespace spot
         // during the translation.)
         unsigned n = a->num_sets();
         for (unsigned i = n; i > 0; --i)
-          order.push_back(i - 1);
+          order.emplace_back(i - 1);
       }
 
       // Initialize scc_orders
@@ -289,7 +289,7 @@ namespace spot
         }
 
       ds2num[s] = res->new_state();
-      todo.push_back(s);
+      todo.emplace_back(s);
 
       // If use_lvl_cache is on insert initial state to level cache
       // Level cache stores first encountered level for each state.
@@ -507,7 +507,7 @@ namespace spot
                 {
                   dest = res->new_state();
                   ds2num[d] = dest;
-                  todo.push_back(d);
+                  todo.emplace_back(d);
                   // Insert new state to cache
 
                   if (use_lvl_cache)

@@ -444,27 +444,27 @@ namespace spot
         d.cand_inf_trim_map = split_dnf_acc_by_inf(d.cand_acc);
 
       bdd_dict_ptr bd = aut->get_dict();
-      d.all_cand_acc.push_back(0U);
+      d.all_cand_acc.emplace_back(0U);
       for (unsigned n = 0; n < d.cand_nacc; ++n)
         {
           auto c = d.cacc.mark(n);
 
           size_t ss = d.all_silly_cand_acc.size();
           for (size_t i = 0; i < ss; ++i)
-            d.all_silly_cand_acc.push_back(d.all_silly_cand_acc[i] | c);
+            d.all_silly_cand_acc.emplace_back(d.all_silly_cand_acc[i] | c);
 
           size_t s = d.all_cand_acc.size();
           for (size_t i = 0; i < s; ++i)
             {
               acc_cond::mark_t m = d.all_cand_acc[i] | c;
               if (d.cand_inf_trim(m) == m)
-                d.all_cand_acc.push_back(m);
+                d.all_cand_acc.emplace_back(m);
               else
-                d.all_silly_cand_acc.push_back(m);
+                d.all_silly_cand_acc.emplace_back(m);
             }
         }
 
-      d.all_ref_acc.push_back(0U);
+      d.all_ref_acc.emplace_back(0U);
       unsigned ref_nacc = aut->num_sets();
       for (unsigned n = 0; n < ref_nacc; ++n)
         {
@@ -475,7 +475,7 @@ namespace spot
               acc_cond::mark_t m = d.all_ref_acc[i] | c;
               if (d.ref_inf_trim(m) != m)
                 continue;
-              d.all_ref_acc.push_back(m);
+              d.all_ref_acc.emplace_back(m);
             }
         }
 
