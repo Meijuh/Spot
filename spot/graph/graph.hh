@@ -277,24 +277,12 @@ namespace spot
       }
 
       typename super::reference
-      operator*()
-      {
-        return g_->edge_storage(t_);
-      }
-
-      const typename super::reference
       operator*() const
       {
         return g_->edge_storage(t_);
       }
 
       typename super::pointer
-      operator->()
-      {
-        return &g_->edge_storage(t_);
-      }
-
-      const typename super::pointer
       operator->() const
       {
         return &g_->edge_storage(t_);
@@ -407,12 +395,12 @@ namespace spot
       {
       }
 
-      edge_iterator<Graph> begin()
+      edge_iterator<Graph> begin() const
       {
         return {g_, t_};
       }
 
-      edge_iterator<Graph> end()
+      edge_iterator<Graph> end() const
       {
         return {};
       }
@@ -499,21 +487,9 @@ namespace spot
       }
 
       typename super::reference
-      operator*()
-      {
-        return tv_[t_];
-      }
-
-      const typename super::reference
       operator*() const
       {
         return tv_[t_];
-      }
-
-      const typename super::pointer
-      operator->()
-      {
-        return &tv_[t_];
       }
 
       typename super::pointer
@@ -542,12 +518,12 @@ namespace spot
       {
       }
 
-      iter_t begin()
+      iter_t begin() const
       {
         return {0, tv_};
       }
 
-      iter_t end()
+      iter_t end() const
       {
         return {tv_};
       }
