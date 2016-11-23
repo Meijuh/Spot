@@ -31,7 +31,7 @@
 
 namespace spot
 {
-  template <typename State_Data, typename Edge_Data, bool Alternating = false>
+  template <typename State_Data, typename Edge_Data>
   class SPOT_API digraph;
 
   namespace internal
@@ -529,6 +529,33 @@ namespace spot
       }
     };
 
+    class SPOT_API const_universal_dests
+    {
+    private:
+      const unsigned* begin_;
+      const unsigned* end_;
+      unsigned tmp_;
+    public:
+      const_universal_dests(const unsigned* begin, const unsigned* end) noexcept
+        : begin_(begin), end_(end)
+      {
+      }
+
+      const_universal_dests(unsigned state) noexcept
+        : begin_(&tmp_), end_(&tmp_ + 1), tmp_(state)
+      {
+      }
+
+      const unsigned* begin() const
+      {
+        return begin_;
+      }
+
+      const unsigned* end() const
+      {
+        return end_;
+      }
+    };
   } // namespace internal
 
 
@@ -536,8 +563,7 @@ namespace spot
   ///
   /// \tparam State_Data data to attach to states
   /// \tparam Edge_Data data to attach to edges
-  /// \tparam Alternating whether the automaton should be alternating
-  template <typename State_Data, typename Edge_Data, bool Alternating>
+  template <typename State_Data, typename Edge_Data>
   class digraph
   {
     friend class internal::edge_iterator<digraph>;
@@ -548,12 +574,6 @@ namespace spot
     typedef internal::edge_iterator<digraph> iterator;
     typedef internal::edge_iterator<const digraph> const_iterator;
 
-    /// Whether the automaton is alternating
-    static constexpr bool alternating()
-    {
-      return Alternating;
-    }
-
     // Extra data to store on each state or edge.
     typedef State_Data state_data_t;
     typedef Edge_Data edge_data_t;
@@ -563,23 +583,23 @@ namespace spot
     typedef unsigned state;
     typedef unsigned edge;
 
-    // The type of an output state (when seen from a edge)
-    // depends on the kind of graph we build
-    typedef typename std::conditional<Alternating,
-                                      std::vector<state>,
-                                      state>::type out_state;
-
     typedef internal::distate_storage<edge,
                                       internal::boxed_label<State_Data>>
       state_storage_t;
-    typedef internal::edge_storage<state, out_state, edge,
-                                    internal::boxed_label<Edge_Data>>
+    typedef internal::edge_storage<state, state, edge,
+                                   internal::boxed_label<Edge_Data>>
       edge_storage_t;
     typedef std::vector<state_storage_t> state_vector;
     typedef std::vector<edge_storage_t> edge_vector_t;
+
+    // A sequence of universal destination groups of the form:
+    //   (n state_1 state_2 ... state_n)*
+    typedef std::vector<unsigned> dests_vector_t;
+
   protected:
     state_vector states_;
     edge_vector_t edges_;
+    dests_vector_t dests_;      // Only used by alternating automata.
     // Number of erased edges.
     unsigned killed_edge_;
   public:
@@ -615,6 +635,12 @@ namespace spot
     unsigned num_edges() const
     {
       return edges_.size() - killed_edge_ - 1;
+    }
+
+    /// Whether the automaton is alternating
+    bool is_alternating() const
+    {
+      return !dests_.empty();
     }
 
     /// \brief Create a new states
@@ -725,7 +751,7 @@ namespace spot
     /// \param args arguments to forward to the Edge_Data constructor
     template <typename... Args>
     edge
-    new_edge(state src, out_state dst, Args&&... args)
+    new_edge(state src, state dst, Args&&... args)
     {
       edge t = edges_.size();
       edges_.emplace_back(dst, 0, src, std::forward<Args>(args)...);
@@ -738,6 +764,61 @@ namespace spot
         edges_[st].next_succ = t;
       states_[src].succ_tail = t;
       return t;
+    }
+
+    /// \brief Create a new universal edge
+    ///
+    /// \param src the source state
+    /// \param dst_begin start of a non-empty container of destination states
+    /// \param dst_end end of a non-empty container of destination states
+    /// \param args arguments to forward to the Edge_Data constructor
+    template <typename I, typename... Args>
+    edge
+    new_univ_edge(state src, I dst_begin, I dst_end, Args&&... args)
+    {
+      unsigned sz = std::distance(dst_begin, dst_end);
+      if (sz == 1)
+        return new_edge(src, *dst_begin, std::forward<Args>(args)...);
+      SPOT_ASSERT(sz > 1);
+      unsigned d = dests_.size();
+      dests_.emplace_back(sz);
+      dests_.insert(dests_.end(), dst_begin, dst_end);
+      return new_edge(src, ~d, std::forward<Args>(args)...);
+    }
+
+    /// \brief Create a new universal edge
+    ///
+    /// \param src the source state
+    /// \param dsts a non-empty list of destination states
+    /// \param args arguments to forward to the Edge_Data constructor
+    template <typename... Args>
+    edge
+    new_univ_edge(state src, const std::initializer_list<state>& dsts,
+                  Args&&... args)
+    {
+      return new_univ_edge(src, dsts.begin(), dsts.end(),
+                           std::forward<Args>(args)...);
+    }
+
+    internal::const_universal_dests univ_dests(state src) const
+    {
+      if ((int)src < 0)
+        {
+          unsigned pos = ~src;
+          const unsigned* d = dests_.data();
+          d += pos;
+          unsigned num = *d;
+          return { d + 1, d + num + 1 };
+        }
+      else
+        {
+          return src;
+        }
+    }
+
+    internal::const_universal_dests univ_dests(const edge_storage_t& e) const
+    {
+      return univ_dests(e.dst);
     }
 
     /// Convert a storage reference into a state number
@@ -875,6 +956,21 @@ namespace spot
     }
     /// @}
 
+    /// @{
+    /// \brief The vector used to store universal destinations.
+    ///
+    /// The actual way those destinations are stored is an
+    /// implementation detail you should not rely on.
+    const dests_vector_t& dests_vector() const
+    {
+      return dests_;
+    }
+
+    dests_vector_t& dests_vector()
+    {
+      return dests_;
+    }
+    /// @}
 
     /// Dump the state and edge storage for debugging
     void dump_storage(std::ostream& o) const
@@ -883,9 +979,13 @@ namespace spot
       for (unsigned t = 1; t < tend; ++t)
         {
           o << 't' << t << ": (s"
-            << edges_[t].src << ", s"
-            << edges_[t].dst << ") t"
-            << edges_[t].next_succ << '\n';
+            << edges_[t].src << ", ";
+          int d = edges_[t].dst;
+          if (d < 0)
+            o << 'd' << ~d;
+          else
+            o << 's' << d;
+          o << ") t" << edges_[t].next_succ << '\n';
         }
       unsigned send = states_.size();
       for (unsigned s = 0; s < send; ++s)
@@ -893,6 +993,23 @@ namespace spot
           o << 's' << s << ": t"
             << states_[s].succ << " t"
             << states_[s].succ_tail << '\n';
+        }
+      unsigned dend = dests_.size();
+      unsigned size = 0;
+      for (unsigned s = 0; s < dend; ++s)
+        {
+          o << 'd' << s << ": ";
+          if (size == 0)
+            {
+              o << '#';
+              size = dests_[s];
+            }
+          else
+            {
+              o << 's';
+              --size;
+            }
+          o << dests_[s] << '\n';
         }
     }
 

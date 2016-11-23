@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -225,30 +225,29 @@ f6()
       f += t.first;
       h += t.second;
     }
-  return f == 3 && (h > 2.49 && h < 2.51);
+  return f == 3 && (h > 2.49 && h < 2.51) && !g.is_alternating();
 }
 
 static bool
 f7()
 {
-  spot::digraph<int, int, true> g(3);
+  spot::digraph<int, int> g(3);
   auto s1 = g.new_state(2);
   auto s2 = g.new_state(3);
   auto s3 = g.new_state(4);
-  g.new_edge(s1, {s2, s3}, 1);
-  g.new_edge(s1, {s3}, 2);
-  g.new_edge(s2, {s3}, 3);
-  g.new_edge(s3, {s2}, 4);
+  g.new_univ_edge(s1, {s2, s3}, 1);
+  g.new_univ_edge(s1, {s3}, 2);
+  g.new_univ_edge(s2, {s3}, 3);
+  g.new_univ_edge(s3, {s2}, 4);
 
   int f = 0;
   for (auto& t: g.out(s1))
-    {
-      for (auto& tt: t.dst)
-        {
-          f += t.label * g.state_data(tt);
-        }
-    }
-  return f == 15;
+    for (unsigned tt: g.univ_dests(t))
+      f += t.label * g.state_data(tt);
+
+  g.dump_storage(std::cout);
+
+  return f == 15 && g.is_alternating();
 }
 
 

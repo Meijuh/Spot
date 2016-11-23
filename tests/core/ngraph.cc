@@ -264,32 +264,30 @@ static bool f6()
       f += t.first;
       h += t.second;
     }
-  return f == 3 && (h > 2.49 && h < 2.51);
+  return f == 3 && (h > 2.49 && h < 2.51) && !g.is_alternating();
 }
 
 static bool f7()
 {
-  typedef spot::digraph<int, int, true> graph_t;
+  typedef spot::digraph<int, int> graph_t;
   graph_t g(3);
   spot::named_graph<graph_t, std::string> gg(g);
 
   auto s1 = gg.new_state("s1", 2);
   gg.new_state("s2", 3);
   gg.new_state("s3", 4);
-  gg.new_edge("s1", {"s2", "s3"}, 1);
-  gg.new_edge("s1", {"s3"}, 2);
-  gg.new_edge("s2", {"s3"}, 3);
-  gg.new_edge("s3", {"s2"}, 4);
+  gg.new_univ_edge("s1", {"s2", "s3"}, 1);
+  // Standard edges can be used as well
+  gg.new_edge("s1", "s3", 2);
+  gg.new_univ_edge("s2", {"s3"}, 3);
+  gg.new_univ_edge("s3", {"s2"}, 4);
 
   int f = 0;
   for (auto& t: g.out(s1))
-    {
-      for (auto& tt: t.dst)
-        {
-          f += t.label * g.state_data(tt);
-        }
-    }
-  return f == 15;
+    for (unsigned tt: g.univ_dests(t.dst))
+      f += t.label * g.state_data(tt);
+
+  return f == 15 && g.is_alternating();
 }
 
 

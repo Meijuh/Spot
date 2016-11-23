@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -137,27 +137,25 @@ namespace spot
                          std::forward<Args>(args)...);
     }
 
-    template <typename... Args>
+    template <typename I, typename... Args>
     edge
-    new_edge(name src, const std::vector<State_Name>& dst, Args&&... args)
+    new_univ_edge(name src, I dst_begin, I dst_end, Args&&... args)
     {
-      std::vector<State_Name> d;
-      d.reserve(dst.size());
-      for (auto n: dst)
-        d.emplace_back(get_state(n));
-      return g_.new_edge(get_state(src), d, std::forward<Args>(args)...);
+      std::vector<unsigned> d;
+      d.reserve(std::distance(dst_begin, dst_end));
+      while (dst_begin != dst_end)
+        d.emplace_back(get_state(*dst_begin++));
+      return g_.new_univ_edge(get_state(src), d.begin(), d.end(),
+                              std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     edge
-    new_edge(name src,
-                   const std::initializer_list<State_Name>& dst, Args&&... args)
+    new_univ_edge(name src,
+                  const std::initializer_list<State_Name>& dsts, Args&&... args)
     {
-      std::vector<state> d;
-      d.reserve(dst.size());
-      for (auto n: dst)
-        d.emplace_back(get_state(n));
-      return g_.new_edge(get_state(src), d, std::forward<Args>(args)...);
+      return new_univ_edge(src, dsts.begin(), dsts.end(),
+                           std::forward<Args>(args)...);
     }
   };
 }
