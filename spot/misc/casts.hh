@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2011, 2015-2016 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -29,7 +29,13 @@
 // on error, which the assert catches.
 
 #if NDEBUG
-# define down_cast static_cast
+#  define down_cast static_cast
 #else
 #  define down_cast dynamic_cast
+#endif
+
+#if NDEBUG
+#  define down_pointer_cast std::static_pointer_cast
+#else
+#  define down_pointer_cast std::dynamic_pointer_cast
 #endif
