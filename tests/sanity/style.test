@@ -64,7 +64,8 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
                  -o -name "${1-*}.hxx" \
                  -o -name "${1-*}.cc" \
                  -o -name "${1-*}.test" \) \
-	      -a -type f -a -print |
+                 -a -not -path '*.dir/*' \
+                 -a -type f -a -print |
   while read file; do
 
     if $GREP 'GNU Bison' "$file" >/dev/null ||
