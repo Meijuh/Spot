@@ -1009,7 +1009,10 @@ namespace spot
 
     std::string ext = file.substr(file.find_last_of("."));
     if (ext != ".spins" && ext != ".dve2C" && ext != ".gal2C")
-      compile_model(file, ext);
+      {
+        compile_model(file, ext);
+        ext = file.substr(file.find_last_of("."));
+      }
 
     if (lt_dlinit())
       throw std::runtime_error("Failed to initialize libltldl.");
@@ -1026,89 +1029,62 @@ namespace spot
     auto d = std::make_shared<spins_interface>();
     d->handle = h;
 
+
+    auto sym = [&](const char* name)
+      {
+        auto res = lt_dlsym(h, name);
+        if (res == nullptr)
+          throw std::runtime_error(std::string("Failed to resolve symbol '")
+                                   + name + "' in '" + file + "'.");
+        return res;
+      };
+
     // SpinS interface.
     if (ext == ".spins")
       {
         d->get_initial_state = (void (*)(void*))
-        lt_dlsym(h, "spins_get_initial_state");
+          sym("spins_get_initial_state");
         d->have_property = nullptr;
         d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
-        lt_dlsym(h, "spins_get_successor_all");
-        d->get_state_size = (int (*)())
-        lt_dlsym(h, "spins_get_state_size");
+          sym("spins_get_successor_all");
+        d->get_state_size = (int (*)()) sym("spins_get_state_size");
         d->get_state_variable_name = (const char* (*)(int))
-        lt_dlsym(h, "spins_get_state_variable_name");
+          sym("spins_get_state_variable_name");
         d->get_state_variable_type = (int (*)(int))
-        lt_dlsym(h, "spins_get_state_variable_type");
+          sym("spins_get_state_variable_type");
         d->get_type_count = (int (*)())
-        lt_dlsym(h, "spins_get_type_count");
+          sym("spins_get_type_count");
         d->get_type_name = (const char* (*)(int))
-        lt_dlsym(h, "spins_get_type_name");
+          sym("spins_get_type_name");
         d->get_type_value_count = (int (*)(int))
-        lt_dlsym(h, "spins_get_type_value_count");
+          sym("spins_get_type_value_count");
         d->get_type_value_name = (const char* (*)(int, int))
-        lt_dlsym(h, "spins_get_type_value_name");
+          sym("spins_get_type_value_name");
       }
-    // dve2 interface.
-    else if (ext == ".dve2C")
-      {
-        d->get_initial_state = (void (*)(void*))
-        lt_dlsym(h, "get_initial_state");
-        d->have_property = (int (*)())
-        lt_dlsym(h, "have_property");
-        d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
-        lt_dlsym(h, "get_successors");
-        d->get_state_size = (int (*)())
-        lt_dlsym(h, "get_state_variable_count");
-        d->get_state_variable_name = (const char* (*)(int))
-        lt_dlsym(h, "get_state_variable_name");
-        d->get_state_variable_type = (int (*)(int))
-        lt_dlsym(h, "get_state_variable_type");
-        d->get_type_count = (int (*)())
-        lt_dlsym(h, "get_state_variable_type_count");
-        d->get_type_name = (const char* (*)(int))
-        lt_dlsym(h, "get_state_variable_type_name");
-        d->get_type_value_count = (int (*)(int))
-        lt_dlsym(h, "get_state_variable_type_value_count");
-        d->get_type_value_name = (const char* (*)(int, int))
-        lt_dlsym(h, "get_state_variable_type_value");
-      }
-    // .gal2C interface.
+    // dve2 and gal2C interfaces.
     else
       {
         d->get_initial_state = (void (*)(void*))
-        lt_dlsym(h, "get_initial_state");
+          sym("get_initial_state");
         d->have_property = (int (*)())
-        lt_dlsym(h, "have_property");
+          lt_dlsym(h, "have_property");
         d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
-        lt_dlsym(h, "get_successors");
+          sym("get_successors");
         d->get_state_size = (int (*)())
-        lt_dlsym(h, "get_state_variable_count");
+          sym("get_state_variable_count");
         d->get_state_variable_name = (const char* (*)(int))
-        lt_dlsym(h, "get_state_variable_name");
+          sym("get_state_variable_name");
         d->get_state_variable_type = (int (*)(int))
-        lt_dlsym(h, "get_state_variable_type");
+          sym("get_state_variable_type");
         d->get_type_count = (int (*)())
-        lt_dlsym(h, "get_state_variable_type_count");
+          sym("get_state_variable_type_count");
         d->get_type_name = (const char* (*)(int))
-        lt_dlsym(h, "get_state_variable_type_name");
+          sym("get_state_variable_type_name");
         d->get_type_value_count = (int (*)(int))
-        lt_dlsym(h, "get_state_variable_type_value_count");
+          sym("get_state_variable_type_value_count");
         d->get_type_value_name = (const char* (*)(int, int))
-        lt_dlsym(h, "get_state_variable_type_value");
+          sym("get_state_variable_type_value");
       }
-
-    if (!(d->get_initial_state
-          && d->get_successors
-          && d->get_state_size
-          && d->get_state_variable_name
-          && d->get_state_variable_type
-          && d->get_type_count
-          && d->get_type_name
-          && d->get_type_value_count
-          && d->get_type_value_name))
-      throw std::runtime_error(std::string("Failed to resolve some symbol "
-                                           "while loading '") + file + "'.");
 
     if (d->have_property && d->have_property())
       throw std::runtime_error("Models with embedded properties "
