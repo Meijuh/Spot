@@ -69,3 +69,8 @@ State: 1
 State: 2
 [0 | 1] 2
 --END--"""
+
+aut2 = spot.automaton(h)
+h2 = aut2.to_str('hoa')
+print(h2)
+assert h == h2

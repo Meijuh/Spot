@@ -1921,8 +1921,59 @@ State: 11 "t"
 EOF
 
 expecterr input <<EOF
-input:4.8-12: alternation is not yet supported
+input:4.8-12: alternation is not yet supported for initial states
 autfilt: failed to read automaton from input
+EOF
+
+# Some alternation errors
+cat >input <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: no-univ-branch trans-labels explicit-labels state-acc
+properties: complete deterministic
+--BODY--
+State: 0
+[!0&!1] 0&1
+[0&!1] 1
+[!0&1] 2
+[0&1] 0&1
+--END--
+HOA: v1.1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: !univ-branch trans-labels explicit-labels state-acc
+properties: complete deterministic
+--BODY--
+State: 0
+[!0&!1] 0&1
+[0&!1] 1
+[!0&1] 2
+[0&1] 0&1
+--END--
+EOF
+
+err1="this might cause the following errors"
+expecterr input<<EOF
+input:11.9-11: universal branch used despite previous declaration...
+input:7.13-26: ... here
+input:14.7-9: universal branch used despite previous declaration...
+input:7.13-26: ... here
+input:11.11: state 1 has no definition
+input:13.8: state 2 has no definition
+input:16.6-9: we can read HOA v1 but this file uses v1.1; $err1
+input:26.9-11: universal branch used despite previous declaration...
+input:22.13-24: ... here
+input:29.7-9: universal branch used despite previous declaration...
+input:22.13-24: ... here
+input:26.11: state 1 has no definition
+input:28.8: state 2 has no definition
 EOF
 
 
@@ -2055,6 +2106,50 @@ State: 0
 [0&!1] 0 {1}
 [!0&1] 0 {2}
 [0&1] 0 {}
+--END--
+HOA: v1
+tool: "ltl3ba" "1.1.3"
+name: "VWAA for (a U b) && G(F(b)) && F(G(a))"
+States: 7
+Start: 0
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+AP: 2 "b" "a"
+properties: trans-labels explicit-labels state-acc univ-branch very-weak
+--BODY--
+State: 0 "((((a) U (b)) && GF(b)) && FG(a))"
+ [(0)] 3&1
+ [(!0 & 1)] 5&3&1
+State: 1 "FG(a)" {0}
+ [(1)] 2
+ [t] 1
+State: 2 "G(a)"
+ [(1)] 2
+State: 3 "GF(b)"
+ [(0)] 3
+ [(!0)] 4&3
+State: 4 "F(b)" {0}
+ [(0)] 6
+ [(!0)] 4
+State: 5 "((a) U (b))" {0}
+ [(0)] 6
+ [(!0 & 1)] 5
+State: 6 "t"
+ [t] 6
+--END--
+HOA: v1
+States: 3
+Start: 0
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+AP: 2 "a" "b"
+--BODY--
+State: 0
+0&1 1 0&   2&1 0&1  /* weird spacing on purpose  */
+State: 2
+0 & 1 2 & 1 2 0 & 2 & 1
+State: 1
+0&1 2&1 2 1&1 /* should we warn about duplicate destinations for univ edges? */
 --END--
 EOF
 
@@ -2209,6 +2304,60 @@ State: 0
 [!0&1] 0 {2}
 [0&1] 0
 --END--
+HOA: v1
+name: "VWAA for (a U b) && G(F(b)) && F(G(a))"
+States: 7
+Start: 0
+AP: 2 "b" "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels state-acc
+--BODY--
+State: 0 "((((a) U (b)) && GF(b)) && FG(a))"
+[0] 3&1
+[!0&1] 5&3&1
+State: 1 "FG(a)" {0}
+[1] 2
+[t] 1
+State: 2 "G(a)"
+[1] 2
+State: 3 "GF(b)"
+[0] 3
+[!0] 4&3
+State: 4 "F(b)" {0}
+[0] 6
+[!0] 4
+State: 5 "((a) U (b))" {0}
+[0] 6
+[!0&1] 5
+State: 6 "t"
+[t] 6
+--END--
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0&1
+[0&!1] 1
+[!0&1] 0&2&1
+[0&1] 0&1
+State: 1
+[!0&!1] 0&1
+[0&!1] 2&1
+[!0&1] 2
+[0&1] 1&1
+State: 2
+[!0&!1] 0&1
+[0&!1] 2&1
+[!0&1] 2
+[0&1] 0&2&1
+--END--
 EOF
 
 # The complements are Streett and Rabin, but the acceptance set are
@@ -2359,6 +2508,60 @@ State: 0
 [0&!1] 0 {1}
 [!0&1] 0 {2}
 [0&1] 0
+--END--
+HOA: v1
+name: "VWAA for (a U b) && G(F(b)) && F(G(a))"
+States: 7
+Start: 0
+AP: 2 "b" "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: univ-branch trans-labels explicit-labels state-acc
+--BODY--
+State: 0 "((((a) U (b)) && GF(b)) && FG(a))"
+[0] 3&1
+[!0&1] 5&3&1
+State: 1 "FG(a)" {0}
+[1] 2
+[t] 1
+State: 2 "G(a)"
+[1] 2
+State: 3 "GF(b)"
+[0] 3
+[!0] 4&3
+State: 4 "F(b)" {0}
+[0] 6
+[!0] 4
+State: 5 "((a) U (b))" {0}
+[0] 6
+[!0&1] 5
+State: 6 "t"
+[t] 6
+--END--
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: univ-branch trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0&1
+[0&!1] 1
+[!0&1] 0&2&1
+[0&1] 0&1
+State: 1
+[!0&!1] 0&1
+[0&!1] 2&1
+[!0&1] 2
+[0&1] 1&1
+State: 2
+[!0&!1] 0&1
+[0&!1] 2&1
+[!0&1] 2
+[0&1] 0&2&1
 --END--
 EOF
 

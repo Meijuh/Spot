@@ -157,6 +157,14 @@ extern "C" int strverscmp(const char *s1, const char *s2);
 	return i->second;
       }
 
+      prop_info prop_is_false(const std::string& p)
+      {
+	auto i = props.find(p);
+	if (i == props.end())
+	  return prop_info{spot::location(), false};
+	return prop_info{i->second.loc, !i->second.val};
+      }
+
       ~result_()
       {
 	delete namer;
@@ -180,6 +188,7 @@ extern "C" int strverscmp(const char *s1, const char *s2);
   pair* p;
   std::list<pair>* list;
   spot::acc_cond::acc_code* code;
+  std::vector<unsigned>* states;
 }
 
 %code
@@ -230,6 +239,7 @@ extern "C" int strverscmp(const char *s1, const char *s2);
 %left '&'
 %nonassoc '!'
 
+%type <states> state-conj-2 state-conj-checked
 %type <num> checked-state-num state-num acc-set sign
 %type <b> label-expr
 %type <mark> acc-sig acc-sets trans-acc_opt state-acc_opt
@@ -274,9 +284,23 @@ extern "C" int strverscmp(const char *s1, const char *s2);
 %destructor { bdd_delref($$); } <b>
 %destructor { bdd_delref($$->first); delete $$->second; delete $$; } <p>
 %destructor { delete $$; } <code>
+%destructor { delete $$; } <states>
+%printer {
+  auto& os = debug_stream();
+  os << '{';
+  bool notfirst = false;
+  for (auto i: *$$)
+  {
+    if (notfirst)
+      os << ", ";
+    else
+      notfirst = true;
+    os << i;
+  }
+  os << '}';
+} <states>
 %destructor {
-  for (std::list<pair>::iterator i = $$->begin();
-       i != $$->end(); ++i)
+  for (auto i = $$->begin(); i != $$->end(); ++i)
   {
     bdd_delref(i->first);
     delete i->second;
@@ -374,7 +398,7 @@ header: format-version header-items
 	      {
 		if (res.opts.want_kripke)
 		  error(trans_labels.loc,
-			"Kripke structure may not use transition labels");
+			"Kripke structures may not use transition labels");
 
 		if (state_labels)
 		  {
@@ -406,7 +430,7 @@ header: format-version header-items
 
 	    if (res.opts.want_kripke && res.label_style != State_Labels)
 	      error(@$,
-		    "Kripke structure should use 'properties: state-labels'");
+		    "Kripke structures should use 'properties: state-labels'");
 
 	    auto state_acc = res.prop_is_true("state-acc");
 	    auto trans_acc = res.prop_is_true("trans-acc");
@@ -428,7 +452,12 @@ header: format-version header-items
 	      {
 		res.acc_style = State_Acc;
 	      }
-	  }
+
+            auto univ_branch = res.prop_is_true("univ-branch");
+	    if (res.opts.want_kripke && univ_branch)
+	      error(univ_branch.loc,
+		    "Kripke structures may not use 'properties: univ-branch'");
+          }
 	  {
 	    unsigned ss = res.start.size();
 	    auto det = res.prop_is_true("deterministic");
@@ -602,7 +631,7 @@ header-item: "States:" INT
 	   }
            | "Start:" init-state-conj-2
 	     {
-	       error(@2, "alternation is not yet supported");
+	       error(@2, "alternation is not yet supported for initial states");
 	       YYABORT;
 	     }
            | "Start:" state-num
@@ -723,14 +752,22 @@ acc-spec: | acc-spec BOOLEAN
 	    }
 properties: | properties IDENTIFIER
 	      {
-		auto pos = res.props.emplace(*$2, result_::prop_info{@2, true});
-		if (!pos.first->second.val)
+                bool val = true;
+                // no-univ-branch was replaced by !univ-branch in HOA 1.1
+                if (*$2 == "no-univ-branch")
+                  {
+                    *$2 = "univ-branch";
+                    val = false;
+                  }
+		auto pos = res.props.emplace(*$2, result_::prop_info{@2, val});
+		if (pos.first->second.val != val)
 		  {
 		    std::ostringstream out(std::ios_base::ate);
 		    error(@2, std::string("'properties: ")
-			  + *$2 + "' contradicts...");
+			  + (val ? "" : "!") + *$2 + "' contradicts...");
 		    error(pos.first->second.loc,
-			  std::string("... 'properties: !") + *$2
+			  std::string("... 'properties: ")
+                          + (val ? "!" : "") + *$2
 			  + "' previously given here.");
 		  }
 		delete $2;
@@ -773,10 +810,17 @@ header-spec: | header-spec BOOLEAN
 	       }
 
 state-conj-2: checked-state-num '&' checked-state-num
+            {
+              $$ = new std::vector<unsigned>{$1, $3};
+            }
             | state-conj-2 '&' checked-state-num
+            {
+              $$ = $1;
+              $$->emplace_back($3);
+            }
 
 	      // Currently we do not check the number of these states
-	      // since we do not support alternation.
+	      // since we do not support alternation for initial states.
 init-state-conj-2: state-num '&' state-num
             | init-state-conj-2 '&' state-num
 
@@ -1262,11 +1306,29 @@ labeled-edge: trans-label checked-state-num trans-acc_opt
 					   res.cur_label, $3 | res.acc_state);
 		  }
 	      }
-	    | trans-label state-conj-2 trans-acc_opt
+	    | trans-label state-conj-checked trans-acc_opt
 	      {
-		error(@2, "alternation is not yet supported");
-		YYABORT;
+                if (res.cur_label != bddfalse)
+                  {
+                    assert(!res.opts.want_kripke);
+                    res.h->aut->new_univ_edge(res.cur_state,
+                                              $2->begin(), $2->end(),
+                                              res.cur_label,
+                                              $3 | res.acc_state);
+                  }
+                delete $2;
 	      }
+
+state-conj-checked: state-conj-2
+              {
+                $$ = $1;
+                if (auto ub = res.prop_is_false("univ-branch"))
+                  {
+                    error(@1, "universal branch used despite"
+                          " previous declaration...");
+                    error(ub.loc, "... here");
+                  }
+              }
 
 /* Block of unlabeled edge, with occasional (incorrect) labeled
    edge. We never have zero unlabeled edges, these are considered as
@@ -1305,10 +1367,36 @@ unlabeled-edge: checked-state-num trans-acc_opt
 					     cond, $2 | res.acc_state);
 		    }
 		}
-	      | state-conj-2 trans-acc_opt
+	      | state-conj-checked trans-acc_opt
 		{
-		  error(@1, "alternation is not yet supported");
-		  YYABORT;
+		  bdd cond;
+		  if (res.has_state_label)
+		    {
+		      cond = res.state_label;
+		    }
+		  else
+		    {
+		      if (res.guards.empty())
+			fill_guards(res);
+		      if (res.cur_guard == res.guards.end())
+			{
+			  error(@$, "too many transitions for this state, "
+				"ignoring this one");
+			  cond = bddfalse;
+			}
+		      else
+			{
+			  cond = *res.cur_guard++;
+			}
+		    }
+		  if (cond != bddfalse)
+		    {
+		      assert(!res.opts.want_kripke);
+                      res.h->aut->new_univ_edge(res.cur_state,
+                                                $1->begin(), $1->end(),
+                                                cond, $2 | res.acc_state);
+		    }
+                  delete $1;
 		}
 incorrectly-labeled-edge: trans-label unlabeled-edge
                           {
