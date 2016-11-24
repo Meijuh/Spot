@@ -182,7 +182,6 @@ namespace swig
     typedef OutIterator out_iterator;
     typedef ValueType value_type;
     typedef SwigPyIterator_T<out_iterator>  base;
-    typedef ForwardIterator_T<OutIterator, ValueType, FromOper> self_type;
 
     ForwardIterator_T(out_iterator curr, out_iterator first,
 		      out_iterator last, PyObject *seq)
@@ -200,7 +199,7 @@ namespace swig
 
     SwigPyIterator *copy() const
     {
-      return new self_type(*this);
+      return new ForwardIterator_T(*this);
     }
 
     SwigPyIterator *incr(size_t n = 1)
@@ -215,10 +214,11 @@ namespace swig
       return this;
     }
 
-  private:
+  protected:
     out_iterator begin;
     out_iterator end;
   };
+
 
   template<typename OutIter>
   inline SwigPyIterator*
@@ -227,6 +227,64 @@ namespace swig
 			const OutIter& end, PyObject *seq = 0)
   {
     return new ForwardIterator_T<OutIter>(current, begin, end, seq);
+  }
+
+  // Likewise, but without returning a pointer.
+  template<typename OutIterator,
+	   typename ValueType =
+	   typename std::iterator_traits<OutIterator>::value_type,
+	   typename FromOper = from_oper<ValueType> >
+  class ForwardIterator_T_NP :  public SwigPyIterator_T<OutIterator>
+  {
+  public:
+    FromOper from;
+    typedef OutIterator out_iterator;
+    typedef ValueType value_type;
+    typedef SwigPyIterator_T<out_iterator>  base;
+
+    ForwardIterator_T_NP(out_iterator curr, out_iterator first,
+                         out_iterator last, PyObject *seq)
+      : SwigPyIterator_T<OutIterator>(curr, seq), begin(first), end(last)
+    {
+    }
+
+    PyObject *value() const {
+      if (base::current == end) {
+	throw stop_iteration();
+      } else {
+	return from(static_cast<value_type>(*(base::current)));
+      }
+    }
+
+    SwigPyIterator *copy() const
+    {
+      return new ForwardIterator_T_NP(*this);
+    }
+
+    SwigPyIterator *incr(size_t n = 1)
+    {
+      while (n--) {
+	if (base::current == end) {
+	  throw stop_iteration();
+	} else {
+	  ++base::current;
+	}
+      }
+      return this;
+    }
+
+  protected:
+    out_iterator begin;
+    out_iterator end;
+  };
+
+  template<typename OutIter>
+  inline SwigPyIterator*
+  make_forward_iterator_np(const OutIter& current,
+			   const OutIter& begin,
+			   const OutIter& end, PyObject *seq = 0)
+  {
+    return new ForwardIterator_T_NP<OutIter>(current, begin, end, seq);
   }
 }
 }
@@ -398,23 +456,50 @@ namespace std {
 %nodefaultctor spot::digraph;
 %nodefaultctor spot::internal::state_out;
 %nodefaultctor spot::internal::all_trans;
+%nodefaultctor spot::internal::universal_dests;
 %traits_swigtype(spot::internal::edge_storage<unsigned int, unsigned int, unsigned int, spot::internal::boxed_label<spot::twa_graph_edge_data, false> >);
 %fragment(SWIG_Traits_frag(spot::internal::edge_storage<unsigned int, unsigned int, unsigned int, spot::internal::boxed_label<spot::twa_graph_edge_data, false> >));
 
-%typemap(out, optimal="1") spot::internal::state_out<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>> {
+%typemap(out, optimal="1") spot::internal::all_trans<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>> {
   $result = SWIG_NewPointerObj(new $1_ltype($1), $&1_descriptor,
 			       SWIG_POINTER_OWN);
 }
 
-%typemap(edges, optimal="1") spot::internal::all_trans<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>> {
+%typemap(out, optimal="1") spot::internal::const_universal_dests {
   $result = SWIG_NewPointerObj(new $1_ltype($1), $&1_descriptor,
-			       SWIG_POINTER_OWN);
+                               SWIG_POINTER_OWN);
 }
 
-%noexception spot::twa_graph::out;
 %noexception spot::twa_graph::edges;
-%include <spot/twa/twagraph.hh>
+%noexception spot::twa_graph::univ_dests;
 
+// Instead of %feature("shadow") we would like to use just
+//   %pythonprepend spot::twa_graph::out %{ self.report_univ_dest(src) %}
+// However Swig 3.0.2 (from Debian stable) names the argument "*args"
+// while Swig 3.0.10 uses "src", and we want to be compatible with both.
+%feature("shadow") spot::twa_graph::out %{
+def out(self, src: 'unsigned int'):
+    self.report_univ_dest(src)
+    return $action(self, src)
+%}
+%feature("shadow") spot::twa_graph::state_from_number %{
+def state_from_number(self, s: 'unsigned int') -> "spot::twa_graph_state const *":
+    self.report_univ_dest(src)
+    return $action(self, src)
+%}
+%feature("shadow") spot::twa_graph::state_acc_sets %{
+def state_acc_sets(self, s: 'unsigned int') -> "spot::acc_cond::mark_t":
+    self.report_univ_dest(src)
+    return $action(self, src)
+%}
+%feature("shadow") spot::twa_graph::state_is_accepting %{
+def state_is_accepting(self, src) -> "bool":
+    if type(src) == int:
+        self.report_univ_dest(src)
+    return $action(self, src)
+%}
+
+%include <spot/twa/twagraph.hh>
 %template(twa_graph_state_out) spot::internal::state_out<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>>;
 %template(twa_graph_all_trans) spot::internal::all_trans<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>>;
 %template(twa_graph_edge_boxed_data) spot::internal::boxed_label<spot::twa_graph_edge_data, false>;
@@ -645,7 +730,6 @@ namespace std {
   }
 }
 
-
 %extend spot::internal::state_out<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data>> {
   swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
    {
@@ -660,6 +744,29 @@ namespace std {
       return swig::make_forward_iterator(self->begin(), self->begin(),
 				         self->end(), *PYTHON_SELF);
    }
+}
+
+%extend spot::internal::const_universal_dests {
+  swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
+   {
+      return swig::make_forward_iterator_np(self->begin(), self->begin(),
+				            self->end(), *PYTHON_SELF);
+   }
+}
+
+%extend spot::twa_graph {
+  unsigned new_univ_edge(unsigned src, const std::vector<unsigned>& v,
+                         bdd cond, acc_cond::mark_t acc = 0U)
+  {
+    return self->new_univ_edge(src, v.begin(), v.end(), cond, acc);
+  }
+
+  void report_univ_dest(unsigned src)
+  {
+    if (self->is_univ_dest(src))
+      throw std::runtime_error
+        ("universal destinations should be explored with univ_dest()");
+  }
 }
 
 %extend spot::acc_cond::acc_code {

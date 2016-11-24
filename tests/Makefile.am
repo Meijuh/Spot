@@ -324,6 +324,7 @@ TESTS_python = \
   python/_aux.ipynb \
   python/accparse2.py \
   python/alarm.py \
+  python/alternating.py \
   python/bddnqueen.py \
   python/bugdet.py \
   python/implies.py \

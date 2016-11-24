@@ -172,10 +172,16 @@ namespace spot
   {
   public:
     typedef digraph<twa_graph_state, twa_graph_edge_data> graph_t;
-    typedef graph_t::edge_storage_t edge_storage_t;
-    // We avoid using graph_t::state because graph_t is not
+    // We avoid using graph_t::edge_storage_t because graph_t is not
     // instantiated in the SWIG bindings, and SWIG would therefore
-    // handle graph_t::state as an abstract type.
+    // handle graph_t::edge_storage_t as an abstract type.
+    typedef spot::internal::edge_storage<unsigned, unsigned, unsigned,
+                                         internal::boxed_label
+                                         <twa_graph_edge_data, false>>
+      edge_storage_t;
+    static_assert(std::is_same<typename graph_t::edge_storage_t,
+                  edge_storage_t>::value, "type mismatch");
+    // We avoid using graph_t::state for the very same reason.
     typedef unsigned state_num;
     static_assert(std::is_same<typename graph_t::state, state_num>::value,
                   "type mismatch");
@@ -272,7 +278,11 @@ namespace spot
 
     virtual const twa_graph_state* get_init_state() const override
     {
-      return state_from_number(get_init_state_number());
+      unsigned n = get_init_state_number();
+      if (SPOT_UNLIKELY(is_univ_dest(n)))
+        throw std::runtime_error
+          ("get_init_state() does not work with universal initial states");
+      return state_from_number(n);
     }
 
     virtual twa_succ_iterator*
@@ -293,6 +303,18 @@ namespace spot
       return new twa_graph_succ_iterator<graph_t>(&g_, s->succ);
     }
 
+    static constexpr bool is_univ_dest(const edge_storage_t& e)
+    {
+      return is_univ_dest(e.dst);
+    }
+
+    static constexpr bool is_univ_dest(unsigned s)
+    {
+      // Universal destinations are stored with their most-significant
+      // bit set.
+      return (int) s < 0;
+    }
+
     state_num
     state_number(const state* st) const
     {
@@ -310,7 +332,21 @@ namespace spot
     std::string format_state(unsigned n) const
     {
       std::stringstream ss;
-      ss << n;
+      if (is_univ_dest(n))
+        {
+          bool notfirst = false;
+          for (unsigned d: univ_dests(n))
+            {
+              if (notfirst)
+                ss << '&';
+              notfirst = true;
+              ss << d;
+            }
+        }
+      else
+        {
+          ss << n;
+        }
       return ss.str();
     }
 
@@ -377,18 +413,31 @@ namespace spot
     }
 
     unsigned new_edge(unsigned src, unsigned dst,
-                            bdd cond, acc_cond::mark_t acc = 0U)
+                      bdd cond, acc_cond::mark_t acc = 0U)
     {
       return g_.new_edge(src, dst, cond, acc);
     }
 
     unsigned new_acc_edge(unsigned src, unsigned dst,
-                                bdd cond, bool acc = true)
+                          bdd cond, bool acc = true)
     {
       if (acc)
         return g_.new_edge(src, dst, cond, this->acc().all_sets());
       else
         return g_.new_edge(src, dst, cond);
+    }
+
+    template<class I>
+    unsigned new_univ_edge(unsigned src, I begin, I end,
+                           bdd cond, acc_cond::mark_t acc = 0U)
+    {
+      return g_.new_univ_edge(src, begin, end, cond, acc);
+    }
+
+    unsigned new_univ_edge(unsigned src, std::initializer_list<unsigned> dst,
+                           bdd cond, acc_cond::mark_t acc = 0U)
+    {
+      return g_.new_univ_edge(src, dst.begin(), dst.end(), cond, acc);
     }
 
 #ifndef SWIG
@@ -405,6 +454,23 @@ namespace spot
       return g_.out(src);
     }
 
+    internal::const_universal_dests
+    univ_dests(unsigned d) const noexcept
+    {
+      return g_.univ_dests(d);
+    }
+
+    internal::const_universal_dests
+    univ_dests(const edge_storage_t& e) const noexcept
+    {
+      return g_.univ_dests(e);
+    }
+
+    bool is_alternating() const
+    {
+      return g_.is_alternating();
+    }
+
 #ifndef SWIG
     auto states() const
       SPOT_RETURN(g_.states());
@@ -412,14 +478,14 @@ namespace spot
       SPOT_RETURN(g_.states());
 
     internal::all_trans<const graph_t>
-    edges() const
+    edges() const noexcept
     {
       return g_.edges();
     }
 #endif
 
     internal::all_trans<graph_t>
-    edges()
+    edges() noexcept
     {
       return g_.edges();
     }
@@ -473,7 +539,6 @@ namespace spot
         throw std::runtime_error
           ("state_acc_sets() should only be called on "
            "automata with state-based acceptance");
-
       for (auto& t: g_.out(s))
         // Stop at the first edge, since the remaining should be
         // labeled identically.
@@ -501,14 +566,20 @@ namespace spot
 
     bool operator==(const twa_graph& aut) const
     {
+      auto& dests1 = g_.dests_vector();
+      auto& dests2 = aut.get_graph().dests_vector();
       if (num_states() != aut.num_states() ||
           num_edges() != aut.num_edges() ||
-          num_sets() != aut.num_sets())
+          num_sets() != aut.num_sets() ||
+          dests1.size() != dests2.size())
         return false;
       auto& trans1 = edge_vector();
       auto& trans2 = aut.edge_vector();
-      return std::equal(trans1.begin() + 1, trans1.end(),
-                        trans2.begin() + 1);
+      if (!std::equal(trans1.begin() + 1, trans1.end(),
+                      trans2.begin() + 1))
+        return false;
+      return std::equal(dests1.begin(), dests1.end(),
+                        dests2.begin());
     }
 
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states);
