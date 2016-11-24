@@ -30,12 +30,19 @@
 #define SPOT_UNLIKELY(expr) (expr)
 #endif
 
-#ifdef __GNUC__
-#define SPOT_DEPRECATED __attribute__ ((deprecated))
-#elif defined(_MSC_VER)
-#define SPOT_DEPRECATED __declspec(deprecated)
-#else
-#define SPOT_DEPRECATED func
+#ifdef __has_cpp_attribute
+#  if __has_cpp_attribute(deprecated)
+#    define SPOT_DEPRECATED [[deprecated]]
+#  endif
+#endif
+#ifndef SPOT_DEPRECATED
+#  ifdef __GNUC__
+#    define SPOT_DEPRECATED __attribute__ ((deprecated))
+#  elif defined(_MSC_VER)
+#    define SPOT_DEPRECATED __declspec(deprecated)
+#  else
+#    define SPOT_DEPRECATED
+#  endif
 #endif
 
 #if defined _WIN32 || defined __CYGWIN__
