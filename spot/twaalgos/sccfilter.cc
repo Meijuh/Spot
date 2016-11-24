@@ -334,7 +334,6 @@ namespace spot
       if (auto* names =
           aut->get_named_prop<std::vector<std::string>>("state-names"))
         {
-          std::cerr << "names\n";
           unsigned size = names->size();
           if (size > in_n)
             size = in_n;
