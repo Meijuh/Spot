@@ -426,13 +426,21 @@ namespace spot
           }
         os << str;
       };
-    // We do not support alternating automata so far, and it's
-    // probable that nobody cares about the "no-univ-branch"
-    // properties.  The "univ-branch" properties seems more important
-    // to announce that the automaton might not be parsable by tools
-    // that do not support alternating automata.
-    if (verbose)
-      prop(" no-univ-branch");
+    // It's probable that nobody cares about the "no-univ-branch"
+    // property.  The "univ-branch" property seems more important to
+    // announce that the automaton might not be parsable by tools that
+    // do not support alternating automata.
+    if (aut->is_alternating())
+      {
+        prop(" univ-branch");
+      }
+    else if (verbose)
+      {
+        if (v1_1)
+          prop(" !univ-branch");
+        else
+          prop(" no-univ-branch");
+      }
     implicit_labels = md.use_implicit_labels;
     state_labels = md.use_state_labels;
     if (implicit_labels)
@@ -539,6 +547,20 @@ namespace spot
       }
 
     os << "--BODY--" << nl;
+
+    auto print_dst = [&](unsigned dst)
+      {
+        bool notfirst = false;
+        for (unsigned d: aut->univ_dests(dst))
+          {
+            if (notfirst)
+              os << '&';
+            else
+              notfirst = true;
+            os << d;
+          }
+      };
+
     auto sn = aut->get_named_prop<std::vector<std::string>>("state-names");
     for (unsigned i = 0; i < num_states; ++i)
       {
@@ -580,7 +602,8 @@ namespace spot
 
             for (auto& t: aut->out(i))
               {
-                os << '[' << md.sup[t.cond] << "] " << t.dst;
+                os << '[' << md.sup[t.cond] << "] ";
+                print_dst(t.dst);
                 if (this_acc == Hoa_Acceptance_Transitions)
                   md.emit_acc(os, t.acc);
                 os << nl;
@@ -591,7 +614,7 @@ namespace spot
             unsigned n = 0;
             for (auto& t: aut->out(i))
               {
-                os << t.dst;
+                print_dst(t.dst);
                 if (this_acc == Hoa_Acceptance_Transitions)
                   {
                     md.emit_acc(os, t.acc);
@@ -637,7 +660,7 @@ namespace spot
             unsigned n = out.size();
             for (unsigned i = 0; i < n;)
               {
-                os << out[i];
+                print_dst(out[i]);
                 if (this_acc != Hoa_Acceptance_States)
                   {
                     md.emit_acc(os, outm[i]) << nl;
