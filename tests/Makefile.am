@@ -380,6 +380,8 @@ endif
 if USE_LTSMIN
 TESTS_ltsmin = \
   ltsmin/check.test \
+  ltsmin/check2.test \
+  ltsmin/check3.test \
   ltsmin/finite.test \
   ltsmin/finite2.test \
   ltsmin/finite3.test \
