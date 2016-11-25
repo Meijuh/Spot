@@ -171,6 +171,10 @@ namespace spot
           init_state->destroy();
           res->set_init_state(init_num);
         }
+      else
+        {
+          res->set_init_state(res->new_state());
+        }
       return res;
     }
 

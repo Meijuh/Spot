@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2013, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009-2011, 2013-2016 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -101,11 +101,8 @@ namespace spot
 
     unsigned nap = number_of_variables(allap);
 
-    // Call this before aut->num_states(), since it might add a state.
     unsigned init_num = aut->get_init_state_number();
-
     unsigned ns = aut->num_states();
-    assert(ns > 0);
 
     if ((-1UL / ns) >> nap == 0)
       throw std::runtime_error("too many atomic propositions (or states)");

@@ -312,16 +312,13 @@ namespace spot
             }
         }
 
-    // Calling get_init_state_number() may add a state to empty
-    // automata, so it has to be done first.
-    unsigned init = aut->get_init_state_number();
-
     metadata md(aut, implicit_labels, state_labels);
 
     if (acceptance == Hoa_Acceptance_States && !md.has_state_acc)
       acceptance = Hoa_Acceptance_Transitions;
 
     unsigned num_states = aut->num_states();
+    unsigned init = aut->get_init_state_number();
 
     const char nl = newline ? '\n' : ' ';
     os << (v1_1 ? "HOA: v1.1" : "HOA: v1") << nl;

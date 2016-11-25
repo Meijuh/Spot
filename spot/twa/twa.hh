@@ -595,7 +595,8 @@ namespace spot
   /// Browsing a TωA is usually achieved using two methods: \c
   /// get_init_state(), and succ().  The former returns the initial
   /// state while the latter allows iterating over the outgoing edges
-  /// of any given state.
+  /// of any given state. A TωA is always assumed to have at least
+  /// one state, the initial one.
   ///
   /// Note that although this is a transition-based automata, we never
   /// represent edges in the API.  Information about edges can be
@@ -605,7 +606,7 @@ namespace spot
   /// The interface presented here is what we call the on-the-fly
   /// interface of automata, because the TωA class can be subclassed
   /// to implement an object that computes its successors on-the-fly.
-  /// The down-side is that all these methods are virtual, so you you
+  /// The down-side is that all these methods are virtual, so you
   /// pay the cost of virtual calls when iterating over automata
   /// constructed on-the-fly.  Also the interface assumes that each
   /// successor state is a new object whose memory management is the

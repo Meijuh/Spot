@@ -23,11 +23,6 @@ namespace spot
 {
   unsigned complete_here(twa_graph_ptr aut)
   {
-    // We do not use the initial state, but calling
-    // get_init_state_number() may create it and change the number of
-    // states.  This has to be done before calling aut->num_states().
-    unsigned init = aut->get_init_state_number();
-
     unsigned n = aut->num_states();
     unsigned sink = -1U;
 
@@ -87,7 +82,7 @@ namespace spot
 
     // If the automaton is empty, pretend that state 0 is a sink.
     if (t == 0)
-      sink = init;
+      sink = aut->get_init_state_number();
 
     // Now complete all states (excluding any newly added the sink).
     for (unsigned i = 0; i < n; ++i)

@@ -161,14 +161,11 @@ namespace spot
           throw std::runtime_error
             ("direct_simulation() requires separate Inf and Fin sets");
 
-        // Call get_init_state_number() before anything else as it
-        // might add a state.
-        unsigned init_state_number = in->get_init_state_number();
         scc_info_.reset(new scc_info(in));
 
         unsigned ns = in->num_states();
-        assert(ns > 0);
         size_a_ = ns;
+        unsigned init_state_number = in->get_init_state_number();
 
         auto all_inf = in->get_acceptance().used_inf_fin_sets().first;
         all_inf_ = all_inf;

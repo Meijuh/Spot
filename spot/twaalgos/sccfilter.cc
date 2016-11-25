@@ -277,8 +277,6 @@ namespace spot
                                    scc_info* given_si, Args&&... args)
     {
       unsigned in_n = aut->num_states();
-      if (in_n == 0)                         // nothing to filter.
-        return make_twa_graph(aut, twa::prop_set::all());
 
       twa_graph_ptr filtered = make_twa_graph(aut->get_dict());
       filtered->copy_ap_of(aut);

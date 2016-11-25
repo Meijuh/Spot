@@ -264,16 +264,15 @@ namespace spot
 
     state_num get_init_state_number() const
     {
+      // If the automaton has no state, it has no initial state.
       if (num_states() == 0)
-        const_cast<graph_t&>(g_).new_state();
+        throw std::runtime_error("automaton has no state at all");
       return init_number_;
     }
 
     virtual const twa_graph_state* get_init_state() const override
     {
-      if (num_states() == 0)
-        const_cast<graph_t&>(g_).new_state();
-      return state_from_number(init_number_);
+      return state_from_number(get_init_state_number());
     }
 
     virtual twa_succ_iterator*

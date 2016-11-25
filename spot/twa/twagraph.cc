@@ -154,8 +154,6 @@ namespace spot
   void twa_graph::purge_unreachable_states()
   {
     unsigned num_states = g_.num_states();
-    if (SPOT_UNLIKELY(num_states == 0))
-      return;
     // The TODO vector serves two purposes:
     // - it is a stack of state to process,
     // - it is a set of processed states.
@@ -166,7 +164,7 @@ namespace spot
     std::vector<unsigned> todo(num_states, 0);
     const unsigned seen = 1 << (sizeof(unsigned)*8-1);
     const unsigned mask = seen - 1;
-    todo[0] = init_number_;
+    todo[0] = get_init_state_number();
     todo[init_number_] |= seen;
     unsigned todo_pos = 1;
     do
@@ -197,16 +195,13 @@ namespace spot
   void twa_graph::purge_dead_states()
   {
     unsigned num_states = g_.num_states();
-    if (num_states == 0)
-      return;
-
     std::vector<unsigned> useful(num_states, 0);
 
     // Make a DFS to compute a topological order.
     std::vector<unsigned> order;
     order.reserve(num_states);
     std::vector<std::pair<unsigned, unsigned>> todo; // state, trans
-    useful[init_number_] = 1;
+    useful[get_init_state_number()] = 1;
     todo.emplace_back(init_number_, g_.state_storage(init_number_).succ);
     do
       {
