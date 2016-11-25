@@ -24,6 +24,7 @@
 #include <memory>
 #include <spot/twaalgos/emptiness.hh>
 #include <spot/twaalgos/bfssteps.hh>
+#include <spot/twaalgos/couvreurnew.hh>
 #include <spot/twaalgos/gtec/gtec.hh>
 #include <spot/twaalgos/gv04.hh>
 #include <spot/twaalgos/magic.hh>
@@ -129,6 +130,8 @@ namespace spot
     ec_algo ec_algos[] =
       {
         { "Cou99",     couvreur99,                    0, -1U },
+        { "Cou99new",  get_couvreur99_new,            0, -1U },
+        { "Cou99abs",  get_couvreur99_new_abstract,   0, -1U },
         { "CVWY90",    magic_search,                  0,   1 },
         { "GV04",      explicit_gv04_check,           0,   1 },
         { "SE05",      se05,                          0,   1 },

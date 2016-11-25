@@ -4,6 +4,13 @@ New in spot 2.2.1.dev (Not yet released)
 
   * A twa is required to have at least one state, the initial state.
 
+  * The Couvreur emptiness check has been rewritten to use the explicit
+    interface when possible, to avoid overkill memory allocations.
+    The new version has further optimizations for weak and terminal
+    automata. Overall, this new version is roughly 4x faster on explicit
+    automata than the former one. The old version has been kept for
+    compatibility.
+
   Build:
 
   * If the system has an installed libltdl library, use it instead of

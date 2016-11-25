@@ -65,6 +65,8 @@ const char* default_algos[] = {
   "Cou99(poprem)",
   "Cou99(poprem shy !group)",
   "Cou99(poprem shy group)",
+  "Cou99new",
+  "Cou99abs",
   "CVWY90",
   "CVWY90(bsh=4K)",
   "GV04",

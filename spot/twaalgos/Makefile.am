@@ -55,6 +55,7 @@ twaalgos_HEADERS = \
   magic.hh \
   mask.hh \
   minimize.hh \
+  couvreurnew.hh \
   neverclaim.hh \
   postproc.hh \
   powerset.hh \
@@ -109,6 +110,7 @@ libtwaalgos_la_SOURCES = \
   magic.cc \
   mask.cc \
   minimize.cc \
+  couvreurnew.cc \
   ndfs_result.hxx \
   neverclaim.cc \
   postproc.cc \
