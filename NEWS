@@ -11,6 +11,9 @@ New in spot 2.2.1.dev (Not yet released)
     automata than the former one. The old version has been kept for
     compatibility.
 
+  * The new version of the Couvreur emptiness check is now the default
+    one, used by is_empty() and accepting_run().
+
   Build:
 
   * If the system has an installed libltdl library, use it instead of

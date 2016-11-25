@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2014, 2015, 2016 Laboratoire de Recherche et
-// Developpement de l'EPITA (LRDE).
-// Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2011, 2014-2016 Laboratoire de Recherche et Developpement de
+// l'EPITA (LRDE).
+// Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -22,7 +22,7 @@
 
 #include <spot/twa/twa.hh>
 #include <spot/twa/twagraph.hh>
-#include <spot/twaalgos/gtec/gtec.hh>
+#include <spot/twaalgos/couvreurnew.hh>
 #include <spot/twaalgos/word.hh>
 #include <spot/twaalgos/remfin.hh>
 #include <spot/twa/twaproduct.hh>
@@ -71,10 +71,7 @@ namespace spot
   bool
   twa::is_empty() const
   {
-    // FIXME: This should be improved based on properties of the
-    // automaton.  For instance we do not need couvreur99 is we know
-    // the automaton is weak.
-    return !couvreur99(remove_fin_maybe(shared_from_this()))->check();
+    return !couvreur99_new_check(remove_fin_maybe(shared_from_this()));
   }
 
   twa_run_ptr
@@ -84,7 +81,7 @@ namespace spot
       throw std::runtime_error("twa::accepting_run() does not work with "
                                "Fin acceptance (but twa:is_empty() and "
                                "twa::accepting_run() can)");
-    auto res = couvreur99(shared_from_this())->check();
+    auto res = couvreur99_new_check(shared_from_this());
     if (!res)
       return nullptr;
     return res->accepting_run();
