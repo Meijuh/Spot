@@ -21,6 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ostream>
+#include <sstream>
 #include <stdexcept>
 #include <spot/twa/twagraph.hh>
 #include <spot/twaalgos/dot.hh>
@@ -545,7 +546,7 @@ namespace spot
       void
       process_link(const twa_graph::edge_storage_t& t, int number)
       {
-        os_ << "  " << t.src << " -> " << t.dst;
+        os_ << "  " << t.src << " -> " << (int)t.dst;
         std::string label;
         if (!opt_state_labels_)
           label = bdd_format_formula(aut_->get_dict(), t.cond);
@@ -586,16 +587,38 @@ namespace spot
               os_ << '#' << aut_->get_graph().index_of_edge(t);
             os_ << '"';
           }
+
+        std::string highlight;
         if (highlight_edges_)
           {
             auto idx = aut_->get_graph().index_of_edge(t);
             auto iter = highlight_edges_->find(idx);
             if (iter != highlight_edges_->end())
-              os_ << ", style=bold, color=\""
+              {
+                std::ostringstream o;
+                o << "style=bold, color=\""
                   << palette[iter->second % palette_mod]
                   << '"';
+                highlight = o.str();
+                os_ << ", " << highlight;
+              }
           }
+        // No arrow tip of the common part of a universal transition
+        if ((int)t.dst < 0)
+          os_ << ", dir=none";
         os_ << "]\n";
+        if ((int)t.dst < 0)     // Universal destination
+          {
+            os_ << "    " << (int)t.dst
+                << "[label=<>,width=0,height=0,shape=none]\n";
+            for (unsigned d: aut_->univ_dests(t))
+              {
+                os_ << "    " << (int)t.dst << " -> " << d;
+                if (!highlight.empty())
+                  os_ << " [" << highlight << ']';
+                os_ << '\n';
+              }
+          }
       }
 
       void print(const const_twa_graph_ptr& aut)
@@ -663,7 +686,8 @@ namespace spot
               }
           }
         auto si =
-          std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);
+          std::unique_ptr<scc_info>((opt_scc_ && !aut->is_alternating())
+                                    ? new scc_info(aut) : nullptr);
 
         start();
         if (si)

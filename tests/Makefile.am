@@ -202,6 +202,7 @@ TESTS_misc = \
 TESTS_twa = \
   core/acc.test \
   core/acc2.test \
+  core/alternating.test \
   core/ltlcross3.test \
   core/taatgba.test \
   core/renault.test \
