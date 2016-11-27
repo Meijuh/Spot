@@ -113,6 +113,7 @@
 #include <spot/twa/taatgba.hh>
 #include <spot/twa/twaproduct.hh>
 
+#include <spot/twaalgos/alternation.hh>
 #include <spot/twaalgos/cleanacc.hh>
 #include <spot/twaalgos/degen.hh>
 #include <spot/twaalgos/dot.hh>
@@ -507,6 +508,7 @@ def state_is_accepting(self, src) -> "bool":
 
 // Should come after the definition of twa_graph
 
+%include <spot/twaalgos/alternation.hh>
 %include <spot/twaalgos/cleanacc.hh>
 %include <spot/twaalgos/degen.hh>
 %include <spot/twaalgos/dot.hh>
@@ -930,6 +932,13 @@ unblock_signal(int signum)
   sigemptyset(&set);
   sigaddset(&set, signum);
   return sigprocmask(SIG_UNBLOCK, &set, 0);
+}
+
+// for alternation.hh
+unsigned states_and(const spot::twa_graph_ptr& aut,
+                    const std::vector<unsigned>& il)
+{
+  return states_and(aut, il.begin(), il.end());
 }
 
 %}

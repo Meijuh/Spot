@@ -28,6 +28,7 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 twaalgosdir = $(pkgincludedir)/twaalgos
 
 twaalgos_HEADERS = \
+  alternation.hh \
   are_isomorphic.hh \
   bfssteps.hh \
   canonicalize.hh \
@@ -84,6 +85,7 @@ twaalgos_HEADERS = \
 
 noinst_LTLIBRARIES = libtwaalgos.la
 libtwaalgos_la_SOURCES = \
+  alternation.cc \
   are_isomorphic.cc \
   bfssteps.cc \
   canonicalize.cc \

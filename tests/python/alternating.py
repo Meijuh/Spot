@@ -94,3 +94,41 @@ State: 1
 State: 2
 [0 | 1] 2
 --END--"""
+
+st = spot.states_and(aut, [0, 2])
+st2 = spot.states_and(aut, [1, st])
+st3 = spot.states_and(aut, [0, 1, 2])
+assert (st, st2, st3) == (3, 4, 5)
+
+received = False
+try:
+    st4 = spot.states_and(aut, [])
+except RuntimeError:
+    received = True
+assert received
+
+h = aut.to_str('hoa')
+print(h)
+assert h == """HOA: v1
+States: 6
+Start: 0
+AP: 2 "p1" "p2"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: univ-branch trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0] 1&2 {0}
+[1] 0&1
+State: 1
+[0&1] 0&2&1
+State: 2
+[0 | 1] 2
+State: 3
+[0] 1&2
+[1] 0&1&2
+State: 4
+[0&1] 0&1&2
+State: 5
+[0&1] 0&1&2
+--END--"""
