@@ -1,0 +1,6 @@
+# Doxygen copies some javascript inside the generated documentation,
+# but the source of that is already in the Doxygen package.
+spot source: source-is-missing doc/spot.html/*
+# These are extra javascript packages that trans.html currently depends
+# on.  But they should be removed eventually.
+spot source: source-is-missing python/ajax/js/jquery.*

@@ -53,6 +53,7 @@ DEBIAN =					\
   debian/python3-spot.install			\
   debian/rules					\
   debian/source/format				\
+  debian/source/lintian-overrides		\
   debian/spot-doc.doc-base			\
   debian/spot-doc.docs				\
   debian/spot-doc.install			\
