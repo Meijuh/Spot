@@ -63,7 +63,7 @@ Description: interface between Spot and LTSmin models
 Package: spot-doc
 Section: doc
 Architecture: all
-Depends: ${misc:Depends}, libjs-mathjax
+Depends: ${misc:Depends}, libjs-mathjax, libjs-jquery
 Description: documentation for Spot
  HTML and PDF documentation for Spot.
 

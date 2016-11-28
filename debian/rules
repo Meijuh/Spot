@@ -67,7 +67,7 @@ override_dh_auto_configure:
 	  --disable-devel --enable-optimizations	\
 	  --disable-static PYTHON=/usr/bin/$(PYDEFAULT)
 	$(FLTOWORKAROUND)
-override_dh_auto_install: fix-mathjax
+override_dh_auto_install: fix-js
 	dh_auto_install --destdir=$(CURDIR)/debian/tmp
 # Reconfigure for every other supported Python3 version,
 # and build/install only the python code.
@@ -90,6 +90,7 @@ override_dh_auto_build:
 override_dh_compress:
 	dh_compress -X.ipynb
 
-fix-mathjax:
+fix-js:
 	perl -pi -e 's|http://orgmode.org/mathjax/MathJax.js|file:///usr/share/javascript/mathjax/MathJax.js|' doc/userdoc/*.html
 	perl -pi -e 's|https://cdn.mathjax.org/mathjax/latest/MathJax.js|file:///usr/share/javascript/mathjax/MathJax.js|' tests/python/*.html
+	perl -pi -e 's|https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js|file:///usr/share/javascript/jquery/jquery.min.js|' tests/python/*.html
