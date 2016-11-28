@@ -79,6 +79,17 @@ namespace spot
                 break;
             }
         }
+      // A terminal automaton should accept any word that as a prefix
+      // leading to an accepting edge.  In other words, we cannot have
+      // an accepting edge that goes into a rejecting SCC.
+      if (terminal && is_term)
+        for (auto& e: aut->edges())
+          if (si->is_rejecting_scc(si->scc_of(e.dst))
+              && aut->acc().accepting(e.acc))
+            {
+              is_term = false;
+              break;
+            }
     exit:
       if (need_si)
         delete si;

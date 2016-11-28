@@ -990,15 +990,15 @@ better choices.
 There are actually several property flags that are stored into each
 automaton, and that can be queried or set by algorithms:
 
-| flag name           | meaning when =true=                                                                   |
-|---------------------+---------------------------------------------------------------------------------------|
-| =state_acc=         | automaton should be considered has having state-based acceptance                      |
-| =inherently_weak=   | accepting and rejecting cycles cannot be mixed in the same SCC                        |
-| =weak=              | transitions of an SCC all belong to the same acceptance sets                          |
-| =terminal=          | automaton is weak, accepting SCCs are complete and may not reach rejecting cycles     |
-| =deterministic=     | there is at most one run *recognizing* a word, but not necessarily accepting it       |
-| =unambiguous=       | there is at most one run *accepting* a word (but it might be recognized several time) |
-| =stutter_invariant= | the property recognized by the automaton is [[https://www.lrde.epita.fr/~adl/dl/adl/michaud.15.spin.pdf][stutter-invariant]]                         |
+| flag name           | meaning when =true=                                                                          |
+|---------------------+----------------------------------------------------------------------------------------------|
+| =state_acc=         | automaton should be considered has having state-based acceptance                             |
+| =inherently_weak=   | accepting and rejecting cycles cannot be mixed in the same SCC                               |
+| =weak=              | transitions of an SCC all belong to the same acceptance sets                                 |
+| =terminal=          | automaton is weak, accepting SCCs are complete, accepting edges may not go to rejecting SCCs |
+| =deterministic=     | there is at most one run *recognizing* a word, but not necessarily accepting it              |
+| =unambiguous=       | there is at most one run *accepting* a word (but it might be recognized several time)        |
+| =stutter_invariant= | the property recognized by the automaton is [[https://www.lrde.epita.fr/~adl/dl/adl/michaud.15.spin.pdf][stutter-invariant]]                                |
 
 For each flag =flagname=, the =twa= class has a method
 =prop_flagname()= that returns the value of the flag as an instance of
