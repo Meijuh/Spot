@@ -5,6 +5,11 @@ New in spot 2.2.1.dev (Not yet released)
   * scc_filter() had a left-over print statement that would print
     "names" when copying the name of the states.
 
+  * is_terminal() should reject automata that have accepting
+    transitions going into rejecting SCCs.  The whole point of
+    being a terminal automaton is that reaching an accepting
+    transition guarantees that any suffix will be accepted.
+
 New in spot 2.2.1 (2016-11-21)
 
   Bug fix:

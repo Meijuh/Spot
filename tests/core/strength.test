@@ -589,3 +589,99 @@ EOF
 
 diff out expected
 autfilt -q expected
+
+
+cat >input <<EOF
+/* This Büchi automaton is not terminal, because of the
+   accepting edge between states 0 and 1. */
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0
+[t] 0
+State: 1
+[0] 0 {0}
+[!0] 1
+--END--
+/* This co-Büchi automaton not terminal for the same reason.  */
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+[t] 0
+State: 1
+[0] 0 {0}
+[!0] 1
+--END--
+/* This co-Büchi automaton is terminal.  */
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+[t] 0
+State: 1
+[0] 0 {0}
+[!0] 1 {0}
+--END--
+EOF
+
+autfilt --check=strength input >output
+
+cat >expected <<EOF
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic weak
+--BODY--
+State: 0
+[t] 0
+State: 1
+[0] 0 {0}
+[!0] 1
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic weak
+--BODY--
+State: 0
+[t] 0
+State: 1
+[0] 0 {0}
+[!0] 1
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic terminal
+--BODY--
+State: 0
+[t] 0
+State: 1 {0}
+[0] 0
+[!0] 1
+--END--
+EOF
+
+diff output expected

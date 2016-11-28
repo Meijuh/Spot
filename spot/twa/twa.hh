@@ -1179,10 +1179,12 @@ namespace spot
 
     /// \brief Whether the automaton is terminal.
     ///
-    /// An automaton is terminal if it is weak, no non-accepting cycle
-    /// can be reached from an accepting cycle, and the accepting
-    /// strongly components are complete (i.e., any suffix is accepted
-    /// as soon as we enter an accepting component).
+    /// An automaton is terminal if it is weak, its accepting strongly
+    /// components are complete, and no accepting edge lead to a
+    /// non-accepting SCC.
+    ///
+    /// This property ensures that a word can be accepted as soon as
+    /// on of its prefixes move through an accepting edge.
     ///
     /// \see prop_weak()
     /// \see prop_inherently_weak()

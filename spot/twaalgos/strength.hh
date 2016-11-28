@@ -25,8 +25,12 @@ namespace spot
 {
   /// \brief Whether an automaton is terminal.
   ///
-  /// An automaton is terminal if it is weak, and all accepting SCCs
-  /// are complete.
+  /// An automaton is terminal if it is weak, all its accepting SCCs
+  /// are complete, and no accepting transitions lead to a
+  /// non-accepting SCC.
+  ///
+  /// This property guarantees that a word is accepted if it has some
+  /// prefix that reaches an accepting transition.
   ///
   /// \param aut the automaton to check
   ///
