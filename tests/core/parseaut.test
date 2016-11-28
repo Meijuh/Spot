@@ -1867,8 +1867,8 @@ input:45.13-28: ... 'properties: !inherently-weak' given here
 EOF
 
 
-# This input caused a segfault at some point.
-# Not supporting alternation is not an excuse for segfaulting.
+# This input caused a segfault at some point (before Spot's support
+# for alternating automaton).
 cat >input <<EOF
 HOA: v1
 tool: "ltl3ba" "1.1.2"
@@ -1920,8 +1920,84 @@ State: 11 "t"
 --END--
 EOF
 
-expecterr input <<EOF
-input:4.1-12: alternating automata only support a single initial state
+expectok input <<EOF
+HOA: v1
+States: 13
+Start: 12
+AP: 4 "p2" "c1" "p1" "c2"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels state-acc
+--BODY--
+State: 0 "X (G(c2))"
+[t] 1
+State: 1 "G(c2)"
+[3] 1
+State: 2 "FG(c1)" {0}
+[1] 3
+[t] 2
+State: 3 "G(c1)"
+[1] 3
+State: 4 "X (F!((c2)))"
+[t] 5
+State: 5 "F!((c2))" {0}
+[!3] 11
+[t] 5
+State: 6 "GF!((c1))"
+[!1] 6
+[t] 7&6
+State: 7 "F!((c1))" {0}
+[!1] 11
+[t] 7
+State: 8 "((!((c1)) U (!((c1)) && !((p1)))) R F!((p2)))"
+[!0&!1&!2] 11
+[!1&!2] 10
+[!0&!1] 9
+[!1] 10&9
+[!0] 8
+[t] 10&8
+State: 9 "(!((c1)) U (!((c1)) && !((p1))))" {0}
+[!1&!2] 11
+[!1] 9
+State: 10 "F!((p2))" {0}
+[!0] 11
+[t] 10
+State: 11 "t"
+[t] 11
+State: 12
+[!0&!1&!2] 1&5&11
+[!0&!1&!2] 2&5&11
+[!0&!1&!2] 1&6&11
+[!0&!1&!2] 2&6&11
+[!0&!1] 1&5&9
+[!0&!1] 2&5&9
+[!0&!1] 1&6&9
+[!0&!1] 2&6&9
+[!0&!1] 1&6&8
+[!0&!1] 2&6&8
+[!0&1] 3&5&8
+[!0&1] 3&6&7&8
+[!0] 1&5&8
+[!0] 2&5&8
+[!0] 1&6&7&8
+[!0] 2&6&7&8
+[!1&!2] 1&5&10
+[!1&!2] 2&5&10
+[!1&!2] 1&6&10
+[!1&!2] 2&6&10
+[!1] 1&5&9&10
+[!1] 2&5&9&10
+[!1] 1&6&9&10
+[!1] 2&6&9&10
+[!1] 1&6&8&10
+[!1] 2&6&8&10
+[1] 3&5&8&10
+[1] 3&6&7&8&10
+[t] 1&5&8&10
+[t] 2&5&8&10
+[t] 1&6&7&8&10
+[t] 2&6&7&8&10
+--END--
 EOF
 
 # Some alternation errors
@@ -1956,6 +2032,20 @@ State: 0
 [!0&1] 2
 [0&1] 0&1
 --END--
+HOA: v1
+Start: 0&1
+AP: 2 "a" "b"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels state-acc
+properties: complete deterministic
+--BODY--
+State: 0
+[!0&!1] 0&1
+[0&!1] 1
+[!0&1] 2
+[0&1] 0&1
+--END--
 EOF
 
 err1="this might cause the following errors"
@@ -1973,6 +2063,8 @@ input:29.7-9: universal branch used despite previous declaration...
 input:22.13-24: ... here
 input:26.11: state 1 has no definition
 input:28.8: state 2 has no definition
+input:32.1-10: initial state 1 has no definition
+input:42.8: state 2 has no definition
 EOF
 
 

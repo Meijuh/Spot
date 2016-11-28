@@ -40,6 +40,7 @@
 #include <spot/parseaut/public.hh>
 #include "spot/priv/accmap.hh"
 #include <spot/tl/parse.hh>
+#include <spot/twaalgos/alternation.hh>
 
 #ifndef HAVE_STRVERSCMP
 // If the libc does not have this, a version is compiled in lib/.
@@ -2128,6 +2129,24 @@ static void fix_acceptance(result_& r)
     }
 }
 
+// Spot only supports a single initial state.
+//
+// If the input file does not declare any initial state (this is valid
+// in the HOA format) add one nonetheless.
+//
+// If the input file has multiple initial states we have to merge
+// them.
+//
+//   1) In the non-alternating case, this is as simple as making a new
+//   initial state using the union of all the outgoing transitions of
+//   the declared initial states.  Note that if one of the original
+//   initial state has no incoming transition, then we can use it as
+//   initial state, avoiding the creation of a new state.
+//
+//   2) In the alternating case, the input may have several initial
+//   states that are conjuncts.  We have to reduce the conjuncts to a
+//   single state first.
+
 static void fix_initial_state(result_& r)
 {
   std::vector<std::vector<unsigned>> start;
@@ -2139,16 +2158,16 @@ static void fix_initial_state(result_& r)
       v.reserve(p.second.size());
       for (unsigned s: p.second)
         // Ignore initial states without declaration
+        // (They have been diagnosed already.)
         if (s < ssz && r.info_states[s].declared)
           v.emplace_back(s);
       if (!v.empty())
         start.push_back(v);
     }
 
+  // If no initial state has been declared, add one.
   if (start.empty())
     {
-      // If no initial state has been declared, add one, because
-      // Spot will not work without one.
       if (r.opts.want_kripke)
 	r.h->ks->set_init_state(r.h->ks->new_state(bddfalse));
       else
@@ -2189,32 +2208,58 @@ static void fix_initial_state(result_& r)
 
       bool found = false;
       unsigned init = 0;
+      bool init_alternation = false;
       for (auto& pp: start)
-        {
-          if (pp.size() != 1)
-            {
-              r.h->errors.emplace_front(r.start.front().first,
-                                        "alternating automata only support "
-                                        "a single initial state");
-              return;
-            }
-          unsigned p = pp.front();
-          if (!has_incoming[p])
-            {
-              init = p;
-              found = true;
-            }
-        }
-      if (!found)
+        if (pp.size() == 1)
+          {
+            unsigned p = pp.front();
+            if (!has_incoming[p])
+              {
+                init = p;
+                found = true;
+              }
+          }
+        else
+          {
+            init_alternation = true;
+            break;
+          }
+
+      if (!found || init_alternation)
 	// We do need a fake initial state
 	init = aut->new_state();
       aut->set_init_state(init);
-      for (auto& pp: start)
+
+      // The non-alternating case is the easiest, we simply declare
+      // the outgoing transitions of all "original initial states"
+      // into the only one initial state.
+      if (!init_alternation)
         {
-          unsigned p = pp.front();
-          if (p != init)
-            for (auto& t: aut->out(p))
-              aut->new_edge(init, t.dst, t.cond);
+          for (auto& pp: start)
+            {
+              unsigned p = pp.front();
+              if (p != init)
+                for (auto& t: aut->out(p))
+                  aut->new_edge(init, t.dst, t.cond);
+            }
+        }
+      else
+        {
+          // In the alternating case, we merge outgoing transition of
+          // the universal destination of conjunct initial states.
+          // (Note that this loop would work for the non-alternating
+          // case too, but it is more expansive, so we avoid it if we
+          // can.)
+          spot::outedge_combiner combiner(aut);
+          bdd comb_or = bddfalse;
+          for (auto& pp: start)
+            {
+              bdd comb_and = bddtrue;
+              for (unsigned d: pp)
+                comb_and &= combiner(d);
+              comb_or |= comb_and;
+            }
+          combiner.new_dests(init, comb_or);
         }
     }
 }
