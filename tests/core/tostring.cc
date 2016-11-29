@@ -22,54 +22,95 @@
 
 #include <iostream>
 #include <cassert>
-#include <cstdlib>
 #include <spot/tl/parse.hh>
 #include <spot/tl/print.hh>
 
-static void
-syntax(char *prog)
-{
-  std::cerr << prog << " formula1" << std::endl;
-  exit(2);
-}
-
-int
-main(int argc, char **argv)
-{
-  if (argc != 2)
-    syntax(argv[0]);
-
+const char* inputs[] =
   {
-    auto pf1 = spot::parse_infix_psl(argv[1]);
-    if (pf1.format_errors(std::cerr))
-      return 2;
-    auto f1 = pf1.f;
+    "a",
+    "1",
+    "0",
+    "a => b",
+    "G a ",
+    "a U b",
+    "a & b",
+    "a & b & c",
+    "b & a & b",
+    "b & a & a",
+    "a & b & (c |(f U g)| e)",
+    "b & a & a & (c | e |(f U g)| e | c) & b",
+    "a <=> b",
+    "a & b & (c |(f U g)| e)",
+    "b & a & a & (c | e |(g U g)| e | c) & b",
+    "F\"F1\"&G\"G\"&X\"X\"",
+    "GFfalse",
+    "GFtrue",
+    "p=0Uq=1Ut=1",
+    "F\"FALSE\"",
+    "G\"TruE\"",
+    "FFALSE",
+    "GTruE",
+    "p=0UFXp=1",
+    "GF\"\\GF\"",
+    "GF\"foo bar\"",
+    "FFG__GFF",
+    "X\"U\"",
+    "X\"W\"",
+    "X\"M\"",
+    "X\"R\"",
+    "{a;b;{c && d*};**}|=>G{a*:b*}",
+    "GF!{{a || c} && b}",
+    "GF!{{a || c*} && b}<>->{{!a}*}",
+    "GF{{a || c*} & b[*]}[]->{d}",
+    "{a[*2..3]}",
+    "{a[*0..1]}",
+    "{a[*0..]}",
+    "{a[*..]}",
+    "{a[*1..]}",
+    "{a[+]}",
+    "{[+]}",
+    "{a[*2..3][*4..5]}",
+    "{a**}<>->1",
+  };
 
-    // The string generated from an abstract tree should be parsable
-    // again.
 
-    std::string f1s = spot::str_psl(f1);
-    std::cout << f1s << '\n';
+int main()
+{
+  for (const char* input: inputs)
+  {
+    {
+      auto pf1 = spot::parse_infix_psl(input);
+      if (pf1.format_errors(std::cerr))
+        return 2;
+      auto f1 = pf1.f;
 
-    auto pf2 = spot::parse_infix_psl(f1s);
-    if (pf2.format_errors(std::cerr))
-      return 2;
-    auto f2 = pf2.f;
+      // The string generated from an abstract tree should be parsable
+      // again.
 
-    // This second abstract tree should be equal to the first.
+      std::string f1s = spot::str_psl(f1);
+      std::cout << f1s << '\n';
 
-    if (f1 != f2)
-      return 1;
+      auto pf2 = spot::parse_infix_psl(f1s);
+      if (pf2.format_errors(std::cerr))
+        return 2;
+      auto f2 = pf2.f;
 
-    // It should also map to the same string.
+      // This second abstract tree should be equal to the first.
 
-    std::string f2s = spot::str_psl(f2);
-    std::cout << f2s << '\n';
+      if (f1 != f2)
+        return 1;
 
-    if (f2s != f1s)
-      return 1;
+      // It should also map to the same string.
+
+      std::string f2s = spot::str_psl(f2);
+
+      if (f2s != f1s)
+        {
+          std::cerr << f1s << " != " << f2s << '\n';
+          return 1;
+        }
+    }
+    assert(spot::fnode::instances_check());
   }
-
-  assert(spot::fnode::instances_check());
   return 0;
 }
