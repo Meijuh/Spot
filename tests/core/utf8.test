@@ -1,6 +1,6 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012, 2013, 2015 Laboratoire de Recherche et
+# Copyright (C) 2012, 2013, 2015, 2016 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -24,22 +24,18 @@
 . ./defs || exit 1
 set -e
 
-# ----
-run 0 ../ltl2text '□◯a' >out
-echo 'G(@5 #0 [X(@4 #0 [ap(@3 #0 "a")])])' > exp
-cmp out exp
+cat >input <<EOF
+□◯a
+□◯"αβγ"
+□)◯a
+"αβγ"X
+EOF
 
-# ----
-run 0 ../ltl2text '□◯"αβγ"' >out
-echo 'G(@5 #0 [X(@4 #0 [ap(@3 #0 "αβγ")])])' > exp
-cmp out exp
+run 1 ../ltl2text input >output
 
-
-# ----
-set +x
-run 1 ../ltl2text '□)◯a' 2>err
-set -x
-cat >exp <<EOF
+cat >expected <<EOF
+G(@5 #0 [X(@4 #0 [ap(@3 #0 "a")])])
+G(@8 #0 [X(@7 #0 [ap(@6 #0 "αβγ")])])
 >>> □)◯a
      ^
 syntax error, unexpected closing parenthesis
@@ -52,14 +48,7 @@ missing right operand for "always operator"
      ^^^
 ignoring trailing garbage
 
-EOF
-cmp exp err
-
-# ----
-set +x
-run 1 ../ltl2text '"αβγ"X' 2>err
-set -x
-cat >exp <<EOF
+ff(@0 #0)
 >>> "αβγ"X
          ^
 syntax error, unexpected next operator
@@ -68,9 +57,10 @@ syntax error, unexpected next operator
          ^
 ignoring trailing garbage
 
+ap(@9 #0 "αβγ")
 EOF
-cmp exp err
 
+diff expected output
 
 randltl --psl -8 --seed 0 --tree-size 16 a b c -n 100 > formulae
 ../reduc -f -h 0 formulae

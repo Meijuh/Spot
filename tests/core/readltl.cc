@@ -21,6 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <fstream>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -30,7 +31,7 @@
 static void
 syntax(char* prog)
 {
-  std::cerr << prog << " [-d] formula" << std::endl;
+  std::cerr << prog << " [-d] filename\n";
   exit(2);
 }
 
@@ -43,40 +44,52 @@ main(int argc, char** argv)
     syntax(argv[0]);
 
   bool debug = false;
-  int formula_index = 1;
+  int filename_index = 1;
 
   if (!strcmp(argv[1], "-d"))
     {
       debug = true;
       if (argc < 3)
         syntax(argv[0]);
-      formula_index = 2;
+      filename_index = 2;
     }
 
-  {
-    spot::environment& env(spot::default_environment::instance());
-
-    auto f = [&]()
+  std::ifstream fin(argv[filename_index]);
+  if (!fin)
     {
-      auto pf = spot::parse_infix_psl(argv[formula_index], env, debug);
-      exit_code = pf.format_errors(std::cerr);
-      return pf.f;
-    }();
+      std::cerr << "Cannot open " << argv[filename_index] << '\n';
+      exit(2);
+    }
 
-    if (f)
+  std::string input;
+  while (std::getline(fin, input))
+    {
       {
+        spot::environment& env(spot::default_environment::instance());
+
+        auto f = [&]()
+          {
+            auto pf = spot::parse_infix_psl(input, env, debug);
+            // We want the errors on std::cout for the test suite.
+            exit_code = pf.format_errors(std::cout);
+            return pf.f;
+          }();
+
+        if (f)
+          {
 #ifdef DOTTY
-        spot::print_dot_psl(std::cout, f);
+            spot::print_dot_psl(std::cout, f);
 #else
-        f.dump(std::cout) << std::endl;
+            f.dump(std::cout) << '\n';
 #endif
-      }
-    else
-      {
-        exit_code = 1;
-      }
+          }
+        else
+          {
+            exit_code = 1;
+          }
 
-  }
-  assert(spot::fnode::instances_check());
+      }
+      assert(spot::fnode::instances_check());
+    }
   return exit_code;
 }
