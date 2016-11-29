@@ -469,7 +469,7 @@ namespace spot
 
     acc_cond::mark_t state_acc_sets(unsigned s) const
     {
-      if (SPOT_UNLIKELY(!((bool)prop_state_acc() || num_sets() == 0)))
+      if (SPOT_UNLIKELY(!(bool)prop_state_acc()))
         throw std::runtime_error
           ("state_acc_sets() should only be called on "
            "automata with state-based acceptance");
@@ -483,7 +483,7 @@ namespace spot
 
     bool state_is_accepting(unsigned s) const
     {
-      if (SPOT_UNLIKELY(!((bool)prop_state_acc() || num_sets() == 0)))
+      if (SPOT_UNLIKELY(!(bool)prop_state_acc()))
         throw std::runtime_error
           ("state_is_accepting() should only be called on "
            "automata with state-based acceptance");
