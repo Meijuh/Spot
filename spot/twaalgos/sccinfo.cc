@@ -73,17 +73,13 @@ namespace spot
                                        // but STATE should not because
                                        // it is used as a key in H.
 
-
     // Setup depth-first search from the initial state.
-    if (n > 0)
-      {
-        unsigned init = aut->get_init_state_number();
-        num_ = -1;
-        h_[init] = num_;
-        root_.emplace_back(num_, 0U);
-        todo_.emplace(init, aut->out(init).begin());
-        live.emplace_back(init);
-      }
+    unsigned init = aut->get_init_state_number();
+    num_ = -1;
+    h_[init] = num_;
+    root_.emplace_back(num_, 0U);
+    todo_.emplace(init, aut->out(init).begin());
+    live.emplace_back(init);
 
     while (!todo_.empty())
       {
