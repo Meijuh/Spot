@@ -1921,8 +1921,7 @@ State: 11 "t"
 EOF
 
 expecterr input <<EOF
-input:4.8-12: alternation is not yet supported for initial states
-autfilt: failed to read automaton from input
+input:4.1-12: alternating automata only support a single initial state
 EOF
 
 # Some alternation errors

@@ -317,6 +317,19 @@ namespace spot
     if (acceptance == Hoa_Acceptance_States && !md.has_state_acc)
       acceptance = Hoa_Acceptance_Transitions;
 
+    auto print_dst = [&os, &aut](unsigned dst)
+      {
+        bool notfirst = false;
+        for (unsigned d: aut->univ_dests(dst))
+          {
+            if (notfirst)
+              os << '&';
+            else
+              notfirst = true;
+            os << d;
+          }
+      };
+
     unsigned num_states = aut->num_states();
     unsigned init = aut->get_init_state_number();
 
@@ -327,7 +340,9 @@ namespace spot
       escape_str(os << "name: \"", *n) << '"' << nl;
     unsigned nap = md.vap.size();
     os << "States: " << num_states << nl
-       << "Start: " << init << nl
+       << "Start: ";
+    print_dst(init);
+    os << nl
        << "AP: " << nap;
     auto d = aut->get_dict();
     for (auto& i: md.vap)
@@ -547,19 +562,6 @@ namespace spot
       }
 
     os << "--BODY--" << nl;
-
-    auto print_dst = [&](unsigned dst)
-      {
-        bool notfirst = false;
-        for (unsigned d: aut->univ_dests(dst))
-          {
-            if (notfirst)
-              os << '&';
-            else
-              notfirst = true;
-            os << d;
-          }
-      };
 
     auto sn = aut->get_named_prop<std::vector<std::string>>("state-names");
     for (unsigned i = 0; i < num_states; ++i)

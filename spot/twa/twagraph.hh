@@ -268,6 +268,23 @@ namespace spot
       set_init_state(state_number(s));
     }
 
+    template<class I>
+    void set_univ_init_state(I dst_begin, I dst_end)
+    {
+      auto ns = num_states();
+      for (I i = dst_begin; i != dst_end; ++i)
+        if (SPOT_UNLIKELY(*i >= ns))
+          throw std::invalid_argument
+            ("set_univ_init_state() called with nonexisiting state");
+      init_number_ = g_.new_univ_dests(dst_begin, dst_end);
+    }
+
+    template<class I>
+    void set_univ_init_state(const std::initializer_list<state_num>& il)
+    {
+      set_univ_init_state(il.begin(), il.end());
+    }
+
     state_num get_init_state_number() const
     {
       // If the automaton has no state, it has no initial state.

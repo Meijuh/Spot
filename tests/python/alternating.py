@@ -74,3 +74,23 @@ aut2 = spot.automaton(h)
 h2 = aut2.to_str('hoa')
 print(h2)
 assert h == h2
+
+aut2.set_univ_init_state([0, 1])
+h3 = aut2.to_str('hoa')
+print(h3)
+assert h3 == """HOA: v1
+States: 3
+Start: 0&1
+AP: 2 "p1" "p2"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: univ-branch trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0] 1&2 {0}
+[1] 0&1
+State: 1
+[0&1] 0&2&1
+State: 2
+[0 | 1] 2
+--END--"""

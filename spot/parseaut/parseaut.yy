@@ -95,7 +95,8 @@ extern "C" int strverscmp(const char *s1, const char *s2);
       std::vector<bdd>::const_iterator cur_guard;
       map_t dest_map;
       std::vector<state_info> info_states; // States declared and used.
-      std::vector<std::pair<spot::location, unsigned>> start; // Initial states;
+      std::vector<std::pair<spot::location,
+                            std::vector<unsigned>>> start; // Initial states;
       std::unordered_map<std::string, bdd> alias;
       struct prop_info
       {
@@ -239,7 +240,7 @@ extern "C" int strverscmp(const char *s1, const char *s2);
 %left '&'
 %nonassoc '!'
 
-%type <states> state-conj-2 state-conj-checked
+%type <states> init-state-conj-2 state-conj-2 state-conj-checked
 %type <num> checked-state-num state-num acc-set sign
 %type <b> label-expr
 %type <mark> acc-sig acc-sets trans-acc_opt state-acc_opt
@@ -348,13 +349,14 @@ header: format-version header-items
 	    {
 	      unsigned states = res.states;
 	      for (auto& p : res.start)
-		if ((unsigned) res.states <= p.second)
-		  {
-		    error(p.first,
-			  "initial state number is larger than state count...");
-		    error(res.states_loc, "... declared here.");
-		    states = std::max(states, p.second + 1);
-		  }
+                for (unsigned s: p.second)
+                  if ((unsigned) res.states <= s)
+                    {
+                      error(p.first, "initial state number is larger "
+                            "than state count...");
+                      error(res.states_loc, "... declared here.");
+                      states = std::max(states, s + 1);
+                    }
 	      if (res.opts.want_kripke)
 		res.h->ks->new_states(states, bddfalse);
 	      else
@@ -631,12 +633,12 @@ header-item: "States:" INT
 	   }
            | "Start:" init-state-conj-2
 	     {
-	       error(@2, "alternation is not yet supported for initial states");
-	       YYABORT;
+               res.start.emplace_back(@$, *$2);
+               delete $2;
 	     }
            | "Start:" state-num
 	     {
-	       res.start.emplace_back(@$, $2);
+	       res.start.emplace_back(@$, std::vector<unsigned>{$2});
 	     }
            | aps
            | "Alias:" ANAME label-expr
@@ -819,10 +821,17 @@ state-conj-2: checked-state-num '&' checked-state-num
               $$->emplace_back($3);
             }
 
-	      // Currently we do not check the number of these states
-	      // since we do not support alternation for initial states.
+// Same as state-conj-2 except we cannot check the state numbers
+// against a number of state that may not have been declared yet.
 init-state-conj-2: state-num '&' state-num
+            {
+              $$ = new std::vector<unsigned>{$1, $3};
+            }
             | init-state-conj-2 '&' state-num
+            {
+              $$ = $1;
+              $$->emplace_back($3);
+            }
 
 label-expr: 't'
 	    {
@@ -983,17 +992,16 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
 body: states
       {
 	for (auto& p: res.start)
-	  if (p.second >= res.info_states.size()
-	      || !res.info_states[p.second].declared)
-	    {
-	      error(p.first,
-		    "initial state " + std::to_string(p.second) +
-		    " has no definition");
-	      // Pretend that the state is declared so we do not
-	      // mention it in the next loop.
-	      if (p.second < res.info_states.size())
-		res.info_states[p.second].declared = true;
-	    }
+          for (unsigned s: p.second)
+            if (s >= res.info_states.size() || !res.info_states[s].declared)
+              {
+                error(p.first, "initial state " + std::to_string(s) +
+                      " has no definition");
+                // Pretend that the state is declared so we do not
+                // mention it in the next loop.
+                if (s < res.info_states.size())
+                  res.info_states[s].declared = true;
+              }
 	unsigned n = res.info_states.size();
 	// States with number above res.states have already caused a
 	// diagnostic, so let not add another one.
@@ -1498,7 +1506,7 @@ dstar_sizes:
   }
   | dstar_sizes "Start:" INT
   {
-    res.start.emplace_back(@3, $3);
+    res.start.emplace_back(@3, std::vector<unsigned>{$3});
   }
   | dstar_sizes aps
 
@@ -1654,7 +1662,7 @@ nc-ident-list: nc-one-ident
       if (res.start.empty())
 	{
 	  // The first state is initial.
-	  res.start.emplace_back(@$, n);
+	  res.start.emplace_back(@$, std::vector<unsigned>{n});
 	}
       $$ = $1;
     }
@@ -1843,7 +1851,7 @@ lbtt: lbtt-header lbtt-body ENDAUT
 	      rename[i.second] = s++;
 	    assert(s == (unsigned) res.states);
 	    for (auto& i: res.start)
-	      i.second = rename[i.second];
+	      i.second.front() = rename[i.second.front()];
 	    res.h->aut->get_graph().defrag_states(std::move(rename), s);
 	  }
 	 res.info_states.resize(res.h->aut->num_states());
@@ -1899,7 +1907,8 @@ lbtt-state: STATE_NUM INT lbtt-acc
 		res.cur_state = $1;
 	      }
 	    if ($2)
-	      res.start.emplace_back(@1 + @2, res.cur_state);
+	      res.start.emplace_back(@1 + @2,
+                                     std::vector<unsigned>{res.cur_state});
 	    res.acc_state = $3;
 	  }
 lbtt-acc:               { $$ = 0U; }
@@ -2121,13 +2130,20 @@ static void fix_acceptance(result_& r)
 
 static void fix_initial_state(result_& r)
 {
-  std::vector<unsigned> start;
+  std::vector<std::vector<unsigned>> start;
   start.reserve(r.start.size());
+  unsigned ssz = r.info_states.size();
   for (auto& p : r.start)
-    // Ignore initial states without declaration
-    if (p.second < r.info_states.size()
-	&& r.info_states[p.second].declared)
-      start.push_back(p.second);
+    {
+      std::vector<unsigned> v;
+      v.reserve(p.second.size());
+      for (unsigned s: p.second)
+        // Ignore initial states without declaration
+        if (s < ssz && r.info_states[s].declared)
+          v.emplace_back(s);
+      if (!v.empty())
+        start.push_back(v);
+    }
 
   if (start.empty())
     {
@@ -2149,9 +2165,10 @@ static void fix_initial_state(result_& r)
   if (start.size() == 1)
     {
       if (r.opts.want_kripke)
-	r.h->ks->set_init_state(start.front());
+	r.h->ks->set_init_state(start.front().front());
       else
-	r.h->aut->set_init_state(start.front());
+	r.h->aut->set_univ_init_state(start.front().begin(),
+                                      start.front().end());
     }
   else
     {
@@ -2167,24 +2184,38 @@ static void fix_initial_state(result_& r)
       auto& aut = r.h->aut;
       std::vector<unsigned char> has_incoming(aut->num_states(), 0);
       for (auto& t: aut->edges())
-	has_incoming[t.dst] = 1;
+        for (unsigned ud: aut->univ_dests(t))
+          has_incoming[ud] = 1;
 
       bool found = false;
       unsigned init = 0;
-      for (auto p: start)
-	if (!has_incoming[p])
-	  {
-	    init = p;
-	    found = true;
-	  }
+      for (auto& pp: start)
+        {
+          if (pp.size() != 1)
+            {
+              r.h->errors.emplace_front(r.start.front().first,
+                                        "alternating automata only support "
+                                        "a single initial state");
+              return;
+            }
+          unsigned p = pp.front();
+          if (!has_incoming[p])
+            {
+              init = p;
+              found = true;
+            }
+        }
       if (!found)
 	// We do need a fake initial state
 	init = aut->new_state();
       aut->set_init_state(init);
-      for (auto p: start)
-	if (p != init)
-	  for (auto& t: aut->out(p))
-	    aut->new_edge(init, t.dst, t.cond);
+      for (auto& pp: start)
+        {
+          unsigned p = pp.front();
+          if (p != init)
+            for (auto& t: aut->out(p))
+              aut->new_edge(init, t.dst, t.cond);
+        }
     }
 }
 

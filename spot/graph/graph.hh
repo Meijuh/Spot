@@ -766,6 +766,27 @@ namespace spot
       return t;
     }
 
+    /// \brief Create a new universal destination group
+    ///
+    /// The resulting state number can be used as the destination of
+    /// an edge.
+    ///
+    /// \param dst_begin start of a non-empty container of destination states
+    /// \param dst_end end of a non-empty container of destination states
+    template <typename I>
+    state
+    new_univ_dests(I dst_begin, I dst_end)
+    {
+      unsigned sz = std::distance(dst_begin, dst_end);
+      if (sz == 1)
+        return *dst_begin;
+      SPOT_ASSERT(sz > 1);
+      unsigned d = dests_.size();
+      dests_.emplace_back(sz);
+      dests_.insert(dests_.end(), dst_begin, dst_end);
+      return ~d;
+    }
+
     /// \brief Create a new universal edge
     ///
     /// \param src the source state
@@ -776,14 +797,8 @@ namespace spot
     edge
     new_univ_edge(state src, I dst_begin, I dst_end, Args&&... args)
     {
-      unsigned sz = std::distance(dst_begin, dst_end);
-      if (sz == 1)
-        return new_edge(src, *dst_begin, std::forward<Args>(args)...);
-      SPOT_ASSERT(sz > 1);
-      unsigned d = dests_.size();
-      dests_.emplace_back(sz);
-      dests_.insert(dests_.end(), dst_begin, dst_end);
-      return new_edge(src, ~d, std::forward<Args>(args)...);
+      return new_edge(src, new_univ_dests(dst_begin, dst_end),
+                      std::forward<Args>(args)...);
     }
 
     /// \brief Create a new universal edge

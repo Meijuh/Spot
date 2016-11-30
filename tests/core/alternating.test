@@ -24,7 +24,7 @@ set -e
 cat >alt.hoa <<EOF
 HOA: v1.1
 States: 7
-Start: 0
+Start: 0&2
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 AP: 2 "b" "a"
@@ -62,14 +62,17 @@ digraph G {
   label="Fin(⓿)"
   labelloc="t"
   I [label="", style=invis, width=0]
-  I -> 0
+  I -> -11 [dir=none]
+    -11 [label=<>,width=0,height=0,shape=none]
+    -11 -> 0
+    -11 -> 2
   0 [label="((((a) U (b)) && GF(b)) && FG(a))"]
   0 -> -1 [label="b", dir=none]
-    -1[label=<>,width=0,height=0,shape=none]
+    -1 [label=<>,width=0,height=0,shape=none]
     -1 -> 3
     -1 -> 1
   0 -> -4 [label="a & !b", style=bold, color="#F15854", dir=none]
-    -4[label=<>,width=0,height=0,shape=none]
+    -4 [label=<>,width=0,height=0,shape=none]
     -4 -> 5 [style=bold, color="#F15854"]
     -4 -> 3 [style=bold, color="#F15854"]
     -4 -> 1 [style=bold, color="#F15854"]
@@ -81,7 +84,7 @@ digraph G {
   3 [label="GF(b)"]
   3 -> 3 [label="b"]
   3 -> -8 [label="!b", style=bold, color="#FAA43A", dir=none]
-    -8[label=<>,width=0,height=0,shape=none]
+    -8 [label=<>,width=0,height=0,shape=none]
     -8 -> 4 [style=bold, color="#FAA43A"]
     -8 -> 3 [style=bold, color="#FAA43A"]
   4 [label="F(b)\n⓿"]

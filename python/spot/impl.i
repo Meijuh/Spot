@@ -761,6 +761,11 @@ def state_is_accepting(self, src) -> "bool":
     return self->new_univ_edge(src, v.begin(), v.end(), cond, acc);
   }
 
+  void set_univ_init_state(const std::vector<unsigned>& v)
+  {
+    self->set_univ_init_state(v.begin(), v.end());
+  }
+
   void report_univ_dest(unsigned src)
   {
     if (self->is_univ_dest(src))

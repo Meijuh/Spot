@@ -361,6 +361,19 @@ namespace spot
       }
 
       void
+      print_dst(int dst, const char* style = nullptr)
+      {
+        os_ << "    " << dst << " [label=<>,width=0,height=0,shape=none]\n";
+        for (unsigned d: aut_->univ_dests(dst))
+          {
+            os_ << "    " << dst << " -> " << d;
+            if (style && *style)
+              os_ << " [" << style << ']';
+            os_ << '\n';
+          }
+      }
+
+      void
       start()
       {
         if (opt_html_labels_)
@@ -444,7 +457,17 @@ namespace spot
           os_ << "  " << extra << '\n';
         os_ << "  I [label=\"\", style=invis, ";
         os_ << (opt_vertical_ ? "height" : "width");
-        os_ << "=0]\n  I -> " << aut_->get_init_state_number() << '\n';
+        int init = (int) aut_->get_init_state_number();
+        os_ << "=0]\n  I -> " << init;
+        if (init >= 0)
+          {
+            os_ << '\n';
+          }
+        else
+          {
+            os_ << " [dir=none]\n";
+            print_dst(init);
+          }
       }
 
       void
@@ -608,17 +631,7 @@ namespace spot
           os_ << ", dir=none";
         os_ << "]\n";
         if ((int)t.dst < 0)     // Universal destination
-          {
-            os_ << "    " << (int)t.dst
-                << "[label=<>,width=0,height=0,shape=none]\n";
-            for (unsigned d: aut_->univ_dests(t))
-              {
-                os_ << "    " << (int)t.dst << " -> " << d;
-                if (!highlight.empty())
-                  os_ << " [" << highlight << ']';
-                os_ << '\n';
-              }
-          }
+          print_dst(t.dst, highlight.c_str());
       }
 
       void print(const const_twa_graph_ptr& aut)
