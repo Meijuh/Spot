@@ -152,11 +152,23 @@ AP: 2 "a" "b"
 Acceptance: 0 t
 --BODY--
 --END--
+HOA: v1
+name: "1"
+States: 1
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Foo(0)
+--BODY--
+State: 0 {0}
+[t] 0
+--END--
 EOF
 
 expecterr input <<EOF
 input:4.1-3: ignoring this redeclaration of APs...
 input:2.1-5: ... previously declared here.
+input:14.15-17: unknown acceptance 'Foo', expected Fin or Inf
 EOF
 
 cat >input <<EOF

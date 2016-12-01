@@ -867,11 +867,21 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
 		     {
 		       res.pos_acc_sets |= res.aut_or_ks->acc().mark($3);
 		       if (*$1 == "Inf")
-			 $$ = new spot::acc_cond::acc_code
-			   (res.aut_or_ks->acc().inf({$3}));
-		       else
-			 $$ = new spot::acc_cond::acc_code
-			   (res.aut_or_ks->acc().fin({$3}));
+                         {
+                           $$ = new spot::acc_cond::acc_code
+                             (res.aut_or_ks->acc().inf({$3}));
+                         }
+		       else if (*$1 == "Fin")
+                         {
+                           $$ = new spot::acc_cond::acc_code
+                             (res.aut_or_ks->acc().fin({$3}));
+                         }
+                       else
+                         {
+                           error(@1, std::string("unknown acceptance '") + *$1
+                                 + "', expected Fin or Inf");
+                           $$ = new spot::acc_cond::acc_code;
+                         }
 		     }
 		   else
 		     {
