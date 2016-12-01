@@ -91,7 +91,7 @@ case $1 in
     exec sh -x "$@";;
   *.pl)
     exec @PERL@ "$@";;
-  *python*)
+  *python*|*jupyter*)
     PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath \
     exec $PREFIXCMD "$@";;
   *)
