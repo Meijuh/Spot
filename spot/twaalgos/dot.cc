@@ -699,13 +699,13 @@ namespace spot
               }
           }
         auto si =
-          std::unique_ptr<scc_info>((opt_scc_ && !aut->is_alternating())
-                                    ? new scc_info(aut) : nullptr);
+          std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);
 
         start();
         if (si)
           {
-            si->determine_unknown_acceptance();
+            if (!aut->is_alternating())
+              si->determine_unknown_acceptance();
 
             unsigned sccs = si->scc_count();
             for (unsigned i = 0; i < sccs; ++i)

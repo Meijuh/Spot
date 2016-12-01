@@ -323,6 +323,7 @@ TESTS_ipython = \
 # with a _.
 TESTS_python = \
   python/_aux.ipynb \
+  python/_altscc.ipynb \
   python/accparse2.py \
   python/alarm.py \
   python/alternating.py \

@@ -60,173 +60,211 @@ namespace spot
     // Values < 0 number states that are part of incomplete SCCs being
     // completed.  0 denotes non-visited states.
 
-    int num_;                        // Number of visited nodes, negated.
+    int num_ = 0;               // Number of visited nodes, negated.
 
-    typedef twa_graph::graph_t::const_iterator iterator;
-    typedef std::pair<unsigned, iterator> pair_state_iter;
-    std::stack<pair_state_iter> todo_; // DFS stack.  Holds (STATE,
-                                       // ITERATOR) pairs where
-                                       // ITERATOR is an iterator over
-                                       // the successors of STATE.
-                                       // ITERATOR should always be
-                                       // freed when TODO is popped,
-                                       // but STATE should not because
-                                       // it is used as a key in H.
+    struct stack_item {
+      unsigned src;
+      unsigned out_edge;
+      unsigned univ_pos;
+    };
+    // DFS stack.  Holds (STATE, TRANS, UNIV_POS) pairs where TRANS is
+    // the current outgoing transition of STATE, and UNIV_POS is used
+    // when the transition is universal to iterate over all possible
+    // destinations.
+    std::stack<stack_item> todo_;
+    auto& gr = aut->get_graph();
 
-    // Setup depth-first search from the initial state.
-    unsigned init = aut->get_init_state_number();
-    num_ = -1;
-    h_[init] = num_;
-    root_.emplace_back(num_, 0U);
-    todo_.emplace(init, aut->out(init).begin());
-    live.emplace_back(init);
-
-    while (!todo_.empty())
+    // Setup depth-first search from the initial state.  But we may
+    // have a conjunction of initial state in alternating automata.
+    for (unsigned init: aut->univ_dests(aut->get_init_state_number()))
       {
-        // We are looking at the next successor in SUCC.
-        iterator succ = todo_.top().second;
-
-        // If there is no more successor, backtrack.
-        if (!succ)
-          {
-            // We have explored all successors of state CURR.
-            unsigned curr = todo_.top().first;
-
-            // Backtrack TODO_.
-            todo_.pop();
-
-            // When backtracking the root of an SCC, we must also
-            // remove that SCC from the ARC/ROOT stacks.  We must
-            // discard from H all reachable states from this SCC.
-            assert(!root_.empty());
-            if (root_.back().index == h_[curr])
-              {
-                unsigned num = node_.size();
-                auto acc = root_.back().acc;
-                bool triv = root_.back().trivial;
-                node_.emplace_back(acc, triv);
-
-                // Move all elements of this SCC from the live stack
-                // to the the node.
-                auto i = std::find(live.rbegin(), live.rend(), curr);
-                assert(i != live.rend());
-                ++i;                // Because base() does -1
-                auto& nbs = node_.back().states_;
-                nbs.insert(nbs.end(), i.base(), live.end());
-                live.erase(i.base(), live.end());
-
-                std::set<unsigned> dests;
-                unsigned np1 = num + 1;
-                for (unsigned s: nbs)
-                  {
-                    sccof_[s] = num;
-                    h_[s] = np1;
-                  }
-                // Gather all successor SCCs
-                for (unsigned s: nbs)
-                  for (auto& t: aut->out(s))
-                    {
-                      unsigned n = sccof_[t.dst];
-                      assert(n != -1U);
-                      if (n == num)
-                        continue;
-                      dests.insert(n);
-                    }
-                auto& succ = node_.back().succ_;
-                succ.insert(succ.end(), dests.begin(), dests.end());
-                bool accept = !triv && root_.back().accepting;
-                node_.back().accepting_ = accept;
-                bool reject = triv || !aut->acc().inf_satisfiable(acc);
-                // If the SCC acceptance is indeterminate, but has
-                // only one state and one transition, it is
-                // necessarily rejecting, otherwise we would have
-                // found it to be accepting.
-                if (!accept && !reject && nbs.size() == 1)
-                  {
-                    unsigned selfloop = 0;
-                    for (const auto& e: aut->out(nbs.front()))
-                      if (e.src == e.dst)
-                        {
-                          ++selfloop;
-                          if (selfloop > 1)
-                            break;
-                        }
-                    reject = selfloop <= 1;
-                  }
-                node_.back().rejecting_ = reject;
-                root_.pop_back();
-              }
-            continue;
-          }
-
-        // We have a successor to look at.
-        // Fetch the values we are interested in...
-        unsigned dest = succ->dst;
-        auto acc = succ->acc;
-        ++todo_.top().second;
-
-        // We do not need SUCC from now on.
-
-        // Are we going to a new state?
-        int spi = h_[dest];
-        if (spi == 0)
-          {
-            // Yes.  Number it, stack it, and register its successors
-            // for later processing.
-            h_[dest] = --num_;
-            root_.emplace_back(num_, acc);
-            todo_.emplace(dest, aut->out(dest).begin());
-            live.emplace_back(dest);
-            continue;
-          }
-
-        // We already know the state.
-
-        // Have we reached a maximal SCC?
+        int spi = h_[init];
         if (spi > 0)
           continue;
+        assert(spi == 0);
+        h_[init] = --num_;
+        root_.emplace_back(num_, 0U);
+        todo_.emplace(stack_item{init, gr.state_storage(init).succ, 0});
+        live.emplace_back(init);
 
-        // Now this is the most interesting case.  We have reached a
-        // state S1 which is already part of a non-dead SCC.  Any such
-        // non-dead SCC has necessarily been crossed by our path to
-        // this state: there is a state S2 in our path which belongs
-        // to this SCC too.  We are going to merge all states between
-        // this S1 and S2 into this SCC..
-        //
-        // This merge is easy to do because the order of the SCC in
-        // ROOT is descending: we just have to merge all SCCs from the
-        // top of ROOT that have an index lesser than the one of
-        // the SCC of S2 (called the "threshold").
-        int threshold = spi;
-        bool is_accepting = false;
-        // If this is a self-loop, check its acceptance alone.
-        if (dest == succ->src)
-          is_accepting = aut->acc().accepting(acc);
-
-        assert(!root_.empty());
-        while (threshold > root_.back().index)
+        while (!todo_.empty())
           {
-            acc |= root_.back().acc;
-            acc |= root_.back().in_acc;
-            is_accepting |= root_.back().accepting;
-            root_.pop_back();
+            // We are looking at the next successor in SUCC.
+            unsigned tr_succ = todo_.top().out_edge;
+
+            // If there is no more successor, backtrack.
+            if (!tr_succ)
+              {
+                // We have explored all successors of state CURR.
+                unsigned curr = todo_.top().src;
+
+                // Backtrack TODO_.
+                todo_.pop();
+
+                // When backtracking the root of an SCC, we must also
+                // remove that SCC from the ARC/ROOT stacks.  We must
+                // discard from H all reachable states from this SCC.
+                assert(!root_.empty());
+                if (root_.back().index == h_[curr])
+                  {
+                    unsigned num = node_.size();
+                    auto acc = root_.back().acc;
+                    bool triv = root_.back().trivial;
+                    node_.emplace_back(acc, triv);
+
+                    // Move all elements of this SCC from the live stack
+                    // to the the node.
+                    auto i = std::find(live.rbegin(), live.rend(), curr);
+                    assert(i != live.rend());
+                    ++i;                // Because base() does -1
+                    auto& nbs = node_.back().states_;
+                    nbs.insert(nbs.end(), i.base(), live.end());
+                    live.erase(i.base(), live.end());
+
+                    std::set<unsigned> dests;
+                    unsigned np1 = num + 1;
+                    for (unsigned s: nbs)
+                      {
+                        sccof_[s] = num;
+                        h_[s] = np1;
+                      }
+                    // Gather all successor SCCs
+                    for (unsigned s: nbs)
+                      for (auto& t: aut->out(s))
+                        for (unsigned d: aut->univ_dests(t))
+                          {
+                            unsigned n = sccof_[d];
+                            assert(n != -1U);
+                            if (n == num)
+                              continue;
+                            dests.insert(n);
+                          }
+                    auto& succ = node_.back().succ_;
+                    succ.insert(succ.end(), dests.begin(), dests.end());
+                    bool accept = !triv && root_.back().accepting;
+                    node_.back().accepting_ = accept;
+                    bool reject = triv || !aut->acc().inf_satisfiable(acc);
+                    // If the SCC acceptance is indeterminate, but has
+                    // only self-loops with the same mark, it is
+                    // necessarily rejecting, otherwise we would have
+                    // found it to be accepting.
+                    if (!accept && !reject && nbs.size() == 1)
+                      {
+                        acc_cond::mark_t selfacc = 0;
+                        bool first = true;
+                        reject = true;
+                        for (const auto& e: aut->out(nbs.front()))
+                          for (unsigned d: aut->univ_dests(e))
+                            if (e.src == d)
+                              {
+                                if (first)
+                                  {
+                                    selfacc = e.acc;
+                                    first = false;
+                                  }
+                                else if (selfacc != e.acc)
+                                  {
+                                    reject = false;
+                                    goto break2;
+                                  }
+                              }
+                      }
+                  break2:
+                    node_.back().rejecting_ = reject;
+                    root_.pop_back();
+                  }
+                continue;
+              }
+
+            // We have a successor to look at.
+            // Fetch the values we are interested in...
+            auto& e = gr.edge_storage(tr_succ);
+            unsigned dest = e.dst;
+            if ((int) dest < 0)
+              {
+                // Iterate over all destinations of an universal edge.
+                if (todo_.top().univ_pos == 0)
+                  todo_.top().univ_pos = ~dest + 1;
+                const auto& v = gr.dests_vector();
+                dest = v[todo_.top().univ_pos];
+                // Last universal destination?
+                if (~e.dst + v[~e.dst] == todo_.top().univ_pos)
+                  {
+                    todo_.top().out_edge = e.next_succ;
+                    todo_.top().univ_pos = 0;
+                  }
+                else
+                  {
+                    ++todo_.top().univ_pos;
+                  }
+              }
+            else
+              {
+                todo_.top().out_edge = e.next_succ;
+              }
+
+            auto acc = e.acc;
+
+            // Are we going to a new state?
+            int spi = h_[dest];
+            if (spi == 0)
+              {
+                // Yes.  Number it, stack it, and register its successors
+                // for later processing.
+                h_[dest] = --num_;
+                root_.emplace_back(num_, acc);
+                todo_.emplace(stack_item{dest, gr.state_storage(dest).succ, 0});
+                live.emplace_back(dest);
+                continue;
+              }
+
+            // We already know the state.
+
+            // Have we reached a maximal SCC?
+            if (spi > 0)
+              continue;
+
+            // Now this is the most interesting case.  We have reached a
+            // state S1 which is already part of a non-dead SCC.  Any such
+            // non-dead SCC has necessarily been crossed by our path to
+            // this state: there is a state S2 in our path which belongs
+            // to this SCC too.  We are going to merge all states between
+            // this S1 and S2 into this SCC..
+            //
+            // This merge is easy to do because the order of the SCC in
+            // ROOT is descending: we just have to merge all SCCs from the
+            // top of ROOT that have an index lesser than the one of
+            // the SCC of S2 (called the "threshold").
+            int threshold = spi;
+            bool is_accepting = false;
+            // If this is a self-loop, check its acceptance alone.
+            if (dest == e.src)
+              is_accepting = aut->acc().accepting(acc);
+
             assert(!root_.empty());
+            while (threshold > root_.back().index)
+              {
+                acc |= root_.back().acc;
+                acc |= root_.back().in_acc;
+                is_accepting |= root_.back().accepting;
+                root_.pop_back();
+                assert(!root_.empty());
+              }
+
+            // Note that we do not always have
+            //  threshold == root_.back().index
+            // after this loop, the SCC whose index is threshold might have
+            // been merged with a higher SCC.
+
+            // Accumulate all acceptance conditions, states, SCC
+            // successors, and conditions into the merged SCC.
+            root_.back().acc |= acc;
+            root_.back().accepting |= is_accepting
+              || aut->acc().accepting(root_.back().acc);
+            // This SCC is no longer trivial.
+            root_.back().trivial = false;
           }
-
-        // Note that we do not always have
-        //  threshold == root_.back().index
-        // after this loop, the SCC whose index is threshold might have
-        // been merged with a higher SCC.
-
-        // Accumulate all acceptance conditions, states, SCC
-        // successors, and conditions into the merged SCC.
-        root_.back().acc |= acc;
-        root_.back().accepting |= is_accepting
-          || aut->acc().accepting(root_.back().acc);
-        // This SCC is no longer trivial.
-        root_.back().trivial = false;
       }
-
     determine_usefulness();
   }
 
@@ -315,6 +353,9 @@ namespace spot
 
   void scc_info::determine_unknown_acceptance()
   {
+    if (aut_->is_alternating())
+      throw std::runtime_error("scc_info::determine_unknown_acceptance() "
+                               "does not support alternating automata");
     std::vector<bool> k;
     unsigned n = scc_count();
     bool changed = false;
