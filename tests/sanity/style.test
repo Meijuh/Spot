@@ -248,7 +248,8 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
       $GREP '^[^()]{[^()]*{[^()]$' $tmp &&
 	diag 'No two { on the same line.'
 
-      $GREP 'delete[	 ]*[(][^(]*[)];' $tmp &&
+      $GREP 'delete[	 ]*[(][^(]*[)];' $tmp |
+      $GREP -v 'operator[	 ]*delete[	 ]*[(][^(]*[)];' &&
 	diag 'No useless parentheses after delete.'
 
       $GREP 'return[	 ]*[(][^(]*[)];' $tmp &&
