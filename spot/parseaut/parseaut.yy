@@ -526,8 +526,27 @@ header: format-version header-items
 		    a->prop_stutter_invariant(!ss->second.val);
 		}
 	      auto iw = p.find("inherently-weak");
+	      auto vw = p.find("very-weak");
 	      auto w = p.find("weak");
 	      auto t = p.find("terminal");
+              if (vw != e)
+                {
+                  a->prop_very_weak(vw->second.val);
+                  if (w != e && !w->second.val && vw->second.val)
+                    {
+		      error(w->second.loc,
+                            "'properties: !weak' contradicts...");
+		      error(vw->second.loc,
+			    "... 'properties: very-weak' given here");
+                    }
+                  if (iw != e && !iw->second.val && vw->second.val)
+                    {
+		      error(iw->second.loc,
+                            "'properties: !inherently-weak' contradicts...");
+		      error(vw->second.loc,
+			    "... 'properties: very-weak' given here");
+                    }
+                }
 	      if (iw != e)
 		{
 		  a->prop_inherently_weak(iw->second.val);

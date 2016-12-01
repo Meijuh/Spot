@@ -995,6 +995,7 @@ automaton, and that can be queried or set by algorithms:
 | =state_acc=         | automaton should be considered has having state-based acceptance                             |
 | =inherently_weak=   | accepting and rejecting cycles cannot be mixed in the same SCC                               |
 | =weak=              | transitions of an SCC all belong to the same acceptance sets                                 |
+| =very-weak=         | weak automaton where all SCCs have size 1                                                    |
 | =terminal=          | automaton is weak, accepting SCCs are complete, accepting edges may not go to rejecting SCCs |
 | =deterministic=     | there is at most one run *recognizing* a word, but not necessarily accepting it              |
 | =unambiguous=       | there is at most one run *accepting* a word (but it might be recognized several time)        |

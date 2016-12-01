@@ -14,6 +14,10 @@ New in spot 2.2.2.dev (Not yet released)
   * The new version of the Couvreur emptiness check is now the default
     one, used by is_empty() and accepting_run().
 
+  * twa objects have a new property, very-weak, that can be set or
+    retrieved via twa::prop_very_weak(), and that can be tested by
+    is_very_weak_automaton().
+
   Build:
 
   * The configure script has a new option --enable-c++14, to compile in

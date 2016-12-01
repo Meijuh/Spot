@@ -603,10 +603,10 @@ body of the file, and then return and error if what has been declared
 does not correspond to the reality.
 
 Some supported properties (like =weak=, =inherently-weak=,
-=unambiguous=, or =stutter-invariant=) are not double-checked, because
-that would require more operations.  Command-line tools that
-read HOA files all take a =--trust-hoa=no= option to ignore properties
-that are not double-checked by the parser.
+=very-weak=, =terminal=, =unambiguous=, or =stutter-invariant=) are
+not double-checked, because that would require more operations.
+Command-line tools that read HOA files all take a =--trust-hoa=no=
+option to ignore properties that are not double-checked by the parser.
 
 It should be noted that each property can take three values: true,
 false, or maybe.  So actually two bits are used per property.  For
@@ -652,24 +652,25 @@ particular:
   to detect deterministic automata that have been output by algorithms
   that do not try to output deterministic automata.
 
-| property            | parser  | stored | printer                                     | notes                                                            |
-|---------------------+---------+--------+---------------------------------------------+------------------------------------------------------------------|
-| =state-labels=      | checked | no     | checked if =-Hk=                            | state labels are converted to transition labels when reading TωA |
-| =trans-labels=      | checked | no     | always, unless =-Hi= or =-Hk=               |                                                                  |
-| =implicit-labels=   | checked | no     | if =-Hi=                                    | =-Hi= only works for deterministic automata                      |
-| =explicit-labels=   | checked | no     | always, unless =-Hi=                        |                                                                  |
-| =state-acc=         | checked | yes    | checked, unless =-Ht= or =-Hm=              |                                                                  |
-| =trans-acc=         | checked | no     | if not =state-acc= and not =-Hm=            |                                                                  |
-| =no-univ-branch=    | ignored | no     | only if =-Hv=                               |                                                                  |
-| =deterministic=     | checked | yes    | checked                                     |                                                                  |
-| =complete=          | checked | no     | checked                                     |                                                                  |
-| =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=) | can be checked with =--check=unambiguous=                        |
-| =stutter-invariant= | trusted | yes    | as stored                                   | can be checked with =--check=stuttering=                         |
-| =stutter-sensitive= | trusted | yes    | as stored (opposite of =stutter-invariant=) | can be checked with =--check=stuttering=                         |
-| =terminal=          | trusted | yes    | as stored                                   | can be checked with =--check=strength=                           |
-| =weak=              | trusted | yes    | as stored if (=-Hv= or not =terminal=)      | can be checked with =--check=strength=                           |
-| =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)          | can be checked with =--check=strength=                           |
-| =colored=           | ignored | no     | checked                                     |                                                                  |
+| property            | parser  | stored | printer                                                 | notes                                                            |
+|---------------------+---------+--------+---------------------------------------------------------+------------------------------------------------------------------|
+| =state-labels=      | checked | no     | checked if =-Hk=                                        | state labels are converted to transition labels when reading TωA |
+| =trans-labels=      | checked | no     | always, unless =-Hi= or =-Hk=                           |                                                                  |
+| =implicit-labels=   | checked | no     | if =-Hi=                                                | =-Hi= only works for deterministic automata                      |
+| =explicit-labels=   | checked | no     | always, unless =-Hi=                                    |                                                                  |
+| =state-acc=         | checked | yes    | checked, unless =-Ht= or =-Hm=                          |                                                                  |
+| =trans-acc=         | checked | no     | if not =state-acc= and not =-Hm=                        |                                                                  |
+| =no-univ-branch=    | ignored | no     | only if =-Hv=                                           |                                                                  |
+| =deterministic=     | checked | yes    | checked                                                 |                                                                  |
+| =complete=          | checked | no     | checked                                                 |                                                                  |
+| =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=)             | can be checked with =--check=unambiguous=                        |
+| =stutter-invariant= | trusted | yes    | as stored                                               | can be checked with =--check=stuttering=                         |
+| =stutter-sensitive= | trusted | yes    | as stored (opposite of =stutter-invariant=)             | can be checked with =--check=stuttering=                         |
+| =terminal=          | trusted | yes    | as stored                                               | can be checked with =--check=strength=                           |
+| =very-weak=         | trusted | yes    | as stored if (=-Hv= or not =terminal=)                  | can be checked with =--check=strength=                           |
+| =weak=              | trusted | yes    | as stored if (=-Hv= or not (=terminal= or =very-weak=)) | can be checked with =--check=strength=                           |
+| =inherently-weak=   | trusted | yes    | as stored if (=-Hv= or not =weak=)                      | can be checked with =--check=strength=                           |
+| =colored=           | ignored | no     | checked                                                 |                                                                  |
 
 The above table is for version 1 of the format.  When version 1.1 is
 selected (using =-H1.1=), some negated properties may be output.  In

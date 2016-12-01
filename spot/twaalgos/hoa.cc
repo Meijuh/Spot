@@ -500,12 +500,18 @@ namespace spot
       }
     if (aut->prop_terminal())
       prop(" terminal");
-    if (aut->prop_weak() && (verbose || aut->prop_terminal() != true))
+    if (aut->prop_very_weak() && (verbose || aut->prop_terminal() != true))
+      prop(" very-weak");
+    if (aut->prop_weak() && (verbose || (aut->prop_terminal() != true &&
+                                         aut->prop_very_weak() != true)))
       prop(" weak");
     if (aut->prop_inherently_weak() && (verbose || aut->prop_weak() != true))
       prop(" inherently-weak");
     if (v1_1 && !aut->prop_terminal() && (verbose || aut->prop_weak() != false))
       prop(" !terminal");
+    if (v1_1 && !aut->prop_very_weak() && (verbose
+                                           || aut->prop_weak() != false))
+      prop(" !very-weak");
     if (v1_1 && !aut->prop_weak() && (verbose ||
                                       aut->prop_inherently_weak() != false))
       prop(" !weak");

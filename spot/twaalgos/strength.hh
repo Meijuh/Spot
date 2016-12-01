@@ -60,6 +60,24 @@ namespace spot
   SPOT_API bool
   is_weak_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
 
+  /// \brief Check whether an automaton is very-weak.
+  ///
+  /// An automaton is very-weak if in any given SCC, all transitions
+  /// belong to the same acceptance sets, and the SCC has only one
+  /// state.
+  ///
+  /// \param aut the automaton to check
+  ///
+  /// \param sm an scc_info object for the automaton if available (it
+  /// will be built otherwise).
+  ///
+  /// In addition to returning the result as a Boolean, this will set
+  /// the prop_very_weak() and prop_weak() properties of the automaton
+  /// as a side-effect, so further calls will return in constant-time.
+  SPOT_API bool
+  is_very_weak_automaton(const const_twa_graph_ptr& aut,
+                         scc_info* sm = nullptr);
+
   /// \brief Check whether an automaton is inherently weak.
   ///
   /// An automaton is inherently weak if in any given SCC, there
@@ -90,7 +108,8 @@ namespace spot
 
   /// \brief Check whether an automaton is weak or terminal.
   ///
-  /// This sets the "weak" and "terminal" property as appropriate.
+  /// This sets the "inherently weak", "weak", "very-weak" and
+  /// "terminal" properties as appropriate.
   ///
   /// \param aut the automaton to check
   ///

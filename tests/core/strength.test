@@ -182,7 +182,7 @@ AP: 1 "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc colored
-properties: deterministic weak
+properties: deterministic very-weak
 --BODY--
 State: 0 {0}
 [t] 1
@@ -644,7 +644,7 @@ AP: 1 "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels trans-acc complete
-properties: deterministic weak
+properties: deterministic very-weak
 --BODY--
 State: 0
 [t] 0
@@ -659,7 +659,7 @@ AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: trans-labels explicit-labels trans-acc complete
-properties: deterministic weak
+properties: deterministic very-weak
 --BODY--
 State: 0
 [t] 0

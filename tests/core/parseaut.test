@@ -1928,6 +1928,7 @@ AP: 4 "p2" "c1" "p1" "c2"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: univ-branch trans-labels explicit-labels state-acc
+properties: very-weak
 --BODY--
 State: 0 "X (G(c2))"
 [t] 1
@@ -2403,6 +2404,7 @@ AP: 2 "b" "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: univ-branch trans-labels explicit-labels state-acc
+properties: very-weak
 --BODY--
 State: 0 "((((a) U (b)) && GF(b)) && FG(a))"
 [0] 3&1
@@ -2608,6 +2610,7 @@ AP: 2 "b" "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: univ-branch trans-labels explicit-labels state-acc
+properties: very-weak
 --BODY--
 State: 0 "((((a) U (b)) && GF(b)) && FG(a))"
 [0] 3&1

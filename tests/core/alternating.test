@@ -126,3 +126,10 @@ digraph G {
 EOF
 
 diff expect.dot alt.dot
+
+autfilt --trust=no --check=strength alt.hoa | grep properties: >output
+cat >expected <<EOF
+properties: univ-branch trans-labels explicit-labels state-acc
+properties: very-weak
+EOF
+diff output expected

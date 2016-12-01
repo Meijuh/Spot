@@ -34,22 +34,29 @@ namespace spot
       bool need_si = !si;
       if (need_si)
         si = new scc_info(aut);
-      si->determine_unknown_acceptance();
+      if (inweak)
+        si->determine_unknown_acceptance();
 
       bool is_inweak = true;
       bool is_weak = true;
+      bool is_single_state_scc = true;
       bool is_term = true;
       unsigned n = si->scc_count();
       for (unsigned i = 0; i < n; ++i)
         {
           if (si->is_trivial(i))
             continue;
+          if (si->states_of(i).size() > 1)
+            is_single_state_scc = false;
           bool first = true;
           acc_cond::mark_t m = 0U;
           if (is_weak)
             for (auto src: si->states_of(i))
               for (auto& t: aut->out(src))
-                if (si->scc_of(t.dst) == i)
+                // In case of a universal edge we only need to check
+                // the first destination of an inside the SCC, because
+                // the other have the same t.acc.
+                if (si->scc_of(*aut->univ_dests(t.dst).begin()) == i)
                   {
                     if (first)
                       {
@@ -98,6 +105,7 @@ namespace spot
           if (terminal)
             aut->prop_terminal(is_term && is_weak);
           aut->prop_weak(is_weak);
+          aut->prop_very_weak(is_single_state_scc && is_weak);
           if (inweak)
             aut->prop_inherently_weak(is_inweak);
         }
@@ -132,6 +140,17 @@ namespace spot
   }
 
   bool
+  is_very_weak_automaton(const const_twa_graph_ptr& aut, scc_info* si)
+  {
+    trival v = aut->prop_very_weak();
+    if (v.is_known())
+      return v.is_true();
+    is_type_automaton<false, false, true>
+      (std::const_pointer_cast<twa_graph>(aut), si);
+    return aut->prop_very_weak().is_true();
+  }
+
+  bool
   is_inherently_weak_automaton(const const_twa_graph_ptr& aut, scc_info* si)
   {
     trival v = aut->prop_inherently_weak();
@@ -145,7 +164,10 @@ namespace spot
 
   void check_strength(const twa_graph_ptr& aut, scc_info* si)
   {
-    is_type_automaton<true, true, true>(aut, si);
+    if (aut->is_alternating())
+      is_type_automaton<false, false, true>(aut, si);
+    else
+      is_type_automaton<true, true, true>(aut, si);
   }
 
   bool is_safety_mwdba(const const_twa_graph_ptr& aut)

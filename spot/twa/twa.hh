@@ -990,6 +990,7 @@ namespace spot
       trival::repr_t deterministic:2;     // Deterministic automaton.
       trival::repr_t unambiguous:2;       // Unambiguous automaton.
       trival::repr_t stutter_invariant:2; // Stutter invariant language.
+      trival::repr_t very_weak:2;         // very-weak, or 1-weak
     };
     union
     {
@@ -1167,7 +1168,7 @@ namespace spot
     /// \brief Set the "inherently weak" proeprty.
     ///
     /// Setting "inherently weak" to false automatically
-    /// disables "terminal" and "weak".
+    /// disables "terminal", "very weak", and "weak".
     ///
     /// \see prop_weak()
     /// \see prop_terminal()
@@ -1175,7 +1176,7 @@ namespace spot
     {
       is.inherently_weak = val.val();
       if (!val)
-        is.terminal = is.weak = val.val();
+        is.very_weak = is.terminal = is.weak = val.val();
     }
 
     /// \brief Whether the automaton is terminal.
@@ -1234,8 +1235,37 @@ namespace spot
       if (val)
         is.inherently_weak = val.val();
       if (!val)
-        is.terminal = val.val();
+        is.very_weak = is.terminal = val.val();
     }
+
+    /// \brief Whether the automaton is very-weak.
+    ///
+    /// An automaton is very-weak if it is weak (inside each strongly connected
+    /// component, all transitions belong to the same acceptance sets)
+    /// and each SCC contains only one state.
+    ///
+    /// \see prop_terminal()
+    /// \see prop_weak()
+    trival prop_very_weak() const
+    {
+      return is.very_weak;
+    }
+
+    /// \brief Set the very-weak property.
+    ///
+    /// Marking an automaton as "very-weak" automatically marks it as
+    /// "weak" and "inherently weak".
+    ///
+    /// \see prop_terminal()
+    /// \see prop_weak()
+    void prop_very_weak(trival val)
+    {
+      is.very_weak = val.val();
+      if (val)
+        is.weak = is.inherently_weak = val.val();
+    }
+
+
 
     /// \brief Whether the automaton is deterministic.
     ///
@@ -1400,6 +1430,7 @@ namespace spot
         {
           prop_terminal(other->prop_terminal());
           prop_weak(other->prop_weak());
+          prop_very_weak(other->prop_very_weak());
           prop_inherently_weak(other->prop_inherently_weak());
         }
       if (p.deterministic)
