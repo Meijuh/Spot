@@ -987,44 +987,43 @@ main(int argc, char** argv)
                           if (opt_replay)
                             {
                               spot::twa_run_ptr run;
-                              bool done = false;
                               tm_ar.start(algo);
                               for (int count = opt_R;;)
                                 {
                                   run = res->accepting_run();
-                                  const spot::unsigned_statistics* s
-                                    = res->statistics();
-                                  if (opt_z && !done)
-                                    {
-                                      // Count only the first run (the
-                                      // other way would be to divide
-                                      // the stats by opt_R).
-                                      done = true;
-                                      sc_arc.count(algo, s);
-                                      arc_ratio_stats.count(algo, s);
-                                    }
-                                  if (stop_on_first_difference && s)
-                                    if (!ostats_arc.seteq(*s))
-                                      {
-                                        std::cout << "DIFFERING STATS for "
-                                                  << "accepting runs,"
-                                                  << " halting... ";
-                                        opt_ec = n_alg = opt_F = 0;
-                                        break;
-                                      }
-
                                   if (count-- <= 0 || !run)
                                     break;
                                 }
                               if (!run)
+                                tm_ar.cancel(algo);
+                              else
+                                tm_ar.stop(algo);
+
+                              const spot::unsigned_statistics* s
+                                = res->statistics();
+                              if (opt_z)
                                 {
-                                  tm_ar.cancel(algo);
+                                  // Count only the last run (the
+                                  // other way would be to divide
+                                  // the stats by opt_R).
+                                  sc_arc.count(algo, s);
+                                  arc_ratio_stats.count(algo, s);
+                                }
+                              if (stop_on_first_difference && s)
+                                if (!ostats_arc.seteq(*s))
+                                  {
+                                    std::cout << "DIFFERING STATS for "
+                                              << "accepting runs,"
+                                              << " halting... ";
+                                    opt_ec = n_alg = opt_F = 0;
+                                  }
+                              if (!run)
+                                {
                                   if (!opt_paper)
                                     std::cout << " exists, not computed";
                                 }
                               else
                                 {
-                                  tm_ar.stop(algo);
                                   std::ostringstream s;
                                   if (!run->replay(s))
                                     {
