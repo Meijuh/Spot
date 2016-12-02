@@ -302,6 +302,7 @@ if USE_PYTHON
 TESTS_ipython = \
   python/acc_cond.ipynb \
   python/accparse.ipynb \
+  python/alternation.ipynb \
   python/atva16-fig2a.ipynb \
   python/atva16-fig2b.ipynb \
   python/automata-io.ipynb \

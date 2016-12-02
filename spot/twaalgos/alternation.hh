@@ -90,7 +90,14 @@ namespace spot
   }
   /// @}
 
-
-
-
+  /// \brief Remove universal edges from an automaton.
+  ///
+  /// This procedure is restricted to weak alternating automata as
+  /// input, and produces TGBAs as output.  (Generalized Büchi
+  /// acceptance is only used in presence of size-1 rejecting-SCCs.)
+  ///
+  /// \param named_states name each state for easier debugging
+  SPOT_API
+  twa_graph_ptr remove_alternation(const const_twa_graph_ptr& aut,
+                                   bool named_states = false);
 }
