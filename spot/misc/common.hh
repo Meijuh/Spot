@@ -19,6 +19,7 @@
 
 #include <cstdlib>
 #include <stdexcept>
+#include <cassert>
 
 #pragma once
 

@@ -52,6 +52,15 @@ srcdir="@srcdir@"
 # want to inherit parameters likes -std=c11 -fvisibility=hidden
 CFLAGS=
 export CFLAGS
+CXX='@CXX@'
+export CXX
+CXXFLAGS='@CXXFLAGS@'
+export CXXFLAGS
+top_builddir='@abs_top_builddir@'
+export top_builddir
+top_srcdir='@abs_top_srcdir@'
+export top_srcdir
+
 
 case $1 in
     */*)

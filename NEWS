@@ -20,6 +20,10 @@ New in spot 2.2.1.dev (Not yet released)
     everything that was not Inf was Fin.  These errors are now
     diagnosed.
 
+  * Some of the installed headers (spot/misc/fixpool.hh,
+    spot/misc/mspool.hh, spot/twaalgos/emptiness_stats.hh) were not
+    self-contained.
+
 New in spot 2.2.1 (2016-11-21)
 
   Bug fix:
