@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include <spot/misc/common.hh>
 #include <new>
 #include <cstddef>
 #include <cstdlib>
-#include <cassert>
 
 namespace spot
 {

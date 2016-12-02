@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <cassert>
-#include <map>
+#include <spot/misc/common.hh>
 #include <spot/misc/ltstr.hh>
+#include <map>
 
 namespace spot
 {

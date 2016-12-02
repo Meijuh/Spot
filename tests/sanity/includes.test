@@ -27,7 +27,6 @@ set -e
 
 rm -f failures.inc
 
-
 INCDIR=${srcdir-.}/../../spot
 
 for file in `find "$INCDIR" \( -name "${1-*}.hh" \
@@ -36,20 +35,29 @@ for file in `find "$INCDIR" \( -name "${1-*}.hh" \
 
    if head -n 100 "$INCDIR/$file" | grep -q "[	 ]*#.*pragma.* once\$"; then
      :
-   elif grep -q 'GNU Bison 2\.6' "$INCDIR/$file"; then
-     # Bison 2.6, 2.6.1, 2.6.2 have a bug where position.hh
-     # include <iosfwd> instead of <iostream>.
+   elif grep -q 'made by GNU Bison' "$INCDIR/$file"; then
+     # Those are not public headers, so we do not care
      continue
-   elif grep -q 'GNU Bison' "$INCDIR/$file"; then
-     :
    else
      echo "Missing, or incorrect include guard." >&2
      echo "FAIL: $file"
      echo "  $file" >> failures.inc
      continue
    fi
-   echo "PASS: $file"
+
+   echo "#include <spot/$file>" >incltest.cc
+
+   if $CXX $CPPFLAGS -DSKIP_DEPRECATED_WARNING $CXXFLAGS \
+           -I$top_builddir -I$top_srcdir -I$top_srcdir/buddy/src \
+           -c incltest.cc; then
+      echo "PASS: $file"
+   else
+      echo "FAIL: $file"
+      echo "  $file" >> failures.inc
+   fi
 done
+
+rm -f incltest.cc incltest.o
 
 if test -f failures.inc; then
    echo "Failed files:"
