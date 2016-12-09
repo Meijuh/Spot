@@ -28,6 +28,9 @@ New in spot 2.2.1.dev (Not yet released)
     spot/misc/mspool.hh, spot/twaalgos/emptiness_stats.hh) were not
     self-contained.
 
+  * ltlfilt --from-ltlf should ensure that "alive" holds initially in
+    order to reject empty traces.
+
 New in spot 2.2.1 (2016-11-21)
 
   Bug fix:

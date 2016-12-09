@@ -37,6 +37,10 @@ namespace spot
           // the IJCAI'13 paper by De Giacomo & Vardi has a typo.
           //  t(a U b) should be equal to t(a) U t(b & alive).
           // This typo is fixed in the Memocode'14 paper by Dutta & Vardi.
+          //
+          // (However beware that the translation given in the
+          // Memocode'14 paper forgets to ensure that alive holds
+          // initially, as required in the IJCAI'13 paper.)
         case op::U:
           return formula::U(t(f[0]), formula::And({alive, t(f[1])}));
         case op::R:
@@ -60,7 +64,7 @@ namespace spot
     auto al = ((*alive == '!')
                ? formula::Not(formula::ap(alive + 1))
                : formula::ap(alive));
-    return formula::And({from_ltlf_aux(f, al),
+    return formula::And({from_ltlf_aux(f, al), al,
                          formula::U(al, formula::G(formula::Not(al)))});
   }
 }

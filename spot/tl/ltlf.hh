@@ -35,7 +35,7 @@ namespace spot
   /// finite word.  The formula is rewritten to ensure that the
   /// eventualities occur during the "alive" portion.  For instance
   /// <code>a U b</code> becomes
-  /// <code>(a U (b & alive))&(alive U G!alive)</code>.
+  /// <code>alive&(a U (b & alive))&(alive U G!alive)</code>.
   ///
   /// The \a alive argument can be used to change the name of the
   /// atomic property used to introduce.  Additionally if \a alive is
