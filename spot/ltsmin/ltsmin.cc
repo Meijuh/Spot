@@ -1027,6 +1027,8 @@ namespace spot
       }
 
     auto d = std::make_shared<spins_interface>();
+    assert(d); // Superfluous, but Debian's GCC 7 snapshot 20161207-1 warns
+               // about potential null pointer dereference on the next line.
     d->handle = h;
 
 
