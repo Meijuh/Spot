@@ -74,6 +74,9 @@ New in spot 2.2.2.dev (Not yet released)
     deterministic/semi-deterministic/unambiguous should be preserved
     only if they are positive.
 
+  * language_map() and highlight_languages() are new functions used to
+    implement the --highlight-languages command line option described above.
+
   Build:
 
   * The configure script has a new option --enable-c++14, to compile in

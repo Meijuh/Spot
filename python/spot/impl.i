@@ -137,6 +137,7 @@
 #include <spot/twaalgos/stats.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/isunamb.hh>
+#include <spot/twaalgos/langmap.hh>
 #include <spot/twaalgos/simulation.hh>
 #include <spot/twaalgos/postproc.hh>
 #include <spot/twaalgos/product.hh>
@@ -524,6 +525,7 @@ def state_is_accepting(self, src) -> "bool":
 %include <spot/twaalgos/ltl2tgba_fm.hh>
 %include <spot/twaalgos/compsusp.hh>
 %include <spot/twaalgos/determinize.hh>
+%include <spot/twaalgos/langmap.hh>
 %include <spot/twaalgos/magic.hh>
 %include <spot/twaalgos/minimize.hh>
 %include <spot/twaalgos/neverclaim.hh>
