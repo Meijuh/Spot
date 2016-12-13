@@ -18,6 +18,12 @@ AC_PROG_YACC
 
 AC_PROG_CXX
 
+# Option to activate C/C++14
+AC_ARG_ENABLE([c++14],
+              [AC_HELP_STRING([--enable-c++14],
+                              [Use C++14.])],
+              [enable_14=yes], [enable_14=no])
+
 LT_INIT([win32-dll])
 AX_BSYMBOLIC
 
@@ -49,8 +55,10 @@ AC_LANG(C++)
 m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody],
 [AC_LANG_SOURCE([#include <memory>
 #include <string>
+#include <chrono>  // fails with some installation of clang
+#include <map>
 
-   template <typename T>
+    template <typename T>
     struct check
     {
       static_assert(sizeof(int) <= sizeof(T), "not big enough");
@@ -68,16 +76,69 @@ m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody],
     check_type&& cr = static_cast<check_type&&>(c);
 
     auto d = a;
+
+    void test_emplace()
+    {
+       std::map<int, int> m;
+       m.emplace(1, 2); // fails with g++ 4.6
+    }
 ])])
 
-for f in -std=c++11 '-std=c++11 -stdlib=libc++' -std=c++0x
-do
-  AX_CHECK_COMPILE_FLAG([$f], [CXXFLAGS="$CXXFLAGS $f" stdpass=true], [], [],
-                        [_AX_CXX_COMPILE_STDCXX_11_testbody])
-  ${stdpass-false} && break
-done
-if ! "${stdpass-false}"; then
-  AC_ERROR([unable to turn on C++11 mode with this compiler])
+# Turn on C++14 support
+# This is currently a copy of the above code for C++11, feel free to add
+# further tests here when necessary.
+m4_define([_AX_CXX_COMPILE_STDCXX_14_testbody],
+[AC_LANG_SOURCE([#include <memory>
+#include <string>
+#include <chrono>  // fails with some installation of clang
+#include <map>
+
+    template <typename T>
+    struct check
+    {
+      static_assert(sizeof(int) <= sizeof(T), "not big enough");
+    };
+
+    typedef check<check<bool>> right_angle_brackets;
+
+    auto f = std::make_shared<std::string>("shared_ptr");
+
+    int a;
+    decltype(a) b;
+
+    typedef check<int> check_type;
+    check_type c;
+    check_type&& cr = static_cast<check_type&&>(c);
+
+    auto d = a;
+
+    void test_emplace()
+    {
+       std::map<int, int> m;
+       m.emplace(1, 2); // fails with g++ 4.6
+    }
+])])
+
+if test x"${enable_14}" = xyes; then
+  for f in -std=c++14 '-std=c++14 -stdlib=libc++' -std=c++1y
+  do
+    AX_CHECK_COMPILE_FLAG([$f], [CXXFLAGS="$CXXFLAGS $f" stdpass=true], [], [],
+                          [_AX_CXX_COMPILE_STDCXX_14_testbody])
+    ${stdpass-false} && break
+  done
+  if ! "${stdpass-false}"; then
+    AC_ERROR([unable to turn on C++14 mode with this compiler])
+  fi
+else
+  for f in -std=c++11 '-std=c++11 -stdlib=libc++' -std=c++0x
+  do
+    AX_CHECK_COMPILE_FLAG([$f], [CXXFLAGS="$CXXFLAGS $f" stdpass=true], [], [],
+                          [_AX_CXX_COMPILE_STDCXX_11_testbody])
+    ${stdpass-false} && break
+  done
+  if ! "${stdpass-false}"; then
+    AC_ERROR([unable to turn on C++11 mode with this compiler])
+  fi
 fi
 
 AC_CONFIG_HEADERS([config.h])
