@@ -19,6 +19,11 @@ New in spot 2.2.1.dev (Not yet released)
   * If the system has an installed libltdl library, use it instead of
     the one we distribute.
 
+  * The configure script has a new option --enable-c++14, to compile in
+    C++14 mode. Obviously you need a compiler that supports it. This allows
+    to check that nothing breaks when we will switch to C++14. This option
+    is also available in the configure script of buddy.
+
   Bug fixes:
 
   * scc_filter() had a left-over print statement that would print
