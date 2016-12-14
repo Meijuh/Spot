@@ -66,6 +66,7 @@
 #include <spot/twaalgos/isweakscc.hh>
 #include <spot/twaalgos/gtec/gtec.hh>
 #include <spot/twaalgos/totgba.hh>
+#include <spot/twaalgos/langmap.hh>
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter omega-automata.\v\
@@ -98,6 +99,7 @@ enum {
   OPT_HIGHLIGHT_NONDET_EDGES,
   OPT_HIGHLIGHT_NONDET_STATES,
   OPT_HIGHLIGHT_WORD,
+  OPT_HIGHLIGHT_LANGUAGES,
   OPT_INSTUT,
   OPT_INCLUDED_IN,
   OPT_INHERENTLY_WEAK_SCCS,
@@ -329,6 +331,8 @@ static const argp_option options[] =
       "highlight nondeterministic states and edges with color NUM", 0},
     { "highlight-word", OPT_HIGHLIGHT_WORD, "[NUM,]WORD", 0,
       "highlight one run matching WORD using color NUM", 0},
+    { "highlight-languages", OPT_HIGHLIGHT_LANGUAGES, nullptr, 0 ,
+      "highlight states that recognize same language with same color", 0},
     /**************************************************/
     { nullptr, 0, nullptr, 0,
       "If any option among --small, --deterministic, or --any is given, "
@@ -470,6 +474,7 @@ static bool opt_sep_sets = false;
 static const char* opt_sat_minimize = nullptr;
 static int opt_highlight_nondet_states = -1;
 static int opt_highlight_nondet_edges = -1;
+static bool opt_highlight_languages = false;
 
 static spot::twa_graph_ptr
 ensure_deterministic(const spot::twa_graph_ptr& aut, bool nonalt = false)
@@ -631,7 +636,9 @@ parse_opt(int key, char* arg, struct argp_state*)
           }
       }
       break;
-
+    case OPT_HIGHLIGHT_LANGUAGES:
+      opt_highlight_languages = true;
+      break;
     case OPT_INSTUT:
       if (!arg || (arg[0] == '1' && arg[1] == 0))
         opt_instut = 1;
@@ -1204,6 +1211,9 @@ namespace
         spot::highlight_nondet_states(aut, opt_highlight_nondet_states);
       if (opt_highlight_nondet_edges >= 0)
         spot::highlight_nondet_edges(aut, opt_highlight_nondet_edges);
+
+      if (opt_highlight_languages)
+        spot::highlight_languages(aut, spot::language_map(aut));
 
       if (!opt->hl_words.empty())
         for (auto& word_aut: opt->hl_words)

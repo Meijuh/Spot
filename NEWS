@@ -16,6 +16,9 @@ New in spot 2.2.2.dev (Not yet released)
 
   * the --check option can now take "semi-determinism" as argument.
 
+  * autfilt has a new option '--highlight-languages' that helps to see
+    graphically which states of an automaton recognize the same languages.
+
   Library:
 
   * A twa is required to have at least one state, the initial state.
