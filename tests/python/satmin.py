@@ -29,6 +29,9 @@ assert aut.is_deterministic()
 min1 = spot.sat_minimize(aut, acc='Rabin 1')
 assert min1.num_sets() == 2
 assert min1.num_states() == 2
+min1 = spot.sat_minimize(aut, acc='Rabin 1', dicho=True)
+assert min1.num_sets() == 2
+assert min1.num_states() == 2
 min1 = spot.sat_minimize(aut, acc='Rabin 1', assume=True)
 assert min1.num_sets() == 2
 assert min1.num_states() == 2
@@ -64,6 +67,9 @@ assert min1.num_sets() == 2
 assert min1.num_states() == 2
 
 
+min2 = spot.sat_minimize(aut, acc='Streett 2', dicho=True)
+assert min2.num_sets() == 4
+assert min2.num_states() == 1
 min2 = spot.sat_minimize(aut, acc='Streett 2', assume=True)
 assert min2.num_sets() == 4
 assert min2.num_states() == 1
@@ -100,7 +106,7 @@ assert min2.num_states() == 1
 
 
 min3 = spot.sat_minimize(aut, acc='Rabin 2',
-                         state_based=True, max_states=5, dichotomy=True)
+                         state_based=True, max_states=5, dicho=True)
 assert min3.num_sets() == 4
 assert min3.num_states() == 3
 min3 = spot.sat_minimize(aut, acc='Rabin 2',
@@ -150,7 +156,7 @@ assert min3.num_states() == 3
 
 
 min4 = spot.sat_minimize(aut, acc='parity max odd 3',
-                         colored=True, dichotomy=True)
+                         colored=True, dicho=True)
 assert min4.num_sets() == 3
 assert min4.num_states() == 2
 min4 = spot.sat_minimize(aut, acc='parity max odd 3',

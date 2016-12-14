@@ -19,6 +19,7 @@
 
 
 #include <fstream>
+#include <set>
 #include <assert.h>
 #include <spot/misc/escape.hh>
 #include <spot/priv/satcommon.hh>
@@ -184,5 +185,14 @@ namespace spot
         }
         out << "\"\n";
       }
+  }
+
+  int
+  get_number_of_distinct_vals(std::vector<unsigned> v)
+  {
+    std::set<unsigned> distinct;
+    for (auto it = v.begin(); it != v.end(); ++it)
+      distinct.insert(*it);
+    return distinct.size();
   }
 }

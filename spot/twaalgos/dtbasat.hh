@@ -64,6 +64,7 @@ namespace spot
   SPOT_API twa_graph_ptr
   dtba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
                               bool state_based = false,
+                              bool langmap = false,
                               int max_states = -1);
 
   /// \brief Attempt to minimize a det. TBA with a SAT solver.

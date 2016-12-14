@@ -21,6 +21,7 @@
 
 #include <tuple>
 #include <sstream>
+#include <vector>
 #include <spot/misc/bddlt.hh>
 #include <spot/misc/satsolver.hh>
 #include <spot/misc/timer.hh>
@@ -235,4 +236,8 @@ public:
   void
   print_log(timer_map& t, int target_state_number, twa_graph_ptr& res,
             satsolver& solver);
+
+  /// \brief Returns the number of distinct values containted in a vector.
+  int
+  get_number_of_distinct_vals(std::vector<unsigned> v);
 }

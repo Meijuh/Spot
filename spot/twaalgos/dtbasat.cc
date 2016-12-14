@@ -25,6 +25,7 @@
 #include <spot/misc/timer.hh>
 #include <spot/priv/satcommon.hh>
 #include <spot/twaalgos/dtbasat.hh>
+#include <spot/twaalgos/langmap.hh>
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/stats.hh>
 
@@ -1005,11 +1006,19 @@ namespace spot
 
   twa_graph_ptr
   dtba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
-                              bool state_based, int max_states)
+                              bool state_based, bool langmap, int max_states)
   {
+    trace << "Dichomoty\n";
     if (max_states < 0)
       max_states = stats_reachable(a).states - 1;
     int min_states = 1;
+    if (langmap)
+    {
+      trace << "Langmap\n";
+      std::vector<unsigned> v = language_map(a);
+      min_states = get_number_of_distinct_vals(v);
+    }
+    trace << "min_states=" << min_states << '\n';
 
     twa_graph_ptr prev = nullptr;
     while (min_states <= max_states)

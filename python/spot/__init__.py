@@ -858,7 +858,7 @@ for fun in ['remove_x', 'relabel', 'relabel_bse',
 # Better interface to the corresponding C++ function.
 def sat_minimize(aut, acc=None, colored=False,
                  state_based=False, states=0,
-                 max_states=0, dichotomy=False,
+                 max_states=0, dicho=False,
                  param=0, incr=False, assume=False):
     args=''
     if acc is not None:
@@ -875,8 +875,8 @@ def sat_minimize(aut, acc=None, colored=False,
         if type(max_states) is not int or max_states < 0:
             raise ValueError("argument 'states' should be a positive integer")
         args += ',max-states=' + str(max_states)
-    if dichotomy:
-        args += ',dichotomy'
+    if dicho:
+        args += ',dicho';
     if param:
         args += ',param=' + str(param)
     if incr:

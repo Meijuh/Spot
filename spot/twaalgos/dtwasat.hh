@@ -80,6 +80,7 @@ namespace spot
                               unsigned target_acc_number,
                               const acc_cond::acc_code& target_acc,
                               bool state_based = false,
+                              bool langmap = false,
                               int max_states = -1,
                               bool colored = false);
 

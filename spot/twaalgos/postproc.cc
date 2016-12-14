@@ -71,6 +71,7 @@ namespace spot
         tba_determinisation_ = opt->get("tba-det", 0);
         sat_minimize_ = opt->get("sat-minimize", 0);
         param_ = opt->get("param", 0);
+        dicho_langmap_ = opt->get("langmap", 0);
         sat_acc_ = opt->get("sat-acc", 0);
         sat_states_ = opt->get("sat-states", 0);
         state_based_ = opt->get("state-based", 0);
@@ -429,7 +430,8 @@ namespace spot
             else if (sat_minimize_ == 1 || sat_minimize_ == -1)
               res = dtba_sat_minimize(res, state_based_);
             else if (sat_minimize_ == 2)
-              res = dtba_sat_minimize_dichotomy(res, state_based_);
+              res = dtba_sat_minimize_dichotomy
+                (res, state_based_, dicho_langmap_);
             else if (sat_minimize_ == 3)
               res = dtba_sat_minimize_incr(res, state_based_, -1, param_);
             else // if (sat_minimize == 4)
@@ -451,7 +453,7 @@ namespace spot
               res = dtwa_sat_minimize_dichotomy
                 (res, target_acc,
                  acc_cond::acc_code::generalized_buchi(target_acc),
-                 state_based_);
+                 state_based_, dicho_langmap_);
             else if (sat_minimize_ == 3)
               res = dtwa_sat_minimize_incr
                 (res, target_acc,

@@ -30,6 +30,7 @@
 #include <spot/twaalgos/dtbasat.hh>
 #include <spot/twaalgos/dtwasat.hh>
 #include <spot/twaalgos/isdet.hh>
+#include <spot/twaalgos/langmap.hh>
 #include <spot/twaalgos/postproc.hh>
 #include <spot/twaalgos/sbacc.hh>
 #include <spot/twaalgos/sccfilter.hh>
@@ -1338,12 +1339,20 @@ namespace spot
   dtwa_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
                               unsigned target_acc_number,
                               const acc_cond::acc_code& target_acc,
-                              bool state_based, int max_states,
-                              bool colored)
+                              bool state_based, bool langmap,
+                              int max_states, bool colored)
   {
+    trace << "Dichotomy\n";
     if (max_states < 1)
       max_states = stats_reachable(a).states - 1;
     int min_states = 1;
+    if (langmap)
+    {
+      trace << "Langmap\n";
+      std::vector<unsigned> v = language_map(a);
+      min_states = get_number_of_distinct_vals(v);
+    }
+    trace << "min_states=" << min_states << '\n';
 
     twa_graph_ptr prev = nullptr;
     while (min_states <= max_states)
@@ -1382,10 +1391,11 @@ namespace spot
       throw std::runtime_error
         ("SAT-based minimization only works with deterministic automata");
 
-    bool dicho = om.get("dichotomy", 0);
     bool incr = om.get("incr", 0);
     bool assume = om.get("assume", 0);
     int param = om.get("param", 0);
+    bool dicho = om.get("dicho", 0);
+    bool dicho_langmap = om.get("langmap", 0);
     int states = om.get("states", -1);
     int max_states = om.get("max-states", -1);
     auto accstr = om.get_str("acc");
@@ -1492,9 +1502,12 @@ namespace spot
             a = dtwa_sat_minimize_assume(a, nacc, target_acc, state_based,
                 max_states, colored, param);
 
+          else if (dicho)
+            a = dtwa_sat_minimize_dichotomy
+              (a, nacc, target_acc, state_based, dicho_langmap, max_states,
+               colored);
           else
-            a = (dicho ?  dtwa_sat_minimize_dichotomy
-                : dtwa_sat_minimize)
+            a = dtwa_sat_minimize
               (a, nacc, target_acc, state_based, max_states, colored);
         }
         else
@@ -1505,10 +1518,12 @@ namespace spot
           else if (assume)
             a = dtba_sat_minimize_assume(a, state_based, max_states, assume);
 
+          else if (dicho)
+            a = dtba_sat_minimize_dichotomy
+              (a, state_based, dicho_langmap, max_states);
+
           else
-            a = (dicho ?  dtba_sat_minimize_dichotomy
-                : dtba_sat_minimize)
-              (a, state_based, max_states);
+            a = dtba_sat_minimize(a, state_based, max_states);
         }
 
         if (!a && !user_supplied_acc)
