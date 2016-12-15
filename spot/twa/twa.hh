@@ -533,7 +533,7 @@ namespace spot
       {
       }
 
-      twa_succ_iterable(twa_succ_iterable&& other)
+      twa_succ_iterable(twa_succ_iterable&& other) noexcept
         : aut_(other.aut_), it_(other.it_)
       {
         other.it_ = nullptr;
