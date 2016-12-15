@@ -307,7 +307,7 @@ class formula:
 
 
 def automata(*sources, timeout=None, ignore_abort=True,
-             trust_hoa=True, debug=False):
+             trust_hoa=True, no_sid=False, debug=False):
     """Read automata from a list of sources.
 
     Parameters
@@ -326,6 +326,10 @@ def automata(*sources, timeout=None, ignore_abort=True,
     trust_hoa : bool, optional
         If True (the default), supported HOA properies that
         cannot be easily verified are trusted.
+    no_sid : bool, optional
+        When an automaton is obtained from a subprocess, this
+        subprocess is started from a shell with its own session
+        group (the default) unless no_sid is set to True.
     debug : bool, optional
         Whether to run the parser in debug mode.
 
@@ -386,11 +390,15 @@ def automata(*sources, timeout=None, ignore_abort=True,
             p = None
             proc = None
             if filename[-1] == '|':
+                setsid_maybe = None
+                if not no_sid:
+                    setsid_maybe = os.setsid
                 # universal_newlines for str output instead of bytes
                 # when the pipe is read from Python (which happens
                 # when timeout is set).
                 proc = subprocess.Popen(filename[:-1], shell=True,
-                                        preexec_fn=os.setsid,
+                                        preexec_fn=
+                                        None if no_sid else os.setsid,
                                         universal_newlines=True,
                                         stdout=subprocess.PIPE)
                 if timeout is None:

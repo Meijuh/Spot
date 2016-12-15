@@ -164,7 +164,7 @@ def finish(kill = False):
 
     if kill:
         # Kill all children
-        os.kill(0, signal.SIGTERM)
+        os.killpg(child, signal.SIGTERM)
     # Should we prune the cache?
     stamp = imgdir + '/cache.stamp'
     now = time.time()
@@ -217,7 +217,7 @@ it has been running for too long.</font>  Please try a shorter formula,
 or different options.
 If you want to benchmark big formulae it is
 better to install Spot on your own computer.</p>\n""")
-    finish(kill = True)
+    finish(kill=True)
 
 def run_dot(basename, ext):
     outname = basename + '.' + ext
@@ -409,7 +409,6 @@ if output_type == 'v3':
 
 spot.unblock_signal(signal.SIGALRM)
 spot.unblock_signal(signal.SIGTERM)
-os.setpgrp()
 
 child = os.fork()
 if child != 0:
@@ -424,6 +423,8 @@ if child != 0:
     signal.alarm(30)
     os.waitpid(child, 0)
     exit(0)
+
+os.setpgrp()
 
 # Global options
 utf8 = False
@@ -608,7 +609,7 @@ elif translator == 'l3':
     g = spot.relabel(f, spot.Pnn, m)
     args.extend(['-f', "'" + spot.str_spin_ltl(g) + "' |"])
     try:
-        automaton = spot.automaton(" ".join(args))
+        automaton = spot.automaton(" ".join(args), no_sid=True)
     except RuntimeError as e:
         unbufprint('<div class="error">{}</div>'.format(e))
         finish()
