@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \brief Whether an automaton is terminal.
+  /// \brief Check whether an automaton is terminal.
   ///
   /// An automaton is terminal if it is weak, all its accepting SCCs
   /// are complete, and no accepting transitions lead to a
@@ -44,7 +44,7 @@ namespace spot
   is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
 
 
-  /// \brief Whether an automaton is weak.
+  /// \brief Check whether an automaton is weak.
   ///
   /// An automaton is weak if in any given SCC, all transitions belong
   /// to the same acceptance sets.
@@ -60,7 +60,7 @@ namespace spot
   SPOT_API bool
   is_weak_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
 
-  /// \brief Whether an automaton is inherently weak.
+  /// \brief Check whether an automaton is inherently weak.
   ///
   /// An automaton is inherently weak if in any given SCC, there
   /// are only accepting cycles, or only rejecting cycles.
@@ -77,7 +77,8 @@ namespace spot
   is_inherently_weak_automaton(const const_twa_graph_ptr& aut,
                                scc_info* sm = nullptr);
 
-  /// \brief Whether a minimized WDBA represents a safety property.
+  /// \brief Check whether a minimized WDBA represents a safety
+  /// property.
   ///
   /// A minimized WDBA (as returned by a successful run of
   /// minimize_obligation()) represent safety property if it contains
@@ -87,7 +88,7 @@ namespace spot
   SPOT_API bool
   is_safety_mwdba(const const_twa_graph_ptr& aut);
 
-  /// \brief Whether an automaton is weak or terminal.
+  /// \brief Check whether an automaton is weak or terminal.
   ///
   /// This sets the "weak" and "terminal" property as appropriate.
   ///
