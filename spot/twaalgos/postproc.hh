@@ -189,8 +189,8 @@ namespace spot
     int ba_simul_ = -1;
     bool tba_determinisation_ = false;
     int sat_minimize_ = 0;
-    int param_ = 0;
-    bool dicho_langmap_ = false;
+    int sat_incr_steps_ = 0;
+    bool sat_langmap_ = false;
     int sat_acc_ = 0;
     int sat_states_ = 0;
     bool state_based_ = false;

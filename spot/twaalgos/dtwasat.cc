@@ -1391,16 +1391,22 @@ namespace spot
       throw std::runtime_error
         ("SAT-based minimization only works with deterministic automata");
 
-    bool incr = om.get("incr", 0);
-    bool assume = om.get("assume", 0);
-    int param = om.get("param", 0);
-    bool dicho = om.get("dicho", 0);
-    bool dicho_langmap = om.get("langmap", 0);
+    int sat_incr = om.get("sat-incr", 0);
+    int sat_incr_steps = om.get("sat-incr-steps", 0);
+    bool sat_naive = om.get("sat-naive", 0);
+    bool sat_langmap = om.get("sat-langmap", 0);
     int states = om.get("states", -1);
     int max_states = om.get("max-states", -1);
     auto accstr = om.get_str("acc");
     bool colored = om.get("colored", 0);
     int preproc = om.get("preproc", 3);
+
+
+    // Set default sat-incr-steps value if not provided and used.
+    if (sat_incr == 1 && !sat_incr_steps) // Assume
+      sat_incr_steps = 6;
+    else if (sat_incr == 2 && !sat_incr_steps) // Incremental
+      sat_incr_steps = 2;
 
     // No more om.get() below this.
     om.report_unused_options();
@@ -1494,36 +1500,39 @@ namespace spot
         auto orig = a;
         if (!target_is_buchi || !a->acc().is_buchi() || colored)
         {
-          if (incr)
-            a = dtwa_sat_minimize_incr(a, nacc, target_acc, state_based,
-                max_states, colored, param);
-
-          else if (assume)
-            a = dtwa_sat_minimize_assume(a, nacc, target_acc, state_based,
-                max_states, colored, param);
-
-          else if (dicho)
-            a = dtwa_sat_minimize_dichotomy
-              (a, nacc, target_acc, state_based, dicho_langmap, max_states,
-               colored);
-          else
+          if (sat_naive)
             a = dtwa_sat_minimize
               (a, nacc, target_acc, state_based, max_states, colored);
+
+          else if (sat_incr == 1)
+            a = dtwa_sat_minimize_assume(a, nacc, target_acc, state_based,
+                max_states, colored, sat_incr_steps);
+
+          else if (sat_incr == 2)
+            a = dtwa_sat_minimize_incr(a, nacc, target_acc, state_based,
+                max_states, colored, sat_incr_steps);
+
+          else
+            a = dtwa_sat_minimize_dichotomy
+              (a, nacc, target_acc, state_based, sat_langmap, max_states,
+               colored);
         }
         else
         {
-          if (incr)
-            a = dtba_sat_minimize_incr(a, state_based, max_states, param);
+          if (sat_naive)
+            a = dtba_sat_minimize(a, state_based, max_states);
 
-          else if (assume)
-            a = dtba_sat_minimize_assume(a, state_based, max_states, assume);
+          else if (sat_incr == 1)
+            a = dtba_sat_minimize_assume(a, state_based, max_states,
+                                         sat_incr_steps);
 
-          else if (dicho)
-            a = dtba_sat_minimize_dichotomy
-              (a, state_based, dicho_langmap, max_states);
+          else if (sat_incr == 2)
+            a = dtba_sat_minimize_incr(a, state_based, max_states,
+                                       sat_incr_steps);
 
           else
-            a = dtba_sat_minimize(a, state_based, max_states);
+            a = dtba_sat_minimize_dichotomy
+              (a, state_based, sat_langmap, max_states);
         }
 
         if (!a && !user_supplied_acc)

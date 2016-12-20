@@ -70,15 +70,15 @@ namespace spot
         ba_simul_ = opt->get("ba-simul", -1);
         tba_determinisation_ = opt->get("tba-det", 0);
         sat_minimize_ = opt->get("sat-minimize", 0);
-        param_ = opt->get("param", 0);
-        dicho_langmap_ = opt->get("langmap", 0);
+        sat_incr_steps_ = opt->get("sat-incr-steps", -2); // -2 or any num < -1
+        sat_langmap_ = opt->get("sat-langmap", 0);
         sat_acc_ = opt->get("sat-acc", 0);
         sat_states_ = opt->get("sat-states", 0);
         state_based_ = opt->get("state-based", 0);
         wdba_minimize_ = opt->get("wdba-minimize", 1);
 
         if (sat_acc_ && sat_minimize_ == 0)
-          sat_minimize_ = 1;        // 2?
+          sat_minimize_ = 1;        // Dicho.
         if (sat_states_ && sat_minimize_ == 0)
           sat_minimize_ = 1;
         if (sat_minimize_)
@@ -89,6 +89,12 @@ namespace spot
             if (sat_states_ <= 0)
               sat_states_ = -1;
           }
+
+        // Set default param value if not provided and used.
+        if (sat_minimize_ == 2 && sat_incr_steps_ < 0) // Assume algorithm.
+            sat_incr_steps_ = 6;
+        else if (sat_minimize_ == 3 && sat_incr_steps_ < -1) // Incr algorithm.
+            sat_incr_steps_ = 2;
       }
   }
 
@@ -427,15 +433,17 @@ namespace spot
           {
             if (sat_states_ != -1)
               res = dtba_sat_synthetize(res, sat_states_, state_based_);
-            else if (sat_minimize_ == 1 || sat_minimize_ == -1)
-              res = dtba_sat_minimize(res, state_based_);
-            else if (sat_minimize_ == 2)
+            else if (sat_minimize_ == 1)
               res = dtba_sat_minimize_dichotomy
-                (res, state_based_, dicho_langmap_);
+                (res, state_based_, sat_langmap_);
+            else if (sat_minimize_ == 2)
+              res = dtba_sat_minimize_assume(res, state_based_, -1,
+                                             sat_incr_steps_);
             else if (sat_minimize_ == 3)
-              res = dtba_sat_minimize_incr(res, state_based_, -1, param_);
-            else // if (sat_minimize == 4)
-              res = dtba_sat_minimize_assume(res, state_based_, -1, param_);
+              res = dtba_sat_minimize_incr(res, state_based_, -1,
+                                           sat_incr_steps_);
+            else // if (sat_minimize == 4 || sat_minimize == -1)
+              res = dtba_sat_minimize(res, state_based_);
           }
         else
           {
@@ -444,26 +452,26 @@ namespace spot
                 (res, target_acc,
                  acc_cond::acc_code::generalized_buchi(target_acc),
                  sat_states_, state_based_);
-            else if (sat_minimize_ == 1 || sat_minimize_ == -1)
-              res = dtwa_sat_minimize
-                (res, target_acc,
-                 acc_cond::acc_code::generalized_buchi(target_acc),
-                 state_based_);
-            else if (sat_minimize_ == 2)
+            else if (sat_minimize_ == 1)
               res = dtwa_sat_minimize_dichotomy
                 (res, target_acc,
                  acc_cond::acc_code::generalized_buchi(target_acc),
-                 state_based_, dicho_langmap_);
+                 state_based_, sat_langmap_);
+            else if (sat_minimize_ == 2)
+              res = dtwa_sat_minimize_assume
+                (res, target_acc,
+                 acc_cond::acc_code::generalized_buchi(target_acc),
+                 state_based_, -1, false, sat_incr_steps_);
             else if (sat_minimize_ == 3)
               res = dtwa_sat_minimize_incr
                 (res, target_acc,
                  acc_cond::acc_code::generalized_buchi(target_acc),
-                 state_based_, -1, false, param_);
-            else // if (sat_minimize_ == 4)
-              res = dtwa_sat_minimize_assume
+                 state_based_, -1, false, sat_incr_steps_);
+            else // if (sat_minimize_ == 4 || sat_minimize_ == -1)
+              res = dtwa_sat_minimize
                 (res, target_acc,
                  acc_cond::acc_code::generalized_buchi(target_acc),
-                 state_based_, -1, false, param_);
+                 state_based_);
           }
 
         if (res)
