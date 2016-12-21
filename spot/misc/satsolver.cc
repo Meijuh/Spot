@@ -74,11 +74,29 @@ namespace spot
   // easy to check if psat_ was initialized or not.
   satsolver::satsolver()
     : cnf_tmp_(nullptr), cnf_stream_(nullptr), nclauses_(0), nvars_(0),
-    nassumptions_vars_(0), nsols_(0), psat_(nullptr)
+    nassumptions_vars_(0), nsols_(0), psat_(nullptr), xcnf_tmp_(nullptr),
+    xcnf_stream_(nullptr), path_("")
   {
-    if (cmd_.command_given())
+    // Check SPOT_XCNF env var.
+    static std::string path = []()
+    {
+      auto s = getenv("SPOT_XCNF");
+      return s ? s : "";
+    }();
+    if (!path.empty())
+      path_ = path;
+
+    bool satsolver_set = cmd_.command_given();
+    bool xcnf_set = xcnf_mode();
+
+    if (satsolver_set)
     {
       start();
+    }
+    else if (xcnf_set) // If !satsolver_set and xcnf_set.
+    {
+      throw std::runtime_error("XNCF generation requires an external SAT solver"
+                               " to be defined with SPOT_SATSOLVER");
     }
     else
     {
@@ -99,6 +117,21 @@ namespace spot
       delete cnf_tmp_;
       delete cnf_stream_;
     }
+
+    if (xcnf_mode())
+    {
+      xcnf_tmp_->close();
+      xcnf_stream_->close();
+      delete xcnf_tmp_;
+      delete xcnf_stream_;
+    }
+  }
+
+  bool
+  satsolver::xcnf_mode()
+  {
+    static bool res = !path_.empty();
+    return res;
   }
 
   void satsolver::start()
@@ -109,6 +142,15 @@ namespace spot
 
     // Add empty line for the header
     *cnf_stream_ << "                                                 \n";
+
+    if (xcnf_mode()) // If xcnf mode.
+    {
+      xcnf_tmp_ = new std::ofstream(path_ + "/incr.tmp", std::ios_base::trunc);
+      xcnf_tmp_->exceptions(std::ofstream::failbit | std::ofstream::badbit);
+      *xcnf_tmp_ << "                                                 \n+\n";
+      xcnf_stream_ = new std::ofstream(path_ + "/incr.xcnf", std::ios::trunc);
+      xcnf_stream_->exceptions(std::ofstream::failbit | std::ofstream::badbit);
+    }
   }
 
   // Must be called only when SPOT_SATSOLVER is given
@@ -118,6 +160,9 @@ namespace spot
     nclauses_ += 1;
     if (nclauses_ < 0)
       throw std::runtime_error(": too many SAT clauses (more than INT_MAX).");
+
+    if (xcnf_mode())
+      *xcnf_tmp_ << '\n';
   }
 
   void satsolver::adjust_nvars(int nvars)
@@ -156,6 +201,9 @@ namespace spot
       }
       else
       {
+        if (xcnf_mode())
+          *xcnf_tmp_ << v << ' ';
+
         *cnf_stream_ << v << ' ';
         if (!v) // ..., 0)
           end_clause();
@@ -174,6 +222,9 @@ namespace spot
     }
     else
     {
+      if (xcnf_mode())
+        *xcnf_tmp_ << v << ' ';
+
       *cnf_stream_ << v << ' ';
       if (!v) // 0
         end_clause();
@@ -293,6 +344,30 @@ namespace spot
       p.second = satsolver_get_sol(output->name());
       delete output;
     }
+
+    if (xcnf_mode() && !p.second.empty())
+    {
+      // Update xcnf_tmp_ header
+      xcnf_tmp_->seekp(0);
+      *xcnf_tmp_ << "p cnf " << (get_nb_vars() + 1);
+      xcnf_tmp_->seekp(0, std::ios_base::end);
+      if (!*xcnf_tmp_)
+        throw std::runtime_error("Failed to update xcnf_tmp_ header");
+
+      // Copy xcnf_tmp_ into xcnf_stream_
+      xcnf_tmp_->close();
+      std::ifstream ifile(path_ + "/incr.tmp", std::ios::in);
+      *xcnf_stream_ << ifile.rdbuf();
+      *xcnf_stream_ << "X\n";
+
+      // Erase xcnf_tmp_ content
+      delete xcnf_tmp_;
+      xcnf_tmp_ = new std::ofstream(path_ + "/incr.tmp", std::ios_base::trunc);
+      xcnf_tmp_->exceptions(std::ofstream::failbit | std::ofstream::badbit);
+      *xcnf_tmp_ << "                                                 \n";
+      *xcnf_tmp_ << "+\n";
+    }
+
     return p;
   }
 

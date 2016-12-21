@@ -143,6 +143,10 @@ namespace spot
     satsolver::solution
     satsolver_get_sol(const char* filename);
 
+    /// \brief Check if <code>SPOT_XCNF</code> env var is set.
+    bool
+    xcnf_mode();
+
   private:  // variables
     /// \brief A satsolver_command. Check if SPOT_SATSOLVER is given.
     satsolver_command cmd_;
@@ -161,6 +165,12 @@ namespace spot
 
     /// \brief Picosat satsolver instance.
     PicoSAT* psat_;
+
+    // The next 2 pointers will be initialized if SPOT_XCNF env var
+    // is set. This recquires SPOT_SATSOLVER to be set as well.
+    std::ofstream* xcnf_tmp_;
+    std::ofstream* xcnf_stream_;
+    std::string path_;
   };
 
   /// \brief Extract the solution of a SAT solver output.
