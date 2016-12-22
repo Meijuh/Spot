@@ -84,6 +84,48 @@ namespace spot
       twa_sub_statistics& s_;
       bdd seen_;
     };
+
+
+    template<typename SU, typename EU>
+    void dfs(const const_twa_graph_ptr& ge, SU state_update, EU edge_update)
+    {
+      unsigned init = ge->get_init_state_number();
+      unsigned num_states = ge->num_states();
+      // The TODO vector serves two purposes:
+      // - it is a stack of states to process,
+      // - it is a set of processed states.
+      // The lower 31 bits of each entry is a state on the stack. (The
+      // next usable entry on the stack is indicated by todo_pos.)  The
+      // 32th bit (i.e., the sign bit) of todo[x] indicates whether
+      // states number x has been seen.
+      std::vector<unsigned> todo(num_states, 0);
+      const unsigned seen = 1 << (sizeof(unsigned)*8-1);
+      const unsigned mask = seen - 1;
+      unsigned todo_pos = 0;
+      for (unsigned i: ge->univ_dests(init))
+        {
+          todo[todo_pos++] = i;
+          todo[i] |= seen;
+        }
+      do
+        {
+          state_update();
+          unsigned cur = todo[--todo_pos] & mask;
+          todo[todo_pos] ^= cur;        // Zero the state
+          for (auto& t: ge->out(cur))
+            {
+              edge_update(t.cond);
+              for (unsigned dst: ge->univ_dests(t.dst))
+                if (!(todo[dst] & seen))
+                  {
+                    todo[dst] |= seen;
+                    todo[todo_pos++] |= dst;
+                  }
+            }
+        }
+      while (todo_pos > 0);
+    };
+
   } // anonymous
 
 
@@ -105,8 +147,18 @@ namespace spot
   stats_reachable(const const_twa_ptr& g)
   {
     twa_statistics s;
-    stats_bfs d(g, s);
-    d.run();
+    auto ge = std::dynamic_pointer_cast<const twa_graph>(g);
+    if (!ge)
+      {
+        stats_bfs d(g, s);
+        d.run();
+      }
+    else
+      {
+        dfs(ge,
+            [&s](){ ++s.states; },
+            [&s](bdd){ ++s.edges; });
+      }
     return s;
   }
 
@@ -114,8 +166,26 @@ namespace spot
   sub_stats_reachable(const const_twa_ptr& g)
   {
     twa_sub_statistics s;
-    sub_stats_bfs d(g, s);
-    d.run();
+    auto ge = std::dynamic_pointer_cast<const twa_graph>(g);
+    if (!ge)
+      {
+        sub_stats_bfs d(g, s);
+        d.run();
+      }
+    else
+      {
+        dfs(ge,
+            [&s](){ ++s.states; },
+            [&s, &ge](bdd cond)
+            {
+              ++s.edges;
+              while (cond != bddfalse)
+                {
+                  cond -= bdd_satoneset(cond, ge->ap_vars(), bddtrue);
+                  ++s.transitions;
+                }
+            });
+      }
     return s;
   }
 
