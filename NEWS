@@ -14,6 +14,28 @@ New in spot 2.2.2.dev (Not yet released)
   * The new version of the Couvreur emptiness check is now the default
     one, used by is_empty() and accepting_run().
 
+  * experimental support for alternating automata:
+
+    - twa_graph objects can now represent alternating automata.  Use
+      twa_graph::new_univ_edge() and twa_graph::set_univ_init_state()
+      to create universal edges an initial states; and use
+      twa_graph::univ_dests() to iterate over the universal
+      destinations of an edge.
+
+    - the automaton parser will now read alternating automata in the
+      HOA format.  The HOA and dot printers can output them.
+
+    - the file twaalgos/alternation.hh contains a few algorithms
+      specific to alternating automata:
+      + remove_alternation() will transform *weak* alternating automata
+        into TGBA.
+      + the class outedge_combiner can be used to perform "and" and "or"
+        on the outgoing edges of some alternating automaton.
+
+    - scc_info has been edjusted to handle universal edges as if they
+      were existential edges.  As a consequence, acceptance
+      information is not accurate.
+
   * twa objects have a new property, very-weak, that can be set or
     retrieved via twa::prop_very_weak(), and that can be tested by
     is_very_weak_automaton().
