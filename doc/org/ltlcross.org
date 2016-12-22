@@ -118,8 +118,8 @@ be rewritten using the other supported operators.
     either state-based acceptance or transition-based acceptance.
     This output is used for instance by [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][=lbt=]], [[http://web.archive.org/web/20080607170403/http://www.science.unitn.it/~stonetta/modella.html][=modella=]], or =ltl2tgba
     --lbtt=.
-  - Non-alternating automata in [[file:http://adl.github.io/hoaf/][the HOA format]] with an acceptance
-    condition that is is generalized-Büchi or inferior.
+  - Non-alternating automata in [[file:http://adl.github.io/hoaf/][the HOA format]] with any acceptance
+    condition.
   - [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dstar='s format]], which supports deterministic Rabin or Streett
     automata.
 
@@ -474,12 +474,14 @@ digraph G {
 If option =--strength= is passed to =ltlcross=, these SCCs are
 also partitioned on four sets based on their strengths:
 - =nonacc_scc= for non-accepting SCCs (such as states A1 and A2 in the
-  previous picture)
-- =terminal_scc= for SCCs that consist of a single state with an
-  accepting self-loop labeled by true (such as states B1 and B2
-  in the previous picture)
-- =weak_scc= for non-terminal SCCs in which all cycles are accepting
-- and =strong_scc= for accepting SCCs in which some cycles are not accepting.
+  previous picture).
+- =terminal_scc= for accepting SCCs where all states or edges belong
+  to the same acceptance sets, and that are complete (i.e., any state
+  in a terminal SCC accepts the universal language).  States
+  B1 and B2 in the previous picture are two terminal SCCs.
+- =weak_scc= for accepting SCCs where all states or edges belong
+  to the same acceptance sets, but that are not complete.
+- =strong_scc= for accepting SCCs that are not weak.
 
 These SCC strengths can be used to compute the strength of the
 automaton as a whole:
