@@ -472,6 +472,8 @@ namespace spot
 
       for (unsigned src = 0; src < n; ++src)
         {
+          if (!si.reachable_state(src))
+            continue;
           acc_cond::mark_t acc = 0U;
           unsigned scc = si.scc_of(src);
           if (si.is_accepting_scc(scc) && !si.is_trivial(scc))
