@@ -6,6 +6,7 @@
 (or (require 'org-publish nil t)	; Org 7
     (require 'ox-publish))		; Org 8
 (require 'org-install)
+(require 'org-version)
 (require 'hoa-mode)
 
 (print (concat "Org " (org-version)))
@@ -20,7 +21,7 @@
 
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((sh . t)
+ `((,(if (version< org-version "8.3") 'sh 'shell) . t)
    (dot . t)
    (python . t)
    (plantuml . t)

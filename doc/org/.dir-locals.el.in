@@ -5,6 +5,7 @@
  (org-mode . ((whitespace-style face empty trailing)
 	      (eval .
 		    (progn
+                      (require 'org-version)
 		      (setenv "PATH"
 			      (concat "@abs_top_builddir@/bin"
 				      path-separator
@@ -24,7 +25,7 @@
 		      (setenv "SPOT_DOTDEFAULT" "Brf(Lato)C(#ffffa0)")
 		      (setenv "SPOT_DOTEXTRA" "edge[arrowhead=vee, arrowsize=.7]")
 		      (org-babel-do-load-languages 'org-babel-load-languages
-						   '((sh . t)
+                                                   `((,(if (version< org-version "8.3") 'sh 'shell) . t)
 						     (python . t)
                                                      (plantuml . t)
 						     (dot . t)
