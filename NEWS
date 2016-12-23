@@ -1,5 +1,10 @@
 New in spot 2.2.2.dev (Not yet released)
 
+  Tools:
+
+  * ltlcross supports translators that output weak alternating
+    automata in the HOA format (not necessarily *very* weak).
+
   Library:
 
   * A twa is required to have at least one state, the initial state.

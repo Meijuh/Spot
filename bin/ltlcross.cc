@@ -56,6 +56,7 @@
 #include <spot/twaalgos/word.hh>
 #include <spot/twaalgos/complement.hh>
 #include <spot/twaalgos/cleanacc.hh>
+#include <spot/twaalgos/alternation.hh>
 #include <spot/misc/formater.hh>
 #include <spot/twaalgos/stats.hh>
 #include <spot/twaalgos/isdet.hh>
@@ -146,9 +147,10 @@ static const argp_option options[] =
       "store automata (in the HOA format) into the CSV or JSON output", 0 },
     { "strength", OPT_STRENGTH, nullptr, 0,
       "output statistics about SCC strengths (non-accepting, terminal, weak, "
-      "strong)", 0 },
+      "strong) [not supported for alternating automata]", 0 },
     { "ambiguous", OPT_AMBIGUOUS, nullptr, 0,
-      "output statistics about ambiguous automata", 0 },
+      "output statistics about ambiguous automata "
+      "[not supported for alternating automata]", 0 },
     { "unambiguous", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -2 },
@@ -257,6 +259,7 @@ struct statistics
 {
   statistics()
     : ok(false),
+      alternating(false),
       status_str(nullptr),
       status_code(0),
       time(0),
@@ -280,6 +283,7 @@ struct statistics
   // If OK is false, only the status_str, status_code, and time fields
   // should be valid.
   bool ok;
+  bool alternating;
   const char* status_str;
   int status_code;
   double time;
@@ -351,18 +355,33 @@ struct statistics
            << acc << ','
            << scc << ',';
         if (opt_strength)
-          os << nonacc_scc << ','
-             << terminal_scc << ','
-             << weak_scc << ','
-             << strong_scc << ',';
+          {
+            if (alternating)
+              os << ",,,,";
+            else
+              os << nonacc_scc << ','
+                 << terminal_scc << ','
+                 << weak_scc << ','
+                 << strong_scc << ',';
+          }
         os << nondetstates << ','
            << nondeterministic << ',';
         if (opt_strength)
-          os << terminal_aut << ','
-             << weak_aut << ','
-             << strong_aut << ',';
+          {
+            if (alternating)
+              os << ",,,";
+            else
+              os << terminal_aut << ','
+                 << weak_aut << ','
+                 << strong_aut << ',';
+          }
         if (opt_ambiguous)
-          os << ambiguous << ',';
+          {
+            if (alternating)
+              os << ',';
+            else
+              os << ambiguous << ',';
+          }
         os << complete;
         if (!products_avg)
           {
@@ -627,6 +646,7 @@ namespace
               if (verbose)
                 std::cerr << "info: getting statistics\n";
               st->ok = true;
+              st->alternating = res->is_alternating();
               spot::twa_sub_statistics s = sub_stats_reachable(res);
               st->states = s.states;
               st->edges = s.edges;
@@ -637,7 +657,7 @@ namespace
               st->scc = c;
               st->nondetstates = spot::count_nondet_states(res);
               st->nondeterministic = st->nondetstates != 0;
-              if (opt_strength)
+              if (opt_strength && !st->alternating)
                 {
                   m.determine_unknown_acceptance();
                   for (unsigned n = 0; n < c; ++n)
@@ -658,7 +678,7 @@ namespace
                   else
                     st->terminal_aut = true;
                 }
-              if (opt_ambiguous)
+              if (opt_ambiguous && !st->alternating)
                 st->ambiguous = !spot::is_unambiguous(res);
               st->complete = spot::is_complete(res);
 
@@ -1037,11 +1057,6 @@ namespace
           bool prob;
           pos[n] = runner.translate(n, 'P', pstats, prob);
           problems += prob;
-
-          // If the automaton is deterministic, compute its complement
-          // as well.
-          if (!no_complement && pos[n] && is_deterministic(pos[n]))
-            comp_pos[n] = dtwa_complement(pos[n]);
         }
 
       // ---------- Negative Formula ----------
@@ -1073,11 +1088,6 @@ namespace
               bool prob;
               neg[n] = runner.translate(n, 'N', nstats, prob);
               problems += prob;
-
-              // If the automaton is deterministic, compute its
-              // complement as well.
-              if (!no_complement && neg[n] && is_deterministic(neg[n]))
-                comp_neg[n] = dtwa_complement(neg[n]);
             }
         }
 
@@ -1102,6 +1112,8 @@ namespace
               std::cerr << "info:   " << prefix << i << "\t(";
               printsize(x[i]);
               std::cerr << ')';
+              if (x[i]->is_alternating())
+                std::cerr << " univ-edges";
               if (is_deterministic(x[i]))
                 std::cerr << " deterministic";
               if (is_complete(x[i]))
@@ -1120,9 +1132,51 @@ namespace
           std::cerr << "Performing sanity checks and gathering statistics..."
                     << std::endl;
 
+          bool print_first = verbose;
+          auto unalt = [&](std::vector<spot::twa_graph_ptr>& x,
+                           unsigned i, char prefix)
+            {
+              if (!(x[i] && x[i]->is_alternating()))
+                return;
+              if (verbose)
+                {
+                  if (print_first)
+                    {
+                      std::cerr <<
+                        "info: getting rid of universal edges...\n";
+                      print_first = false;
+                    }
+                  std::cerr << "info:   " << prefix << i << "\t(";
+                  printsize(x[i]);
+                  std::cerr << ") ->";
+                }
+              x[i] = remove_alternation(x[i]);
+              if (verbose)
+                {
+                  std::cerr << " (";
+                  printsize(x[i]);
+                  std::cerr << ")\n";
+                }
+            };
+          auto complement = [&](const std::vector<spot::twa_graph_ptr>& x,
+                                std::vector<spot::twa_graph_ptr>& comp,
+                                unsigned i)
+            {
+              if (!no_complement && x[i] && is_deterministic(x[i]))
+                comp[i] = dtwa_complement(x[i]);
+            };
+
+          for (unsigned i = 0; i < m; ++i)
+            {
+              unalt(pos, i, 'P');
+              complement(pos, comp_pos, i);
+              unalt(neg, i, 'N');
+              complement(neg, comp_neg, i);
+            }
+
           if (determinize && !no_complement)
             {
-              bool print_first = verbose;
+              print_first = verbose;
               auto tmp = [&](std::vector<spot::twa_graph_ptr>& from,
                              std::vector<spot::twa_graph_ptr>& to, unsigned i,
                              char prefix)
@@ -1157,7 +1211,7 @@ namespace
                 }
             }
 
-          bool print_first = verbose;
+          print_first = verbose;
           auto tmp = [&](std::vector<spot::twa_graph_ptr>& x, unsigned i,
                          const char* prefix, const char* suffix)
             {

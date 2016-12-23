@@ -9,19 +9,22 @@ translators.  It is actually a Spot-based clone of [[http://www.tcs.hut.fi/Softw
 /LTL-to-Büchi Translator Testbench/, that essentially performs the
 same sanity checks.
 
-The main differences are:
-  - support for PSL formulas in addition to LTL
-  - more statistics, especially:
+The main differences with LBTT are:
+  - *support for PSL formulas in addition to LTL*
+  - support for (non-alternating) automata with *any type of acceptance condition*,
+  - support for *weak alternating automata*,
+  - additional intersection *checks with the complement*, allowing
+    to check equivalence of automata more precisely,
+  - *more statistics*, especially:
     - the number of logical transitions represented by each physical edge,
     - the number of deterministic states and automata
     - the number of SCCs with their various strengths (nonaccepting, terminal, weak, strong)
     - the number of terminal, weak, and strong automata
-  - statistics output in a format that can be more easily be post-processed,
-  - more precise time measurement (LBTT was only precise to
-    1/100 of a second, reporting most times as "0.00s"),
-  - support for any type of acceptance condition,
-  - additional intersection checks with the complement, allowing
-    to check equivalence of automata more precisely.
+  - an option to *reduce counterexample* by attempting to mutate and
+    shorten troublesome formulas,
+  - statistics output in *CSV* for easier post-processing,
+  - *more precise time measurement* (LBTT was only precise to
+    1/100 of a second, reporting most times as "0.00s").
 
 Although =ltlcross= performs the same sanity checks as LBTT, it does
 not implement any of the interactive features of LBTT.  In our almost
@@ -120,6 +123,7 @@ be rewritten using the other supported operators.
     --lbtt=.
   - Non-alternating automata in [[file:http://adl.github.io/hoaf/][the HOA format]] with any acceptance
     condition.
+  - [[file:concepts.org::#property-flags][Weak]] alternating automata in [[file:http://adl.github.io/hoaf/][the HOA format]].
   - [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dstar='s format]], which supports deterministic Rabin or Streett
     automata.
 
@@ -496,7 +500,9 @@ This classification is used to fill the =terminal_aut=, =weak_aut=,
 =--strength= is passed).  Only one of these should contain =1=.  We
 usually prefer terminal automata over weak automata, and weak automata
 over strong automata, because the emptiness check of terminal (and
-weak) automata is easier.
+weak) automata is easier.  When working with alternating automata, all
+those strength-related columns will be empty, because the routines
+used to compute those statistic do not yet support universal edges.
 
 =nondetstates= counts the number of non-deterministic states in the
 automaton.  =nondeterministic= is a Boolean value indicating if the
@@ -509,7 +515,8 @@ assignment $ab$) and is therefore not deterministic.
 If option =--aumbiguous= was passed to =ltlcross=, the column
 =ambiguous_aut= holds a Boolean indicating whether the automaton is
 ambiguous, i.e., if there exists a word that can be accepted by at
-least two different runs.
+least two different runs.  (This information is not yet available for
+alternating automata.)
 
 =complete_aut= is a Boolean indicating whether the automaton is
 complete.
@@ -962,30 +969,40 @@ The verbose option can be useful to troubleshoot problems or simply
 follow the list of transformations and tests performed by =ltlcross=.
 
 For instance here is what happens if we try to cross check =ltl2tgba=
-and =ltl3ba= on the formula =FGa=.
+and =ltl3ba -H1= on the formula =FGa=.  Note that =ltl2tgba= will
+produce transition-based generalized Büchi automata, while =ltl3ba
+-H1= produces co-Büchi alternating automata.
 
 #+BEGIN_SRC sh :results verbatim :exports code
-ltlcross -f 'FGa' ltl2tgba ltl3ba --determinize --verbose
+ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --determinize --verbose
 #+END_SRC
 
 #+BEGIN_SRC sh :results verbatim :exports results
-ltlcross -f 'FGa' ltl2tgba ltl3ba --determinize --verbose 2>&1
+ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --determinize --verbose 2>&1
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
 F(G(a))
-Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-vfVUzt'
-Running [P1]: ltl3ba -f '<>([](a))'>'lcr-o1-IiXGfZ'
-Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-T02eWu'
-Running [N1]: ltl3ba -f '!(<>([](a)))'>'lcr-o1-0DpXF0'
+Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-Ak0bYx'
+Running [P1]: ltl3ba -H1 -f '<>([](a))'>'lcr-o1-5U1MyT'
+Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-sX2kaf'
+Running [N1]: ltl3ba -H1 -f '!(<>([](a)))'>'lcr-o1-4siKPA'
+info: collected automata:
+info:   P0	(2 st.,3 ed.,1 sets)
+info:   N0	(1 st.,2 ed.,1 sets) deterministic complete
+info:   P1	(2 st.,3 ed.,1 sets)
+info:   N1	(3 st.,5 ed.,1 sets) univ-edges deterministic complete
 Performing sanity checks and gathering statistics...
+info: getting rid of universal edges...
+info:   N1	(3 st.,5 ed.,1 sets) -> (2 st.,4 ed.,1 sets)
 info: complementing non-deterministic automata via determinization...
 info:   P0	(2 st.,3 ed.,1 sets) -> (2 st.,4 ed.,2 sets)	Comp(P0)
 info:   P1	(2 st.,3 ed.,1 sets) -> (2 st.,4 ed.,2 sets)	Comp(P1)
 info: getting rid of any Fin acceptance...
 info:	Comp(P0)	(2 st.,4 ed.,2 sets) -> (3 st.,7 ed.,2 sets)
 info:	Comp(N0)	(1 st.,2 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
+info:	     P1 	(2 st.,3 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
 info:	Comp(P1)	(2 st.,4 ed.,2 sets) -> (4 st.,9 ed.,2 sets)
 info:	Comp(N1)	(2 st.,4 ed.,1 sets) -> (3 st.,6 ed.,1 sets)
 info: check_empty P0*N0
@@ -999,10 +1016,19 @@ No problem detected.
 #+end_example
 
 First =FGa= and its negations =!FGa= are translated with the two
-tools, resulting in four automata: to positive automata =P0= and =P1=
+tools, resulting in four automata: two positive automata =P0= and =P1=
 for =FGa=, and two negative automata =N0= and =N1=.
 
-=ltlcross= then proceeds to compute the complement of these four
+Some basic information about the collected automata are displayed.
+For instance we can see that although =ltl3ba -H1= outputs co-Büchi
+alternating automata, only automaton =N1= uses universal edges: the
+automaton =P1= can be used like a non-alternating co-Büchi automaton.
+
+=ltlcross= then proceeds to transform alternating automata (only weak
+alternating automata are supported) into non-alternating automata.
+Here only =N1= needs this transformation.
+
+Then =ltlcross= computes the complement of these four
 automata.  Since =P0= and =P1= are nondeterministic and the
 =--determinize= option was given, a first pass determinize and
 complete these two automata, creating =Comp(P0)= and =Comp(P1)=.
@@ -1030,23 +1056,31 @@ Note that if we had not used the =--determinize= option, the procedure
 would look slightly more complex:
 
 #+BEGIN_SRC sh :results verbatim :exports code
-ltlcross -f 'FGa' ltl2tgba ltl3ba --verbose
+ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --verbose
 #+END_SRC
 
 #+BEGIN_SRC sh :results verbatim :exports results
-ltlcross -f 'FGa' ltl2tgba ltl3ba --verbose 2>&1
+ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --verbose 2>&1
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
 F(G(a))
-Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-YvMdzU'
-Running [P1]: ltl3ba -f '<>([](a))'>'lcr-o1-Ixj7RI'
-Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-uBbTbx'
-Running [N1]: ltl3ba -f '!(<>([](a)))'>'lcr-o1-eo0fzl'
+Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-jD32mW'
+Running [P1]: ltl3ba -H1 -f '<>([](a))'>'lcr-o1-w6IJYI'
+Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-dac1Av'
+Running [N1]: ltl3ba -H1 -f '!(<>([](a)))'>'lcr-o1-OZL7fi'
+info: collected automata:
+info:   P0	(2 st.,3 ed.,1 sets)
+info:   N0	(1 st.,2 ed.,1 sets) deterministic complete
+info:   P1	(2 st.,3 ed.,1 sets)
+info:   N1	(3 st.,5 ed.,1 sets) univ-edges deterministic complete
 Performing sanity checks and gathering statistics...
+info: getting rid of universal edges...
+info:   N1	(3 st.,5 ed.,1 sets) -> (2 st.,4 ed.,1 sets)
 info: getting rid of any Fin acceptance...
 info:	Comp(N0)	(1 st.,2 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
+info:	     P1 	(2 st.,3 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
 info:	Comp(N1)	(2 st.,4 ed.,1 sets) -> (3 st.,6 ed.,1 sets)
 info: check_empty P0*N0
 info: check_empty P0*N1
