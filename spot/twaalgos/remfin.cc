@@ -24,6 +24,7 @@
 #include <spot/twaalgos/totgba.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/mask.hh>
+#include <spot/twaalgos/alternation.hh>
 
 //#define TRACE
 #ifdef TRACE
@@ -493,6 +494,9 @@ namespace spot
     // FIXME: we should check whether the automaton is inherently weak.
     if (aut->prop_weak().is_true())
       return remove_fin_weak(aut);
+
+    if (aut->is_alternating())
+      return remove_fin(remove_alternation(aut));
 
     if (auto maybe = streett_to_generalized_buchi_maybe(aut))
       return maybe;

@@ -157,3 +157,48 @@ State: 2 "t"
 EOF
 test 3 = `autfilt --stats=%s out.hoa`
 test 2 = `autfilt --tgba --stats=%s out.hoa`
+
+# If we have a weak input, remove-fin can just transform co-Büchi into
+# Büchi.
+autfilt --remove-fin out.hoa >res
+cat >expected <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: univ-branch trans-labels explicit-labels state-acc complete
+properties: very-weak
+--BODY--
+State: 0 {0}
+[t] 1&0
+State: 1
+[0] 2
+[t] 1
+State: 2 {0}
+[t] 2
+--END--
+EOF
+diff expected res
+
+# If we do not know that the input is weak, remove-fin will call
+# remove_alternation().
+autfilt --remove-fin --trust-hoa=no out.hoa >res
+cat >expected <<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+--BODY--
+State: 0
+[t] 1 {0}
+State: 1
+[t] 1
+[0] 1 {0}
+--END--
+EOF
+diff expected res
