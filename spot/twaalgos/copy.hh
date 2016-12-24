@@ -31,7 +31,9 @@ namespace spot
   /// \ingroup twa_misc
   /// \brief Build an explicit automaton from all states of \a aut,
   ///
-  /// This works for using the abstract interface for automata
+  /// This works using the abstract interface for automata.  If you
+  /// have a twa_graph that you want to copy, it is more efficient
+  /// to call make_twa_graph() instead.
   SPOT_API twa_graph_ptr
   copy(const const_twa_ptr& aut, twa::prop_set p,
        bool preserve_names = false, unsigned max_states = -1U);
