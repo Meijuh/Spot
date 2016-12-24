@@ -160,6 +160,9 @@ namespace spot
         if (!has_separate_sets(in))
           throw std::runtime_error
             ("direct_simulation() requires separate Inf and Fin sets");
+        if (in->is_alternating())
+          throw std::runtime_error
+            ("direct_simulation() does not yet support alternation");
 
         scc_info_.reset(new scc_info(in));
 

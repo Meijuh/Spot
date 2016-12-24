@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
 // Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -73,6 +73,9 @@ namespace spot
   twa_graph_ptr
   canonicalize(twa_graph_ptr aut)
   {
+    if (aut->is_alternating())
+      throw std::runtime_error
+        ("canonicalize does not yet support alternation");
     std::vector<unsigned> state2class(aut->num_states(), 0);
     state2class[aut->get_init_state_number()] = 1;
     size_t distinct_classes = 2;

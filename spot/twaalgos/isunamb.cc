@@ -37,6 +37,10 @@ namespace spot
   // we used to have, was motivated by issue #188.
   bool is_unambiguous(const const_twa_graph_ptr& aut)
   {
+    if (aut->is_alternating())
+      throw std::runtime_error
+        ("is_unambiguous() does not support alternation");
+
     trival u = aut->prop_unambiguous();
     if (u.is_known())
       return u.is_true();

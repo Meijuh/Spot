@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2014, 2015, 2016 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -27,6 +27,9 @@ namespace spot
       info_(aut_->num_states(), aut_->num_states()),
       sm_(map)
   {
+    if (aut_->is_alternating())
+      throw std::runtime_error
+        ("enumerate_cycles does not support alternation");
   }
 
   void

@@ -219,6 +219,9 @@ namespace spot
       state_t
       initial_state(const const_twa_graph_ptr& twa_p)
       {
+        if (twa_p->is_alternating())
+          throw std::runtime_error
+            ("couvreur99_new does not support alternation");
         return twa_p->get_init_state_number();
       }
 

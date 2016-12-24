@@ -29,6 +29,10 @@ namespace spot
   randomize(twa_graph_ptr& aut, bool randomize_states,
             bool randomize_edges)
   {
+    if (aut->is_alternating())
+      throw std::runtime_error
+        ("randomize() does not yet support alternation");
+
     if (!randomize_states && !randomize_edges)
       return;
     auto& g = aut->get_graph();

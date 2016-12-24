@@ -296,9 +296,9 @@ namespace spot
     virtual const twa_graph_state* get_init_state() const override
     {
       unsigned n = get_init_state_number();
-      if (SPOT_UNLIKELY(is_univ_dest(n)))
+      if (SPOT_UNLIKELY(is_alternating()))
         throw std::runtime_error
-          ("get_init_state() does not work with universal initial states");
+          ("the abstract interface does not support alternating automata");
       return state_from_number(n);
     }
 

@@ -132,6 +132,9 @@ namespace spot
   bool
   isomorphism_checker::is_isomorphic_(const const_twa_graph_ptr aut)
   {
+    if (aut->is_alternating())
+      throw std::runtime_error
+        ("isomorphism_checker does not yet support alternation");
     trival autdet = aut->prop_deterministic();
     if (ref_deterministic_)
       {

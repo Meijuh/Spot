@@ -276,6 +276,10 @@ namespace spot
     twa_graph_ptr scc_filter_apply(const_twa_graph_ptr aut,
                                    scc_info* given_si, Args&&... args)
     {
+      if (aut->is_alternating())
+        throw std::runtime_error
+          ("scc_filter() does yet not support alternation");
+
       unsigned in_n = aut->num_states();
 
       twa_graph_ptr filtered = make_twa_graph(aut->get_dict());

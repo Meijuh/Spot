@@ -46,6 +46,9 @@ namespace spot
                               unsigned right_state,
                               bool and_acc)
     {
+      if (left->is_alternating() || right->is_alternating())
+        throw std::runtime_error
+          ("product() does not support alternating automata");
       std::unordered_map<product_state, unsigned, product_state_hash> s2n;
       std::deque<std::pair<product_state, unsigned>> todo;
 

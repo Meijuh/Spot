@@ -29,6 +29,9 @@ namespace spot
   {
     if (old->prop_state_acc())
       return old;
+    if (old->is_alternating())
+      throw std::runtime_error
+        ("sbacc() does not support alternation");
 
     scc_info si(old);
 

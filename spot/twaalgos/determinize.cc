@@ -579,6 +579,9 @@ namespace spot
                    bool pretty_print, bool use_scc,
                    bool use_simulation, bool use_stutter)
   {
+    if (a->is_alternating())
+      throw std::runtime_error
+        ("tgba_determinize() does not support alternation");
     if (a->prop_deterministic())
       return std::const_pointer_cast<twa_graph>(a);
 

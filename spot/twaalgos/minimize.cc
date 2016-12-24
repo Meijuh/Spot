@@ -474,6 +474,10 @@ namespace spot
 
   twa_graph_ptr minimize_monitor(const const_twa_graph_ptr& a)
   {
+    if (a->is_alternating())
+      throw std::runtime_error
+        ("minimize_monitor() does not support alternation");
+
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
     twa_graph_ptr det_a = tgba_powerset(a);
@@ -491,6 +495,10 @@ namespace spot
 
   twa_graph_ptr minimize_wdba(const const_twa_graph_ptr& a)
   {
+    if (a->is_alternating())
+      throw std::runtime_error
+        ("minimize_wdba() does not support alternation");
+
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
 
@@ -605,6 +613,10 @@ namespace spot
                       const_twa_graph_ptr aut_neg_f,
                       bool reject_bigger)
   {
+    if (aut_f->is_alternating())
+      throw std::runtime_error
+        ("minimize_obligation() does not support alternation");
+
     auto min_aut_f = minimize_wdba(aut_f);
 
     if (reject_bigger)

@@ -26,9 +26,12 @@ namespace spot
   bool
   scc_has_rejecting_cycle(scc_info& map, unsigned scc)
   {
+    auto aut = map.get_aut();
+    if (aut->is_alternating())
+      throw std::runtime_error
+        ("scc_has_rejecting_cycle() does not support alternation");
     // We check that by cloning the SCC and complementing its
     // acceptance condition.
-    auto aut = map.get_aut();
     std::vector<bool> keep(aut->num_states(), false);
     auto& states = map.states_of(scc);
     for (auto s: states)
@@ -42,6 +45,9 @@ namespace spot
   bool
   is_inherently_weak_scc(scc_info& map, unsigned scc)
   {
+    if (map.get_aut()->is_alternating())
+      throw std::runtime_error
+        ("is_inherently_weak_scc() does not support alternation");
      // Weak SCCs are inherently weak.
     if (is_weak_scc(map, scc))
       return true;
@@ -54,6 +60,10 @@ namespace spot
   bool
   is_weak_scc(scc_info& map, unsigned scc)
   {
+    if (map.get_aut()->is_alternating())
+      throw std::runtime_error
+        ("is_weak_scc() does not support alternation");
+
     // Rejecting SCCs are weak.
     if (map.is_rejecting_scc(scc))
       return true;
@@ -65,6 +75,9 @@ namespace spot
   is_complete_scc(scc_info& map, unsigned scc)
   {
     auto a = map.get_aut();
+    if (a->is_alternating())
+      throw std::runtime_error
+        ("is_complete_scc() does not support alternation");
     for (auto s: map.states_of(scc))
       {
         bool has_succ = false;
@@ -86,6 +99,10 @@ namespace spot
   bool
   is_terminal_scc(scc_info& map, unsigned scc)
   {
+    if (map.get_aut()->is_alternating())
+      throw std::runtime_error
+        ("is_terminal_scc() does not support alternation");
+
     // If all transitions use all acceptance conditions, the SCC is weak.
     return (map.is_accepting_scc(scc)
             && map.used_acc_of(scc).size() == 1

@@ -43,6 +43,10 @@ namespace spot
                             twa_graph_ptr& cpy,
                             Trans trans, unsigned int init)
   {
+    if (old->is_alternating())
+      throw std::runtime_error
+        ("transform_accessible() does not support alternation");
+
     std::vector<unsigned> todo;
     std::vector<unsigned> seen(old->num_states(), -1U);
 
@@ -101,6 +105,10 @@ namespace spot
                       twa_graph_ptr& cpy,
                       Trans trans, unsigned int init)
   {
+    if (old->is_alternating())
+      throw std::runtime_error
+        ("transform_copy() does not support alternation");
+
     // Each state in cpy corresponds to a unique state in old.
     cpy->new_states(old->num_states());
     cpy->set_init_state(init);
