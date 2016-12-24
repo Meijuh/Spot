@@ -133,3 +133,27 @@ properties: univ-branch trans-labels explicit-labels state-acc
 properties: very-weak
 EOF
 diff output expected
+
+
+cat >out.hoa <<EOF
+HOA: v1
+tool: "ltl3dra" "0.2.2"
+name: "VWAA for GFa"
+States: 3
+Start: 0
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+AP: 1 "a"
+properties: trans-labels explicit-labels state-acc univ-branch very-weak
+--BODY--
+State: 0 "GF(a)"
+ [t] 1&0
+State: 1 "F(a)" {0}
+ [(0)] 2
+ [t] 1
+State: 2 "t"
+ [t] 2
+--END--
+EOF
+test 3 = `autfilt --stats=%s out.hoa`
+test 2 = `autfilt --tgba --stats=%s out.hoa`

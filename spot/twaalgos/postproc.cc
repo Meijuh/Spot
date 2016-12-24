@@ -34,6 +34,7 @@
 #include <spot/twaalgos/sbacc.hh>
 #include <spot/twaalgos/sepsets.hh>
 #include <spot/twaalgos/determinize.hh>
+#include <spot/twaalgos/alternation.hh>
 
 namespace spot
 {
@@ -172,6 +173,14 @@ namespace spot
       scc_filter_ = 1;
     if (type_ == BA || SBACC_)
       state_based_ = true;
+
+    if (a->is_alternating() &&
+        // We will probably have to revisit this condition later.
+        // Currently, the intent is that postprocessor should never
+        // return an alternating automaton, unless it is called with
+        // its laxest settings.
+        !(type_ == Generic && PREF_ == Any && level_ == Low))
+      a = remove_alternation(a);
 
     if (type_ != Generic && !a->acc().is_generalized_buchi())
       {
