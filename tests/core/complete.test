@@ -82,6 +82,27 @@ State: 1
 [0] 1 {0}
 [!0] 1 {0}
 --END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 1 Fin(0)
+properties: very-weak
+--BODY--
+State: 0
+[!0 | 1] 0
+[0&!1] 1&0
+State: 1 {0}
+[0&!1] 1
+--END--
+HOA: v1
+States: 2
+Start: 0&1
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+State: 1 {0}
+--END--
 EOF
 
 cat >expected <<EOF
@@ -170,6 +191,36 @@ State: 0
 State: 1 {0}
 [0] 1
 [!0] 1
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels state-acc complete
+properties: deterministic very-weak
+--BODY--
+State: 0
+[!0 | 1] 0
+[0&!1] 1&0
+State: 1 {0}
+[0&!1] 1
+[!0 | 1] 1
+--END--
+HOA: v1
+States: 2
+Start: 0&1
+AP: 0
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[t] 0
+State: 1
+[t] 0
 --END--
 EOF
 

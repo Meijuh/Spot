@@ -49,7 +49,7 @@ namespace spot
           {
             bool sinkable = true;
             bool first = true;
-            acc_cond::mark_t commonacc = 0U;
+            acc_cond::mark_t commonacc = um.second;
             for (auto& t: aut->out(i))
               {
                 if (t.dst != i)        // Not a self-loop
@@ -80,11 +80,12 @@ namespace spot
 
     unsigned t = aut->num_edges();
 
-    // If the automaton is empty, pretend that state 0 is a sink.
-    if (t == 0)
+    // If the automaton is empty, and the initial state is not
+    // universal, pretend this is the sink.
+    if (t == 0 && !aut->is_univ_dest(aut->get_init_state_number()))
       sink = aut->get_init_state_number();
 
-    // Now complete all states (excluding any newly added the sink).
+    // Now complete all states (excluding any newly added sink).
     for (unsigned i = 0; i < n; ++i)
       {
         bdd missingcond = bddtrue;
