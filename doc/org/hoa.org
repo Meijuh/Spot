@@ -49,15 +49,12 @@ Since the TωA structure is not a perfect one-to-one representation of
 the HOA format, the output may not be exactly the same as the input.
 
 * Features of the HOA format with no or limited support in Spot
+   :PROPERTIES:
+   :CUSTOM_ID: restrictions
+   :END:
 
-- Alternating automata are not supported.
-
-  Only nondeterministic (in the broad sense, meaning "not
-  deterministic" or "deterministic") automata are currently supported
-  by Spot.
-
-- Automata using explicit alphabet (introduced in version 1.1 of the format
-  via =Alphabet:=) are not supported.
+- Automata using explicit alphabet (introduced in version 1.1 of the
+  format via =Alphabet:=) are not supported.
 
 - The maximum number of acceptance sets used is (currently) limited
   to 32.
@@ -633,7 +630,7 @@ redundant and useless properties.  For instance =deterministic=
 automata are necessarily =unambiguous=, and people interested in
 unambiguous automata know that, so Spot only outputs the =unambiguous=
 property if an unambiguous automaton is non-deterministic.  Similarly,
-while Spot only outputs non-alternating automata, it does not output
+while Spot may output alternating automata, it does not output
 the =no-univ-branch= property because we cannot think of a situation
 where this would be useful.  This decision can be overridden by
 passing the =-Hv= (or =--hoa=v=) option to the command-line tools:
@@ -661,6 +658,7 @@ particular:
 | =state-acc=         | checked | yes    | checked, unless =-Ht= or =-Hm=                          |                                                                  |
 | =trans-acc=         | checked | no     | if not =state-acc= and not =-Hm=                        |                                                                  |
 | =no-univ-branch=    | ignored | no     | only if =-Hv=                                           |                                                                  |
+| =univ-branch=       | checked | no     | checked                                                 |                                                                  |
 | =deterministic=     | checked | yes    | checked                                                 |                                                                  |
 | =complete=          | checked | no     | checked                                                 |                                                                  |
 | =unambiguous=       | trusted | yes    | as stored if (=-Hv= or not =deterministic=)             | can be checked with =--check=unambiguous=                        |

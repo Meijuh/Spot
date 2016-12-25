@@ -54,6 +54,10 @@ New in spot 2.2.2.dev (Not yet released)
       automata, it still has no simplification algorithms that work
       at the alternating automaton level.
 
+    - See https://www.lrde.epita.fr/tut23.html
+      https://www.lrde.epita.fr/tut24.html and
+      https://www.lrde.epita.fr/tut31.html for some code examples.
+
   * twa objects have a new property, very-weak, that can be set or
     retrieved via twa::prop_very_weak(), and that can be tested by
     is_very_weak_automaton().
