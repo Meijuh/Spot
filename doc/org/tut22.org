@@ -36,6 +36,9 @@ This example demonstrates how to create an automaton and then print it.
 
     // States are numbered from 0.
     aut->new_states(3);
+    // The default initial state is 0, but it is always better to
+    // specify it explicitely.
+    aut->set_init_state(0U);
 
     // new_edge() takes 3 mandatory parameters: source state,
     // destination state, and label.  A last optional parameter can be
@@ -95,6 +98,9 @@ State: 2
 
   # States are numbered from 0.
   aut.new_states(3)
+  # The default initial state is 0, but it is always better to
+  # specify it explicitely.
+  aut.set_init_state(0)
 
   # new_edge() takes 3 mandatory parameters: source state, destination state, and
   # label.  A last optional parameter can be used to specify membership to
