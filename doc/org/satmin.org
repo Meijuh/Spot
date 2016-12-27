@@ -4,6 +4,11 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 
+#+NAME: version
+#+BEGIN_SRC sh :exports none
+head -n 1 ../../picosat/VERSION | tr -d '\n'
+#+END_SRC
+
 This page explains how to use [[file:ltl2tgba.org][=ltl2tgba=]], [[file:dstar2tgba.org][=dstar2tgba=]], or [[file:autfilt.org][=autfilt=]]
 to minimize deterministic automata using a SAT solver.
 
@@ -23,8 +28,9 @@ Let us first state a few facts about this minimization procedure.
 3) These two procedures can optionally constrain their output to
    use state-based acceptance. (They simply restrict all the outgoing
    transitions of a state to belong to the same acceptance sets.)
-4) A SAT solver should be installed for this to work. (Spot does not
-   distribute any SAT solver.)
+4) Spot distributes a SAT solver, PicoSAT call_version()[:results raw]. This solver was chosen for its performances, simplicity of integration and licence compatible with Spot's one.
+   However, it is still possible to use an external SAT solver (as described
+   below).
 5) [[file:ltl2tgba.org][=ltl2tgba=]] and [[file:dstar2tgba.org][=dstar2tgba=]] will always try to output an automaton.
    If they fail to determinize the property, they will simply output a
    nondeterministic automaton, if they managed to obtain a
@@ -44,15 +50,11 @@ Let us first state a few facts about this minimization procedure.
 * How to change the SAT solver used
 
 The environment variable =SPOT_SATSOLVER= can be used to change the
-SAT solver used by Spot.  The default is "=glucose -verb=0 -model %I
->%O=", therefore if you have installed [[http://www.labri.fr/perso/lsimon/glucose/][=glucose= 3.0]] in your =$PATH=,
-it should work right away.  Otherwise you may redefine this variable
-to point the correct location or to another SAT solver (for older
-versions of glucose, remove the =-model= option).  The =%I= and =%O=
-sequences will be replaced by the names of temporary files containing
-the input for the SAT solver and receiving its output.  We assume that
-the SAT solver should follow the conventions of the [[http://www.satcompetition.org/][SAT competition]]
-for input and output.
+SAT solver used by Spot.  By default it uses the one distributed with (PicoSAT
+call_version()[:results raw]).
+Here is the expected format of =SPOT_SATSOLVER= : "=<SAT_SOLVER> [options] %I >%O=". The =%I= and =%O= sequences will be replaced by the names of temporary files containing the input for the SAT solver and receiving its output.
+If you have installed the corresponding binary in your =$PATH=, it should work right away.  Otherwise you may redefine this variable to point the correct location of the SAT solver.
+We assume that the SAT solver should follow the conventions of the [[http://www.satcompetition.org/][SAT competition]] for input and output.
 
 * Enabling SAT-based minimization in =ltl2tgba= or =dstar2tgba=
 
@@ -337,15 +339,35 @@ situations where the tools will produce non-deterministic automata.
 The following options can be used to fine-tune this procedure:
 
 - =-x tba-det= :: attempt a powerset construction and check if
-                  there exists a acceptance set such that the
-                  resulting DTBA is equivalent to the input
-- =-x sat-minimize= :: enable SAT-based minimization.  By default it
-     tries to reduce the size of the automaton one state at a time.
-     This option implies =-x tba-det=.
-- =-x sat-minimize=2= :: enabled SAT-based minimization, but perform a
-     dichotomy to locate the correct automaton size.  Use this only if
-     you suspect that the optimal size is far away from the input
-     size.  This option implies =-x tba-det=.
+                  there exists an acceptance set such that the
+                  resulting DTBA is equivalent to the input.
+- =-x sat-minimize= :: enable SAT-based minimization. It is the same as
+     =-x sat-minimize=1= (which is the default value). It performs a dichotomy
+     to find the correct automaton size.This option implies =-x tba-det=.
+- =-x sat-minimize=[2|3]= :: enable SAT-based
+     minimization. Let us consider each intermediate automaton as a =step=
+     towards the minimal automaton and assume =N= as the size of the starting
+     automaton. =2= and =3= have been implemented with the aim of not
+     restarting the encoding from scratch at each step. To do so, both restart
+     the encoding after =N-1-(sat-incr-steps)= states have been won. Now,
+     where is the difference? They both start by encoding the research of the
+     =N-1= step and then:
+       - =2= uses PicoSAT assumptions. It adds =sat-incr-steps= assumptions
+         (each of them removing one more state) and then checks direclty the
+         =N-1-(sat-incr-steps)= step. If such automaton is found, the process is
+         restarted. Otherwise, a binary search begins between =N-1= and
+         =N-1-sat-incr-steps=. If not provided, =sat-incr-steps= default value
+         is 6.
+       - =3= checks incrementally each =N-(2+i)= step, =i= ranging from =0= to
+         =sat-incr-steps=. This process is fully repeated until the minimal
+         automaton is found. The last SAT problem solved correspond to the
+         minimal automaton. =sat-incr-steps= defaults to 2.
+     Both implies =-x tba-det=.
+- =-x sat-minimize=4= :: enable SAT-based minimization. It tries to reduce the
+     size of the automaton one state at a time. This option implies
+     =-x tba-det=.
+- =-x sat-incr-steps=N= :: set the value of =sat-incr-steps= to N. It doest not
+     make sense to use it without =-x sat-minimize=2= or =-x sat-minimize=3=.
 - =-x sat-acc=$m$= :: attempt to build a minimal DTGBA with $m$ acceptance sets.
      This options implies =-x sat-minimize=.
 - =-x sat-states=$n$= :: attempt to build an equivalent DTGBA with $n$
@@ -666,6 +688,13 @@ $txt
 [[file:autfiltsm8.png]]
 
 
+By default, the SAT-based minimization tries to find a smaller automaton by
+performing a binary search starting from =N/2= (N being the size of the
+starting automaton). After various benchmarks, this algorithm proves to be the
+best. However, in some cases, other rather similar methods might be better. The
+algorithm to execute and some other parameters can be set thanks to the
+=--sat-minimize= option.
+
 The =--sat-minimize= option takes a comma separated list of arguments
 that can be any of the following:
 
@@ -679,9 +708,33 @@ that can be any of the following:
      so the output might be smaller nonetheless).  If this option is
      used the SAT-based procedure is just used once to synthesize
      one automaton, and no further minimization is attempted.
-- =dichotomy= :: instead of looking for a smaller automaton starting
-     from =N=, and then checking =N-1=, =N-2=, etc., do a binary
-     search starting from =N/2=.
+- =sat-incr=[1|2]= :: =1= and =2= correspond respectively to
+     =-x sat-minimize=2= and =-x sat-minimize=3= options.
+     They have been implemented with the aim of not restarting the
+     encoding from scratch at each step - a step is a minimized intermediate
+     automaton. To do so, both restart the encoding after
+     =N-1-(sat-incr-steps)= states have been won - =N= being the size of the
+     starting automaton. Now, where is the difference? They both start by
+     encoding the research of the =N-1= step and then:
+       - =1= uses PicoSAT assumptions. It adds =steps= assumptions (each of
+         them removing one more state) and then checks direclty the
+         =N-1-(sat-incr-steps)= step. If such automaton is found, the process is
+         restarted. Otherwise, a binary search begins between =N-1= and
+         =N-1-sat-incr-steps=. If not provided, =sat-incr-steps= defaults to 6.
+       - =2= checks incrementally each =N-(2+i)= step, =i= ranging from =0= to
+         =sat-incr-steps=. This process is fully repeated until the minimal
+         automaton is found. The last SAT problem solved correspond to the
+         minimal automaton. =sat-incr-steps= defaults to 2.
+     Both implies =-x tba-det=.
+- =sat-incr-steps=N= :: set the value of =sat-incr-steps= to =N=.
+     This is used by =sat-incr= option.
+- =sat-naive= :: use the =naive= algorithm to find a smaller automaton. It starts
+     from =N= and then checks =N-1=, =N-2=, etc. until the last successful
+     check.
+- =sat-langmap= :: Find  the lower bound of default sat-minimize procedure. This
+     relies on the fact that the size of the minimal automaton is at least equal
+     to the  total  number  of different languages recognized by the automaton's
+     states.
 - =colored= :: force all transitions (or all states if =-S= is used)
      to belong to exactly one acceptance condition.
 
@@ -802,6 +855,7 @@ The generated CSV file use the following columns:
 - system time for encoding the SAT problem
 - user time for solving the SAT problem
 - system time for solving the SAT problem
+- automaton produced
 
 Times are measured with the times() function, and expressed
 in ticks (usually: 1/100 of seconds).

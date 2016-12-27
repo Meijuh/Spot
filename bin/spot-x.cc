@@ -113,15 +113,20 @@ Enabled by default.") },
 if the TGBA is not already deterministic.  Doing so will degeneralize \
 the automaton.  This is disabled by default, unless sat-minimize is set.") },
     { DOC("sat-minimize",
-          "Set to 1 to enable SAT-based minimization of deterministic \
-TGBA: it starts with the number of states of the input, and iteratively \
-tries to find a deterministic TGBA with one less state. Set to 2 to perform \
-a binary search instead.  Disabled (0) by default.  The sat solver to use \
-can be set with the SPOT_SATSOLVER environment variable (see below).  By \
-default the procedure looks for a TGBA with the same number of acceptance \
-set; this can be changed with the sat-acc option, or of course by using -B \
-to construct a Büchi automaton.  Enabling SAT-based minimization will \
-also enable tba-det.") },
+          "Set it to enable SAT-based minimization of deterministic \
+TGBA. Depending on its value (from 1 to 4) it changes the algorithm \
+to perform. The default value is (1) and it proves to be the most effective \
+method. SAT-based minimization uses PicoSAT (distributed with Spot), but \
+another installed SAT-solver can be set thanks to the SPOT_SATSOLVER \
+environment variable. Enabling SAT-based minimization will also enable \
+tba-det.") },
+    { DOC("sat-incr-steps", "Set the value of sat-incr-steps. This variable \
+is used by two SAT-based minimization algorithms: (2) and (3). They are both \
+described below.") },
+    { DOC("sat-langmap", "Find the lower bound of default sat-minimize \
+procedure (1). This relies on the fact that the size of the minimal automaton \
+is at least equal to the total number of different languages recognized by \
+the automaton's states.") },
     { DOC("sat-states",
           "When this is set to some positive integer, the SAT-based \
 minimization will attempt to construct a TGBA with the given number of \

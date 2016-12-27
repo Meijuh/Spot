@@ -143,6 +143,8 @@ enum {
   OPT_WEAK_SCCS,
 };
 
+#define DOC(NAME, TXT) NAME, 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, TXT, 0
+
 static const argp_option options[] =
   {
     /**************************************************/
@@ -317,9 +319,13 @@ static const argp_option options[] =
       "Fin(x) by a new Fin(y) and adjust the automaton", 0 },
     { "sat-minimize", OPT_SAT_MINIMIZE, "options", OPTION_ARG_OPTIONAL,
       "minimize the automaton using a SAT solver (only works for deterministic"
-      " automata)", 0 },
-    /**************************************************/
-    { nullptr, 0, nullptr, 0, "Decorations (for -d and -H1.1 output):", 8 },
+      " automata). Supported options are acc=STRING, states=N, max-states=N, "
+      "sat-incr=N, sat-incr-steps=N, sat-langmap, sat-naive, colored, preproc=N"
+      ". Spot uses by default its PicoSAT distribution but an external SAT"
+      "solver can be set thanks to the SPOT_SATSOLVER environment variable"
+      "(see spot-x)."
+      , 0 },
+    { nullptr, 0, nullptr, 0, "Decorations (for -d and -H1.1 output):", 9 },
     { "highlight-nondet-states", OPT_HIGHLIGHT_NONDET_STATES, "NUM",
       OPTION_ARG_OPTIONAL, "highlight nondeterministic states with color NUM",
       0 },

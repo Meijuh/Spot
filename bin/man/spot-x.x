@@ -9,8 +9,36 @@ spot-x \- Common fine-tuning options and environment variables.
 [DESCRIPTION]
 .\" Add any additional description here
 
-[ENVIRONMENT VARIABLES]
+[SAT\-MINIMIZE VALUES]
+.TP
+\fB1\fR
+Used by default, \fB1\fR performs a binary search, checking N/2, etc.
+The upper bound being N (the size of the starting automaton), the lower bound
+is always 1 except when \fBsat-langmap\fR option is used.
 
+.TP
+\fB2\fR
+Use PicoSAT assumptions. Each iteration encodes the search of an (N\-1) state
+equivalent automaton, and additionally assumes that the last
+\fBsat\-incr\-steps\fR states are unnecessary. On failure, relax the assumptions
+to do a binary search between N\-1 and N\-1\-\fBsat\-incr\-steps\fR.
+\fBsat\-incr\-steps\fR defaults to 6.
+
+.TP
+\fB3\fR
+After an (N\-1) state automaton has been found, use incremental solving for
+the next \fBsat\-incr\-steps\fR iterations by forbidding the usage of an
+additional state without reencoding the problem again. A full encoding will
+occur after \fBsat\-incr\-steps\fR iterations unless \fBsat\-incr\-steps=-1\fR
+(see \fBSPOT_XCNF\fR environment variable). \fBsat\-incr\-steps\fR defaults to
+2.
+
+.TP
+\fB4\fR
+This naive method tries to reduce the size of the automaton one state at a
+time. Note that it restarts all the encoding each time.
+
+[ENVIRONMENT VARIABLES]
 .TP
 \fBSPOT_DEFAULT_FORMAT\fR
 Set to a value of \fBdot\fR or \fBhoa\fR to override the default
@@ -67,14 +95,14 @@ problem.
 
 .TP
 \fBSPOT_SATSOLVER\fR
-If set, this variable should indicate how to call a SAT\-solver.  This
-is used by the sat\-minimize option described above.  The default
-value is \f(CW"glucose -verb=0 -model %I >%O"\fR, it is correct for
-glucose version 3.0 (for older versions, remove the \fCW(-model\fR
-option).  The escape sequences \f(CW%I\fR and \f(CW%O\fR respectively
+If set, this variable should indicate how to call an external
+SAT\-solver \- by default, Spot uses PicoSAT, which is distributed
+with. This is used by the sat\-minimize option described above.
+The format to follow is the following: \f(CW"<sat_solver> [options] %I >%O"\fR.
+The escape sequences \f(CW%I\fR and \f(CW%O\fR respectively
 denote the names of the input and output files.  These temporary files
 are created in the directory specified by \fBSPOT_TMPDIR\fR or
-\fBTMPDIR\fR (see below).  The SAT-solver should follow the convention
+\fBTMPDIR\fR (see below). The SAT\-solver should follow the convention
 of the SAT Competition for its input and output format.
 
 .TP
@@ -114,6 +142,17 @@ current directory.
 \fBSPOT_TMPKEEP\fR
 When this variable is defined, temporary files are not removed.
 This is mostly useful for debugging.
+
+.TP
+\fBSPOT_XCNF\fR
+Assign a folder path to this variable to generate XCNF files whenever
+SAT\-based minimization is used \- the file is outputed as "incr.xcnf"
+in the specified directory. This feature works only with an external
+SAT\-solver. See \fBSPOT_SATSOLVER\fR to know how to provide one. Also note
+that this needs an incremental approach without restarting the encoding i.e
+"sat\-minimize=3,param=-1" for ltl2tgba and ltl2tgta or "incr,param=-1" for
+autfilt (see sat\-minimize options described above or autfilt man page).
+The XCNF format is the one used by the SAT incremental competition.
 
 [BIBLIOGRAPHY]
 .TP
