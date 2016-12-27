@@ -521,6 +521,11 @@ namespace spot
     /// extremities and acceptance.
     void merge_edges();
 
+    /// \brief marge common universal destination
+    ///
+    /// This is already called by merge_edges().
+    void merge_univ_dests();
+
     /// \brief Remove all dead states
     ///
     /// Dead states are all the states that cannot be part of

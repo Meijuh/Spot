@@ -73,6 +73,11 @@ State: 2
 aut2 = spot.automaton(h)
 h2 = aut2.to_str('hoa')
 print(h2)
+assert h != h2
+
+# This will sort destination groups
+aut.merge_univ_dests()
+h = aut.to_str('hoa')
 assert h == h2
 
 aut2.set_univ_init_state([0, 1])
@@ -90,7 +95,7 @@ State: 0
 [0] 1&2 {0}
 [1] 0&1
 State: 1
-[0&1] 0&2&1
+[0&1] 0&1&2
 State: 2
 [0 | 1] 2
 --END--"""
@@ -121,7 +126,7 @@ State: 0
 [0] 1&2 {0}
 [1] 0&1
 State: 1
-[0&1] 0&2&1
+[0&1] 0&1&2
 State: 2
 [0 | 1] 2
 State: 3

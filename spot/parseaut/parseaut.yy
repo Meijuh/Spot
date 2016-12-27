@@ -2423,6 +2423,8 @@ namespace spot
     fix_acceptance(r);
     fix_initial_state(r);
     fix_properties(r);
+    if (r.h->aut && r.h->aut->is_alternating())
+      r.h->aut->merge_univ_dests();
     return r.h;
   };
 

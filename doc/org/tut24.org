@@ -107,7 +107,7 @@ for (unsigned s = 0; s < n; ++s)
 
 #+RESULTS: nonalt-one
 #+begin_example
-Initial state: 4294967292
+Initial state: 4294967295
 State 0:
   edge(0 -> 0)
     label = a

@@ -360,10 +360,14 @@ namespace spot
         return bdd_format_formula(aut_->get_dict(), label);
       }
 
+      std::set<int> done;
+
       void
       print_dst(int dst, const char* style = nullptr)
       {
-        os_ << "    " << dst << " [label=<>,width=0,height=0,shape=none]\n";
+        if (!done.emplace(dst).second)
+          return;
+        os_ << "    " << dst << " [label=<>,shape=point]\n";
         for (unsigned d: aut_->univ_dests(dst))
           {
             os_ << "    " << dst << " -> " << d;
@@ -465,7 +469,7 @@ namespace spot
           }
         else
           {
-            os_ << " [dir=none]\n";
+            os_ << " [arrowhead=onormal]\n";
             print_dst(init);
           }
       }
@@ -626,11 +630,10 @@ namespace spot
                 os_ << ", " << highlight;
               }
           }
-        // No arrow tip of the common part of a universal transition
-        if ((int)t.dst < 0)
-          os_ << ", dir=none";
+        if (aut_->is_univ_dest(t.dst))
+          os_ << ", arrowhead=onormal";
         os_ << "]\n";
-        if ((int)t.dst < 0)     // Universal destination
+        if (aut_->is_univ_dest(t.dst))
           print_dst(t.dst, highlight.c_str());
       }
 

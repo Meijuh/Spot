@@ -61,34 +61,34 @@ digraph G {
   label="Fin(⓿)"
   labelloc="t"
   I [label="", style=invis, width=0]
-  I -> -11 [dir=none]
-    -11 [label=<>,width=0,height=0,shape=none]
+  I -> -11 [arrowhead=onormal]
+    -11 [label=<>,shape=point]
     -11 -> 0
     -11 -> 2
   subgraph cluster_0 {
   color=green
   label=""
-  6 [label="t"]
+  2 [label="G(a)"]
   }
   subgraph cluster_1 {
   color=red
   label=""
-  4 [label="F(b)\n⓿"]
+  1 [label="FG(a)\n⓿"]
   }
   subgraph cluster_2 {
   color=green
   label=""
-  3 [label="GF(b)"]
+  6 [label="t"]
   }
   subgraph cluster_3 {
-  color=green
-  label=""
-  2 [label="G(a)"]
-  }
-  subgraph cluster_4 {
   color=red
   label=""
-  1 [label="FG(a)\n⓿"]
+  4 [label="F(b)\n⓿"]
+  }
+  subgraph cluster_4 {
+  color=green
+  label=""
+  3 [label="GF(b)"]
   }
   subgraph cluster_5 {
   color=red
@@ -100,23 +100,23 @@ digraph G {
   label=""
   0 [label="((((a) U (b)) && GF(b)) && FG(a))"]
   }
-  0 -> -1 [label="b", dir=none]
-    -1 [label=<>,width=0,height=0,shape=none]
-    -1 -> 3
+  0 -> -1 [label="b", arrowhead=onormal]
+    -1 [label=<>,shape=point]
     -1 -> 1
-  0 -> -4 [label="a & !b", style=bold, color="#F15854", dir=none]
-    -4 [label=<>,width=0,height=0,shape=none]
-    -4 -> 5 [style=bold, color="#F15854"]
-    -4 -> 3 [style=bold, color="#F15854"]
+    -1 -> 3
+  0 -> -4 [label="a & !b", style=bold, color="#F15854", arrowhead=onormal]
+    -4 [label=<>,shape=point]
     -4 -> 1 [style=bold, color="#F15854"]
+    -4 -> 3 [style=bold, color="#F15854"]
+    -4 -> 5 [style=bold, color="#F15854"]
   1 -> 2 [label="a"]
   1 -> 1 [label="1"]
   2 -> 2 [label="a"]
   3 -> 3 [label="b"]
-  3 -> -8 [label="!b", style=bold, color="#FAA43A", dir=none]
-    -8 [label=<>,width=0,height=0,shape=none]
-    -8 -> 4 [style=bold, color="#FAA43A"]
+  3 -> -8 [label="!b", style=bold, color="#FAA43A", arrowhead=onormal]
+    -8 [label=<>,shape=point]
     -8 -> 3 [style=bold, color="#FAA43A"]
+    -8 -> 4 [style=bold, color="#FAA43A"]
   4 -> 6 [label="b"]
   4 -> 4 [label="!b"]
   5 -> 6 [label="b"]
@@ -147,7 +147,7 @@ AP: 1 "a"
 properties: trans-labels explicit-labels state-acc univ-branch very-weak
 --BODY--
 State: 0 "GF(a)"
- [t] 1&0
+ [t] 0&1
 State: 1 "F(a)" {0}
  [(0)] 2
  [t] 1
@@ -172,7 +172,7 @@ properties: univ-branch trans-labels explicit-labels state-acc complete
 properties: very-weak
 --BODY--
 State: 0 {0}
-[t] 1&0
+[t] 0&1
 State: 1
 [0] 2
 [t] 1

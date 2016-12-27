@@ -43,10 +43,66 @@ namespace spot
     delete namer;
   }
 
+    /// \brief Merge universal destinations
+    ///
+    /// If several states have the same universal destination, merge
+    /// them all.  Also remove unused destination, and any redundant
+    /// state in each destination.
+  void twa_graph::merge_univ_dests()
+  {
+    auto& g = get_graph();
+    auto& dests = g.dests_vector();
+    auto& edges = g.edge_vector();
+
+    std::vector<unsigned> old_dests;
+    std::swap(dests, old_dests);
+    std::vector<unsigned> seen(old_dests.size(), -1U);
+    std::map<std::vector<unsigned>, unsigned> uniq;
+
+    auto fixup = [&](unsigned& in_dst)
+      {
+        unsigned dst = in_dst;
+        if ((int) dst >= 0)       // not a universal edge
+          return;
+        dst = ~dst;
+        unsigned& nd = seen[dst];
+        if (nd == -1U)
+          {
+            std::vector<unsigned>
+              tmp(old_dests.data() + dst + 1,
+                  old_dests.data() + dst + 1 + old_dests[dst]);
+            std::sort(tmp.begin(), tmp.end());
+            tmp.erase(std::unique(tmp.begin(), tmp.end()), tmp.end());
+            auto p = uniq.emplace(tmp, 0);
+            if (!p.second)
+              {
+                nd = p.first->second;
+              }
+            else
+              {
+                nd = g.new_univ_dests(tmp.begin(), tmp.end());
+                p.first->second = nd;
+              }
+          }
+        in_dst = nd;
+      };
+
+    unsigned tend = edges.size();
+    for (unsigned t = 1; t < tend; t++)
+      {
+        if (g.is_dead_edge(t))
+          continue;
+        fixup(edges[t].dst);
+      }
+    fixup(init_number_);
+  }
+
   void twa_graph::merge_edges()
   {
     set_named_prop("highlight-edges", nullptr);
     g_.remove_dead_edges_();
+    if (is_alternating())
+      merge_univ_dests();
 
     typedef graph_t::edge_storage_t tr_t;
     g_.sort_edges_([](const tr_t& lhs, const tr_t& rhs)
