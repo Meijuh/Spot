@@ -272,4 +272,83 @@ autfilt -q --included-in=ex1 ex2
 autfilt -q --equivalent-to=ex1 ex3 && exit 1
 autfilt -q --intersect=ex1 ex3
 
-:
+
+cat >ex4<<EOF
+HOA: v1
+States: 5
+Start: 0&2&4
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels trans-acc
+properties: deterministic
+--BODY--
+State: 0
+[0] 0
+[!0] 0&2
+State: 1
+[t] 1&4
+State: 2
+[!0] 2 {0}
+[0] 3
+State: 3
+[t] 3
+State: 4
+--END--
+EOF
+
+cat >expect4<<EOF
+HOA: v1
+States: 4
+Start: 0&1&3
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels trans-acc
+properties: deterministic
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+State: 3
+--END--
+EOF
+
+autfilt --remove-unreachable-states ex4 > out4
+diff expect4 out4
+autfilt --remove-dead-states ex4 > out4
+diff ex2 out4
+
+
+cat >ex5<<EOF
+HOA: v1
+States: 2
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+State: 1
+--END--
+EOF
+
+autfilt --remove-dead-states ex5 > out5
+cat >expect <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+--END--
+EOF
+diff out5 expect

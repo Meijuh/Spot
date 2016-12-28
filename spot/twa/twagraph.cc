@@ -57,7 +57,7 @@ namespace spot
     std::vector<unsigned> old_dests;
     std::swap(dests, old_dests);
     std::vector<unsigned> seen(old_dests.size(), -1U);
-    std::map<std::vector<unsigned>, unsigned> uniq;
+    internal::univ_dest_mapper<twa_graph::graph_t> uniq(g);
 
     auto fixup = [&](unsigned& in_dst)
       {
@@ -67,23 +67,8 @@ namespace spot
         dst = ~dst;
         unsigned& nd = seen[dst];
         if (nd == -1U)
-          {
-            std::vector<unsigned>
-              tmp(old_dests.data() + dst + 1,
-                  old_dests.data() + dst + 1 + old_dests[dst]);
-            std::sort(tmp.begin(), tmp.end());
-            tmp.erase(std::unique(tmp.begin(), tmp.end()), tmp.end());
-            auto p = uniq.emplace(tmp, 0);
-            if (!p.second)
-              {
-                nd = p.first->second;
-              }
-            else
-              {
-                nd = g.new_univ_dests(tmp.begin(), tmp.end());
-                p.first->second = nd;
-              }
-          }
+          nd = uniq.new_univ_dests(old_dests.data() + dst + 1,
+                                   old_dests.data() + dst + 1 + old_dests[dst]);
         in_dst = nd;
       };
 
@@ -220,19 +205,23 @@ namespace spot
     std::vector<unsigned> todo(num_states, 0);
     const unsigned seen = 1 << (sizeof(unsigned)*8-1);
     const unsigned mask = seen - 1;
-    todo[0] = get_init_state_number();
-    todo[init_number_] |= seen;
-    unsigned todo_pos = 1;
+    unsigned todo_pos = 0;
+    for (unsigned i: univ_dests(get_init_state_number()))
+      {
+        todo[i] |= seen;
+        todo[todo_pos++] |= i;
+      }
     do
       {
         unsigned cur = todo[--todo_pos] & mask;
         todo[todo_pos] ^= cur;        // Zero the state
         for (auto& t: g_.out(cur))
-          if (!(todo[t.dst] & seen))
-            {
-              todo[t.dst] |= seen;
-              todo[todo_pos++] |= t.dst;
-            }
+          for (unsigned dst: univ_dests(t.dst))
+            if (!(todo[dst] & seen))
+              {
+                todo[dst] |= seen;
+                todo[todo_pos++] |= dst;
+              }
       }
     while (todo_pos > 0);
     // Now renumber each used state.
@@ -244,7 +233,6 @@ namespace spot
         v = current++;
     if (current == todo.size())
       return;                        // No unreachable state.
-    init_number_ = todo[init_number_];
     defrag_states(std::move(todo), current);
   }
 
@@ -256,30 +244,98 @@ namespace spot
     // Make a DFS to compute a topological order.
     std::vector<unsigned> order;
     order.reserve(num_states);
-    std::vector<std::pair<unsigned, unsigned>> todo; // state, trans
-    useful[get_init_state_number()] = 1;
-    todo.emplace_back(init_number_, g_.state_storage(init_number_).succ);
-    do
+
+    if (!is_alternating())
       {
-        unsigned src;
-        unsigned tid;
-        std::tie(src, tid) = todo.back();
-        if (tid == 0U)
+        std::vector<std::pair<unsigned, unsigned>> todo; // state, edge
+        useful[get_init_state_number()] = 1;
+        todo.emplace_back(init_number_, g_.state_storage(init_number_).succ);
+        do
           {
-            todo.pop_back();
-            order.emplace_back(src);
-            continue;
+            unsigned src;
+            unsigned tid;
+            std::tie(src, tid) = todo.back();
+            if (tid == 0U)
+              {
+                todo.pop_back();
+                order.emplace_back(src);
+                continue;
+              }
+            auto& t = g_.edge_storage(tid);
+            todo.back().second = t.next_succ;
+            unsigned dst = t.dst;
+            if (useful[dst] != 1)
+              {
+                todo.emplace_back(dst, g_.state_storage(dst).succ);
+                useful[dst] = 1;
+              }
           }
-        auto& t = g_.edge_storage(tid);
-        todo.back().second = t.next_succ;
-        unsigned dst = t.dst;
-        if (useful[dst] != 1)
-          {
-            todo.emplace_back(dst, g_.state_storage(dst).succ);
-            useful[dst] = 1;
-          }
+        while (!todo.empty());
       }
-    while (!todo.empty());
+    else
+      {
+        // state, edge, begin, end
+        std::vector<std::tuple<unsigned, unsigned,
+                               const unsigned*, const unsigned*>> todo;
+        auto& dests = g_.dests_vector();
+
+        auto beginend = [&](const unsigned& dst,
+                            const unsigned*& begin, const unsigned*& end)
+          {
+            if ((int)dst < 0)
+              {
+                begin = dests.data() + ~dst + 1;
+                end = begin + dests[~dst];
+              }
+            else
+              {
+                begin = &dst;
+                end = begin + 1;
+              }
+          };
+        {
+          const unsigned* begin;
+          const unsigned* end;
+          beginend(init_number_, begin, end);
+          todo.emplace_back(init_number_, 0U, begin, end);
+        }
+
+        do
+          {
+            unsigned& tid = std::get<1>(todo.back());
+            const unsigned*& begin = std::get<2>(todo.back());
+            const unsigned*& end = std::get<3>(todo.back());
+            if (tid == 0U && begin == end)
+              {
+                todo.pop_back();
+                unsigned src = std::get<0>(todo.back());
+                if ((int)src >= 0)
+                  order.emplace_back(src);
+                continue;
+              }
+            unsigned dst = *begin++;
+            if (begin == end)
+              {
+                if (tid != 0)
+                  tid = g_.edge_storage(tid).next_succ;
+                if (tid != 0)
+                  beginend(g_.edge_storage(tid).dst, begin, end);
+              }
+            if (useful[dst] != 1)
+              {
+                auto& ss = g_.state_storage(dst);
+                unsigned succ = ss.succ;
+                if (succ == 0U)
+                  continue;
+                useful[dst] = 1;
+                const unsigned* begin;
+                const unsigned* end;
+                beginend(g_.edge_storage(succ).dst, begin, end);
+                todo.emplace_back(dst, succ, begin, end);
+              }
+          }
+        while (!todo.empty());
+      }
 
     // Process states in topological order
     for (auto s: order)
@@ -288,8 +344,15 @@ namespace spot
         bool useless = true;
         while (t)
           {
+            bool usefuldst = false;
+            for (unsigned d: univ_dests(t->dst))
+              if (useful[d])
+                {
+                  usefuldst = true;
+                  break;
+                }
             // Erase any edge to a useless state.
-            if (!useful[t->dst])
+            if (!usefuldst)
               {
                 t.erase();
                 continue;
@@ -303,10 +366,22 @@ namespace spot
           useful[s] = 0;
       }
 
-    // Make sure the initial state is useful (even if it has been
-    // marked as useless by the previous loop because it has no
-    // successor).
-    useful[init_number_] = 1;
+    // Make sure at least one initial destination is useful (even if
+    // it has been marked as useless by the previous loop because it
+    // has no successor).
+    bool usefulinit = false;
+    for (unsigned d: univ_dests(init_number_))
+      if (useful[d])
+        {
+          usefulinit = true;
+          break;
+        }
+    if (!usefulinit)
+      for (unsigned d: univ_dests(init_number_))
+        {
+          useful[d] = true;
+          break;
+        }
 
     // Now renumber each used state.
     unsigned current = 0;
@@ -317,13 +392,59 @@ namespace spot
         useful[s] = -1U;
     if (current == num_states)
       return;                        // No useless state.
-    init_number_ = useful[init_number_];
     defrag_states(std::move(useful), current);
   }
 
   void twa_graph::defrag_states(std::vector<unsigned>&& newst,
                                 unsigned used_states)
   {
+    if (is_alternating())
+      {
+        auto& g = get_graph();
+        auto& dests = g.dests_vector();
+
+        std::vector<unsigned> old_dests;
+        std::swap(dests, old_dests);
+        std::vector<unsigned> seen(old_dests.size(), -1U);
+        internal::univ_dest_mapper<twa_graph::graph_t> uniq(g);
+
+        auto fixup = [&](unsigned& in_dst)
+          {
+            unsigned dst = in_dst;
+            if ((int) dst >= 0)       // not a universal edge
+              return;
+            dst = ~dst;
+            unsigned& nd = seen[dst];
+            if (nd == -1U)
+              {
+                std::vector<unsigned> tmp;
+                auto begin = old_dests.data() + dst + 1;
+                auto end = begin + old_dests[dst];
+                while (begin != end)
+                  {
+                    unsigned n = newst[*begin++];
+                    if (n == -1U)
+                      continue;
+                    tmp.emplace_back(n);
+                  }
+                if (tmp.empty())
+                  {
+                    nd = -1U;
+                  }
+                else
+                  {
+                    nd = newst.size();
+                    newst.emplace_back(uniq.new_univ_dests(tmp.begin(),
+                                                           tmp.end()));
+                  }
+              }
+            in_dst = nd;
+          };
+        fixup(init_number_);
+        for (auto& e: edges())
+          fixup(e.dst);
+      }
+
     if (auto* names = get_named_prop<std::vector<std::string>>("state-names"))
       {
         unsigned size = names->size();
@@ -348,6 +469,7 @@ namespace spot
           }
         std::swap(*hs, hs2);
       }
+    init_number_ = newst[init_number_];
     g_.defrag_states(std::move(newst), used_states);
   }
 

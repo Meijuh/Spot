@@ -26,6 +26,7 @@
 #include <cassert>
 #include <iterator>
 #include <algorithm>
+#include <map>
 #include <iostream>
 #include <type_traits>
 
@@ -556,6 +557,33 @@ namespace spot
         return end_;
       }
     };
+
+    template<class G>
+    class univ_dest_mapper
+    {
+      std::map<std::vector<unsigned>, unsigned> uniq_;
+      G& g_;
+    public:
+
+      univ_dest_mapper(G& graph)
+        : g_(graph)
+      {
+      }
+
+      template<class I>
+      unsigned new_univ_dests(I begin, I end)
+      {
+        std::vector<unsigned> tmp(begin, end);
+        std::sort(tmp.begin(), tmp.end());
+        tmp.erase(std::unique(tmp.begin(), tmp.end()), tmp.end());
+        auto p = uniq_.emplace(tmp, 0);
+        if (p.second)
+          p.first->second = g_.new_univ_dests(tmp.begin(), tmp.end());
+        return p.first->second;
+      }
+
+    };
+
   } // namespace internal
 
 
@@ -1126,7 +1154,7 @@ namespace spot
     /// \param used_states the number of states used (after renumbering)
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states)
     {
-      SPOT_ASSERT(newst.size() == states_.size());
+      SPOT_ASSERT(newst.size() >= states_.size());
       SPOT_ASSERT(used_states > 0);
 
       //std::cerr << "\nbefore defrag\n";
@@ -1175,10 +1203,9 @@ namespace spot
       for (edge t = 1; t < dest; ++t)
         {
           auto& tr = edges_[t];
-          tr.next_succ = newidx[tr.next_succ];
-          tr.dst = newst[tr.dst];
           tr.src = newst[tr.src];
-          SPOT_ASSERT(tr.dst != -1U);
+          tr.dst = newst[tr.dst];
+          tr.next_succ = newidx[tr.next_succ];
         }
 
       // Adjust succ and succ_tails pointers in all states.
