@@ -110,6 +110,7 @@ enum {
   OPT_IS_UNAMBIGUOUS,
   OPT_IS_WEAK,
   OPT_IS_INHERENTLY_WEAK,
+  OPT_IS_VERY_WEAK,
   OPT_KEEP_STATES,
   OPT_MASK_ACC,
   OPT_MERGE,
@@ -179,6 +180,8 @@ static const argp_option options[] =
       "keep only weak automata", 0 },
     { "is-inherently-weak", OPT_IS_INHERENTLY_WEAK, nullptr, 0,
       "keep only inherently weak automata", 0 },
+    { "is-very-weak", OPT_IS_VERY_WEAK, nullptr, 0,
+      "keep only very-weak automata", 0 },
     { "intersect", OPT_INTERSECT, "FILENAME", 0,
       "keep automata whose languages have an non-empty intersection with"
       " the automaton from FILENAME", 0 },
@@ -412,6 +415,7 @@ static bool opt_is_unambiguous = false;
 static bool opt_is_terminal = false;
 static bool opt_is_weak = false;
 static bool opt_is_inherently_weak = false;
+static bool opt_is_very_weak = false;
 static bool opt_is_stutter_invariant = false;
 static bool opt_invert = false;
 static range opt_states = { 0, std::numeric_limits<int>::max() };
@@ -657,6 +661,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_IS_INHERENTLY_WEAK:
       opt_is_inherently_weak = true;
+      break;
+    case OPT_IS_VERY_WEAK:
+      opt_is_very_weak = true;
       break;
     case OPT_IS_STUTTER_INVARIANT:
       opt_is_stutter_invariant = true;
@@ -1061,6 +1068,8 @@ namespace
         matched &= is_unambiguous(aut);
       if (opt_is_terminal)
         matched &= is_terminal_automaton(aut);
+      else if (opt_is_very_weak)
+        matched &= is_very_weak_automaton(aut);
       else if (opt_is_weak)
         matched &= is_weak_automaton(aut);
       else if (opt_is_inherently_weak)

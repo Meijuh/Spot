@@ -11,6 +11,8 @@ New in spot 2.2.2.dev (Not yet released)
     alternating automata, but in any case they should display a
     diagnostic: if you see a crash, please report it.
 
+  * autfilt has a new --is-very-weak filter.
+
   Library:
 
   * A twa is required to have at least one state, the initial state.

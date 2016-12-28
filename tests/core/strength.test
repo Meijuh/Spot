@@ -590,6 +590,41 @@ EOF
 diff out expected
 autfilt -q expected
 
+autfilt --is-very-weak in >out
+cat >expected <<EOF
+HOA: v1
+name: "a U b"
+States: 2
+Start: 1
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: very-weak
+--BODY--
+State: 0 {0}
+[t] 0
+State: 1
+[1] 0
+[0&!1] 1
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc colored
+properties: deterministic very-weak
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1 {0}
+[!0] 1
+--END--
+EOF
+diff out expected
+
 
 cat >input <<EOF
 /* This Büchi automaton is not terminal, because of the
