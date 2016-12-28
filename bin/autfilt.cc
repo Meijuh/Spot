@@ -102,15 +102,16 @@ enum {
   OPT_INCLUDED_IN,
   OPT_INHERENTLY_WEAK_SCCS,
   OPT_INTERSECT,
+  OPT_IS_ALTERNATING,
   OPT_IS_COMPLETE,
   OPT_IS_DETERMINISTIC,
   OPT_IS_EMPTY,
+  OPT_IS_INHERENTLY_WEAK,
   OPT_IS_STUTTER_INVARIANT,
   OPT_IS_TERMINAL,
   OPT_IS_UNAMBIGUOUS,
-  OPT_IS_WEAK,
-  OPT_IS_INHERENTLY_WEAK,
   OPT_IS_VERY_WEAK,
+  OPT_IS_WEAK,
   OPT_KEEP_STATES,
   OPT_MASK_ACC,
   OPT_MERGE,
@@ -182,6 +183,8 @@ static const argp_option options[] =
       "keep only inherently weak automata", 0 },
     { "is-very-weak", OPT_IS_VERY_WEAK, nullptr, 0,
       "keep only very-weak automata", 0 },
+    { "is-alternating", OPT_IS_ALTERNATING, nullptr, 0,
+      "keep only automata using universal branching", 0 },
     { "intersect", OPT_INTERSECT, "FILENAME", 0,
       "keep automata whose languages have an non-empty intersection with"
       " the automaton from FILENAME", 0 },
@@ -409,6 +412,7 @@ static struct opt_t
 }* opt;
 
 static bool opt_merge = false;
+static bool opt_is_alternating = false;
 static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
 static bool opt_is_unambiguous = false;
@@ -649,6 +653,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_INTERSECT:
       opt->intersect = read_automaton(arg, opt->dict);
+      break;
+    case OPT_IS_ALTERNATING:
+      opt_is_alternating = true;
       break;
     case OPT_IS_COMPLETE:
       opt_is_complete = true;
@@ -1016,6 +1023,8 @@ namespace
           matched &= opt_unused_ap_n.contains(unused);
           matched &= opt_used_ap_n.contains(aut->ap().size() - unused);
         }
+      if (matched && opt_is_alternating)
+        matched &= aut->is_alternating();
       if (matched && opt_is_complete)
         matched &= is_complete(aut);
       if (matched && (opt_sccs_set | opt_art_sccs_set))

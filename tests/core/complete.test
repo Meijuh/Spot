@@ -227,3 +227,36 @@ EOF
 run 0 autfilt -CH automaton >out
 cat out
 diff out expected
+
+autfilt --is-alternating automaton >out
+cat out
+cat >expected <<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels state-acc
+properties: deterministic very-weak
+--BODY--
+State: 0
+[!0 | 1] 0
+[0&!1] 0&1
+State: 1 {0}
+[0&!1] 1
+--END--
+HOA: v1
+States: 2
+Start: 0&1
+AP: 0
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels state-acc
+properties: deterministic
+--BODY--
+State: 0
+State: 1
+--END--
+EOF
+diff out expected

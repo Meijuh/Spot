@@ -11,7 +11,7 @@ New in spot 2.2.2.dev (Not yet released)
     alternating automata, but in any case they should display a
     diagnostic: if you see a crash, please report it.
 
-  * autfilt has a new --is-very-weak filter.
+  * autfilt has two new filters: --is-very-weak and --is-alternating.
 
   Library:
 
