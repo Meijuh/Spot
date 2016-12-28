@@ -25,6 +25,7 @@
 #include <spot/twaalgos/couvreurnew.hh>
 #include <spot/twaalgos/word.hh>
 #include <spot/twaalgos/remfin.hh>
+#include <spot/twaalgos/alternation.hh>
 #include <spot/twa/twaproduct.hh>
 #include <utility>
 
@@ -48,14 +49,15 @@ namespace spot
 
   namespace
   {
+    // Remove Fin-acceptance and alternation.
     const_twa_ptr remove_fin_maybe(const const_twa_ptr& a)
     {
-      if (!a->acc().uses_fin_acceptance())
-        return a;
       auto aa = std::dynamic_pointer_cast<const twa_graph>(a);
+      if ((!aa || !aa->is_alternating()) && !a->acc().uses_fin_acceptance())
+        return a;
       if (!aa)
         aa = make_twa_graph(a, twa::prop_set::all());
-      return remove_fin(aa);
+      return remove_fin(remove_alternation(aa));
     }
   }
 

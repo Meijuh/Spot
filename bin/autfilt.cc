@@ -468,9 +468,9 @@ static int opt_highlight_nondet_states = -1;
 static int opt_highlight_nondet_edges = -1;
 
 static spot::twa_graph_ptr
-ensure_deterministic(const spot::twa_graph_ptr& aut)
+ensure_deterministic(const spot::twa_graph_ptr& aut, bool nonalt = false)
 {
-  if (spot::is_deterministic(aut))
+  if (!(nonalt && aut->is_alternating()) && spot::is_deterministic(aut))
     return aut;
   spot::postprocessor p;
   p.set_type(spot::postprocessor::Generic);
@@ -567,7 +567,7 @@ parse_opt(int key, char* arg, struct argp_state*)
         error(2, 0, "only one --equivalent-to option can be given");
       opt->equivalent_pos = read_automaton(arg, opt->dict);
       opt->equivalent_neg =
-        spot::dtwa_complement(ensure_deterministic(opt->equivalent_pos));
+        spot::dtwa_complement(ensure_deterministic(opt->equivalent_pos, true));
       break;
     case OPT_GENERALIZED_RABIN:
       if (arg)
@@ -638,7 +638,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_INCLUDED_IN:
       {
-        auto aut = ensure_deterministic(read_automaton(arg, opt->dict));
+        auto aut = ensure_deterministic(read_automaton(arg, opt->dict), true);
         aut = spot::dtwa_complement(aut);
         if (!opt->included_in)
           opt->included_in = aut;
@@ -1088,13 +1088,13 @@ namespace
       if (opt_is_empty)
         matched &= aut->is_empty();
       if (opt->intersect)
-        matched &= !spot::product(aut, opt->intersect)->is_empty();
+        matched &= aut->intersects(opt->intersect);
       if (opt->included_in)
-        matched &= spot::product(aut, opt->included_in)->is_empty();
+        matched &= !aut->intersects(opt->included_in);
       if (opt->equivalent_pos)
-        matched &= spot::product(aut, opt->equivalent_neg)->is_empty()
-          && spot::product(dtwa_complement(ensure_deterministic(aut)),
-                           opt->equivalent_pos)->is_empty();
+        matched &= !aut->intersects(opt->equivalent_neg)
+          && (!dtwa_complement(ensure_deterministic(aut, true))->
+              intersects(opt->equivalent_pos));
 
       if (matched && !opt->acc_words.empty())
         for (auto& word_aut: opt->acc_words)

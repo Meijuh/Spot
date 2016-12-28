@@ -202,3 +202,74 @@ State: 1
 --END--
 EOF
 diff expected res
+
+
+cat >ex1<<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+cat >ex2<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+cat >ex3<<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[0] 1
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+autfilt -q --equivalent-to=ex1 ex2
+autfilt -q --included-in=ex1 ex2
+autfilt -q --equivalent-to=ex1 ex3 && exit 1
+autfilt -q --intersect=ex1 ex3
+
+:
