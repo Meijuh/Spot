@@ -18,8 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <spot/twaalgos/isdet.hh>
-#include <set>
-#include <deque>
+#include <spot/twaalgos/sccinfo.hh>
 
 namespace spot
 {
@@ -148,4 +147,48 @@ namespace spot
     // initial state.
     return ns > 0;
   }
+
+  bool
+  is_semi_deterministic(const const_twa_graph_ptr& aut)
+  {
+    trival sd = aut->prop_semi_deterministic();
+    if (sd.is_known())
+      return sd.is_true();
+    scc_info si(aut);
+    si.determine_unknown_acceptance();
+    unsigned nscc = si.scc_count();
+    assert(nscc);
+    std::vector<bool> reachable_from_acc(nscc);
+    bool semi_det = true;
+    do // iterator of SCCs in reverse topological order
+      {
+        --nscc;
+        if (si.is_accepting_scc(nscc) || reachable_from_acc[nscc])
+          {
+            for (unsigned succ: si.succ(nscc))
+              reachable_from_acc[succ] = true;
+            for (unsigned src: si.states_of(nscc))
+              {
+                bdd available = bddtrue;
+                for (auto& t: aut->out(src))
+                  if (!bdd_implies(t.cond, available))
+                    {
+                      semi_det = false;
+                      std::cerr << "Failed on state " << src << '\n';
+                      goto done;
+                    }
+                  else
+                    {
+                      available -= t.cond;
+                    }
+              }
+          }
+      }
+    while (nscc);
+  done:
+    std::const_pointer_cast<twa_graph>(aut)
+      ->prop_semi_deterministic(semi_det);
+    return semi_det;
+  }
+
 }

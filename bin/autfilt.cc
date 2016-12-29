@@ -107,6 +107,7 @@ enum {
   OPT_IS_DETERMINISTIC,
   OPT_IS_EMPTY,
   OPT_IS_INHERENTLY_WEAK,
+  OPT_IS_SEMI_DETERMINISTIC,
   OPT_IS_STUTTER_INVARIANT,
   OPT_IS_TERMINAL,
   OPT_IS_UNAMBIGUOUS,
@@ -169,6 +170,8 @@ static const argp_option options[] =
       "keep complete automata", 0 },
     { "is-deterministic", OPT_IS_DETERMINISTIC, nullptr, 0,
       "keep deterministic automata", 0 },
+    { "is-semi-deterministic", OPT_IS_SEMI_DETERMINISTIC, nullptr, 0,
+      "keep semi-deterministic automata", 0 },
     { "is-empty", OPT_IS_EMPTY, nullptr, 0,
       "keep automata with an empty language", 0 },
     { "is-stutter-invariant", OPT_IS_STUTTER_INVARIANT, nullptr, 0,
@@ -415,6 +418,7 @@ static bool opt_merge = false;
 static bool opt_is_alternating = false;
 static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
+static bool opt_is_semi_deterministic = false;
 static bool opt_is_unambiguous = false;
 static bool opt_is_terminal = false;
 static bool opt_is_weak = false;
@@ -671,6 +675,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_IS_VERY_WEAK:
       opt_is_very_weak = true;
+      break;
+    case OPT_IS_SEMI_DETERMINISTIC:
+      opt_is_semi_deterministic = true;
       break;
     case OPT_IS_STUTTER_INVARIANT:
       opt_is_stutter_invariant = true;
@@ -1072,9 +1079,16 @@ namespace
       if (opt_nondet_states_set)
         matched &= opt_nondet_states.contains(spot::count_nondet_states(aut));
       if (opt_is_deterministic)
-        matched &= is_deterministic(aut);
-      else if (opt_is_unambiguous)
-        matched &= is_unambiguous(aut);
+        {
+          matched &= is_deterministic(aut);
+        }
+      else
+        {
+          if (opt_is_unambiguous)
+            matched &= is_unambiguous(aut);
+          if (opt_is_semi_deterministic)
+            matched &= is_semi_deterministic(aut);
+        }
       if (opt_is_terminal)
         matched &= is_terminal_automaton(aut);
       else if (opt_is_very_weak)

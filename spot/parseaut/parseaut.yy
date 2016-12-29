@@ -590,6 +590,19 @@ header: format-version header-items
 			    "... 'properties: !unambiguous' given here");
 		    }
 		}
+	      auto sd = p.find("semi-deterministic");
+	      if (sd != e)
+		{
+		  a->prop_semi_deterministic(sd->second.val);
+		  auto d = p.find("deterministic");
+		  if (d != e && !sd->second.val && d->second.val)
+		    {
+		      error(d->second.loc,
+			    "'properties: deterministic' contradicts...");
+		      error(sd->second.loc,
+			    "... 'properties: !semi-deterministic' given here");
+		    }
+		}
 	    }
 	}
 

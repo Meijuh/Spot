@@ -11,7 +11,10 @@ New in spot 2.2.2.dev (Not yet released)
     alternating automata, but in any case they should display a
     diagnostic: if you see a crash, please report it.
 
-  * autfilt has two new filters: --is-very-weak and --is-alternating.
+  * autfilt has three new filters: --is-very-weak, --is-alternating,
+    and --is-semi-deterministic.
+
+  * the --check option can now take "semi-determinism" as argument.
 
   Library:
 
@@ -60,9 +63,10 @@ New in spot 2.2.2.dev (Not yet released)
       https://www.lrde.epita.fr/tut24.html and
       https://www.lrde.epita.fr/tut31.html for some code examples.
 
-  * twa objects have a new property, very-weak, that can be set or
-    retrieved via twa::prop_very_weak(), and that can be tested by
-    is_very_weak_automaton().
+  * twa objects have two new properties, very-weak and
+    semi-deterministic, that can be set or retrieved via
+    twa::prop_very_weak()/twa::prop_semi_deterministic(), and that can
+    be tested by is_very_weak_automaton()/is_semi_deterministic().
 
   Build:
 

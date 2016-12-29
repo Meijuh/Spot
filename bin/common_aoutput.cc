@@ -34,6 +34,7 @@
 #include <spot/twaalgos/neverclaim.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/stutter.hh>
+#include <spot/twaalgos/isdet.hh>
 
 automaton_format_t automaton_format = Hoa;
 static const char* automaton_format_opt = nullptr;
@@ -45,6 +46,7 @@ enum check_type
     check_unambiguous = (1 << 0),
     check_stutter = (1 << 1),
     check_strength = (1 << 2),
+    check_semi_determinism = (1 << 3),
     check_all = -1U,
   };
 static char const *const check_args[] =
@@ -54,6 +56,7 @@ static char const *const check_args[] =
     "stutter-insensitive", "stuttering-insensitive",
     "stutter-sensitive", "stuttering-sensitive",
     "strength", "weak", "terminal",
+    "semi-determinism", "semi-deterministic",
     "all",
     nullptr
   };
@@ -64,6 +67,7 @@ static check_type const check_types[] =
     check_stutter, check_stutter,
     check_stutter, check_stutter,
     check_strength, check_strength, check_strength,
+    check_semi_determinism, check_semi_determinism,
     check_all
   };
 ARGMATCH_VERIFY(check_args, check_types);
@@ -527,6 +531,8 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
         spot::check_unambiguous(aut);
       if (opt_check & check_strength)
         spot::check_strength(aut);
+      if (opt_check & check_semi_determinism)
+        spot::is_semi_deterministic(aut); // sets the property as a side effect.
     }
 
   // Name the output automaton.

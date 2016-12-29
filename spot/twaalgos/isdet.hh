@@ -74,4 +74,13 @@ namespace spot
   /// i.e., each state as a successor for any possible configuration.
   SPOT_API bool
   is_complete(const const_twa_graph_ptr& aut);
+
+  /// \brief Return true iff \a aut is semi-deterministic.
+  ///
+  /// An automaton is semi-deterministic if the sub-automaton
+  /// reachable from any accepting SCC is deterministic.
+  SPOT_API bool
+  is_semi_deterministic(const const_twa_graph_ptr& aut);
+
+
 }

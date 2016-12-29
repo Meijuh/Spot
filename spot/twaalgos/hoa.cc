@@ -489,6 +489,10 @@ namespace spot
       prop(" unambiguous");
     else if (v1_1 && !aut->prop_unambiguous())
       prop(" !unambiguous");
+    if (aut->prop_semi_deterministic() && (verbose || !md.is_deterministic))
+      prop(" semi-deterministic");
+    else if (v1_1 && !aut->prop_semi_deterministic())
+      prop(" !semi-deterministic");
     if (aut->prop_stutter_invariant())
       prop(" stutter-invariant");
     if (!aut->prop_stutter_invariant())

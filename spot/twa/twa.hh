@@ -991,6 +991,7 @@ namespace spot
       trival::repr_t unambiguous:2;       // Unambiguous automaton.
       trival::repr_t stutter_invariant:2; // Stutter invariant language.
       trival::repr_t very_weak:2;         // very-weak, or 1-weak
+      trival::repr_t semi_deterministic:2; // semi-deterministic automaton.
     };
     union
     {
@@ -1285,16 +1286,17 @@ namespace spot
 
     /// \brief Set the deterministic property.
     ///
-    /// Setting the "deterministic" property automatically
-    /// sets the "unambiguous" property.
+    /// Setting the "deterministic" property automatically sets the
+    /// "unambiguous" and "semi-deterministic" properties.
     ///
     /// \see prop_unambiguous()
+    /// \see prop_semi_deterministic()
     void prop_deterministic(trival val)
     {
       is.deterministic = val.val();
       if (val)
-        // deterministic implies unambiguous
-        is.unambiguous = val.val();
+        // deterministic implies unambiguous and semi-deterministic
+        is.unambiguous = is.semi_deterministic = val.val();
     }
 
     /// \brief Whether the automaton is unambiguous
@@ -1324,6 +1326,36 @@ namespace spot
     void prop_unambiguous(trival val)
     {
       is.unambiguous = val.val();
+      if (!val)
+        is.deterministic = val.val();
+    }
+
+    /// \brief Whether the automaton is semi-deterministic
+    ///
+    /// An automaton is semi-deterministic if the sub-automaton
+    /// reachable from any accepting SCC is deterministic.
+    ///
+    /// Note that this method may return trival::maybe() when it is
+    /// unknown whether the automaton is semi-deterministic or not.
+    /// If you need a true/false answer, prefer the
+    /// is_semi_deterministic() function.
+    ///
+    /// \see prop_deterministic()
+    /// \see is_semi_deterministic()
+    trival prop_semi_deterministic() const
+    {
+      return is.semi_deterministic;
+    }
+
+    /// \brief Sets the semi-deterministic property
+    ///
+    /// Marking an automaton as "non semi-deterministic" automatically
+    /// marks it as "non deterministic".
+    ///
+    /// \see prop_deterministic()
+    void prop_semi_deterministic(trival val)
+    {
+      is.semi_deterministic = val.val();
       if (!val)
         is.deterministic = val.val();
     }
@@ -1436,6 +1468,7 @@ namespace spot
       if (p.deterministic)
         {
           prop_deterministic(other->prop_deterministic());
+          prop_semi_deterministic(other->prop_semi_deterministic());
           prop_unambiguous(other->prop_unambiguous());
         }
       if (p.stutter_inv)
@@ -1455,11 +1488,13 @@ namespace spot
         {
           prop_terminal(trival::maybe());
           prop_weak(trival::maybe());
+          prop_very_weak(trival::maybe());
           prop_inherently_weak(trival::maybe());
         }
       if (!p.deterministic)
         {
           prop_deterministic(trival::maybe());
+          prop_semi_deterministic(trival::maybe());
           prop_unambiguous(trival::maybe());
         }
       if (!p.stutter_inv)

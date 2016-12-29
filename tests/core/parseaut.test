@@ -427,7 +427,7 @@ cat >input<<EOF
     acc-name: generalized-Buchi 2
     Acceptance: 2 (Inf(0) & Inf(1))
     properties: implicit-labels trans-acc
-    properties: deterministic !unambiguous
+    properties: deterministic !unambiguous !semi-deterministic
     AP: 2 "a" "b"
     --BODY--
     State: 0 "foo" { 0 }
@@ -456,6 +456,8 @@ input:28.33-44: 'properties: state-labels' is incompatible with...
 input:28.17-31: ... 'properties: implicit-labels'.
 input:48.17-29: 'properties: deterministic' contradicts...
 input:48.31-42: ... 'properties: !unambiguous' given here
+input:48.17-29: 'properties: deterministic' contradicts...
+input:48.44-62: ... 'properties: !semi-deterministic' given here
 input:51.20-24: state-based acceptance used despite...
 input:47.33-41: ... declaration of transition-based acceptance.
 input:59.7-9: transition label used although the automaton was...
