@@ -224,7 +224,7 @@ namespace spot
       unsigned nst = aut->num_states();
       auto res = make_twa_graph(aut->get_dict());
       res->copy_ap_of(aut);
-      res->prop_copy(aut, { true, false, false, true });
+      res->prop_copy(aut, { true, false, false, false, true });
       res->new_states(nst);
       res->set_buchi();
       res->set_init_state(aut->get_init_state_number());
@@ -460,7 +460,7 @@ namespace spot
                                 {
                                   true, // state based
                                     true, // inherently weak
-                                    true, // determinisitic
+                                    true, true, // determinisitic
                                     true,  // stutter inv.
                                     });
       scc_info si(res);
@@ -664,7 +664,7 @@ namespace spot
     unsigned nst = aut->num_states();
     auto res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
-    res->prop_copy(aut, { true, false, false, true });
+    res->prop_copy(aut, { true, false, false, false, true });
     res->new_states(nst);
     res->set_acceptance(aut->num_sets() + extra_sets, new_code);
     res->set_init_state(aut->get_init_state_number());

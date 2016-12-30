@@ -640,7 +640,7 @@ namespace spot
     res->prop_copy(aut,
                    { false, // state based
                        false, // inherently_weak
-                       false, // deterministic
+                       false, false, // deterministic
                        true // stutter inv
                        });
 

@@ -146,7 +146,7 @@ namespace spot
 
     auto out = make_twa_graph(in->get_dict());
     out->copy_ap_of(in);
-    out->prop_copy(in, {false, false, false, true});
+    out->prop_copy(in, {false, false, false, false, true});
     out->set_generalized_buchi(p);
     acc_cond::mark_t outall = out->acc().all_sets();
 

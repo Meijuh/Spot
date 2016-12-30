@@ -141,6 +141,7 @@ namespace spot
                                         true, // state based
                                         true, // inherently_weak
                                         true, // deterministic
+                                        true, // improve det
                                         true, // stutter inv.
                                       });
     complete_here(res);

@@ -594,15 +594,10 @@ namespace spot
         res->prop_copy(original_,
                        { false, // state-based acc forced below
                          true,  // weakness preserved,
-                         true, // determinism checked and overridden below
-                               // and "unambiguous" property preserved
+                         false, true, // determinism improved
                          true, // stutter inv.
                        });
         // !unambiguous and !semi-deterministic are not preserved
-        if (original_->prop_semi_deterministic().is_false())
-          res->prop_semi_deterministic(trival::maybe());
-        if (original_->prop_unambiguous().is_false())
-          res->prop_unambiguous(trival::maybe());
         if (!Cosimulation)
           res->prop_deterministic(nb_minato == nb_satoneset);
         if (Sba)

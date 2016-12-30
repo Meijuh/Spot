@@ -354,7 +354,7 @@ namespace spot
         res->copy_ap_of(aut_);
         // We preserve deterministic-like properties, and
         // stutter-invariance.
-        res->prop_copy(aut_, {false, false, true, true});
+        res->prop_copy(aut_, {false, false, false, true, true});
         res->set_generalized_buchi(has_reject_more_ + reject_1_count_);
 
         // We for easier computation of outgoing sets, we will

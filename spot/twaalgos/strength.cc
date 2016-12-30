@@ -277,7 +277,7 @@ namespace spot
 
     twa_graph_ptr res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
-    res->prop_copy(aut, { true, false, true, false });
+    res->prop_copy(aut, { true, false, false, true, false });
 
     if (keep & Strong)
       res->copy_acceptance_of(aut);

@@ -486,7 +486,7 @@ namespace spot
     // final is empty: there is no acceptance condition
     build_state_set(det_a, non_final);
     auto res = minimize_dfa(det_a, final, non_final);
-    res->prop_copy(a, { false, false, false, true });
+    res->prop_copy(a, { false, false, false, false, true });
     res->prop_deterministic(true);
     res->prop_weak(true);
     res->prop_state_acc(true);
@@ -591,7 +591,7 @@ namespace spot
     }
 
     auto res = minimize_dfa(det_a, final, non_final);
-    res->prop_copy(a, { false, false, false, true });
+    res->prop_copy(a, { false, false, false, false, true });
     res->prop_deterministic(true);
     res->prop_weak(true);
     // If the input was terminal, then the output is also terminal.

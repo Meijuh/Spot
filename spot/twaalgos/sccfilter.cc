@@ -375,7 +375,7 @@ namespace spot
     else
       res = scc_filter_apply<state_filter
                              <acc_filter_mask<false, true>>>(aut, given_si);
-    res->prop_copy(aut, { true, true, true, true });
+    res->prop_copy(aut, { true, true, false, true, true });
     return res;
   }
 
@@ -415,7 +415,8 @@ namespace spot
     res->prop_copy(aut,
                    { false,  // state-based acceptance is not preserved
                      true,
-                     true,
+                     false,
+                     true,      // determinism improved
                      true,
                    });
     return res;
@@ -449,7 +450,7 @@ namespace spot
     res->prop_copy(aut,
                    { false,  // state-based acceptance is not preserved
                      true,
-                     false,  // determinism may not be preserved
+                     false, false, // determinism may not be preserved
                      false,  // stutter inv. of suspvars probably altered
                    });
     return res;

@@ -130,7 +130,7 @@ namespace spot
 
     twa_graph_ptr res = make_twa_graph(d);
     res->copy_ap_of(aut);
-    res->prop_copy(aut, { true, true, false, false });
+    res->prop_copy(aut, { true, true, false, false, false });
     res->copy_acceptance_of(aut);
 
     for (auto ap: props_exist)

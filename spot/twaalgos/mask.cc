@@ -26,7 +26,7 @@ namespace spot
   {
     auto res = make_twa_graph(in->get_dict());
     res->copy_ap_of(in);
-    res->prop_copy(in, { true, true, true, false });
+    res->prop_copy(in, { true, true, true, true, false });
     unsigned na = in->num_sets();
     unsigned tr = to_remove.count();
     assert(tr <= na);
@@ -54,7 +54,7 @@ namespace spot
 
     auto res = make_twa_graph(in->get_dict());
     res->copy_ap_of(in);
-    res->prop_copy(in, { true, true, true, false });
+    res->prop_copy(in, { true, true, false, true, false });
     res->copy_acceptance_of(in);
     transform_copy(in, res, [&](unsigned src,
                                 bdd& cond,
@@ -76,7 +76,7 @@ namespace spot
 
     auto res = make_twa_graph(in->get_dict());
     res->copy_ap_of(in);
-    res->prop_copy(in, { true, true, true, false });
+    res->prop_copy(in, { true, true, false, true, false });
     res->copy_acceptance_of(in);
     transform_accessible(in, res, [&](unsigned src,
                                       bdd& cond,

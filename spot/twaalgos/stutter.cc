@@ -405,7 +405,7 @@ namespace spot
     if (num_states != a->num_states())
       a->prop_keep({true,        // state_based
                     false,        // inherently_weak
-                    false,        // deterministic
+                    false, false, // deterministic
                     false,      // stutter inv.
                    });
     a->merge_edges();
@@ -425,7 +425,7 @@ namespace spot
   {
     a->prop_keep({false,        // state_based
                   false,        // inherently_weak
-                  false,        // deterministic
+                  false, false, // deterministic
                   false,        // stutter inv.
                  });
 
@@ -505,7 +505,7 @@ namespace spot
   twa_graph_ptr
   closure(const const_twa_graph_ptr& a)
   {
-    return closure(make_twa_graph(a, {true, true, true, false}));
+    return closure(make_twa_graph(a, twa::prop_set::all()));
   }
 
   // The stutter check algorithm to use can be overridden via an

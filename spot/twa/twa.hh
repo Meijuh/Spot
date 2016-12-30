@@ -1404,10 +1404,16 @@ namespace spot
     ///
     /// This can be used for instance as:
     /// \code
-    ///    aut->prop_copy(other_aut, {true, false, false, true});
+    ///    aut->prop_copy(other_aut, {true, false, false, false, true});
     /// \endcode
     /// This would copy the "state-based acceptance" and
     /// "stutter invariant" properties from \c other_aut to \c code.
+    ///
+    /// There are two flags for the determinism.  If \code
+    /// deterministic is set, the deterministic, semi-deterministic,
+    /// and unambiguous properties are copied as-is.  If deterministic
+    /// is unset but improve_det is set, then those properties are
+    /// only copied if they are positive.
     ///
     /// The reason there is no default value for these flags is that
     /// whenever we add a new property that do not fall into any of
@@ -1420,7 +1426,8 @@ namespace spot
     {
       bool state_based;     ///< preserve state-based acceptnace
       bool inherently_weak; ///< preserve inherently weak, weak, & terminal
-      bool deterministic;   ///< preserve deterministic and unambiguous
+      bool deterministic;   ///< preserve deterministic, semi-det, unambiguous
+      bool improve_det;     ///< improves deterministic, semi-det, unambiguous
       bool stutter_inv;     ///< preserve stutter invariance
 
       /// \brief An all-true \c prop_set
@@ -1432,7 +1439,7 @@ namespace spot
       /// properties currently implemented, use an explicit
       ///
       /// \code
-      ///    {true, true, true, true}
+      ///    {true, true, true, true, true}
       /// \endcode
       ///
       /// instead of calling \c all().  This way, the day a new
@@ -1440,7 +1447,7 @@ namespace spot
       /// algorithm X, in case that new property is not preserved.
       static prop_set all()
       {
-        return { true, true, true, true };
+        return { true, true, true, true, true };
       }
     };
 
@@ -1471,6 +1478,20 @@ namespace spot
           prop_semi_deterministic(other->prop_semi_deterministic());
           prop_unambiguous(other->prop_unambiguous());
         }
+      else if (p.improve_det)
+        {
+          if (other->prop_deterministic().is_true())
+            {
+              prop_deterministic(true);
+            }
+          else
+            {
+              if (other->prop_semi_deterministic().is_true())
+                prop_semi_deterministic(true);
+              if (other->prop_unambiguous().is_true())
+                prop_unambiguous(true);
+            }
+        }
       if (p.stutter_inv)
         prop_stutter_invariant(other->prop_stutter_invariant());
     }
@@ -1493,9 +1514,12 @@ namespace spot
         }
       if (!p.deterministic)
         {
-          prop_deterministic(trival::maybe());
-          prop_semi_deterministic(trival::maybe());
-          prop_unambiguous(trival::maybe());
+          if (!(p.improve_det && prop_deterministic().is_true()))
+            prop_deterministic(trival::maybe());
+          if (!(p.improve_det && prop_semi_deterministic().is_true()))
+            prop_semi_deterministic(trival::maybe());
+          if (!(p.improve_det && prop_unambiguous().is_true()))
+            prop_unambiguous(trival::maybe());
         }
       if (!p.stutter_inv)
         prop_stutter_invariant(trival::maybe());
