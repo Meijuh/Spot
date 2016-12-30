@@ -598,6 +598,11 @@ namespace spot
                                // and "unambiguous" property preserved
                          true, // stutter inv.
                        });
+        // !unambiguous and !semi-deterministic are not preserved
+        if (original_->prop_semi_deterministic().is_false())
+          res->prop_semi_deterministic(trival::maybe());
+        if (original_->prop_unambiguous().is_false())
+          res->prop_unambiguous(trival::maybe());
         if (!Cosimulation)
           res->prop_deterministic(nb_minato == nb_satoneset);
         if (Sba)
