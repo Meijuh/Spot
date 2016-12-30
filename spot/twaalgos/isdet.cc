@@ -174,7 +174,6 @@ namespace spot
                   if (!bdd_implies(t.cond, available))
                     {
                       semi_det = false;
-                      std::cerr << "Failed on state " << src << '\n';
                       goto done;
                     }
                   else
