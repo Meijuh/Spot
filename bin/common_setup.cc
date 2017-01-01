@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -36,7 +36,7 @@ display_version(FILE *stream, struct argp_state*)
   fputs(program_name, stream);
   fputs(" (" PACKAGE_STRING ")\n\
 \n\
-Copyright (C) 2016  Laboratoire de Recherche et Développement de l'Epita.\n\
+Copyright (C) 2017  Laboratoire de Recherche et Développement de l'Epita.\n\
 License GPLv3+: \
 GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n\
 This is free software: you are free to change and redistribute it.\n\
