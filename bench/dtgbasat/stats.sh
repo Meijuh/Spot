@@ -17,15 +17,15 @@ while IFS=, read f type accmax accmin; do
 
   case $type in
   *TCONG*)
-    echo "$n.log:; ./stat.sh $n '$f' $type $accmax >\$@" >> stats.tmp
+    echo "$n.log:; ./stat-gen.sh $n '$f' $type $accmax >\$@" >> stats.tmp
     all="$all $n.log"
     n=`expr $n + 1`
-    echo "$n.log:; ./stat.sh $n '$f' DRA-CONG $accmax >\$@" >> stats.tmp
+    echo "$n.log:; ./stat-gen.sh $n '$f' DRA-CONG $accmax >\$@" >> stats.tmp
     all="$all $n.log"
     n=`expr $n + 1`
     ;;
   *)
-    echo "$n.log:; ./stat.sh $n '$f' $type $accmax >\$@" >> stats.tmp
+    echo "$n.log:; ./stat-gen.sh $n '$f' $type $accmax >\$@" >> stats.tmp
     all="$all $n.log"
     n=`expr $n + 1`
     ;;

@@ -17,6 +17,6 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 EXTRA_DIST = formulas prepare.sh rundbamin.pl stat.sh stats.sh tabl.pl \
-             tabl1.pl tabl2.pl tabl3.pl tabl4.pl
+             tabl1.pl tabl2.pl tabl3.pl tabl4.pl gen.py config.bench
 
 

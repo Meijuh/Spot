@@ -9,6 +9,9 @@ Note that the encoding used in the SAT-based minimization have evolved
 since the paper, so if you want to reproduce exactly the benchmark
 from the paper, you should download a copy of Spot 1.2.3.
 
+This benchmark has grown since FORTE'14. Some new SAT-based methods have
+been implemented. This benchmark measures all the methods and identifies the
+best.
 
 To reproduce, follow these instructions:
 
@@ -55,19 +58,32 @@ To reproduce, follow these instructions:
    You should set such a limit with "ulimit" if you like.  For instance
    % ulimit -v 41943040
 
-9) Actually run all experiments
+9) Before running the experiment, as Spot has now more SAT-based minimization
+   methods, you may want to reduce or choose the methods to be benched.
+   Have a look at the 'config.bench' file. By default, it contains all the
+   possible methods. Leave it unchanged if you want to compare all methods.
+   If it is changed, you need to re-generate the stat-gen.sh file by running:
+   % ./gen.py script --timeout <int> --unit <h|m|s>
 
-   % make -j4 -f stat.mk
+10) Actually run all experiments
 
-   This will build a CSV file called "all.csv".
+    % make -j4 -f stat.mk
 
-10) You may generate LaTeX code for the tables with the scripts:
-   - tabl.pl: Full data.
-   - tabl1.pl, tabl2.pl, tabl3.pl, tabl4.pl: Partial tables as shown
-   in the paper.
+    This will build a CSV file called "all.csv".
 
-   All these script takes the CSV file all.csv as first argument, and
-   output LaTeX to their standard output.
+11) You may generate LaTeX code for the tables with 'gen.py'. This script is
+    really helpful as it permits you to generate even partial results. If after
+    all benchmarks, you want to compare only two methods among the others, just
+    comment the others in the configuration file 'config.bench' and run this
+    script.
+    % ./gen.py results
+
+    This scripts read the all.csv file generated at the end of the benchmark
+    and outputs two PDF documents:
+    -results.pdf: Which contains all statistics about each formula for each
+     method.
+    -resume.pdf which present two tables that count how many times a method
+     is better than another.
 
 
 For more instruction about how to use ltl2tgba and dstar2tgba to
