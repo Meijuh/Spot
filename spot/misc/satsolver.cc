@@ -128,22 +128,64 @@ namespace spot
     start();
   }
 
+  satsolver::~satsolver()
+  {
+    delete cnf_tmp_;
+    delete cnf_stream_;
+    delete nclauses_;
+  }
+
   void satsolver::start()
   {
     cnf_tmp_ = create_tmpfile("sat-", ".cnf");
     cnf_stream_ = new std::ofstream(cnf_tmp_->name(), std::ios_base::trunc);
     cnf_stream_->exceptions(std::ofstream::failbit | std::ofstream::badbit);
+    nclauses_ = new clause_counter();
+
+    // Add empty line for the header
+    *cnf_stream_ << "                                                 \n";
   }
 
-  satsolver::~satsolver()
+  void satsolver::end_clause()
   {
-    delete cnf_tmp_;
-    delete cnf_stream_;
+    *cnf_stream_ << '\n';
+    *nclauses_ += 1;
   }
 
-  std::ostream& satsolver::operator()()
+  void satsolver::add(std::initializer_list<int> values)
   {
-    return *cnf_stream_;
+    for (auto& v : values)
+    {
+      *cnf_stream_ << v << ' ';
+      if (!v) // ..., 0)
+        end_clause();
+    }
+  }
+
+  void satsolver::add(int v)
+  {
+    *cnf_stream_ << v << ' ';
+    if (!v) // 0
+      end_clause();
+  }
+
+  int satsolver::get_nb_clauses() const
+  {
+    return nclauses_->nb_clauses();
+  }
+
+  std::pair<int, int> satsolver::stats(int nvars)
+  {
+    int nclaus = nclauses_->nb_clauses();
+    cnf_stream_->seekp(0);
+    *cnf_stream_ << "p cnf " << nvars << ' ' << nclaus;
+    return std::make_pair(nvars, nclaus);
+  }
+
+  std::pair<int, int> satsolver::stats()
+  {
+    *cnf_stream_ << "p cnf 1 2\n-1 0\n1 0\n";
+    return std::make_pair(1, 2);
   }
 
   satsolver::solution_pair

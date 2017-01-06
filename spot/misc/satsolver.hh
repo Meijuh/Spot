@@ -24,6 +24,7 @@
 #include <vector>
 #include <stdexcept>
 #include <iosfwd>
+#include <initializer_list>
 
 namespace spot
 {
@@ -68,14 +69,16 @@ namespace spot
 
   /// \brief Interface with a SAT solver.
   ///
-  /// Call start() to create some temporary file, then send DIMACs
-  /// text to the stream returned by operator(), and finally call
-  /// get_solution().
+  /// Call start() to initialize the cnf file. This class provides the
+  /// necessary functions to handle the cnf file, add clauses, count them,
+  /// update the header, add some comments...
+  /// It is not possible to write in the file without having to call these
+  /// functions.
   ///
   /// The satsolver called can be configured via the
-  /// <code>SPOT_SATSOLVER</code> environment variable.  It
-  /// defaults to
-  ///    "satsolver -verb=0 %I >%O"
+  /// <code>SPOT_SATSOLVER</code> environment variable. It must be this set
+  /// following this: "satsolver -verb=0 %I >%O".
+  ///
   /// where %I and %O are replaced by input and output files.
   class SPOT_API satsolver
   {
@@ -83,15 +86,67 @@ namespace spot
     satsolver();
     ~satsolver();
 
+    /// \brief Initialize private attributes
     void start();
-    std::ostream& operator()();
+
+    /// \brief Add a list of lit. to the current clause.
+    void add(std::initializer_list<int> values);
+
+    /// \brief Add a single lit. to the current clause.
+    void add(int v);
+
+    /// \breif Get the current number of clauses.
+    int get_nb_clauses() const;
+
+    /// \breif Update cnf_file's header with the correct stats.
+    std::pair<int, int> stats(int nvars);
+
+    /// \breif Create an unsatisfiable cnf_file, return stats about it.
+    std::pair<int, int> stats();
+
+    /// \breif Add a comment in cnf file.
+    template<typename T>
+    void comment_rec(T single)
+    {
+      *cnf_stream_ << single << ' ';
+    }
+
+    /// \breif Add a comment in cnf_file.
+    template<typename T, typename... Args>
+    void comment_rec(T first, Args... args)
+    {
+      *cnf_stream_ << first << ' ';
+      comment_rec(args...);
+    }
+
+    /// \breif Add a comment in the cnf_file, starting with 'c'.
+    template<typename T>
+    void comment(T single)
+    {
+      *cnf_stream_ << "c " << single << ' ';
+    }
+
+    /// \breif Add comment in the cnf_file, starting with 'c'.
+    template<typename T, typename... Args>
+    void comment(T first, Args... args)
+    {
+      *cnf_stream_ << "c " << first << ' ';
+      comment_rec(args...);
+    }
 
     typedef std::vector<int> solution;
     typedef std::pair<int, solution> solution_pair;
     solution_pair get_solution();
+
+  private:
+    /// \breif End the current clause and increment the counter.
+    void end_clause();
+
   private:
     temporary_file* cnf_tmp_;
     std::ostream* cnf_stream_;
+    clause_counter* nclauses_;
+
   };
 
   /// \brief Extract the solution of a SAT solver output.

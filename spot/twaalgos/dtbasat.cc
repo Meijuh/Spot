@@ -43,8 +43,10 @@
 #define DEBUG 0
 #if DEBUG
 #define dout out << "c "
+#define cnf_comment(...) solver.comment(__VA_ARGS__)
 #define trace std::cerr
 #else
+#define cnf_comment(...) while (0) solver.comment(__VA_ARGS__)
 #define dout while (0) std::cout
 #define trace dout
 #endif
@@ -294,12 +296,10 @@ namespace spot
     typedef std::pair<int, int> sat_stats;
 
     static
-    sat_stats dtba_to_sat(std::ostream& out,
+    sat_stats dtba_to_sat(satsolver solver,
                           const const_twa_graph_ptr& ref,
                           dict& d, bool state_based)
     {
-      clause_counter nclauses;
-
       // Compute the AP used in the hard way.
       bdd ap = bddtrue;
       for (auto& t: ref->edges())
@@ -324,21 +324,15 @@ namespace spot
 
       // empty automaton is impossible
       if (d.cand_size == 0)
-        {
-          out << "p cnf 1 2\n-1 0\n1 0\n";
-          return std::make_pair(1, 2);
-        }
-
-      // An empty line for the header
-      out << "                                                 \n";
+        return solver.stats();
 
 #if DEBUG
       debug_dict = ref->get_dict();
-      dout << "ref_size: " << ref_size << '\n';
-      dout << "cand_size: " << d.cand_size << '\n';
+      solver.comment("ref_size", ref_size, '\n');
+      solver.comment("cand_size", d.cand_size, '\n');
 #endif
 
-      dout << "symmetry-breaking clauses\n";
+      cnf_comment("symmetry-breaking clauses\n");
       unsigned j = 0;
       bdd all = bddtrue;
       while (all != bddfalse)
@@ -350,16 +344,15 @@ namespace spot
               {
                 transition t(i, s, k);
                 int ti = d.transid[t];
-                dout << "¬" << t << '\n';
-                out << -ti << " 0\n";
-                ++nclauses;
+                cnf_comment("¬", t, '\n');
+                solver.add({-ti, 0});
               }
            ++j;
          }
-      if (!nclauses.nb_clauses())
-         dout << "(none)\n";
+      if (!solver.get_nb_clauses())
+         cnf_comment("(none)\n");
 
-      dout << "(1) the candidate automaton is complete\n";
+      cnf_comment("(1) the candidate automaton is complete\n");
       for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
         {
           bdd all = bddtrue;
@@ -369,36 +362,32 @@ namespace spot
               all -= s;
 
 #if DEBUG
-              dout;
+              solver.comment("");
               for (unsigned q2 = 0; q2 < d.cand_size; q2++)
                 {
                   transition t(q1, s, q2);
-                  out << t << "δ";
+                  solver.comment_rec(t, "δ");
                   if (q2 != d.cand_size)
-                    out << " ∨ ";
+                    solver.comment_rec(" ∨ ");
                 }
-              out << '\n';
+              solver.comment_rec('\n');
 #endif
 
               for (unsigned q2 = 0; q2 < d.cand_size; q2++)
                 {
                   transition t(q1, s, q2);
                   int ti = d.transid[t];
-
-                  out << ti << ' ';
+                  solver.add(ti);
                 }
-              out << "0\n";
-
-              ++nclauses;
+              solver.add(0);
             }
         }
 
-      dout << "(2) the initial state is reachable\n";
+      cnf_comment("(2) the initial state is reachable\n");
       {
         unsigned init = ref->get_init_state_number();
-        dout << state_pair(0, init) << '\n';
-        out << d.prodid[state_pair(0, init)] << " 0\n";
-        ++nclauses;
+        cnf_comment(state_pair(0, init), '\n');
+        solver.add({d.prodid[state_pair(0, init)], 0});
       }
 
       for (std::map<state_pair, int>::const_iterator pit = d.prodid.begin();
@@ -407,8 +396,8 @@ namespace spot
           unsigned q1 = pit->first.a;
           unsigned q1p = pit->first.b;
 
-          dout << "(3) augmenting paths based on Cand[" << q1
-               << "] and Ref[" << q1p << "]\n";
+          cnf_comment("(3) augmenting paths based on Cand[", q1, "] and Ref[",
+                      q1p, "]\n");
           for (auto& tr: ref->out(q1p))
             {
               unsigned dp = tr.dst;
@@ -429,10 +418,8 @@ namespace spot
                       if (pit->second == succ)
                         continue;
 
-                      dout << pit->first << " ∧ " << t << "δ → " << p2 << '\n';
-                      out << -pit->second << ' ' << -ti << ' '
-                          << succ << " 0\n";
-                      ++nclauses;
+                      cnf_comment(pit->first, " ∧ ", t, "δ → ", p2, '\n');
+                      solver.add({-pit->second, -ti, succ, 0});
                     }
                 }
             }
@@ -463,8 +450,8 @@ namespace spot
                   {
                     path p1(q1, q1p, q2, q2p);
 
-                    dout << "(4&5) matching paths from reference based on "
-                         << p1 << '\n';
+                    cnf_comment("(4&5) matching paths from reference based on",
+                                p1, '\n');
 
                     int pid1;
                     if (q1 == q2 && q1p == q2p)
@@ -495,11 +482,9 @@ namespace spot
                                     int ti = d.transid[t];
                                     int ta = d.transacc[t];
 
-                                    dout << p1 << "R ∧ " << t << "δ → ¬" << t
-                                         << "F\n";
-                                    out << -pid1 << ' ' << -ti << ' '
-                                        << -ta << " 0\n";
-                                    ++nclauses;
+                                    cnf_comment(p1, "R ∧", t, "δ → ¬", t,
+                                                "F\n");
+                                    solver.add({-pid1, -ti, -ta, 0});
                                   }
 
 
@@ -521,11 +506,8 @@ namespace spot
                                     transition t(q2, s, q3);
                                     int ti = d.transid[t];
 
-                                    dout << p1 << "R ∧ " << t << "δ → " << p2
-                                         << "R\n";
-                                    out << -pid1 << ' ' << -ti << ' '
-                                        << pid2 << " 0\n";
-                                    ++nclauses;
+                                    cnf_comment(p1, "R ∧", t, "δ →", p2, "R\n");
+                                    solver.add({-pid1, -ti, pid2, 0});
                                   }
                               }
                           }
@@ -555,8 +537,8 @@ namespace spot
                 for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
                   {
                     path p1(q1, q1p, q2, q2p);
-                    dout << "(6&7) matching paths from candidate based on "
-                         << p1 << '\n';
+                    cnf_comment("(6&7) matching paths from candidate based on",
+                                p1, '\n');
 
                     int pid1;
                     if (q1 == q2 && q1p == q2p)
@@ -588,11 +570,8 @@ namespace spot
                                     int ti = d.transid[t];
                                     int ta = d.transacc[t];
 
-                                    dout << p1 << "C ∧ " << t << "δ → " << t
-                                         << "F\n";
-                                    out << -pid1 << ' ' << -ti << ' ' << ta
-                                        << " 0\n";
-                                    ++nclauses;
+                                    cnf_comment(p1, "C ∧", t, "δ →", t, "F\n");
+                                    solver.add({-pid1, -ti, ta, 0});
                                   }
                               }
                             else // (7) no loop
@@ -613,12 +592,9 @@ namespace spot
                                     int ti = d.transid[t];
                                     int ta = d.transacc[t];
 
-                                    dout << p1 << "C ∧ " << t << "δ ∧ ¬"
-                                         << t << "F → " << p2 << "C\n";
-
-                                    out << -pid1 << ' ' << -ti << ' '
-                                        << ta << ' ' << pid2 << " 0\n";
-                                    ++nclauses;
+                                    cnf_comment(p1, "C ∧", t, "δ ∧ ¬", t,
+                                                "F →", p2, "C\n");
+                                    solver.add({-pid1, -ti, ta, pid2, 0});
                                   }
                               }
                           }
@@ -626,9 +602,7 @@ namespace spot
                   }
             }
         }
-      out.seekp(0);
-      out << "p cnf " << d.nvars << ' ' << nclauses.nb_clauses();
-      return std::make_pair(d.nvars, nclauses.nb_clauses());
+      return solver.stats(d.nvars);
     }
 
     static twa_graph_ptr
@@ -757,7 +731,7 @@ namespace spot
 
     timer_map t;
     t.start("encode");
-    sat_stats s = dtba_to_sat(solver(), a, d, state_based);
+    sat_stats s = dtba_to_sat(solver, a, d, state_based);
     t.stop("encode");
     t.start("solve");
     solution = solver.get_solution();
