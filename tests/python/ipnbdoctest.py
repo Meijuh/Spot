@@ -94,6 +94,20 @@ def sanitize(s):
     s = re.sub(r'transform="[^"]*"', 'transform=""', s)
     s = re.sub(r'id="edge[^"]*"', 'id="edge"', s)
     s = re.sub(r'text-anchor="[^"]*"', 'text-anchor=""', s)
+    # The following patterns from graphviz 2.40 are rewritten as they used to
+    # be in 2.38.
+    s = re.sub(r'"#000000"', '"black"', s)
+    s = re.sub(r'"#ffffff"', '"white"', s)
+    s = re.sub(r'"#00ff00"', '"green"', s)
+    s = re.sub(r'"#ff0000"', '"red"', s)
+    s = re.sub(r'"#c0c0c0"', '"grey"', s)
+    s = re.sub(r'"#ffa500"', '"orange"', s)
+    s = re.sub(r' fill="black"', '', s)
+    s = re.sub(r' stroke="transparent"', ' stroke="none"', s)
+    s = re.sub(r'><title>', '>\n<title>', s)
+
+    # CalledProcessError message has a final dot in Python 3.6
+    s = re.sub(r"(' returned non-zero exit status \d+)\.", r'\1', s)
     return s
 
 
