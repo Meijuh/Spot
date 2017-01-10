@@ -45,6 +45,11 @@ New in spot 2.2.2.dev (Not yet released)
     --syntactic-recurrence and --syntactic-persistence, the new checks
     are automata-based and will also match pathological formulas.
 
+  * The --format option of ltlfilt/genltl/randltl/ltlgrind learned to
+    print the class of a formula in the temporal hierachy of Manna &
+    Pnueli using %h.  Try to classify the Dwyer & al. patterns with:
+      genltl --dac --format='%[vw]h' | sort | uniq -c
+
   Library:
 
   * A twa is required to have at least one state, the initial state.
@@ -121,6 +126,9 @@ New in spot 2.2.2.dev (Not yet released)
     SAT-based minimization, XCNF files suitable for the incremental SAT
     competition will be generated.  This requires the use of an exteral
     SAT solver, setup with "SPOT_SATSOLVER".  See spot-x(7).
+
+  * The new function mp_class(f) returns the class of the formula
+    f in the temporal hierarchy of Manna & Pnueli.
 
 New in spot 2.2.2 (2016-12-16)
 

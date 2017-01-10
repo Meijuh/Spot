@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// Copyright (C) 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -36,14 +36,18 @@ extern output_format_t output_format;
 extern bool full_parenth;
 extern bool escape_csv;
 
-#define COMMON_LTL_OUTPUT_SPECS                                 \
-    { "%a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,           \
-      "number of atomic propositions used in the formula", 0 }, \
-    { "%s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,           \
-      "the length (or size) of the formula", 0 },               \
-    { "%b", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,           \
-      "the Boolean-length of the formula (i.e., all Boolean "   \
-      "subformulas count as 1)", 0 }
+#define COMMON_LTL_OUTPUT_SPECS                                         \
+    { "%a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                   \
+        "number of atomic propositions used in the formula", 0 },       \
+    { "%s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                   \
+        "the length (or size) of the formula", 0 },                     \
+    { "%b", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                   \
+        "the Boolean-length of the formula (i.e., all Boolean "         \
+        "subformulas count as 1)", 0 },                                 \
+    { "%h, %[vw]h", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,           \
+        "the class of the formula is the Manna-Pnueli hierarchy "       \
+        "([v] replaces abbreviations by class names, [w] for all "      \
+        "compatible classes)", 0 }
 
 extern const struct argp output_argp;
 

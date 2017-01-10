@@ -24,6 +24,7 @@
 #include <spot/tl/print.hh>
 #include <spot/tl/length.hh>
 #include <spot/tl/apcollect.hh>
+#include <spot/tl/hierarchy.hh>
 #include <spot/misc/formater.hh>
 #include <spot/misc/escape.hh>
 #include "common_cout.hh"
@@ -157,6 +158,109 @@ namespace
     const char* suffix;
   };
 
+  class printable_formula_class final:
+    public spot::printable_value<char>
+  {
+  public:
+    printable_formula_class&
+    operator=(char new_val)
+    {
+      val_ = new_val;
+      return *this;
+    }
+
+    virtual void
+    print(std::ostream& os, const char* opt) const override
+    {
+      bool verbose = false;
+      bool wide = false;
+      if (*opt == '[')
+        do
+          switch (*++opt)
+            {
+            case 'v':
+              verbose = true;
+              break;
+            case 'w':
+              wide = true;
+              break;
+            case ' ':
+            case '\t':
+            case '\n':
+            case ',':
+            case ']':
+              break;
+            }
+        while (*opt != ']');
+
+      std::string c(1, val_);
+      if (wide)
+        {
+          switch (val_)
+            {
+            case 'B':
+              c = "GSOPRT";
+              break;
+            case 'G':
+              c = "GOPRT";
+              break;
+            case 'S':
+              c = "SOPRT";
+              break;
+            case 'O':
+              c = "OPRT";
+              break;
+            case 'P':
+              c = "PT";
+              break;
+            case 'R':
+              c = "RT";
+              break;
+            case 'T':
+              break;
+            }
+        }
+      if (!verbose)
+        {
+          os << c;
+          return;
+        }
+
+      bool first = true;
+      for (char ch: c)
+        {
+          if (first)
+            first = false;
+          else
+            os << ' ';
+          switch (ch)
+            {
+            case 'B':
+              os << "guarantee safety";
+              break;
+            case 'G':
+              os << "guarantee";
+              break;
+            case 'S':
+              os << "safety";
+              break;
+            case 'O':
+              os << "obligation";
+              break;
+            case 'P':
+              os << "persistence";
+              break;
+            case 'R':
+              os << "recurrence";
+              break;
+            case 'T':
+              os << "reactivity";
+              break;
+            }
+        }
+    }
+  };
+
   class printable_formula final:
     public spot::printable_value<const formula_with_location*>
   {
@@ -187,6 +291,7 @@ namespace
       declare('F', &filename_);
       declare('L', &line_);
       declare('s', &size_);
+      declare('h', &class_);
       declare('<', &prefix_);
       declare('>', &suffix_);
       set_output(os);
@@ -212,6 +317,8 @@ namespace
         bool_size_ = spot::length_boolone(f);
       if (has('s'))
         size_ = spot::length(f);
+      if (has('h'))
+        class_ = spot::mp_class(f);
       return format(format_);
     }
 
@@ -223,6 +330,7 @@ namespace
     spot::printable_value<const char*> prefix_;
     spot::printable_value<const char*> suffix_;
     spot::printable_value<int> size_;
+    printable_formula_class class_;
     spot::printable_value<int> bool_size_;
     spot::printable_value<int> ap_num_;
   };

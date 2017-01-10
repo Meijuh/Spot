@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
-## l'Epita (LRDE).
+## Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -31,6 +31,7 @@ tl_HEADERS =					\
   environment.hh				\
   exclusive.hh					\
   formula.hh					\
+  hierarchy.hh					\
   length.hh					\
   ltlf.hh					\
   mutation.hh					\
@@ -53,6 +54,7 @@ libtl_la_SOURCES =				\
   dot.cc					\
   exclusive.cc					\
   formula.cc					\
+  hierarchy.cc					\
   length.cc					\
   ltlf.cc					\
   mark.cc					\

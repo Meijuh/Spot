@@ -44,3 +44,21 @@ test 3 -eq `genltl --dac | ltlfilt --recurrence -v -c`
 test 3 -eq `genltl --dac | ltl2tgba -G -D -S |
      autfilt --generalized-rabin | dstar2tgba |
      autfilt --is-deterministic -v -c`
+
+test "$(echo $(genltl --dac --format='%h') | sed 's/ //g')" = \
+     SSSSSGSOSRSSSSSSSSSSSSPSSRSRSRSSSSSSSSSSRORRRRSRSTRSRST
+
+
+# Implementations of uniq differ in the number of leading spaces, so
+# we remove them all.
+genltl --dac --format='%[vw]h' | sort | uniq -c |
+    sed 's/^ *\([0-9]\+\) \+/\1 /g' >out
+cat >expected <<EOF
+1 guarantee obligation persistence recurrence reactivity
+2 obligation persistence recurrence reactivity
+1 persistence reactivity
+2 reactivity
+12 recurrence reactivity
+37 safety obligation persistence recurrence reactivity
+EOF
+diff out expected
