@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -23,6 +23,22 @@
 
 namespace spot
 {
+  /// \brief Convert a state-based Rabin automaton to Büchi automaton,
+  /// preserving determinism when possible.
+  ///
+  /// Return nullptr if the input is not a Rabin automaton, or is not
+  /// state-based.
+  ///
+  /// This essentially applies the algorithm from "Deterministic
+  /// ω-automata vis-a-vis Deterministic Büchi Automata", S. Krishnan,
+  /// A. Puri, and R. Brayton (ISAAC'94), but SCC-wise.
+  ///
+  /// Unless you know what you are doing, you are probably better off
+  /// calling remove_fin() instead, as this will call more specialized
+  /// algorithms (e.g., for weak automata) when appropriate.
+  SPOT_API twa_graph_ptr
+  rabin_to_buchi_maybe(const const_twa_graph_ptr& aut);
+
   /// \brief Rewrite an automaton without Fin acceptance.
   SPOT_API twa_graph_ptr
   remove_fin(const const_twa_graph_ptr& aut);

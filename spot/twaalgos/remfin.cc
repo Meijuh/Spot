@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -305,79 +305,6 @@ namespace spot
       return res;
     }
 
-    static twa_graph_ptr
-    rabin_to_buchi_maybe(const const_twa_graph_ptr& aut)
-    {
-      if (!aut->prop_state_acc().is_true())
-        return nullptr;
-
-      auto code = aut->get_acceptance();
-
-      if (code.is_t())
-        return nullptr;
-
-      acc_cond::mark_t inf_pairs = 0U;
-      acc_cond::mark_t inf_alone = 0U;
-      acc_cond::mark_t fin_alone = 0U;
-
-      auto s = code.back().size;
-
-      // Rabin 1
-      if (code.back().op == acc_cond::acc_op::And && s == 4)
-        goto start_and;
-      // Co-Büchi
-      else if (code.back().op == acc_cond::acc_op::Fin && s == 1)
-        goto start_fin;
-      // Rabin >1
-      else if (code.back().op != acc_cond::acc_op::Or)
-        return nullptr;
-
-      while (s)
-        {
-          --s;
-          if (code[s].op == acc_cond::acc_op::And)
-            {
-            start_and:
-              auto o1 = code[--s].op;
-              auto m1 = code[--s].mark;
-              auto o2 = code[--s].op;
-              auto m2 = code[--s].mark;
-              // We expect
-              //   Fin({n}) & Inf({n+1})
-              if (o1 != acc_cond::acc_op::Fin ||
-                  o2 != acc_cond::acc_op::Inf ||
-                  m1.count() != 1 ||
-                  m2.count() != 1 ||
-                  m2 != (m1 << 1U))
-                return nullptr;
-              inf_pairs |= m2;
-            }
-          else if (code[s].op == acc_cond::acc_op::Fin)
-            {
-            start_fin:
-              fin_alone |= code[--s].mark;
-            }
-          else if (code[s].op == acc_cond::acc_op::Inf)
-            {
-              auto m1 = code[--s].mark;
-              if (m1.count() != 1)
-                return nullptr;
-              inf_alone |= m1;
-            }
-          else
-            {
-              return nullptr;
-            }
-        }
-
-      trace << "inf_pairs: " << inf_pairs << '\n';
-      trace << "inf_alone: " << inf_alone << '\n';
-      trace << "fin_alone: " << fin_alone << '\n';
-      return ra_to_ba(aut, inf_pairs, inf_alone, fin_alone);
-    }
-
-
-
     // If the DNF is
     //  Fin(1)&Inf(2)&Inf(4) | Fin(2)&Fin(3)&Inf(1) |
     //  Inf(1)&Inf(3) | Inf(1)&Inf(2) | Fin(4)
@@ -485,6 +412,78 @@ namespace spot
       return res;
     }
   }
+
+  twa_graph_ptr
+  rabin_to_buchi_maybe(const const_twa_graph_ptr& aut)
+  {
+    if (!aut->prop_state_acc().is_true())
+      return nullptr;
+
+    auto code = aut->get_acceptance();
+
+    if (code.is_t())
+      return nullptr;
+
+    acc_cond::mark_t inf_pairs = 0U;
+    acc_cond::mark_t inf_alone = 0U;
+    acc_cond::mark_t fin_alone = 0U;
+
+    auto s = code.back().size;
+
+    // Rabin 1
+    if (code.back().op == acc_cond::acc_op::And && s == 4)
+      goto start_and;
+    // Co-Büchi
+    else if (code.back().op == acc_cond::acc_op::Fin && s == 1)
+      goto start_fin;
+    // Rabin >1
+    else if (code.back().op != acc_cond::acc_op::Or)
+      return nullptr;
+
+    while (s)
+      {
+        --s;
+        if (code[s].op == acc_cond::acc_op::And)
+          {
+          start_and:
+            auto o1 = code[--s].op;
+            auto m1 = code[--s].mark;
+            auto o2 = code[--s].op;
+            auto m2 = code[--s].mark;
+            // We expect
+            //   Fin({n}) & Inf({n+1})
+            if (o1 != acc_cond::acc_op::Fin ||
+                o2 != acc_cond::acc_op::Inf ||
+                m1.count() != 1 ||
+                m2.count() != 1 ||
+                m2 != (m1 << 1U))
+              return nullptr;
+            inf_pairs |= m2;
+          }
+        else if (code[s].op == acc_cond::acc_op::Fin)
+          {
+          start_fin:
+            fin_alone |= code[--s].mark;
+          }
+        else if (code[s].op == acc_cond::acc_op::Inf)
+          {
+            auto m1 = code[--s].mark;
+            if (m1.count() != 1)
+              return nullptr;
+            inf_alone |= m1;
+          }
+        else
+          {
+            return nullptr;
+          }
+      }
+
+    trace << "inf_pairs: " << inf_pairs << '\n';
+    trace << "inf_alone: " << inf_alone << '\n';
+    trace << "fin_alone: " << fin_alone << '\n';
+    return ra_to_ba(aut, inf_pairs, inf_alone, fin_alone);
+  }
+
 
   twa_graph_ptr remove_fin(const const_twa_graph_ptr& aut)
   {

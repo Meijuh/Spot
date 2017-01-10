@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -45,12 +45,16 @@
 #include <spot/tl/exclusive.hh>
 #include <spot/tl/ltlf.hh>
 #include <spot/tl/print.hh>
+#include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/ltl2tgba_fm.hh>
 #include <spot/twaalgos/minimize.hh>
+#include <spot/twaalgos/postproc.hh>
+#include <spot/twaalgos/product.hh>
+#include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/stutter.hh>
+#include <spot/twaalgos/totgba.hh>
 #include <spot/twaalgos/word.hh>
-#include <spot/twaalgos/product.hh>
 
 const char argp_program_doc[] ="\
 Read a list of formulas and output them back after some optional processing.\v\
@@ -81,6 +85,8 @@ enum {
   OPT_NEGATE,
   OPT_NNF,
   OPT_OBLIGATION,
+  OPT_PERSISTENCE,
+  OPT_RECURRENCE,
   OPT_REJECT_WORD,
   OPT_RELABEL,
   OPT_RELABEL_BOOL,
@@ -178,6 +184,10 @@ static const argp_option options[] =
       "match guarantee formulas (even pathological)", 0 },
     { "obligation", OPT_OBLIGATION, nullptr, 0,
       "match obligation formulas (even pathological)", 0 },
+    { "persistence", OPT_PERSISTENCE, nullptr, 0,
+      "match persistence formulas (even pathological)", 0 },
+    { "recurrence", OPT_RECURRENCE, nullptr, 0,
+      "match recurrence formulas (even pathological)", 0 },
     { "size", OPT_SIZE, "RANGE", 0,
       "match formulas with size in RANGE", 0},
     // backward compatibility
@@ -272,6 +282,8 @@ static bool syntactic_si = false;
 static bool safety = false;
 static bool guarantee = false;
 static bool obligation = false;
+static bool recurrence = false;
+static bool persistence = false;
 static range size = { -1, -1 };
 static range bsize = { -1, -1 };
 enum relabeling_mode { NoRelabeling = 0, ApRelabeling, BseRelabeling };
@@ -421,6 +433,12 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_OBLIGATION:
       obligation = true;
+      break;
+    case OPT_PERSISTENCE:
+      persistence = true;
+      break;
+    case OPT_RECURRENCE:
+      recurrence = true;
       break;
     case OPT_REJECT_WORD:
       try
@@ -652,45 +670,99 @@ namespace
         || simpl.are_equivalent(f, opt->equivalent_to);
       matched &= !stutter_insensitive || spot::is_stutter_invariant(f);
 
-      if (matched && (obligation
+      if (matched && (obligation || recurrence || persistence
                       || !opt->acc_words.empty()
                       || !opt->rej_words.empty()))
         {
-          auto aut = ltl_to_tgba_fm(f, simpl.get_dict());
+          spot::twa_graph_ptr aut = nullptr;
 
-          if (matched && !opt->acc_words.empty())
-            for (auto& word_aut: opt->acc_words)
-              if (spot::product(aut, word_aut)->is_empty())
-                {
-                  matched = false;
-                  break;
-                }
-
-          if (matched && !opt->rej_words.empty())
-            for (auto& word_aut: opt->rej_words)
-              if (!spot::product(aut, word_aut)->is_empty())
-                {
-                  matched = false;
-                  break;
-                }
-
-          // Match obligations and subclasses using WDBA minimization.
-          // Because this is costly, we compute it later, so that we don't
-          // have to compute it on formulas that have been discarded for
-          // other reasons.
-          if (matched && obligation)
+          if (!opt->acc_words.empty() && !opt->rej_words.empty())
             {
-              auto min = minimize_obligation(aut, f);
-              assert(min);
-              if (aut == min)
+              aut = ltl_to_tgba_fm(f, simpl.get_dict(), true);
+
+              if (matched && !opt->acc_words.empty())
+                for (auto& word_aut: opt->acc_words)
+                  if (spot::product(aut, word_aut)->is_empty())
+                    {
+                      matched = false;
+                      break;
+                    }
+
+              if (matched && !opt->rej_words.empty())
+                for (auto& word_aut: opt->rej_words)
+                  if (!spot::product(aut, word_aut)->is_empty())
+                    {
+                      matched = false;
+                      break;
+                    }
+            }
+
+          // Some combinations of options can be simplified.
+          if (recurrence && persistence)
+            obligation = true;
+          if (obligation && recurrence)
+            recurrence = false;
+          if (obligation && persistence)
+            persistence = false;
+
+          // Try a syntactic match before looking at the automata.
+          if (matched &&
+              !((!persistence || f.is_syntactic_persistence())
+                && (!recurrence || f.is_syntactic_recurrence())
+                && (!guarantee || f.is_syntactic_guarantee())
+                && (!safety || f.is_syntactic_safety())
+                && (!obligation || f.is_syntactic_obligation())))
+            {
+              if (persistence)
+                aut = ltl_to_tgba_fm(spot::formula::Not(f),
+                                     simpl.get_dict(), true);
+              else if (!aut)
+                aut = ltl_to_tgba_fm(f, simpl.get_dict(), true);
+
+              // Match obligations and subclasses using WDBA minimization.
+              // Because this is costly, we compute it later, so that we don't
+              // have to compute it on formulas that have been discarded for
+              // other reasons.
+              if (obligation)
                 {
-                  // Not an obligation
-                  matched = false;
+                  auto min = minimize_obligation(aut, f);
+                  assert(min);
+                  if (aut == min)
+                    {
+                      // Not an obligation
+                      matched = false;
+                    }
+                  else
+                    {
+                      matched &= !guarantee || is_terminal_automaton(min);
+                      matched &= !safety || is_safety_mwdba(min);
+                    }
                 }
-              else
+              // Recurrence properties are those that can be translated to
+              // deterministic BA.  Persistence are those whose negation
+              // can be represented as DBA.
+              else if (!is_deterministic(aut))
                 {
-                  matched &= !guarantee || is_terminal_automaton(min);
-                  matched &= !safety || is_safety_mwdba(min);
+                  assert(recurrence || persistence);
+                  // if aut is a non-deterministic TGBA, we do
+                  // TGBA->DPA->DRA->(D?)BA.  The conversion from DRA to
+                  // BA will preserve determinism if possible.
+                  spot::postprocessor p;
+                  p.set_type(spot::postprocessor::Generic);
+                  p.set_pref(spot::postprocessor::Deterministic
+                             | spot::postprocessor::SBAcc);
+                  p.set_level(spot::postprocessor::Low);
+                  auto dra = p.run(aut);
+                  if (dra->acc().is_generalized_buchi())
+                    {
+                      assert(is_deterministic(dra));
+                    }
+                  else
+                    {
+                      auto ba = rabin_to_buchi_maybe(to_generalized_rabin(dra));
+                      assert(ba);
+                      matched &= is_deterministic(ba);
+                    }
                 }
             }
         }

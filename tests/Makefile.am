@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
 
-## Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+## Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 ## Laboratoire de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ## Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -182,6 +182,7 @@ TESTS_tl = \
   core/uwrm.test \
   core/eventuniv.test \
   core/stutter-ltl.test \
+  core/hierarchy.test \
   core/format.test
 
 TESTS_graph = \

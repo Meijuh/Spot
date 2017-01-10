@@ -1,0 +1,46 @@
+#!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2017 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+. ./defs
+
+set -e
+
+test 11 -eq `genltl --dac | ltlfilt --syntactic-safety -c`
+test 37 -eq `genltl --dac | ltlfilt --safety -c`
+test 'Fp0' = `genltl --dac | ltlfilt --syntactic-guarantee`
+test 'Fp0' = `genltl --dac | ltlfilt --guarantee`
+test 25 -eq `genltl --dac | ltlfilt --syntactic-obligation -c`
+test 40 -eq `genltl --dac | ltlfilt --obligation -c`
+test 47 -eq `genltl --dac | ltlfilt --syntactic-recurrence -c`
+test 52 -eq `genltl --dac | ltlfilt --recurrence -c`
+test 29 -eq `genltl --dac | ltlfilt --syntactic-persistence -c`
+test 41 -eq `genltl --dac | ltlfilt --persistence -c`
+test 'G!p0 | F(p0 & (!p1 W p2))' = "`genltl --dac |
+     ltlfilt -v --obligation | ltlfilt --persistence`"
+test 12 -eq `genltl --dac |
+     ltlfilt -v --obligation | ltlfilt --recurrence -c`
+
+# There are only 3 formula that are not recurrence in the DAC set.
+test 3 -eq `genltl --dac | ltlfilt --recurrence -v -c`
+
+# There are only 3 formula that we cannot convert to DBA.
+test 3 -eq `genltl --dac | ltl2tgba -G -D -S |
+     autfilt --generalized-rabin | dstar2tgba |
+     autfilt --is-deterministic -v -c`

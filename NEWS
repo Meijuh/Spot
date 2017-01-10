@@ -40,6 +40,11 @@ New in spot 2.2.2.dev (Not yet released)
     too.  See spot-x(7) for details.  The defaults are those that were
     best for the benchmark in bench/dtgbasat/.
 
+  * ltlfilt learned --recurrence and --persistence to match formulas
+    belonging to these two classes of the temporal hierarchy.  Unlike
+    --syntactic-recurrence and --syntactic-persistence, the new checks
+    are automata-based and will also match pathological formulas.
+
   Library:
 
   * A twa is required to have at least one state, the initial state.
