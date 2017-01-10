@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015, 2016, 2017 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -300,7 +300,7 @@ namespace spot
           todo.emplace_back(init_number_, 0U, begin, end);
         }
 
-        do
+        for (;;)
           {
             unsigned& tid = std::get<1>(todo.back());
             const unsigned*& begin = std::get<2>(todo.back());
@@ -308,6 +308,8 @@ namespace spot
             if (tid == 0U && begin == end)
               {
                 todo.pop_back();
+                if (todo.empty())
+                  break;
                 unsigned src = std::get<0>(todo.back());
                 if ((int)src >= 0)
                   order.emplace_back(src);
@@ -334,7 +336,6 @@ namespace spot
                 todo.emplace_back(dst, succ, begin, end);
               }
           }
-        while (!todo.empty());
       }
 
     // Process states in topological order

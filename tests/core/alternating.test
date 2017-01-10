@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Laboratoire de Recherche et Développement de
-# l'Epita (LRDE).
+# Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
+# de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -319,9 +319,9 @@ State: 3
 --END--
 EOF
 
-autfilt --remove-unreachable-states ex4 > out4
+run 0 autfilt --remove-unreachable-states ex4 > out4
 diff expect4 out4
-autfilt --remove-dead-states ex4 > out4
+run 0 autfilt --remove-dead-states ex4 > out4
 diff ex2 out4
 
 
@@ -338,7 +338,7 @@ State: 1
 --END--
 EOF
 
-autfilt --remove-dead-states ex5 > out5
+run 0 autfilt --remove-dead-states ex5 > out5
 cat >expect <<EOF
 HOA: v1
 States: 1
