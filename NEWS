@@ -1,9 +1,23 @@
 New in spot 2.2.2.dev (Not yet released)
 
+  Build:
+
+  * While Spot only relies on C++11 features, the configure script
+    learned --enable-c++14 to compile in C++14 mode.  This allows us
+    check that nothing breaks when we will switch to C++14.
+
+  * Spot is now distributed with PicoSAT 965, and uses it for
+    SAT-based minimization of automata without relying on temporary
+    files.  It is still possible to use an external SAT solver by
+    setting the SPOT_SATSOLVER environment variable.
+
   Tools:
 
-  * ltlcross supports translators that output weak alternating
-    automata in the HOA format (not necessarily *very* weak).
+  * ltlcross supports translators that output alternating automata in
+    the HOA format.  Cross-comparison checks will only work with weak
+    alternating automata (not necessarily *very* weak), but "ltlcross
+    --no-check --csv=..." should work with any alternating automaton
+    if you just want satistics.
 
   * autfilt can read alternating automata.  This is still experimental
     (see below). Some of the algorithms proposed by autfilt will
@@ -14,31 +28,32 @@ New in spot 2.2.2.dev (Not yet released)
   * autfilt has three new filters: --is-very-weak, --is-alternating,
     and --is-semi-deterministic.
 
-  * the --check option can now take "semi-determinism" as argument.
+  * the --check option of autfilt/ltl2tgba/ltldo/dstar2tgba can now
+    take "semi-determinism" as argument.
 
-  * autfilt has a new option '--highlight-languages' that helps to see
-    graphically which states of an automaton recognize the same languages.
+  * autfilt --highlight-languages will color states that recognize
+    identical languages.
 
-  * autfilt '--sat-minimize' option and common '-x sat-minimize' option have
-    undergone some changes because some new algorithms have been implemented
-    and improvements have been made. After benchmarks (that you can reproduce,
-    take a look at bench/dtgbasat), the dichotomy proves to be more effective.
-    It is now used by default. Please, read the man page of spot-x for further
-    details.
+  * 'autfilt --sat-minimize' and 'ltl2tgba -x sat-minimize' have
+    undergone some backward incompatible changes.  They use binary
+    search by default, and support different options than they used
+    too.  See spot-x(7) for details.  The defaults are those that were
+    best for the benchmark in bench/dtgbasat/.
 
   Library:
 
   * A twa is required to have at least one state, the initial state.
 
-  * The Couvreur emptiness check has been rewritten to use the explicit
+  * Couvreur's emptiness check has been rewritten to use the explicit
     interface when possible, to avoid overkill memory allocations.
     The new version has further optimizations for weak and terminal
-    automata. Overall, this new version is roughly 4x faster on explicit
-    automata than the former one. The old version has been kept for
-    compatibility.
+    automata.  Overall, this new version is roughly 4x faster on
+    explicit automata than the former one.  The old version has been
+    kept for backward compatibility, but will be removed eventually.
 
   * The new version of the Couvreur emptiness check is now the default
-    one, used by is_empty() and accepting_run().
+    one, used by twa::is_empty() and twa::accepting_run().  Always
+    prefer these functions over an explicit call to Couvreur.
 
   * experimental support for alternating automata:
 
@@ -84,43 +99,23 @@ New in spot 2.2.2.dev (Not yet released)
     deterministic/semi-deterministic/unambiguous should be preserved
     only if they are positive.
 
-  * language_map() and highlight_languages() are new functions used to
-    implement the --highlight-languages command line option described above.
+  * language_map() and highlight_languages() are new functions that
+    implements the --highlight-languages option mentionned above.
 
-  * dt*a_sat_minimize_dichotomy() now uses language_map() algo to find the
-    lower bound of the binary search.
+  * dtgba_sat_minimize_dichotomy() and dwba_sat_minimize_dichotomy()
+    use language_map() for the lower bound of the binary search.
 
-  * Memory usage of SAT-based minimization is now fully reduced.
-    Those optimizations relies on the fact that almost everything about
-    the candidate automaton is known in advance and all litterals used
-    to encode the SAT problem are continuous.
+  * The encoding part of SAT-based minimization consumes less memory.
 
-  * There is two new algorithms of SAT-based minimization of ω-automata:
-    dt*a_sat_minimize_incr() and dt*a_sat_minimize_assume(). They are
-    implemented to use everything they learn when they get the N-1 size
-    automaton - i.e. all the encoding is preserved. Some clauses are just
-    added gradually to delete more states. For more details, especially the
-    difference between them, read spot/twaalgos/dt*asat.hh headers.
+  * SAT-based minimization of automata can now be done using two
+    incremental techniques that take a solved minimization and attempt
+    to forbid the use of some states.  This is done either by adding
+    clauses, or by using assumptions.
 
-  * Spot introduces a new environment variable "SPOT_XCNF". Incremental
-    SAT competitors, this is for you. During any SAT-based minimization, SPOT
-    can generate the XCNF file corresponding to the incremental resolution from
-    the starting automaton to the minimal one. The file will be outputed as
-    'incr.xcnf' in the folder path given throught "SPOT_XCNF". However, this
-    feature requires the use of an external SAT solver throught
-    "SPOT_SATSOLVER". See man page of spot-x for details.
-
-  Build:
-
-  * The configure script has a new option --enable-c++14, to compile in
-    C++14 mode. Obviously you need a compiler that supports it. This allows
-    to check that nothing breaks when we will switch to C++14. This option
-    is also available in the configure script of buddy.
-
-  * Spot is now distributed with a SAT-solver, PicoSAT 965. This integration
-    takes place to optimize SAT-based minimization of ω-automata. However, it
-    is still possible to use another SAT-solver already installed thanks to
-    the "SPOT_SATSOLVER" environment variable.
+  * If the environment variable "SPOT_XCNF" is set during incremental
+    SAT-based minimization, XCNF files suitable for the incremental SAT
+    competition will be generated.  This requires the use of an exteral
+    SAT solver, setup with "SPOT_SATSOLVER".  See spot-x(7).
 
 New in spot 2.2.2 (2016-12-16)
 
