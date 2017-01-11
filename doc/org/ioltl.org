@@ -207,7 +207,8 @@ from tool to tool:
 | [[file:ltlfilt.org][=ltlgrind=]] | output formula | input filename | input line        | leading text | trailing text |
 
 Other =%=-sequences are supported by these tools, and documented in
-the output of =--help=.
+the output of =--help=.  For instance =%s= can be used to compute the
+size of a formula.
 
 By default everything is output to standard output, so that you can
 redirect the output to a file, and pipe it to another tool.  The

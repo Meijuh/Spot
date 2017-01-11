@@ -470,6 +470,9 @@ ltlfilt --help | sed -n '/The FORMAT/,/^$/p' | sed '$d'
                              Boolean subformulas count as 1)
   %f                         the formula (in the selected syntax)
   %F                         the name of the input file
+  %h, %[vw]h                 the class of the formula is the Manna-Pnueli
+                             hierarchy ([v] replaces abbreviations by class
+                             names, [w] for all compatible classes)
   %L                         the original line number in the input file
   %s                         the length (or size) of the formula
 #+end_example
