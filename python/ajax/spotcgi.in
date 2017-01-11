@@ -1,7 +1,7 @@
 #!@PYTHON@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de
+# Recherche et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -511,8 +511,8 @@ if output_type == 'f':
             automaton = spot.ltl_to_tgba_fm(f, dict, False, True)
             minimized = spot.minimize_obligation(automaton, f)
             if minimized != automaton:
-                g = spot.is_terminal_automaton(minimized)
-                s = spot.is_safety_mwdba(minimized)
+                g = spot.is_terminal_automaton(minimized, None, True)
+                s = spot.is_safety_automaton(minimized)
                 if s and not f.is_syntactic_safety():
                     unbufprint('<li>pathologic safety</li>')
                 if g and not f.is_syntactic_guarantee():

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE)
+// Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016, 2017 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,6 +29,9 @@ namespace spot
   /// are complete, and no accepting transitions lead to a
   /// non-accepting SCC.
   ///
+  /// If ignore_trivial_scc is set, accepting transitions from trivial
+  /// SCCs are ignored.
+  ///
   /// This property guarantees that a word is accepted if it has some
   /// prefix that reaches an accepting transition.
   ///
@@ -41,8 +44,8 @@ namespace spot
   /// the prop_terminal() property of the automaton as a side-effect,
   /// so further calls will return in constant-time.
   SPOT_API bool
-  is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr);
-
+  is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* sm = nullptr,
+                        bool ignore_trivial_scc = false);
 
   /// \brief Check whether an automaton is weak.
   ///
@@ -95,16 +98,22 @@ namespace spot
   is_inherently_weak_automaton(const const_twa_graph_ptr& aut,
                                scc_info* sm = nullptr);
 
-  /// \brief Check whether a minimized WDBA represents a safety
-  /// property.
+  /// \brief Check whether an automaton is a safety automaton.
+  ///
+  /// A safety automaton has only accepting SCCs (or trivial
+  /// SCCs).
   ///
   /// A minimized WDBA (as returned by a successful run of
-  /// minimize_obligation()) represent safety property if it contains
-  /// only accepting transitions.
+  /// minimize_obligation()) represent safety property if it is a
+  /// safety automaton.
   ///
   /// \param aut the automaton to check
+  ///
+  /// \param sm an scc_info object for the automaton if available (it
+  /// will be built otherwise).
   SPOT_API bool
-  is_safety_mwdba(const const_twa_graph_ptr& aut);
+  is_safety_automaton(const const_twa_graph_ptr& aut,
+                      scc_info* sm = nullptr);
 
   /// \brief Check whether an automaton is weak or terminal.
   ///

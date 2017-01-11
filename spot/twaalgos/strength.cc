@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE)
+// Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016, 2017 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -28,7 +28,8 @@ namespace spot
   namespace
   {
     template <bool terminal, bool inweak = false, bool set = false>
-    bool is_type_automaton(const twa_graph_ptr& aut, scc_info* si)
+    bool is_type_automaton(const twa_graph_ptr& aut, scc_info* si,
+                           bool ignore_trivial_term = false)
     {
       // Create an scc_info if the user did not give one to us.
       bool need_si = !si;
@@ -89,7 +90,7 @@ namespace spot
       // A terminal automaton should accept any word that as a prefix
       // leading to an accepting edge.  In other words, we cannot have
       // an accepting edge that goes into a rejecting SCC.
-      if (terminal && is_term)
+      if (terminal && is_term && !ignore_trivial_term)
         for (auto& e: aut->edges())
           if (si->is_rejecting_scc(si->scc_of(e.dst))
               && aut->acc().accepting(e.acc))
@@ -103,7 +104,12 @@ namespace spot
       if (set)
         {
           if (terminal)
-            aut->prop_terminal(is_term && is_weak);
+            {
+              if (!ignore_trivial_term)
+                aut->prop_terminal(is_term && is_weak);
+              else if (is_term && is_weak)
+                aut->prop_terminal(true);
+            }
           aut->prop_weak(is_weak);
           aut->prop_very_weak(is_single_state_scc && is_weak);
           if (inweak)
@@ -116,13 +122,15 @@ namespace spot
   }
 
   bool
-  is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* si)
+  is_terminal_automaton(const const_twa_graph_ptr& aut, scc_info* si,
+                        bool ignore_trivial_term)
   {
     trival v = aut->prop_terminal();
     if (v.is_known())
       return v.is_true();
     bool res =
-      is_type_automaton<true>(std::const_pointer_cast<twa_graph>(aut), si);
+      is_type_automaton<true>(std::const_pointer_cast<twa_graph>(aut), si,
+                              ignore_trivial_term);
     std::const_pointer_cast<twa_graph>(aut)->prop_terminal(res);
     return res;
   }
@@ -170,16 +178,27 @@ namespace spot
       is_type_automaton<true, true, true>(aut, si);
   }
 
-  bool is_safety_mwdba(const const_twa_graph_ptr& aut)
+  bool is_safety_automaton(const const_twa_graph_ptr& aut, scc_info* si)
   {
-    if (!(aut->acc().is_buchi() || aut->acc().is_all()))
-      throw std::runtime_error
-        ("is_safety_mwdba() should be called on a Buchi automaton");
+    if (aut->acc().is_t())
+      return true;
 
-    for (auto& t: aut->edges())
-      if (!aut->acc().accepting(t.acc))
-        return false;
-    return true;
+    bool need_si = !si;
+    if (need_si)
+      si = new scc_info(aut);
+
+    bool res = true;
+    unsigned scount = si->scc_count();
+    for (unsigned scc = 0; scc < scount; ++scc)
+      if (!si->is_trivial(scc) && si->is_rejecting_scc(scc))
+        {
+          res = false;
+          break;
+        }
+
+    if (need_si)
+      delete si;
+    return res;
   }
 
 

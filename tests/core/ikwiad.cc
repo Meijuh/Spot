@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2007-2016 Laboratoire de Recherche et Développement
+// Copyright (C) 2007-2017 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003-2007 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -1373,8 +1373,9 @@ checked_main(int argc, char** argv)
                 }
               else
                 {
-                  bool g = is_terminal_automaton(ensure_digraph(a));
-                  bool s = is_safety_mwdba(ensure_digraph(a));
+                  bool g = is_terminal_automaton(ensure_digraph(a),
+                                                 nullptr, true);
+                  bool s = is_safety_automaton(ensure_digraph(a));
                   if (g && !s)
                     {
                       std::cout << "this is a guarantee property (hence, "

@@ -734,8 +734,10 @@ namespace
                     }
                   else
                     {
-                      matched &= !guarantee || is_terminal_automaton(min);
-                      matched &= !safety || is_safety_mwdba(min);
+                      spot::scc_info si(min);
+                      matched &= !guarantee
+                        || is_terminal_automaton(min, &si, true);
+                      matched &= !safety || is_safety_automaton(min, &si);
                     }
                 }
               // Recurrence properties are those that can be translated to

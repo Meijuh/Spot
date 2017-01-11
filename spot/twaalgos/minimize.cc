@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -520,7 +520,7 @@ namespace spot
       // (i.e., it is not the start of any accepting word).
 
       scc_info sm(det_a);
-      sm.determine_unknown_acceptance();
+
       unsigned scc_count = sm.scc_count();
       // SCC that have been marked as useless.
       std::vector<bool> useless(scc_count);
@@ -539,18 +539,13 @@ namespace spot
           bool transient = sm.is_trivial(m);
           auto& succ = sm.succ(m);
 
-          if (transient && succ.empty())
-            {
-              // A trivial SCC without successor is useless.
-              useless[m] = true;
-              d[m] = k - 1;
-              continue;
-            }
-
-          // Compute the minimum color l of the successors.
-          // Also SCCs are useless if all their successor are
-          // useless.
-          unsigned l = k;
+          // Compute the minimum color l of the successors.  Also SCCs
+          // are useless if all their successor are useless.  Note
+          // that Löding uses k-1 as level for non-final SCCs without
+          // successors but that seems bogus: using k+1 will make sure
+          // that a non-final SCCs without successor (i.e., a useless
+          // SCC) will be ignored in the computation of the level.
+          unsigned l = k + 1;
           for (unsigned j: succ)
             {
               is_useless &= useless[j];
@@ -575,6 +570,8 @@ namespace spot
                 }
               else
                 {
+                  if (succ.empty())
+                    is_useless = true;
                   d[m] = (l - 1) | 1; // largest odd number inferior or equal
                 }
             }

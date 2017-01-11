@@ -46,7 +46,7 @@ New in spot 2.2.2.dev (Not yet released)
     are automata-based and will also match pathological formulas.
 
   * The --format option of ltlfilt/genltl/randltl/ltlgrind learned to
-    print the class of a formula in the temporal hierachy of Manna &
+    print the class of a formula in the temporal hierarchy of Manna &
     Pnueli using %h.  Try to classify the Dwyer & al. patterns with:
       genltl --dac --format='%[vw]h' | sort | uniq -c
 
@@ -129,6 +129,15 @@ New in spot 2.2.2.dev (Not yet released)
 
   * The new function mp_class(f) returns the class of the formula
     f in the temporal hierarchy of Manna & Pnueli.
+
+Bug fixed:
+
+  * The minimize_wdba() function was not correctly minimizing automata
+    with useless SCCs.  This was not an issue for the LTL translation
+    (where useless SCCs are always removed first), but it was an issue
+    when deciding if a formula was safety or guarantee.  As a
+    consequence, some tricky safety or guarantee properties were only
+    recognized as obligations.
 
 New in spot 2.2.2 (2016-12-16)
 

@@ -66,8 +66,11 @@ namespace spot
     auto min = minimize_obligation(aut, f);
     if (aut != min) // An obligation.
       {
-        bool g = is_terminal_automaton(min);
-        bool s = is_safety_mwdba(min);
+        scc_info si(min);
+        // The minimba WDBA can have some trivial accepting SCCs
+        // that we should ignore in is_terminal_automaton().
+        bool g = is_terminal_automaton(min, &si, true);
+        bool s = is_safety_automaton(min, &si);
         if (g)
           return s ? 'B' : 'G';
         else

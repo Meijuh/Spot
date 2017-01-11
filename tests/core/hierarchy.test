@@ -62,3 +62,7 @@ cat >expected <<EOF
 37 safety obligation persistence recurrence reactivity
 EOF
 diff out expected
+
+
+test B = `ltlfilt --format=%h -f '(Gb R (b xor Gb)) W (a W Xa)'`
+ltlfilt -q --safety --guarantee -f '(Gb R (b xor Gb)) W (a W Xa)'
