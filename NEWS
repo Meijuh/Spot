@@ -44,11 +44,11 @@ New in spot 2.2.2.dev (Not yet released)
     belonging to these two classes of the temporal hierarchy.  Unlike
     --syntactic-recurrence and --syntactic-persistence, the new checks
     are automata-based and will also match pathological formulas.
+    See https://www.lrde.epita.fr/hierarchy.html
 
   * The --format option of ltlfilt/genltl/randltl/ltlgrind learned to
     print the class of a formula in the temporal hierarchy of Manna &
-    Pnueli using %h.  Try to classify the Dwyer & al. patterns with:
-      genltl --dac --format='%[vw]h' | sort | uniq -c
+    Pnueli using %h.  See https://www.lrde.epita.fr/hierarchy.html
 
   Library:
 

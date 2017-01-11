@@ -79,6 +79,7 @@ convenience, you can browse their HTML versions:
 
 - [[file:csv.org][Reading and writing CSV files]]
 - [[file:satmin.org][SAT-based minimization of Deterministic ω-Automata]]
+- [[file:hierarchy.org][Exploring the temporal hierarchy of Manna & Pnueli]]
 
 * Citing
 

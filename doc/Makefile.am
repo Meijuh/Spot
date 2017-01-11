@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de
+## Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016, 2017 Laboratoire de
 ## Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -83,6 +83,9 @@ ORG_FILES = \
   org/dstar2tgba.org \
   org/genltl.org \
   org/hoa.org \
+  org/hierarchy.org \
+  org/hierarchy.tex \
+  $(srcdir)/org/hierarchy.png \
   org/index.org \
   org/install.org \
   org/ioltl.org \
@@ -126,6 +129,11 @@ $(srcdir)/org/arch.png: org/arch.tex
 	cd $(srcdir)/org && \
 	pdflatex -shell-escape arch.tex && \
 	rm -f arch.pdf arch.aux arch.log
+
+$(srcdir)/org/hierarchy.png: org/hierarchy.tex
+	cd $(srcdir)/org && \
+	pdflatex -shell-escape hierarchy.tex && \
+	rm -f hierarchy.pdf hierarchy.aux hierarchy.log
 
 $(srcdir)/org-stamp: $(ORG_FILES) $(configure_ac)
 	$(MAKE) org && touch $@
