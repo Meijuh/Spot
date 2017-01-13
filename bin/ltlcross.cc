@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -994,8 +994,10 @@ namespace
 
       // If we need LBT atomic proposition in any of the input or
       // output, relabel the formula.
-      if (!f.has_lbt_atomic_props() &&
-          (runner.has('l') || runner.has('L') || runner.has('T')))
+      if ((!f.has_lbt_atomic_props() &&
+           (runner.has('l') || runner.has('L') || runner.has('T')))
+          || (!f.has_spin_atomic_props() &&
+              (runner.has('s') || runner.has('S'))))
         f = spot::relabel(f, spot::Pnn);
 
       // ---------- Positive Formula ----------

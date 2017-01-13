@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -642,13 +642,14 @@ static const argp_option options[] =
     { "%F,%S,%L,%W", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the formula as a file in Spot, Spin, LBT, or Wring's syntax", 0 },
     { "%O", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "the automaton is output in HOA, never claim, LBTT, or ltl2dstar's "
+      "the automaton output in HOA, never claim, LBTT, or ltl2dstar's "
       "format", 0 },
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
     { nullptr, 0, nullptr, 0,
       "If either %l, %L, or %T are used, any input formula that does "
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
-      "relabeled automatically.\n"
+      "relabeled automatically.  Likewise if %s or %S are used with "
+      "atomic proposition that compatible with Spin's syntax.\n"
       "The sequences %f,%s,%l,%w,%F,%S,%L,%W can optionally be \"infixed\""
       " by a bracketed sequence of operators to unabbreviate before outputing"
       " the formula.  For instance %[MW]f will rewrite operators M and W"
