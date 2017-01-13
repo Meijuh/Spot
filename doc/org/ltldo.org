@@ -359,7 +359,6 @@ ltldo ltl3ba 'ltl3ba -H2' -f GFa --stats='%T, %s states, %e edges'
 : ltl3ba, 2 states, 4 edges
 : ltl3ba -H2, 1 states, 2 edges
 
-
 * Transparent renaming
 
 If you have ever tried to use =spin=, =ltl2ba=, or =ltl3ba=, to translate
@@ -407,6 +406,10 @@ formula has atomic propositions incompatible with Spin's conventions;
 or when some command uses =%l= or =%L=, and the formula has
 atomic propositions incompatible with [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][LBT's conventions]].
 
+For =%f=, =%w=, =%F=, and =%W=, no relabeling is automatically
+performed, but you can pass option =--relabel= if you need to force it
+for some reason (e.g., if you have a tool that uses almost Spot's
+syntax, but cannot cope with double-quoted atomic propositions).
 
 There are some cases where the renaming is not completely transparent.
 For instance if a translator tool outputs some HOA file named after

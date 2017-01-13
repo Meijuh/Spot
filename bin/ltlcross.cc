@@ -992,10 +992,12 @@ namespace
     {
       static unsigned round = 0;
 
-      // If we need LBT atomic proposition in any of the input or
-      // output, relabel the formula.
-      if ((!f.has_lbt_atomic_props() &&
-           (runner.has('l') || runner.has('L') || runner.has('T')))
+      if (opt_relabel
+          // If we need LBT atomic proposition in any of the input or
+          // output, relabel the formula.
+          ||  (!f.has_lbt_atomic_props() &&
+               (runner.has('l') || runner.has('L') || runner.has('T')))
+          // Likewise for Spin
           || (!f.has_spin_atomic_props() &&
               (runner.has('s') || runner.has('S'))))
         f = spot::relabel(f, spot::Pnn);

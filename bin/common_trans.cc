@@ -622,6 +622,7 @@ exec_with_timeout(const char* cmd)
 
 enum {
   OPT_LIST = 1,
+  OPT_RELABEL = 2,
 };
 static const argp_option options[] =
 {
@@ -632,6 +633,8 @@ static const argp_option options[] =
     { "timeout", 'T', "NUMBER", 0, "kill translators after NUMBER seconds", 0 },
     { "list-shorthands", OPT_LIST, nullptr, 0,
       "list availabled shorthands to use in COMMANDFMT", 0},
+    { "relabel", OPT_RELABEL, nullptr, 0,
+      "always relabel atomic propositions before calling any translator", 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0,
       "COMMANDFMT should specify input and output arguments using the "
@@ -649,7 +652,8 @@ static const argp_option options[] =
       "If either %l, %L, or %T are used, any input formula that does "
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
       "relabeled automatically.  Likewise if %s or %S are used with "
-      "atomic proposition that compatible with Spin's syntax.\n"
+      "atomic proposition that compatible with Spin's syntax.  You can "
+      "force this relabeling to always occur with option --relabel.\n"
       "The sequences %f,%s,%l,%w,%F,%S,%L,%W can optionally be \"infixed\""
       " by a bracketed sequence of operators to unabbreviate before outputing"
       " the formula.  For instance %[MW]f will rewrite operators M and W"
@@ -659,6 +663,8 @@ static const argp_option options[] =
       "in the output.", 4 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
 };
+
+bool opt_relabel = false;
 
 static int parse_opt_trans(int key, char* arg, struct argp_state*)
 {
@@ -677,6 +683,9 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
     case OPT_LIST:
       show_shorthands();
       exit(0);
+    case OPT_RELABEL:
+      opt_relabel = true;
+      break;
     default:
       return ARGP_ERR_UNKNOWN;
     }

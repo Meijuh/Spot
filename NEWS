@@ -50,6 +50,12 @@ New in spot 2.2.2.dev (Not yet released)
     print the class of a formula in the temporal hierarchy of Manna &
     Pnueli using %h.  See https://www.lrde.epita.fr/hierarchy.html
 
+  * ltldo and ltlcross learned a --relabel option to force the
+    relabeling of atomic propositions to p0, p1, etc.  This is more
+    useful with ltldo, as it allows calling a tool that restricts the
+    atomic propositions it supports, and the output automaton will
+    then be fixed to use the original atomic propositions.
+
   Library:
 
   * A twa is required to have at least one state, the initial state.

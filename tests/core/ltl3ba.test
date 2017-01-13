@@ -47,3 +47,19 @@ sed 's/[^,]//g' <output.csv |
 while read l; do
   test "x$first" = "x$l" || exit 1
 done)
+
+# The name of the HOA is preserved
+case `ltldo 'ltl3ba -H' -f xxx --stats=%m` in
+    *xxx*);;
+    *) exit 1;;
+esac
+# The relabeling of atomic proposition can be forced.  This
+# will impact the name of the automaton set by ltldo...
+case `ltldo --relabel 'ltl3ba -H' -f xxx --stats=%m` in
+    *xxx*) exit 1;;
+    *p0*);;
+    *) exit 1;;
+esac
+# ... but the atomic propositions are still using xxx
+# because ltldo should relabel them back.
+ltldo --relabel 'ltl3ba -H' -f xxx | grep 'AP:.*"xxx"'

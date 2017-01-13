@@ -299,8 +299,9 @@ namespace
 
       // If atomic propositions are incompatible with one of the
       // output, relabel the formula.
-      if ((!f.has_lbt_atomic_props() &&
-           (runner.has('l') || runner.has('L') || runner.has('T')))
+      if (opt_relabel
+          || (!f.has_lbt_atomic_props() &&
+              (runner.has('l') || runner.has('L') || runner.has('T')))
           || (!f.has_spin_atomic_props() &&
               (runner.has('s') || runner.has('S'))))
         {
