@@ -1,3 +1,5 @@
 usr/include/spot
 usr/lib/*-*/libspot.so
+usr/lib/*-*/libspot.a
 usr/lib/*-*/libspotltsmin.so
+usr/lib/*-*/libspotltsmin.a

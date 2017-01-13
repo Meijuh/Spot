@@ -11,6 +11,9 @@ New in spot 2.2.2.dev (Not yet released)
     files.  It is still possible to use an external SAT solver by
     setting the SPOT_SATSOLVER environment variable.
 
+  * The development Debian packages for Spot now install static
+    libraries as well.
+
   Tools:
 
   * ltlcross supports translators that output alternating automata in

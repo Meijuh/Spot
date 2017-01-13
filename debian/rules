@@ -79,6 +79,18 @@ override_dh_auto_install: fix-js
 	  dh_auto_build -- -C python all;		\
 	  dh_auto_install -- -C python;			\
 	done
+# Reconfigure to build static libraries.  We can't build them
+# alongside dynamic libraries, otherwise they will be stuffed with
+# LTO stuff that is just two big to distribute.  And we cannot use
+# the profile generated with LTO on, so we simply build without it.
+	dh_auto_configure --  \
+	  --disable-devel --enable-optimizations \
+	  --disable-shared --enable-static --disable-python
+	dh_auto_build -- clean
+	dh_auto_build -- all
+	dh_auto_install -- -C buddy
+	dh_auto_install -- -C spot
+# Just remove the Libtool libraries until someone asks for them.
 	find debian/tmp -name '*.la' -exec rm -rv {} ';'
 override_dh_python3:
 	dh_python3 -p python3-spot
