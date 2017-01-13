@@ -304,18 +304,19 @@ the following words, then the string on the right is appended.
 
   lbt          <%L>%O
   ltl2ba       -f %s>%O
-  ltl2dstar    --output-format=hoa %L %O
+  ltl2dstar    --output-format=hoa %[MW]L %O
   ltl2tgba     -H %f>%O
   ltl3ba       -f %s>%O
   ltl3dra      -f %s>%O
-  modella      %L %O
+  ltl3hoa      -f %f>%O
+  modella      %[MWei^]L %O
   spin         -f %s>%O
 
 Any {name} and directory component is skipped for the purpose of
 matching those prefixes.  So for instance
   '{DRA} ~/mytools/ltl2dstar-0.5.2'
 will changed into
-  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %L %O'
+  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %[MR]L %O'
 #+end_example
 
 Therefore you can type just

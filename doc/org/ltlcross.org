@@ -163,9 +163,10 @@ tools:
   - '=java -jar Rabinizer.jar -ltl2dstar %[MW]F %O; mv %O.dst %O=' (Rabinizer
     uses the last =%O= argument as a prefix to which it always append =.dst=,
     so we have to rename =%O.dst= as =%O= so that =ltlcross= can find the file)
-  - '~java -jar rabinizer3.1.jar -in=formula -silent -out=std -format=hoa -auto=tr %[MWR]f >%O~'
+  - '~java -jar rabinizer3.1.jar -in=formula -silent -out=std -format=hoa -auto=tr %[MWRei^]f >%O~'
     (rabinizer 3.1 can output automata in the HOA format)
-  - '=ltl3dra -f %s >%O=' (The HOA format is the default for =ltl2dra=.)
+  - '=ltl3dra -f %s >%O=' (The HOA format is the default for =ltl3dra=.)
+  - '=ltl3hoa -f %s >%O=' (The HOA format is the default for =ltl3hoa=.)
 
 To simplify the use of some of the above tools, a set of predefined
 shorthands are available.  Those can be listed with the
@@ -185,6 +186,7 @@ the following words, then the string on the right is appended.
   ltl2tgba     -H %f>%O
   ltl3ba       -f %s>%O
   ltl3dra      -f %s>%O
+  ltl3hoa      -f %f>%O
   modella      %[MWei^]L %O
   spin         -f %s>%O
 

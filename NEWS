@@ -56,6 +56,9 @@ New in spot 2.2.2.dev (Not yet released)
     atomic propositions it supports, and the output automaton will
     then be fixed to use the original atomic propositions.
 
+  * ltldo and ltlcross have learned how to call ltl3hoa, so
+    'ltl3hoa -f %f>%O' can be abbreviated to just 'ltl3hoa'.
+
   Library:
 
   * A twa is required to have at least one state, the initial state.
