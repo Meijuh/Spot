@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-## et Developpement de l'Epita (LRDE).
+## Copyright (C) 2011, 2013, 2014, 2015, 2016, 2017 Laboratoire de
+## Recherche et Developpement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -34,3 +34,18 @@ libspotltsmin_la_LIBADD = \
   $(LIBLTDL) -lpthread
 libspotltsmin_la_LDFLAGS = -no-undefined $(SYMBOLIC_LDFLAGS)
 libspotltsmin_la_SOURCES = ltsmin.cc
+
+
+EXTRA_DIST = $(srcdir)/libspotltsmin.pc.in
+pkgconfigdir = $(libdir)/pkgconfig
+nodist_pkgconfig_DATA = libspotltsmin.pc
+
+libspotltsmin.pc: $(srcdir)/libspotltsmin.pc.in
+	sed -e 's![@]prefix[@]!$(prefix)!g' \
+	    -e 's![@]exec_prefix[@]!$(exec_prefix)!g' \
+	    -e 's![@]includedir[@]!$(includedir)!g' \
+	    -e 's![@]libdir[@]!$(libdir)!g' \
+	    -e 's![@]PACKAGE_VERSION[@]!$(PACKAGE_VERSION)!g' \
+	$(srcdir)/libspotltsmin.pc.in > $@
+
+DISTCLEANFILES = libspotltsmin.pc

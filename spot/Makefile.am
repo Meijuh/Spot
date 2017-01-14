@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2012, 2013, 2014, 2015, 2016 Laboratoire
+## Copyright (C) 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire
 ## de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -48,3 +48,18 @@ libspot_la_LIBADD =  \
 # Dummy C++ source to cause C++ linking.
 nodist_EXTRA_libspot_la_SOURCES = _.cc
 _.cc:; touch $@
+
+
+EXTRA_DIST = $(srcdir)/libspot.pc.in
+pkgconfigdir = $(libdir)/pkgconfig
+nodist_pkgconfig_DATA = libspot.pc
+
+libspot.pc: $(srcdir)/libspot.pc.in
+	sed -e 's![@]prefix[@]!$(prefix)!g' \
+	    -e 's![@]exec_prefix[@]!$(exec_prefix)!g' \
+	    -e 's![@]includedir[@]!$(includedir)!g' \
+	    -e 's![@]libdir[@]!$(libdir)!g' \
+	    -e 's![@]PACKAGE_VERSION[@]!$(PACKAGE_VERSION)!g' \
+	$(srcdir)/libspot.pc.in > $@
+
+DISTCLEANFILES = libspot.pc

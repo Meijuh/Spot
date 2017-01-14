@@ -14,6 +14,8 @@ New in spot 2.2.2.dev (Not yet released)
   * The development Debian packages for Spot now install static
     libraries as well.
 
+  * We now install configuration files for users of pkg-config.
+
   Tools:
 
   * ltlcross supports translators that output alternating automata in

@@ -1,5 +1,7 @@
 usr/include/spot
 usr/lib/*-*/libspot.so
 usr/lib/*-*/libspot.a
+usr/lib/*-*/pkgconfig/libspot.pc
 usr/lib/*-*/libspotltsmin.so
 usr/lib/*-*/libspotltsmin.a
+usr/lib/*-*/pkgconfig/libspotltsmin.pc

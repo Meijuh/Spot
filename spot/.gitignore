@@ -6,3 +6,4 @@ libspot.la
 _.cc
 *.log
 *.dir
+*.pc
