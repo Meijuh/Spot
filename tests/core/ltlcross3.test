@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+# Copyright (C) 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche
 # et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -217,3 +217,8 @@ diff foo expected
 
 # This command used to crash.  Report from František Blahoudek.
 run 0 ltlcross --verbose --no-checks -f 'FGa' 'ltl2tgba'
+
+# The CSV file should not talk about product if --products=0
+ltlcross --products=0 ltl2tgba -f GFa -f FGa --csv=out.csv
+grep product out.csv && exit 1
+check_csv out.csv

@@ -497,6 +497,8 @@ parse_opt(int key, char* arg, struct argp_state*)
           ++arg;
         }
       products = to_pos_int(arg);
+      if (products == 0)
+        products_avg = false;
       break;
     case OPT_NOCHECKS:
       no_checks = true;
