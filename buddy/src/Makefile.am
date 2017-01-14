@@ -30,3 +30,18 @@ check_PROGRAMS = bddtest
 bddtest_SOURCES = bddtest.cxx
 bddtest_CPPFLAGS = -I$(top_builddir)
 bddtest_LDADD = ./libbddx.la
+
+
+EXTRA_DIST = $(srcdir)/libbddx.pc.in
+pkgconfigdir = $(libdir)/pkgconfig
+nodist_pkgconfig_DATA = libbddx.pc
+
+libbddx.pc: $(srcdir)/libbddx.pc.in
+	sed -e 's![@]prefix[@]!$(prefix)!g' \
+	    -e 's![@]exec_prefix[@]!$(exec_prefix)!g' \
+	    -e 's![@]includedir[@]!$(includedir)!g' \
+	    -e 's![@]libdir[@]!$(libdir)!g' \
+	    -e 's![@]PACKAGE_VERSION[@]!$(PACKAGE_VERSION)!g' \
+	$(srcdir)/libbddx.pc.in > $@
+
+DISTCLEANFILES = libbddx.pc
