@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche
+// et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1446,9 +1446,7 @@ namespace spot
         postprocessor post;
         auto sba = (state_based && a->prop_state_acc()) ?
           postprocessor::SBAcc : postprocessor::Any;
-        post.set_pref(postprocessor::Deterministic
-                      | postprocessor::Complete
-                      | sba);
+        post.set_pref(postprocessor::Deterministic | sba);
         post.set_type(postprocessor::Generic);
         postprocessor::optimization_level level;
         switch (preproc)
@@ -1477,10 +1475,10 @@ namespace spot
             && (target_is_buchi || !user_supplied_acc))
           return a;
       }
-    else
-      {
-        complete_here(a);
-      }
+    // We always complete ourself, and do not ask the above call to
+    // postprocessor to do it, because that extra state would be
+    // returned in the case of a WDBA.
+    complete_here(a);
 
     if (states == -1 && max_states == -1)
       {

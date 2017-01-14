@@ -155,6 +155,10 @@ Bugs fixed:
     input (%s) it would not automatically relabel any unsupported
     atomic propositions as ltldo already do.
 
+  * When running "autfilt --sat-minimize" on a automaton representing
+    an obligation property, the result would always be a complete
+    automaton even without the -C option.
+
 New in spot 2.2.2 (2016-12-16)
 
   Build:
