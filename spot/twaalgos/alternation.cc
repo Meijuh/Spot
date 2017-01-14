@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2016 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -104,6 +104,36 @@ namespace spot
       unsigned reject_1_count_ = 0;
       std::set<unsigned> true_states_;
 
+      bool ensure_weak_state(unsigned src, unsigned scc)
+      {
+        bool first = true;
+        bool reject_cycle = false;
+        acc_cond::mark_t m = 0U;
+        for (auto& t: aut_->out(src))
+          for (unsigned d: aut_->univ_dests(t.dst))
+            if (si_.scc_of(d) == scc)
+              {
+                if (first)
+                  {
+                    first = false;
+                    m = t.acc;
+                    reject_cycle = !aut_->acc().accepting(m);
+                  }
+                else if (m != t.acc)
+                  {
+                    throw std::runtime_error
+                      ("alternation_removal() only work with weak "
+                       "alternating automata");
+                  }
+                // In case of a universal edge we only
+                // need to check the first destination
+                // inside the SCC, because the other
+                // have the same t.acc.
+                break;
+              }
+        return reject_cycle;
+      }
+
       void classify_each_scc()
       {
         auto& g = aut_->get_graph();
@@ -126,6 +156,9 @@ namespace spot
                     assert(si_.is_accepting_scc(n));
 
                     unsigned s = si_.states_of(n).front();
+                    bool rej = ensure_weak_state(s, n);
+                    assert(rej == false);
+                    // Detect if it is a "true state"
                     auto& ss = g.state_storage(s);
                     if (ss.succ == ss.succ_tail)
                       {
@@ -137,35 +170,12 @@ namespace spot
               }
             else
               {
-                acc_cond::mark_t m;
-                bool first = true;
                 for (auto src: si_.states_of(n))
-                  for (auto& t: aut_->out(src))
-                    for (unsigned d: aut_->univ_dests(t.dst))
-                      if (si_.scc_of(d) == n)
-                        {
-                          if (first)
-                            {
-                              first = false;
-                              m = t.acc;
-                              if (!aut_->acc().accepting(m))
-                                {
-                                  class_of_[n] = reject_more;
-                                  has_reject_more_ = true;
-                                }
-                              // In case of a universal edge we only
-                              // need to check the first destination
-                              // inside the SCC, because the other
-                              // have the same t.acc.
-                              break;
-                            }
-                          else if (m != t.acc)
-                            {
-                              throw std::runtime_error
-                                ("alternation_removal() only work with weak "
-                                 "alternating automata");
-                            }
-                        }
+                  if (ensure_weak_state(src, n))
+                    {
+                      class_of_[n] = reject_more;
+                      has_reject_more_ = true;
+                    }
               }
           }
       }
