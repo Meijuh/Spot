@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -172,92 +172,10 @@ namespace
     virtual void
     print(std::ostream& os, const char* opt) const override
     {
-      bool verbose = false;
-      bool wide = false;
       if (*opt == '[')
-        do
-          switch (*++opt)
-            {
-            case 'v':
-              verbose = true;
-              break;
-            case 'w':
-              wide = true;
-              break;
-            case ' ':
-            case '\t':
-            case '\n':
-            case ',':
-            case ']':
-              break;
-            }
-        while (*opt != ']');
-
-      std::string c(1, val_);
-      if (wide)
-        {
-          switch (val_)
-            {
-            case 'B':
-              c = "GSOPRT";
-              break;
-            case 'G':
-              c = "GOPRT";
-              break;
-            case 'S':
-              c = "SOPRT";
-              break;
-            case 'O':
-              c = "OPRT";
-              break;
-            case 'P':
-              c = "PT";
-              break;
-            case 'R':
-              c = "RT";
-              break;
-            case 'T':
-              break;
-            }
-        }
-      if (!verbose)
-        {
-          os << c;
-          return;
-        }
-
-      bool first = true;
-      for (char ch: c)
-        {
-          if (first)
-            first = false;
-          else
-            os << ' ';
-          switch (ch)
-            {
-            case 'B':
-              os << "guarantee safety";
-              break;
-            case 'G':
-              os << "guarantee";
-              break;
-            case 'S':
-              os << "safety";
-              break;
-            case 'O':
-              os << "obligation";
-              break;
-            case 'P':
-              os << "persistence";
-              break;
-            case 'R':
-              os << "recurrence";
-              break;
-            case 'T':
-              os << "reactivity";
-              break;
-            }
-        }
+        os << spot::mp_class(val_, opt + 1);
+      else
+        os << val_;
     }
   };
 

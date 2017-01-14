@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <sstream>
 #include <spot/tl/hierarchy.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/ltl2tgba_fm.hh>
@@ -85,4 +86,108 @@ namespace spot
       return 'P';
     return 'T';
   }
+
+  std::string mp_class(formula f, const char* opt)
+  {
+    return mp_class(mp_class(f), opt);
+  }
+
+  std::string mp_class(char mpc, const char* opt)
+  {
+    bool verbose = false;
+    bool wide = false;
+    if (opt)
+      for (;;)
+        switch (int o = *opt++)
+          {
+          case 'v':
+            verbose = true;
+            break;
+          case 'w':
+            wide = true;
+            break;
+          case ' ':
+          case '\t':
+          case '\n':
+          case ',':
+            break;
+          case '\0':
+          case ']':
+            goto break2;
+          default:
+            {
+              std::ostringstream err;
+              err << "unknown option '" << o << "' for mp_class()";
+              throw std::runtime_error(err.str());
+            }
+          }
+  break2:
+    std::string c(1, mpc);
+    if (wide)
+      {
+        switch (mpc)
+          {
+          case 'B':
+            c = "GSOPRT";
+            break;
+          case 'G':
+            c = "GOPRT";
+            break;
+          case 'S':
+            c = "SOPRT";
+            break;
+          case 'O':
+            c = "OPRT";
+            break;
+          case 'P':
+            c = "PT";
+            break;
+          case 'R':
+            c = "RT";
+            break;
+          case 'T':
+            break;
+          default:
+            throw std::runtime_error("mp_class() called with unknown class");
+          }
+      }
+    if (!verbose)
+      return c;
+
+    std::ostringstream os;
+    bool first = true;
+    for (char ch: c)
+      {
+        if (first)
+          first = false;
+        else
+          os << ' ';
+        switch (ch)
+          {
+          case 'B':
+            os << "guarantee safety";
+            break;
+          case 'G':
+            os << "guarantee";
+            break;
+          case 'S':
+            os << "safety";
+            break;
+          case 'O':
+            os << "obligation";
+            break;
+          case 'P':
+            os << "persistence";
+            break;
+          case 'R':
+            os << "recurrence";
+            break;
+          case 'T':
+            os << "reactivity";
+            break;
+          }
+      }
+    return os.str();
+  }
+
 }

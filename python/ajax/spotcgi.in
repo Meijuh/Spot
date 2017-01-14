@@ -505,24 +505,20 @@ if output_type == 'f':
         for p in spot.list_formula_props(f):
             unbufprint('<li>%s</li>\n' % p)
 
-        # Attempt to refine the hierarchy class using WDBA minimization
-        if not f.is_syntactic_safety() or not f.is_syntactic_guarantee():
-            dict = spot.bdd_dict()
-            automaton = spot.ltl_to_tgba_fm(f, dict, False, True)
-            minimized = spot.minimize_obligation(automaton, f)
-            if minimized != automaton:
-                g = spot.is_terminal_automaton(minimized, None, True)
-                s = spot.is_safety_automaton(minimized)
-                if s and not f.is_syntactic_safety():
-                    unbufprint('<li>pathologic safety</li>')
-                if g and not f.is_syntactic_guarantee():
-                    unbufprint('<li>pathologic guarantee</li>')
-                if not f.is_syntactic_obligation():
-                    unbufprint('<li>obligation (although not syntactically)</li>')
-            else:
-                unbufprint('<li>not an obligation</li>')
-            minimized = 0
-            automaton = 0
+        mpc = spot.mp_class(f, 'w')
+        if 'S' in mpc:
+            unbufprint('<li>safety</li>')
+        if 'G' in mpc:
+            unbufprint('<li>guarantee</li>')
+        if 'O' in mpc:
+            unbufprint('<li>obligation</li>')
+        if 'R' in mpc:
+            unbufprint('<li>recurrence</li>')
+        if 'P' in mpc:
+            unbufprint('<li>persistence</li>')
+        if 'T' == mpc:
+            unbufprint('<li>not a persistence nor a recurrence</li>')
+
         if not f.is_syntactic_stutter_invariant():
             if spot.is_stutter_invariant(f):
                 unbufprint('<li>stutter invariant</li>')

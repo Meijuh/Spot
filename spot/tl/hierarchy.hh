@@ -37,4 +37,34 @@ namespace spot
   /// - 'T' (top) properties that are not persistence or recurrence
   ///   properties
   SPOT_API char mp_class(formula f);
+
+
+  /// \brief Return the class of \a f in the temporal hierarchy of Manna
+  /// and Pnueli (PODC'90).
+  ///
+  /// The \a opt parameter should be a string specifying options
+  /// for expressing the class.  If \a opt is empty, the
+  /// result is one character among B, G, S, O, P, R, T, specifying
+  /// the most precise class to which the formula belongs.
+  /// If \a opt contains 'w', then the string contains all the
+  /// characters corresponding to the classes that contain \a f.
+  /// If \a opt contains 'v', then the characters are replaced
+  /// by the name of each class.  Space and commas are ignored.
+  /// Any ']' ends the processing of the options.
+  SPOT_API std::string mp_class(formula f, const char* opt);
+
+  /// \brief Expand a class in the temporal hierarchy of Manna
+  /// and Pnueli (PODC'90).
+  ///
+  /// \a mpc should be a character among B, G, S, O, P, R, T
+  /// specifying a class in the hierarchy.
+  ///
+  /// The \a opt parameter should be a string specifying options for
+  /// expressing the class.  If \a opt is empty, the result is \a mpc.
+  /// If \a opt contains 'w', then the string contains all the
+  /// characters corresponding to the super-classes of \a mpc.  If \a
+  /// opt contains 'v', then the characters are replaced by the name
+  /// of each class.  Space and commas are ignored.  Any ']' ends the
+  /// processing of the options.
+  SPOT_API std::string mp_class(char mpc, const char* opt);
 }
