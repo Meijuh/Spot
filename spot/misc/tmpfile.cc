@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2015 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2015, 2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -43,7 +43,6 @@ namespace spot
     create_temporary_file(const char* prefix,
                           const char* suffix,
                           char** name)
-      throw(std::bad_alloc, std::runtime_error)
     {
       static const char* tmpdir = get_tmpdir();
       static int tmpdirlen = tmpdir ? strlen(tmpdir) : 0;
@@ -116,7 +115,6 @@ namespace spot
 
   temporary_file*
   create_tmpfile(const char* prefix, const char* suffix)
-    throw(std::bad_alloc, std::runtime_error)
   {
     char* name;
     int fd = create_temporary_file(prefix, suffix, &name);
@@ -129,7 +127,6 @@ namespace spot
 
   open_temporary_file*
   create_open_tmpfile(const char* prefix, const char* suffix)
-    throw(std::bad_alloc, std::runtime_error)
   {
     char* name;
     int fd = create_temporary_file(prefix, suffix, &name);
