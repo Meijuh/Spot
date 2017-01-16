@@ -105,11 +105,11 @@ represented using [[#bdd][BDDs]].  An ω-word is accepted by an ω-automaton if
 there exists an accepting run whose labels (those Boolean formulas)
 are compatible with the minterms used as letters in the word.
 
-The /language/ of an automaton is the set of ω-words it accepts.
+The /language/ of an ω-automaton is the set of ω-words it accepts.
 
 There are many kinds of ω-Automata and they mostly differ by their
 [[#acceptance-condition][acceptance condition]].  The different types of acceptance condition,
-and whether the automata are deterministic or can affect their
+and whether the automata are deterministic or not can affect their
 expressive power.
 
 One of the simplest and most common type of ω-Automata is the [[#buchi][Büchi

@@ -124,7 +124,7 @@ New in spot 2.2.2.dev (Not yet released)
     only if they are positive.
 
   * language_map() and highlight_languages() are new functions that
-    implements the --highlight-languages option mentionned above.
+    implement the --highlight-languages option mentionned above.
 
   * dtgba_sat_minimize_dichotomy() and dwba_sat_minimize_dichotomy()
     use language_map() for the lower bound of the binary search.

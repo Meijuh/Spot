@@ -114,7 +114,7 @@ def ne(string):
 # --------------------------------------------------------------PYLATEX
 
 
-# ---------------------------------------------------------------RESUME
+# --------------------------------------------------------------SUMMARY
 def add_winner(res, winner, looser):
     """
         Each time this function is called, it increments the scrore
@@ -162,9 +162,9 @@ def cmp_to_others(id_cmp, instance_cmp, what_cmp, line, config, res):
             add_winner(res, instance_cmp, config.l[i].code)
 
 
-def get_resume(config, test):
+def get_summary(config, test):
     """
-        Function used to get the resume of 'test' that can be either DBA,
+        Function used to get the summary of 'test' that can be either DBA,
         or DTGBA.
     """
     res = []
@@ -207,28 +207,28 @@ def get_resume(config, test):
     return res
 
 
-def write_resume(table2, config):
+def write_summary(table2, config):
     """
-        Function that writes all the bench's resume.
+        Function that writes all the bench's summary.
     """
-    dba_resume = get_resume(config, 'DBA')
-    dtgba_resume = get_resume(config, 'DTGBA')
+    dba_summary = get_summary(config, 'DBA')
+    dtgba_summary = get_summary(config, 'DTGBA')
     len_l = len(config.l)
     table2.add_hline()
     table2.add_row(
             (MultiColumn(len_l + 2, align='|c|', data='DBA'),))
     table2.add_hline()
-    for i in range(0, len(dba_resume)):
-        table2.add_row(tuple(dba_resume[i]))
+    for i in range(0, len(dba_summary)):
+        table2.add_row(tuple(dba_summary[i]))
         table2.add_hline()
     table2.add_row((MultiColumn(len_l + 2),))
     table2.add_hline()
     table2.add_row((MultiColumn(len_l + 2, align='|c|', data='DTGBA'),))
     table2.add_hline()
-    for line in dtgba_resume:
+    for line in dtgba_summary:
         table2.add_row(tuple(line))
         table2.add_hline()
-# ---------------------------------------------------------------RESUME
+# --------------------------------------------------------------SUMMARY
 
 
 # --------------------------------------------------------------RESULTS
@@ -273,7 +273,7 @@ def get_last_successful(n, category, pattern):
         log_csv = csv.reader(log)
         for line in log_csv:
             min_val = line[1]
-        return ', $\\le$ ' + min_val
+        return '$\\le$' + min_val
     except Exception:
         return ''
 
@@ -327,11 +327,11 @@ def add_other_cols(row, line, config):
             if '-' in line[st_id]:
                 s = ne(get_last_successful(n, elt, config.l[i].code))
                 row.append(MultiColumn(width, align='c|',
-                           data=ne('(killed ') + s + ne(')')))
+                           data=ne('(killed') + s + ne(')')))
             elif '!' in line[st_id]:
                 s = ne(get_last_successful(n, elt, config.l[i].code))
                 row.append(MultiColumn(width, align='c|',
-                           data=ne('(intmax ') + s + ne(')')))
+                           data=ne('(intmax') + s + ne(')')))
             else:
                 cur_st = int(line[st_id])
 
@@ -692,10 +692,10 @@ def generate_docs(config):
         -results.pdf: which shows all statistics about each formula with each
          benchmarked method.
 
-        -resume.pdf: which count the number of times that each method is better
-         than another.
+        -summary.pdf: which count the number of times that each method is
+         better than another.
     """
-    # Let's create the documents (result & resume)
+    # Let's create the documents (result & summary)
     doc = Document(documentclass='standalone')
     doc.packages.append(Package('amsmath'))
     doc.packages.append(Package('color'))
@@ -710,19 +710,19 @@ def generate_docs(config):
     doc.append(DefineColor(arguments=Arguments('Yelw', 'rgb', '1, 0.98, 0.4')))
     doc.append(DefineColor(arguments=Arguments('Purpl', 'rgb', '1, 0.6, 1')))
 
-    # Create Table with format : True is result format, False is resume format
+    # Create Table with format : True is result format, False is summary format
     table = Tabular(add_fmt(len(config.l), True))
     table2 = Tabular(add_fmt(len(config.l), False))
 
     # Write everything
     write_results(table, config)
-    write_resume(table2, config)
+    write_summary(table2, config)
 
     # Output PDF
     doc.append(table)
     doc2.append(table2)
     doc.generate_pdf('results')
-    doc2.generate_pdf('resume')
+    doc2.generate_pdf('summary')
 
 
 def generate_bench(config, args):
