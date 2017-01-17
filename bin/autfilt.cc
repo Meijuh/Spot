@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -338,7 +338,7 @@ static const argp_option options[] =
     { "highlight-word", OPT_HIGHLIGHT_WORD, "[NUM,]WORD", 0,
       "highlight one run matching WORD using color NUM", 0},
     { "highlight-languages", OPT_HIGHLIGHT_LANGUAGES, nullptr, 0 ,
-      "highlight states that recognize same language with same color", 0},
+      "highlight states that recognize identical languages", 0},
     /**************************************************/
     { nullptr, 0, nullptr, 0,
       "If any option among --small, --deterministic, or --any is given, "
@@ -1219,7 +1219,7 @@ namespace
         spot::highlight_nondet_edges(aut, opt_highlight_nondet_edges);
 
       if (opt_highlight_languages)
-        spot::highlight_languages(aut, spot::language_map(aut));
+        spot::highlight_languages(aut);
 
       if (!opt->hl_words.empty())
         for (auto& word_aut: opt->hl_words)

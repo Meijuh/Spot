@@ -1,5 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2016 Laboratoire de Recherche et Développement de l'Epita.
+// Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -34,7 +35,9 @@ namespace spot
   SPOT_API std::vector<unsigned>
   language_map(const const_twa_graph_ptr& aut);
 
-  /// \brief Color automaton's states that recognize the same language.
+  /// \brief Color state that recognize identical language.
+  ///
+  /// State that recognize a unique language will not be colored.
   SPOT_API void
-  highlight_languages(twa_graph_ptr& aut, const std::vector<unsigned>& v);
+  highlight_languages(twa_graph_ptr& aut);
 }

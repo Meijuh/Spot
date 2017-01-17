@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Laboratoire de Recherche et Développement
+# Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -20,8 +20,6 @@
 
 . ./defs
 set -e
-
-autfilt=autfilt
 
 cat >aut.hoa <<'EOF'
 HOA: v1
@@ -53,13 +51,65 @@ State: 3 {1 3}
 3
 2
 --END--
+HOA: v1
+name: "Fb & GF((a & Xb) | (!a & X!b))"
+States: 5
+Start: 0
+AP: 2 "b" "a"
+acc-name: Rabin 1
+Acceptance: 2 Fin(0) & Inf(1)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0
+[0] 1
+[!0&1] 2
+State: 1
+[!1] 3
+[1] 4
+State: 2
+[!0&!1] 0 {0}
+[!0&1] 2 {0}
+[0&!1] 3
+[0&1] 4
+State: 3
+[!0] 1 {1}
+[0&!1] 3
+[0&1] 4
+State: 4
+[0] 1 {1}
+[!0&!1] 3
+[!0&1] 4
+--END--
+HOA: v1
+name: "X(a & FGb)"
+States: 4
+Start: 0
+AP: 2 "a" "b"
+acc-name: Rabin 1
+Acceptance: 2 Fin(0) & Inf(1)
+properties: trans-labels explicit-labels trans-acc deterministic
+--BODY--
+State: 0
+[t] 1
+State: 1
+[0&!1] 2
+[0&1] 3
+State: 2
+[!1] 2
+[1] 3
+State: 3
+[!1] 2 {0}
+[1] 3 {1}
+--END--
 EOF
 
 cat >expected << 'EOF'
 spot.highlight.states: 0 0 1 0 2 0 3 0
+spot.highlight.states: 0 0 1 1 2 0 3 1 4 1
+spot.highlight.states: 2 0 3 0
 EOF
 
-$autfilt aut.hoa --highlight-languages -H1.1 | grep -e 'spot.highlight.states'\
-  > res
-
+autfilt aut.hoa --highlight-languages -H1.1 | grep spot.highlight.states >res
 diff expected res
