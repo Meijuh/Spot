@@ -21,8 +21,8 @@ New in spot 2.2.2.dev (Not yet released)
   * ltlcross supports translators that output alternating automata in
     the HOA format.  Cross-comparison checks will only work with weak
     alternating automata (not necessarily *very* weak), but "ltlcross
-    --no-check --csv=..." should work with any alternating automaton
-    if you just want satistics.
+    --no-check --product=0 --csv=..." will work with any alternating
+    automaton if you just want satistics.
 
   * autfilt can read alternating automata.  This is still experimental
     (see below). Some of the algorithms proposed by autfilt will
@@ -37,7 +37,7 @@ New in spot 2.2.2.dev (Not yet released)
     take "semi-determinism" as argument.
 
   * autfilt --highlight-languages will color states that recognize
-    identical languages.
+    identical languages.  (Only works for deterministic automata.)
 
   * 'autfilt --sat-minimize' and 'ltl2tgba -x sat-minimize' have
     undergone some backward incompatible changes.  They use binary
@@ -67,6 +67,8 @@ New in spot 2.2.2.dev (Not yet released)
   Library:
 
   * A twa is required to have at least one state, the initial state.
+    An automaton can only be empty while it is being constructed,
+    but should not be passed to other algorithms.
 
   * Couvreur's emptiness check has been rewritten to use the explicit
     interface when possible, to avoid overkill memory allocations.
@@ -97,7 +99,7 @@ New in spot 2.2.2.dev (Not yet released)
       + the class outedge_combiner can be used to perform "and" and "or"
         on the outgoing edges of some alternating automaton.
 
-    - scc_info has been edjusted to handle universal edges as if they
+    - scc_info has been adjusted to handle universal edges as if they
       were existential edges.  As a consequence, acceptance
       information is not accurate.
 
@@ -124,10 +126,10 @@ New in spot 2.2.2.dev (Not yet released)
     only if they are positive.
 
   * language_map() and highlight_languages() are new functions that
-    implement the --highlight-languages option mentionned above.
+    implement autfilt's --highlight-languages option mentionned above.
 
   * dtgba_sat_minimize_dichotomy() and dwba_sat_minimize_dichotomy()
-    use language_map() for the lower bound of the binary search.
+    use language_map() to estimate a lower bound for binary search.
 
   * The encoding part of SAT-based minimization consumes less memory.
 
