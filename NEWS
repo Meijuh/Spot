@@ -144,6 +144,15 @@ New in spot 2.2.2.dev (Not yet released)
   * The new function mp_class(f) returns the class of the formula
     f in the temporal hierarchy of Manna & Pnueli.
 
+Python:
+
+  * spot.show_mp_hierarchy() can be used to display the membership of
+    a formula to the Manna & Pnueli hierarchy, in notebooks.  An
+    example is in https://spot.lrde.epita.fr/ipynb/formulas.html
+
+  * The on-line translator will now display the temporal hierarchy
+    in the "Formula > property information" output.
+
 Bugs fixed:
 
   * The minimize_wdba() function was not correctly minimizing automata

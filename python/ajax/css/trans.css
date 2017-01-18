@@ -42,7 +42,9 @@ div.ltl2tgba {
   top:84px;
   z-index:1;
 }
-
+#results-body {
+  overflow: auto;
+}
 .ltldoc {
     text-align: right;
 }

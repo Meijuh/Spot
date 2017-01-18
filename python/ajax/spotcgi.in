@@ -502,22 +502,10 @@ if output_type == 'f':
         else:
             s = str(f)
         unbufprint('Properties for ' + format_formula(f, 'span') + '<ul>\n')
+        unbufprint('<div style="float:right">' +
+                   spot.mp_hierarchy_svg(f) + '</div>')
         for p in spot.list_formula_props(f):
             unbufprint('<li>%s</li>\n' % p)
-
-        mpc = spot.mp_class(f, 'w')
-        if 'S' in mpc:
-            unbufprint('<li>safety</li>')
-        if 'G' in mpc:
-            unbufprint('<li>guarantee</li>')
-        if 'O' in mpc:
-            unbufprint('<li>obligation</li>')
-        if 'R' in mpc:
-            unbufprint('<li>recurrence</li>')
-        if 'P' in mpc:
-            unbufprint('<li>persistence</li>')
-        if 'T' == mpc:
-            unbufprint('<li>not a persistence nor a recurrence</li>')
 
         if not f.is_syntactic_stutter_invariant():
             if spot.is_stutter_invariant(f):

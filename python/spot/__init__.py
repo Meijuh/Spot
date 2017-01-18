@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015, 2016  Laboratoire de
+# Copyright (C) 2014, 2015, 2016, 2017  Laboratoire de
 # Recherche et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -886,10 +886,76 @@ def sat_minimize(aut, acc=None, colored=False,
     from spot.impl import sat_minimize as sm
     return sm(aut, args, state_based)
 
+
 def parse_word(word, dic=_bdd_dict):
     from spot.impl import parse_word as pw
     return pw(word, dic)
 
+
 def language_containment_checker(dic=_bdd_dict):
     from spot.impl import language_containment_checker as c
     return c(dic)
+
+
+def mp_hierarchy_svg(cl=None):
+    """
+    Return an some string containing an SVG picture of the Manna &
+    Pnueli hierarchy, highlighting class `cl` if given.
+
+    If not None, `cl` should be one of 'TPROGSB'.  For convenience,
+    if `cl` is an instance of `spot.formula`, it is replaced by
+    `mp_class(cl)`.
+
+    """
+    if type(cl)==formula:
+        cl = mp_class(cl)
+    ch = None
+    coords = {
+        'T': '110,35',
+        'R': '40,80',
+        'P': '175,80',
+        'O': '110,140',
+        'S': '40,160',
+        'G': '175,160',
+        'B': '110,198',
+    }
+    if cl in coords:
+        highlight='''<g transform="translate({})">
+    <line x1="-10" y1="-10" x2="10" y2="10" stroke="red" stroke-width="5" />
+    <line x1="-10" y1="10" x2="10" y2="-10" stroke="red" stroke-width="5" />
+    </g>'''.format(coords[cl])
+    else:
+        highlight=''
+    return '''
+<svg height="210" width="220" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<polygon points="20,0 200,120 200,210 20,210" fill="cyan" opacity=".2" />
+<polygon points="20,120 155,210 20,210" fill="cyan" opacity=".2" />
+<polygon points="200,0 20,120 20,210 200,210" fill="magenta" opacity=".15" />
+<polygon points="200,120 65,210 200,210" fill="magenta" opacity=".15" />
+''' + highlight + '''
+<g text-anchor="middle" font-size="14">
+<text x="110" y="20">Reactivity</text>
+<text x="60" y="65">Recurrence</text>
+<text x="160" y="65">Persistence</text>
+<text x="110" y="125">Obligation</text>
+<text x="60" y="185">Safety</text>
+<text x="160" y="185">Guarantee</text>
+</g>
+<g font-size="14">
+<text text-anchor="begin" transform="rotate(-90,18,210)" x="18" y="210" fill="gray">Monitor</text>
+<text text-anchor="end" transform="rotate(-90,18,0)" x="18" y="0" fill="gray">Deterministic Büchi</text>
+<text text-anchor="begin" transform="rotate(-90,214,210)" x="214" y="210" fill="gray">Terminal Büchi</text>
+<text text-anchor="end" transform="rotate(-90,214,0)" x="214" y="0" fill="gray">Weak Büchi</text>
+</g>
+</svg>'''
+
+
+def show_mp_hierarchy(cl):
+    """
+    Return a picture of the Manna & Pnueli hierarchy as an SVG object
+    in the IPython/Jupyter.
+    """
+    from IPython.display import SVG
+    return SVG(mp_hierarchy_svg(cl))
+
+formula.show_mp_hierarchy = show_mp_hierarchy
