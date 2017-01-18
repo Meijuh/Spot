@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -240,21 +240,18 @@ namespace spot
     // of that list.
 
     template <typename Graph>
-    class SPOT_API edge_iterator: public
-    std::iterator<std::forward_iterator_tag,
-                  typename
-                  std::conditional<std::is_const<Graph>::value,
-                                   const typename Graph::edge_storage_t,
-                                   typename Graph::edge_storage_t>::type>
+    class SPOT_API edge_iterator
     {
-      typedef
-        std::iterator<std::forward_iterator_tag,
-                      typename
-                      std::conditional<std::is_const<Graph>::value,
-                                       const typename Graph::edge_storage_t,
-                                       typename Graph::edge_storage_t>::type>
-        super;
     public:
+      typedef typename std::conditional<std::is_const<Graph>::value,
+                                        const typename Graph::edge_storage_t,
+                                        typename Graph::edge_storage_t>::type
+        value_type;
+      typedef value_type& reference;
+      typedef value_type* pointer;
+      typedef std::ptrdiff_t difference_type;
+      typedef std::forward_iterator_tag iterator_category;
+
       typedef typename Graph::edge edge;
 
       edge_iterator() noexcept
@@ -277,14 +274,12 @@ namespace spot
         return t_ != o.t_;
       }
 
-      typename super::reference
-      operator*() const
+      reference operator*() const
       {
         return g_->edge_storage(t_);
       }
 
-      typename super::pointer
-      operator->() const
+      pointer      operator->() const
       {
         return &g_->edge_storage(t_);
       }
@@ -421,21 +416,19 @@ namespace spot
     //////////////////////////////////////////////////
 
     template <typename Graph>
-    class SPOT_API all_edge_iterator: public
-      std::iterator<std::forward_iterator_tag,
-                    typename
-                    std::conditional<std::is_const<Graph>::value,
-                                     const typename Graph::edge_storage_t,
-                                     typename Graph::edge_storage_t>::type>
+    class SPOT_API all_edge_iterator
     {
-      typedef
-        std::iterator<std::forward_iterator_tag,
-                      typename
-                      std::conditional<std::is_const<Graph>::value,
-                                       const typename Graph::edge_storage_t,
-                                       typename Graph::edge_storage_t>::type>
-        super;
+    public:
+      typedef typename std::conditional<std::is_const<Graph>::value,
+                                        const typename Graph::edge_storage_t,
+                                        typename Graph::edge_storage_t>::type
+        value_type;
+      typedef value_type& reference;
+      typedef value_type* pointer;
+      typedef std::ptrdiff_t difference_type;
+      typedef std::forward_iterator_tag iterator_category;
 
+    protected:
       typedef typename std::conditional<std::is_const<Graph>::value,
                                         const typename Graph::edge_vector_t,
                                         typename Graph::edge_vector_t>::type
@@ -487,14 +480,12 @@ namespace spot
         return t_ != o.t_;
       }
 
-      typename super::reference
-      operator*() const
+      reference operator*() const
       {
         return tv_[t_];
       }
 
-      typename super::pointer
-      operator->() const
+      pointer operator->() const
       {
         return &tv_[t_];
       }
