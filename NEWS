@@ -53,11 +53,11 @@ New in spot 2.3 (2017-01-19)
     belonging to these two classes of the temporal hierarchy.  Unlike
     --syntactic-recurrence and --syntactic-persistence, the new checks
     are automata-based and will also match pathological formulas.
-    See https://www.lrde.epita.fr/hierarchy.html
+    See https://spot.lrde.epita.fr/hierarchy.html
 
   * The --format option of ltlfilt/genltl/randltl/ltlgrind learned to
     print the class of a formula in the temporal hierarchy of Manna &
-    Pnueli using %h.  See https://www.lrde.epita.fr/hierarchy.html
+    Pnueli using %h.  See https://spot.lrde.epita.fr/hierarchy.html
 
   * ltldo and ltlcross learned a --relabel option to force the
     relabeling of atomic propositions to p0, p1, etc.  This is more
@@ -114,9 +114,9 @@ New in spot 2.3 (2017-01-19)
       automata, it still has no simplification algorithms that work
       at the alternating automaton level.
 
-    - See https://www.lrde.epita.fr/tut23.html
-      https://www.lrde.epita.fr/tut24.html and
-      https://www.lrde.epita.fr/tut31.html for some code examples.
+    - See https://spot.lrde.epita.fr/tut23.html
+      https://spot.lrde.epita.fr/tut24.html and
+      https://spot.lrde.epita.fr/tut31.html for some code examples.
 
   * twa objects have two new properties, very-weak and
     semi-deterministic, that can be set or retrieved via
