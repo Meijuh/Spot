@@ -28,9 +28,10 @@ Let us first state a few facts about this minimization procedure.
 3) These two procedures can optionally constrain their output to
    use state-based acceptance. (They simply restrict all the outgoing
    transitions of a state to belong to the same acceptance sets.)
-4) Spot distributes a SAT solver, PicoSAT call_version()[:results raw]. This solver was chosen for its performances, simplicity of integration and licence compatible with Spot's one.
-   However, it is still possible to use an external SAT solver (as described
-   below).
+4) Spot is built using PicoSAT call_version()[:results raw].
+   This solver was chosen for its performances, simplicity of
+   integration and license compatibility.  However, it is
+   still possible to use an external SAT solver (as described below).
 5) [[file:ltl2tgba.org][=ltl2tgba=]] and [[file:dstar2tgba.org][=dstar2tgba=]] will always try to output an automaton.
    If they fail to determinize the property, they will simply output a
    nondeterministic automaton, if they managed to obtain a
@@ -49,12 +50,20 @@ Let us first state a few facts about this minimization procedure.
 
 * How to change the SAT solver used
 
+By default Spot uses PicoSAT call_version()[:results raw]), this SAT-solver
+is built into the Spot library, so that no temporary files are used to
+store the problem.
+
 The environment variable =SPOT_SATSOLVER= can be used to change the
-SAT solver used by Spot.  By default it uses the one distributed with (PicoSAT
-call_version()[:results raw]).
-Here is the expected format of =SPOT_SATSOLVER= : "=<SAT_SOLVER> [options] %I >%O=". The =%I= and =%O= sequences will be replaced by the names of temporary files containing the input for the SAT solver and receiving its output.
-If you have installed the corresponding binary in your =$PATH=, it should work right away.  Otherwise you may redefine this variable to point the correct location of the SAT solver.
-We assume that the SAT solver should follow the conventions of the [[http://www.satcompetition.org/][SAT competition]] for input and output.
+SAT solver used by Spot.  This variable should describe a shell command
+to run the SAT-solver on an input file called =%I= so that a model satisfying
+the formula will be written in =%O=.  For instance to use [[http://www.labri.fr/perso/lsimon/glucose/][Glucose 3.0]], instead
+of the builtin version of PicoSAT, define
+#+BEGIN_SRC sh
+export SPOT_SATSOLVER='glucose -verb=0 -model %I >%O'
+#+END_SRC
+We assume the SAT solver follows the input/output conventions of the
+[[http://www.satcompetition.org/][SAT competition]]
 
 * Enabling SAT-based minimization in =ltl2tgba= or =dstar2tgba=
 

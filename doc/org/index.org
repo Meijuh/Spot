@@ -18,11 +18,12 @@ checking.  It has the following notable features:
 - Several algorithms for formula manipulation including: simplifying
   formulas, testing implication or equivalence, testing
   stutter-invariance, removing some operators by rewriting, translation
-  to automata...
+  to automata, testing membership to the [[file:hierarchy.org][temporal hierarchy of Manna & Pnueli]]...
 - Several algorithms for automata manipulation including: product,
   emptiness checks, simulation-based reductions, minimization of
   weak-DBA, removal of useless SCCs, acceptance-condition
-  transformations, determinization, etc.
+  transformations, determinization, [[file:satmin.org][SAT-based minimization of
+  deterministic automata]], etc.
 - In addition to the C++ interface, most of its algorithms are usable
   via [[file:tools.org][command-line tools]], and via [[file:tut.org][Python bindings]].
 - One command-line tool, called [[file:ltlcross.org][=ltlcross=]], is a rewrite of [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], but
