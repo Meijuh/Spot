@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
-# Laboratoire de Recherche et Développement de l'Epita (LRDE).
+# Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016,
+# 2017 Laboratoire de Recherche et Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire
 # d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
 # Coopératifs (SRC), Université Pierre et Marie Curie.
@@ -21,7 +21,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.61])
-AC_INIT([spot], [2.2.2.dev], [spot@lrde.epita.fr])
+AC_INIT([spot], [2.3], [spot@lrde.epita.fr])
 AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 gnu tar-ustar color-tests parallel-tests])
