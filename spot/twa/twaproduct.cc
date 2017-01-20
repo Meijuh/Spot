@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2014, 2015, 2016, 2017 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -306,9 +306,8 @@ namespace spot
         left_kripke_ = false;
       }
 
-    auto d = get_dict();
-    d->register_all_propositions_of(&left_, this);
-    d->register_all_propositions_of(&right_, this);
+    copy_ap_of(left_);
+    copy_ap_of(right_);
 
     assert(num_sets() == 0);
     auto left_num = left->num_sets();

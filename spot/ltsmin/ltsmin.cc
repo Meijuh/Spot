@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE)
+// Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1118,6 +1118,7 @@ namespace spot
     // twa::ap() works.
     for (auto ap: *to_observe)
       res->register_ap(ap);
+    res->register_ap(dead);
     return res;
   }
 

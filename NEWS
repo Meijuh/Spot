@@ -1,6 +1,12 @@
 New in spot 2.3.0.dev (not yet released)
 
-  Nothing yet.
+  Bugs fixed:
+
+  - spot::otf_product() was incorrectly registering atomic
+    propositions.
+
+  - spot::ltsmin_model::kripke() forgot to register the "dead"
+    proposition.
 
 New in spot 2.3 (2017-01-19)
 
