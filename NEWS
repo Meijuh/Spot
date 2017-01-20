@@ -6,6 +6,10 @@ New in spot 2.3.0.dev (not yet released)
     will select the best output automaton for each formula translated.
     See https://spot.lrde.epita.fr/ltldo.html#portfolio for examples.
 
+  Library:
+
+  - spot::twa_run::as_twa() has an option to preserve state names.
+
   Bugs fixed:
 
   - spot::otf_product() was incorrectly registering atomic

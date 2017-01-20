@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011-2017 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2009, 2011-2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -752,12 +752,19 @@ namespace spot
   }
 
   twa_graph_ptr
-  twa_run::as_twa() const
+  twa_run::as_twa(bool preserve_names) const
   {
     auto d = aut->get_dict();
     auto res = make_twa_graph(d);
     res->copy_ap_of(aut);
     res->copy_acceptance_of(aut);
+
+    std::vector<std::string>* names= nullptr;
+    if (preserve_names)
+      {
+        names = new std::vector<std::string>;
+        res->set_named_prop("state-names", names);
+      }
 
     const state* s = aut->get_init_state();
     unsigned src;
@@ -777,6 +784,8 @@ namespace spot
     assert(s->compare(i->s) == 0);
     src = res->new_state();
     seen.emplace(i->s, src);
+    if (names)
+      names->push_back(aut->format_state(s));
 
     for (; i != l->end();)
       {
@@ -826,7 +835,15 @@ namespace spot
 
         auto p = seen.emplace(next, 0);
         if (p.second)
-          p.first->second = res->new_state();
+          {
+            unsigned ns = res->new_state();
+            p.first->second = ns;
+            if (names)
+              {
+                assert(ns = names->size());
+                names->push_back(aut->format_state(next));
+              }
+          }
         dst = p.first->second;
 
         res->new_edge(src, dst, label, acc);

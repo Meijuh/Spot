@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014, 2015, 2016, 2017 Laboratoire de
+// Recherche et Developpement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -438,7 +438,10 @@ namespace spot
     /// \brief Return a twa_graph_ptr corresponding to \a run
     ///
     /// Identical states are merged.
-    twa_graph_ptr as_twa() const;
+    ///
+    /// If \a preserve_names is set, the created states are named
+    /// using the format_state() result from the original state.
+    twa_graph_ptr as_twa(bool preserve_names = false) const;
 
     /// \brief Display a twa_run.
     ///
