@@ -26,11 +26,9 @@ AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD = $(top_builddir)/spot/libspot.la
 
-TEST_EXTENTIONS = .test .py .ipynb .pl
-
+# Explicitely set it to avoid default value ".test"
+TEST_EXTENSIONS =
 LOG_COMPILER = ./run
-TEST_LOG_COMPILER = ./run
-LOG_DRIVER = $(TEST_LOG_DRIVER)
 # ensure run is rebuilt before the tests are run.
 check_SCRIPTS = run
 
@@ -382,9 +380,7 @@ check_SCRIPTS += ltsmin/defs
 
 ltsmin/defs: $(top_builddir)/config.status $(srcdir)/core/defs.in
 	$(top_builddir)/config.status --file ltsmin/defs:core/defs.in
-endif
 
-if USE_LTSMIN
 TESTS_ltsmin = \
   ltsmin/check.test \
   ltsmin/check2.test \
