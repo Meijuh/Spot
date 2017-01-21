@@ -1118,7 +1118,8 @@ namespace spot
     // twa::ap() works.
     for (auto ap: *to_observe)
       res->register_ap(ap);
-    res->register_ap(dead);
+    if (dead.is(op::ap))
+      res->register_ap(dead);
     return res;
   }
 
