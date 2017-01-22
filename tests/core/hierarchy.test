@@ -52,7 +52,7 @@ test "$(echo $(genltl --dac --format='%h') | sed 's/ //g')" = \
 # Implementations of uniq differ in the number of leading spaces, so
 # we remove them all.
 genltl --dac --format='%[vw]h' | sort | uniq -c |
-    sed 's/^ *\([0-9]\+\) \+/\1 /g' >out
+    sed 's/^ *\([0-9][0-9]*\)  */\1 /g' >out
 cat >expected <<EOF
 1 guarantee obligation persistence recurrence reactivity
 2 obligation persistence recurrence reactivity
