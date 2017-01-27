@@ -10,7 +10,6 @@ states, and where all runs are accepting (i.e., the acceptance
 condition is =t=).  They are typically used by model checkers to
 represent the state space of the model to verify.
 
-
 * Implementing a toy Kripke structure
 
 In this example, our goal is to implement a Kripke structure that
@@ -528,7 +527,6 @@ passing the option "~k~" to =print_dot()= will fix that.
  #+RESULTS:
  [[file:kripke-3.png]]
 
-1
 * Possible improvements
 
 The on-the-fly interface, especially as implemented here, involves a
