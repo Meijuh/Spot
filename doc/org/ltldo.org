@@ -26,7 +26,7 @@ Büchi automaton produced by =ltl3ba=.
 
 Here is the input file:
 
-#+BEGIN_SRC sh :results verbatim :exports code
+#+BEGIN_SRC sh :results silent :exports both
 cat >sample.ltl <<EOF
 1
 1 U a
@@ -288,6 +288,10 @@ ltl3ba,4,7
 #+end_example
 
 Much more readable!
+
+#+BEGIN_SRC sh :results silent :exports results
+rm -f sample.ltl
+#+END_SRC
 
 * Shorthands for existing tools
 
