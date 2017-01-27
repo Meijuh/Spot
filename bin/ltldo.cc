@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -51,6 +51,8 @@ of input and output as required.";
 
 enum {
   OPT_ERRORS = 256,
+  OPT_SMALLEST,
+  OPT_GREATEST,
 };
 
 static const argp_option options[] =
@@ -59,6 +61,13 @@ static const argp_option options[] =
     { "errors", OPT_ERRORS, "abort|warn|ignore", 0,
       "how to deal with tools returning with non-zero exit codes or "
       "automata that ltldo cannot parse (default: abort)", 0 },
+    { nullptr, 0, nullptr, 0, "Output selection:", 5 },
+    { "smallest", OPT_SMALLEST, "FORMAT", OPTION_ARG_OPTIONAL,
+      "for each formula select the smallest automaton given by all "
+      "translators, using FORMAT for ordering (default is %s,%e)", 0 },
+    { "greatest", OPT_GREATEST, "FORMAT", OPTION_ARG_OPTIONAL,
+      "for each formula select the greatest automaton given by all "
+      "translators, using FORMAT for ordering (default is %s,%e)", 0 },
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
@@ -110,6 +119,9 @@ build_percent_list()
 enum errors_type { errors_abort, errors_warn, errors_ignore };
 static errors_type errors_opt;
 
+static int best_type = 0;       // -1 smallest, 1 greatest, 0 no selection
+static const char* best_format = "%s,%e";
+
 static char const *const errors_args[] =
 {
   "stop", "abort",
@@ -131,8 +143,8 @@ const struct argp_child children[] =
     { &hoaread_argp, 0, "Parsing of automata:", 3 },
     { &finput_argp, 0, nullptr, 1 },
     { &trans_argp, 0, nullptr, 3 },
-    { &aoutput_argp, 0, nullptr, 5 },
-    { build_percent_list(), 0, nullptr, 6 },
+    { &aoutput_argp, 0, nullptr, 6 },
+    { build_percent_list(), 0, nullptr, 7 },
     { &misc_argp, 0, nullptr, -1 },
     { nullptr, 0, nullptr, 0 }
   };
@@ -144,6 +156,16 @@ parse_opt(int key, char* arg, struct argp_state*)
     {
     case OPT_ERRORS:
       errors_opt = XARGMATCH("--errors", arg, errors_args, errors_types);
+      break;
+    case OPT_GREATEST:
+      best_type = 1;
+      if (arg)
+        best_format = arg;
+      break;
+    case OPT_SMALLEST:
+      best_type = -1;
+      if (arg)
+        best_format = arg;
       break;
     case ARGP_KEY_ARG:
       if (arg[0] == '-' && !arg[1])
@@ -252,6 +274,8 @@ namespace
     spot::bdd_dict_ptr dict = spot::make_bdd_dict();
     xtranslator_runner runner;
     automaton_printer printer;
+    hoa_stat_printer best_printer;
+    std::ostringstream best_stream;
     spot::postprocessor& post;
     spot::printable_value<std::string> cmdname;
     spot::printable_value<unsigned> roundval;
@@ -259,11 +283,14 @@ namespace
 
   public:
     processor(spot::postprocessor& post)
-      : runner(dict), post(post)
+      : runner(dict), best_printer(best_stream, best_format), post(post)
     {
       printer.add_stat('T', &cmdname);
       printer.add_stat('#', &roundval);
       printer.add_stat('f', &inputf);
+      best_printer.declare('T', &cmdname);
+      best_printer.declare('#', &roundval);
+      best_printer.declare('f', &inputf);
     }
 
     ~processor()
@@ -313,6 +340,12 @@ namespace
       runner.round_formula(f, round);
 
       unsigned ts = translators.size();
+      spot::twa_graph_ptr best_aut = nullptr;
+      std::string best_stats;
+      std::string best_cmdname;
+      process_timer best_timer;
+
+      roundval = round;
       for (unsigned t = 0; t < ts; ++t)
         {
           bool problem;
@@ -330,13 +363,40 @@ namespace
             {
               if (relmap)
                 relabel_here(aut, relmap.get());
-              aut = post.run(aut, f);
+
               cmdname = translators[t].name;
-              roundval = round;
-              printer.print(aut, timer, f, filename, linenum,
-                            nullptr, prefix, suffix);
-            };
+              aut = post.run(aut, f);
+              if (best_type)
+                {
+                  best_printer.print(nullptr, aut, f, filename, linenum, timer,
+                                     prefix, suffix);
+                  std::string aut_stats = best_stream.str();
+                  if (!best_aut ||
+                      (strverscmp(best_stats.c_str(), aut_stats.c_str())
+                       * best_type) < 0)
+                    {
+                      best_aut = aut;
+                      best_stats = aut_stats;
+                      best_cmdname = translators[t].name;
+                      best_timer = timer;
+                    }
+                  best_stream.str("");
+                }
+              else
+                {
+                  printer.print(aut, timer, f, filename, linenum,
+                                nullptr, prefix, suffix);
+                }
+            }
         }
+      if (best_aut)
+        {
+          cmdname = best_cmdname;
+          printer.print(best_aut, best_timer,
+                        f, filename, linenum,
+                        nullptr, prefix, suffix);
+        }
+
       spot::cleanup_tmpfiles();
       ++round;
       return 0;

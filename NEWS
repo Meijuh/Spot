@@ -1,5 +1,11 @@
 New in spot 2.3.0.dev (not yet released)
 
+  Tools:
+
+  - ltldo learnt to act like a portfolio: --smallest and --greatest
+    will select the best output automaton for each formula translated.
+    See https://spot.lrde.epita.fr/ltldo.html#portfolio for examples.
+
   Bugs fixed:
 
   - spot::otf_product() was incorrectly registering atomic

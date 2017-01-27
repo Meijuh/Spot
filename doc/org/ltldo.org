@@ -182,12 +182,13 @@ ltldo --help | sed -n '/character sequences:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 
 #+RESULTS:
+:   %%                         a single %
 :   %f,%s,%l,%w                the formula as a (quoted) string in Spot, Spin,
 :                              LBT, or Wring's syntax
 :   %F,%S,%L,%W                the formula as a file in Spot, Spin, LBT, or
 :                              Wring's syntax
-:   %O,%D                      the automaton is output as either (%O) HOA/never
-:                              claim/LBTT, or (%D) in LTL2DSTAR's format
+:   %O                         the automaton output in HOA, never claim, LBTT, or
+:                              ltl2dstar's format
 
 Contrarily to =ltlcross=, it this not mandatory to specify an output
 filename using one of the sequence for that last line.  For instance
@@ -463,6 +464,150 @@ State: 0 "accept_init" {0}
 [!0] 0
 --END--
 #+END_SRC
+
+* Acting as a portfolio of translators
+   :PROPERTIES:
+   :CUSTOM_ID: portfolio
+   :END:
+
+Here is a formula on which different translators produce Büchi automata of
+different sizes (states and edges):
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo ltl2ba ltl3ba 'ltl2tgba -s' -f 'F(a & Xa | FGa)' \
+      --stats='%T: %s st. (%n non-det.), %e ed.'
+#+END_SRC
+
+#+RESULTS:
+: ltl2ba: 5 st. (2 non-det.), 9 ed.
+: ltl3ba: 3 st. (1 non-det.), 4 ed.
+: ltl2tgba -s: 3 st. (0 non-det.), 5 ed.
+
+Instead of outputting the result of the translation of each formula by each
+translator, =ltldo= can also be configured to output the smallest
+automaton obtained for each formula:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo ltl2ba ltl3ba 'ltl2tgba -s' -f 'F(a & Xa | FGa)' --smallest
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[t] 0
+[0] 1
+State: 1
+[0] 2
+State: 2 {0}
+[t] 2
+--END--
+#+end_example
+
+Therefore, in practice, =ltldo --smallest trans1 trans2 trans3...=
+acts like a portfolio of translators, always returning the smallest
+produced automaton.
+
+The sorting criterion can be specified using =--smallest= or
+=--greatest=, optionally followed by a format string with
+=%=-sequences.  The default criterion is =%s,%e=, so the number of
+states will be compared first, and in case of equality the number of
+edges.  If we desire the automaton that has the fewest states, and in
+case of equality the smallest number of non-deterministic states, we
+can use the following command instead.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo ltl2ba ltl3ba 'ltl2tgba -s' -f 'F(a & Xa | FGa)' --smallest=%s,%n
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+HOA: v1
+name: "F(a & Xa)"
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic terminal
+--BODY--
+State: 0
+[!0] 0
+[0] 1
+State: 1
+[!0] 0
+[0] 2
+State: 2 {0}
+[t] 2
+--END--
+#+end_example
+
+We can of course apply this on a large number of formulas.  For
+instance here is a more complex pipeline, where we take 11 patterns
+from Dwyer et al. (FMSP'98), and print which translator among
+=ltl2ba=, =ltl3ba=, and =ltl2tgba -s= would produce the smallest
+automaton.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl --dac=10..20 --format=%F:%L,%f |
+  ltldo -F-/2 ltl2ba ltl3ba 'ltl2tgba -s' --smallest --stats='%<,%T'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+dac-patterns:10,ltl2ba
+dac-patterns:11,ltl3ba
+dac-patterns:12,ltl2tgba -s
+dac-patterns:13,ltl2tgba -s
+dac-patterns:14,ltl2tgba -s
+dac-patterns:15,ltl2tgba -s
+dac-patterns:16,ltl2ba
+dac-patterns:17,ltl2tgba -s
+dac-patterns:18,ltl2ba
+dac-patterns:19,ltl3ba
+dac-patterns:20,ltl2ba
+#+end_example
+
+Note that in case of equality, only the first translator is returned.
+So when =ltl2ba= is output above, it could be the case that =ltl3ba=
+or =ltl2tgba -s= are also producing automata of equal size.
+
+To understand the above pipeline, remove the =ltldo= invocation.  The
+[[file:genltl.org][=genltl=]] command outputs this:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl --dac=10..20 --format=%F:%L,%f
+#+END_SRC
+#+RESULTS:
+#+begin_example
+dac-patterns:10,G((p0 & !p1) -> (!p1 U (!p1 & p2)))
+dac-patterns:11,!p0 W (p0 W (!p0 W (p0 W G!p0)))
+dac-patterns:12,Fp0 -> ((!p0 & !p1) U (p0 | ((!p0 & p1) U (p0 | ((!p0 & !p1) U (p0 | ((!p0 & p1) U (p0 | (!p1 U p0)))))))))
+dac-patterns:13,Fp0 -> (!p0 U (p0 & (!p1 W (p1 W (!p1 W (p1 W G!p1))))))
+dac-patterns:14,G((p0 & Fp1) -> ((!p1 & !p2) U (p1 | ((!p1 & p2) U (p1 | ((!p1 & !p2) U (p1 | ((!p1 & p2) U (p1 | (!p2 U p1))))))))))
+dac-patterns:15,G(p0 -> ((!p1 & !p2) U (p2 | ((p1 & !p2) U (p2 | ((!p1 & !p2) U (p2 | ((p1 & !p2) U (p2 | (!p1 W p2) | Gp1)))))))))
+dac-patterns:16,Gp0
+dac-patterns:17,Fp0 -> (p1 U p0)
+dac-patterns:18,G(p0 -> Gp1)
+dac-patterns:19,G((p0 & !p1 & Fp1) -> (p2 U p1))
+dac-patterns:20,G((p0 & !p1) -> (p2 W p1))
+#+end_example
+
+This is a two-column CSV file where each line is a description of the
+origin of the formula (=%F:%L=), followed by the formula itself
+(=%f=).  The =ltldo= from the previous pipeline simply takes its input
+from the second column of its standard input (=-F-/2=), run that
+formula through the three translator, pick the smallest automaton
+(=--smallest=), and for this automaton, it display the translator that
+was used (=%T=) along with the portion of the CSV file that was before
+the input column (=%<=).
 
 * Controlling and measuring time
 
