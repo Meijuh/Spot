@@ -38,6 +38,7 @@ since the generated files they produce are distributed.)
   Python >= 3.3, IPython >= 2.3
   GraphViz
   Java >= 1.7 (needed to run PlantUML while generating the doc)
+  wget or curl (needed to download PlantUML)
 
 The following additional tools are used if they are present, or
 only for certain operations (like releases):

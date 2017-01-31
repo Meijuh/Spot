@@ -62,7 +62,7 @@ org:
 	$(EMACS) --batch -Q -l org/init.el
 
 org/plantuml.jar:
-	wget http://downloads.sourceforge.net/project/plantuml/plantuml.jar -O org/plantuml.jar
+	wget http://downloads.sourceforge.net/project/plantuml/plantuml.jar -O org/plantuml.jar || curl http://downloads.sourceforge.net/project/plantuml/plantuml.jar -o org/plantuml.jar
 
 org-man:
 	mkdir -p $(srcdir)/userdoc/man

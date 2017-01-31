@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
+## Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et Développement
 ## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -23,5 +23,5 @@ GIT = https://gitlab.lrde.epita.fr/spot/emacs-modes/raw/master/
 
 .PHONY: update-el
 update-el:
-	wget $(GIT)/hoa-mode.el -O $(srcdir)/hoa-mode.el
+	wget $(GIT)/hoa-mode.el -O $(srcdir)/hoa-mode.el || curl $(GIT)/hoa-mode.el -o $(srcdir)/hoa-mode.el
 	chmod a-w $(srcdir)/hoa-mode.el
