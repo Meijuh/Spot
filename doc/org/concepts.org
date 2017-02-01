@@ -608,7 +608,7 @@ $txt
 [[file:concepts-alt.png]]
 
 In this picture, the universal edges appear as arrows with a white
-tips going to a small dot, from which additional arrows connect to the
+tip going to a small dot, from which additional arrows connect to the
 universal destinations.  Here the three universal edges all leave the
 initial state, and connect to two universal destinations.  Note that
 non-determinism is allowed between universal edges, for instance upon
