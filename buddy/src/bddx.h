@@ -68,9 +68,10 @@
   #endif
 #endif
 
-// BUDDY_API is used for the public API symbols. It either DLL imports
-// or DLL exports (or does nothing for static build) BUDDY_LOCAL is
-// used for non-api symbols.
+/* BUDDY_API is used for the public API symbols. It either DLL imports
+** or DLL exports (or does nothing for static build) BUDDY_LOCAL is
+** used for non-api symbols.
+*/
 #ifdef BUDDY_DLL
   #ifdef BUDDY_DLL_EXPORTS
     #define BUDDY_API BUDDY_HELPER_DLL_EXPORT

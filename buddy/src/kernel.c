@@ -194,20 +194,21 @@ int bdd_init(int initnodesize, int cs)
 
    /* Load these globals into local variables to help the
       optimizer. */
-   int sz = bddnodesize;
-   BddNodeInit* b = (BddNodeInit*)bddnodes;
-   for (n=0 ; n<sz ; n++)
    {
-     b[n].z = 0;
-     b[n].low = -1;
-     // Initializing HIGH is useless in BuDDy, but it helps the
-     // compiler vectorizing the code, and it helps the processor
-     // write-combining data to memory.
-     b[n].high = 0;
-     b[n].next = n+1;
+     int sz = bddnodesize;
+     BddNodeInit* b = (BddNodeInit*)bddnodes;
+     for (n=0 ; n<sz ; n++)
+       {
+         b[n].z = 0;
+         b[n].low = -1;
+         /* Initializing HIGH is useless in BuDDy, but it helps the
+            compiler vectorizing the code, and it helps the processor
+            write-combining data to memory. */
+         b[n].high = 0;
+         b[n].next = n+1;
+       }
+     b[sz-1].next = 0;
    }
-   b[sz-1].next = 0;
-
    bddnodes[0].refcou = bddnodes[1].refcou = MAXREF;
    LOW(0) = HIGH(0) = 0;
    LOW(1) = HIGH(1) = 1;
@@ -341,25 +342,31 @@ int bdd_setvarnum(int num)
    }
    else
    {
-     BDD* tmp_ptr = (BDD*)realloc(bddvarset,sizeof(BDD)*num*2);
-     if (__unlikely(tmp_ptr == NULL))
-       return bdd_error(BDD_MEMORY);
-     bddvarset = tmp_ptr;
-     int* tmp_ptr2 = (int*)realloc(bddlevel2var,sizeof(int)*(num+1));
-     if (__unlikely(tmp_ptr2 == NULL))
-       {
-	 free(bddvarset);
-	 return bdd_error(BDD_MEMORY);
-       }
-     bddlevel2var = tmp_ptr2;
-     tmp_ptr2 = (int*)realloc(bddvar2level,sizeof(int)*(num+1));
-     if (__unlikely(tmp_ptr2 == NULL))
-      {
-	 free(bddvarset);
-	 free(bddlevel2var);
-	 return bdd_error(BDD_MEMORY);
-      }
-     bddvar2level = tmp_ptr2;
+     {
+       BDD* tmp_ptr = (BDD*)realloc(bddvarset,sizeof(BDD)*num*2);
+       if (__unlikely(tmp_ptr == NULL))
+         return bdd_error(BDD_MEMORY);
+       bddvarset = tmp_ptr;
+     }
+     {
+       int* tmp_ptr2 = (int*)realloc(bddlevel2var,sizeof(int)*(num+1));
+       if (__unlikely(tmp_ptr2 == NULL))
+         {
+           free(bddvarset);
+           return bdd_error(BDD_MEMORY);
+         }
+       bddlevel2var = tmp_ptr2;
+     }
+     {
+       int* tmp_ptr2 = (int*)realloc(bddvar2level,sizeof(int)*(num+1));
+       if (__unlikely(tmp_ptr2 == NULL))
+         {
+           free(bddvarset);
+           free(bddlevel2var);
+           return bdd_error(BDD_MEMORY);
+         }
+       bddvar2level = tmp_ptr2;
+     }
    }
 
    if (__likely(bddrefstack != NULL))
@@ -1162,7 +1169,7 @@ BDD bdd_addref(BDD root)
    return root;
 }
 
-// Non constant version
+/* Non constant version */
 BDD bdd_delref_nc(BDD root)
 {
 #ifndef NDEBUG
@@ -1448,18 +1455,20 @@ int bdd_noderesize(int doRehash)
 
    /* copy these global variables into local variables to help the
       optimizer */
-   int sz = bddnodesize;
-   BddNodeInit* b = (BddNodeInit*)(bddnodes);
-   for (n=oldsize ; n<sz ; n++)
    {
-     b[n].z = 0;
-     b[n].low = -1;
-     b[n].high = 0;
-     b[n].next = n+1;
+     int sz = bddnodesize;
+     BddNodeInit* b = (BddNodeInit*)(bddnodes);
+     for (n=oldsize ; n<sz ; n++)
+       {
+         b[n].z = 0;
+         b[n].low = -1;
+         b[n].high = 0;
+         b[n].next = n+1;
+       }
+     b[sz-1].next = bddfreepos;
+     bddfreepos = oldsize;
+     bddfreenum += bddnodesize - oldsize;
    }
-   b[sz-1].next = bddfreepos;
-   bddfreepos = oldsize;
-   bddfreenum += bddnodesize - oldsize;
 
    if (doRehash)
       bdd_gbc_rehash();

@@ -676,7 +676,9 @@ static BDD apply_rec(BDD l, BDD r)
        break;                                           \
      }
 
-   APPLY_SHORTCUTS(applyop, /* id */);
+   /* empty macro arguments are undefined in ISO C90 and ISO C++98, so
+      use + when we do not want to call any function.*/
+   APPLY_SHORTCUTS(applyop, +);
 
    if (__unlikely(ISCONST(l)  &&  ISCONST(r)))
       res = oprres[applyop][l<<1 | r];
@@ -684,7 +686,7 @@ static BDD apply_rec(BDD l, BDD r)
    {
       entry = BddCache_lookup(&applycache, APPLYHASH(l,r,applyop));
 
-      // Check entry->c last, because not_rec() does not initialize it.
+      /* Check entry->c last, because not_rec() does not initialize it. */
       if (entry->i.a == l  &&  entry->i.c == applyop  &&  entry->i.b == r)
       {
 #ifdef CACHESTATS
@@ -928,7 +930,7 @@ int bdd_implies(BDD l, BDD r)
     return 0;
 
   entry = BddCache_lookup(&misccache, IMPLIESHASH(l,r));
-   // Check entry->b last, because not_rec() does not initialize it.
+  /* Check entry->b last, because not_rec() does not initialize it. */
   if (entry->i.a == l && entry->i.c == CACHEID_IMPLIES && entry->i.b == r)
    {
 #ifdef CACHESTATS
@@ -944,8 +946,8 @@ int bdd_implies(BDD l, BDD r)
     {
       int hl = HIGH(l);
       int hr = HIGH(r);
-      // Avoid the recursion if the second implication will trivially
-      // fail.
+      /* Avoid the recursion if the second implication will trivially
+         fail. */
       if ((ISONE(hl) || ISZERO(hr)) && (hl != hr))
         res = 0;
       else
@@ -1792,7 +1794,7 @@ static BDD simplify_rec(BDD f, BDD d)
 
    entry = BddCache_lookup(&applycache, APPLYHASH(f,d,bddop_simplify));
 
-   // Check entry->b last, because not_rec() does not initialize it.
+   /* Check entry->b last, because not_rec() does not initialize it. */
    if (entry->i.a == f && entry->i.c == bddop_simplify && entry->i.b == d)
    {
 #ifdef CACHESTATS

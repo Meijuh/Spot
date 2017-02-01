@@ -214,7 +214,7 @@ static int has_deadlocks(bdd R, bdd T)
 
    for(int i=0; i<N; i++)
       C &= bdd_exist(T, primvar, N*3);
-   //C &= bdd_exist(bdd_exist(bdd_exist(T,i*6+3),i*6+5),i*6+1);
+   /* C &= bdd_exist(bdd_exist(bdd_exist(T,i*6+3),i*6+5),i*6+1); */
 
    if(C != bddfalse && R != bddfalse)
       return 0;
