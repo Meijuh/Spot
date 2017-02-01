@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -60,7 +60,7 @@ namespace spot
     acc_cond::acc_word* start = &code.front();
     while (pos > start)
       {
-        switch (pos->op)
+        switch (pos->sub.op)
           {
           case acc_cond::acc_op::Or:
           case acc_cond::acc_op::And:

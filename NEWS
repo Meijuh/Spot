@@ -14,6 +14,12 @@ New in spot 2.3.0.dev (not yet released)
   - spot::ltsmin_model::kripke() forgot to register the "dead"
     proposition.
 
+  - The spot::acc_word type (used to construct acceptance condition)
+    was using some non-standard anonymous struct.  It is unlikely that
+    this type was actually used outside Spot, but if you do use it,
+    spot::acc_word::op and spot::acc_word::type had to be renamed as
+    spot::acc_word::sub.op and spot::acc_word::sub.type.
+
 New in spot 2.3 (2017-01-19)
 
   Build:

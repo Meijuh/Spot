@@ -1,5 +1,5 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+** Copyright (C) 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 ** Développement de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
@@ -2048,33 +2048,33 @@ fix_acceptance_aux(spot::acc_cond& acc,
 		   unsigned base)
 {
   auto& w = in[pos];
-  switch (w.op)
+  switch (w.sub.op)
     {
     case spot::acc_cond::acc_op::And:
       {
-	unsigned sub = pos - w.size;
+	unsigned sub = pos - w.sub.size;
 	--pos;
 	auto c = fix_acceptance_aux(acc, in, pos, onlyneg, both, base);
-	pos -= in[pos].size;
+	pos -= in[pos].sub.size;
 	while (sub < pos)
 	  {
 	    --pos;
 	    c &= fix_acceptance_aux(acc, in, pos, onlyneg, both, base);
-	    pos -= in[pos].size;
+	    pos -= in[pos].sub.size;
 	  }
 	return c;
       }
     case spot::acc_cond::acc_op::Or:
       {
-	unsigned sub = pos - w.size;
+	unsigned sub = pos - w.sub.size;
 	--pos;
 	auto c = fix_acceptance_aux(acc, in, pos, onlyneg, both, base);
-	pos -= in[pos].size;
+	pos -= in[pos].sub.size;
 	while (sub < pos)
 	  {
 	    --pos;
 	    c |= fix_acceptance_aux(acc, in, pos, onlyneg, both, base);
-	    pos -= in[pos].size;
+	    pos -= in[pos].sub.size;
 	  }
 	return c;
       }

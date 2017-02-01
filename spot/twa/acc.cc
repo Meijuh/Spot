@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -73,14 +73,14 @@ namespace spot
       auto& w = code[pos];
       const char* negated = "";
       bool top = pos == code.size() - 1;
-      switch (w.op)
+      switch (w.sub.op)
         {
         case acc_cond::acc_op::And:
           op = html ? " &amp; " : " & ";
           SPOT_FALLTHROUGH;
         case acc_cond::acc_op::Or:
           {
-            unsigned sub = pos - w.size;
+            unsigned sub = pos - w.sub.size;
             if (!top)
               os << '(';
             bool first = true;
@@ -92,7 +92,7 @@ namespace spot
                 else
                   os << op;
                 print_code<html>(os, code, pos, set_printer);
-                pos -= code[pos].size;
+                pos -= code[pos].sub.size;
               }
             if (!top)
               os << ')';
@@ -177,29 +177,29 @@ namespace spot
     static bool
     eval(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
     {
-      switch (pos->op)
+      switch (pos->sub.op)
         {
         case acc_cond::acc_op::And:
           {
-            auto sub = pos - pos->size;
+            auto sub = pos - pos->sub.size;
             while (sub < pos)
               {
                 --pos;
                 if (!eval(inf, pos))
                   return false;
-                pos -= pos->size;
+                pos -= pos->sub.size;
               }
             return true;
           }
         case acc_cond::acc_op::Or:
           {
-            auto sub = pos - pos->size;
+            auto sub = pos - pos->sub.size;
             while (sub < pos)
               {
                 --pos;
                 if (eval(inf, pos))
                   return true;
-                pos -= pos->size;
+                pos -= pos->sub.size;
               }
             return false;
           }
@@ -218,29 +218,29 @@ namespace spot
     static bool
     inf_eval(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
     {
-      switch (pos->op)
+      switch (pos->sub.op)
         {
         case acc_cond::acc_op::And:
           {
-            auto sub = pos - pos->size;
+            auto sub = pos - pos->sub.size;
             while (sub < pos)
               {
                 --pos;
                 if (!inf_eval(inf, pos))
                   return false;
-                pos -= pos->size;
+                pos -= pos->sub.size;
               }
             return true;
           }
         case acc_cond::acc_op::Or:
           {
-            auto sub = pos - pos->size;
+            auto sub = pos - pos->sub.size;
             while (sub < pos)
               {
                 --pos;
                 if (inf_eval(inf, pos))
                   return true;
-                pos -= pos->size;
+                pos -= pos->sub.size;
               }
             return false;
           }
@@ -259,11 +259,11 @@ namespace spot
     static acc_cond::mark_t
     eval_sets(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
     {
-      switch (pos->op)
+      switch (pos->sub.op)
         {
         case acc_cond::acc_op::And:
           {
-            auto sub = pos - pos->size;
+            auto sub = pos - pos->sub.size;
             acc_cond::mark_t m = 0U;
             while (sub < pos)
               {
@@ -272,19 +272,19 @@ namespace spot
                   m |= s;
                 else
                   return 0U;
-                pos -= pos->size;
+                pos -= pos->sub.size;
               }
             return m;
           }
         case acc_cond::acc_op::Or:
           {
-            auto sub = pos - pos->size;
+            auto sub = pos - pos->sub.size;
             while (sub < pos)
               {
                 --pos;
                 if (auto s = eval_sets(inf, pos))
                   return s;
-                pos -= pos->size;
+                pos -= pos->sub.size;
               }
             return 0U;
           }
@@ -334,7 +334,7 @@ namespace spot
     unsigned pos = code_.size();
     do
       {
-        switch (code_[pos - 1].op)
+        switch (code_[pos - 1].sub.op)
           {
           case acc_cond::acc_op::And:
           case acc_cond::acc_op::Or:
@@ -369,8 +369,8 @@ namespace spot
           acc_cond::acc_op lowop,
           acc_cond::mark_t all_sets)
     {
-      unsigned s = code.back().size;
-      auto mainop = code.back().op;
+      unsigned s = code.back().sub.size;
+      auto mainop = code.back().sub.op;
       if (mainop == highop)
         {
           // The size must be a multiple of 5.
@@ -388,11 +388,11 @@ namespace spot
       acc_cond::mark_t seen_inf = 0U;
       while (s)
         {
-          if (code[--s].op != lowop)
+          if (code[--s].sub.op != lowop)
             return false;
-          auto o1 = code[--s].op;
+          auto o1 = code[--s].sub.op;
           auto m1 = code[--s].mark;
-          auto o2 = code[--s].op;
+          auto o2 = code[--s].sub.op;
           auto m2 = code[--s].mark;
 
           // We assume
@@ -454,10 +454,10 @@ namespace spot
         return true;
       }
     if (code_.is_t()
-        || code_.back().op != acc_op::Or)
+        || code_.back().sub.op != acc_op::Or)
       return false;
 
-    auto s = code_.back().size;
+    auto s = code_.back().sub.size;
     acc_cond::mark_t seen_fin = 0U;
     acc_cond::mark_t seen_inf = 0U;
     // Each pairs is the position of a Fin followed
@@ -466,11 +466,11 @@ namespace spot
     while (s)
       {
         --s;
-        if (code_[s].op == acc_op::And)
+        if (code_[s].sub.op == acc_op::And)
           {
-            auto o1 = code_[--s].op;
+            auto o1 = code_[--s].sub.op;
             auto m1 = code_[--s].mark;
-            auto o2 = code_[--s].op;
+            auto o2 = code_[--s].sub.op;
             auto m2 = code_[--s].mark;
 
             // We assume
@@ -503,7 +503,7 @@ namespace spot
             seen_fin |= m1;
             seen_inf |= m2;
           }
-        else if (code_[s].op == acc_op::Fin)
+        else if (code_[s].sub.op == acc_op::Fin)
           {
             auto m1 = code_[--s].mark;
             for (auto s: m1.sets())
@@ -597,9 +597,9 @@ namespace spot
   {
     bdd to_bdd_rec(const acc_cond::acc_word* c, const bdd* map)
     {
-      auto sz = c->size;
+      auto sz = c->sub.size;
       auto start = c - sz - 1;
-      auto op = c->op;
+      auto op = c->sub.op;
       switch (op)
         {
         case acc_cond::acc_op::Or:
@@ -609,7 +609,7 @@ namespace spot
             do
               {
                 res |= to_bdd_rec(c, map);
-                c -= c->size + 1;
+                c -= c->sub.size + 1;
               }
             while (c > start);
             return res;
@@ -621,7 +621,7 @@ namespace spot
             do
               {
                 res &= to_bdd_rec(c, map);
-                c -= c->size + 1;
+                c -= c->sub.size + 1;
               }
             while (c > start);
             return res;
@@ -1005,16 +1005,16 @@ namespace spot
     auto pos = &back();
     auto start = &front();
     auto and_scope = pos + 1;
-    if (pos->op == acc_cond::acc_op::Or)
+    if (pos->sub.op == acc_cond::acc_op::Or)
       --pos;
     while (pos > start)
       {
-        switch (pos->op)
+        switch (pos->sub.op)
           {
           case acc_cond::acc_op::Or:
             return false;
           case acc_cond::acc_op::And:
-            and_scope = std::min(and_scope, pos - pos->size);
+            and_scope = std::min(and_scope, pos - pos->sub.size);
             --pos;
             break;
           case acc_cond::acc_op::Fin:
@@ -1038,16 +1038,16 @@ namespace spot
     auto pos = &back();
     auto start = &front();
     auto or_scope = pos + 1;
-    if (pos->op == acc_cond::acc_op::And)
+    if (pos->sub.op == acc_cond::acc_op::And)
       --pos;
     while (pos > start)
       {
-        switch (pos->op)
+        switch (pos->sub.op)
           {
           case acc_cond::acc_op::And:
             return false;
           case acc_cond::acc_op::Or:
-            or_scope = std::min(or_scope, pos - pos->size);
+            or_scope = std::min(or_scope, pos - pos->sub.size);
             --pos;
             break;
           case acc_cond::acc_op::Inf:
@@ -1068,8 +1068,8 @@ namespace spot
   {
     acc_cond::acc_code complement_rec(const acc_cond::acc_word* pos)
     {
-      auto start = pos - pos->size;
-      switch (pos->op)
+      auto start = pos - pos->sub.size;
+      switch (pos->sub.op)
         {
         case acc_cond::acc_op::And:
           {
@@ -1079,7 +1079,7 @@ namespace spot
               {
                 auto tmp = complement_rec(pos) | std::move(res);
                 std::swap(tmp, res);
-                pos -= pos->size + 1;
+                pos -= pos->sub.size + 1;
               }
             while (pos > start);
             return res;
@@ -1092,7 +1092,7 @@ namespace spot
               {
                 auto tmp = complement_rec(pos) & std::move(res);
                 std::swap(tmp, res);
-                pos -= pos->size + 1;
+                pos -= pos->sub.size + 1;
               }
             while (pos > start);
             return res;
@@ -1125,8 +1125,8 @@ namespace spot
     static acc_cond::acc_code
     strip_rec(const acc_cond::acc_word* pos, acc_cond::mark_t rem, bool missing)
     {
-      auto start = pos - pos->size;
-      switch (pos->op)
+      auto start = pos - pos->sub.size;
+      switch (pos->sub.op)
         {
         case acc_cond::acc_op::And:
           {
@@ -1136,7 +1136,7 @@ namespace spot
               {
                 auto tmp = strip_rec(pos, rem, missing) & std::move(res);
                 std::swap(tmp, res);
-                pos -= pos->size + 1;
+                pos -= pos->sub.size + 1;
               }
             while (pos > start);
             return res;
@@ -1149,7 +1149,7 @@ namespace spot
               {
                 auto tmp = strip_rec(pos, rem, missing) | std::move(res);
                 std::swap(tmp, res);
-                pos -= pos->size + 1;
+                pos -= pos->sub.size + 1;
               }
             while (pos > start);
             return res;
@@ -1190,7 +1190,7 @@ namespace spot
     auto end = &front();
     while (pos > end)
       {
-        switch (pos->op)
+        switch (pos->sub.op)
           {
           case acc_cond::acc_op::And:
           case acc_cond::acc_op::Or:
@@ -1220,7 +1220,7 @@ namespace spot
     auto end = &front();
     while (pos > end)
       {
-        switch (pos->op)
+        switch (pos->sub.op)
           {
           case acc_cond::acc_op::And:
           case acc_cond::acc_op::Or:

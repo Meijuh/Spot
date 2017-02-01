@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -294,7 +294,7 @@ namespace spot
         acc_op op;             // Operator
         unsigned short size; // Size of the subtree (number of acc_word),
                              // not counting this node.
-      };
+      } sub;
     };
 
     struct SPOT_API acc_code: public std::vector<acc_word>
@@ -306,10 +306,10 @@ namespace spot
           return false;
         while (pos > 0)
           {
-            auto op = (*this)[pos - 1].op;
-            auto sz = (*this)[pos - 1].size;
-            if (other[pos - 1].op != op ||
-                other[pos - 1].size != sz)
+            auto op = (*this)[pos - 1].sub.op;
+            auto sz = (*this)[pos - 1].sub.size;
+            if (other[pos - 1].sub.op != op ||
+                other[pos - 1].sub.size != sz)
               return false;
             switch (op)
               {
@@ -340,14 +340,14 @@ namespace spot
           return false;
         while (pos > 0)
           {
-            auto op = (*this)[pos - 1].op;
-            auto oop = other[pos - 1].op;
+            auto op = (*this)[pos - 1].sub.op;
+            auto oop = other[pos - 1].sub.op;
             if (op < oop)
               return true;
             if (op > oop)
               return false;
-            auto sz = (*this)[pos - 1].size;
-            auto osz = other[pos - 1].size;
+            auto sz = (*this)[pos - 1].sub.size;
+            auto osz = other[pos - 1].sub.size;
             if (sz < osz)
               return true;
             if (sz > osz)
@@ -398,15 +398,15 @@ namespace spot
       bool is_t() const
       {
         unsigned s = size();
-        return s == 0
-          || ((*this)[s - 1].op == acc_op::Inf && (*this)[s - 2].mark == 0U);
+        return s == 0 || ((*this)[s - 1].sub.op == acc_op::Inf
+                          && (*this)[s - 2].mark == 0U);
       }
 
       bool is_f() const
       {
         unsigned s = size();
         return s > 1
-          && (*this)[s - 1].op == acc_op::Fin && (*this)[s - 2].mark == 0U;
+          && (*this)[s - 1].sub.op == acc_op::Fin && (*this)[s - 2].mark == 0U;
       }
 
       static acc_code f()
@@ -414,8 +414,8 @@ namespace spot
         acc_code res;
         res.resize(2);
         res[0].mark = 0U;
-        res[1].op = acc_op::Fin;
-        res[1].size = 1;
+        res[1].sub.op = acc_op::Fin;
+        res[1].sub.size = 1;
         return res;
       }
 
@@ -429,8 +429,8 @@ namespace spot
         acc_code res;
         res.resize(2);
         res[0].mark = m;
-        res[1].op = acc_op::Fin;
-        res[1].size = 1;
+        res[1].sub.op = acc_op::Fin;
+        res[1].sub.size = 1;
         return res;
       }
 
@@ -444,8 +444,8 @@ namespace spot
         acc_code res;
         res.resize(2);
         res[0].mark = m;
-        res[1].op = acc_op::FinNeg;
-        res[1].size = 1;
+        res[1].sub.op = acc_op::FinNeg;
+        res[1].sub.size = 1;
         return res;
       }
 
@@ -459,8 +459,8 @@ namespace spot
         acc_code res;
         res.resize(2);
         res[0].mark = m;
-        res[1].op = acc_op::Inf;
-        res[1].size = 1;
+        res[1].sub.op = acc_op::Inf;
+        res[1].sub.size = 1;
         return res;
       }
 
@@ -474,8 +474,8 @@ namespace spot
         acc_code res;
         res.resize(2);
         res[0].mark = m;
-        res[1].op = acc_op::InfNeg;
-        res[1].size = 1;
+        res[1].sub.op = acc_op::InfNeg;
+        res[1].sub.size = 1;
         return res;
       }
 
@@ -572,8 +572,10 @@ namespace spot
         unsigned rs = r.size() - 1;
         // We want to group all Inf(x) operators:
         //   Inf(a) & Inf(b) = Inf(a & b)
-        if (((*this)[s].op == acc_op::Inf && r[rs].op == acc_op::Inf)
-            || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
+        if (((*this)[s].sub.op == acc_op::Inf
+             && r[rs].sub.op == acc_op::Inf)
+            || ((*this)[s].sub.op == acc_op::InfNeg
+                && r[rs].sub.op == acc_op::InfNeg))
           {
             (*this)[s - 1].mark |= r[rs - 1].mark;
             return *this;
@@ -585,43 +587,43 @@ namespace spot
         // left_inf points to the left Inf mark if any.
         // right_inf points to the right Inf mark if any.
         acc_word* left_inf = nullptr;
-        if ((*this)[s].op == acc_op::And)
+        if ((*this)[s].sub.op == acc_op::And)
           {
-            auto start = &(*this)[s] - (*this)[s].size;
+            auto start = &(*this)[s] - (*this)[s].sub.size;
             auto pos = &(*this)[s] - 1;
             pop_back();
             while (pos > start)
               {
-                if (pos->op == acc_op::Inf)
+                if (pos->sub.op == acc_op::Inf)
                   {
                     left_inf = pos - 1;
                     break;
                   }
-                pos -= pos->size + 1;
+                pos -= pos->sub.size + 1;
               }
           }
-        else if ((*this)[s].op == acc_op::Inf)
+        else if ((*this)[s].sub.op == acc_op::Inf)
           {
             left_inf = &(*this)[s - 1];
           }
 
         acc_word* right_inf = nullptr;
         auto right_end = &r.back();
-        if (right_end->op == acc_op::And)
+        if (right_end->sub.op == acc_op::And)
           {
             auto start = &r[0];
             auto pos = --right_end;
             while (pos > start)
             {
-              if (pos->op == acc_op::Inf)
+              if (pos->sub.op == acc_op::Inf)
                 {
                   right_inf = pos - 1;
                   break;
                 }
-              pos -= pos->size + 1;
+              pos -= pos->sub.size + 1;
             }
           }
-        else if (right_end->op == acc_op::Inf)
+        else if (right_end->sub.op == acc_op::Inf)
           {
             right_inf = right_end - 1;
           }
@@ -645,8 +647,8 @@ namespace spot
           }
 
         acc_word w;
-        w.op = acc_op::And;
-        w.size = size();
+        w.sub.op = acc_op::And;
+        w.sub.size = size();
         emplace_back(w);
         return *this;
       }
@@ -663,8 +665,10 @@ namespace spot
         unsigned s = size() - 1;
         unsigned rs = r.size() - 1;
         // Inf(a) & Inf(b) = Inf(a & b)
-        if (((*this)[s].op == acc_op::Inf && r[rs].op == acc_op::Inf)
-            || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
+        if (((*this)[s].sub.op == acc_op::Inf
+             && r[rs].sub.op == acc_op::Inf)
+            || ((*this)[s].sub.op == acc_op::InfNeg
+                && r[rs].sub.op == acc_op::InfNeg))
           {
             (*this)[s - 1].mark |= r[rs - 1].mark;
             return *this;
@@ -676,43 +680,43 @@ namespace spot
         // left_inf points to the left Inf mark if any.
         // right_inf points to the right Inf mark if any.
         acc_word* left_inf = nullptr;
-        if ((*this)[s].op == acc_op::And)
+        if ((*this)[s].sub.op == acc_op::And)
           {
-            auto start = &(*this)[s] - (*this)[s].size;
+            auto start = &(*this)[s] - (*this)[s].sub.size;
             auto pos = &(*this)[s] - 1;
             pop_back();
             while (pos > start)
               {
-                if (pos->op == acc_op::Inf)
+                if (pos->sub.op == acc_op::Inf)
                   {
                     left_inf = pos - 1;
                     break;
                   }
-                pos -= pos->size + 1;
+                pos -= pos->sub.size + 1;
               }
           }
-        else if ((*this)[s].op == acc_op::Inf)
+        else if ((*this)[s].sub.op == acc_op::Inf)
           {
             left_inf = &(*this)[s - 1];
           }
 
         const acc_word* right_inf = nullptr;
         auto right_end = &r.back();
-        if (right_end->op == acc_op::And)
+        if (right_end->sub.op == acc_op::And)
           {
             auto start = &r[0];
             auto pos = --right_end;
             while (pos > start)
             {
-              if (pos->op == acc_op::Inf)
+              if (pos->sub.op == acc_op::Inf)
                 {
                   right_inf = pos - 1;
                   break;
                 }
-              pos -= pos->size + 1;
+              pos -= pos->sub.size + 1;
             }
           }
-        else if (right_end->op == acc_op::Inf)
+        else if (right_end->sub.op == acc_op::Inf)
           {
             right_inf = right_end - 1;
           }
@@ -736,8 +740,8 @@ namespace spot
           }
 
         acc_word w;
-        w.op = acc_op::And;
-        w.size = size();
+        w.sub.op = acc_op::And;
+        w.sub.size = size();
         emplace_back(w);
         return *this;
       }
@@ -768,20 +772,22 @@ namespace spot
         unsigned s = size() - 1;
         unsigned rs = r.size() - 1;
         // Fin(a) | Fin(b) = Fin(a | b)
-        if (((*this)[s].op == acc_op::Fin && r[rs].op == acc_op::Fin)
-            || ((*this)[s].op == acc_op::FinNeg && r[rs].op == acc_op::FinNeg))
+        if (((*this)[s].sub.op == acc_op::Fin
+             && r[rs].sub.op == acc_op::Fin)
+            || ((*this)[s].sub.op == acc_op::FinNeg
+                && r[rs].sub.op == acc_op::FinNeg))
           {
             (*this)[s - 1].mark |= r[rs - 1].mark;
             return *this;
           }
-        if ((*this)[s].op == acc_op::Or)
+        if ((*this)[s].sub.op == acc_op::Or)
           pop_back();
-        if (r.back().op == acc_op::Or)
+        if (r.back().sub.op == acc_op::Or)
           r.pop_back();
         insert(this->end(), r.begin(), r.end());
         acc_word w;
-        w.op = acc_op::Or;
-        w.size = size();
+        w.sub.op = acc_op::Or;
+        w.sub.size = size();
         emplace_back(w);
         return *this;
       }
@@ -812,7 +818,7 @@ namespace spot
         unsigned pos = size();
         do
           {
-            switch ((*this)[pos - 1].op)
+            switch ((*this)[pos - 1].sub.op)
               {
               case acc_cond::acc_op::And:
               case acc_cond::acc_op::Or:
@@ -1008,7 +1014,7 @@ namespace spot
     {
       unsigned s = code_.size();
       return num_ == 1 &&
-        s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets();
+        s == 2 && code_[1].sub.op == acc_op::Inf && code_[0].mark == all_sets();
     }
 
     bool is_co_buchi() const
@@ -1024,15 +1030,15 @@ namespace spot
     bool is_generalized_buchi() const
     {
       unsigned s = code_.size();
-      return (s == 0 && num_ == 0) ||
-        (s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets());
+      return (s == 0 && num_ == 0) || (s == 2 && code_[1].sub.op == acc_op::Inf
+                                       && code_[0].mark == all_sets());
     }
 
     bool is_generalized_co_buchi() const
     {
       unsigned s = code_.size();
       return (s == 2 &&
-              code_[1].op == acc_op::Fin && code_[0].mark == all_sets());
+              code_[1].sub.op == acc_op::Fin && code_[0].mark == all_sets());
     }
 
     // Returns a number of pairs (>=0) if Rabin, or -1 else.

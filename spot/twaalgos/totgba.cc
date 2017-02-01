@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -70,17 +70,17 @@ namespace spot
       terms_t res;
       auto pos = &code.back();
       auto end = &code.front();
-      if (pos->op == acc_cond::acc_op::And)
+      if (pos->sub.op == acc_cond::acc_op::And)
         --pos;
       while (pos >= end)
         {
-          auto term_end = pos - 1 - pos->size;
-          if (pos->op == acc_cond::acc_op::Or)
+          auto term_end = pos - 1 - pos->sub.size;
+          if (pos->sub.op == acc_cond::acc_op::Or)
             --pos;
           acc_cond::mark_t m = 0U;
           while (pos > term_end)
             {
-              assert(pos->op == acc_cond::acc_op::Inf);
+              assert(pos->sub.op == acc_cond::acc_op::Inf);
               m |= pos[-1].mark;
               pos -= 2;
             }
@@ -319,7 +319,7 @@ namespace spot
     auto cnf = res->get_acceptance().to_cnf();
     // If we are very lucky, building a CNF actually gave us a GBA...
     if (cnf.empty() ||
-        (cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Inf))
+        (cnf.size() == 2 && cnf.back().sub.op == acc_cond::acc_op::Inf))
       {
         res->set_acceptance(res->num_sets(), cnf);
         cleanup_acceptance_here(res);
@@ -379,28 +379,28 @@ namespace spot
           return res;
         }
       auto pos = &acc.back();
-      if (pos->op == acc_cond::acc_op::Or)
+      if (pos->sub.op == acc_cond::acc_op::Or)
         --pos;
       auto start = &acc.front();
       while (pos > start)
         {
-          if (pos->op == acc_cond::acc_op::Fin)
+          if (pos->sub.op == acc_cond::acc_op::Fin)
             {
               // We have only a Fin term, without Inf.  In this case
               // only, the Fin() may encode a disjunction of sets.
               for (auto s: pos[-1].mark.sets())
                 res.emplace_back(acc_cond::mark_t({s}), 0U);
-              pos -= pos->size + 1;
+              pos -= pos->sub.size + 1;
             }
           else
             {
               // We have a conjunction of Fin and Inf sets.
-              auto end = pos - pos->size - 1;
+              auto end = pos - pos->sub.size - 1;
               acc_cond::mark_t fin = 0U;
               acc_cond::mark_t inf = 0U;
               while (pos > end)
                 {
-                  switch (pos->op)
+                  switch (pos->sub.op)
                     {
                     case acc_cond::acc_op::And:
                       --pos;

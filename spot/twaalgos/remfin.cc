@@ -318,12 +318,12 @@ namespace spot
     {
       std::map<acc_cond::mark_t, acc_cond::acc_code> res;
       auto pos = &acc.back();
-      if (pos->op == acc_cond::acc_op::Or)
+      if (pos->sub.op == acc_cond::acc_op::Or)
         --pos;
       auto start = &acc.front();
       while (pos > start)
         {
-          if (pos->op == acc_cond::acc_op::Fin)
+          if (pos->sub.op == acc_cond::acc_op::Fin)
             {
               // We have only a Fin term, without Inf.  In this case
               // only, the Fin() may encode a disjunction of sets.
@@ -333,17 +333,17 @@ namespace spot
                   fin.set(s);
                   res[fin] = acc_cond::acc_code{};
                 }
-              pos -= pos->size + 1;
+              pos -= pos->sub.size + 1;
             }
           else
             {
               // We have a conjunction of Fin and Inf sets.
-              auto end = pos - pos->size - 1;
+              auto end = pos - pos->sub.size - 1;
               acc_cond::mark_t fin = 0U;
               acc_cond::mark_t inf = 0U;
               while (pos > end)
                 {
-                  switch (pos->op)
+                  switch (pos->sub.op)
                     {
                     case acc_cond::acc_op::And:
                       --pos;
@@ -367,8 +367,8 @@ namespace spot
               assert(pos == end);
               acc_cond::acc_word w[2];
               w[0].mark = inf;
-              w[1].op = acc_cond::acc_op::Inf;
-              w[1].size = 1;
+              w[1].sub.op = acc_cond::acc_op::Inf;
+              w[1].sub.size = 1;
               acc_cond::acc_code c;
               c.insert(c.end(), w, w + 2);
               auto p = res.emplace(fin, c);
@@ -428,27 +428,27 @@ namespace spot
     acc_cond::mark_t inf_alone = 0U;
     acc_cond::mark_t fin_alone = 0U;
 
-    auto s = code.back().size;
+    auto s = code.back().sub.size;
 
     // Rabin 1
-    if (code.back().op == acc_cond::acc_op::And && s == 4)
+    if (code.back().sub.op == acc_cond::acc_op::And && s == 4)
       goto start_and;
     // Co-Büchi
-    else if (code.back().op == acc_cond::acc_op::Fin && s == 1)
+    else if (code.back().sub.op == acc_cond::acc_op::Fin && s == 1)
       goto start_fin;
     // Rabin >1
-    else if (code.back().op != acc_cond::acc_op::Or)
+    else if (code.back().sub.op != acc_cond::acc_op::Or)
       return nullptr;
 
     while (s)
       {
         --s;
-        if (code[s].op == acc_cond::acc_op::And)
+        if (code[s].sub.op == acc_cond::acc_op::And)
           {
           start_and:
-            auto o1 = code[--s].op;
+            auto o1 = code[--s].sub.op;
             auto m1 = code[--s].mark;
-            auto o2 = code[--s].op;
+            auto o2 = code[--s].sub.op;
             auto m2 = code[--s].mark;
             // We expect
             //   Fin({n}) & Inf({n+1})
@@ -460,12 +460,12 @@ namespace spot
               return nullptr;
             inf_pairs |= m2;
           }
-        else if (code[s].op == acc_cond::acc_op::Fin)
+        else if (code[s].sub.op == acc_cond::acc_op::Fin)
           {
           start_fin:
             fin_alone |= code[--s].mark;
           }
-        else if (code[s].op == acc_cond::acc_op::Inf)
+        else if (code[s].sub.op == acc_cond::acc_op::Inf)
           {
             auto m1 = code[--s].mark;
             if (m1.count() != 1)
@@ -551,7 +551,7 @@ namespace spot
               auto end = &p.second.front();
               while (pos > end)
                 {
-                  switch (pos->op)
+                  switch (pos->sub.op)
                     {
                     case acc_cond::acc_op::And:
                     case acc_cond::acc_op::Or:

@@ -128,27 +128,27 @@ namespace spot
       trimming_map res;
       auto acc = input_acc.to_dnf();
       auto pos = &acc.back();
-      if (pos->op == acc_cond::acc_op::Or)
+      if (pos->sub.op == acc_cond::acc_op::Or)
         --pos;
       acc_cond::mark_t all_fin = 0U;
       auto start = &acc.front();
       while (pos > start)
         {
-          if (pos->op == acc_cond::acc_op::Fin)
+          if (pos->sub.op == acc_cond::acc_op::Fin)
             {
               // We have only a Fin term, without Inf.
               // There is nothing to do about it.
-              pos -= pos->size + 1;
+              pos -= pos->sub.size + 1;
             }
           else
             {
               // We have a conjunction of Fin and Inf sets.
-              auto end = pos - pos->size - 1;
+              auto end = pos - pos->sub.size - 1;
               acc_cond::mark_t fin = 0U;
               acc_cond::mark_t inf = 0U;
               while (pos > end)
                 {
-                  switch (pos->op)
+                  switch (pos->sub.op)
                     {
                     case acc_cond::acc_op::And:
                       --pos;
