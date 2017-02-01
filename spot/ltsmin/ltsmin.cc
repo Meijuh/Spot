@@ -1040,7 +1040,11 @@ namespace spot
 
     auto sym = [&](const char* name)
       {
-        auto res = lt_dlsym(h, name);
+        // Work around -Wpendantic complaining that pointer-to-objects
+        // should not be converted to pointer-to-functions (we have to
+        // assume they can for POSIX).
+        void (*res)(void*);
+        *reinterpret_cast<void**>(&res) = lt_dlsym(h, name);
         if (res == nullptr)
           throw std::runtime_error(std::string("Failed to resolve symbol '")
                                    + name + "' in '" + file + "'.");
@@ -1074,7 +1078,7 @@ namespace spot
       {
         d->get_initial_state = (void (*)(void*))
           sym("get_initial_state");
-        d->have_property = (int (*)())
+        *reinterpret_cast<void**>(&d->have_property) =
           lt_dlsym(h, "have_property");
         d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
           sym("get_successors");
