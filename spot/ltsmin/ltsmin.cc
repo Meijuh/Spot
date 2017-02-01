@@ -140,7 +140,7 @@ namespace spot
       size_t hash_value: 32;
       int size: 16;
       mutable unsigned count: 16;
-      int vars[0];
+      int vars[1];
     };
 
     struct spins_compressed_state final: public state
@@ -167,7 +167,8 @@ namespace spot
       {
         if (--count)
           return;
-        pool->deallocate(this, sizeof(*this) + size * sizeof(*vars));
+        pool->deallocate(this, sizeof(*this) - sizeof(vars)
+                         + size * sizeof(*vars));
       }
 
       size_t hash() const override
@@ -206,7 +207,7 @@ namespace spot
       size_t hash_value: 32;
       int size: 16;
       mutable unsigned count: 16;
-      int vars[0];
+      int vars[1];
     };
 
     ////////////////////////////////////////////////////////////////////////
@@ -248,6 +249,7 @@ namespace spot
       ctx->compress(dst, ctx->state_size, ctx->compressed, csize);
 
       void* mem = p->allocate(sizeof(spins_compressed_state)
+                              - sizeof(spins_compressed_state::vars)
                               + sizeof(int) * csize);
       spins_compressed_state* out = new(mem) spins_compressed_state(csize, p);
       memcpy(out->vars, ctx->compressed, csize * sizeof(int));
@@ -620,8 +622,11 @@ namespace spot
                       : int_array_array_decompress2),
           uncompressed_(compress ? new int[state_size_ + 30] : nullptr),
           compressed_(compress ? new int[state_size_ * 2] : nullptr),
-          statepool_(compress ? sizeof(spins_compressed_state) :
-                     (sizeof(spins_state) + state_size_ * sizeof(int))),
+          statepool_(compress ?
+                     (sizeof(spins_compressed_state)
+                      - sizeof(spins_compressed_state::vars)) :
+                     (sizeof(spins_state) - sizeof(spins_state::vars)
+                      + (state_size_ * sizeof(int)))),
           state_condition_last_state_(nullptr),
           state_condition_last_cc_(nullptr)
       {
@@ -703,6 +708,7 @@ namespace spot
             multiple_size_pool* p =
               const_cast<multiple_size_pool*>(&compstatepool_);
             void* mem = p->allocate(sizeof(spins_compressed_state)
+                                    - sizeof(spins_compressed_state::vars)
                                     + sizeof(int) * csize);
             spins_compressed_state* res = new(mem)
               spins_compressed_state(csize, p);
