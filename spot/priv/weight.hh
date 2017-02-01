@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2014  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -53,4 +53,4 @@ namespace spot
   private:
     std::vector<int> m;
   };
-};
+}

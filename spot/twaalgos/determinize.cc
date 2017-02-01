@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -44,7 +44,7 @@ namespace spot
     void truncate_braces(std::vector<brace_t>& braces,
                          const std::vector<unsigned>& rem_succ_of,
                          std::vector<size_t>& nb_braces);
-  };
+  }
 
   class safra_state final
   {

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -124,7 +124,7 @@ namespace spot
             }
         }
       while (todo_pos > 0);
-    };
+    }
 
   } // anonymous
 
@@ -192,7 +192,7 @@ namespace spot
   void printable_formula::print(std::ostream& os, const char*) const
   {
     print_psl(os, val_);
-  };
+  }
 
   void printable_scc_info::print(std::ostream& os, const char* pos) const
   {
@@ -307,7 +307,7 @@ namespace spot
       }
 
     os << count;
-  };
+  }
 
 
   stat_printer::stat_printer(std::ostream& os, const char* format)

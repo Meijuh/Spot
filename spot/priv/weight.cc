@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2014, 2016 Laboratoire de Recherche et
+// Copyright (C) 2011, 2014, 2016, 2017 Laboratoire de Recherche et
 // Developpement de l'Epita.
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -63,5 +63,4 @@ namespace spot
       os << '(' << n << ',' << w.m[n] << ')';
     return os;
   }
-
-};
+}
