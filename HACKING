@@ -236,7 +236,7 @@ differently.  When we use Teamcity (for continuous integration) we
 change the output format to something that Teamcity will understand
 with:
 
-  make check TEST_LOG_DRIVER=$PWD/tools/test-driver-teamcity
+  make check LOG_DRIVER=$PWD/tools/test-driver-teamcity
 
 
 Coding conventions
