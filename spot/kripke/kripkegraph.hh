@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE)
+// Copyright (C) 2011-2017 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -42,7 +42,6 @@ namespace spot
     virtual int compare(const spot::state* other) const override
     {
       auto o = down_cast<const kripke_graph_state*>(other);
-      SPOT_ASSERT(o);
 
       // Do not simply return "other - this", it might not fit in an int.
       if (o < this)
@@ -194,7 +193,6 @@ namespace spot
     succ_iter(const spot::state* st) const override
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
-      SPOT_ASSERT(s);
       SPOT_ASSERT(!s->succ || g_.is_valid_edge(s->succ));
 
       if (this->iter_cache_)
@@ -213,7 +211,6 @@ namespace spot
     state_number(const state* st) const
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
-      SPOT_ASSERT(s);
       return s - &g_.state_storage(0);
     }
 
@@ -245,7 +242,6 @@ namespace spot
     virtual bdd state_condition(const state* s) const override
     {
       auto gs = down_cast<const kripke_graph_state*>(s);
-      SPOT_ASSERT(gs);
       return gs->cond();
     }
 

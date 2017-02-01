@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011-2017 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -209,7 +209,6 @@ namespace spot
     virtual std::string format_state(const spot::state* s) const override
     {
       const spot::set_state* se = down_cast<const spot::set_state*>(s);
-      SPOT_ASSERT(se);
       const state_set* ss = se->get_state();
       return format_state_set(ss);
     }

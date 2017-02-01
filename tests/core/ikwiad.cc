@@ -1156,8 +1156,7 @@ checked_main(int argc, char** argv)
           if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
             {
               tm.start("SCC-filter post-sim");
-              auto aa = std::dynamic_pointer_cast<const spot::twa_graph>(a);
-              assert(aa);
+              auto aa = down_cast<spot::const_twa_graph_ptr>(a);
               // Do not filter_all for SBA
               a = spot::scc_filter(aa, assume_sba ?
                                    false : scc_filter_all);

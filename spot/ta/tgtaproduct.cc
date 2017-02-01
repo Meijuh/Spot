@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2014, 2015 Laboratoire de Recherche et
-// Développement de l Epita (LRDE).
+// Copyright (C) 2012, 2014-2017 Laboratoire de Recherche et Développement de
+// l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -61,7 +61,6 @@ namespace spot
   tgta_product::succ_iter(const state* state) const
   {
     const state_product* s = down_cast<const state_product*> (state);
-    assert(s);
 
     fixed_size_pool* p = const_cast<fixed_size_pool*> (&pool_);
 

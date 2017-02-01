@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2010-2017 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -230,7 +230,6 @@ namespace spot
   state_ta_explicit::compare(const spot::state* other) const
   {
     const state_ta_explicit* o = down_cast<const state_ta_explicit*>(other);
-    assert(o);
 
     int compare_value = tgba_state_->compare(o->tgba_state_);
 
@@ -362,7 +361,6 @@ namespace spot
       {
         auto* s = const_cast<state_ta_explicit*>
           (down_cast<const state_ta_explicit*>(*it));
-        assert(s);
         s->free_transitions();
         s->get_tgba_state()->destroy();
         delete s;
@@ -383,7 +381,6 @@ namespace spot
   ta_explicit::add_to_initial_states_set(state* state, bdd condition)
   {
     state_ta_explicit* s = down_cast<state_ta_explicit*>(state);
-    assert(s);
     s->set_initial_state(true);
     if (condition == bddfalse)
       condition = get_state_condition(s);
@@ -402,7 +399,6 @@ namespace spot
   {
     auto state =
       const_cast<state_ta_explicit*>(down_cast<const state_ta_explicit*>(s));
-    assert(state);
     state->delete_stuttering_and_hole_successors();
     if (state->is_initial_state())
       add_to_initial_states_set(state);
@@ -435,7 +431,6 @@ namespace spot
   {
     const state_ta_explicit* sta =
         down_cast<const state_ta_explicit*>(initial_state);
-    assert(sta);
     return sta->get_tgba_condition();
   }
 
@@ -443,7 +438,6 @@ namespace spot
   ta_explicit::is_accepting_state(const spot::state* s) const
   {
     const state_ta_explicit* sta = down_cast<const state_ta_explicit*>(s);
-    assert(sta);
     return sta->is_accepting_state();
   }
 
@@ -451,7 +445,6 @@ namespace spot
   ta_explicit::is_initial_state(const spot::state* s) const
   {
     const state_ta_explicit* sta = down_cast<const state_ta_explicit*>(s);
-    assert(sta);
     return sta->is_initial_state();
   }
 
@@ -459,7 +452,6 @@ namespace spot
   ta_explicit::is_livelock_accepting_state(const spot::state* s) const
   {
     const state_ta_explicit* sta = down_cast<const state_ta_explicit*>(s);
-    assert(sta);
     return sta->is_livelock_accepting_state();
   }
 
@@ -467,7 +459,6 @@ namespace spot
   ta_explicit::succ_iter(const spot::state* state) const
   {
     const state_ta_explicit* s = down_cast<const state_ta_explicit*>(state);
-    assert(s);
     return new ta_explicit_succ_iterator(s);
   }
 
@@ -475,7 +466,6 @@ namespace spot
   ta_explicit::succ_iter(const spot::state* state, bdd condition) const
   {
     const state_ta_explicit* s = down_cast<const state_ta_explicit*>(state);
-    assert(s);
     return new ta_explicit_succ_iterator(s, condition);
   }
 
@@ -495,7 +485,6 @@ namespace spot
   ta_explicit::format_state(const spot::state* s) const
   {
     const state_ta_explicit* sta = down_cast<const state_ta_explicit*>(s);
-    assert(sta);
 
     if (sta->get_tgba_condition() == bddtrue)
       return tgba_->format_state(sta->get_tgba_state());

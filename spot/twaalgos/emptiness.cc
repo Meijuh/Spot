@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011-2017 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -446,11 +446,11 @@ namespace spot
     auto res = std::make_shared<twa_run>(other);
     if (auto ps = aut->get_named_prop<const product_states>("product-states"))
       {
-        auto a = std::dynamic_pointer_cast<const twa_graph>(aut);
+        auto a = down_cast<const_twa_graph_ptr>(aut);
         if (!a)
           throw std::runtime_error("twa_run::project() confused: "
                                    "product-states found in a non-twa_graph");
-        auto oth = std::dynamic_pointer_cast<const twa_graph>(other);
+        auto oth = down_cast<const_twa_graph_ptr>(other);
         if (!oth)
           throw std::runtime_error("twa_run::project() confused: "
                                    "other ought to be a twa_graph");
@@ -709,8 +709,7 @@ namespace spot
   /// Note that this works only if the automaton is a twa_graph_ptr.
   void twa_run::highlight(unsigned color)
   {
-    auto a = std::dynamic_pointer_cast<twa_graph>
-      (std::const_pointer_cast<twa>(aut));
+    auto a = down_cast<twa_graph_ptr>(std::const_pointer_cast<twa>(aut));
     if (!a)
       throw std::runtime_error("highlight() only work for twa_graph");
 

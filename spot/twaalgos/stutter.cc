@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -59,7 +59,6 @@ namespace spot
       {
         const state_tgbasl* o =
           down_cast<const state_tgbasl*>(other);
-        assert(o);
         int res = s_->compare(o->real_state());
         if (res != 0)
           return res;
@@ -223,7 +222,6 @@ namespace spot
       virtual twa_succ_iterator* succ_iter(const state* state) const override
       {
         const state_tgbasl* s = down_cast<const state_tgbasl*>(state);
-        assert(s);
         return new twasl_succ_iterator(a_->succ_iter(s->real_state()), s,
                                         a_->get_dict(), aps_);
       }
@@ -231,7 +229,6 @@ namespace spot
       virtual std::string format_state(const state* state) const override
       {
         const state_tgbasl* s = down_cast<const state_tgbasl*>(state);
-        assert(s);
         return (a_->format_state(s->real_state())
                 + ", "
                 + bdd_format_formula(a_->get_dict(), s->cond()));

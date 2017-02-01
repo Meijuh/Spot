@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2010-2017 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -313,7 +313,6 @@ namespace spot
                 {
                   auto self_loop_state = const_cast<state_ta_explicit*>
                     (down_cast<const state_ta_explicit*>(curr));
-                  assert(self_loop_state);
 
                   if (testing_aut->is_accepting_state(self_loop_state)
                       || (testing_aut->acc().accepting(acc_cond)))

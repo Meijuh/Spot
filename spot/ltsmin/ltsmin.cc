@@ -121,7 +121,6 @@ namespace spot
         if (this == other)
           return 0;
         const spins_state* o = down_cast<const spins_state*>(other);
-        assert(o);
         if (hash_value < o->hash_value)
           return -1;
         if (hash_value > o->hash_value)
@@ -182,7 +181,6 @@ namespace spot
           return 0;
         const spins_compressed_state* o =
           down_cast<const spins_compressed_state*>(other);
-        assert(o);
         if (hash_value < o->hash_value)
           return -1;
         if (hash_value > o->hash_value)
@@ -833,7 +831,6 @@ namespace spot
           {
             const spins_compressed_state* s =
               down_cast<const spins_compressed_state*>(st);
-            assert(s);
 
             decompress_(s->vars, s->size, uncompressed_, state_size_);
             vars = uncompressed_;
@@ -841,7 +838,6 @@ namespace spot
         else
           {
             const spins_state* s = down_cast<const spins_state*>(st);
-            assert(s);
             vars = s->vars;
           }
         return vars;

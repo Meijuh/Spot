@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2014-2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 //
 // This file is part of Spot, a model checking library.
@@ -38,7 +38,6 @@ namespace spot
   state_ta_product::compare(const state* other) const
   {
     const state_ta_product* o = down_cast<const state_ta_product*> (other);
-    assert(o);
     int res = ta_state_->compare(o->get_ta_state());
     if (res != 0)
       return res;
@@ -298,7 +297,6 @@ namespace spot
   ta_product::succ_iter(const state* s) const
   {
     const state_ta_product* stp = down_cast<const state_ta_product*>(s);
-    assert(stp);
     return new ta_succ_iterator_product(stp, ta_.get(), kripke_.get());
   }
 
@@ -307,7 +305,6 @@ namespace spot
   ta_product::succ_iter(const spot::state* s, bdd changeset) const
   {
     const state_ta_product* stp = down_cast<const state_ta_product*>(s);
-    assert(stp);
     return new ta_succ_iterator_product_by_changeset(stp,
                                                      ta_.get(), kripke_.get(),
                                                      changeset);
@@ -324,7 +321,6 @@ namespace spot
   ta_product::format_state(const state* state) const
   {
     const state_ta_product* s = down_cast<const state_ta_product*> (state);
-    assert(s);
     return kripke_->format_state(s->get_kripke_state()) + " * \n"
         + ta_->format_state(s->get_ta_state());
   }
@@ -333,8 +329,6 @@ namespace spot
   ta_product::is_accepting_state(const spot::state* s) const
   {
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
-    assert(stp);
-
     return ta_->is_accepting_state(stp->get_ta_state());
   }
 
@@ -342,8 +336,6 @@ namespace spot
   ta_product::is_livelock_accepting_state(const spot::state* s) const
   {
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
-    assert(stp);
-
     return ta_->is_livelock_accepting_state(stp->get_ta_state());
   }
 
@@ -351,7 +343,6 @@ namespace spot
   ta_product::is_initial_state(const spot::state* s) const
   {
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
-    assert(stp);
 
     const state* ta_s = stp->get_ta_state();
     const state* kr_s = stp->get_kripke_state();
@@ -366,7 +357,6 @@ namespace spot
   ta_product::is_hole_state_in_ta_component(const spot::state* s) const
   {
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
-    assert(stp);
     ta_succ_iterator* ta_succ_iter = get_ta()->succ_iter(stp->get_ta_state());
     bool is_hole_state = ta_succ_iter->done();
     delete ta_succ_iter;
@@ -377,7 +367,6 @@ namespace spot
   ta_product::get_state_condition(const spot::state* s) const
   {
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
-    assert(stp);
     const state* ta_s = stp->get_ta_state();
     return ta_->get_state_condition(ta_s);
   }
@@ -387,7 +376,6 @@ namespace spot
   {
 
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
-    assert(stp);
     ta_->free_state(stp->get_ta_state());
     delete stp;
 

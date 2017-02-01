@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
-// Laboratoire de Recherche et Développement de l'Epita (LRDE)
+// Copyright (C) 2009-2017 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -62,7 +62,6 @@ namespace spot
   taa_tgba::succ_iter(const spot::state* state) const
   {
     const spot::set_state* s = down_cast<const spot::set_state*>(state);
-    assert(s);
     return new taa_succ_iterator(s->get_state(), acc());
   }
 
@@ -80,7 +79,6 @@ namespace spot
   set_state::compare(const spot::state* other) const
   {
     const set_state* o = down_cast<const set_state*>(other);
-    assert(o);
 
     const taa_tgba::state_set* s1 = get_state();
     const taa_tgba::state_set* s2 = o->get_state();

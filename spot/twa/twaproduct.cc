@@ -52,7 +52,6 @@ namespace spot
   state_product::compare(const state* other) const
   {
     const state_product* o = down_cast<const state_product*>(other);
-    assert(o);
     int res = left_->compare(o->left());
     if (res != 0)
       return res;
@@ -336,7 +335,6 @@ namespace spot
   twa_product::succ_iter(const state* state) const
   {
     const state_product* s = down_cast<const state_product*>(state);
-    assert(s);
     twa_succ_iterator* li = left_->succ_iter(s->left());
     twa_succ_iterator* ri = right_->succ_iter(s->right());
 
@@ -370,7 +368,6 @@ namespace spot
   twa_product::format_state(const state* state) const
   {
     const state_product* s = down_cast<const state_product*>(state);
-    assert(s);
     return (left_->format_state(s->left())
             + " * "
             + right_->format_state(s->right()));
@@ -380,7 +377,6 @@ namespace spot
   twa_product::project_state(const state* s, const const_twa_ptr& t) const
   {
     const state_product* s2 = down_cast<const state_product*>(s);
-    assert(s2);
     if (t.get() == this)
       return s2->clone();
     state* res = left_->project_state(s2->left(), t);
