@@ -23,17 +23,25 @@ EOF
   cf_save_CFLAGS="$CFLAGS"
   ac_cv_prog_gcc_warn_flags="-W -Wall"
   for cf_opt in \
-   Wbad-function-cast \
+   Werror \
+   Wint-to-void-pointer-cast \
+   Wzero-as-null-pointer-constant \
    Wcast-align \
-   Winline \
-   Wnested-externs \
    Wpointer-arith \
    Wwrite-strings \
+   Wcast-qual \
+   Wdocumentation \
    Wmissing-declarations \
-   Wmissing-prototypes \
-   Wstrict-prototypes \
-   Wshadow \
-   Wcast-qual
+   Wnoexcept \
+   Woverloaded-virtual \
+   Wmisleading-indentation \
+   Wimplicit-fallthrough \
+   Wlogical-op \
+   Wduplicated-cond \
+   Wnull-dereference \
+   Wsuggest-override \
+   Wpedantic \
+   Wno-long-long
   do
     CFLAGS="$cf_save_CFLAGS $ac_cv_prog_gcc_warn_flags -$cf_opt"
     if AC_TRY_EVAL(ac_compile); then
