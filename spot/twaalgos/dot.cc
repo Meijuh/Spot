@@ -37,6 +37,7 @@
 #include <cstring>
 #include <algorithm>
 #include <ctype.h>
+#include <utility>
 
 
 namespace spot
@@ -94,6 +95,8 @@ namespace spot
       std::ostream& os_;
       bool opt_want_state_names_ = true;
       unsigned max_states_ = -1U; // related to max_states_given_
+
+      bool opt_shared_univ_dest_ = true;
 
     public:
 
@@ -244,6 +247,9 @@ namespace spot
             case 't':
               opt_force_acc_trans_ = true;
               break;
+            case 'y':
+              opt_shared_univ_dest_ = false;
+              break;
             default:
               throw std::runtime_error
                 (std::string("unknown option for print_dot(): ") + c);
@@ -360,17 +366,24 @@ namespace spot
         return bdd_format_formula(aut_->get_dict(), label);
       }
 
-      std::set<int> done;
+      std::set<std::pair<int, int>> done;
 
       void
-      print_dst(int dst, const char* style = nullptr)
+      print_dst(int dst, const char* style = nullptr, int color_num = -1)
       {
-        if (!done.emplace(dst).second)
+        std::ostringstream tmp_dst;
+        tmp_dst << dst;
+        if (scc_num >= 0)
+          tmp_dst << '.' << scc_num;
+        if (!done.emplace(std::make_pair(dst, color_num)).second)
           return;
-        os_ << "    " << dst << " [label=<>,shape=point]\n";
+        else if (!opt_shared_univ_dest_ && color_num > 0)
+          tmp_dst << '.' << color_num;
+        std::string dest = tmp_dst.str();
+        os_ << "    " << dest << " [label=<>,shape=point]\n";
         for (unsigned d: aut_->univ_dests(dst))
           {
-            os_ << "    " << dst << " -> " << d;
+            os_ << "    " << dest << " -> " << d;
             if (style && *style)
               os_ << " [" << style << ']';
             os_ << '\n';
@@ -574,6 +587,13 @@ namespace spot
       process_link(const twa_graph::edge_storage_t& t, int number)
       {
         os_ << "  " << t.src << " -> " << (int)t.dst;
+        if (aut_->is_univ_dest(t.dst) && highlight_edges_
+            && !opt_shared_univ_dest_)
+          {
+            auto idx = aut_->get_graph().index_of_edge(t);
+            auto iter = highlight_edges_->find(idx);
+            os_ << '.' << iter->second % palette_mod;
+          }
         std::string label;
         if (!opt_state_labels_)
           label = bdd_format_formula(aut_->get_dict(), t.cond);
@@ -616,6 +636,7 @@ namespace spot
           }
 
         std::string highlight;
+        auto color_num = -1;
         if (highlight_edges_)
           {
             auto idx = aut_->get_graph().index_of_edge(t);
@@ -628,13 +649,20 @@ namespace spot
                   << '"';
                 highlight = o.str();
                 os_ << ", " << highlight;
+                if (!opt_shared_univ_dest_)
+                  color_num = iter->second % palette_mod;
               }
           }
         if (aut_->is_univ_dest(t.dst))
           os_ << ", arrowhead=onormal";
         os_ << "]\n";
         if (aut_->is_univ_dest(t.dst))
-          print_dst(t.dst, highlight.c_str());
+          {
+            if (color_num >= 0)
+              print_dst(t.dst, highlight.c_str(), color_num);
+            else
+              print_dst(t.dst, highlight.c_str());
+          }
       }
 
       void print(const const_twa_graph_ptr& aut)

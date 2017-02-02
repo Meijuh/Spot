@@ -9,6 +9,9 @@ New in spot 2.3.0.dev (not yet released)
   - The colors used in the output of ltlcross have been adjusted to
     work better with white backgrounds and black backgrounds.
 
+  - The option (y) has been added to --dot. It splits the universal
+    edges with the same targets but different colors.
+
   Library:
 
   - spot::twa_run::as_twa() has an option to preserve state names.
