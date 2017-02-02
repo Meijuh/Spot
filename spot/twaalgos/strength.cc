@@ -21,7 +21,6 @@
 #include <spot/misc/hash.hh>
 #include <spot/twaalgos/isweakscc.hh>
 #include <spot/twaalgos/mask.hh>
-#include <deque>
 
 namespace spot
 {
@@ -336,6 +335,60 @@ namespace spot
       {
         res->prop_weak(!strong_seen);
       }
+    return res;
+  }
+
+  twa_graph_ptr
+  decompose_scc(scc_info& sm, unsigned scc_num)
+  {
+    unsigned n = sm.scc_count();
+
+    if (n <= scc_num)
+      throw std::invalid_argument
+        (std::string("decompose_scc(): requested SCC index is out of bounds"));
+
+    std::vector<bool> want(n, false);
+    want[scc_num] = true;
+
+    // mark all the SCCs that can reach scc_num as wanted
+    for (unsigned i = scc_num + 1; i < n; ++i)
+      for (unsigned succ : sm.succ(i))
+        if (want[succ])
+          {
+            want[i] = true;
+            break;
+          }
+
+    const_twa_graph_ptr aut = sm.get_aut();
+    twa_graph_ptr res = make_twa_graph(aut->get_dict());
+    res->copy_ap_of(aut);
+    res->prop_copy(aut, { true, false, false, true, false });
+    res->copy_acceptance_of(aut);
+
+    auto um = aut->acc().unsat_mark();
+
+    // If aut has an unsatisfying mark, we are going to use it to remove the
+    // acceptance of some transitions. If it doesn't, we make res a rejecting
+    // Büchi automaton, and get back an accepting mark that we are going to set
+    // on the transitions of the SCC we selected.
+    auto new_mark = um.first ? um.second : res->set_buchi();
+    auto fun = [sm, &want, um, new_mark, scc_num]
+      (unsigned src, bdd& cond, acc_cond::mark_t& acc, unsigned dst)
+      {
+        if (!want[sm.scc_of(dst)])
+          {
+            cond = bddfalse;
+            return;
+          }
+        // no need to check if src is wanted, we already know dst is.
+        // if res is accepting, make only the upstream SCCs rejecting
+        // if res is rejecting, make only the requested SCC accepting
+        if (um.first != (sm.scc_of(src) == scc_num))
+          acc = new_mark;
+      };
+
+    transform_accessible(aut, res, fun);
+
     return res;
   }
 }

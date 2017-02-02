@@ -29,7 +29,7 @@ namespace spot
   /// \a cpy, creating new states at the same time.  The argument \a
   /// trans should behave as a function with the following prototype:
   /// <code>
-  ///   void (*trans) (unsigned srcbdd& cond, acc_cond::mark_t& acc,
+  ///   void (*trans) (unsigned src, bdd& cond, acc_cond::mark_t& acc,
   ///   unsigned dst)
   /// </code>
   /// It can modify either the condition or the acceptance sets of

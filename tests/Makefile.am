@@ -332,6 +332,7 @@ TESTS_python = \
   python/bddnqueen.py \
   python/bugdet.py \
   python/sccinfo.py \
+  python/decompose_scc.py \
   python/implies.py \
   python/interdep.py \
   python/ltl2tgba.test \

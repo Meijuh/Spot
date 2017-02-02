@@ -171,4 +171,14 @@ namespace spot
   /// \param keep a string specifying the strengths to keep: it should
   SPOT_API twa_graph_ptr
   decompose_strength(const const_twa_graph_ptr& aut, const char* keep);
+
+  /// \brief Extract a sub-automaton of a SCC
+  ///
+  /// This algorithm returns a subautomaton that contains the requested SCC,
+  /// plus any upstream SCC (but adjusted not to be accepting).
+  ///
+  /// \param sm the SCC info map of the automaton
+  /// \param scc_num the index in the map of the SCC to keep
+  SPOT_API twa_graph_ptr
+  decompose_scc(scc_info& sm, unsigned scc_num);
 }
