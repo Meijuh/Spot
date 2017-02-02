@@ -30,7 +30,7 @@
                                                      (plantuml . t)
 						     (dot . t)
 						     (C . t)))))
-              (org-plantuml-jar-path . "./plantuml.jar")
+              (org-plantuml-jar-path . "@abs_top_builddir@/doc/org/plantuml.jar")
 	      (org-confirm-babel-evaluate . nil)
 	      (org-babel-python-command . "@PYTHON@")
 	      (org-babel-C++-compiler . "./g++wrap")
