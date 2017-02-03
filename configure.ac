@@ -44,6 +44,9 @@ AC_PROG_CXX
 AM_PROG_LEX
 adl_CHECK_BISON
 
+# Decrease verbosity when passing argument V=0
+AM_SILENT_RULES([no])
+
 # Option to activate C/C++14
 AC_ARG_ENABLE([c++14],
               [AC_HELP_STRING([--enable-c++14],
