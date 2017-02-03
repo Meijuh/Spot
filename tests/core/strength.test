@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015, 2016 Laboratoire de Recherche et Developpement
+# Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et Developpement
 # de l'Epita
 #
 # This file is part of Spot, a model checking library.
@@ -221,12 +221,12 @@ EOF
 diff out expected
 
 
-run 0 $autfilt -H --decompose=t in | tee out.t
-run 0 $autfilt -H --decompose=w in | tee out.w
-run 0 $autfilt -H --decompose=s in | tee out.s
-run 0 $autfilt -H --decompose=tw in | tee out.tw
-run 0 $autfilt -H --decompose=ws in | tee out.ws
-run 0 $autfilt -H --decompose=tws in | tee out.tws
+run 0 $autfilt -H --decompose-strength=t in | tee out.t
+run 0 $autfilt -H --decompose-strength=w in | tee out.w
+run 0 $autfilt -H --decompose-strength=s in | tee out.s
+run 0 $autfilt -H --decompose-strength=tw in | tee out.tw
+run 0 $autfilt -H --decompose-strength=ws in | tee out.ws
+run 0 $autfilt -H --decompose-strength=tws in | tee out.tws
 echo '/******************************/' > sep
 cat out.t sep out.w sep out.s sep out.tw sep out.ws sep out.tws > out
 

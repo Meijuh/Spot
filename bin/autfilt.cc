@@ -88,6 +88,7 @@ enum {
   OPT_COMPLEMENT_ACC,
   OPT_COUNT,
   OPT_DECOMPOSE_STRENGTH,
+  OPT_DECOMPOSE_SCC,
   OPT_DESTUT,
   OPT_DNF_ACC,
   OPT_EDGES,
@@ -295,6 +296,8 @@ static const argp_option options[] =
     { "decompose-strength", OPT_DECOMPOSE_STRENGTH, "t|w|s", 0,
       "extract the (t) terminal, (w) weak, or (s) strong part of an automaton"
       " (letters may be combined to combine more strengths in the output)", 0 },
+    { "decompose-scc", OPT_DECOMPOSE_SCC, "N", 0, "keep only the Nth accepting"
+      " SCC as accepting", 0 },
     { "exclusive-ap", OPT_EXCLUSIVE_AP, "AP,AP,...", 0,
       "if any of those APs occur in the automaton, restrict all edges to "
       "ensure two of them may not be true at the same time.  Use this option "
@@ -469,6 +472,7 @@ static bool opt_clean_acc = false;
 static bool opt_complement = false;
 static bool opt_complement_acc = false;
 static char* opt_decompose_strength = nullptr;
+static int opt_decompose_scc = -1;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
@@ -563,6 +567,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_DECOMPOSE_STRENGTH:
       opt_decompose_strength = arg;
+      break;
+    case OPT_DECOMPOSE_SCC:
+      opt_decompose_scc = to_pos_int(arg);
       break;
     case OPT_DESTUT:
       opt_destut = true;
@@ -1184,6 +1191,26 @@ namespace
       if (opt_decompose_strength)
         {
           aut = decompose_strength(aut, opt_decompose_strength);
+          if (!aut)
+            return 0;
+        }
+
+      if (opt_decompose_scc != -1)
+        {
+          spot::scc_info si(aut);
+          unsigned scc_num = 0;
+
+          for (; scc_num < si.scc_count(); ++scc_num)
+            {
+              if (si.is_accepting_scc(scc_num))
+                {
+                  if (!opt_decompose_scc)
+                    break;
+                  --opt_decompose_scc;
+                }
+            }
+
+          aut = decompose_scc(si, scc_num);
           if (!aut)
             return 0;
         }

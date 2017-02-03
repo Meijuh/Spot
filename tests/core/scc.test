@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2015 Laboratoire de Recherche et Developpement de
+# Copyright (C) 2009, 2015, 2017 Laboratoire de Recherche et Developpement de
 # l'Epita
 #
 # This file is part of Spot, a model checking library.
@@ -33,3 +33,73 @@ EOF
 run 0 ltl2tgba --low --any --stats='%f,%e,%s,%c' -F formulas/1 >out
 cat out
 diff out formulas
+
+ltl2tgba 'a W b' > aut
+
+cat >ref<<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[1] 1
+[0&!1] 0
+State: 1 {0}
+[t] 1
+--END--
+EOF
+
+run 0 autfilt --decompose-scc=0 -F aut> out
+cat out
+diff out ref
+
+cat >ref<<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc colored
+properties: deterministic
+--BODY--
+State: 0 {0}
+[0&!1] 0
+--END--
+EOF
+
+run 0 autfilt --decompose-scc=1 -F aut> out
+cat out
+diff out ref
+
+autfilt --decompose-scc=2 -F aut 2>stderr && exit 1
+[ $? -eq 2 ]
+grep "out of bounds" stderr
+
+# always satisfied acceptance
+ltl2tgba 'Ga R b | Gc R b' > aut
+
+cat >ref<<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 3 "b" "a" "c"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[0&2] 1
+[0] 0
+State: 1 {0}
+[2] 1
+--END--
+EOF
+
+run 0 autfilt --decompose-scc=1 -F aut> out
+cat out
+diff out ref

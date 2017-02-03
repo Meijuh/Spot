@@ -21,6 +21,11 @@ New in spot 2.3.1 (2017-02-20)
     Kupferman & Rosenberg [MoChArt'10] are recognizable by
     deterministic Büchi automata with at least 2^2^n states.
 
+  - autfilt has a new transformation: --decompose-scc, which allows
+    decomposition of automata through their accepting SCCs.
+    A demonstration of this feature via the Python bindings
+    can be found at https://spot.lrde.epita.fr/ipynb/decompose.html
+
   Library:
 
   - spot::twa_run::as_twa() has an option to preserve state names.
