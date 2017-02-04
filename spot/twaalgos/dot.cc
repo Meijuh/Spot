@@ -369,7 +369,8 @@ namespace spot
       std::set<std::pair<int, int>> done;
 
       void
-      print_dst(int dst, const char* style = nullptr, int color_num = -1)
+      print_dst(int dst, const char* style = nullptr, int scc_num = -1,
+                int color_num = -1)
       {
         std::ostringstream tmp_dst;
         tmp_dst << dst;
@@ -584,9 +585,14 @@ namespace spot
       }
 
       void
-      process_link(const twa_graph::edge_storage_t& t, int number)
+      process_link(const twa_graph::edge_storage_t& t, int number,
+                   int scc_num = -1)
       {
         os_ << "  " << t.src << " -> " << (int)t.dst;
+        if (scc_num >= 0)
+          {
+            os_ << '.' << scc_num;
+          }
         if (aut_->is_univ_dest(t.dst) && highlight_edges_
             && !opt_shared_univ_dest_)
           {
@@ -659,9 +665,9 @@ namespace spot
         if (aut_->is_univ_dest(t.dst))
           {
             if (color_num >= 0)
-              print_dst(t.dst, highlight.c_str(), color_num);
+              print_dst(t.dst, highlight.c_str(), scc_num, color_num);
             else
-              print_dst(t.dst, highlight.c_str());
+              print_dst(t.dst, highlight.c_str(), scc_num);
           }
       }
 
@@ -764,7 +770,29 @@ namespace spot
                     os_ << "  label=\"\"\n";
                   }
                 for (auto s: si->states_of(i))
-                  process_state(s);
+                  {
+                    process_state(s);
+                    int trans_num = 0;
+                    for (auto& t : aut_->out(s))
+                      {
+                        if (aut_->is_univ_dest(t.dst))
+                          {
+                            bool to_write = false;
+                            for (unsigned d: aut_->univ_dests(t.dst))
+                              {
+                                to_write = si->scc_of(d) == si->scc_of(s);
+                                if (to_write)
+                                    break;
+                              }
+                            if (to_write)
+                              process_link(t, trans_num++, i);
+                            else
+                              process_link(t, trans_num++);
+                          }
+                         else
+                           process_link(t, trans_num++);
+                      }
+                  }
                 os_ << "  }\n";
               }
           }
@@ -772,10 +800,12 @@ namespace spot
         for (unsigned n = 0; n < ns; ++n)
           {
             if (!si || !si->reachable_state(n))
-              process_state(n);
-            int trans_num = 0;
-            for (auto& t: aut_->out(n))
-              process_link(t, trans_num++);
+              {
+                process_state(n);
+                int trans_num = 0;
+                for (auto& t: aut_->out(n))
+                  process_link(t, trans_num++);
+              }
           }
         end();
       }

@@ -41,6 +41,10 @@ New in spot 2.3.0.dev (not yet released)
     caused any user-defined CPPFLAGS to be ignored while building
     Spot.
 
+  - The display of clusters with universal edges was confused, because the
+    intermediate node was not in the cluster even if one of the target was
+    in the same one.
+
 New in spot 2.3 (2017-01-19)
 
   Build:

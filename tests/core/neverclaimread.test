@@ -336,15 +336,15 @@ digraph G {
   color=green
   label=""
   1 [label="1", peripheries=2]
+  1 -> 1 [label="1"]
   }
   subgraph cluster_1 {
   color=red
   label=""
   0 [label="0"]
-  }
   0 -> 1 [label="b"]
   0 -> 0 [label="0"]
-  1 -> 1 [label="1"]
+  }
 }
 EOF
 diff stdout expected
