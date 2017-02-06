@@ -205,7 +205,7 @@ Link-time optimizations
 
 This is currently a bit tricky to setup, because the toolchain is not
 mature enough.  However this is getting better and better.  The Debian
-packages we built nightly are mostly built with link-time optimization
+packages we build nightly are mostly built with link-time optimization
 (the shared library uses link-time optimization, but the command-line
 binary are built without because of some bug with exception
 propagation).
