@@ -197,9 +197,9 @@ static color_type const color_types[] =
 ARGMATCH_VERIFY(color_args, color_types);
 
 static color_type color_opt = color_if_tty;
-static const char* bright_red = "\033[01;31m";
-static const char* bright_blue = "\033[01;34m";
-static const char* bright_yellow = "\033[01;33m";
+static const char* bright_red = "\033[1;31m";
+static const char* bold = "\033[1m";
+static const char* bold_std = "\033[0;1m";
 static const char* reset_color = "\033[m";
 
 static unsigned states = 200;
@@ -242,7 +242,7 @@ static std::ostream&
 example()
 {
   if (color_opt)
-    std::cerr << bright_yellow;
+    std::cerr << bold_std;
   return std::cerr;
 }
 
@@ -751,7 +751,7 @@ namespace
           err << "*Comp(P" << j << ')';
         else
           err << "*N" << j;
-        err << " is nonempty; both automata accept the infinite word\n"
+        err << " is nonempty; both automata accept the infinite word:\n"
             << "       ";
         example() << *w << '\n';
         end_error();
@@ -914,7 +914,7 @@ namespace
             {
               std::cerr << "Trying to find a bogus mutation of ";
               if (color_opt)
-                std::cerr << bright_blue;
+                std::cerr << bold;
               std::cerr << bogus;
               if (color_opt)
                 std::cerr << reset_color;
@@ -946,13 +946,13 @@ namespace
             }
           std::cerr << "Smallest bogus mutation found for ";
           if (color_opt)
-            std::cerr << bright_blue;
+            std::cerr << bold;
           std::cerr << input;
           if (color_opt)
             std::cerr << reset_color;
           std::cerr << " is ";
           if (color_opt)
-            std::cerr << bright_blue;
+            std::cerr << bold;
           std::cerr << bogus;
           if (color_opt)
             std::cerr << reset_color;
@@ -1018,7 +1018,7 @@ namespace
       if (filename || linenum)
         std::cerr << ' ';
       if (color_opt)
-        std::cerr << bright_blue;
+        std::cerr << bold;
       std::cerr << fstr << '\n';
       if (color_opt)
         std::cerr << reset_color;

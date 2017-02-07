@@ -617,23 +617,23 @@ positive and negative formulas by the ith translator).
     A single failing translator might generate a lot of lines of
     the form:
 
-    : error: P0*N1 is nonempty; both automata accept the infinite word
+    : error: P0*N1 is nonempty; both automata accept the infinite word:
     :        cycle{p0 & !p1}
-    : error: P1*N0 is nonempty; both automata accept the infinite word
+    : error: P1*N0 is nonempty; both automata accept the infinite word:
     :        p0; !p1; cycle{p0 & p1}
-    : error: P1*N1 is nonempty; both automata accept the infinite word
+    : error: P1*N1 is nonempty; both automata accept the infinite word:
     :        p0; cycle{!p1 & !p0}
-    : error: P1*N2 is nonempty; both automata accept the infinite word
+    : error: P1*N2 is nonempty; both automata accept the infinite word:
     :        p0; !p1; cycle{p0 & p1}
-    : error: P1*N3 is nonempty; both automata accept the infinite word
+    : error: P1*N3 is nonempty; both automata accept the infinite word:
     :        p0; !p1; cycle{p0 & p1}
-    : error: P1*N4 is nonempty; both automata accept the infinite word
+    : error: P1*N4 is nonempty; both automata accept the infinite word:
     :        p0; cycle{!p1 & !p0}
-    : error: P2*N1 is nonempty; both automata accept the infinite word
+    : error: P2*N1 is nonempty; both automata accept the infinite word:
     :        p0; !p1; !p0; cycle{!p1 & !p0; p0 & !p1; !p1; !p1; p0 & !p1}
-    : error: P3*N1 is nonempty; both automata accept the infinite word
+    : error: P3*N1 is nonempty; both automata accept the infinite word:
     :        p0; !p1; !p1 & !p0; cycle{p0 & !p1}
-    : error: P4*N1 is nonempty; both automata accept the infinite word
+    : error: P4*N1 is nonempty; both automata accept the infinite word:
     :        p0; !p1; !p1 & !p0; cycle{p0 & !p1}
 
     In this example, translator number =1= looks clearly faulty
@@ -799,39 +799,39 @@ true
 #+RESULTS:
 #+begin_example
 | & G ! p0 | ! p1 F ! p2 & & p1 G p2 F p0
-Running [P0]: modella 'lcr-i0-1XJw2X' 'lcr-o0-p2nbUW'
-Running [N0]: modella 'lcr-i0-lSPMMV' 'lcr-o0-3xEoFU'
+Running [P0]: modella 'lcr-i0-FUPmeY' 'lcr-o0-F3bZRp'
+Running [N0]: modella 'lcr-i0-ebjQwR' 'lcr-o0-20eIbj'
 Performing sanity checks and gathering statistics...
-error: P0*N0 is nonempty; both automata accept the infinite word
+error: P0*N0 is nonempty; both automata accept the infinite word:
        cycle{!p0 & !p1}
 
 Trying to find a bogus mutation of (G!b & (!c | F!a)) | (c & Ga & Fb)...
 Mutation 1/22: & & p0 G p1 F p2
-Running [P0]: modella 'lcr-i1-3PI0CT' 'lcr-o0-GxBDAS'
-Running [N0]: modella 'lcr-i1-eOijzR' 'lcr-o0-wkIZxQ'
+Running [P0]: modella 'lcr-i1-zXEyXK' 'lcr-o0-RsypJc'
+Running [N0]: modella 'lcr-i1-Ux7xvE' 'lcr-o0-x19Gh6'
 Performing sanity checks and gathering statistics...
 
 Mutation 2/22: & G ! p0 | ! p1 F ! p2
-Running [P0]: modella 'lcr-i2-6cYUzP' 'lcr-o0-3ihRBO'
-Running [N0]: modella 'lcr-i2-6u8pEN' 'lcr-o0-phxZGM'
+Running [P0]: modella 'lcr-i2-syS74x' 'lcr-o0-wPRySZ'
+Running [N0]: modella 'lcr-i2-x9DdGr' 'lcr-o0-fgHStT'
 Performing sanity checks and gathering statistics...
 
 Mutation 3/22: | G ! p0 & & p1 G p2 F p0
-Running [P0]: modella 'lcr-i3-iwZZML' 'lcr-o0-LMB2SK'
-Running [N0]: modella 'lcr-i3-r2g9ZJ' 'lcr-o0-HEfh7I'
+Running [P0]: modella 'lcr-i3-rVOAil' 'lcr-o0-jU2i7M'
+Running [N0]: modella 'lcr-i3-KATfWe' 'lcr-o0-2UOcLG'
 Performing sanity checks and gathering statistics...
-error: P0*N0 is nonempty; both automata accept the infinite word
+error: P0*N0 is nonempty; both automata accept the infinite word:
        cycle{!p0 & !p1}
 
 Trying to find a bogus mutation of G!b | (c & Ga & Fb)...
 Mutation 1/16: t
-Running [P0]: modella 'lcr-i4-R8PbkI' 'lcr-o0-6ts7wH'
-Running [N0]: modella 'lcr-i4-cv7EKG' 'lcr-o0-vVmdYF'
+Running [P0]: modella 'lcr-i4-OJk2B8' 'lcr-o0-VVCSsA'
+Running [N0]: modella 'lcr-i4-nKwTj2' 'lcr-o0-npMUau'
 Performing sanity checks and gathering statistics...
 
 Mutation 2/16: G ! p0
-Running [P0]: modella 'lcr-i5-ZO3HcF' 'lcr-o0-UiydrE'
-Running [N0]: modella 'lcr-i5-gOseGD' 'lcr-o0-CL4fVC'
+Running [P0]: modella 'lcr-i5-Waoe2V' 'lcr-o0-9wsyTn'
+Running [N0]: modella 'lcr-i5-M0R2KP' 'lcr-o0-uhmxCh'
 Performing sanity checks and gathering statistics...
 
 Mutation 3/16: & & p0 G p1 F p2
@@ -839,10 +839,10 @@ warning: This formula or its negation has already been checked.
          Use --allow-dups if it should not be ignored.
 
 Mutation 4/16: | G ! p0 & p1 F p0
-Running [P0]: modella 'lcr-i6-QTDjtB' 'lcr-o0-tFpmKA'
-Running [N0]: modella 'lcr-i6-1lnX1z' 'lcr-o0-TWWyjz'
+Running [P0]: modella 'lcr-i6-OtIGuJ' 'lcr-o0-qBEQmb'
+Running [N0]: modella 'lcr-i6-MGbcfD' 'lcr-o0-t93x74'
 Performing sanity checks and gathering statistics...
-error: P0*N0 is nonempty; both automata accept the infinite word
+error: P0*N0 is nonempty; both automata accept the infinite word:
        cycle{!p0 & !p1}
 
 Trying to find a bogus mutation of G!b | (c & Fb)...
@@ -855,40 +855,40 @@ warning: This formula or its negation has already been checked.
          Use --allow-dups if it should not be ignored.
 
 Mutation 3/10: & p0 F p1
-Running [P0]: modella 'lcr-i7-CJTWjx' 'lcr-o0-DKbNEw'
-Running [N0]: modella 'lcr-i7-tSts1v' 'lcr-o0-CGbWov'
+Running [P0]: modella 'lcr-i7-4oa00w' 'lcr-o0-3IEsUY'
+Running [N0]: modella 'lcr-i7-vyy5Nq' 'lcr-o0-nXOIHS'
 Performing sanity checks and gathering statistics...
 
 Mutation 4/10: | p0 G ! p1
-Running [P0]: modella 'lcr-i8-6dtbPu' 'lcr-o0-gLnsfu'
-Running [N0]: modella 'lcr-i8-Xn6gGt' 'lcr-o0-U7966s'
+Running [P0]: modella 'lcr-i8-Kt48Bk' 'lcr-o0-xeIzwM'
+Running [N0]: modella 'lcr-i8-ye5are' 'lcr-o0-3QMMlG'
 Performing sanity checks and gathering statistics...
 
 Mutation 5/10: | G ! p0 F p0
-Running [P0]: modella 'lcr-i9-Vh7hAs' 'lcr-o0-eYZt3r'
-Running [N0]: modella 'lcr-i9-I6dfxr' 'lcr-o0-DoY00q'
+Running [P0]: modella 'lcr-i9-Bpmah8' 'lcr-o0-38lycA'
+Running [N0]: modella 'lcr-i9-cQJ771' 'lcr-o0-yUcH3t'
 Performing sanity checks and gathering statistics...
 
 Mutation 6/10: | ! p0 & p1 F p0
-Running [P0]: modella 'lcr-i10-j7fVvq' 'lcr-o0-aChQ0p'
-Running [N0]: modella 'lcr-i10-bnpgwp' 'lcr-o0-KV3G1o'
+Running [P0]: modella 'lcr-i10-mYtDZV' 'lcr-o0-nCdAVn'
+Running [N0]: modella 'lcr-i10-d1fIRP' 'lcr-o0-oAsQNh'
 Performing sanity checks and gathering statistics...
 
-Mutation 7/10: | G p1 & p0 F p1
-Running [P0]: modella 'lcr-i11-uUhFyo' 'lcr-o0-OlrF5n'
-Running [N0]: modella 'lcr-i11-XHjeDn' 'lcr-o0-0CINan'
+Mutation 7/10: | & p1 F p0 G p0
+Running [P0]: modella 'lcr-i11-petsKJ' 'lcr-o0-Z3U4Gb'
+Running [N0]: modella 'lcr-i11-bmFSDD' 'lcr-o0-P1DGA5'
 Performing sanity checks and gathering statistics...
 
 Mutation 8/10: | & p0 p1 G ! p0
-Running [P0]: modella 'lcr-i12-a7eJLm' 'lcr-o0-RUZFmm'
-Running [N0]: modella 'lcr-i12-dobiYl' 'lcr-o0-LuVUzl'
+Running [P0]: modella 'lcr-i12-eUjByx' 'lcr-o0-DZAwwZ'
+Running [N0]: modella 'lcr-i12-v3JCur' 'lcr-o0-IzWIsT'
 Performing sanity checks and gathering statistics...
 
 Mutation 9/10: | G ! p0 & p0 F p0
-Running [P0]: modella 'lcr-i13-nFQYdl' 'lcr-o0-Mq84Rk'
-Running [N0]: modella 'lcr-i13-CnPRwk' 'lcr-o0-7f4Fbk'
+Running [P0]: modella 'lcr-i13-Sb2Arl' 'lcr-o0-kBwtqN'
+Running [N0]: modella 'lcr-i13-Tctwpf' 'lcr-o0-hvIzoH'
 Performing sanity checks and gathering statistics...
-error: P0*N0 is nonempty; both automata accept the infinite word
+error: P0*N0 is nonempty; both automata accept the infinite word:
        cycle{!p0}
 
 Trying to find a bogus mutation of G!c | (c & Fc)...
@@ -901,13 +901,13 @@ warning: This formula or its negation has already been checked.
          Use --allow-dups if it should not be ignored.
 
 Mutation 3/7: & p0 F p0
-Running [P0]: modella 'lcr-i14-KsKPgj' 'lcr-o0-Qo3UXi'
-Running [N0]: modella 'lcr-i14-FVPvFi' 'lcr-o0-Zh06mi'
+Running [P0]: modella 'lcr-i14-iDAoo9' 'lcr-o0-6vSdoB'
+Running [N0]: modella 'lcr-i14-WMIdo3' 'lcr-o0-NxEdov'
 Performing sanity checks and gathering statistics...
 
 Mutation 4/7: | p0 G ! p0
-Running [P0]: modella 'lcr-i15-JB045h' 'lcr-o0-EIL4Oh'
-Running [N0]: modella 'lcr-i15-sYY8yh' 'lcr-o0-KVOdjh'
+Running [P0]: modella 'lcr-i15-lS5FoX' 'lcr-o0-XFX8op'
+Running [N0]: modella 'lcr-i15-8IdNpR' 'lcr-o0-0Bxrqj'
 Performing sanity checks and gathering statistics...
 
 Mutation 5/7: | G ! p0 F p0
@@ -915,13 +915,13 @@ warning: This formula or its negation has already been checked.
          Use --allow-dups if it should not be ignored.
 
 Mutation 6/7: | ! p0 & p0 F p0
-Running [P0]: modella 'lcr-i16-hoqdSg' 'lcr-o0-xghJEg'
-Running [N0]: modella 'lcr-i16-5JvOrg' 'lcr-o0-SUdVeg'
+Running [P0]: modella 'lcr-i16-7boQrL' 'lcr-o0-wsIftd'
+Running [N0]: modella 'lcr-i16-tk8OuF' 'lcr-o0-9wQow7'
 Performing sanity checks and gathering statistics...
 
-Mutation 7/7: | & p0 F p0 G p0
-Running [P0]: modella 'lcr-i17-BNo92f' 'lcr-o0-0T8nRf'
-Running [N0]: modella 'lcr-i17-J5v5Ff' 'lcr-o0-MOyNuf'
+Mutation 7/7: | G p0 & p0 F p0
+Running [P0]: modella 'lcr-i17-wnlkyz' 'lcr-o0-MAjgA1'
+Running [N0]: modella 'lcr-i17-qFLnCt' 'lcr-o0-45gvEV'
 Performing sanity checks and gathering statistics...
 
 Smallest bogus mutation found for (G!b & (!c | F!a)) | (c & Ga & Fb) is G!c | (c & Fc).
