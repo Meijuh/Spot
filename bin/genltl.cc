@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -140,11 +140,13 @@
 #include <sstream>
 #include <set>
 #include <string>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <spot/tl/formula.hh>
 #include <spot/tl/relabel.hh>
 #include <spot/tl/parse.hh>
+#include <spot/tl/exclusive.hh>
 
 using namespace spot;
 
@@ -163,6 +165,9 @@ enum {
   OPT_GH_Q,
   OPT_GH_R,
   OPT_GO_THETA,
+  OPT_KR_N,
+  OPT_KR_NLOGN,
+  OPT_KV_PHI,
   OPT_OR_FG,
   OPT_OR_G,
   OPT_OR_GF,
@@ -198,6 +203,9 @@ const char* const class_name[LAST_CLASS] =
     "gh-q",
     "gh-r",
     "go-theta",
+    "kr-n",
+    "kr-nlogn",
+    "kv-phi",
     "or-fg",
     "or-g",
     "or-gf",
@@ -248,9 +256,16 @@ static const argp_option options[] =
     { "gh-q", OPT_GH_Q, "RANGE", 0,
       "(F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))", 0 },
     { "gh-r", OPT_GH_R, "RANGE", 0,
-      "(GF(p1)|FG(p2))&(GF(p2)|FG(p3))&... &(GF(pn)|FG(p{n+1}))", 0},
+      "(GF(p1)|FG(p2))&(GF(p2)|FG(p3))&... &(GF(pn)|FG(p{n+1}))", 0 },
     { "go-theta", OPT_GO_THETA, "RANGE", 0,
       "!((GF(p1)&GF(p2)&...&GF(pn)) -> G(q->F(r)))", 0 },
+    { "kr-n", OPT_KR_N, "RANGE", 0,
+      "formula of linear size with doubly exponential DBA", 0 },
+    { "kr-nlogn", OPT_KR_NLOGN, "RANGE", 0,
+      "forumla of n log n size with doubly exponential DBA", 0 },
+    { "kv-phi", OPT_KV_PHI, "RANGE", 0,
+      "forumla of quadratic size with doubly exponential DBA", 0 },
+    OPT_ALIAS(kr-n2),
     { "or-fg", OPT_OR_FG, "RANGE", 0, "FG(p1)|FG(p2)|...|FG(pn)", 0 },
     OPT_ALIAS(ccj-xi),
     { "or-g", OPT_OR_G, "RANGE", 0, "G(p1)|G(p2)|...|G(pn)", 0 },
@@ -356,6 +371,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_GH_Q:
     case OPT_GH_R:
     case OPT_GO_THETA:
+    case OPT_KR_N:
+    case OPT_KR_NLOGN:
+    case OPT_KV_PHI:
     case OPT_OR_FG:
     case OPT_OR_G:
     case OPT_OR_GF:
@@ -898,11 +916,14 @@ tv_uu(std::string name, int n)
   return G_(Implies_(q,  f));
 }
 
-static void bad_number(const char* pattern, int n, int max)
+static void
+bad_number(const char* pattern, int n, int max = 0)
 {
   std::ostringstream err;
   err << "no pattern " << n << " for " << pattern
-      << ", supported range is 1.." << max;
+      << ", supported range is 1..";
+  if (max)
+    err << max;
   throw std::runtime_error(err.str());
 }
 
@@ -1055,6 +1076,251 @@ sb_pattern(int n)
   return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
 }
 
+static formula
+X_n_kv_exp(formula a, int n, formula b)
+{
+  formula f = X_n(a, n);
+  return And_(f, G_(Implies_(b, f)));
+}
+
+static formula
+kv_exp(int n, std::string a, std::string b, std::string c, std::string d)
+{
+  formula fa = formula::ap(a);
+  formula fb = formula::ap(b);
+  formula fc = formula::ap(c);
+  formula fd = formula::ap(d);
+
+  exclusive_ap m;
+  m.add_group({ fa, fb, fc, fd });
+
+  formula xn = X_(G_(fc));
+  for (int i = 0; i < n; i++)
+    xn = X_(And_(Or_(fa, fb), xn));
+  formula f1 = U_(Not_(fd), And_(fd, xn));
+
+  formula f_and = nullptr;
+  for (int i = 1; i <= n; i++)
+    f_and = And_(f_and, Or_(X_n_kv_exp(fa, i, fd), X_n_kv_exp(fb, i, fd)));
+
+  formula f2 = F_(And_(fc, And_(f_and, X_n(fc, n + 1))));
+
+  return m.constrain(And_(f1, f2));
+}
+
+static formula
+bit_ni(unsigned i, unsigned j, formula fbin[2])
+{
+  return fbin[((1u << j) & (i - 1)) != 0];
+}
+
+static formula
+binary_ki(int k, unsigned i, formula fbin[2])
+{
+  formula res = bit_ni(i, k - 1, fbin);
+  for (int j = k - 1; j >= 1; j--)
+    res = And_(bit_ni(i, j - 1, fbin), X_(res));
+  return res;
+}
+
+static formula
+kr1_exp_1(int k, formula fc, formula fd, formula fbin[2])
+{
+    return And_(fc, X_(Or_(binary_ki(k, 1, fbin), fd)));
+}
+
+static formula
+kr1_exp_2(int n, int k, formula fa, formula fb, formula fbin[2])
+{
+  formula res = formula::tt();
+  for (int i = 1; i <= n - 1; i++)
+    res = And_(res,
+               Implies_(binary_ki(k, i, fbin),
+                        X_n(And_(Or_(fa, fb),
+                            X_(binary_ki(k, i + 1, fbin))), k)));
+
+  return G_(res);
+}
+
+static formula
+kr1_exp_3(int n, int k, formula fa, formula fb, formula fc, formula fd,
+          formula fbin[2])
+{
+  return G_(Implies_(binary_ki(k, n, fbin),
+                     X_n(And_(Or_(fa, fb),
+                              X_(And_(fc,
+                                      X_(Or_(binary_ki(k, 1, fbin),
+                                             Or_(fd,
+                                                 G_(fc))))))), k)));
+}
+
+static formula
+kr1_exp_4(int n, int k, formula fc, formula fd, formula fbin[2])
+{
+  return U_(Not_(fd),
+            And_(fd,
+                 X_(And_(binary_ki(k, 1, fbin), X_n(G_(fc),  n * (k + 1))))));
+}
+
+static formula
+kr1_exp_5_r(int k, int i, formula fr, formula fd, formula fbin[2])
+{
+  return And_(fr, F_(And_(fd, F_(And_(binary_ki(k, i, fbin), X_n(fr, k))))));
+}
+
+static formula
+kr1_exp_5(int n, int k, formula fa, formula fb, formula fc, formula fd,
+          formula fbin[2])
+{
+  formula fand = formula::tt();
+  for (int i = 1; i <= n; i++)
+    {
+      formula for1 = kr1_exp_5_r(k, i, fa, fd, fbin);
+      formula for2 = kr1_exp_5_r(k, i, fb, fd, fbin);
+      fand = And_(fand, Implies_(binary_ki(k, i, fbin), X_n(Or_(for1,
+                  for2), k)));
+    }
+
+    return F_(And_(fc,
+                   X_(And_(Not_(fc),
+                           U_(fand, fc)))));
+}
+
+static formula
+kr1_exp(int n, std::string a, std::string b, std::string c, std::string d,
+        std::string bin0, std::string bin1)
+{
+  int k = ceil(log2(n)) + (n == 1);
+
+  if (n <= 0)
+    bad_number("--kr1-exp", n);
+
+  formula fa = formula::ap(a);
+  formula fb = formula::ap(b);
+  formula fc = formula::ap(c);
+  formula fd = formula::ap(d);
+
+  formula fbin0 = formula::ap(bin0);
+  formula fbin1 = formula::ap(bin1);
+
+  exclusive_ap m;
+  m.add_group({ fa, fb, fc, fd, fbin0, fbin1 });
+
+  formula fbin[2] = { fbin0, fbin1 };
+
+  formula res = formula::And({ kr1_exp_1(k, fc, fd, fbin),
+                               kr1_exp_2(n, k, fa, fb, fbin),
+                               kr1_exp_3(n, k, fa, fb, fc, fd, fbin),
+                               kr1_exp_4(n, k, fc, fd, fbin),
+                               kr1_exp_5(n, k, fa, fb, fc, fd, fbin) });
+
+  return m.constrain(res);
+}
+
+static formula
+kr2_exp_1(formula* fa, formula* fb, formula fc, formula fd)
+{
+  (void) fd;
+  return And_(fc,
+              X_(Or_(fa[0],
+                 Or_(fb[0], fd))));
+}
+
+static formula
+kr2_exp_2(int n, formula* fa, formula* fb)
+{
+  formula res = formula::tt();
+  for (int i = 1; i <= n - 1; i++)
+    res = And_(res, Implies_(Or_(fa[i - 1], fb[i - 1]),
+          X_(Or_(fa[i], fb[i]))));
+
+  return G_(res);
+}
+
+static formula
+kr2_exp_3(int n, formula* fa, formula* fb, formula fc, formula fd)
+{
+  return G_(Implies_(Or_(fa[n - 1], fb[n - 1]),
+                     X_(And_(fc,
+                             X_(Or_(fa[0],
+                                    Or_(fb[0],
+                                        Or_(fd, G_(fc)))))))));
+}
+
+static formula
+kr2_exp_4(int n, formula* fa, formula* fb, formula fc, formula fd)
+{
+  return U_(Not_(fd), And_(fd, X_(And_(Or_(fa[0], fb[0]), X_n(G_(fc), n)))));
+}
+
+static formula
+kr2_exp_5_r(int i, formula* fr, formula fd)
+{
+  return And_(fr[i - 1], F_(And_(fd, F_(fr[i - 1]))));
+}
+
+static formula
+kr2_exp_5(int n, formula* fa, formula* fb, formula fc, formula fd)
+{
+  formula facc = formula::ff();
+  for (int i = 1; i <= n; i++)
+    {
+      formula for1 = kr2_exp_5_r(i, fa, fd);
+      formula for2 = kr2_exp_5_r(i, fb, fd);
+      facc = Or_(facc, (Or_(for1, for2)));
+    }
+
+  return F_(And_(fc,
+                 X_(And_(Not_(fc), U_(facc, fc)))));
+}
+
+static formula
+kr2_exp_mutex(int n, formula* fa, formula* fb, formula fc, formula fd)
+{
+  formula f1or = formula::ff();
+  formula f3and = formula::tt();
+
+  for (int i = 1; i <= n; i++)
+    {
+      f1or = Or_(f1or, Or_(fa[i - 1], fb[i - 1]));
+      f3and = And_(f3and, Implies_(fa[i - 1], Not_(fb[i - 1])));
+    }
+
+  formula f1 = G_(Implies_(Or_(fc, fd), Not_(f1or)));
+  formula f2 = G_(Implies_(fc, Not_(fd)));
+  formula f3 = G_(f3and);
+
+  return And_(f1, And_(f2, f3));
+}
+
+static formula
+kr2_exp(int n, std::string a, std::string b, std::string c, std::string d)
+{
+  if (n <= 0)
+    bad_number("--kr-n", n);
+
+  formula fc = formula::ap(c);
+  formula fd = formula::ap(d);
+
+  formula* fa = new formula[n];
+  formula* fb = new formula[n];
+
+  for (int i = 0; i < n; i++)
+    {
+      fa[i] = formula::ap(a + std::to_string(i + 1));
+      fb[i] = formula::ap(b + std::to_string(i + 1));
+    }
+
+  formula res = formula::And({ kr2_exp_1(fa, fb, fc, fd),
+                               kr2_exp_2(n, fa, fb),
+                               kr2_exp_3(n, fa, fb, fc, fd),
+                               kr2_exp_4(n, fa, fb, fc, fd),
+                               kr2_exp_5(n, fa, fb, fc, fd),
+                               kr2_exp_mutex(n, fa, fb, fc, fd) });
+
+  return res;
+}
+
 static void
 output_pattern(int pattern, int n)
 {
@@ -1094,6 +1360,15 @@ output_pattern(int pattern, int n)
       break;
     case OPT_GO_THETA:
       f = fair_response("p", "q", "r", n);
+      break;
+    case OPT_KR_N:
+      f = kr2_exp(n, "a", "b", "c", "d");
+      break;
+    case OPT_KR_NLOGN:
+      f = kr1_exp(n, "a", "b", "c", "d", "y", "z");
+      break;
+    case OPT_KV_PHI:
+      f = kv_exp(n, "a", "b", "c", "d");
       break;
     case OPT_OR_FG:
       f = FG_n("p", n, false);

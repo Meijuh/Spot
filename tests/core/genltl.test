@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Laboratoire de Recherche et Développement
+# Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -100,3 +100,11 @@ tv-uu,2,G(p1 -> (p1 U (p2 & (p2 U p3))))
 tv-uu,3,G(p1 -> (p1 U (p2 & (p2 U (p3 & (p3 U p4))))))
 EOF
 diff output expected
+
+test $(genltl --kr-n2=2 | ltl2tgba --low -D --stats=%s) -ge 16
+test $(genltl --kr-nlogn=2 | ltl2tgba --low -D --stats=%s) -ge 16
+test $(genltl --kr-n=2 | ltl2tgba --low -D --stats=%s) -ge 16
+
+test $(genltl --kr-n2=4 | ltl2tgba --low --stats=%s) -ge 16
+test $(genltl --kr-nlogn=4 | ltl2tgba --low --stats=%s) -ge 16
+test $(genltl --kr-n=4 | ltl2tgba --low --stats=%s) -ge 16

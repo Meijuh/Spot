@@ -44,6 +44,15 @@ Proceedings of CAV'00.  LNCS 1855.
 tv
 D. Tabakov and M. Y. Vardi: Optimized Temporal Monitors for SystemC.
 Proceedings of RV'10.  LNCS 6418.
+.TP
+kr
+O. Kupferman and A. Rosenberg: The Blow-Up in Translating LTL to Deterministic
+Automata.
+Proceedings of MoChArt'10.  LNCS 6572.
+.TP
+rv
+O. Kupferman and M. Y. Vardi: From Linear Time to Branching Time.
+ACM Transactions on Computational Logic, 6(2):273-294, 2005.
 
 [SEE ALSO]
 .BR randltl (1)
