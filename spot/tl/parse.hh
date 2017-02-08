@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire
 // de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -220,9 +220,9 @@ namespace spot
   /// valid utf8.
   ///
   /// You should NOT call this function before calling
-  /// spot::format_parse_errors() because it is already called
-  /// inside if needed.  You may need this function only if you want
-  /// to write your own error reporting code.
+  /// spot::parsed_formula::format_errors() because it is already
+  /// called inside if needed.  You may need this function only if you
+  /// want to write your own error reporting code.
   ///
   /// \param input_string The string that were parsed.
   /// \param error_list The error list filled by spot::parse
