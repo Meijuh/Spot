@@ -39,6 +39,12 @@ option of configure scripts.  If you decide to install in $HOME/usr
 like I do, make sure that $HOME/usr/bin is in your PATH.  If you omit
 the CMAKE_INSTALL_PREFIX setting, it will default to /usr/local.
 
+If you are using MacOS, you must add option -DHOARD=OF to the cmake
+command line in order to  make it compile without errors. Also,
+DiVinE 2 only compiles with the GNU std C++ library; as a consequence,
+you must provide the option -DCMAKE_CXX_FLAGS="-stdlib=libstdc++" to
+the cmake command line.
+
 After installation, you can check that compilation works by running
 the following command on any DVE model.  It should create a file
 model.dve2C (which is a dynamic library).
