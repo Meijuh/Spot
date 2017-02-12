@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2015-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,7 +29,7 @@ namespace spot
   {
     if (old->prop_state_acc())
       return old;
-    if (old->is_alternating())
+    if (!old->is_existential())
       throw std::runtime_error
         ("sbacc() does not support alternation");
 

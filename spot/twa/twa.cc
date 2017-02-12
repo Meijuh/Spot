@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2014-2016 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2011, 2014-2017 Laboratoire de Recherche et Developpement de
 // l'EPITA (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -53,7 +53,7 @@ namespace spot
     const_twa_ptr remove_fin_maybe(const const_twa_ptr& a)
     {
       auto aa = std::dynamic_pointer_cast<const twa_graph>(a);
-      if ((!aa || !aa->is_alternating()) && !a->acc().uses_fin_acceptance())
+      if ((!aa || aa->is_existential()) && !a->acc().uses_fin_acceptance())
         return a;
       if (!aa)
         aa = make_twa_graph(a, twa::prop_set::all());

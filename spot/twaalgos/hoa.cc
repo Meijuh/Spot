@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -445,7 +445,7 @@ namespace spot
     // property.  The "univ-branch" property seems more important to
     // announce that the automaton might not be parsable by tools that
     // do not support alternating automata.
-    if (aut->is_alternating())
+    if (!aut->is_existential())
       {
         prop(" univ-branch");
       }

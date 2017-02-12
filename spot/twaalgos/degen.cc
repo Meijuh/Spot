@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita.
+// Copyright (C) 2012-2017 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -197,7 +197,7 @@ namespace spot
       if (!a->acc().is_generalized_buchi())
         throw std::runtime_error
           ("degeneralize() can only works with generalized Büchi acceptance");
-      if (a->is_alternating())
+      if (!a->is_existential())
         throw std::runtime_error
           ("degeneralize() does not support alternation");
 

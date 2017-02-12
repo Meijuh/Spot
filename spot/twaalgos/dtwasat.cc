@@ -992,7 +992,7 @@ namespace spot
                       int target_state_number,
                       bool state_based, bool colored)
   {
-    if (a->is_alternating())
+    if (!a->is_existential())
       throw std::runtime_error
         ("dtwa_sat_synthetize() does not support alternating automata");
     if (target_state_number == 0)

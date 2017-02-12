@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -43,7 +43,7 @@ namespace spot
                             twa_graph_ptr& cpy,
                             Trans trans, unsigned int init)
   {
-    if (old->is_alternating())
+    if (!old->is_existential())
       throw std::runtime_error
         ("transform_accessible() does not support alternation");
 
@@ -105,7 +105,7 @@ namespace spot
                       twa_graph_ptr& cpy,
                       Trans trans, unsigned int init)
   {
-    if (old->is_alternating())
+    if (!old->is_existential())
       throw std::runtime_error
         ("transform_copy() does not support alternation");
 

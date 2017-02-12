@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
+// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -29,7 +29,7 @@ namespace spot
   randomize(twa_graph_ptr& aut, bool randomize_states,
             bool randomize_edges)
   {
-    if (aut->is_alternating())
+    if (!aut->is_existential())
       throw std::runtime_error
         ("randomize() does not yet support alternation");
 

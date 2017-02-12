@@ -479,7 +479,7 @@ namespace spot
   twa_graph_ptr remove_alternation(const const_twa_graph_ptr& aut,
                                    bool named_states)
   {
-    if (!aut->is_alternating())
+    if (aut->is_existential())
       // Nothing to do, why was this function called at all?
       return std::const_pointer_cast<twa_graph>(aut);
 

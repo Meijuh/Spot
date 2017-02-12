@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -46,7 +46,7 @@ namespace spot
                               unsigned right_state,
                               bool and_acc)
     {
-      if (left->is_alternating() || right->is_alternating())
+      if (!(left->is_existential() && right->is_existential()))
         throw std::runtime_error
           ("product() does not support alternating automata");
       std::unordered_map<product_state, unsigned, product_state_hash> s2n;

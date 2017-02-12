@@ -13,6 +13,10 @@ New in spot 2.3.0.dev (not yet released)
 
   - spot::twa_run::as_twa() has an option to preserve state names.
 
+  - the method spot::twa::is_alternating(), introduced in Spot 2.3 was
+    badly named and has been deprecated.  Use the negation of the new
+    spot::twa::is_existential() instead.
+
   Bugs fixed:
 
   - spot::otf_product() was incorrectly registering atomic

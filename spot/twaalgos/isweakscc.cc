@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Developpement de l'Epita (LRDE).
+// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -27,7 +27,7 @@ namespace spot
   scc_has_rejecting_cycle(scc_info& map, unsigned scc)
   {
     auto aut = map.get_aut();
-    if (aut->is_alternating())
+    if (!aut->is_existential())
       throw std::runtime_error
         ("scc_has_rejecting_cycle() does not support alternation");
     // We check that by cloning the SCC and complementing its
@@ -45,7 +45,7 @@ namespace spot
   bool
   is_inherently_weak_scc(scc_info& map, unsigned scc)
   {
-    if (map.get_aut()->is_alternating())
+    if (!map.get_aut()->is_existential())
       throw std::runtime_error
         ("is_inherently_weak_scc() does not support alternation");
      // Weak SCCs are inherently weak.
@@ -60,7 +60,7 @@ namespace spot
   bool
   is_weak_scc(scc_info& map, unsigned scc)
   {
-    if (map.get_aut()->is_alternating())
+    if (!map.get_aut()->is_existential())
       throw std::runtime_error
         ("is_weak_scc() does not support alternation");
 
@@ -75,7 +75,7 @@ namespace spot
   is_complete_scc(scc_info& map, unsigned scc)
   {
     auto a = map.get_aut();
-    if (a->is_alternating())
+    if (!a->is_existential())
       throw std::runtime_error
         ("is_complete_scc() does not support alternation");
     for (auto s: map.states_of(scc))
@@ -99,7 +99,7 @@ namespace spot
   bool
   is_terminal_scc(scc_info& map, unsigned scc)
   {
-    if (map.get_aut()->is_alternating())
+    if (!map.get_aut()->is_existential())
       throw std::runtime_error
         ("is_terminal_scc() does not support alternation");
 

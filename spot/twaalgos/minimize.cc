@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2010-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -474,7 +474,7 @@ namespace spot
 
   twa_graph_ptr minimize_monitor(const const_twa_graph_ptr& a)
   {
-    if (a->is_alternating())
+    if (!a->is_existential())
       throw std::runtime_error
         ("minimize_monitor() does not support alternation");
 
@@ -495,7 +495,7 @@ namespace spot
 
   twa_graph_ptr minimize_wdba(const const_twa_graph_ptr& a)
   {
-    if (a->is_alternating())
+    if (!a->is_existential())
       throw std::runtime_error
         ("minimize_wdba() does not support alternation");
 
@@ -610,7 +610,7 @@ namespace spot
                       const_twa_graph_ptr aut_neg_f,
                       bool reject_bigger)
   {
-    if (aut_f->is_alternating())
+    if (!aut_f->is_existential())
       throw std::runtime_error
         ("minimize_obligation() does not support alternation");
 

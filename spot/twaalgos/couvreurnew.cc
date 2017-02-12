@@ -1,5 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2016 Laboratoire de Recherche et Développement de l'Epita.
+// Copyright (C) 2016-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -219,7 +220,7 @@ namespace spot
       state_t
       initial_state(const const_twa_graph_ptr& twa_p)
       {
-        if (twa_p->is_alternating())
+        if (!twa_p->is_existential())
           throw std::runtime_error
             ("couvreur99_new does not support alternation");
         return twa_p->get_init_state_number();

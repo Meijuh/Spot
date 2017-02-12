@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014, 2015, 2016 Laboratoire de Recherche
-// et Developpement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2014-2017 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -707,7 +707,7 @@ namespace spot
         start();
         if (si)
           {
-            if (!aut->is_alternating())
+            if (aut->is_existential())
               si->determine_unknown_acceptance();
 
             unsigned sccs = si->scc_count();

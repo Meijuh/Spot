@@ -172,7 +172,7 @@ namespace spot
 
   void check_strength(const twa_graph_ptr& aut, scc_info* si)
   {
-    if (aut->is_alternating())
+    if (!aut->is_existential())
       is_type_automaton<false, false, true>(aut, si);
     else
       is_type_automaton<true, true, true>(aut, si);

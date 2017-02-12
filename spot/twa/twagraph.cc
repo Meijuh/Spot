@@ -86,7 +86,7 @@ namespace spot
   {
     set_named_prop("highlight-edges", nullptr);
     g_.remove_dead_edges_();
-    if (is_alternating())
+    if (!is_existential())
       merge_univ_dests();
 
     typedef graph_t::edge_storage_t tr_t;
@@ -245,7 +245,7 @@ namespace spot
     std::vector<unsigned> order;
     order.reserve(num_states);
 
-    if (!is_alternating())
+    if (is_existential())
       {
         std::vector<std::pair<unsigned, unsigned>> todo; // state, edge
         useful[get_init_state_number()] = 1;
@@ -399,7 +399,7 @@ namespace spot
   void twa_graph::defrag_states(std::vector<unsigned>&& newst,
                                 unsigned used_states)
   {
-    if (is_alternating())
+    if (!is_existential())
       {
         auto& g = get_graph();
         auto& dests = g.dests_vector();

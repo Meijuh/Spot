@@ -715,7 +715,7 @@ namespace spot
   dtba_sat_synthetize(const const_twa_graph_ptr& a,
                       int target_state_number, bool state_based)
   {
-    if (a->is_alternating())
+    if (!a->is_existential())
       throw std::runtime_error
         ("dtba_sat_synthetize() does not support alternating automata");
     if (!a->acc().is_buchi())

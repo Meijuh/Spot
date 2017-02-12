@@ -294,7 +294,7 @@ namespace spot
     virtual const twa_graph_state* get_init_state() const override
     {
       unsigned n = get_init_state_number();
-      if (SPOT_UNLIKELY(is_alternating()))
+      if (SPOT_UNLIKELY(!is_existential()))
         throw std::runtime_error
           ("the abstract interface does not support alternating automata");
       return state_from_number(n);
@@ -479,10 +479,23 @@ namespace spot
       return g_.univ_dests(e);
     }
 
+    /// Whether the automaton uses only existential branching.
+    bool is_existential() const
+    {
+      return g_.is_existential();
+    }
+
+#ifndef SWIG
+    /// \brief Whether the automaton has universal branching
+    ///
+    /// The name of this function is confusing since non-deterministic
+    /// automata should be a subclass of alternating automata.
+    SPOT_DEPRECATED("use !is_existential() instead")
     bool is_alternating() const
     {
-      return g_.is_alternating();
+      return !is_existential();
     }
+#endif
 
 #ifndef SWIG
     auto states() const

@@ -264,7 +264,7 @@ static bool f6()
       f += t.first;
       h += t.second;
     }
-  return f == 3 && (h > 2.49 && h < 2.51) && !g.is_alternating();
+  return f == 3 && (h > 2.49 && h < 2.51) && g.is_existential();
 }
 
 static bool f7()
@@ -287,7 +287,7 @@ static bool f7()
     for (unsigned tt: g.univ_dests(t.dst))
       f += t.label * g.state_data(tt);
 
-  return f == 15 && g.is_alternating();
+  return f == 15 && !g.is_existential();
 }
 
 

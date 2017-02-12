@@ -656,11 +656,23 @@ namespace spot
       return edges_.size() - killed_edge_ - 1;
     }
 
-    /// Whether the automaton is alternating
+    /// Whether the automaton uses only existential branching.
+    bool is_existential() const
+    {
+      return dests_.empty();
+    }
+
+#ifndef SWIG
+    /// \brief Whether the automaton has universal branching
+    ///
+    /// The name of this function is confusing since non-deterministic
+    /// automata should be a subclass of alternating automata.
+    SPOT_DEPRECATED("use !is_existential() instead")
     bool is_alternating() const
     {
-      return !dests_.empty();
+      return !is_existential();
     }
+#endif
 
     /// \brief Create a new states
     ///

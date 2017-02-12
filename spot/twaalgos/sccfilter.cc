@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
-// Laboratoire de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -276,7 +276,7 @@ namespace spot
     twa_graph_ptr scc_filter_apply(const_twa_graph_ptr aut,
                                    scc_info* given_si, Args&&... args)
     {
-      if (aut->is_alternating())
+      if (!aut->is_existential())
         throw std::runtime_error
           ("scc_filter() does yet not support alternation");
 

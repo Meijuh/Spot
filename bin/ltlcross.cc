@@ -648,7 +648,7 @@ namespace
               if (verbose)
                 std::cerr << "info: getting statistics\n";
               st->ok = true;
-              st->alternating = res->is_alternating();
+              st->alternating = !res->is_existential();
               spot::twa_sub_statistics s = sub_stats_reachable(res);
               st->states = s.states;
               st->edges = s.edges;
@@ -1118,7 +1118,7 @@ namespace
               std::cerr << "info:   " << prefix << i << "\t(";
               printsize(x[i]);
               std::cerr << ')';
-              if (x[i]->is_alternating())
+              if (!x[i]->is_existential())
                 std::cerr << " univ-edges";
               if (is_deterministic(x[i]))
                 std::cerr << " deterministic";
@@ -1142,7 +1142,7 @@ namespace
           auto unalt = [&](std::vector<spot::twa_graph_ptr>& x,
                            unsigned i, char prefix)
             {
-              if (!(x[i] && x[i]->is_alternating()))
+              if (!x[i] || x[i]->is_existential())
                 return;
               if (verbose)
                 {

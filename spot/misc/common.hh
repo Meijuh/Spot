@@ -32,17 +32,21 @@
 #endif
 
 #ifdef __has_cpp_attribute
-#  if __has_cpp_attribute(deprecated)
-#    define SPOT_DEPRECATED [[deprecated]]
+#  if __has_cpp_attribute(deprecated) && __cplusplus >= 201402L
+#    define SPOT_DEPRECATED(msg) [[deprecated(msg)]]
+#  elif __has_cpp_attribute(gnu::deprecated)
+#    define SPOT_DEPRECATED(msg) [[gnu::deprecated(msg)]]
+#  elif __has_cpp_attribute(clang::deprecated)
+#    define SPOT_DEPRECATED(msg) [[clang::deprecated(msg)]]
 #  endif
 #endif
 #ifndef SPOT_DEPRECATED
 #  ifdef __GNUC__
-#    define SPOT_DEPRECATED __attribute__ ((deprecated))
+#    define SPOT_DEPRECATED(msg) __attribute__ ((deprecated))
 #  elif defined(_MSC_VER)
-#    define SPOT_DEPRECATED __declspec(deprecated)
+#    define SPOT_DEPRECATED(msg) __declspec(deprecated)
 #  else
-#    define SPOT_DEPRECATED
+#    define SPOT_DEPRECATED(msg)
 #  endif
 #endif
 

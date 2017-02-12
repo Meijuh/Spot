@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2015, 2016 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2015-2017 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -37,7 +37,7 @@ namespace spot
   // we used to have, was motivated by issue #188.
   bool is_unambiguous(const const_twa_graph_ptr& aut)
   {
-    if (aut->is_alternating())
+    if (!aut->is_existential())
       throw std::runtime_error
         ("is_unambiguous() does not support alternation");
 

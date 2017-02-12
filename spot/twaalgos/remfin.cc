@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2015-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -494,7 +494,7 @@ namespace spot
     if (aut->prop_weak().is_true())
       return remove_fin_weak(aut);
 
-    if (aut->is_alternating())
+    if (!aut->is_existential())
       return remove_fin(remove_alternation(aut));
 
     if (auto maybe = streett_to_generalized_buchi_maybe(aut))

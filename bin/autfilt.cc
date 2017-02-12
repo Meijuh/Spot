@@ -485,7 +485,7 @@ static bool opt_highlight_languages = false;
 static spot::twa_graph_ptr
 ensure_deterministic(const spot::twa_graph_ptr& aut, bool nonalt = false)
 {
-  if (!(nonalt && aut->is_alternating()) && spot::is_deterministic(aut))
+  if ((!nonalt || aut->is_existential()) && spot::is_deterministic(aut))
     return aut;
   spot::postprocessor p;
   p.set_type(spot::postprocessor::Generic);
@@ -1044,7 +1044,7 @@ namespace
           matched &= opt_used_ap_n.contains(aut->ap().size() - unused);
         }
       if (matched && opt_is_alternating)
-        matched &= aut->is_alternating();
+        matched &= !aut->is_existential();
       if (matched && opt_is_complete)
         matched &= is_complete(aut);
       if (matched && (opt_sccs_set | opt_art_sccs_set))

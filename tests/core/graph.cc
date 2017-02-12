@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -225,7 +225,7 @@ f6()
       f += t.first;
       h += t.second;
     }
-  return f == 3 && (h > 2.49 && h < 2.51) && !g.is_alternating();
+  return f == 3 && (h > 2.49 && h < 2.51) && g.is_existential();
 }
 
 static bool
@@ -247,7 +247,7 @@ f7()
 
   g.dump_storage(std::cout);
 
-  return f == 15 && g.is_alternating();
+  return f == 15 && !g.is_existential();
 }
 
 

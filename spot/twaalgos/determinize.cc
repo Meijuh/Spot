@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
+// Copyright (C) 2015-2017 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -579,7 +579,7 @@ namespace spot
                    bool pretty_print, bool use_scc,
                    bool use_simulation, bool use_stutter)
   {
-    if (a->is_alternating())
+    if (!a->is_existential())
       throw std::runtime_error
         ("tgba_determinize() does not support alternation");
     if (a->prop_deterministic())

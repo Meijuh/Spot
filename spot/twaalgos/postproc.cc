@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -182,7 +182,7 @@ namespace spot
     if (type_ == BA || SBACC_)
       state_based_ = true;
 
-    if (a->is_alternating() &&
+    if (!a->is_existential() &&
         // We will probably have to revisit this condition later.
         // Currently, the intent is that postprocessor should never
         // return an alternating automaton, unless it is called with

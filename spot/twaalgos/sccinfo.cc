@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -353,7 +353,7 @@ namespace spot
 
   void scc_info::determine_unknown_acceptance()
   {
-    if (aut_->is_alternating())
+    if (!aut_->is_existential())
       throw std::runtime_error("scc_info::determine_unknown_acceptance() "
                                "does not support alternating automata");
     std::vector<bool> k;

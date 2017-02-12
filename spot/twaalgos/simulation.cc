@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -160,7 +160,7 @@ namespace spot
         if (!has_separate_sets(in))
           throw std::runtime_error
             ("direct_simulation() requires separate Inf and Fin sets");
-        if (in->is_alternating())
+        if (!in->is_existential())
           throw std::runtime_error
             ("direct_simulation() does not yet support alternation");
 

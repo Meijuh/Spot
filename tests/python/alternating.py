@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2016 Laboratoire de Recherche et Développement de
+# Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement de
 # l'EPITA.
 #
 # This file is part of Spot, a model checking library.
@@ -40,7 +40,7 @@ tr = [(s, [[x for x in aut.univ_dests(i)] for i in aut.out(s)])
       for s in range(3)]
 print(tr)
 assert [(0, [[1, 2], [0, 1]]), (1, [[0, 2, 1]]), (2, [[2]])] == tr
-assert aut.is_alternating()
+assert not aut.is_existential()
 
 received = False
 try:
