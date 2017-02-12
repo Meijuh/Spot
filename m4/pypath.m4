@@ -10,7 +10,7 @@ AC_DEFUN([adl_CHECK_PYTHON],
 [sys.stdout.write(sysconfig.get_python_inc())" 2>/dev/null`])
   AC_SUBST([PYTHONINC], [$adl_cv_python_inc])
   adl_save_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$ac_save_CPPFLAGS -I$PYTHONINC"
+  CPPFLAGS="$adl_save_CPPFLAGS -I$PYTHONINC"
   AC_CHECK_HEADERS([Python.h],,
                    [AC_MSG_ERROR([Python's development headers are not installed.
 
@@ -20,5 +20,5 @@ to use Spot's Python bindings, you may also disable their compilation
 by running
   ./configure --disable-python
 and in this case you do not need python3-devel installed.])])
-  CPPFLAGS=$ac_save_CPPFLAGS
+  CPPFLAGS=$adl_save_CPPFLAGS
 ])

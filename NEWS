@@ -30,6 +30,10 @@ New in spot 2.3.0.dev (not yet released)
   - alternation_removal() was not always reporting the unsupported
     non-weak automata.
 
+  - a long-standing typo in the configure code checking for Python
+    caused any user-defined CPPFLAGS to be ignored while building
+    Spot.
+
 New in spot 2.3 (2017-01-19)
 
   Build:
