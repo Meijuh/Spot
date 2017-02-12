@@ -104,33 +104,34 @@ namespace spot
       unsigned reject_1_count_ = 0;
       std::set<unsigned> true_states_;
 
-      bool ensure_weak_state(unsigned src, unsigned scc)
+      bool ensure_weak_scc(unsigned scc)
       {
         bool first = true;
         bool reject_cycle = false;
         acc_cond::mark_t m = 0U;
-        for (auto& t: aut_->out(src))
-          for (unsigned d: aut_->univ_dests(t.dst))
-            if (si_.scc_of(d) == scc)
-              {
-                if (first)
-                  {
-                    first = false;
-                    m = t.acc;
-                    reject_cycle = !aut_->acc().accepting(m);
-                  }
-                else if (m != t.acc)
-                  {
-                    throw std::runtime_error
-                      ("alternation_removal() only work with weak "
-                       "alternating automata");
-                  }
-                // In case of a universal edge we only
-                // need to check the first destination
-                // inside the SCC, because the other
-                // have the same t.acc.
-                break;
-              }
+        for (unsigned src: si_.states_of(scc))
+          for (auto& t: aut_->out(src))
+            for (unsigned d: aut_->univ_dests(t.dst))
+              if (si_.scc_of(d) == scc)
+                {
+                  if (first)
+                    {
+                      first = false;
+                      m = t.acc;
+                      reject_cycle = !aut_->acc().accepting(m);
+                    }
+                  else if (m != t.acc)
+                    {
+                      throw std::runtime_error
+                        ("alternation_removal() only work with weak "
+                         "alternating automata");
+                    }
+                  // In case of a universal edge we only
+                  // need to check the first destination
+                  // inside the SCC, because the other
+                  // have the same t.acc.
+                  break;
+                }
         return reject_cycle;
       }
 
@@ -155,10 +156,11 @@ namespace spot
                     // decide rejecting/accepting.
                     assert(si_.is_accepting_scc(n));
 
-                    unsigned s = si_.states_of(n).front();
-                    bool rej = ensure_weak_state(s, n);
+                    // Catch unsupported types of automata
+                    bool rej = ensure_weak_scc(n);
                     assert(rej == false);
                     // Detect if it is a "true state"
+                    unsigned s = si_.states_of(n).front();
                     auto& ss = g.state_storage(s);
                     if (ss.succ == ss.succ_tail)
                       {
@@ -168,14 +170,10 @@ namespace spot
                       }
                   }
               }
-            else
+            else if (ensure_weak_scc(n))
               {
-                for (auto src: si_.states_of(n))
-                  if (ensure_weak_state(src, n))
-                    {
-                      class_of_[n] = reject_more;
-                      has_reject_more_ = true;
-                    }
+                class_of_[n] = reject_more;
+                has_reject_more_ = true;
               }
           }
       }

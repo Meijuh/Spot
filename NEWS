@@ -27,6 +27,9 @@ New in spot 2.3.0.dev (not yet released)
     spot::acc_word::op and spot::acc_word::type had to be renamed as
     spot::acc_word::sub.op and spot::acc_word::sub.type.
 
+  - alternation_removal() was not always reporting the unsupported
+    non-weak automata.
+
 New in spot 2.3 (2017-01-19)
 
   Build:
