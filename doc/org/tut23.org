@@ -172,8 +172,9 @@ Alternating automata in Spot can also have a universal initial state:
 e.g, an automaton may start in =0&1&2=.  Use =set_univ_init_state()=
 to declare such as state.
 
-We have a [[file:tut24.org][separate page]] describing how to explore the edge of an
+We have a [[file:tut24.org][separate page]] describing how to explore the edges of an
 alternating automaton.
 
 Once you have built an alternating automaton, you can [[file:tut31.org][remove the
-alternation]] to obtain a Büchi or generalized Büchi automaton..
+alternation]] to obtain a non-deterministic Büchi or generalized Büchi
+automaton.
