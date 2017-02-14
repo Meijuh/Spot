@@ -102,4 +102,60 @@ namespace spot
   SPOT_API
   twa_graph_ptr remove_alternation(const const_twa_graph_ptr& aut,
                                    bool named_states = false);
+
+
+  // Remove universal edges on the fly.
+
+  class SPOT_API univ_remover_state: public state
+  {
+  protected:
+    std::set<unsigned> states_;
+    bool is_reset_;
+
+  public:
+    univ_remover_state(const std::set<unsigned>& states);
+    int compare(const state* other) const override;
+    size_t hash() const override;
+    state* clone() const override;
+    const std::set<unsigned>& states() const;
+    bool is_reset() const;
+  };
+
+  class SPOT_API twa_univ_remover: public twa
+  {
+
+  private:
+    const_twa_graph_ptr aut_;
+    std::vector<int> state_to_var_;
+    std::map<int, unsigned> var_to_state_;
+    bdd all_states_;
+
+  public:
+    twa_univ_remover(const const_twa_graph_ptr& aut);
+    void allocate_state_vars();
+    const state* get_init_state() const override;
+    twa_succ_iterator* succ_iter(const state* s) const override;
+    std::string format_state(const state* s) const override;
+  };
+
+  typedef std::shared_ptr<twa_univ_remover> twa_univ_remover_ptr;
+
+  /// \brief Remove universal edges on the fly from an automaton.
+  ///
+  /// This function uses the Myiano & Hayashi (TCS 1984) breakpoint
+  /// algorithm to construct a non-deterministic Büchi automaton from an
+  /// alternating Büchi automaton on the fly.
+  ///
+  ///  \verbatim
+  ///  @Article{ miyano.84.tcs,
+  ///    title = "Alternating finite automata on ω-words",
+  ///    journal = "Theoretical Computer Science",
+  ///    volume = "32",
+  ///    number = "3",
+  ///    pages = "321 - 330",
+  ///    year = "1984",
+  ///    author = "Satoru Miyano and Takeshi Hayashi",
+  ///  }
+  SPOT_API
+  twa_univ_remover_ptr remove_univ_otf(const const_twa_graph_ptr& aut);
 }

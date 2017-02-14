@@ -487,4 +487,237 @@ namespace spot
     return ar.run(named_states);
   }
 
+
+  // On-the-fly alternating Büchi automaton to nondeterministic Büchi automaton
+  // using the breakpoint construction.
+
+  univ_remover_state::univ_remover_state(const std::set<unsigned>& states)
+    : is_reset_(false)
+  {
+    is_reset_ = std::all_of(states.begin(), states.end(),
+                         [] (unsigned s) { return int(s) < 0; });
+    // When all states are marked (i.e. Q0 is empty), the state is in reset
+    // mode, meaning that it is an accepting state.
+    // The states can immediately be unmarked, since the acceptance mark is
+    // held by the incoming transition.
+    if (is_reset_)
+      for (unsigned s : states)
+        states_.insert(~s);
+    else
+      states_ = states;
+  }
+
+  int univ_remover_state::compare(const state* other) const
+  {
+    const auto o = down_cast<const univ_remover_state*>(other);
+    assert(o);
+    if (states_ < o->states())
+      return -1;
+    if (states_ > o->states())
+      return 1;
+    return 0;
+  }
+
+  size_t univ_remover_state::hash() const
+  {
+    size_t hash = 0;
+    for (unsigned s : states_)
+      hash ^= wang32_hash(s);
+    return hash;
+  }
+
+  state* univ_remover_state::clone() const
+  {
+    return new univ_remover_state(*this);
+  }
+
+  const std::set<unsigned>& univ_remover_state::states() const
+  {
+    return states_;
+  }
+
+  bool univ_remover_state::is_reset() const
+  {
+    return is_reset_;
+  }
+
+  class univ_remover_succ_iterator : public twa_succ_iterator
+  {
+  private:
+    bdd transitions_;
+    bdd all_states_;
+    bdd ap_;
+    bdd all_letters_;
+    bdd transition_;
+    minato_isop isop_;
+    const std::map<int, unsigned>& var_to_state_;
+    univ_remover_state* dst_;
+
+  public:
+    univ_remover_succ_iterator(const_twa_graph_ptr aut,
+                               const univ_remover_state* state,
+                               const std::vector<int>& state_to_var,
+                               const std::map<int, unsigned>& var_to_state,
+                               bdd all_states)
+      : transitions_(bddtrue), all_states_(all_states), transition_(bddfalse),
+        isop_(bddfalse), var_to_state_(var_to_state)
+    {
+      // Build the bdd transitions_, from which we extract the successors.
+      for (unsigned s : state->states())
+        {
+          bdd state_bdd = bddfalse;
+          bool marked = (int)s < 0;
+          if (marked)
+            s = ~s;
+          for (const auto& e : aut->out(s))
+            {
+              bdd univ_bdd = bddtrue;
+              for (const auto& d : aut->univ_dests(e.dst))
+                univ_bdd &= bdd_ithvar(state_to_var[d] + (marked || e.acc));
+              state_bdd |= e.cond & univ_bdd;
+            }
+          transitions_ &= state_bdd;
+        }
+      ap_ = bdd_exist(bdd_support(transitions_), all_states_);
+      all_letters_ = bdd_exist(transitions_, all_states_);
+    }
+
+    std::set<unsigned> bdd_to_state(bdd b) const
+    {
+      std::set<unsigned> state;
+      while (b != bddtrue)
+        {
+          assert(bdd_low(b) == bddfalse);
+          int v = bdd_var(b);
+          b = bdd_high(b);
+          auto it = var_to_state_.find(v);
+          assert(it != var_to_state_.end());
+          state.insert(it->second);
+        }
+      return state;
+    }
+
+    void one_transition()
+    {
+      transition_ = isop_.next();
+      if (transition_ != bddfalse || all_letters_ != bddfalse)
+        {
+          // If it was the last transition, try the next letter.
+          if (transition_ == bddfalse)
+            {
+              bdd oneletter = bdd_satoneset(all_letters_, ap_, bddtrue);
+              all_letters_ -= oneletter;
+              // Get a sum of possible transitions matching this letter.
+              isop_ = minato_isop(oneletter & transitions_);
+              transition_ = isop_.next();
+            }
+          bdd dest_bdd = bdd_exist(transition_, ap_);
+          std::set<unsigned> dest = bdd_to_state(dest_bdd);
+          dst_ = new univ_remover_state(dest);
+        }
+    }
+
+    virtual bool first() override
+    {
+      one_transition();
+      return transition_ != bddfalse;
+    }
+
+    virtual bool next() override
+    {
+      one_transition();
+      return transition_ != bddfalse;
+    }
+
+    virtual bool done() const override
+    {
+      return transition_ == bddfalse && all_letters_ == bddfalse;
+    }
+
+    virtual const state* dst() const override
+    {
+      return dst_;
+    }
+
+    virtual bdd cond() const override
+    {
+      return bdd_exist(transition_, all_states_);
+    }
+
+    virtual acc_cond::mark_t acc() const override
+    {
+      assert(dst_);
+      return dst_->is_reset();
+    }
+  };
+
+  twa_univ_remover::twa_univ_remover(const const_twa_graph_ptr& aut)
+    : twa(aut->get_dict()), aut_(aut)
+  {
+    assert(aut->num_sets() == 1);
+    allocate_state_vars();
+  }
+
+  void twa_univ_remover::allocate_state_vars()
+  {
+    auto d = aut_->get_dict();
+    unsigned ns = aut_->num_states();
+    state_to_var_.reserve(ns);
+    all_states_ = bddtrue;
+    bdd all_vars = bddtrue;
+    for (unsigned s = 0; s < ns; ++s)
+      {
+        int v = d->register_anonymous_variables(2, this);
+        // v and v + 1 respectively correspond to state s and ~s, i.e. s \in Q0
+        // or s \in Q1 using the original paper's notation.
+        all_states_ &= bdd_ithvar(v) & bdd_ithvar(v + 1);
+        state_to_var_.push_back(v);
+        var_to_state_[v] = s;
+        var_to_state_[v + 1] = ~s;
+      }
+  }
+
+  const state* twa_univ_remover::get_init_state() const
+  {
+    std::set<unsigned> state;
+    for (unsigned i : aut_->univ_dests(aut_->get_init_state_number()))
+      state.insert(i);
+    return new univ_remover_state(state);
+  }
+
+  twa_succ_iterator* twa_univ_remover::succ_iter(const state* s) const
+  {
+    auto as = down_cast<const univ_remover_state*>(s);
+    assert(as);
+    return new univ_remover_succ_iterator(aut_, as, state_to_var_,
+                                          var_to_state_, all_states_);
+  }
+
+  std::string twa_univ_remover::format_state(const state* s) const
+  {
+    auto as = down_cast<const univ_remover_state*>(s);
+    std::ostringstream fmt;
+    bool first = true;
+    for (unsigned s : as->states())
+      {
+        if (!first)
+          fmt << ',';
+        else
+          first = false;
+        if ((int) s < 0)
+          fmt << '~' << ~s;
+        else
+          fmt << s;
+      }
+    return fmt.str();
+  }
+
+  twa_univ_remover_ptr remove_univ_otf(const const_twa_graph_ptr& aut)
+  {
+    assert(aut->acc().is_buchi());
+    auto res = std::make_shared<twa_univ_remover>(aut);
+    res->copy_ap_of(aut);
+    res->copy_acceptance_of(aut);
+    return res;
+  }
 }

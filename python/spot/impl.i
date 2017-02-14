@@ -63,6 +63,7 @@
 %shared_ptr(spot::taa_tgba_formula)
 %shared_ptr(spot::twa_run)
 %shared_ptr(spot::twa_word)
+%shared_ptr(spot::twa_univ_remover)
 %shared_ptr(spot::emptiness_check_result)
 %shared_ptr(spot::emptiness_check)
 %shared_ptr(spot::emptiness_check_instantiator)

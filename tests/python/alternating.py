@@ -169,3 +169,41 @@ State: 4
 State: 5
 [0&1] 0&1&2
 --END--"""
+
+
+# remove_univ_otf
+
+aut = spot.automaton("""
+HOA: v1
+States: 3
+Start: 0 & 1
+Acceptance: 1 Inf(0)
+AP: 2 "a" "b"
+--BODY--
+State: 0
+[0] 0 {0}
+State: 1
+[1] 2 {0}
+State: 2
+[1] 2
+--END--
+""")
+
+out = """HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0 {0}
+[0&1] 1
+State: 1
+[0&1] 2
+State: 2
+[0&1] 2
+--END--"""
+
+desalt = spot.remove_univ_otf(aut)
+assert(desalt.to_str('hoa') == out)

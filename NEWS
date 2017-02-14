@@ -92,6 +92,10 @@ New in spot 2.4.0.dev (not yet released)
     compute respectively the intersection and the union of two automata with
     parity acceptance condition and keep the parity acceptance condition.
 
+  - The new function spot::remove_univ_otf() removes universal
+    transitions on the fly from an alternating Büchi automaton
+    using Miyano and Hayashi's breakpoint algorithm.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
