@@ -365,6 +365,21 @@ int main()
                                        is_max, is_odd, acc_num_sets)
                        && "change_parity: wrong acceptance.");
               }
+            // Check cleanup_parity
+            for (auto keep_style: { true, false })
+              {
+                auto output = spot::cleanup_parity(aut, keep_style);
+                assert(is_almost_colored(output)
+                       && "cleanup_parity: too many acc on a transition.");
+                assert(are_equiv(aut, output)
+                       && "cleanup_parity: not equivalent.");
+                auto target_kind = to_parity_kind(is_max);
+                auto target_style = keep_style ? to_parity_style(is_odd)
+                                    : spot::parity_style_any;
+                assert(is_right_parity(output, target_kind, target_style,
+                                       is_max, is_odd, acc_num_sets)
+                       && "cleanup_parity: wrong acceptance.");
+              }
           }
         }
   return 0;

@@ -88,6 +88,27 @@ namespace spot
   change_parity_here(twa_graph_ptr aut, parity_kind kind, parity_style style);
   /// @}
 
+  /// \brief Remove useless acceptance sets of an automaton with parity
+  /// acceptance
+  ///
+  /// If two sets with the same parity are separated by unused sets, then these
+  /// two sets are merged. The input must be an automaton with a parity
+  /// acceptance, otherwise an invalid_argument exception is thrown.
+  ///
+  /// \param aut the input automaton
+  ///
+  /// \param keep_style whether the style of the parity acc is kept.
+  ///
+  /// \return the automaton without useless acceptance sets.
+  /// @{
+  SPOT_API twa_graph_ptr
+  cleanup_parity(const const_twa_graph_ptr& aut,
+                            bool keep_style = false);
+
+  SPOT_API twa_graph_ptr
+  cleanup_parity_here(twa_graph_ptr aut, bool keep_style = false);
+  /// @}
+
   /// \brief Colorize an automaton with parity acceptance
   ///
   /// An automaton is said colored iff all the transitions belong to exactly one

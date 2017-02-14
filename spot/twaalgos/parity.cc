@@ -24,7 +24,6 @@
 #include <utility>
 #include <functional>
 #include <queue>
-#include <spot/twaalgos/hoa.hh>
 
 namespace spot
 {
@@ -144,6 +143,93 @@ namespace spot
       }
     change_acc(aut, old_num_sets, change_kind,
                change_style, output_max, current_max);
+    return aut;
+  }
+
+  twa_graph_ptr
+  cleanup_parity(const const_twa_graph_ptr& aut, bool keep_style)
+  {
+    auto result = make_twa_graph(aut, twa::prop_set::all());
+    return cleanup_parity_here(result, keep_style);
+  }
+
+  twa_graph_ptr
+  cleanup_parity_here(twa_graph_ptr aut, bool keep_style)
+  {
+    bool current_max;
+    bool current_odd;
+    if (!aut->acc().is_parity(current_max, current_odd, true))
+      throw new std::invalid_argument("cleanup_parity: input "
+                                      "must have a parity acceptance.");
+    auto num_sets = aut->num_sets();
+    if (num_sets == 0)
+      return aut;
+
+    // Compute all the used sets
+    auto used_in_aut = acc_cond::mark_t();
+    for (auto& t: aut->edges())
+      {
+        if (current_max)
+          {
+            auto maxset = t.acc.max_set();
+            if (maxset)
+              t.acc = acc_cond::mark_t{maxset - 1};
+          }
+        else
+          {
+            t.acc = t.acc.lowest();
+          }
+        used_in_aut |= t.acc;
+      }
+    if (used_in_aut)
+    {
+      // Never remove the least significant acceptance set, and mark the
+      // acceptance set 0 to keep the style if needed.
+      if (current_max || keep_style)
+        used_in_aut.set(0);
+      if (!current_max)
+        used_in_aut.set(num_sets - 1);
+
+      // Fill the vector shift with the new acceptance sets
+      std::vector<unsigned> shift(num_sets);
+      int prev_used = -1;
+      bool change_style = false;
+      unsigned new_index = 0;
+      for (auto i = 0U; i < num_sets; ++i)
+        if (used_in_aut.has(i))
+          {
+            if (prev_used == -1)
+              change_style = i % 2 != 0;
+            else if ((i + prev_used) % 2 != 0)
+              ++new_index;
+            shift[i] = new_index;
+            prev_used = i;
+          }
+
+      // Update all the transitions with the vector shift
+      for (auto& t: aut->edges())
+        {
+          auto maxset = t.acc.max_set();
+          if (maxset)
+            t.acc = acc_cond::mark_t{shift[maxset - 1]};
+        }
+      auto new_num_sets = new_index + 1;
+      if (new_num_sets < num_sets)
+        {
+          auto new_acc = acc_cond::acc_code::parity(current_max,
+                                                    current_odd != change_style,
+                                                    new_num_sets);
+          aut->set_acceptance(new_num_sets, new_acc);
+        }
+    }
+    else
+      {
+        if ((current_max && current_odd)
+           || (!current_max && current_odd != (num_sets % 2 == 0)))
+          aut->set_acceptance(0, acc_cond::acc_code::t());
+        else
+          aut->set_acceptance(0, acc_cond::acc_code::f());
+      }
     return aut;
   }
 
