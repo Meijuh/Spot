@@ -130,5 +130,22 @@ namespace spot
   SPOT_API twa_graph_ptr
   colorize_parity_here(twa_graph_ptr aut, bool keep_style = false);
   /// @}
+
+  /// \brief Construct a product performing the intersection of two automata
+  /// with parity acceptance and keeping their parity acceptance
+  ///
+  /// This is based on an algorithm introduced by Olivier Carton (Theoretical
+  /// Computer Science 161, 1-2 (1996)). The output is a parity max even
+  /// automaton. The inputs must be automata with a parity acceptance, otherwise
+  /// an invalid_argument exception is thrown.
+  ///
+  /// \param left the first automaton
+  ///
+  /// \param right the second automaton
+  ///
+  /// \result the product, which is a parity automaton
+  SPOT_API twa_graph_ptr
+  parity_product(const const_twa_graph_ptr& left,
+                 const const_twa_graph_ptr& right);
   /// @}
 }

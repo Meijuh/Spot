@@ -288,4 +288,220 @@ namespace spot
       }
     return aut;
   }
+
+  namespace
+  {
+    class state_history : public std::vector<bool>
+    {
+    public:
+      state_history(unsigned left_num_sets, unsigned right_num_sets) :
+        left_num_sets_(left_num_sets),
+        right_num_sets_(right_num_sets)
+      {
+        resize(left_num_sets * right_num_sets * 2, false);
+      }
+
+      bool get_e(unsigned left, unsigned right) const
+      {
+        return get(left, right, true);
+      }
+
+      bool get_f(unsigned left, unsigned right) const
+      {
+        return get(left, right, false);
+      }
+
+      void set_e(unsigned left, unsigned right, bool val)
+      {
+        set(left, right, true, val);
+      }
+
+      void set_f(unsigned left, unsigned right, bool val)
+      {
+        set(left, right, false, val);
+      }
+
+      unsigned get_left_num_sets() const
+      {
+        return left_num_sets_;
+      }
+
+      unsigned get_right_num_sets() const
+      {
+        return right_num_sets_;
+      }
+
+    private:
+      unsigned left_num_sets_;
+      unsigned right_num_sets_;
+
+      bool get(unsigned left, unsigned right, bool first) const
+      {
+        return at(left * right_num_sets_ * 2 + right * 2 + (first ? 1 : 0));
+      }
+
+      void set(unsigned left, unsigned right, bool first, bool val)
+      {
+        at(left * right_num_sets_ * 2 + right * 2 + (first ? 1 : 0)) = val;
+      }
+    };
+
+    typedef std::tuple<unsigned, unsigned, state_history>
+      product_state;
+
+    struct product_state_hash
+    {
+      size_t
+      operator()(product_state s) const
+      {
+        auto result = wang32_hash(std::get<0>(s) ^ wang32_hash(std::get<1>(s)));
+        return result ^ (std::hash<std::vector<bool>>()(std::get<2>(s)) << 1);
+      }
+    };
+
+    twa_graph_ptr
+    parity_product_aux(twa_graph_ptr& left, twa_graph_ptr& right)
+    {
+      std::unordered_map<product_state, std::pair<unsigned, unsigned>,
+                         product_state_hash> s2n;
+      std::queue<std::pair<product_state, unsigned>> todo;
+      auto res = make_twa_graph(left->get_dict());
+      res->copy_ap_of(left);
+      res->copy_ap_of(right);
+      unsigned left_num_sets = left->num_sets();
+      unsigned right_num_sets = right->num_sets();
+      unsigned z_size = left_num_sets + right_num_sets - 1;
+      auto z = acc_cond::acc_code::parity(true, false, z_size);
+      res->set_acceptance(z_size, z);
+
+      auto v = new product_states;
+      res->set_named_prop("product-states", v);
+
+      auto new_state =
+        [&](const state_history& current_history,
+            unsigned left_state, unsigned right_state,
+            unsigned left_acc_set, unsigned right_acc_set)
+        -> std::pair<unsigned, unsigned>
+        {
+          product_state x(left_state, right_state, current_history);
+          auto& mat = std::get<2>(x);
+          for (unsigned i = 0; i < left_num_sets; ++i)
+            for (unsigned j = 0; j < right_num_sets; ++j)
+            {
+              auto e_ij = current_history.get_e(i, j);
+              auto f_ij = current_history.get_f(i, j);
+              auto left_in_i = left_acc_set >= i;
+              auto right_in_j = right_acc_set >= j;
+              if (e_ij && f_ij)
+              {
+                mat.set_e(i, j, left_in_i);
+                mat.set_f(i, j, right_in_j);
+              }
+              else
+              {
+                mat.set_e(i, j, e_ij || left_in_i);
+                mat.set_f(i, j, f_ij || right_in_j);
+              }
+            }
+          auto p = s2n.emplace(x, std::make_pair(0, 0));
+          if (p.second)                 // This is a new state
+          {
+            p.first->second.first = res->new_state();
+            p.first->second.second = 0;
+            for (unsigned i = z_size - 1; i > 0
+                 && p.first->second.second == 0; --i)
+            {
+              // i is the index of the resulting automaton acceptance set
+              // If i is even, it means that the according set is a set with
+              // transitions that need to be infinitly often as the acceptance
+              // is a parity even. Then k, the index of the first automaton must
+              // be even too.
+              unsigned k = 0;
+              if (i >= right_num_sets)
+                k = i - right_num_sets + 1;
+              unsigned var = 2 - i % 2;
+              k += k & ~var & 1;
+              unsigned max_k = std::min(i + 1, left_num_sets);
+              while (k < max_k)
+              {
+                unsigned l = i - k;
+                if (mat.get_e(k, l) && mat.get_f(k, l))
+                {
+                  p.first->second.second = i;
+                  break;
+                }
+                k += var;
+              }
+              v->push_back(std::make_pair(left_state, right_state));
+            }
+            todo.emplace(x, p.first->second.first);
+          }
+          return p.first->second;
+        };
+
+      state_history init_state_history(left_num_sets, right_num_sets);
+      product_state init_state(left->get_init_state_number(),
+                               right->get_init_state_number(),
+                               init_state_history);
+      auto init_state_index = res->new_state();
+      s2n.emplace(init_state, std::make_pair(init_state_index, 0));
+      todo.emplace(init_state, init_state_index);
+      res->set_init_state(init_state_index);
+
+      while (!todo.empty())
+      {
+        auto& top = todo.front();
+        for (auto& l: left->out(std::get<0>(top.first)))
+          for (auto& r: right->out(std::get<1>(top.first)))
+          {
+            auto cond = l.cond & r.cond;
+            if (cond == bddfalse)
+              continue;
+            auto left_acc = l.acc.max_set() - 1;
+            auto right_acc = r.acc.max_set() - 1;
+            auto dst = new_state(std::get<2>(top.first), l.dst, r.dst,
+                                 left_acc, right_acc);
+            auto acc = acc_cond::mark_t{dst.second};
+            res->new_edge(top.second, dst.first, cond, acc);
+          }
+        todo.pop();
+      }
+
+      // The product of two non-deterministic automata could be
+      // deterministic.  likewise for non-complete automata.
+      if (left->prop_universal() && right->prop_universal())
+        res->prop_universal(true);
+      if (left->prop_complete() && right->prop_complete())
+        res->prop_complete(true);
+      if (left->prop_stutter_invariant() && right->prop_stutter_invariant())
+        res->prop_stutter_invariant(true);
+      if (left->prop_inherently_weak() && right->prop_inherently_weak())
+        res->prop_inherently_weak(true);
+      if (left->prop_weak() && right->prop_weak())
+        res->prop_weak(true);
+      if (left->prop_terminal() && right->prop_terminal())
+        res->prop_terminal(true);
+      res->prop_state_acc(left->prop_state_acc() && right->prop_state_acc());
+      return res;
+    }
+  }
+
+  twa_graph_ptr
+  parity_product(const const_twa_graph_ptr& left,
+                 const const_twa_graph_ptr& right)
+  {
+    if (left->get_dict() != right->get_dict())
+      throw std::runtime_error("parity_product: left and right automata "
+                               "should share their bdd_dict");
+    if (!(left->is_existential() && right->is_existential()))
+      throw std::runtime_error("parity_product() does not support alternating "
+                               "automata");
+    auto first = change_parity(left, parity_kind_max, parity_style_even);
+    auto second = change_parity(right, parity_kind_max, parity_style_even);
+    cleanup_parity_here(first, true);
+    cleanup_parity_here(second, true);
+    colorize_parity_here(first, true);
+    colorize_parity_here(second, true);
+    return parity_product_aux(first, second);
+  }
 }

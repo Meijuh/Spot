@@ -382,5 +382,58 @@ int main()
               }
           }
         }
+
+  std::random_shuffle(automata_tuples.begin(), automata_tuples.end());
+  unsigned num_left = 15;
+  unsigned num_right = 15;
+  unsigned acc_index = 0;
+
+  unsigned nb = 0;
+  // Parity product
+  for (unsigned left_index = 0; left_index < num_left; ++left_index)
+    {
+      auto& aut_tuple_first = automata_tuples[left_index % num_automata];
+      auto& left = aut_tuple_first.first;
+      auto aut_num_sets_first = aut_tuple_first.second;
+      while (std::get<3>(acceptance_sets[acc_index]) < aut_num_sets_first)
+        acc_index = (acc_index + 1) % num_acceptance;
+      auto acc_tuple_first = acceptance_sets[acc_index];
+      acc_index = (acc_index + 1) % num_acceptance;
+      auto acc_first = std::get<0>(acc_tuple_first);
+      auto acc_num_sets_first = std::get<3>(acc_tuple_first);
+      left->set_acceptance(acc_num_sets_first, acc_first);
+      for (unsigned right_index = 0; right_index < num_right; ++right_index)
+        {
+          auto& aut_tuple_second =
+            automata_tuples[(num_left + right_index) % num_automata];
+          auto& right = aut_tuple_second.first;
+          auto aut_num_sets_second = aut_tuple_second.second;
+          while (std::get<3>(acceptance_sets[acc_index]) < aut_num_sets_second)
+            acc_index = (acc_index + 1) % num_acceptance;
+          auto acc_tuple_second = acceptance_sets[acc_index];
+          acc_index = (acc_index + 1) % num_acceptance;
+          auto acc_second = std::get<0>(acc_tuple_second);
+          auto acc_num_sets_second = std::get<3>(acc_tuple_second);
+          right->set_acceptance(acc_num_sets_second, acc_second);
+          auto result = spot::parity_product(left, right);
+          auto ref = spot::product(left, right);
+          if (!are_equiv(result, ref))
+            {
+              std::cerr << nb << ": parity_product: Not equivalent.\n"
+                        << "=====First Automaton=====\n";
+              spot::print_hoa(std::cerr, left);
+              std::cerr << "=====Second Automaton=====\n";
+              spot::print_hoa(std::cerr, right);
+              assert(false && "parity_product: Not equivalent.\n");
+            }
+          assert(is_colored_printerr(result)
+                 && "parity_product: not colored.");
+          assert(is_right_parity(result, spot::parity_kind_any,
+                                 spot::parity_style_any,
+                                 true, true, 2)
+                 && "parity_product: not a parity acceptance condition");
+          ++nb;
+        }
+    }
   return 0;
 }
