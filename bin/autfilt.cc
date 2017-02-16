@@ -1197,20 +1197,7 @@ namespace
 
       if (opt_decompose_scc != -1)
         {
-          spot::scc_info si(aut);
-          unsigned scc_num = 0;
-
-          for (; scc_num < si.scc_count(); ++scc_num)
-            {
-              if (si.is_accepting_scc(scc_num))
-                {
-                  if (!opt_decompose_scc)
-                    break;
-                  --opt_decompose_scc;
-                }
-            }
-
-          aut = decompose_scc(si, scc_num);
+          aut = decompose_acc_scc(aut, opt_decompose_scc);
           if (!aut)
             return 0;
         }

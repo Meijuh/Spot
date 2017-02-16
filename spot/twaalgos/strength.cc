@@ -391,4 +391,23 @@ namespace spot
 
     return res;
   }
+
+  twa_graph_ptr
+  decompose_acc_scc(const const_twa_graph_ptr& aut, int scc_index)
+  {
+    scc_info si(aut);
+    unsigned scc_num = 0;
+
+    for (; scc_num < si.scc_count(); ++scc_num)
+      {
+        if (si.is_accepting_scc(scc_num))
+          {
+            if (!scc_index)
+              break;
+            --scc_index;
+          }
+      }
+
+    return decompose_scc(si, scc_num);
+  }
 }

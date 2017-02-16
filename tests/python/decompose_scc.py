@@ -49,3 +49,52 @@ except ValueError:
     pass
 else:
     raise AssertionError
+
+assert (spot.decompose_acc_scc(aut, 1).to_str('hoa', '1.1') == """HOA: v1.1
+States: 4
+Start: 0
+AP: 3 "b" "a" "c"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!1&!2] 0
+[1&!2] 1
+[2] 2
+State: 1
+[!1&!2] 0
+[1&!2] 1
+[!1&2] 2
+[1&2] 3
+State: 2 {0}
+[t] 2
+State: 3
+[!1] 2
+[1] 3
+--END--""")
+
+assert (spot.decompose_acc_scc(aut, 2).to_str('hoa', '1.1') == """HOA: v1.1
+States: 2
+Start: 0
+AP: 3 "b" "a" "c"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc !complete
+properties: deterministic
+--BODY--
+State: 0
+[!1&!2] 0 {0}
+[1&!2] 1
+State: 1
+[!1&!2] 0 {0}
+[1&!2] 1
+--END--""")
+
+try:
+    spot.decompose_acc_scc(aut, 3)
+except ValueError:
+    pass
+else:
+    raise AssertionError

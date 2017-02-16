@@ -181,4 +181,14 @@ namespace spot
   /// \param scc_num the index in the map of the SCC to keep
   SPOT_API twa_graph_ptr
   decompose_scc(scc_info& sm, unsigned scc_num);
+
+  /// \brief Extract a sub-automaton of an accepting SCC
+  ///
+  /// This algorithm returns a subautomaton that contains the `scc_index'th
+  /// accepting SCC, plus any upstream SCC (but adjusted not to be accepting).
+  ///
+  /// \param aut the automaton to decompose
+  /// \param scc_index the ID of the accepting SCC to keep
+  SPOT_API twa_graph_ptr
+  decompose_acc_scc(const const_twa_graph_ptr& aut, int scc_index);
 }
