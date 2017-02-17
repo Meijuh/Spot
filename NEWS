@@ -12,6 +12,11 @@ New in spot 2.3.0.dev (not yet released)
   - The option (y) has been added to --dot. It splits the universal
     edges with the same targets but different colors.
 
+  - genltl learnt three new families for formulas: --kr-n2=RANGE,
+    --kr-nlogn=RANGE, and --kr-n=RANGE.  These formulas, from
+    Kupferman & Rosenberg [MoChArt'10] are recognizable by
+    deterministic Büchi automata with at least 2^2^n states.
+
   Library:
 
   - spot::twa_run::as_twa() has an option to preserve state names.
