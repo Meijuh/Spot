@@ -48,7 +48,7 @@ Proceedings of RV'10.  LNCS 6418.
 kr
 O. Kupferman and A. Rosenberg: The Blow-Up in Translating LTL to Deterministic
 Automata.
-Proceedings of MoChArt'10.  LNCS 6572.
+Proceedings of MoChArt'10.  LNAI 6572.
 .TP
 rv
 O. Kupferman and M. Y. Vardi: From Linear Time to Branching Time.

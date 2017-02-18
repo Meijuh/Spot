@@ -119,6 +119,19 @@
 //   month = nov,
 //   publisher = {Springer}
 // }
+//
+// @InProceedings{kupferman.10.mochart,
+//   author = {Orna Kupferman and And Rosenberg},
+//   title = {The Blow-Up in Translating LTL do Deterministic Automata},
+//   booktitle = {Proceedings of the 6th International Workshop on Model
+//                Checking and Artificial Intelligence (MoChArt 2010)},
+//   pages = {85--94},
+//   year = 2011,
+//   volume = {6572},
+//   series = {Lecture Notes in Artificial Intelligence},
+//   month = nov,
+//   publisher = {Springer}
+// }
 
 
 #include "common_sys.hh"
@@ -167,7 +180,7 @@ enum {
   OPT_GO_THETA,
   OPT_KR_N,
   OPT_KR_NLOGN,
-  OPT_KV_PHI,
+  OPT_KV_PSI,
   OPT_OR_FG,
   OPT_OR_G,
   OPT_OR_GF,
@@ -205,7 +218,7 @@ const char* const class_name[LAST_CLASS] =
     "go-theta",
     "kr-n",
     "kr-nlogn",
-    "kv-phi",
+    "kv-psi",
     "or-fg",
     "or-g",
     "or-gf",
@@ -263,7 +276,7 @@ static const argp_option options[] =
       "linear formula with doubly exponential DBA", 0 },
     { "kr-nlogn", OPT_KR_NLOGN, "RANGE", 0,
       "quasilinear formula with doubly exponential DBA", 0 },
-    { "kv-phi", OPT_KV_PHI, "RANGE", 0,
+    { "kv-psi", OPT_KV_PSI, "RANGE", 0,
       "quadratic formula with doubly exponential DBA", 0 },
     OPT_ALIAS(kr-n2),
     { "or-fg", OPT_OR_FG, "RANGE", 0, "FG(p1)|FG(p2)|...|FG(pn)", 0 },
@@ -373,7 +386,7 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_GO_THETA:
     case OPT_KR_N:
     case OPT_KR_NLOGN:
-    case OPT_KV_PHI:
+    case OPT_KV_PSI:
     case OPT_OR_FG:
     case OPT_OR_G:
     case OPT_OR_GF:
@@ -1367,7 +1380,7 @@ output_pattern(int pattern, int n)
     case OPT_KR_NLOGN:
       f = kr1_exp(n, "a", "b", "c", "d", "y", "z");
       break;
-    case OPT_KV_PHI:
+    case OPT_KV_PSI:
       f = kv_exp(n, "a", "b", "c", "d");
       break;
     case OPT_OR_FG:

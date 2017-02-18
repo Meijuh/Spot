@@ -101,9 +101,18 @@ tv-uu,3,G(p1 -> (p1 U (p2 & (p2 U (p3 & (p3 U p4))))))
 EOF
 diff output expected
 
-test $(genltl --kr-n2=2 | ltl2tgba --low -D --stats=%s) -ge 16
-test $(genltl --kr-nlogn=2 | ltl2tgba --low -D --stats=%s) -ge 16
-test $(genltl --kr-n=2 | ltl2tgba --low -D --stats=%s) -ge 16
+
+genltl --kr-n2=1..2 --kr-nlogn=1..2 --kr-n=1..2 --format=%F=%L,%f |
+    ltl2tgba --low --det -F-/2 --stats='%<,%s' > out
+cat >exp<<EOF
+kv-psi=1,15
+kv-psi=2,106
+kr-nlogn=1,19
+kr-nlogn=2,147
+kr-n=1,12
+kr-n=2,82
+EOF
+diff out exp
 
 test $(genltl --kr-n2=4 | ltl2tgba --low --stats=%s) -ge 16
 test $(genltl --kr-nlogn=4 | ltl2tgba --low --stats=%s) -ge 16
