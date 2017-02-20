@@ -236,7 +236,7 @@ contain only 46 formulas, not 54.
 
 #+BEGIN_SRC sh :results verbatim :exports both
 genltl --sb | ltlfilt --uniq --count
-(genltl --sb; genltl --sb | ltlfilt --negate) | ltlfilt --uniq --count
+genltl --sb --pos --neg | ltlfilt --uniq --count
 #+END_SRC
 #+RESULTS:
 : 27
