@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -24,6 +24,79 @@
 
 namespace spot
 {
+
+  /// Storage for SCC related information.
+  class SPOT_API scc_info_node
+  {
+  public:
+    typedef std::vector<unsigned> scc_succs;
+    friend class scc_info;
+  protected:
+    scc_succs succ_;
+    acc_cond::mark_t acc_;
+    std::vector<unsigned> states_; // States of the component
+    bool trivial_:1;
+    bool accepting_:1;        // Necessarily accepting
+    bool rejecting_:1;        // Necessarily rejecting
+    bool useful_:1;
+  public:
+    scc_info_node():
+      acc_(0U), trivial_(true), accepting_(false),
+      rejecting_(false), useful_(false)
+    {
+    }
+
+    scc_info_node(acc_cond::mark_t acc, bool trivial):
+      acc_(acc), trivial_(trivial), accepting_(false),
+      rejecting_(false), useful_(false)
+    {
+    }
+
+    bool is_trivial() const
+    {
+      return trivial_;
+    }
+
+    /// \brief True if we are sure that the SCC is accepting
+    ///
+    /// Note that both is_accepting() and is_rejecting() may return
+    /// false if an SCC interesects a mix of Fin and Inf sets.
+    bool is_accepting() const
+    {
+      return accepting_;
+    }
+
+    // True if we are sure that the SCC is rejecting
+    ///
+    /// Note that both is_accepting() and is_rejecting() may return
+    /// false if an SCC interesects a mix of Fin and Inf sets.
+    bool is_rejecting() const
+    {
+      return rejecting_;
+    }
+
+    bool is_useful() const
+    {
+      return useful_;
+    }
+
+    acc_cond::mark_t acc_marks() const
+    {
+      return acc_;
+    }
+
+    const std::vector<unsigned>& states() const
+    {
+      return states_;
+    }
+
+    const scc_succs& succ() const
+    {
+      return succ_;
+    }
+  };
+
+
   /// \brief Compute an SCC map and gather assorted information.
   ///
   /// This takes twa_graph as input and compute its SCCs.  This
@@ -39,75 +112,10 @@ namespace spot
   class SPOT_API scc_info
   {
   public:
-    typedef std::vector<unsigned> scc_succs;
-
-    class scc_node
-    {
-      friend class scc_info;
-    protected:
-      scc_succs succ_;
-      acc_cond::mark_t acc_;
-      std::vector<unsigned> states_; // States of the component
-      bool trivial_:1;
-      bool accepting_:1;        // Necessarily accepting
-      bool rejecting_:1;        // Necessarily rejecting
-      bool useful_:1;
-    public:
-      scc_node():
-        acc_(0U), trivial_(true), accepting_(false),
-        rejecting_(false), useful_(false)
-      {
-      }
-
-      scc_node(acc_cond::mark_t acc, bool trivial):
-        acc_(acc), trivial_(trivial), accepting_(false),
-        rejecting_(false), useful_(false)
-      {
-      }
-
-      bool is_trivial() const
-      {
-        return trivial_;
-      }
-
-      /// \brief True if we are sure that the SCC is accepting
-      ///
-      /// Note that both is_accepting() and is_rejecting() may return
-      /// false if an SCC interesects a mix of Fin and Inf sets.
-      bool is_accepting() const
-      {
-        return accepting_;
-      }
-
-      // True if we are sure that the SCC is rejecting
-      ///
-      /// Note that both is_accepting() and is_rejecting() may return
-      /// false if an SCC interesects a mix of Fin and Inf sets.
-      bool is_rejecting() const
-      {
-        return rejecting_;
-      }
-
-      bool is_useful() const
-      {
-        return useful_;
-      }
-
-      acc_cond::mark_t acc_marks() const
-      {
-        return acc_;
-      }
-
-      const std::vector<unsigned>& states() const
-      {
-        return states_;
-      }
-
-      const scc_succs& succ() const
-      {
-        return succ_;
-      }
-    };
+    // scc_node used to be an inner class, but Swig 3.0.10 does not
+    // support that yet.
+    typedef scc_info_node scc_node;
+    typedef scc_info_node::scc_succs scc_succs;
 
   protected:
 
@@ -146,18 +154,35 @@ namespace spot
       return sccof_[st];
     }
 
-    auto begin() const
-      SPOT_RETURN(node_.begin());
-    auto end() const
-      SPOT_RETURN(node_.end());
-    auto cbegin() const
-      SPOT_RETURN(node_.cbegin());
-    auto cend() const
-      SPOT_RETURN(node_.cend());
-    auto rbegin() const
-      SPOT_RETURN(node_.rbegin());
-    auto rend() const
-      SPOT_RETURN(node_.rend());
+    std::vector<scc_node>::const_iterator begin() const
+    {
+      return node_.begin();
+    }
+
+    std::vector<scc_node>::const_iterator end() const
+    {
+      return node_.end();
+    }
+
+    std::vector<scc_node>::const_iterator cbegin() const
+    {
+      return node_.cbegin();
+    }
+
+    std::vector<scc_node>::const_iterator cend() const
+    {
+      return node_.cend();
+    }
+
+    std::vector<scc_node>::const_reverse_iterator rbegin() const
+    {
+      return node_.rbegin();
+    }
+
+    std::vector<scc_node>::const_reverse_iterator rend() const
+    {
+      return node_.rend();
+    }
 
     const std::vector<unsigned>& states_of(unsigned scc) const
     {

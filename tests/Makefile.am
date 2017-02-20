@@ -331,6 +331,7 @@ TESTS_python = \
   python/alternating.py \
   python/bddnqueen.py \
   python/bugdet.py \
+  python/sccinfo.py \
   python/implies.py \
   python/interdep.py \
   python/ltl2tgba.test \

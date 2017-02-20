@@ -133,6 +133,7 @@
 #include <spot/twaalgos/neverclaim.hh>
 #include <spot/twaalgos/randomize.hh>
 #include <spot/twaalgos/remfin.hh>
+#include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/sccfilter.hh>
 #include <spot/twaalgos/stats.hh>
@@ -533,6 +534,9 @@ def state_is_accepting(self, src) -> "bool":
 %include <spot/twaalgos/neverclaim.hh>
 %include <spot/twaalgos/randomize.hh>
 %include <spot/twaalgos/remfin.hh>
+%traits_swigtype(spot::scc_info_node);
+%fragment(SWIG_Traits_frag(spot::scc_info_node));
+%include <spot/twaalgos/sccinfo.hh>
 %include <spot/twaalgos/strength.hh>
 %include <spot/twaalgos/sccfilter.hh>
 %include <spot/twaalgos/stats.hh>
@@ -778,6 +782,14 @@ def state_is_accepting(self, src) -> "bool":
       throw std::runtime_error
         ("universal destinations should be explored with univ_dest()");
   }
+ }
+
+%extend spot::scc_info {
+  swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
+   {
+      return swig::make_forward_iterator(self->begin(), self->begin(),
+                                         self->end(), *PYTHON_SELF);
+   }
 }
 
 %extend spot::acc_cond::acc_code {
