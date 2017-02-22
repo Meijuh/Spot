@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Laboratoire de Recherche et Développement
+# Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -99,13 +99,13 @@ cat >expected <<EOF
 HOA: v1.1
 name: "Fa & Fb"
 States: 4
-Start: 3
+Start: 2
 AP: 2 "a" "b"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
 properties: deterministic stutter-invariant terminal
-spot.highlight.edges: 1 3 2 3 4 2 7 3 8 2 9 3
+spot.highlight.edges: 1 3 2 3 5 3 6 3 7 2 8 2
 --BODY--
 State: 0 {0}
 [t] 0
@@ -113,13 +113,13 @@ State: 1
 [1] 0
 [!1] 1
 State: 2
-[0] 0
-[!0] 2
-State: 3
 [0&1] 0
 [0&!1] 1
-[!0&1] 2
-[!0&!1] 3
+[!0&!1] 2
+[!0&1] 3
+State: 3
+[0] 0
+[!0] 3
 --END--
 EOF
 diff expected out

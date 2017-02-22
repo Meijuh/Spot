@@ -51,21 +51,19 @@ namespace spot
 {
   // This is called hash_set for historical reason, but we need the
   // order inside hash_set to be deterministic.
-  typedef std::set<const state*, state_ptr_less_than> hash_set;
-  typedef state_map<unsigned> hash_map;
+  typedef std::set<unsigned> hash_set;
 
   namespace
   {
     static std::ostream&
     dump_hash_set(const hash_set* hs,
-                  const const_twa_ptr& aut,
                   std::ostream& out)
     {
       out << '{';
       const char* sep = "";
-      for (hash_set::const_iterator i = hs->begin(); i != hs->end(); ++i)
+      for (auto i: *hs)
         {
-          out << sep << aut->format_state(*i);
+          out << sep << i;
           sep = ", ";
         }
       out << '}';
@@ -73,47 +71,35 @@ namespace spot
     }
 
     static std::string
-    format_hash_set(const hash_set* hs, const_twa_ptr aut)
+    format_hash_set(const hash_set* hs)
     {
       std::ostringstream s;
-      dump_hash_set(hs, aut, s);
+      dump_hash_set(hs, s);
       return s.str();
     }
 
     // Find all states of an automaton.
     static void
-    build_state_set(const const_twa_ptr& a, hash_set* seen)
+    build_state_set(const const_twa_graph_ptr& a, hash_set* seen)
     {
-      std::queue<const state*> tovisit;
-      // Perform breadth-first traversal.
-      const state* init = a->get_init_state();
-      tovisit.push(init);
+      std::stack<unsigned> todo;
+      unsigned init = a->get_init_state_number();
+      todo.push(init);
       seen->insert(init);
-      while (!tovisit.empty())
+      while (!todo.empty())
         {
-          const state* src = tovisit.front();
-          tovisit.pop();
-
-          for (auto sit: a->succ(src))
-            {
-              const state* dst = sit->dst();
-              // Is it a new state ?
-              if (seen->find(dst) == seen->end())
-                {
-                  // Register the successor for later processing.
-                  tovisit.push(dst);
-                  seen->insert(dst);
-                }
-              else
-                dst->destroy();
-            }
+          unsigned s = todo.top();
+          todo.pop();
+          for (auto& e: a->out(s))
+            if (seen->insert(e.dst).second)
+              todo.push(e.dst);
         }
     }
 
     // From the base automaton and the list of sets, build the minimal
     // resulting automaton
     static twa_graph_ptr
-    build_result(const const_twa_ptr& a,
+    build_result(const const_twa_graph_ptr& a,
                  std::list<hash_set*>& sets,
                  hash_set* final)
     {
@@ -122,59 +108,46 @@ namespace spot
       res->copy_ap_of(a);
       res->prop_state_acc(true);
 
-      // For each set, create a state in the resulting automaton.
-      // For a state s, state_num[s] is the number of the state in the minimal
-      // automaton.
-      hash_map state_num;
-      std::list<hash_set*>::iterator sit;
-      for (sit = sets.begin(); sit != sets.end(); ++sit)
-        {
-          hash_set::iterator hit;
-          hash_set* h = *sit;
-          unsigned num = res->new_state();
-          for (hit = h->begin(); hit != h->end(); ++hit)
-            state_num[*hit] = num;
-        }
-
-      // For each transition in the initial automaton, add the corresponding
-      // transition in res.
+      // For each set, create a state in the output automaton.  For an
+      // input state s, state_num[s] is the corresponding the state in
+      // the output automaton.
+      std::vector<unsigned> state_num(a->num_states(), -1U);
+      {
+        unsigned num = res->new_states(sets.size());
+        for (hash_set* h: sets)
+          {
+            for (unsigned s: *h)
+              state_num[s] = num;
+            ++num;
+          }
+      }
 
       if (!final->empty())
         res->set_buchi();
 
-      for (sit = sets.begin(); sit != sets.end(); ++sit)
+      // For each transition in the initial automaton, add the
+      // corresponding transition in res.
+      for (hash_set* h: sets)
         {
-          hash_set* h = *sit;
-
           // Pick one state.
-          const state* src = *h->begin();
+          unsigned src = *h->begin();
           unsigned src_num = state_num[src];
           bool accepting = (final->find(src) != final->end());
 
           // Connect it to all destinations.
-          for (auto succit: a->succ(src))
+          for (auto& e: a->out(src))
             {
-              const state* dst = succit->dst();
-              hash_map::const_iterator i = state_num.find(dst);
-              dst->destroy();
-              if (i == state_num.end()) // Ignore useless destinations.
+              unsigned dn = state_num[e.dst];
+              if ((int)dn < 0)  // Ignore useless destinations.
                 continue;
-              res->new_acc_edge(src_num, i->second,
-                                succit->cond(), accepting);
+              res->new_acc_edge(src_num, dn, e.cond, accepting);
             }
         }
       res->merge_edges();
       if (res->num_states() > 0)
-        {
-          const state* init_state = a->get_init_state();
-          unsigned init_num = state_num[init_state];
-          init_state->destroy();
-          res->set_init_state(init_num);
-        }
+        res->set_init_state(state_num[a->get_init_state_number()]);
       else
-        {
-          res->set_init_state(res->new_state());
-        }
+        res->set_init_state(res->new_state());
       return res;
     }
 
@@ -275,7 +248,7 @@ namespace spot
       // The list of equivalent states.
       partition_t done;
 
-      hash_map state_set_map;
+      std::vector<unsigned> state_set_map(det_a->num_states(), -1U);
 
       // Size of det_a
       unsigned size = final->size() + non_final->size();
@@ -300,9 +273,8 @@ namespace spot
             cur_run.emplace_back(final);
           else
             done.emplace_back(final);
-          for (hash_set::const_iterator i = final->begin();
-               i != final->end(); ++i)
-            state_set_map[*i] = set_num;
+          for (auto i: *final)
+            state_set_map[i] = set_num;
 
           final_copy = new hash_set(*final);
         }
@@ -321,9 +293,8 @@ namespace spot
             cur_run.emplace_back(non_final);
           else
             done.emplace_back(non_final);
-          for (hash_set::const_iterator i = non_final->begin();
-               i != non_final->end(); ++i)
-            state_set_map[*i] = num;
+          for (auto i: *non_final)
+            state_set_map[i] = num;
         }
       else
         {
@@ -345,21 +316,17 @@ namespace spot
               hash_set* cur = cur_run.front();
               cur_run.pop_front();
 
-              trace << "processing " << format_hash_set(cur, det_a)
+              trace << "processing " << format_hash_set(cur)
                     << std::endl;
 
-              hash_set::iterator hi;
               bdd_states_map bdd_map;
-              for (hi = cur->begin(); hi != cur->end(); ++hi)
+              for (unsigned src: *cur)
                 {
-                  const state* src = *hi;
                   bdd f = bddfalse;
-                  for (auto si: det_a->succ(src))
+                  for (auto si: det_a->out(src))
                     {
-                      const state* dst = si->dst();
-                      hash_map::const_iterator i = state_set_map.find(dst);
-                      dst->destroy();
-                      if (i == state_set_map.end())
+                      unsigned i = state_set_map[si.dst];
+                      if ((int)i < 0)
                         // The destination state is not in our
                         // partition.  This can happen if the initial
                         // FINAL and NON_FINAL supplied to the algorithm
@@ -367,7 +334,7 @@ namespace spot
                         // want to ignore some useless states).  Simply
                         // ignore these states here.
                         continue;
-                      f |= (bdd_ithvar(i->second) & si->cond());
+                      f |= (bdd_ithvar(i) & si.cond);
                     }
 
                   // Have we already seen this formula ?
@@ -386,11 +353,11 @@ namespace spot
                     }
                 }
 
-              bdd_states_map::iterator bsi = bdd_map.begin();
+              auto bsi = bdd_map.begin();
               if (bdd_map.size() == 1)
                 {
                   // The set was not split.
-                  trace << "set " << format_hash_set(bsi->second, det_a)
+                  trace << "set " << format_hash_set(bsi->second)
                         << " was not split" << std::endl;
                   next_run.emplace_back(bsi->second);
                 }
@@ -417,19 +384,18 @@ namespace spot
                       num = *free_var.begin();
                       free_var.erase(free_var.begin());
                       used_var[num] = set->size();
-                      for (hash_set::iterator hit = set->begin();
-                           hit != set->end(); ++hit)
-                        state_set_map[*hit] = num;
-                      // Trivial sets can't be splitted any further.
+                      for (unsigned s: *set)
+                        state_set_map[s] = num;
+                      // Trivial sets can't be split any further.
                       if (set->size() == 1)
                         {
-                          trace << "set " << format_hash_set(set, det_a)
+                          trace << "set " << format_hash_set(set)
                                 << " is minimal" << std::endl;
                           done.emplace_back(set);
                         }
                       else
                         {
-                          trace << "set " << format_hash_set(set, det_a)
+                          trace << "set " << format_hash_set(set)
                                 << " should be processed further" << std::endl;
                           next_run.emplace_back(set);
                         }
@@ -448,8 +414,8 @@ namespace spot
 
 #ifdef TRACE
       trace << "Final partition: ";
-      for (partition_t::const_iterator i = done.begin(); i != done.end(); ++i)
-        trace << format_hash_set(*i, det_a) << ' ';
+      for (hash_set* hs: done)
+        trace << format_hash_set(hs) << ' ';
       trace << std::endl;
 #endif
 
@@ -458,15 +424,9 @@ namespace spot
 
       // Free all the allocated memory.
       delete final_copy;
-      hash_map::iterator hit;
-      for (hit = state_set_map.begin(); hit != state_set_map.end();)
-        {
-          hash_map::iterator old = hit++;
-          old->first->destroy();
-        }
-      std::list<hash_set*>::iterator it;
-      for (it = done.begin(); it != done.end(); ++it)
-        delete *it;
+
+      for (hash_set* hs: done)
+        delete hs;
 
       return res;
     }
@@ -588,8 +548,8 @@ namespace spot
           if (!is_useless)
             {
               hash_set* dest_set = (d[m] & 1) ? non_final : final;
-              for (auto s: sm.states_of(m))
-                dest_set->insert(det_a->state_from_number(s));
+              auto& con = sm.states_of(m);
+              dest_set->insert(con.begin(), con.end());
             }
         }
     }
