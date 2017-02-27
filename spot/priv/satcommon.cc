@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2013-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,7 +20,7 @@
 
 #include <fstream>
 #include <set>
-#include <assert.h>
+#include <cassert>
 #include <spot/misc/escape.hh>
 #include <spot/priv/satcommon.hh>
 #include <spot/twa/bddprint.hh>
