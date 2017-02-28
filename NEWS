@@ -11,6 +11,9 @@ New in spot 2.3.1.dev (not yet released)
   - The tests using LTSmin's patched version of divine would fail
     if the current (non-patched) version of divine was installed.
 
+  - Because of a typo, the output of --stats='...%P...' was correct
+    only if %p was used as well.
+
 New in spot 2.3.1 (2017-02-20)
 
   Tools:
