@@ -6,6 +6,11 @@ New in spot 2.3.1.dev (not yet released)
     can be output using --stats=%x (output automaton) or --stats=%X
     (input automaton).
 
+  Bugs fixed:
+
+  - The tests using LTSmin's patched version of divine would fail
+    if the current (non-patched) version of divine was installed.
+
 New in spot 2.3.1 (2017-02-20)
 
   Tools:
