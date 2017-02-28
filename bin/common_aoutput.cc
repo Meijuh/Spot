@@ -453,7 +453,7 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
           haut_deterministic_ = is_deterministic(haut->aut);
         }
 
-      if (has('p'))
+      if (has('P'))
         haut_complete_ = is_complete(haut->aut);
 
       if (has('G'))

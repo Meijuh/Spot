@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Laboratoire de Recherche et Développement de
+# Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement de
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -51,11 +51,19 @@ for i in 1 2 3 4 5 6; do
   cmp ap-$i.ltl ap-$i.ltl2 || exit 1
 done
 
-out=`ltl2tgba -f 'GFa' | autfilt --stats='%W,%w' --complement`
+ltl2tgba GFa > GFa
+out=`<GFa autfilt --stats='%W,%w' --complement`
 test "$out" = "cycle{a},cycle{!a}"
-test "0,1,0,1" = "`ltl2tgba FGa | autfilt -D --stats='%D,%d,%P,%p'`"
-test "0,0,0,1" = "`ltl2tgba FGa | autfilt -C --stats='%D,%d,%P,%p'`"
-test "1,0" = "`ltl2tgba FGa | autfilt -D --stats='%N,%n'`"
+ltl2tgba FGa > FGa
+test "0,1,0,1" = "`<FGa autfilt -D --stats='%D,%d,%P,%p'`"
+test "0,0,0,1" = "`<FGa autfilt -C --stats='%D,%d,%P,%p'`"
+# We had some issues in the pase where %P was set only if %p was used
+# as well.  So we make separate tests for this.
+test "0,0" = "`<FGa autfilt -C --stats='%D,%P'`"
+test "1,1" = "`<GFa autfilt -C --stats='%D,%P'`"
+test "0,1" = "`<FGa autfilt -C --stats='%d,%p'`"
+test "1,1" = "`<GFa autfilt -C --stats='%d,%p'`"
+test "1,0" = "`<FGa autfilt -D --stats='%N,%n'`"
 
 test "4" = "`ltl2tgba '(Ga -> Gb)W c' --stats=%c`"
 test "4,5" = "`ltl2tgba '(Ga -> Gb)W c' | autfilt -C --stats=%C,%c`"
