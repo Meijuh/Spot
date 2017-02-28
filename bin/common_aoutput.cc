@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -193,6 +193,8 @@ static const argp_option io_options[] =
       "wall-clock time elapsed in seconds (excluding parsing)", 0 },
     { "%W, %w", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the automaton", 0 },
+    { "%X, %x", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of atomic propositions declared in the automaton", 0 },
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     { "%<", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -228,6 +230,8 @@ static const argp_option o_options[] =
       "number of transitions", 0 },
     { "%a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of acceptance sets", 0 },
+    { "%b", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of acceptance sets", 0 },
     { "%g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "acceptance condition (in HOA syntax)", 0 },
     { "%c, %[LETTERS]c", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -250,6 +254,8 @@ static const argp_option o_options[] =
       "wall-clock time elapsed in seconds (excluding parsing)", 0 },
     { "%w", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the output automaton", 0 },
+    { "%x", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of atomic propositions declared in the automaton", 0 },
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
@@ -361,6 +367,7 @@ hoa_stat_printer::hoa_stat_printer(std::ostream& os, const char* format,
       declare('S', &haut_states_);
       declare('T', &haut_trans_);
       declare('W', &haut_word_);
+      declare('X', &haut_ap_size_);
     }
   declare('<', &csv_prefix_);
   declare('>', &csv_suffix_);
@@ -372,6 +379,7 @@ hoa_stat_printer::hoa_stat_printer(std::ostream& os, const char* format,
   declare('h', &output_aut_);
   declare('m', &aut_name_);
   declare('w', &aut_word_);
+  declare('x', &aut_ap_size_);
 }
 
 std::ostream&
@@ -467,6 +475,8 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
               haut_word_.val().clear();
             }
         }
+      if (has('X'))
+        haut_ap_size_ = haut->aut->ap().size();
     }
 
   if (has('m'))
@@ -490,6 +500,8 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
           aut_word_.val().clear();
         }
     }
+  if (has('x'))
+    aut_ap_size_ = aut->ap().size();
 
   auto& res = this->spot::stat_printer::print(aut, f, run_time);
   // Make sure we do not store the automaton until the next one is
