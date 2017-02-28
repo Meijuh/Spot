@@ -1,6 +1,6 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
+# Copyright (C) 2015-2017 Laboratoire de Recherche et Développement de
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -47,6 +47,7 @@ EOF
 
 cat >expected <<EOF
 HOA: v1
+name: "3->1"
 States: 4
 Start: 0
 AP: 1 "c"
@@ -68,7 +69,7 @@ State: 3
 --END--
 EOF
 
-run 0 autfilt -H --remove-ap=a,b automaton >out
+run 0 autfilt -H --remove-ap=a,b --name='%X->%x' automaton >out
 cat out
 diff out expected
 
