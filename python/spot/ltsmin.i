@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2016 Laboratoire de Recherche et Développement de
+// Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -120,8 +120,13 @@ def require(*tools):
             if shutil.which("divine") == None:
                 print("divine not available", file=sys.stderr)
                 sys.exit(77)
-            out = subprocess.check_output(['divine', 'compile', '--help'],
-                                          stderr=subprocess.STDOUT)
+            try:
+                out = subprocess.check_output(['divine', 'compile', '--help'],
+                                              stderr=subprocess.STDOUT)
+            except (subprocess.CalledProcessError):
+                print("divine does not understand 'compile --help'",
+                       file=sys.stderr)
+                sys.exit(77)
             if b'LTSmin' not in out:
                 print("divine available but no support for LTSmin",
                        file=sys.stderr)
