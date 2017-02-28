@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009-2011, 2013-2016 Laboratoire de Recherche et
+// Copyright (C) 2009-2011, 2013-2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -43,20 +43,6 @@ namespace spot
 {
   namespace
   {
-
-    static unsigned
-    number_of_variables(bdd vin)
-    {
-      unsigned nap = 0;
-      int v = vin.id();
-      while (v != 1)
-        {
-          v = bdd_high(v);
-          ++nap;
-        }
-      return nap;
-    }
-
     static power_map::power_state
     bv_to_ps(const bitvect* in)
     {
@@ -88,21 +74,16 @@ namespace spot
   twa_graph_ptr
   tgba_powerset(const const_twa_graph_ptr& aut, power_map& pm, bool merge)
   {
-    bdd allap = bddtrue;
     {
       typedef std::set<bdd, bdd_less_than> sup_map;
       sup_map sup;
       // Record occurrences of all guards
       for (auto& t: aut->edges())
         sup.emplace(t.cond);
-      for (auto& i: sup)
-        allap &= bdd_support(i);
     }
 
-    unsigned nap = number_of_variables(allap);
-
-    unsigned init_num = aut->get_init_state_number();
     unsigned ns = aut->num_states();
+    unsigned nap = aut->ap().size();
 
     if ((-1UL / ns) >> nap == 0)
       throw std::runtime_error("too many atomic propositions (or states)");
@@ -113,6 +94,7 @@ namespace spot
     num2bdd.reserve(1UL << nap);
     std::map<bdd, unsigned, bdd_less_than> bdd2num;
     bdd all = bddtrue;
+    bdd allap = aut->ap_vars();
     while (all != bddfalse)
       {
         bdd one = bdd_satoneset(all, allap, bddfalse);
@@ -150,12 +132,13 @@ namespace spot
     typedef std::unordered_map<bitvect*, int, bv_hash, bv_equal> power_set;
     power_set seen;
 
-    std::vector<const bitvect*>toclean;
+    std::vector<const bitvect*> toclean;
 
     auto res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
 
     {
+      unsigned init_num = aut->get_init_state_number();
       auto bvi = make_bitvect(ns);
       bvi->set(init_num);
       power_state ps{init_num};
