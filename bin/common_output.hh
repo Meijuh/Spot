@@ -36,9 +36,18 @@ extern output_format_t output_format;
 extern bool full_parenth;
 extern bool escape_csv;
 
+#define COMMON_X_OUTPUT_SPECS(where)                                    \
+      "number of atomic propositions " #where "; "      \
+      " add LETTERS to list atomic propositions with "                  \
+      "(n) no quoting, "                                                \
+      "(s) occasional double-quotes with C-style escape, "              \
+      "(d) double-quotes with C-style escape, "                         \
+      "(c) double-quotes with CSV-style escape, "                       \
+      "(p) between parentheses, "                                       \
+      "any extra non-alphanumeric character will be used to "           \
+      "separate propositions"
+
 #define COMMON_LTL_OUTPUT_SPECS                                         \
-    { "%a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                   \
-        "number of atomic propositions used in the formula", 0 },       \
     { "%s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                   \
         "the length (or size) of the formula", 0 },                     \
     { "%b", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,                   \
@@ -47,7 +56,10 @@ extern bool escape_csv;
     { "%h, %[vw]h", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,           \
         "the class of the formula is the Manna-Pnueli hierarchy "       \
         "([v] replaces abbreviations by class names, [w] for all "      \
-        "compatible classes)", 0 }
+        "compatible classes)", 0 },                                     \
+    { "%x, %[LETTERS]X, %[LETTERS]x", 0, nullptr,                       \
+        OPTION_DOC | OPTION_NO_USAGE,                                   \
+        COMMON_X_OUTPUT_SPECS(used in the formula), 0 }
 
 extern const struct argp output_argp;
 

@@ -23,7 +23,7 @@
 
 set -e
 
-genltl --dac=1..10 --format='%s,%b,%a,%f' > output
+genltl --dac=1..10 --format='%s,%b,%x,%f' > output
 cat >expected <<EOF
 3,2,1,G!p0
 7,6,2,Fp0 -> (!p1 U p0)
@@ -38,7 +38,7 @@ cat >expected <<EOF
 EOF
 diff output expected
 
-genltl --dac | ltlfilt --output='ap-%a.ltl'
+genltl --dac | ltlfilt --output='ap-%x.ltl'
 test 4 = `wc -l<ap-1.ltl`
 test 10 = `wc -l<ap-2.ltl`
 test 16 = `wc -l<ap-3.ltl`
@@ -46,7 +46,7 @@ test 13 = `wc -l<ap-4.ltl`
 test 10 = `wc -l<ap-5.ltl`
 test 2 = `wc -l<ap-6.ltl`
 
-genltl --dac --output='ap-%a.ltl2'
+genltl --dac --output='ap-%x.ltl2'
 for i in 1 2 3 4 5 6; do
   cmp ap-$i.ltl ap-$i.ltl2 || exit 1
 done
@@ -56,7 +56,7 @@ out=`<GFa autfilt --stats='%W,%w' --complement`
 test "$out" = "cycle{a},cycle{!a}"
 ltl2tgba FGa > FGa
 test "0,1,0,1" = "`<FGa autfilt -D --stats='%D,%d,%P,%p'`"
-test "0,0,0,1" = "`<FGa autfilt -C --stats='%D,%d,%P,%p'`"
+test '0,0,0,1,"a"' = "`<FGa autfilt -C --stats='%D,%d,%P,%p,%[d]x'`"
 # We had some issues in the pase where %P was set only if %p was used
 # as well.  So we make separate tests for this.
 test "0,0" = "`<FGa autfilt -C --stats='%D,%P'`"

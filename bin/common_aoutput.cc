@@ -20,12 +20,15 @@
 #include "common_sys.hh"
 #include "error.h"
 #include "argmatch.h"
+#include "common_output.hh"
 #include "common_aoutput.hh"
 #include "common_post.hh"
 #include "common_cout.hh"
 
 #include <unistd.h>
 #include <ctime>
+#include <ctype.h>
+#include <spot/misc/escape.hh>
 #include <spot/twa/bddprint.hh>
 #include <spot/twaalgos/dot.hh>
 #include <spot/twaalgos/hoa.hh>
@@ -193,8 +196,9 @@ static const argp_option io_options[] =
       "wall-clock time elapsed in seconds (excluding parsing)", 0 },
     { "%W, %w", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the automaton", 0 },
-    { "%X, %x", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of atomic propositions declared in the automaton", 0 },
+    { "%X, %x, %[LETTERS]X, %[LETTERS]x", 0, nullptr,
+      OPTION_DOC | OPTION_NO_USAGE,
+      COMMON_X_OUTPUT_SPECS(declared in the automaton), 0 },
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     { "%<", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -254,8 +258,9 @@ static const argp_option o_options[] =
       "wall-clock time elapsed in seconds (excluding parsing)", 0 },
     { "%w", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the output automaton", 0 },
-    { "%x", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of atomic propositions declared in the automaton", 0 },
+    { "%x, %[LETTERS]x", 0, nullptr,
+      OPTION_DOC | OPTION_NO_USAGE,
+      COMMON_X_OUTPUT_SPECS(declared in the automaton), 0 },
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
@@ -367,7 +372,7 @@ hoa_stat_printer::hoa_stat_printer(std::ostream& os, const char* format,
       declare('S', &haut_states_);
       declare('T', &haut_trans_);
       declare('W', &haut_word_);
-      declare('X', &haut_ap_size_);
+      declare('X', &haut_ap_);
     }
   declare('<', &csv_prefix_);
   declare('>', &csv_suffix_);
@@ -379,7 +384,7 @@ hoa_stat_printer::hoa_stat_printer(std::ostream& os, const char* format,
   declare('h', &output_aut_);
   declare('m', &aut_name_);
   declare('w', &aut_word_);
-  declare('x', &aut_ap_size_);
+  declare('x', &aut_ap_);
 }
 
 std::ostream&
@@ -476,7 +481,7 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
             }
         }
       if (has('X'))
-        haut_ap_size_ = haut->aut->ap().size();
+        haut_ap_ = haut->aut->ap();
     }
 
   if (has('m'))
@@ -501,7 +506,7 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
         }
     }
   if (has('x'))
-    aut_ap_size_ = aut->ap().size();
+    aut_ap_ = aut->ap();
 
   auto& res = this->spot::stat_printer::print(aut, f, run_time);
   // Make sure we do not store the automaton until the next one is
@@ -625,6 +630,19 @@ void printable_automaton::print(std::ostream& os, const char* pos) const
   print_hoa(os, val_, options.c_str());
 }
 
+
+namespace
+{
+  static void percent_error(const char* beg, const char* pos)
+  {
+    std::ostringstream tmp;
+    const char* end = std::strchr(pos, ']');
+    tmp << "unknown option '" << *pos << "' in '%"
+        << std::string(beg, end + 2) << '\'';
+    throw std::runtime_error(tmp.str());
+  }
+}
+
 void printable_timer::print(std::ostream& os, const char* pos) const
 {
   double res = 0;
@@ -652,20 +670,9 @@ void printable_timer::print(std::ostream& os, const char* pos) const
   bool children = false;
 
   const char* beg = pos;
-  auto error = [&](std::string str)
-  {
-    std::ostringstream tmp;
-    const char* end = std::strchr(pos, ']');
-    tmp << "unknown option '" << str << "' in '%" << std::string(beg, end + 2)
-      << '\'';
-    throw std::runtime_error(tmp.str());
-  };
-
   do
-  {
-    ++pos;
-    switch (*pos)
-    {
+    switch (*++pos)
+      {
       case 'u':
         user = true;
         break;
@@ -685,9 +692,9 @@ void printable_timer::print(std::ostream& os, const char* pos) const
       case ']':
         break;
       default:
-        error(std::string(pos, pos + 1));
-    }
-  } while (*pos != ']');
+        percent_error(beg, pos);
+      }
+  while (*pos != ']');
 
   if (!parent && !children)
     parent = children = true;
@@ -696,4 +703,69 @@ void printable_timer::print(std::ostream& os, const char* pos) const
 
   res = val_.get_uscp(user, system, children, parent);
   os << res / clocks_per_sec;
+}
+
+void printable_varset::print(std::ostream& os, const char* pos) const
+{
+  if (*pos != '[')
+    {
+      os << val_.size();
+      return;
+    }
+  char qstyle = 's';            // quote style
+  bool parent = false;
+  std::string sep;
+
+  const char* beg = pos;
+  do
+    switch (int c = *++pos)
+      {
+      case 'p':
+        parent = true;
+        break;
+      case 'c':
+      case 'd':
+      case 's':
+      case 'n':
+        qstyle = c;
+        break;
+      case ']':
+        break;
+      default:
+        if (isalnum(c))
+          percent_error(beg, pos);
+        sep += c;
+      }
+  while (*pos != ']');
+
+  if (sep.empty())
+    sep = " ";
+
+  bool first = true;
+  for (auto f: val_)
+    {
+      if (first)
+        first = false;
+      else
+        os << sep;
+      if (parent)
+        os << '(';
+      switch (qstyle)
+        {
+        case 's':
+          os << f;
+          break;
+        case 'n':
+          os << f.ap_name();
+          break;
+        case 'd':
+          spot::escape_str(os << '"', f.ap_name()) << '"';
+          break;
+        case 'c':
+          spot::escape_rfc4180(os << '"', f.ap_name()) << '"';
+          break;
+        }
+      if (parent)
+        os << ')';
+    }
 }
