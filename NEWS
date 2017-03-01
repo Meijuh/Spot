@@ -16,6 +16,9 @@ New in spot 2.3.1.dev (not yet released)
   - Because of a typo, the output of --stats='...%P...' was correct
     only if %p was used as well.
 
+  - genltl was never meant to have (randomly attributed) short
+    options for --postive and --negative.
+
   Deprecation notices:
 
   - Using --format=%a to print the number of atomic propositions in

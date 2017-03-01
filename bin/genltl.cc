@@ -167,7 +167,8 @@ const char argp_program_doc[] ="\
 Generate temporal logic formulas from predefined patterns.";
 
 enum {
-  OPT_AND_F = 1,
+  FIRST_CLASS = 256,
+  OPT_AND_F = FIRST_CLASS,
   OPT_AND_FG,
   OPT_AND_GF,
   OPT_CCJ_ALPHA,
@@ -203,7 +204,7 @@ enum {
   OPT_NEGATIVE,
 };
 
-const char* const class_name[LAST_CLASS] =
+const char* const class_name[LAST_CLASS - FIRST_CLASS] =
   {
     "and-f",
     "and-fg",
@@ -1445,12 +1446,12 @@ output_pattern(int pattern, int n)
 
   if (opt_positive || !opt_negative)
     {
-      output_formula_checked(f, class_name[pattern - 1], n);
+      output_formula_checked(f, class_name[pattern - FIRST_CLASS], n);
     }
   if (opt_negative)
     {
       std::string tmp = "!";
-      tmp += class_name[pattern - 1];
+      tmp += class_name[pattern - FIRST_CLASS];
       output_formula_checked(spot::formula::Not(f), tmp.c_str(), n);
     }
 }
