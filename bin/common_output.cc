@@ -19,6 +19,7 @@
 
 #include "common_sys.hh"
 #include "common_output.hh"
+#include "common_aoutput.hh"
 #include <iostream>
 #include <sstream>
 #include <spot/tl/print.hh>
@@ -203,13 +204,14 @@ namespace
     formula_printer(std::ostream& os, const char* format)
       : format_(format)
     {
-      declare('a', &ap_num_);
+      declare('a', &ap_);       // deprecated in 2.3.2
       declare('b', &bool_size_);
       declare('f', &fl_);
       declare('F', &filename_);
       declare('L', &line_);
       declare('s', &size_);
       declare('h', &class_);
+      declare('x', &ap_);
       declare('<', &prefix_);
       declare('>', &suffix_);
       set_output(os);
@@ -225,10 +227,10 @@ namespace
       prefix_ = fl.prefix ? fl.prefix : "";
       suffix_ = fl.suffix ? fl.suffix : "";
       auto f = fl_.val()->f;
-      if (has('a'))
+      if (has('a') || has('x'))
         {
           auto s = spot::atomic_prop_collect(f);
-          ap_num_ = s->size();
+          ap_.set(s->begin(), s->end());
           delete s;
         }
       if (has('b'))
@@ -250,7 +252,7 @@ namespace
     spot::printable_value<int> size_;
     printable_formula_class class_;
     spot::printable_value<int> bool_size_;
-    spot::printable_value<int> ap_num_;
+    printable_varset ap_;
   };
 }
 

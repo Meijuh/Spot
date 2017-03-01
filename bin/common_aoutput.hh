@@ -31,6 +31,7 @@
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/stats.hh>
 #include <spot/twaalgos/word.hh>
+#include <spot/tl/formula.hh>
 
 
 // Format for automaton output
@@ -107,6 +108,38 @@ struct printable_timer final:
   void print(std::ostream& os, const char* pos) const override;
 };
 
+struct printable_varset final: public spot::printable
+{
+protected:
+  std::vector<spot::formula> val_;
+  void sort()
+  {
+    std::sort(val_.begin(), val_.end(),
+              [](spot::formula f, spot::formula g)
+              {
+                return strverscmp(f.ap_name().c_str(), g.ap_name().c_str()) < 0;
+              });
+  }
+public:
+
+  template<class T>
+  void set(T begin, T end)
+  {
+    val_.clear();
+    val_.insert(val_.end(), begin, end);
+    sort();
+  }
+
+  printable_varset& operator=(const std::vector<spot::formula>& val)
+  {
+    val_ = val;
+    sort();
+    return *this;
+  }
+
+  void print(std::ostream& os, const char* pos) const override;
+};
+
 /// \brief prints various statistics about a TGBA
 ///
 /// This object can be configured to display various statistics
@@ -144,8 +177,8 @@ private:
   spot::printable_value<unsigned> haut_edges_;
   spot::printable_value<unsigned> haut_trans_;
   spot::printable_value<unsigned> haut_acc_;
-  spot::printable_value<unsigned> haut_ap_size_;
-  spot::printable_value<unsigned> aut_ap_size_;
+  printable_varset haut_ap_;
+  printable_varset aut_ap_;
   spot::printable_scc_info haut_scc_;
   spot::printable_value<unsigned> haut_deterministic_;
   spot::printable_value<unsigned> haut_nondetstates_;

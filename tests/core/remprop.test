@@ -75,6 +75,7 @@ diff out expected
 
 cat >expected <<EOF
 HOA: v1
+name: "\"a\", \"b\", \"c\"->(c)"
 States: 3
 Start: 0
 AP: 1 "c"
@@ -90,7 +91,7 @@ State: 2
 --END--
 EOF
 
-run 0 autfilt -H --remove-ap=a=1,b=0 automaton >out
+run 0 autfilt -H --remove-ap=a=1,b=0 --name='%[d, ]X->%[p]x' automaton >out
 cat out
 diff out expected
 
