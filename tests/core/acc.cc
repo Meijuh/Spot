@@ -1,6 +1,6 @@
-// -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-x
+// Copyright (C) 2014, 2015, 2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -63,6 +63,10 @@ int main()
   auto m2 = spot::acc_cond::mark_t({0, 3});
   auto m3 = spot::acc_cond::mark_t({2, 1});
 
+  spot::acc_cond::mark_t m0 = 0U;
+  std::cout << m0.max_set() << ' ' << m0.min_set() << '\n';
+  std::cout << m3.max_set() << ' ' << m3.min_set() << '\n';
+
   check(ac, m1);
   check(ac, m2);
   check(ac, m3);
@@ -92,6 +96,9 @@ int main()
   std::cout << ac.num_sets() << " + "
             << ac2.num_sets() << " = " << ac3.num_sets() << '\n';
   auto m5 = m2 | (m3 << ac.num_sets());
+
+  std::cout << m5.max_set() << ' ' << m5.min_set() << '\n';
+
   check(ac3, m5);
   auto m6 = ac.comp(m2 & m3) | (m3 << ac.num_sets());
   check(ac3, m6);

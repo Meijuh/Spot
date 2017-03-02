@@ -230,10 +230,13 @@ namespace spot
       }
 
       // Return the number of the highest set used plus one.
-      // So if no set is used, this returns 0,
-      // but if the sets {1,3,8} are used, this returns 9.
+      // If no set is used, this returns 0,
+      // If the sets {1,3,8} are used, this returns 9.
       unsigned max_set() const
       {
+#ifdef __GNUC__
+        return (id == 0) ? 0 : (sizeof(unsigned) * 8 - __builtin_clz(id));
+#else
         auto i = id;
         int res = 0;
         while (i)
@@ -242,6 +245,28 @@ namespace spot
             i >>= 1;
           }
         return res;
+#endif
+      }
+
+      // Return the number of the lowest set used plus one.
+      // If no set is used, this returns 0.
+      // If the sets {1,3,8} are used, this returns 2.
+      unsigned min_set() const
+      {
+        if (id == 0)
+          return 0;
+#ifdef __GNUC__
+        return __builtin_ctz(id) + 1;
+#else
+        auto i = id;
+        int res = 1;
+        while ((i & 1) == 0)
+          {
+            ++res;
+            i >>= 1;
+          }
+        return res;
+#endif
       }
 
       // Return the lowest acceptance mark
