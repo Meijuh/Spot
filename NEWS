@@ -30,6 +30,12 @@ New in spot 2.3.1.dev (not yet released)
     anymore and should be replaced by the newly-introduced --format=%x
     for consistency with tools producing automata.
 
+  Backward-incompatible changes:
+
+  - spot::acc_cond::mark_t::operator bool() has been marked as
+    explicit.  The implicit converion to bool (and, via bool, to int)
+    was a source of bugs.
+
 
 New in spot 2.3.1 (2017-02-20)
 

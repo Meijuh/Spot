@@ -260,7 +260,7 @@ namespace spot
               i -= f;
               for (auto s: states)
                 {
-                  bool acc = aut->state_acc_sets(s) & i;
+                  bool acc{aut->state_acc_sets(s) & i};
                   for (auto& t: aut->out(s))
                     res->new_acc_edge(s, t.dst, t.cond, acc);
                 }
@@ -282,7 +282,7 @@ namespace spot
                       acc_cond::mark_t acc = aut->state_acc_sets(s);
                       if (acc.has(r))
                         continue;
-                      bool jacc = acc & inf_alone;
+                      bool jacc{acc & inf_alone};
                       bool cacc = fin_alone.has(r) || acc.has(r + 1);
                       for (auto& t: aut->out(s))
                         {

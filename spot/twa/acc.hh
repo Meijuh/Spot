@@ -98,7 +98,7 @@ namespace spot
         return id >= o.id;
       }
 
-      operator bool() const
+      explicit operator bool() const
       {
         return id != 0;
       }
