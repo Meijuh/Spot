@@ -37,21 +37,22 @@ namespace spot
 
     unsigned ns = old->num_states();
     acc_cond::mark_t all = old->acc().all_sets();
+    // Marks that are common to all ingoing or outgoing transitions.
     std::vector<acc_cond::mark_t> common_in(ns, all);
     std::vector<acc_cond::mark_t> common_out(ns, all);
+    // Marks that label one incoming transition from the same SCC.
     std::vector<acc_cond::mark_t> one_in(ns, 0U);
     for (auto& e: old->edges())
       if (si.scc_of(e.src) == si.scc_of(e.dst))
         {
           common_in[e.dst] &= e.acc;
           common_out[e.src] &= e.acc;
-          one_in[e.dst] = e.acc;
         }
     for (unsigned s = 0; s < ns; ++s)
       common_out[s] |= common_in[s];
     for (auto& e: old->edges())
       if (si.scc_of(e.src) == si.scc_of(e.dst))
-        one_in[e.dst] = (e.acc - common_out[e.src]);
+        one_in[e.dst] = e.acc - common_out[e.src];
 
     auto res = make_twa_graph(old->get_dict());
     res->copy_ap_of(old);
@@ -83,7 +84,7 @@ namespace spot
     if (!si.is_rejecting_scc(si.scc_of(old_init)))
       // Use any edge going into the initial state to set the first
       // acceptance mark.
-      init_acc = one_in[old_init] | common_out[init_acc];
+      init_acc = one_in[old_init] | common_out[old_init];
 
     res->set_init_state(new_state(old_init, init_acc));
     while (!todo.empty())
