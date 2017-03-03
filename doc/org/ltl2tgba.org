@@ -870,6 +870,9 @@ more restricted labels.
 files are on a separate page]].
 
 * Building Monitors
+   :PROPERTIES:
+   :CUSTOM_ID: monitors
+   :END:
 
 In addition to TGBA and BA, =ltl2tgba= can output /monitor/ using the
 =-M= option.  These are finite automata that accept all prefixes of a
@@ -933,6 +936,8 @@ match the formula, monitor cannot be used to check for eventualities
 such as =F(a)=: indeed, any finite execution can be extended to match
 =F(a)=.
 
+For more discussion and examples about monitor, see also our [[file:tut11.org][separate
+page showing how to build them in Python and C++]].
 
 Because Monitors accept every recognized run (in other words, they
 only reject words that are not recognized), it makes little sense to

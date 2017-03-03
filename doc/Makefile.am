@@ -105,6 +105,7 @@ ORG_FILES = \
   org/tut03.org \
   org/tut04.org \
   org/tut10.org \
+  org/tut11.org \
   org/tut20.org \
   org/tut21.org \
   org/tut22.org \
