@@ -19,6 +19,10 @@ New in spot 2.3.1.dev (not yet released)
   - genltl was never meant to have (randomly attributed) short
     options for --postive and --negative.
 
+  - a typo in the code for transformating transition-based acceptance
+    to state-based acceptance could cause a superfluous initial state
+    to be output in some cases (the result was still correct).
+
   Deprecation notices:
 
   - Using --format=%a to print the number of atomic propositions in
