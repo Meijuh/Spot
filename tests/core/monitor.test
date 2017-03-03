@@ -44,7 +44,7 @@ digraph G {
 }
 EOF
 
-expect ltl2tgba --monitor a GFa --hoa<<EOF
+expect ltl2tgba --monitor a GFa Ga --hoa<<EOF
 HOA: v1
 name: "a"
 States: 2
@@ -68,10 +68,23 @@ AP: 0
 acc-name: all
 Acceptance: 0 t
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic stutter-invariant
+properties: deterministic stutter-invariant terminal
 --BODY--
 State: 0
 [t] 0
+--END--
+HOA: v1
+name: "Ga"
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+[0] 0
 --END--
 EOF
 
@@ -85,7 +98,7 @@ AP: 1 "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic stutter-invariant inherently-weak
+properties: deterministic stutter-invariant weak
 --BODY--
 State: 0 {0}
 [0] 0

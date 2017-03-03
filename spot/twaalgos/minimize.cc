@@ -490,6 +490,13 @@ namespace spot
     res->prop_deterministic(true);
     res->prop_weak(true);
     res->prop_state_acc(true);
+    // Quickly check if this is a terminal automaton
+    for (auto& e: res->edges())
+      if (e.src == e.dst && e.cond == bddtrue)
+        {
+          res->prop_terminal(true);
+          break;
+        }
     return res;
   }
 
