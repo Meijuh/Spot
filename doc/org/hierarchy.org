@@ -427,6 +427,9 @@ $txt
 
 
 ** Safety
+   :PROPERTIES:
+   :CUSTOM_ID: safety
+   :END:
 
 /Safety/ properties also form a subclass of /obligation/ properties,
 and again there is no code specific to them in the translation.
