@@ -30,6 +30,11 @@ New in spot 2.3.1.dev (not yet released)
 
   - 'ltl2tgba --any -C -M ...' would not complete automata.
 
+  - while not incorrect, the HOA properties output by 'ltl2tgba -M'
+    could be 'inherently-weak' or 'terminal', while 'ltl2tgba -M -D'
+    would always report 'weak' automata.  Both variants now report the
+    most precise between 'weak' or 'terminal'.
+
   Deprecation notices:
 
   - Using --format=%a to print the number of atomic propositions in

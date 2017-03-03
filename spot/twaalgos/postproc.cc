@@ -234,10 +234,11 @@ namespace spot
 
             // For Small,High we return the smallest between the output of
             // the simulation, and that of the deterministic minimization.
+            // Prefer the deterministic automaton in case of equality.
             if (PREF_ == Small && level_ == High && simul_)
               {
                 auto m = minimize_monitor(a);
-                if (m->num_states() < a->num_states())
+                if (m->num_states() <= a->num_states())
                   a = m;
               }
             a->remove_unused_ap();

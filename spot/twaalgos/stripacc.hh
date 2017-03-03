@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012-2014, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -26,7 +26,9 @@ namespace spot
   /// \ingroup twa_misc
   /// \brief Remove all acceptance sets from a twa_graph.
   ///
-  /// This is equivalent to marking all states/transitions as accepting.
+  /// This will also set the acceptance condition to true, and mark
+  /// the automaton as weak.  Doing so obviously makes all recognized
+  /// infinite runs accepting.
   SPOT_API void
   strip_acceptance_here(twa_graph_ptr a);
 }
