@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2014-2017 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -44,7 +44,7 @@ digraph G {
 }
 EOF
 
-expect ltl2tgba --monitor a --hoa<<EOF
+expect ltl2tgba --monitor a GFa --hoa<<EOF
 HOA: v1
 name: "a"
 States: 2
@@ -60,9 +60,6 @@ State: 0
 State: 1
 [0] 0
 --END--
-EOF
-
-expect ltl2tgba --monitor GFa --hoa<<EOF
 HOA: v1
 name: "GFa"
 States: 1
@@ -75,5 +72,25 @@ properties: deterministic stutter-invariant
 --BODY--
 State: 0
 [t] 0
+--END--
+EOF
+
+# Completing a monitor can produce a Büchi automaton.
+expect ltl2tgba --any -C -M Ga <<EOF
+HOA: v1
+name: "Ga"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic stutter-invariant inherently-weak
+--BODY--
+State: 0 {0}
+[0] 0
+[!0] 1
+State: 1
+[t] 1
 --END--
 EOF

@@ -921,32 +921,6 @@ $txt
 ltl2tgba -MD '(Xa & Fb) | Gc' -d
 #+END_SRC
 
-#+RESULTS: monitor2
-#+begin_example
-digraph G {
-  rankdir=LR
-  node [shape="circle"]
-  fontname="Lato"
-  node [fontname="Lato"]
-  edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
-  I [label="", style=invis, width=0]
-  I -> 3
-  0 [label=<0>]
-  0 -> 0 [label=<1>]
-  1 [label=<1>]
-  1 -> 0 [label=<a>]
-  2 [label=<2>]
-  2 -> 2 [label=<c>]
-  3 [label=<3>]
-  3 -> 1 [label=<!c>]
-  3 -> 4 [label=<c>]
-  4 [label=<4>]
-  4 -> 0 [label=<a>]
-  4 -> 2 [label=<!a &amp; c>]
-}
-#+end_example
-
 #+BEGIN_SRC dot :file monitor2.png :cmdline -Tpng :var txt=monitor2 :exports results
 $txt
 #+END_SRC
@@ -958,6 +932,29 @@ Because they accept all finite executions that could be extended to
 match the formula, monitor cannot be used to check for eventualities
 such as =F(a)=: indeed, any finite execution can be extended to match
 =F(a)=.
+
+
+Because Monitors accept every recognized run (in other words, they
+only reject words that are not recognized), it makes little sense to
+use option =-C= to request /complete/ monitors.  If uou combine =-C=
+with =-M=, the result will output as a Büchi automaton if (and only
+if) a sink state had to be added.  For instance, here is the
+"complete" version of the previous monitor.
+
+#+NAME: monitor3
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba -C -M -D '(Xa & Fb) | Gc' -d
+#+END_SRC
+
+#+BEGIN_SRC dot :file monitor3.png :cmdline -Tpng :var txt=monitor3 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:monitor3.png]]
+
+
+
 
 #  LocalWords:  ltl tgba num toc PSL Büchi automata SRC GFb invis Acc
 #  LocalWords:  ltlfilt filenames GraphViz vectorial pdf Tpdf dotex
