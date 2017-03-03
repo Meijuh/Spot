@@ -227,20 +227,21 @@ namespace spot
         else
           strip_acceptance_here(a);
 
-        if (PREF_ == Any)
-          return a;
-
-        a = do_simul(a, simul_);
-
-        // For Small,High we return the smallest between the output of
-        // the simulation, and that of the deterministic minimization.
-        if (PREF_ == Small && level_ == High && simul_)
+        if (PREF_ != Any)
           {
-            auto m = minimize_monitor(a);
-            if (m->num_states() < a->num_states())
-              a = m;
+            if (PREF_ != Deterministic)
+              a = do_simul(a, simul_);
+
+            // For Small,High we return the smallest between the output of
+            // the simulation, and that of the deterministic minimization.
+            if (PREF_ == Small && level_ == High && simul_)
+              {
+                auto m = minimize_monitor(a);
+                if (m->num_states() < a->num_states())
+                  a = m;
+              }
+            a->remove_unused_ap();
           }
-        a->remove_unused_ap();
         if (COMP_)
           a = complete(a);
         return a;
