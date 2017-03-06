@@ -41,6 +41,7 @@
 #include "common_hoaread.hh"
 
 #include <spot/twaalgos/product.hh>
+#include <spot/twaalgos/sum.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/stutter.hh>
 #include <spot/twaalgos/isunamb.hh>
@@ -137,6 +138,8 @@ enum {
   OPT_SIMPLIFY_EXCLUSIVE_AP,
   OPT_STATES,
   OPT_STRIPACC,
+  OPT_SUM_OR,
+  OPT_SUM_AND,
   OPT_TERMINAL_SCCS,
   OPT_TRIV_SCCS,
   OPT_USED_AP_N,
@@ -317,6 +320,13 @@ static const argp_option options[] =
     { "remove-dead-states", OPT_REM_DEAD, nullptr, 0,
       "remove states that are unreachable, or that cannot belong to an "
       "infinite path", 0 },
+    { "sum", OPT_SUM_OR, "FILENAME", 0,
+      "build the sum with the automaton in FILENAME "
+      "to sum languages", 0 },
+    { "sum-or", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
+    { "sum-and", OPT_SUM_AND, "FILENAME", 0,
+      "build the sum with the automaton in FILENAME "
+      "to intersect languages", 0 },
     { "separate-sets", OPT_SEP_SETS, nullptr, 0,
       "if both Inf(x) and Fin(x) appear in the acceptance condition, replace "
       "Fin(x) by a new Fin(y) and adjust the automaton", 0 },
@@ -412,6 +422,8 @@ static struct opt_t
   spot::bdd_dict_ptr dict = spot::make_bdd_dict();
   spot::twa_graph_ptr product_and = nullptr;
   spot::twa_graph_ptr product_or = nullptr;
+  spot::twa_graph_ptr sum_and = nullptr;
+  spot::twa_graph_ptr sum_or = nullptr;
   spot::twa_graph_ptr intersect = nullptr;
   spot::twa_graph_ptr included_in = nullptr;
   spot::twa_graph_ptr equivalent_pos = nullptr;
@@ -846,6 +858,26 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_STRIPACC:
       opt_stripacc = true;
       break;
+    case OPT_SUM_OR:
+      {
+        auto a = read_automaton(arg, opt->dict);
+        if (!opt->sum_or)
+          opt->sum_or = std::move(a);
+        else
+          opt->sum_or = spot::sum(std::move(opt->sum_or),
+                                  std::move(a));
+      }
+      break;
+    case OPT_SUM_AND:
+      {
+        auto a = read_automaton(arg, opt->dict);
+        if (!opt->sum_and)
+          opt->sum_and = std::move(a);
+        else
+          opt->sum_and = spot::sum_and(std::move(opt->sum_and),
+                                       std::move(a));
+      }
+      break;
     case OPT_TERMINAL_SCCS:
       opt_terminal_sccs = parse_range(arg, 0, std::numeric_limits<int>::max());
       opt_terminal_sccs_set = true;
@@ -1187,6 +1219,11 @@ namespace
         aut = spot::product(std::move(aut), opt->product_and);
       if (opt->product_or)
         aut = spot::product_or(std::move(aut), opt->product_or);
+
+      if (opt->sum_or)
+        aut = spot::sum(std::move(aut), opt->sum_or);
+      if (opt->sum_and)
+        aut = spot::sum_and(std::move(aut), opt->sum_and);
 
       if (opt_decompose_strength)
         {

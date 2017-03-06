@@ -231,6 +231,7 @@ TESTS_twa = \
   core/explpro2.test \
   core/explpro3.test \
   core/explpro4.test \
+  core/explsum.test \
   core/tripprod.test \
   core/dupexp.test \
   core/exclusive-tgba.test \
@@ -349,6 +350,7 @@ TESTS_python = \
   python/setacc.py \
   python/sccfilter.py \
   python/setxor.py \
+  python/sum.py \
   python/trival.py \
   python/twagraph.py \
   $(TESTS_ipython)

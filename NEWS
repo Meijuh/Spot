@@ -8,6 +8,14 @@ New in spot 2.3.1.dev (not yet released)
     atomic propositions instead of conting them.  Tools that output
     formulas also support --format=%x for this purpose.
 
+  - In autfilt, the options --sum(--sum-or) and --sum-and are
+    implemented.
+
+  Library:
+
+  - spot::sum() and spot::sum_and() implements the union and the
+    intersection of two automatons, respectively.
+
   Python:
 
   - The bdd_to_formula(), and to_generalized_buchi() functions can now
