@@ -35,6 +35,9 @@ New in spot 2.3.1.dev (not yet released)
     would always report 'weak' automata.  Both variants now report the
     most precise between 'weak' or 'terminal'.
 
+  - spot::twa_graph::set_univ_init_state() could not be called with
+    an initializer list.
+
   Deprecation notices:
 
   - Using --format=%a to print the number of atomic propositions in
