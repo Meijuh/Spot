@@ -488,12 +488,12 @@ def out(self, src: 'unsigned int'):
     return $action(self, src)
 %}
 %feature("shadow") spot::twa_graph::state_from_number %{
-def state_from_number(self, s: 'unsigned int') -> "spot::twa_graph_state const *":
+def state_from_number(self, src: 'unsigned int') -> "spot::twa_graph_state const *":
     self.report_univ_dest(src)
     return $action(self, src)
 %}
 %feature("shadow") spot::twa_graph::state_acc_sets %{
-def state_acc_sets(self, s: 'unsigned int') -> "spot::acc_cond::mark_t":
+def state_acc_sets(self, src: 'unsigned int') -> "spot::acc_cond::mark_t":
     self.report_univ_dest(src)
     return $action(self, src)
 %}

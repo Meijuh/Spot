@@ -349,6 +349,7 @@ TESTS_python = \
   python/sccfilter.py \
   python/setxor.py \
   python/trival.py \
+  python/twagraph.py \
   $(TESTS_ipython)
 endif
 

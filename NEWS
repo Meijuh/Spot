@@ -38,6 +38,9 @@ New in spot 2.3.1.dev (not yet released)
   - spot::twa_graph::set_univ_init_state() could not be called with
     an initializer list.
 
+  - the Python wrappers for spot::twa_graph::state_from_number and
+    spot::twa_graph::state_acc_sets were broken in 2.3.
+
   Deprecation notices:
 
   - Using --format=%a to print the number of atomic propositions in
