@@ -74,7 +74,6 @@ check_PROGRAMS = \
   core/intvcomp \
   core/intvcmp2 \
   core/kripkecat \
-  core/ltlprod \
   core/ltl2dot \
   core/ltl2text \
   core/ltlrel \
@@ -108,7 +107,6 @@ core_ikwiad_SOURCES = core/ikwiad.cc
 core_intvcomp_SOURCES = core/intvcomp.cc
 core_intvcmp2_SOURCES = core/intvcmp2.cc
 core_kripkecat_SOURCES = core/kripkecat.cc
-core_ltlprod_SOURCES  = core/ltlprod.cc
 core_ngraph_SOURCES = core/ngraph.cc
 core_randtgba_SOURCES = core/randtgba.cc
 core_readsat_SOURCES = core/readsat.cc
@@ -229,7 +227,6 @@ TESTS_twa = \
   core/ltl2tgba2.test \
   core/ltl2neverclaim.test \
   core/ltl2neverclaim-lbtt.test \
-  core/ltlprod.test \
   core/explprod.test \
   core/explpro2.test \
   core/explpro3.test \
