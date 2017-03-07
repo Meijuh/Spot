@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -33,10 +33,10 @@ namespace spot
   ///
   /// This class is a shell around scc_filter(),
   /// minimize_obligation(), simulation(), iterated_simulations(),
-  /// degeneralize(), to_generalized_buchi() and tgba_determinize().
-  /// These different algorithms will be combined depending on the
-  /// various options set with set_type(), set_pref(), and
-  /// set_level().
+  /// degeneralize(), to_generalized_buchi(), tgba_determinize(), and
+  /// other algorithms.  These different algorithms will be combined
+  /// depending on the various options set with set_type(),
+  /// set_pref(), and set_level().
   ///
   /// This helps hiding some of the logic required to combine these
   /// simplifications efficiently (e.g., there is no point calling
@@ -59,7 +59,10 @@ namespace spot
   /// than its input.  pref=Small,level=Low will only run
   /// simulation().
   ///
-  ///
+  /// The handling of alternating automata should change in the
+  /// future, but currently \c Generic, \c Low, \c Any is the only
+  /// configuration where alternation is preserved.  In any other
+  /// configuration, \c remove_alternation() will be called.
   class SPOT_API postprocessor
   {
   public:
@@ -76,14 +79,28 @@ namespace spot
     /// \c TGBA requires transition-based generalized Büchi acceptance
     /// while \c BA requests state-based Büchi acceptance.  In both
     /// cases, automata with more complex acceptance conditions will
-    /// be converted into these simpler acceptance.  \c Monitor
-    /// requests an automaton with the "all paths are accepting
-    /// condition": this is less expressive, and may output automata
-    /// that recognize a larger language than the input.  Finally \c
-    /// Generic remove all constraints about the acceptance condition.
-    /// Using \c Generic can be needed to force the determinization of
-    /// some automata (e.g., not all TGBA can be degeneralized, using
-    /// \c Generic will allow parity acceptance to be used instead).
+    /// be converted into these simpler acceptance.  For references
+    /// about the algorithms used behind these options, see section 5
+    /// of "LTL translation improvements in Spot 1.0" (Alexandre
+    /// Duret-Lutz. Int. J. on Critical Computer-Based Systems,
+    /// 5(1/2), pp. 31–54, March 2014).
+    ///
+    /// \c Monitor requests an automaton where all paths are
+    /// accepting: this is less expressive than Büchi automata, and
+    /// may output automata that recognize a larger language than the
+    /// input (the output recognizes the smallest safety property
+    /// containing the input).  The algorithm used to obtain monitors
+    /// comes from "Efficient monitoring of ω-languages" (Marcelo
+    /// d’Amorim and Grigoire Roşu, Proceedings of CAV’05, LNCS 3576)
+    /// but is better described in "Optimized Temporal Monitors for
+    /// SystemC" (Deian Tabakov and Moshe Y. Vardi, Proceedings of
+    /// RV’10, LNCS 6418).
+    ///
+    /// Finally \c Generic remove all constraints about the acceptance
+    /// condition.  Using \c Generic can be needed to force the
+    /// determinization of some automata (e.g., not all TGBA can be
+    /// degeneralized, using \c Generic will allow parity acceptance
+    /// to be used instead).
     ///
     /// If set_type() is not called, the default \c output_type is \c TGBA.
     void
@@ -121,15 +138,24 @@ namespace spot
     /// set_type(postprocessor::Generic);
     /// set_pref(postprocessor::Deterministic);
     /// \endcode
-    /// if you absolutely want a deterministic automaton.
+    /// if you absolutely want a deterministic automaton.  The
+    /// resulting deterministic automaton may have generalized Büchi
+    /// acceptance or parity acceptance.
     ///
     /// The above options can be combined with \c Complete and \c
     /// SBAcc, to request a complete automaton, and an automaton with
     /// state-based acceptance.
     ///
-    /// Note: the postprocessor::Unambiguous option is not actually
-    /// supported by spot::postprocessor; it is only honored by
-    /// spot::translator.
+    /// Note 1: the \c Unambiguous option is not actually supported by
+    /// spot::postprocessor; it is only honored by spot::translator.
+    ///
+    /// Note 2: for historical reasons, option \c SBAcc is implied
+    /// when the output type is set to \c BA.
+    ///
+    /// Note 3: while setting the output type to \c Monitor requests
+    /// automata with \c t as acceptance condition, combining \c
+    /// Monitor with \c Complete may produce Büchi automata in case a
+    /// sink state (which should be rejecting) is added.
     ///
     /// If set_pref() is not called, the default \c output_type is \c Small.
     void
