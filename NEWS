@@ -54,6 +54,10 @@ New in spot 2.3.1.dev (not yet released)
     explicit.  The implicit converion to bool (and, via bool, to int)
     was a source of bugs.
 
+  - spot::twa_graph::set_init_state(const state*) has been removed.
+    It was never used.  You always want to use
+    spot::twa_graph::set_init_state(unsigned) in practice.
+
 
 New in spot 2.3.1 (2017-02-20)
 

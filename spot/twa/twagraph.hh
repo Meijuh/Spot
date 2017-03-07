@@ -261,11 +261,6 @@ namespace spot
       init_number_ = s;
     }
 
-    void set_init_state(const state* s)
-    {
-      set_init_state(state_number(s));
-    }
-
     template<class I>
     void set_univ_init_state(I dst_begin, I dst_end)
     {
