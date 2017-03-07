@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2013-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -44,6 +44,23 @@ namespace spot
   /// The semantic of these three methods is inherited from the
   /// spot::postprocessor class, but the optimization level is
   /// additionally used to select which LTL simplifications to enable.
+  ///
+  /// Most of the techniques used to produce TGBA or BA are described
+  /// in "LTL translation improvements in Spot 1.0" (Alexandre
+  /// Duret-Lutz. Int. J. on Critical Computer-Based Systems, 5(1/2),
+  /// pp. 31–54, March 2014).
+  ///
+  /// Unambiguous automata are produced using a trick described in
+  /// "LTL Model Checking of Interval Markov Chains" (Michael Benedikt
+  /// and Rastislav Lenhardt and James Worrell, Proceedings of
+  /// TACAS'13, pp. 32–46, LNCS 7795).
+  ///
+  /// For reference about formula simplifications, see
+  /// https://spot.lrde.epita.fr/tl.pdf (a copy of this file should be
+  /// in the doc/tl/ subdirectory of the Spot sources).
+  ///
+  /// For reference and documentation about the post-processing step,
+  /// see the documentation of the spot::postprocessor class.
   class SPOT_API translator: protected postprocessor
   {
   public:
