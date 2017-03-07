@@ -257,7 +257,7 @@ namespace spot
     {
       if (SPOT_UNLIKELY(s >= num_states()))
         throw std::invalid_argument
-          ("set_init_state() called with nonexisiting state");
+          ("set_init_state() called with nonexisting state");
       init_number_ = s;
     }
 
@@ -273,7 +273,7 @@ namespace spot
       for (I i = dst_begin; i != dst_end; ++i)
         if (SPOT_UNLIKELY(*i >= ns))
           throw std::invalid_argument
-            ("set_univ_init_state() called with nonexisiting state");
+            ("set_univ_init_state() called with nonexisting state");
       init_number_ = g_.new_univ_dests(dst_begin, dst_end);
     }
 
