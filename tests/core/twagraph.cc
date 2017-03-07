@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -129,9 +129,27 @@ static void f3()
   spot::print_hoa(std::cout, tg, "1.1") << '\n';
 }
 
+// Test creation of universal edges via initializer-list
+static void f4()
+{
+  auto d = spot::make_bdd_dict();
+  auto tg = make_twa_graph(d);
+
+  auto s1 = tg->new_state();
+  auto s2 = tg->new_state();
+  auto s3 = tg->new_state();
+  tg->set_univ_init_state({s3, s1});
+  tg->new_univ_edge(s3, {s1, s2}, bddtrue);
+  tg->new_univ_edge(s2, {s1}, bddtrue);
+  tg->new_edge(s1, s1, bddtrue);
+
+  spot::print_hoa(std::cout, tg, "1.1") << '\n';
+}
+
 int main()
 {
   f1();
   f2();
   f3();
+  f4();
 }

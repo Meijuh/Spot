@@ -277,7 +277,6 @@ namespace spot
       init_number_ = g_.new_univ_dests(dst_begin, dst_end);
     }
 
-    template<class I>
     void set_univ_init_state(const std::initializer_list<state_num>& il)
     {
       set_univ_init_state(il.begin(), il.end());
