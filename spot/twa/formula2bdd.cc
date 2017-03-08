@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2014, 2015 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -39,7 +39,10 @@ namespace spot
         {
           int var = bdd_var(b);
           const bdd_dict::bdd_info& i = d->bdd_map[var];
-          assert(i.type == bdd_dict::var);
+          if (SPOT_UNLIKELY(i.type != bdd_dict::var))
+            throw std::runtime_error("bdd_to_formula() was passed a bdd"
+                                     " with a variable that is not in "
+                                     "the dictionary");
           formula res = i.f;
 
           bdd high = bdd_high(b);

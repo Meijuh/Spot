@@ -327,6 +327,7 @@ TESTS_python = \
   python/alarm.py \
   python/alternating.py \
   python/bddnqueen.py \
+  python/bdditer.py \
   python/bugdet.py \
   python/sccinfo.py \
   python/decompose_scc.py \
