@@ -134,6 +134,7 @@
 #include <spot/twaalgos/neverclaim.hh>
 #include <spot/twaalgos/randomize.hh>
 #include <spot/twaalgos/remfin.hh>
+#include <spot/twaalgos/totgba.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/sccfilter.hh>
 #include <spot/twaalgos/stats.hh>
@@ -535,6 +536,7 @@ def state_is_accepting(self, src) -> "bool":
 %include <spot/twaalgos/neverclaim.hh>
 %include <spot/twaalgos/randomize.hh>
 %include <spot/twaalgos/remfin.hh>
+%include <spot/twaalgos/totgba.hh>
 %include <spot/twaalgos/strength.hh>
 %include <spot/twaalgos/sccfilter.hh>
 %include <spot/twaalgos/stats.hh>
