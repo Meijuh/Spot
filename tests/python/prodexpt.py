@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2016  Laboratoire de Recherche et Développement
-# de l'Epita
+# Copyright (C) 2016-2017 Laboratoire de Recherche et Développement de l'Epita
+# (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -20,7 +20,7 @@
 import spot
 
 # make sure that we are not allowed to build the product of two automata with
-# different dictionnaries.
+# different dictionaries.
 
 aut1 = spot.translate('Xa')
 aut2 = spot.translate('Xb', dict=spot.make_bdd_dict())

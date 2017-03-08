@@ -3499,7 +3499,7 @@ New in spot 0.0f (2003-08-01):
   * Tgba's output algorithms (save(), dotty()) now non-recursive.
   * During products, succ_iter will optimize its set of successors
     using information computed from the current product state.
-  * BDD dictionnaries are now shared between automata and.  This
+  * BDD dictionaries are now shared between automata and.  This
     gets rid of all the BDD-variable translating machinery.
 
 New in spot 0.0d (2003-07-13):
