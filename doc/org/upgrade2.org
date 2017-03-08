@@ -46,7 +46,7 @@ experience of updating a couple of projects that are using Spot.
      used to require visitors.
 
   5. Allocated object that are large or expected to have a long life
-     (such as automata, BDD dictionnaries, accepting runs) are now
+     (such as automata, BDD dictionaries, accepting runs) are now
      [[#shared_ptr][returned using shared pointers]].
 
   6. Spot used to be centered around the concept of TGBA
@@ -587,7 +587,7 @@ for (auto i: aut->succ(s))
   }
 #+END_SRC
 
-- Each =twa= now has a BDD dictionnary, so the =get_dict()= method is
+- Each =twa= now has a BDD dictionary, so the =get_dict()= method is
   implemented once for all in =twa=, and should not be implemented
   anymore in sub-classes.
 
