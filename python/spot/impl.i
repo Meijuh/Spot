@@ -134,6 +134,7 @@
 #include <spot/twaalgos/neverclaim.hh>
 #include <spot/twaalgos/randomize.hh>
 #include <spot/twaalgos/remfin.hh>
+#include <spot/twaalgos/totgba.hh>
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/sccfilter.hh>
@@ -536,6 +537,7 @@ def state_is_accepting(self, src) -> "bool":
 %include <spot/twaalgos/neverclaim.hh>
 %include <spot/twaalgos/randomize.hh>
 %include <spot/twaalgos/remfin.hh>
+%include <spot/twaalgos/totgba.hh>
 %traits_swigtype(spot::scc_info_node);
 %fragment(SWIG_Traits_frag(spot::scc_info_node));
 %include <spot/twaalgos/sccinfo.hh>

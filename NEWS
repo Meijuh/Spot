@@ -10,7 +10,8 @@ New in spot 2.3.1.dev (not yet released)
 
   Python:
 
-  - The bdd_to_formula() function can now be called in Python.
+  - The bdd_to_formula(), and to_generalized_buchi() functions can now
+    be called in Python.
 
   Documentation:
 
