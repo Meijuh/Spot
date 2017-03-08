@@ -108,6 +108,7 @@
 #include <spot/tl/relabel.hh>
 
 #include <spot/twa/bddprint.hh>
+#include <spot/twa/formula2bdd.hh>
 #include <spot/twa/fwd.hh>
 #include <spot/twa/acc.hh>
 #include <spot/twa/twa.hh>
@@ -428,6 +429,7 @@ namespace std {
  /* these must come before apcollect.hh */
 %include <spot/twa/bdddict.hh>
 %include <spot/twa/bddprint.hh>
+%include <spot/twa/formula2bdd.hh>
 %include <spot/twa/fwd.hh>
 %implicitconv spot::acc_cond::mark_t;
 %implicitconv spot::acc_cond::acc_code;

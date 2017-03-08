@@ -8,6 +8,10 @@ New in spot 2.3.1.dev (not yet released)
     atomic propositions instead of conting them.  Tools that output
     formulas also support --format=%x for this purpose.
 
+  Python:
+
+  - The bdd_to_formula() function can now be called in Python.
+
   Documentation:
 
   - https://spot.lrde.epita.fr/tut11.html is a new page describing

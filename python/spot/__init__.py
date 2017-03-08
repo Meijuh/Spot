@@ -891,6 +891,9 @@ def parse_word(word, dic=_bdd_dict):
     from spot.impl import parse_word as pw
     return pw(word, dic)
 
+def bdd_to_formula(b, dic=_bdd_dict):
+    from spot.impl import bdd_to_formula as bf
+    return bf(b, dic)
 
 def language_containment_checker(dic=_bdd_dict):
     from spot.impl import language_containment_checker as c
