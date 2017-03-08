@@ -86,8 +86,8 @@ namespace spot
           auto sccaut = mask_keep_accessible_states(aut, keep, states.front());
           // Force SBA to false.  It does not affect the emptiness
           // check result, however it prevent recurring into this
-          // procedure, because empty() will call to_tgba() which will
-          // call remove_fin()...
+          // procedure, because is_empty() will call
+          // to_generalized_buchi() which will call remove_fin()...
           sccaut->prop_state_acc(false);
           // If SCCAUT is empty, the SCC is BA-type (and none
           // of its states are final).  If SCCAUT is nonempty, the SCC
