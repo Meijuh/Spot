@@ -276,11 +276,10 @@ namespace spot
       if (s.second == 0)
         {
           auto set = outgoing.common_acc(s.first);
-          if (use_cust_acc_orders)
+          if (SPOT_UNLIKELY(use_cust_acc_orders))
             s.second = orders.next_level(m->initial(), s.second, set);
           else
-            while (s.second < order.size()
-                   && set.has(order[s.second]))
+            while (s.second < order.size() && set.has(order[s.second]))
               {
                 ++s.second;
                 if (!skip_levels)
