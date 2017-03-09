@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
-## Recherche et Développement de l'Epita (LRDE).
+## Copyright (C) 2011-2017 Laboratoire de Recherche et Développement
+## de l'Epita (LRDE).
 ## Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -35,7 +35,7 @@ endif
 SUBDIRS = picosat buddy lib ltdl spot bin tests $(PYTHON_SUBDIR) doc \
 					$(NEVER_SUBDIRS)
 
-UTF8 = utf8/doc/ReleaseNotes utf8/doc/utf8cpp.html utf8/utf8.h	\
+UTF8 = utf8/README.md utf8/utf8.h	\
   utf8/utf8/checked.h utf8/utf8/core.h utf8/utf8/unchecked.h
 
 DEBIAN =					\
