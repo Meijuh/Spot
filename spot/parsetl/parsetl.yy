@@ -1,9 +1,10 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
-** de Recherche et Développement de l'Epita (LRDE).
-** Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-** Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-** Université Pierre et Marie Curie.
+
+** Copyright (C) 2009-2017 Laboratoire de Recherche et Développement
+** de l'Epita (LRDE).
+** Copyright (C) 2003-2006 Laboratoire d'Informatique de Paris 6
+** (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+** Pierre et Marie Curie.
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -89,9 +90,52 @@ using namespace spot;
     }							\
   while (0);
 
+  static bool
+  sere_ensure_bool(const fnode* f, const spot::location& loc,
+                   const char* oper, spot::parse_error_list& error_list)
+  {
+    if (f->is_boolean())
+      return true;
+    std::string s;
+    s.reserve(80);
+    s = "not a Boolean expression: in a SERE ";
+    s += oper;
+    s += " can only be applied to a Boolean expression";
+    error_list.emplace_back(loc, s);
+    return false;
+  }
+
+  static const fnode*
+  error_false_block(const spot::location& loc,
+                    spot::parse_error_list& error_list)
+  {
+    error_list.emplace_back(loc, "treating this block as false");
+    return fnode::ff();
+  }
+
+  static const fnode*
+  parse_ap(const std::string& str,
+           const spot::location& location,
+           spot::environment& env,
+           spot::parse_error_list& error_list)
+  {
+    auto res = env.require(str);
+    if (!res)
+      {
+        std::string s;
+        s.reserve(64);
+        s = "unknown atomic proposition `";
+        s += str;
+        s += "' in ";
+        s += env.name();
+        error_list.emplace_back(location, s);
+      }
+    return res.to_node_();
+  }
+
   enum parser_type { parser_ltl, parser_bool, parser_sere };
 
-  static formula
+  static const fnode*
   try_recursive_parse(const std::string& str,
 		      const spot::location& location,
 		      spot::environment& env,
@@ -135,20 +179,10 @@ using namespace spot;
 	}
 
       if (pf.errors.empty())
-	return pf.f;
-
-      auto f = env.require(str);
-      if (!f)
-	{
-	  std::string s = "atomic proposition `";
-	  s += str;
-	  s += "' rejected by environment `";
-	  s += env.name();
-	  s += "'";
-	  error_list.emplace_back(location, s);
-	}
-      return f;
+	return pf.f.to_node_();
+      return parse_ap(str, location, env, error_list);
     }
+
 }
 
 
@@ -228,7 +262,7 @@ using namespace spot;
    need any precedence).  */
 %nonassoc OP_NOT
 
-%type <ltl> subformula booleanatom sere lbtformula boolformula
+%type <ltl> subformula atomprop booleanatom sere lbtformula boolformula
 %type <ltl> bracedsere parenthesedsubformula
 %type <minmax> starargs fstarargs equalargs sqbracketargs gotoargs
 
@@ -401,57 +435,19 @@ equalargs: OP_EQUAL_OPEN sqbracketargs
 	      $$.min = $$.max = 0U; }
 
 
-booleanatom: ATOMIC_PROP
+atomprop: ATOMIC_PROP
+          {
+            $$ = parse_ap(*$1, @1, parse_environment, error_list);
+            delete $1;
+            if (!$$)
+              YYERROR;
+          }
+
+booleanatom: atomprop
+	    | atomprop OP_POST_POS
+	    | atomprop OP_POST_NEG
 	      {
-		$$ = parse_environment.require(*$1).to_node_();
-		if (! $$)
-		  {
-		    std::string s = "unknown atomic proposition `";
-		    s += *$1;
-		    s += "' in environment `";
-		    s += parse_environment.name();
-		    s += "'";
-		    error_list.emplace_back(@1, s);
-		    delete $1;
-		    YYERROR;
-		  }
-		else
-		  delete $1;
-	      }
-	    | ATOMIC_PROP OP_POST_POS
-	      {
-		$$ = parse_environment.require(*$1).to_node_();
-		if (! $$)
-		  {
-		    std::string s = "unknown atomic proposition `";
-		    s += *$1;
-		    s += "' in environment `";
-		    s += parse_environment.name();
-		    s += "'";
-		    error_list.emplace_back(@1, s);
-		    delete $1;
-		    YYERROR;
-		  }
-		else
-		  delete $1;
-	      }
-	    | ATOMIC_PROP OP_POST_NEG
-	      {
-		$$ = parse_environment.require(*$1).to_node_();
-		if (! $$)
-		  {
-		    std::string s = "unknown atomic proposition `";
-		    s += *$1;
-		    s += "' in environment `";
-		    s += parse_environment.name();
-		    s += "'";
-		    error_list.emplace_back(@1, s);
-		    delete $1;
-		    YYERROR;
-		  }
-		else
-		  delete $1;
-		$$ = fnode::unop(op::Not, $$);
+		$$ = fnode::unop(op::Not, $1);
 	      }
 	    | CONST_TRUE
 	      { $$ = fnode::tt(); }
@@ -461,18 +457,14 @@ booleanatom: ATOMIC_PROP
 sere: booleanatom
             | OP_NOT sere
 	      {
-		if ($2->is_boolean())
+		if (sere_ensure_bool($2, @2, "`!'", error_list))
 		  {
 		    $$ = fnode::unop(op::Not, $2);
 		  }
 		else
 		  {
-		    error_list.emplace_back(@2,
-                       "not a boolean expression: inside a SERE `!' can only "
-                       "be applied to a Boolean expression");
-		    error_list.emplace_back(@$, "treating this block as false");
 		    $2->destroy();
-		    $$ = fnode::ff();
+		    $$ = error_false_block(@$, error_list);
 		  }
 	      }
             | bracedsere
@@ -480,8 +472,7 @@ sere: booleanatom
               {
 		$$ =
 		  try_recursive_parse(*$1, @1, parse_environment,
-				      debug_level(), parser_sere, error_list)
-		  .to_node_();
+				      debug_level(), parser_sere, error_list);
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -560,20 +551,15 @@ sere: booleanatom
 		    error_list.emplace_back(@2, "reversed range");
 		    std::swap($2.max, $2.min);
 		  }
-		if ($1->is_boolean())
+		if (sere_ensure_bool($1, @1, "[=...]", error_list))
 		  {
 		    $$ = formula::sugar_equal(formula($1),
 					      $2.min, $2.max).to_node_();
 		  }
 		else
 		  {
-		    error_list.emplace_back(@1,
-				"not a boolean expression: [=...] can only "
-				"be applied to a Boolean expression");
-		    error_list.emplace_back(@$,
-				"treating this block as false");
 		    $1->destroy();
-		    $$ = fnode::ff();
+		    $$ = error_false_block(@$, error_list);
 		  }
 	      }
 	    | sere gotoargs
@@ -583,96 +569,60 @@ sere: booleanatom
 		    error_list.emplace_back(@2, "reversed range");
 		    std::swap($2.max, $2.min);
 		  }
-		if ($1->is_boolean())
+		if (sere_ensure_bool($1, @1, "[->...]", error_list))
 		  {
 		    $$ = formula::sugar_goto(formula($1),
 					     $2.min, $2.max).to_node_();
 		  }
 		else
 		  {
-		    error_list.emplace_back(@1,
-				"not a boolean expression: [->...] can only "
-				"be applied to a Boolean expression");
-		    error_list.emplace_back(@$,
-				"treating this block as false");
 		    $1->destroy();
-		    $$ = fnode::ff();
+		    $$ = error_false_block(@$, error_list);
 		  }
 	      }
 	    | sere OP_XOR sere
 	      {
-		if ($1->is_boolean() && $3->is_boolean())
+		if (sere_ensure_bool($1, @1, "`^'", error_list)
+                    && sere_ensure_bool($3, @3, "`^'", error_list))
 		  {
 		    $$ = fnode::binop(op::Xor, $1, $3);
 		  }
 		else
 		  {
-		    if (!$1->is_boolean())
-		      {
-			error_list.emplace_back(@1,
-                         "not a boolean expression: inside SERE `<->' can only "
-                         "be applied to Boolean expressions");
-                      }
-		    if (!$3->is_boolean())
-		      {
-			error_list.emplace_back(@3,
-                         "not a boolean expression: inside SERE `<->' can only "
-                         "be applied to Boolean expressions");
-                      }
-		    error_list.emplace_back(@$, "treating this block as false");
 		    $1->destroy();
 		    $3->destroy();
-		    $$ = fnode::ff();
+		    $$ = error_false_block(@$, error_list);
 		  }
 	      }
 	    | sere OP_XOR error
 	      { missing_right_binop($$, $1, @2, "xor operator"); }
 	    | sere OP_IMPLIES sere
 	      {
-		if ($1->is_boolean())
+		if (sere_ensure_bool($1, @1, "`->'", error_list))
 		  {
 		    $$ = fnode::binop(op::Implies, $1, $3);
 		  }
 		else
 		  {
-		    if (!$1->is_boolean())
-		      {
-			error_list.emplace_back(@1,
-                         "not a boolean expression: inside SERE `->' can only "
-                         "be applied to a Boolean expression");
-                      }
-		    error_list.emplace_back(@$, "treating this block as false");
 		    $1->destroy();
 		    $3->destroy();
-		    $$ = fnode::ff();
+		    $$ = error_false_block(@$, error_list);
 		  }
 	      }
 	    | sere OP_IMPLIES error
 	      { missing_right_binop($$, $1, @2, "implication operator"); }
 	    | sere OP_EQUIV sere
 	      {
-		if ($1->is_boolean() && $3->is_boolean())
+		if (sere_ensure_bool($1, @1, "`<->'", error_list)
+                    && sere_ensure_bool($3, @3, "`<->'", error_list))
 		  {
 		    $$ = fnode::binop(op::Equiv, $1, $3);
 		  }
 		else
 		  {
-		    if (!$1->is_boolean())
-		      {
-			error_list.emplace_back(@1,
-                         "not a boolean expression: inside SERE `<->' can only "
-                         "be applied to Boolean expressions");
-                      }
-		    if (!$3->is_boolean())
-		      {
-			error_list.emplace_back(@3,
-                         "not a boolean expression: inside SERE `<->' can only "
-                         "be applied to Boolean expressions");
-                      }
-		    error_list.emplace_back(@$, "treating this block as false");
 		    $1->destroy();
 		    $3->destroy();
-		    $$ = fnode::ff();
+		    $$ = error_false_block(@$, error_list);
 		  }
 	      }
 	    | sere OP_EQUIV error
@@ -709,7 +659,7 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
 					 debug_level(),
-					 parser_sere, error_list).to_node_();
+                                         parser_sere, error_list);
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -718,8 +668,7 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
 parenthesedsubformula: PAR_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), parser_ltl, error_list)
-		  .to_node_();
+					 debug_level(), parser_ltl, error_list);
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -756,8 +705,8 @@ boolformula: booleanatom
             | PAR_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), parser_bool, error_list)
-		  .to_node_();
+					 debug_level(),
+                                         parser_bool, error_list);
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -923,31 +872,15 @@ subformula: booleanatom
             | BRA_BANG_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), parser_sere, error_list)
-		  .to_node_();
+					 debug_level(),
+                                         parser_sere, error_list);
 		delete $1;
 		if (!$$)
 		  YYERROR;
 		$$ = fnode::binop(op::EConcat, $$, fnode::tt());
 	      }
 
-lbtformula: ATOMIC_PROP
-	      {
-		$$ = parse_environment.require(*$1).to_node_();
-		if (! $$)
-		  {
-		    std::string s = "atomic proposition `";
-		    s += *$1;
-		    s += "' rejected by environment `";
-		    s += parse_environment.name();
-		    s += "'";
-		    error_list.emplace_back(@1, s);
-		    delete $1;
-		    YYERROR;
-		  }
-		else
-		  delete $1;
-	      }
+lbtformula: atomprop
             | '!' lbtformula
 	      { $$ = fnode::unop(op::Not, $2); }
             | '&' lbtformula lbtformula
