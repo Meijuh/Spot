@@ -322,15 +322,15 @@ TESTS_ipython = \
 # do not consider part of the documentation: those have to start
 # with a _.
 TESTS_python = \
-  python/_aux.ipynb \
   python/_altscc.ipynb \
+  python/_aux.ipynb \
   python/accparse2.py \
   python/alarm.py \
   python/alternating.py \
-  python/bddnqueen.py \
   python/bdditer.py \
+  python/bddnqueen.py \
   python/bugdet.py \
-  python/sccinfo.py \
+  python/declenv.py \
   python/decompose_scc.py \
   python/implies.py \
   python/interdep.py \
@@ -347,8 +347,9 @@ TESTS_python = \
   python/relabel.py \
   python/remfin.py \
   python/satmin.py \
-  python/setacc.py \
   python/sccfilter.py \
+  python/sccinfo.py \
+  python/setacc.py \
   python/setxor.py \
   python/sum.py \
   python/trival.py \

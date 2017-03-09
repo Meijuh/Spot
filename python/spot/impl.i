@@ -87,6 +87,7 @@
 #include <spot/tl/formula.hh>
 
 #include <spot/tl/environment.hh>
+#include <spot/tl/declenv.hh>
 #include <spot/tl/defaultenv.hh>
 
 #include <spot/tl/parse.hh>
@@ -425,6 +426,7 @@ namespace std {
 }
 
 %include <spot/tl/environment.hh>
+%include <spot/tl/declenv.hh>
 %include <spot/tl/defaultenv.hh>
 
 %include <spot/tl/parse.hh>
