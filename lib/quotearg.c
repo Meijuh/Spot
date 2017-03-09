@@ -1,6 +1,6 @@
 /* quotearg.c - quote arguments for output
 
-   Copyright (C) 1998-2002, 2004-2016 Free Software Foundation, Inc.
+   Copyright (C) 1998-2002, 2004-2017 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include "quotearg.h"
 #include "quote.h"
 
+#include "minmax.h"
 #include "xalloc.h"
 #include "c-strcaseeq.h"
 #include "localcharset.h"
@@ -37,6 +38,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
@@ -252,12 +254,15 @@ quotearg_buffer_restyled (char *buffer, size_t buffersize,
 {
   size_t i;
   size_t len = 0;
+  size_t orig_buffersize = 0;
   char const *quote_string = 0;
   size_t quote_string_len = 0;
   bool backslash_escapes = false;
   bool unibyte_locale = MB_CUR_MAX == 1;
   bool elide_outer_quotes = (flags & QA_ELIDE_OUTER_QUOTES) != 0;
   bool pending_shell_escape_end = false;
+  bool encountered_single_quote = false;
+  bool all_c_and_shell_quote_compat = true;
 
 #define STORE(c) \
     do \
@@ -297,6 +302,8 @@ quotearg_buffer_restyled (char *buffer, size_t buffersize,
           } \
       } \
     while (0)
+
+ process_input:
 
   switch (quoting_style)
     {
@@ -388,6 +395,7 @@ quotearg_buffer_restyled (char *buffer, size_t buffersize,
       unsigned char esc;
       bool is_right_quote = false;
       bool escaping = false;
+      bool c_and_shell_quote_compat = false;
 
       if (backslash_escapes
           && quoting_style != shell_always_quoting_style
@@ -515,6 +523,8 @@ quotearg_buffer_restyled (char *buffer, size_t buffersize,
             break;
           /* Fall through.  */
         case ' ':
+          c_and_shell_quote_compat = true;
+          /* Fall through.  */
         case '!': /* special in bash */
         case '"': case '$': case '&':
         case '(': case ')': case '*': case ';':
@@ -533,10 +543,22 @@ quotearg_buffer_restyled (char *buffer, size_t buffersize,
           break;
 
         case '\'':
+          encountered_single_quote = true;
+          c_and_shell_quote_compat = true;
           if (quoting_style == shell_always_quoting_style)
             {
               if (elide_outer_quotes)
                 goto force_outer_quoting_style;
+
+              if (buffersize && ! orig_buffersize)
+                {
+                  /* Just scan string to see if supports a more concise
+                     representation, rather than writing a longer string
+                     but returning the length of the more concise form.  */
+                  orig_buffersize = buffersize;
+                  buffersize = 0;
+                }
+
               STORE ('\'');
               STORE ('\\');
               STORE ('\'');
@@ -566,6 +588,7 @@ quotearg_buffer_restyled (char *buffer, size_t buffersize,
              them.  Also, a digit or a special letter would cause
              trouble if it appeared in quote_these_too, but that's also
              documented as not accepting them.  */
+          c_and_shell_quote_compat = true;
           break;
 
         default:
@@ -644,6 +667,8 @@ quotearg_buffer_restyled (char *buffer, size_t buffersize,
                 while (! mbsinit (&mbstate));
               }
 
+            c_and_shell_quote_compat = printable;
+
             if (1 < m || (backslash_escapes && ! printable))
               {
                 /* Output a multibyte sequence, or an escaped
@@ -689,11 +714,35 @@ quotearg_buffer_restyled (char *buffer, size_t buffersize,
     store_c:
       END_ESC ();
       STORE (c);
+
+      if (! c_and_shell_quote_compat)
+        all_c_and_shell_quote_compat = false;
     }
 
   if (len == 0 && quoting_style == shell_always_quoting_style
       && elide_outer_quotes)
     goto force_outer_quoting_style;
+
+  /* Single shell quotes (') are commonly enough used as an apostrophe,
+     that we attempt to minimize the quoting in this case.  Note itʼs
+     better to use the apostrophe modifier "\u02BC" if possible, as that
+     renders better and works with the word match regex \W+ etc.  */
+  if (quoting_style == shell_always_quoting_style && ! elide_outer_quotes
+      && encountered_single_quote)
+    {
+      if (all_c_and_shell_quote_compat)
+        return quotearg_buffer_restyled (buffer, orig_buffersize, arg, argsize,
+                                         c_quoting_style,
+                                         flags, quote_these_too,
+                                         left_quote, right_quote);
+      else if (! buffersize && orig_buffersize)
+        {
+          /* Disable read-only scan, and reprocess to write quoted string.  */
+          buffersize = orig_buffersize;
+          len = 0;
+          goto process_input;
+        }
+    }
 
   if (quote_string && !elide_outer_quotes)
     for (; *quote_string; quote_string++)
@@ -783,7 +832,7 @@ struct slotvec
 /* Preallocate a slot 0 buffer, so that the caller can always quote
    one small component of a "memory exhausted" message in slot 0.  */
 static char slot0[256];
-static unsigned int nslots = 1;
+static int nslots = 1;
 static struct slotvec slotvec0 = {sizeof slot0, slot0};
 static struct slotvec *slotvec = &slotvec0;
 
@@ -791,7 +840,7 @@ void
 quotearg_free (void)
 {
   struct slotvec *sv = slotvec;
-  unsigned int i;
+  int i;
   for (i = 1; i < nslots; i++)
     free (sv[i].val);
   if (sv[0].val != slot0)
@@ -822,30 +871,23 @@ quotearg_n_options (int n, char const *arg, size_t argsize,
 {
   int e = errno;
 
-  unsigned int n0 = n;
   struct slotvec *sv = slotvec;
 
   if (n < 0)
     abort ();
 
-  if (nslots <= n0)
+  if (nslots <= n)
     {
-      /* FIXME: technically, the type of n1 should be 'unsigned int',
-         but that evokes an unsuppressible warning from gcc-4.0.1 and
-         older.  If gcc ever provides an option to suppress that warning,
-         revert to the original type, so that the test in xalloc_oversized
-         is once again performed only at compile time.  */
-      size_t n1 = n0 + 1;
       bool preallocated = (sv == &slotvec0);
 
-      if (xalloc_oversized (n1, sizeof *sv))
+      if (MIN (INT_MAX, MIN (PTRDIFF_MAX, SIZE_MAX) / sizeof *sv) <= n)
         xalloc_die ();
 
-      slotvec = sv = xrealloc (preallocated ? NULL : sv, n1 * sizeof *sv);
+      slotvec = sv = xrealloc (preallocated ? NULL : sv, (n + 1) * sizeof *sv);
       if (preallocated)
         *sv = slotvec0;
-      memset (sv + nslots, 0, (n1 - nslots) * sizeof *sv);
-      nslots = n1;
+      memset (sv + nslots, 0, (n + 1 - nslots) * sizeof *sv);
+      nslots = n + 1;
     }
 
   {

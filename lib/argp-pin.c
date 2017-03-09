@@ -1,5 +1,5 @@
 /* Full and short program names for argp module
-   Copyright (C) 2005, 2009-2016 Free Software Foundation, Inc.
+   Copyright (C) 2005, 2009-2017 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -23,4 +23,11 @@ char *program_invocation_short_name = 0;
 #endif
 #ifndef HAVE_PROGRAM_INVOCATION_NAME
 char *program_invocation_name = 0;
+#endif
+
+#if (defined HAVE_PROGRAM_INVOCATION_SHORT_NAME \
+     && defined HAVE_PROGRAM_INVOCATION_NAME)
+/* This declaration is solely to ensure that after preprocessing
+   this file is never empty.  */
+typedef int dummy;
 #endif

@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2016 Free Software Foundation, Inc.
+# Copyright (C) 2002-2017 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -63,6 +63,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module float:
   # Code from module getopt-gnu:
   # Code from module getopt-posix:
+  # Code from module getprogname:
   # Code from module gettext-h:
   # Code from module gettimeofday:
   # Code from module hard-locale:
@@ -71,6 +72,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module isatty:
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
+  # Code from module limits-h:
   # Code from module localcharset:
   # Code from module lstat:
   # Code from module malloc-gnu:
@@ -79,6 +81,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module mbsinit:
   # Code from module memchr:
   # Code from module mempcpy:
+  # Code from module minmax:
   # Code from module mkstemp:
   # Code from module mkstemps:
   # Code from module msvc-inval:
@@ -189,7 +192,6 @@ AC_SUBST([LTALLOCA])
     GNULIB_GL_UNISTD_H_GETOPT=1
   fi
   AC_SUBST([GNULIB_GL_UNISTD_H_GETOPT])
-  gl_MODULE_INDICATOR_FOR_TESTS([getopt-gnu])
   gl_FUNC_GETOPT_POSIX
   if test $REPLACE_GETOPT = 1; then
     AC_LIBOBJ([getopt])
@@ -199,6 +201,7 @@ AC_SUBST([LTALLOCA])
     GNULIB_GL_UNISTD_H_GETOPT=1
   fi
   AC_SUBST([GNULIB_GL_UNISTD_H_GETOPT])
+  gl_FUNC_GETPROGNAME
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
   gl_FUNC_GETTIMEOFDAY
@@ -215,6 +218,7 @@ AC_SUBST([LTALLOCA])
   fi
   gl_UNISTD_MODULE_INDICATOR([isatty])
   AC_REQUIRE([gl_LARGEFILE])
+  gl_LIMITS_H
   gl_LOCALCHARSET
   LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(abs_top_builddir)/$gl_source_base\""
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
@@ -258,6 +262,7 @@ AC_SUBST([LTALLOCA])
     gl_PREREQ_MEMPCPY
   fi
   gl_STRING_MODULE_INDICATOR([mempcpy])
+  gl_MINMAX
   gl_FUNC_MKSTEMP
   if test $HAVE_MKSTEMP = 0 || test $REPLACE_MKSTEMP = 1; then
     AC_LIBOBJ([mkstemp])
@@ -568,6 +573,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/getopt.in.h
   lib/getopt1.c
   lib/getopt_int.h
+  lib/getprogname.c
+  lib/getprogname.h
   lib/gettext.h
   lib/gettimeofday.c
   lib/hard-locale.c
@@ -575,6 +582,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/intprops.h
   lib/isatty.c
   lib/itold.c
+  lib/limits.in.h
   lib/localcharset.c
   lib/localcharset.h
   lib/lstat.c
@@ -584,6 +592,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/memchr.c
   lib/memchr.valgrind
   lib/mempcpy.c
+  lib/minmax.h
   lib/mkstemp.c
   lib/mkstemps.c
   lib/msvc-inval.c
@@ -669,6 +678,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/fcntl_h.m4
   m4/float_h.m4
   m4/getopt.m4
+  m4/getprogname.m4
   m4/gettimeofday.m4
   m4/glibc21.m4
   m4/gnulib-common.m4
@@ -678,6 +688,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/inttypes_h.m4
   m4/isatty.m4
   m4/largefile.m4
+  m4/limits-h.m4
   m4/localcharset.m4
   m4/locale-fr.m4
   m4/locale-ja.m4
@@ -691,6 +702,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/mbstate_t.m4
   m4/memchr.m4
   m4/mempcpy.m4
+  m4/minmax.m4
   m4/mkstemp.m4
   m4/mkstemps.m4
   m4/mmap-anon.m4
