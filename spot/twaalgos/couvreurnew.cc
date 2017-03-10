@@ -540,12 +540,17 @@ namespace spot
         : emptiness_check(a, o)
         , ecs_(std::make_shared<couvreur99_new_status<is_explicit>>(a))
       {
+        if (a->acc().uses_fin_acceptance())
+          throw std::runtime_error
+            ("couvreur99_new requires Fin-less acceptance");
       }
 
       virtual
       emptiness_check_result_ptr
       check() override
       {
+        if (ecs_->aut->acc().get_acceptance().is_f())
+          return nullptr;
         return check_impl<true>();
       }
 
