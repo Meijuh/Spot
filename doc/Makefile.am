@@ -57,9 +57,12 @@ dist_pkgdata_DATA = $(srcdir)/spot.tag
 .PHONY: org org-man
 org:
 	cd $(top_builddir) && $(MAKE) doc/org/init.el
-	rm -rf $(srcdir)/userdoc
+	rm -rf $(srcdir)/userdoc $(builddir)/org/org.errors
 	$(MAKE) org-man org/plantuml.jar
 	$(EMACS) --batch -Q -l org/init.el
+	if test -s $(builddir)/org/org.errors; then \
+	  cat $(builddir)/org/org.errors; exit 1; \
+        else :; fi
 
 org/plantuml.jar:
 	wget http://downloads.sourceforge.net/project/plantuml/plantuml.jar -O org/plantuml.jar || curl http://downloads.sourceforge.net/project/plantuml/plantuml.jar -o org/plantuml.jar
