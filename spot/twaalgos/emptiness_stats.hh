@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015-2017 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -50,67 +50,6 @@ namespace spot
     typedef unsigned (unsigned_statistics::*unsigned_fun)() const;
     typedef std::map<const char*, unsigned_fun, char_ptr_less_than> stats_map;
     stats_map stats;
-  };
-
-  /// \brief comparable statistics
-  ///
-  /// This must be built from a spot::unsigned_statistics.  But unlike
-  /// spot::unsigned_statistics, it supports equality and inequality tests.
-  /// (It's the only operations it supports, BTW.)
-  class unsigned_statistics_copy
-  {
-  public:
-    unsigned_statistics_copy()
-      : set(false)
-    {
-    }
-
-    unsigned_statistics_copy(const unsigned_statistics& o)
-      : set(false)
-    {
-      seteq(o);
-    }
-
-    bool
-    seteq(const unsigned_statistics& o)
-    {
-      if (!set)
-        {
-          for (auto& i: o.stats)
-            stats[i.first] = (o.*i.second)();
-          set = true;
-          return true;
-        }
-      if (*this == o)
-        return true;
-      return false;
-    }
-
-    typedef std::map<const char*, unsigned, char_ptr_less_than> stats_map;
-    stats_map stats;
-
-
-    bool
-    operator==(const unsigned_statistics_copy& o) const
-    {
-      for (auto& i: stats)
-        {
-          auto i2 = o.stats.find(i.first);
-          if (i2 == o.stats.end())
-            return false;
-          if (i.second != i2->second)
-            return false;
-        }
-      return true;
-    }
-
-    bool
-    operator!=(const unsigned_statistics_copy& o) const
-    {
-      return !(*this == o);
-    }
-
-    bool set;
   };
 
   /// \brief Emptiness-check statistics

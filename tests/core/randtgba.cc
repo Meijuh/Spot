@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008-2012, 2014-2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -145,8 +145,6 @@ syntax(char* prog)
             << "            otherwise be skipped (implies -e)" << std::endl
             << "  -e N    compare result of all "
             << "emptiness checks on N randomly generated graphs" << std::endl
-            << "  -H      halt on the first statistic difference in algorithms"
-            << std::endl
             << "  -m      try to reduce runs, in a second pass (implies -r)"
             << std::endl
             << "  -R N    repeat each emptiness-check and accepting run "
@@ -572,8 +570,6 @@ main(int argc, char** argv)
 
   int exit_code = 0;
 
-  bool stop_on_first_difference = false;
-
   spot::twa_graph_ptr formula = nullptr;
   spot::twa_graph_ptr product = nullptr;
 
@@ -676,12 +672,6 @@ main(int argc, char** argv)
       else if (!strcmp(argv[argn], "-g"))
         {
           opt_dot = true;
-        }
-      else if (!strcmp(argv[argn], "-H"))
-        {
-          if (argc < argn + 1)
-            syntax(argv[0]);
-          stop_on_first_difference = true;
         }
       else if (!strcmp(argv[argn], "-i"))
         {
@@ -925,7 +915,6 @@ main(int argc, char** argv)
                   int n_empty = 0;
                   int n_non_empty = 0;
                   int n_maybe_empty = 0;
-                  spot::unsigned_statistics_copy ostats_ec, ostats_arc;
 
                   for (int i = 0; i < n_alg; ++i)
                     {
@@ -973,14 +962,6 @@ main(int argc, char** argv)
                             }
                         }
 
-                      if (stop_on_first_difference && ecs)
-                        if (!ostats_ec.seteq(*ecs))
-                          {
-                            std::cout << "DIFFERING STATS for emptiness check,"
-                                      << " halting... ";
-                            opt_ec = n_alg = opt_F = 0;
-                          }
-
                       if (res)
                         {
                           if (!opt_paper)
@@ -1011,14 +992,6 @@ main(int argc, char** argv)
                                   sc_arc.count(algo, s);
                                   arc_ratio_stats.count(algo, s);
                                 }
-                              if (stop_on_first_difference && s)
-                                if (!ostats_arc.seteq(*s))
-                                  {
-                                    std::cout << "DIFFERING STATS for "
-                                              << "accepting runs,"
-                                              << " halting... ";
-                                    opt_ec = n_alg = opt_F = 0;
-                                  }
                               if (!run)
                                 {
                                   if (!opt_paper)
