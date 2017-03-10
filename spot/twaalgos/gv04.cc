@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de
+// Copyright (C) 2008, 2010, 2011, 2013-2017 Laboratoire de
 // recherche et développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -67,7 +67,11 @@ namespace spot
       gv04(const const_twa_ptr& a, option_map o)
         : emptiness_check(a, o)
       {
-        assert(a->num_sets() <= 1);
+        if (!(a->prop_weak().is_true()
+              || a->num_sets() == 0
+              || a->acc().is_buchi()))
+          throw std::runtime_error
+            ("gv04 requires Büchi or weak automata");
       }
 
       ~gv04()

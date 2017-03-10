@@ -54,6 +54,11 @@ New in spot 2.3.1.dev (not yet released)
   - the Python wrappers for spot::twa_graph::state_from_number and
     spot::twa_graph::state_acc_sets were broken in 2.3.
 
+  - instantiating an emptiness check on an automaton with unsupported
+    acceptance condition should throw an exception.  This used to be
+    just an assertion, disabled in release builds; the difference
+    matters for the Python bindings.
+
   Deprecation notices:
 
   - Using --format=%a to print the number of atomic propositions in

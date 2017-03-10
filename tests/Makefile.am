@@ -339,6 +339,7 @@ TESTS_python = \
   python/ltlparse.py \
   python/ltlsimple.py \
   python/minato.py \
+  python/misc-ec.py \
   python/optionmap.py \
   python/otfcrash.py \
   python/parsetgba.py \

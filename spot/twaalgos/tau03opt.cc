@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013-2017  Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -74,6 +74,8 @@ namespace spot
           use_weights(o.get("weights", 1)),
           use_red_weights(use_weights && o.get("redweights", 1))
       {
+        if (a->acc().uses_fin_acceptance())
+          throw std::runtime_error("tau03opt requires Fin-less acceptance");
       }
 
       virtual ~tau03_opt_search()
