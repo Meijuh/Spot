@@ -37,7 +37,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <assert.h>
 #include <sys/stat.h>
 #include "kernel.h"
 

@@ -38,7 +38,6 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <assert.h>
 
 #include "kernel.h"
 #include "cache.h"
