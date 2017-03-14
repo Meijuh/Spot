@@ -1,6 +1,6 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, Laboratoire de
-** Recherche et Développement de l'Epita (LRDE).
+** Copyright (C) 2010-2015, 2017, Laboratoire de Recherche et
+** Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 ** département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ** et Marie Curie.
@@ -142,7 +142,7 @@ eol2        (\n\r)+|(\r\n)+
 				  if (!missing_parent)
                                     error_list.push_back(
 				      spot::one_parse_error(*yylloc,
- 					"missing closing parenthese"));
+ 					"missing closing parenthesis"));
 				  missing_parent = true;
 				}
 }
@@ -192,7 +192,7 @@ eol2        (\n\r)+|(\r\n)+
 				}
          [^{}]+			yylval->str->append(yytext, yyleng);
 	 <<EOF>>		{
-				  unput(')');
+				  unput('}');
 				  if (!missing_parent)
                                     error_list.push_back(
 				      spot::one_parse_error(*yylloc,

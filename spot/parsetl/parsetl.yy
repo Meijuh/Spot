@@ -427,7 +427,7 @@ fstarargs: OP_BFSTAR
 equalargs: OP_EQUAL_OPEN sqbracketargs
 	    { $$ = $2; }
 	| OP_EQUAL_OPEN error OP_SQBKT_CLOSE
-            { error_list.emplace_back(@$, "treating this equal block as [*]");
+            { error_list.emplace_back(@$, "treating this equal block as [=]");
               $$.min = 0U; $$.max = fnode::unbounded(); }
         | OP_EQUAL_OPEN error_opt END_OF_INPUT
 	    { error_list.

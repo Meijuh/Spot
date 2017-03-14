@@ -10,6 +10,11 @@ New in spot 2.3.2.dev (not yet released)
   - spot::sum() and spot::sum_and() implements the union and the
     intersection of two automatons, respectively.
 
+  Bug fixes:
+
+  - In "lenient" mode the parser would fail to recover from
+    a missing closing brace.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as

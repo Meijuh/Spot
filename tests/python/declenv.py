@@ -51,21 +51,3 @@ assert "unknown atomic proposition `d'" in err
 
 f4 = spot.parse_prefix_ltl("R a b", env)
 assert not f4.errors
-
-for (x, op) in [('a* <-> b*', "`<->'"),
-                ('a* -> b', "`->'"),
-                ('a ^ b*', "`^'"),
-                ('!(b*)', "`!'"),
-                ('a*[=2]', "[=...]"),
-                ('a*[->2]', "[->...]")]:
-    f5 = spot.parse_infix_sere(x)
-    assert f5.errors
-    ostr = spot.ostringstream()
-    f5.format_errors(ostr)
-    err = ostr.str()
-    assert "not a Boolean expression" in err
-    assert op in err
-    assert "SERE" in err
-
-f6 = spot.parse_infix_sere('(a <-> b -> c ^ b)[=2] & c[->2]')
-assert not f6.errors
