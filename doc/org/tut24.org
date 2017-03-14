@@ -47,6 +47,7 @@ autfilt --dot=.a tut24.hoa
 #+RESULTS:
 [[file:tut24in.png]]
 
+* C++
 
 Let us assume that this automaton has been loaded in variable =aut=,
 and that we run the following code, similar to what we did in the
