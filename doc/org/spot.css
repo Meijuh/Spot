@@ -1,7 +1,7 @@
 a{color:inherit;background-color:inherit;font:inherit;text-decoration:inherit}
 a:hover{text-decoration:underline}
 /* http://paletton.com/#uid=33i0X0kz3BrkeHdpSD1C7r1FAlb */
-body{font-family:Arial, sans-serif;font-weight:normal;max-width:62em;margin:auto;padding:0 .5em;background-image:url(/img/spot64.png);background-repeat:no-repeat;background-position:25px 25px}
+body{font-family:Arial, sans-serif;font-weight:normal;max-width:62em;margin:auto;padding:0 .5em;background-image:url(/img/spot64.png);background-repeat:no-repeat;background-position:.5em .5em}
 body.man{padding:0 .5em 3em .5em}
 body #content{padding-top:45px}
 body pre{background:#fbfbfb;border:none;font-family:monospace, courier}
@@ -12,11 +12,9 @@ body a{color:#008181}
 #table-of-contents h2{font-size:100%;font-weight:normal;padding-left:0.5em;padding-right:0.5em;padding-top:0.05em;padding-bottom:0.05em}
 #table-of-contents #text-table-of-contents{text-align:left}
 #org-div-home-and-up{text-align:center;font-size:100%}
-.done{color:SpringGreen}
-.WAIT{color:Orange}
-.timestamp-kwd{color:DeepPink}
-div#postamble{visibility:hidden}
 .outline-2 h2{border-bottom-style:solid;border-color:#ffe35e}
+.outline-3 h3{position:relative;z-index:1}
+.outline-3 h3:before{content:"";position:absolute;z-index:-1;left:-.2em;bottom:-.05em;height:1.2em;width:1.2em;background-color:#ffe35e;border-radius:5px}
 pre.src{padding-top:8px;border-left-style:solid;border-color:#00adad;overflow:auto}
 pre.src-hoa{padding-top:8px;border-left-style:solid;border-color:#d70079;overflow:auto}
 pre.example{border-left-style:solid;border-color:#d70079}
@@ -34,7 +32,6 @@ img{max-width:100%}
 #table-of-contents{border:1px solid #ffd300}
 #org-div-home-and-up{visibility:hidden}
 }
-
 thead tr {background: #ffe35e;}
 #content tbody:nth-child(odd) tr:nth-child(even) {background: #fff0a6;}
 #content tbody:nth-child(odd) tr:nth-child(odd) {background: #fff7cf;}
