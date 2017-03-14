@@ -1175,30 +1175,32 @@ page~\pageref{property-methods}).
 The symbols $\varphi_G$, $\varphi_S$, $\varphi_O$, $\varphi_P$,
 $\varphi_R$ denote any formula belonging respectively to the
 Guarantee, Safety, Obligation, Persistence, or Recurrence classes.
-$\varphi_F$ denotes a finite LTL formula (the unnamed class at the
-intersection of Safety and Guarantee formulas on
-Fig.~\ref{fig:hierarchy}).  $v$ denotes any variable, $r$ any SERE,
-$r_F$ any bounded SERE (no loops), and $r_I$ any unbounded SERE.
+Additionally $\varphi_B$ denotes a finite LTL formula (the unnamed
+class at the intersection of Safety and Guarantee formulas, at the
+\textbf{b}ottom of Fig.~\ref{fig:hierarchy}).  $v$ denotes any
+variable, $r$ any SERE, $r_F$ any bounded SERE (no loops), and $r_I$
+any unbounded SERE.
 
 \begin{align*}
-  \varphi_F ::={}& \0\mid\1\mid v\mid\NOT\varphi_F\mid\varphi_F\AND\varphi_F
-                   \mid(\varphi_F\OR\varphi_F)\mid\varphi_F\EQUIV\varphi_F
-                   \mid\varphi_F\XOR\varphi_F\mid\varphi_F\IMPLIES\varphi_F
-                   \mid\X\varphi_F\\
-  \varphi_G ::={}& \varphi_F\mid \NOT\varphi_S\mid
+  \varphi_B ::={}& \0\mid\1\mid v\mid\NOT\varphi_B\mid\varphi_B\AND\varphi_B
+                   \mid(\varphi_B\OR\varphi_B)\mid\varphi_B\EQUIV\varphi_B
+                   \mid\varphi_B\XOR\varphi_B\mid\varphi_B\IMPLIES\varphi_B
+                   \mid\X\varphi_B\\
+               \mid{}& \sere{r_F}\mid \nsere{r_F}\\
+  \varphi_G ::={}& \varphi_B\mid \NOT\varphi_S\mid
                    \varphi_G\AND \varphi_G\mid (\varphi_G\OR \varphi_G)
                    \mid\varphi_S\IMPLIES\varphi_G\mid
                    \X\varphi_G \mid \F\varphi_G\mid
                    \varphi_G\U\varphi_G\mid \varphi_G\M\varphi_G\\
-           \mid{}& \sere{r_F}\mid
+           \mid{}& \nsere{r}\mid
                    \sere{r}\Esuffix \varphi_G\mid
                    \sere{r_F}\Asuffix \varphi_G \\
-  \varphi_S ::={}& \varphi_F\mid \NOT\varphi_G\mid
+  \varphi_S ::={}& \varphi_B\mid \NOT\varphi_G\mid
                    \varphi_S\AND \varphi_S\mid (\varphi_S\OR \varphi_S)
                    \mid\varphi_G\IMPLIES\varphi_S\mid
                    \X\varphi_S \mid \G\varphi_S\mid
                    \varphi_S\R\varphi_S\mid \varphi_S\W\varphi_S\\
-           \mid{}& \nsere{r_F}\mid
+           \mid{}& \sere{r}\mid
                    \sere{r_F}\Esuffix \varphi_S\mid
                    \sere{r}\Asuffix \varphi_S\\
   \varphi_O ::={}& \varphi_G \mid \varphi_S\mid \NOT\varphi_O\mid
