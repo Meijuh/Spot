@@ -41,6 +41,7 @@ EOF
    Wnull-dereference \
    Wsuggest-override \
    Wpedantic \
+   Wno-gnu \
    Wno-long-long
   do
     CFLAGS="$cf_save_CFLAGS $ac_cv_prog_gcc_warn_flags -$cf_opt"
