@@ -625,7 +625,6 @@ void printable_automaton::print(std::ostream& os, const char* pos) const
       auto end = strchr(pos, ']');
       options = std::string(pos, end - pos);
       options += 'l';
-      pos = end + 1;
     }
   print_hoa(os, val_, options.c_str());
 }
