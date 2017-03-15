@@ -1,11 +1,11 @@
-New in spot 2.3.1.dev (not yet released)
+New in spot 2.3.2 (2017-03-15)
 
   Tools:
 
-  - In tools that output automata the number of atomic propositions
+  - In tools that output automata, the number of atomic propositions
     can be output using --stats=%x (output automaton) or --stats=%X
     (input automaton).  Additional options can be passed to list
-    atomic propositions instead of conting them.  Tools that output
+    atomic propositions instead of counting them.  Tools that output
     formulas also support --format=%x for this purpose.
 
   Python:
@@ -35,7 +35,7 @@ New in spot 2.3.1.dev (not yet released)
 
   - 'ltl2tgba --any -C -M ...' would not complete automata.
 
-  - while not incorrect, the HOA properties output by 'ltl2tgba -M'
+  - While not incorrect, the HOA properties output by 'ltl2tgba -M'
     could be 'inherently-weak' or 'terminal', while 'ltl2tgba -M -D'
     would always report 'weak' automata.  Both variants now report the
     most precise between 'weak' or 'terminal'.
@@ -43,20 +43,21 @@ New in spot 2.3.1.dev (not yet released)
   - spot::twa_graph::set_univ_init_state() could not be called with
     an initializer list.
 
-  - the Python wrappers for spot::twa_graph::state_from_number and
+  - The Python wrappers for spot::twa_graph::state_from_number and
     spot::twa_graph::state_acc_sets were broken in 2.3.
 
-  - instantiating an emptiness check on an automaton with unsupported
+  - Instantiating an emptiness check on an automaton with unsupported
     acceptance condition should throw an exception.  This used to be
     just an assertion, disabled in release builds; the difference
     matters for the Python bindings.
 
-  Deprecation notices:
+  Deprecation notice:
 
   - Using --format=%a to print the number of atomic propositions in
     ltlfilt, genltl, and randltl still works, but it is not documented
     anymore and should be replaced by the newly-introduced --format=%x
-    for consistency with tools producing automata.
+    for consistency with tools producing automata, where %a means
+    something else.
 
 
 New in spot 2.3.1 (2017-02-20)
