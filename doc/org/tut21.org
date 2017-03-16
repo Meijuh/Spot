@@ -131,6 +131,7 @@ corresponding BDD variable number, and then use for instance
     // would set the deterministic property on its output.  In this
     // example, the properties that are set come from the "properties:"
     // line of the input file.
+    out << "Complete: " << aut->prop_complete() << '\n';
     out << "Deterministic: " << aut->prop_deterministic() << '\n';
     out << "Unambiguous: " << aut->prop_unambiguous() << '\n';
     out << "State-Based Acc: " << aut->prop_state_acc() << '\n';
@@ -169,6 +170,7 @@ Number of edges: 10
 Initial state: 0
 Atomic propositions: a (=0) b (=1) c (=2)
 Name: Fa | G(Fb & Fc)
+Complete: no
 Deterministic: no
 Unambiguous: yes
 State-Based Acc: maybe

@@ -661,7 +661,7 @@ particular:
 | =no-univ-branch=     | ignored | no     | only if =-Hv=                                           |                                                                  |
 | =univ-branch=        | checked | no     | checked                                                 |                                                                  |
 | =deterministic=      | checked | yes    | checked                                                 |                                                                  |
-| =complete=           | checked | no     | checked                                                 |                                                                  |
+| =complete=           | checked | yes    | checked                                                 |                                                                  |
 | =unambiguous=        | trusted | yes    | as stored if (=-Hv= or not =deterministic=)             | can be checked with =--check=unambiguous=                        |
 | =semi-deterministic= | trusted | yes    | as stored if (=-Hv= or not =deterministic=)             | can be checked with =--check=semi-deterministic=                 |
 | =stutter-invariant=  | trusted | yes    | as stored                                               | can be checked with =--check=stuttering=                         |

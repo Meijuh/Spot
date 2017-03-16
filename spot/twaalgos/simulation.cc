@@ -595,6 +595,7 @@ namespace spot
                        { false, // state-based acc forced below
                          true,  // weakness preserved,
                          false, true, // determinism improved
+                         true, // completeness preserved
                          true, // stutter inv.
                        });
         // !unambiguous and !semi-deterministic are not preserved

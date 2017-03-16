@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -134,6 +134,9 @@ namespace spot
   bool
   is_complete(const const_twa_graph_ptr& aut)
   {
+    trival cp = aut->prop_complete();
+    if (cp.is_known())
+      return cp.is_true();
     unsigned ns = aut->num_states();
     for (unsigned src = 0; src < ns; ++src)
       {
@@ -141,11 +144,16 @@ namespace spot
         for (auto& t: aut->out(src))
           available -= t.cond;
         if (available != bddfalse)
-          return false;
+          {
+            std::const_pointer_cast<twa_graph>(aut)->prop_complete(false);
+            return false;
+          }
       }
     // The empty automaton is not complete since it does not have an
     // initial state.
-    return ns > 0;
+    bool res = ns > 0;
+    std::const_pointer_cast<twa_graph>(aut)->prop_complete(res);
+    return res;
   }
 
   bool

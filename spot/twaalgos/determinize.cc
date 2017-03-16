@@ -641,6 +641,7 @@ namespace spot
                    { false, // state based
                        false, // inherently_weak
                        false, false, // deterministic
+                       true, // complete
                        true // stutter inv
                        });
 

@@ -295,7 +295,7 @@ namespace spot
 
     twa_graph_ptr res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
-    res->prop_copy(aut, { true, false, false, true, false });
+    res->prop_copy(aut, { true, false, false, true, false, false });
 
     if (keep & Strong)
       res->copy_acceptance_of(aut);
@@ -362,7 +362,7 @@ namespace spot
     const_twa_graph_ptr aut = sm.get_aut();
     twa_graph_ptr res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
-    res->prop_copy(aut, { true, false, false, true, false });
+    res->prop_copy(aut, { true, false, false, true, false, false });
     res->copy_acceptance_of(aut);
 
     auto um = aut->acc().unsat_mark();

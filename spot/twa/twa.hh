@@ -1,9 +1,9 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
-// Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Copyright (C) 2009, 2011, 2013-2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
+// Copyright (C) 2003-2005 Laboratoire d'Informatique de Paris 6
+// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -992,6 +992,7 @@ namespace spot
       trival::repr_t stutter_invariant:2; // Stutter invariant language.
       trival::repr_t very_weak:2;         // very-weak, or 1-weak
       trival::repr_t semi_deterministic:2; // semi-deterministic automaton.
+      trival::repr_t complete:2;           // Complete automaton.
     };
     union
     {
@@ -1267,6 +1268,29 @@ namespace spot
     }
 
 
+    /// \brief Whether the automaton is complete..
+    ///
+    /// An automaton is complete if for each state the union of the
+    /// labels of its outgoing transitions is always true.
+    ///
+    /// Note that this method may return trival::maybe() when it is
+    /// unknown whether the automaton is complete or not.  If you
+    /// need a true/false answer, prefer the is_complete() function.
+    ///
+    /// \see prop_complete()
+    /// \see is_complete()
+    trival prop_complete() const
+    {
+      return is.complete;
+    }
+
+    /// \brief Set the complete property.
+    ///
+    /// \see is_complete()
+    void prop_complete(trival val)
+    {
+      is.complete = val.val();
+    }
 
     /// \brief Whether the automaton is deterministic.
     ///
@@ -1404,7 +1428,7 @@ namespace spot
     ///
     /// This can be used for instance as:
     /// \code
-    ///    aut->prop_copy(other_aut, {true, false, false, false, true});
+    ///    aut->prop_copy(other_aut, {true, false, false, false, false, true});
     /// \endcode
     /// This would copy the "state-based acceptance" and
     /// "stutter invariant" properties from \c other_aut to \c code.
@@ -1428,7 +1452,51 @@ namespace spot
       bool inherently_weak; ///< preserve inherently weak, weak, & terminal
       bool deterministic;   ///< preserve deterministic, semi-det, unambiguous
       bool improve_det;     ///< improves deterministic, semi-det, unambiguous
+      bool complete;        ///< preserves completeness
       bool stutter_inv;     ///< preserve stutter invariance
+
+      prop_set()
+      : state_based(false),
+        inherently_weak(false),
+        deterministic(false),
+        improve_det(false),
+        complete(false),
+        stutter_inv(false)
+      {
+      }
+
+      prop_set(bool state_based,
+               bool inherently_weak,
+               bool deterministic,
+               bool improve_det,
+               bool complete,
+               bool stutter_inv)
+      : state_based(state_based),
+        inherently_weak(inherently_weak),
+        deterministic(deterministic),
+        improve_det(improve_det),
+        complete(complete),
+        stutter_inv(stutter_inv)
+      {
+      }
+
+#ifndef SWIG
+      // The "complete" argument was added in Spot 2.4
+      SPOT_DEPRECATED("prop_set() now takes 6 arguments")
+      prop_set(bool state_based,
+               bool inherently_weak,
+               bool deterministic,
+               bool improve_det,
+               bool stutter_inv)
+      : state_based(state_based),
+        inherently_weak(inherently_weak),
+        deterministic(deterministic),
+        improve_det(improve_det),
+        complete(false),
+        stutter_inv(stutter_inv)
+      {
+      }
+#endif
 
       /// \brief An all-true \c prop_set
       ///
@@ -1439,7 +1507,7 @@ namespace spot
       /// properties currently implemented, use an explicit
       ///
       /// \code
-      ///    {true, true, true, true, true}
+      ///    {true, true, true, true, true, true}
       /// \endcode
       ///
       /// instead of calling \c all().  This way, the day a new
@@ -1447,7 +1515,7 @@ namespace spot
       /// algorithm X, in case that new property is not preserved.
       static prop_set all()
       {
-        return { true, true, true, true, true };
+        return { true, true, true, true, true, true };
       }
     };
 
@@ -1492,6 +1560,8 @@ namespace spot
                 prop_unambiguous(true);
             }
         }
+      if (p.complete)
+        prop_complete(other->prop_complete());
       if (p.stutter_inv)
         prop_stutter_invariant(other->prop_stutter_invariant());
     }
@@ -1521,6 +1591,8 @@ namespace spot
           if (!(p.improve_det && prop_unambiguous().is_true()))
             prop_unambiguous(trival::maybe());
         }
+      if (!p.complete)
+        prop_complete(trival::maybe());
       if (!p.stutter_inv)
         prop_stutter_invariant(trival::maybe());
     }

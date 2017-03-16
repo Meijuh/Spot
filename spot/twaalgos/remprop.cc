@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2015-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -130,7 +130,7 @@ namespace spot
 
     twa_graph_ptr res = make_twa_graph(d);
     res->copy_ap_of(aut);
-    res->prop_copy(aut, { true, true, false, false, false });
+    res->prop_copy(aut, { true, true, false, false, false, false });
     res->copy_acceptance_of(aut);
 
     for (auto ap: props_exist)

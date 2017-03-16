@@ -146,7 +146,7 @@ extern "C" int strverscmp(const char *s1, const char *s2);
       bool aliased_states = false;
 
       spot::trival deterministic = spot::trival::maybe();
-      bool complete = false;
+      spot::trival complete = spot::trival::maybe();
       bool trans_acc_seen = false;
 
       std::map<std::string, spot::location> labels;
@@ -471,14 +471,15 @@ header: format-version header-items
 		    error(det.loc,
 			  "deterministic automata should have at most "
 			  "one initial state");
+                    res.deterministic = spot::trival::maybe();
 		  }
-		res.deterministic = false;
 	      }
 	    else
 	      {
 		// Assume the automaton is deterministic until proven
 		// wrong, or unless we are building a Kripke structure.
-		res.deterministic = !res.opts.want_kripke;
+                if (!res.opts.want_kripke)
+                  res.deterministic = true;
 	      }
 	    auto complete = res.prop_is_true("complete");
 	    if (ss < 1)
@@ -495,7 +496,8 @@ header: format-version header-items
 	      {
 		// Assume the automaton is complete until proven
 		// wrong.
-		res.complete = !res.opts.want_kripke;
+                if (!res.opts.want_kripke)
+                  res.complete = true;
 	      }
 	    // if ap_count == 0, then a Kripke structure could be
 	    // declared complete, although that probably doesn't
@@ -1034,6 +1036,7 @@ body: states
                 // mention it in the next loop.
                 if (s < res.info_states.size())
                   res.info_states[s].declared = true;
+                res.complete = spot::trival::maybe();
               }
 	unsigned n = res.info_states.size();
 	// States with number above res.states have already caused a
@@ -1043,10 +1046,34 @@ body: states
 	for (unsigned i = 0; i < n; ++i)
 	  {
 	    auto& p = res.info_states[i];
-	    if (p.used && !p.declared)
-	      error(p.used_loc,
-		    "state " + std::to_string(i) + " has no definition");
+            if (!p.declared)
+              {
+                if (p.used)
+                  error(p.used_loc,
+                        "state " + std::to_string(i) + " has no definition");
+                if (!p.used && res.complete)
+                  if (auto p = res.prop_is_true("complete"))
+                    {
+                      error(res.states_loc,
+                            "state " + std::to_string(i) +
+                            " has no definition...");
+                      error(p.loc, "... despite 'properties: complete'");
+                    }
+                res.complete = false;
+              }
 	  }
+        if (res.complete)
+          if (auto p = res.prop_is_false("complete"))
+            {
+              error(@1, "automaton is complete...");
+              error(p.loc, "... despite 'properties: !complete'");
+            }
+        if (res.deterministic)
+          if (auto p = res.prop_is_false("deterministic"))
+            {
+              error(@1, "automaton is deterministic...");
+              error(p.loc, "... despite 'properties: !deterministic'");
+            }
       }
 
 state-num: INT
@@ -1104,7 +1131,7 @@ checked-state-num: state-num
 
 states: | states state
         {
-	  if ((res.deterministic || res.complete) && !res.opts.want_kripke)
+	  if ((res.deterministic.is_true() || res.complete.is_true()))
 	    {
 	      bdd available = bddtrue;
 	      bool det = true;
@@ -1114,7 +1141,7 @@ states: | states state
 		    det = false;
 		  available -= t.cond;
 		}
-	      if (res.deterministic && !det)
+	      if (res.deterministic.is_true() && !det)
 		{
 		  res.deterministic = false;
 		  if (auto p = res.prop_is_true("deterministic"))
@@ -1124,7 +1151,7 @@ states: | states state
 			    "... despite 'properties: deterministic'");
 		    }
 		}
-	      if (res.complete && available != bddfalse)
+	      if (res.complete.is_true() && available != bddfalse)
 		{
 		  res.complete = false;
 		  if (auto p = res.prop_is_true("complete"))
@@ -1165,7 +1192,7 @@ state: state-name labeled-edges
 	 // Assume the worse.  This skips the tests about determinism
 	 // we might perform on the state.
 	 res.deterministic = spot::trival::maybe();
-	 res.complete = false;
+	 res.complete = spot::trival::maybe();
        }
 
 
@@ -1177,6 +1204,11 @@ state-name: "State:" state-label_opt checked-state-num string_opt state-acc_opt
 		std::ostringstream o;
 		o << "redeclaration of state " << $3;
 		error(@1 + @3, o.str());
+                // The additional transitions from extra states might
+                // led us to believe that the automaton is complete
+                // while it is not if we ignore them.
+                if (res.complete.is_true())
+                  res.complete = spot::trival::maybe();
 	      }
 	    res.info_states[$3].declared = true;
 	    res.acc_state = $5;
@@ -1499,7 +1531,7 @@ dstar_header: dstar_sizes
       }
     res.acc_style = State_Acc;
     res.deterministic = true;
-    // res.h->aut->prop_complete();
+    res.complete = true;
     fill_guards(res);
     res.cur_guard = res.guards.end();
   }
@@ -2230,6 +2262,10 @@ static void fix_initial_state(result_& r)
 				    "a single initial state");
 	  return;
 	}
+      // Fiddling with initial state may turn an incomplete automaton
+      // into a complete one.
+      if (r.complete.is_false())
+        r.complete = spot::trival::maybe();
       // Multiple initial states.  We might need to add a fake one,
       // unless one of the actual initial state has no incoming edge.
       auto& aut = r.h->aut;
@@ -2299,7 +2335,9 @@ static void fix_initial_state(result_& r)
 static void fix_properties(result_& r)
 {
   r.aut_or_ks->prop_deterministic(r.deterministic);
-  //r.aut_or_ks->prop_complete(r.complete);
+  // std::cerr << "fix det: " << r.deterministic << '\n';
+  // std::cerr << "fix complete: " << r.complete << '\n';
+  r.aut_or_ks->prop_complete(r.complete);
   if (r.acc_style == State_Acc ||
       (r.acc_style == Mixed_Acc && !r.trans_acc_seen))
     r.aut_or_ks->prop_state_acc(true);

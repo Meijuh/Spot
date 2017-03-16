@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2017 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -25,12 +25,9 @@ namespace spot
 {
   /// \brief Complete a twa_graph in place.
   ///
-  /// If the TωA has no acceptance set, one will be added.  The
-  /// returned value is the number of the sink state (it can be a new
-  /// state added for completion, or an existing non-accepting state
-  /// that has been reused as sink state because it had no outgoing
-  /// transitions apart from self-loops.)
-  SPOT_API unsigned complete_here(twa_graph_ptr aut);
+  /// If the TωA has an acceptance condition that is a tautology,
+  /// it will be changed into a Büchi automaton.
+  SPOT_API void complete_here(twa_graph_ptr aut);
 
   /// \brief Clone a twa and complete it.
   ///

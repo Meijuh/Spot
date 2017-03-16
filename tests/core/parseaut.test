@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2014-2017 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -367,8 +367,23 @@ State: 1 { 1 }
 State: 2 "sink state" { 0 }
   2 2 2 2
 --END--
+HOA: v1.1
+name: "GFa"
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc !complete
+properties: !deterministic stutter-invariant
+--BODY--
+State: 0
+[0] 0 {0}
+[!0] 0
+--END--
 EOF
 
+err1="this might cause the following errors"
 expecterr input <<EOF
 input:9.5-12.7: not enough transitions for this state
 input:10.7-12.7: these transitions have implicit labels but the automaton is...
@@ -377,6 +392,11 @@ input:9.5-12.7: automaton is not complete...
 input:7.30-37: ... despite 'properties: complete'
 input:27.8-10: state label used although the automaton was...
 input:25.13-27: ... declared with 'properties: implicit-labels' here
+input:37.6-9: we can read HOA v1 but this file uses v1.1; $err1
+input:46.9-49.6: automaton is complete...
+input:44.52-60: ... despite 'properties: !complete'
+input:46.9-49.6: automaton is deterministic...
+input:45.13-26: ... despite 'properties: !deterministic'
 EOF
 
 cat >input<<EOF
@@ -1853,6 +1873,15 @@ properties: !inherently-weak weak
 --BODY--
 State: 0 0
 --END--
+HOA: v1
+States: 2
+Start: 0
+AP: 0
+Acceptance: 0 t
+properties: complete
+--BODY--
+State: 0 0
+--END--
 EOF
 
 expecterr input <<EOF
@@ -1866,6 +1895,8 @@ input:36.36-43: 'properties: terminal' contradicts...
 input:36.30-34: ... 'properties: !weak' given here
 input:45.30-33: 'properties: weak' contradicts...
 input:45.13-28: ... 'properties: !inherently-weak' given here
+input:50.1-9: state 1 has no definition...
+input:54.13-20: ... despite 'properties: complete'
 EOF
 
 
@@ -2051,7 +2082,6 @@ State: 0
 --END--
 EOF
 
-err1="this might cause the following errors"
 expecterr input<<EOF
 input:11.9-11: universal branch used despite previous declaration...
 input:7.13-26: ... here

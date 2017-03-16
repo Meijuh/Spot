@@ -233,6 +233,14 @@ namespace spot
         v = current++;
     if (current == todo.size())
       return;                        // No unreachable state.
+
+    // Removing some non-deterministic dead state could make the
+    // automaton deterministic.
+    if (prop_deterministic().is_false())
+      prop_deterministic(trival::maybe());
+    if (prop_complete().is_false())
+      prop_complete(trival::maybe());
+
     defrag_states(std::move(todo), current);
   }
 
@@ -393,6 +401,14 @@ namespace spot
         useful[s] = -1U;
     if (current == num_states)
       return;                        // No useless state.
+
+    // Removing some non-deterministic dead state could make the
+    // automaton deterministic.  Likewise for non-complete.
+    if (prop_deterministic().is_false())
+      prop_deterministic(trival::maybe());
+    if (prop_complete().is_false())
+      prop_complete(trival::maybe());
+
     defrag_states(std::move(useful), current);
   }
 

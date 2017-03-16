@@ -224,11 +224,12 @@ namespace spot
       unsigned nst = aut->num_states();
       auto res = make_twa_graph(aut->get_dict());
       res->copy_ap_of(aut);
-      res->prop_copy(aut, { true, false, false, false, true });
+      res->prop_copy(aut, { true, false, false, false, false, true });
       res->new_states(nst);
       res->set_buchi();
       res->set_init_state(aut->get_init_state_number());
       trival deterministic = aut->prop_deterministic();
+      trival complete = aut->prop_complete();
 
       std::vector<unsigned> state_map(aut->num_states());
       for (unsigned n = 0; n < scc_max; ++n)
@@ -245,11 +246,11 @@ namespace spot
                   for (auto& t: aut->out(s))
                     res->new_acc_edge(s, t.dst, t.cond, acc);
                 }
-              continue;
             }
           else
             {
               deterministic = false;
+              complete = trival::maybe();
 
               // The main copy is only accepting for inf_alone
               // and for all Inf sets that have no matching Fin
@@ -300,8 +301,9 @@ namespace spot
                 }
             }
         }
-      res->purge_dead_states();
+      res->prop_complete(complete);
       res->prop_deterministic(deterministic);
+      res->purge_dead_states();
       return res;
     }
 
@@ -386,10 +388,11 @@ namespace spot
       auto res = make_twa_graph(aut,
                                 {
                                   true, // state based
-                                    true, // inherently weak
-                                    true, true, // determinisitic
-                                    true,  // stutter inv.
-                                    });
+                                  true, // inherently weak
+                                  true, true, // determinisitic
+                                  true,       // complete
+                                  true,  // stutter inv.
+                                });
       scc_info si(res);
 
       // We will modify res in place, and the resulting
@@ -663,7 +666,7 @@ namespace spot
     unsigned nst = aut->num_states();
     auto res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
-    res->prop_copy(aut, { true, false, false, false, true });
+    res->prop_copy(aut, { true, false, false, false, false, true });
     res->new_states(nst);
     res->set_acceptance(aut->num_sets() + extra_sets, new_code);
     res->set_init_state(aut->get_init_state_number());

@@ -57,7 +57,7 @@ namespace spot
     auto res = make_twa_graph(old->get_dict());
     res->copy_ap_of(old);
     res->copy_acceptance_of(old);
-    res->prop_copy(old, {false, true, true, true, true});
+    res->prop_copy(old, {false, true, true, true, true, true});
     res->prop_state_acc(true);
 
     typedef std::pair<unsigned, acc_cond::mark_t> pair_t;

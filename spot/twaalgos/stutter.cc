@@ -400,10 +400,11 @@ namespace spot
           }
       }
     if (num_states != a->num_states())
-      a->prop_keep({true,        // state_based
+      a->prop_keep({true,         // state_based
                     false,        // inherently_weak
                     false, false, // deterministic
-                    false,      // stutter inv.
+                    true,         // complete
+                    false,        // stutter inv.
                    });
     a->merge_edges();
     return a;
@@ -423,6 +424,7 @@ namespace spot
     a->prop_keep({false,        // state_based
                   false,        // inherently_weak
                   false, false, // deterministic
+                  true,         // complete
                   false,        // stutter inv.
                  });
 

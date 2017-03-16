@@ -212,7 +212,7 @@ namespace spot
       if (want_sba)
         res->prop_state_acc(true);
       // Preserve determinism, weakness, and stutter-invariance
-      res->prop_copy(a, { false, true, true, true, true });
+      res->prop_copy(a, { false, true, true, true, true, true });
 
       // Create an order of acceptance conditions.  Each entry in this
       // vector correspond to an acceptance set.  Each index can

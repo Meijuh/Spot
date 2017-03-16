@@ -160,8 +160,11 @@ namespace spot
         is_colored = colored && (!has_state_acc || nodeadend);
         // If the automaton declares that it is deterministic or
         // state-based, make sure that it really is.
-        assert(deterministic || aut->prop_deterministic() != true);
-        assert(state_acc || aut->prop_state_acc() != true);
+        assert(!aut->prop_deterministic().is_known() ||
+               deterministic == aut->prop_deterministic().is_true());
+        assert(!aut->prop_complete().is_known() ||
+               complete == aut->prop_complete().is_true());
+        assert(state_acc || !aut->prop_state_acc().is_true());
       }
 
       void number_all_ap(const const_twa_graph_ptr& aut)

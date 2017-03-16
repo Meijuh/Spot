@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2013-2017 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,10 +21,12 @@
 
 namespace spot
 {
-  unsigned complete_here(twa_graph_ptr aut)
+  void complete_here(twa_graph_ptr aut)
   {
-    unsigned n = aut->num_states();
     unsigned sink = -1U;
+    if (aut->prop_complete().is_true())
+      return;
+    unsigned n = aut->num_states();
 
     // UM is a pair (bool, mark).  If the Boolean is false, the
     // acceptance is always satisfiable.  Otherwise, MARK is an
@@ -126,24 +128,17 @@ namespace spot
           }
       }
 
+    aut->prop_complete(true);
     // Get rid of any named property if the automaton changed.
     if (t < aut->num_edges())
       aut->release_named_properties();
     else
       assert(t == aut->num_edges());
-
-    return sink;
   }
 
   twa_graph_ptr complete(const const_twa_ptr& aut)
   {
-    auto res = make_twa_graph(aut, {
-                                        true, // state based
-                                        true, // inherently_weak
-                                        true, // deterministic
-                                        true, // improve det
-                                        true, // stutter inv.
-                                      });
+    auto res = make_twa_graph(aut, twa::prop_set::all());
     complete_here(res);
     return res;
   }

@@ -106,22 +106,21 @@ namespace spot
               }
         }
 
-      res->prop_deterministic(left->prop_deterministic()
-                              && right->prop_deterministic());
-      res->prop_stutter_invariant(left->prop_stutter_invariant()
-                                  && right->prop_stutter_invariant());
-      // The product of X!a and Xa, two stutter-sentive formulas,
-      // is stutter-invariant.
-      //res->prop_stutter_sensitive(left->prop_stutter_sensitive()
-      //                            && right->prop_stutter_sensitive());
-      res->prop_inherently_weak(left->prop_inherently_weak()
-                                && right->prop_inherently_weak());
-      res->prop_weak(left->prop_weak()
-                     && right->prop_weak());
-      res->prop_terminal(left->prop_terminal()
-                         && right->prop_terminal());
-      res->prop_state_acc(left->prop_state_acc()
-                          && right->prop_state_acc());
+      // The product of two non-deterministic automata could be
+      // deterministic.  likewise for non-complete automata.
+      if (left->prop_deterministic() && right->prop_deterministic())
+        res->prop_deterministic(true);
+      if (left->prop_complete() && right->prop_complete())
+        res->prop_complete(true);
+      if (left->prop_stutter_invariant() && right->prop_stutter_invariant())
+        res->prop_stutter_invariant(true);
+      if (left->prop_inherently_weak() && right->prop_inherently_weak())
+        res->prop_inherently_weak(true);
+      if (left->prop_weak() && right->prop_weak())
+        res->prop_weak(true);
+      if (left->prop_terminal() && right->prop_terminal())
+        res->prop_terminal(true);
+      res->prop_state_acc(left->prop_state_acc() && right->prop_state_acc());
       return res;
     }
   }
