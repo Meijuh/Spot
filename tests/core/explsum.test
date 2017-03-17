@@ -135,8 +135,8 @@ State: 4
 [!0] 2 {2}
 [2] 3 {2}
 State: 5
-[1] 1
 [0] 3
+[1] 1
 [1] 4
 --END--
 HOA: v1
@@ -161,8 +161,8 @@ State: 4
 [2] 3 {0 1}
 State: 5
 [0] 0
-[1] 1
 [0] 3
+[1] 1
 [1] 4
 --END--
 HOA: v1
@@ -214,4 +214,72 @@ EOF
 
 run 0 autfilt false1 --sum false2 --hoaf=t | tee stdout
 diff stdout expected
-rm false1 false2 input1 input2 input3 input4 expected stdout
+rm stdout
+
+cat >expected <<EOF
+HOA: v1
+States: 7
+Start: 0&2&5
+AP: 3 "b" "a" "c"
+Acceptance: 4 Fin(0) | Inf(1) | (Inf(2)&Inf(3))
+properties: univ-branch trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[1] 0 {0}
+[0] 1
+State: 1
+[0] 1
+State: 2
+[1] 3 {0 1}
+[0] 4 {0 1}
+State: 3
+State: 4
+[!1] 2 {0 1}
+[2] 3 {0 1}
+State: 5
+[0] 6 {0 2}
+State: 6
+[1] 5 {0 3}
+--END--
+EOF
+
+run 0 autfilt input1 --sum-and input2 | tee temp
+run 0 autfilt input3 --sum-and temp | tee stdout
+diff stdout expected
+rm stdout
+
+cat >expected <<EOF
+HOA: v1
+States: 8
+Start: 7
+AP: 3 "b" "a" "c"
+Acceptance: 4 Fin(0) | Inf(1) | (Inf(2)&Inf(3))
+properties: univ-branch trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[1] 0 {0}
+[0] 1
+State: 1
+[0] 1
+State: 2
+[1] 3 {0 1}
+[0] 4 {0 1}
+State: 3
+State: 4
+[!1] 2 {0 1}
+[2] 3 {0 1}
+State: 5
+[0] 6 {0 2}
+State: 6
+[1] 5 {0 3}
+State: 7
+[0&1] 3&6
+[0] 1
+[0] 4&6
+[1] 0
+--END--
+EOF
+
+run 0 autfilt input3 --sum temp | tee stdout
+diff stdout expected
+rm false1 false2 input1 input2 input3 input4 expected stdout temp

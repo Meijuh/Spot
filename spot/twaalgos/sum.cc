@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <spot/twaalgos/alternation.hh>
 #include <spot/twaalgos/sum.hh>
 #include <spot/twa/twagraph.hh>
 #include <vector>
@@ -30,25 +31,23 @@ namespace spot
     // in replacement of graph_init
     static
     void connect_init_state(const twa_graph_ptr& res,
-                            const const_twa_graph_ptr& graph,
                             unsigned init,
-                            unsigned graph_init,
-                            unsigned offset = 0U)
+                            const const_twa_graph_ptr& left,
+                            const const_twa_graph_ptr& right,
+                            unsigned left_init,
+                            unsigned right_init,
+                            unsigned offset)
     {
-      std::map<unsigned, bdd> edges;
-      std::vector<unsigned> dst;
-      for (auto& e : graph->out(graph_init))
-        {
-          for (auto& d : graph->univ_dests(e))
-            dst.push_back(d + offset);
-          if (dst.size() > 1)
-            res->new_univ_edge(init, dst.begin(), dst.end(), e.cond, 0U);
-          else
-            edges[dst[0]] |= e.cond;
-          dst.clear();
-        }
-      for (auto& p : edges)
-        res->new_edge(init, p.first, p.second);
+      bdd comb_left = bddtrue;
+      outedge_combiner oe(res);
+      for (unsigned c : left->univ_dests(left_init))
+        comb_left &= oe(c);
+
+      bdd comb_right = bddtrue;
+      for (unsigned c : right->univ_dests(right_init))
+        comb_right &= oe(c + offset);
+
+      oe.new_dests(init, comb_left | comb_right);
     }
 
     // Helper function that copies the states of graph into res, adding
@@ -60,14 +59,14 @@ namespace spot
                     acc_cond::mark_t mark = 0U,
                     unsigned offset = 0U)
     {
-      auto state_offset = res->num_states();
+      unsigned state_offset = res->num_states();
 
       res->new_states(graph->num_states());
 
       std::vector<unsigned> dst;
       for (auto& e : graph->edges())
         {
-          for (auto& d : graph->univ_dests(e))
+          for (unsigned d : graph->univ_dests(e))
             dst.push_back(d + state_offset);
 
           res->new_univ_edge(e.src + state_offset,
@@ -99,7 +98,7 @@ namespace spot
       acc_cond::mark_t markl = 0U;
       acc_cond::mark_t markr = 0U;
       auto left_acc = left->get_acceptance();
-      auto left_num_sets = left->num_sets();
+      unsigned left_num_sets = left->num_sets();
       if (!unsatl.first)
         {
           markl.set(0);
@@ -113,7 +112,7 @@ namespace spot
 
       auto unsatr = right->acc().unsat_mark();
       auto right_acc = right->get_acceptance();
-      auto right_num_sets = right->num_sets();
+      unsigned right_num_sets = right->num_sets();
       if (!unsatr.first)
         {
           markr.set(left_num_sets);
@@ -134,13 +133,24 @@ namespace spot
           unsigned init = res->new_state();
           res->set_init_state(init);
 
-          connect_init_state(res, left, init, left_state);
-          connect_init_state(res, right, init, right_state, left->num_states());
+          connect_init_state(res,
+                             init,
+                             left,
+                             right,
+                             left_state,
+                             right_state,
+                             left->num_states());
         }
       else
         {
-          res->set_univ_init_state({ left_state,
-                                     right_state + left->num_states() });
+          std::vector<unsigned> stl;
+          for (unsigned d : left->univ_dests(left_state))
+            stl.push_back(d);
+
+          for (unsigned d : right->univ_dests(right_state))
+            stl.push_back(d + left->num_states());
+
+          res->set_univ_init_state(stl.begin(), stl.end());
         }
       return res;
    }
