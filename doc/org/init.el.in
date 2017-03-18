@@ -28,6 +28,8 @@
    (C . t)))
 (setq org-confirm-babel-evaluate nil)
 (setq org-plantuml-jar-path "@abs_top_builddir@/doc/org/plantuml.jar")
+(setq org-babel-temporary-directory "@abs_top_builddir@/doc/org/tmp")
+(make-directory org-babel-temporary-directory t)
 (setq org-babel-python-command "@PYTHON@")
 (setq org-babel-C++-compiler "./g++wrap")
 (setq shell-file-name "@SHELL@")
@@ -90,3 +92,7 @@
        ("spot-all" :components ("spot-html" "spot-static"))))
 
 (org-publish-all t)
+;;; org-babel-remove-temporary-directory does not correctly remove
+;;; nested directories and we have some files in tmp/.libs/ because of
+;;; libtool.  So let us clean that ourselves.
+(delete-directory org-babel-temporary-directory t)
