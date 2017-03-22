@@ -23,6 +23,9 @@ New in spot 2.3.2.dev (not yet released)
   - In "lenient" mode the parser would fail to recover from
     a missing closing brace.
 
+  - The output of 'genltl --r-left=1 --r-right=1 --format=%F'
+    had typos.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as

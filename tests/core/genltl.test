@@ -21,6 +21,14 @@
 . ./defs
 set -e
 
+# Make sure the name of each pattern is correctly output by %F.
+opts=`genltl --help | sed -n '/=RANGE/{
+s/^ *//
+s/[=[].*/=1/p
+}'`
+res=`genltl $opts --format="--%F=%L"`
+test "$opts" = "$res"
+
 run 0 genltl --dac=1..5 --eh=1..5 --pos --neg --format="%F:%L %f" >output
 cat >expected <<EOF
 dac-patterns:1 G!p0
