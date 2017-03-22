@@ -264,6 +264,7 @@ static const argp_option options[] =
     { "dac-patterns", OPT_DAC_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Dwyer et al. [FMSP'98] Spec. Patterns for LTL "
       "(range should be included in 1..55)", 0 },
+    OPT_ALIAS(spec-patterns),
     { "eh-patterns", OPT_EH_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Etessami and Holzmann [Concur'00] patterns "
       "(range should be included in 1..12)", 0 },

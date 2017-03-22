@@ -5,6 +5,8 @@ New in spot 2.3.2.dev (not yet released)
   - In autfilt, the options --sum(--sum-or) and --sum-and are
     implemented.
 
+  - genltl learned --spec-patterns as an alias for --dac-patterns
+
   Library:
 
   - spot::sum() and spot::sum_and() implements the union and the
