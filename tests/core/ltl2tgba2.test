@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
-# Laboratoire de Recherche et Développement de l'Epita (LRDE).
+# Copyright (C) 2009-2017 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -24,11 +24,12 @@
 . ./defs
 
 # If the size of automata produced by ltl2tgba on the formulas we
-# commonly use as benchmark, we want to notice it.
+# commonly use as benchmark change, we want to notice it.
 
 set -e
-genltl --dac-patterns --eh-patterns --sb-patterns --format=%F,%L,%f >pos
-(cat pos; ltlfilt --negate pos/3 --format='!%<,%f') | ltlfilt -u -F-/3 >formulas
+genltl --dac --eh --sb --hkrss --format=%F,%L,%f >pos
+(cat pos; ltlfilt --negate pos/3 --format='!%<,%f') |
+    ltlfilt -u -F-/3 >formulas
 
 ltl2tgba -Fformulas/3 --stats='%<,%f, %s,%t' |
     ltl2tgba -D -F-/3 --stats='%<,%f,%>, %s,%t' |
@@ -129,6 +130,59 @@ sb-patterns,24, 4,16, 4,16, 4,16, 4,16
 sb-patterns,25, 3,10, 3,10, 3,10, 3,10
 sb-patterns,26, 1,1, 1,1, 1,1, 1,1
 sb-patterns,27, 2,7, 2,7, 2,7, 2,7
+hkrss-patterns,1, 1,2, 1,2, 3,6, 3,6
+hkrss-patterns,2, 1,2, 1,2, 3,6, 3,6
+hkrss-patterns,3, 5,36, 5,36, 5,36, 5,36
+hkrss-patterns,4, 9,400, 9,400, 9,400, 9,400
+hkrss-patterns,6, 1,2, 1,2, 3,6, 3,6
+hkrss-patterns,7, 2,8, 2,8, 2,8, 2,8
+hkrss-patterns,8, 1,1, 1,1, 1,1, 1,1
+hkrss-patterns,9, 2,8, 2,8, 2,8, 2,8
+hkrss-patterns,11, 2,16, 2,16, 2,16, 2,16
+hkrss-patterns,12, 2,32, 2,32, 2,32, 2,32
+hkrss-patterns,13, 16,4096, 16,4096, 40,10240, 40,10240
+hkrss-patterns,14, 1,1, 1,1, 1,1, 1,1
+hkrss-patterns,15, 1,3, 1,3, 1,3, 1,3
+hkrss-patterns,16, 1,3, 1,3, 1,3, 1,3
+hkrss-patterns,17, 1,3, 1,3, 1,3, 1,3
+hkrss-patterns,18, 1,6, 1,6, 1,6, 1,6
+hkrss-patterns,19, 1,25, 1,25, 1,25, 1,25
+hkrss-patterns,20, 1,31, 1,31, 1,31, 1,31
+hkrss-patterns,21, 2,1024, 2,1024, 2,1024, 2,1024
+hkrss-patterns,22, 2,1024, 2,1024, 2,1024, 2,1024
+hkrss-patterns,23, 1,63, 1,63, 1,63, 1,63
+hkrss-patterns,24, 1,63, 1,63, 1,63, 1,63
+hkrss-patterns,25, 1,63, 1,63, 1,63, 1,63
+hkrss-patterns,26, 1,98, 1,98, 1,98, 1,98
+hkrss-patterns,27, 1,127, 1,127, 1,127, 1,127
+hkrss-patterns,28, 1,255, 1,255, 1,255, 1,255
+hkrss-patterns,29, 3,44, 3,44, 3,44, 3,44
+hkrss-patterns,30, 5,78, 5,78, 5,78, 5,78
+hkrss-patterns,31, 1,1, 1,1, 1,1, 1,1
+hkrss-patterns,32, 3,46, 3,46, 3,46, 3,46
+hkrss-patterns,33, 3,46, 3,46, 3,46, 3,46
+hkrss-patterns,34, 2,12, 2,12, 2,12, 2,12
+hkrss-patterns,35, 2,7, 2,7, 2,7, 2,7
+hkrss-patterns,36, 34,192, 34,192, 35,208, 35,208
+hkrss-patterns,37, 2,30, 2,30, 2,30, 2,30
+hkrss-patterns,38, 2,7, 2,7, 3,10, 3,10
+hkrss-patterns,39, 3,11, 3,11, 3,11, 3,11
+hkrss-patterns,40, 4,13, 4,13, 4,13, 4,13
+hkrss-patterns,41, 6,17, 6,17, 6,17, 6,17
+hkrss-patterns,42, 6,17, 6,17, 6,17, 6,17
+hkrss-patterns,43, 8,21, 8,21, 8,21, 8,21
+hkrss-patterns,44, 6,22, 6,22, 6,22, 6,22
+hkrss-patterns,45, 12,23, 12,23, 12,23, 12,23
+hkrss-patterns,46, 4,14, 5,14, 4,14, 5,14
+hkrss-patterns,47, 4,14, 5,14, 4,14, 5,14
+hkrss-patterns,48, 2,36, 2,36, 2,36, 2,36
+hkrss-patterns,49, 2,7, 2,7, 2,7, 2,7
+hkrss-patterns,50, 2,7, 2,7, 2,7, 2,7
+hkrss-patterns,51, 2,2, 2,2, 2,2, 2,2
+hkrss-patterns,52, 4,25, 4,25, 5,29, 5,29
+hkrss-patterns,53, 3,22, 3,22, 3,22, 3,22
+hkrss-patterns,54, 3,22, 3,22, 3,22, 3,22
+hkrss-patterns,55, 5,8, 5,8, 5,8, 5,8
 !dac-patterns,1, 2,4, 2,4, 2,4, 2,4
 !dac-patterns,2, 3,10, 3,10, 3,10, 3,10
 !dac-patterns,3, 3,12, 3,12, 3,12, 3,12
@@ -214,6 +268,59 @@ sb-patterns,27, 2,7, 2,7, 2,7, 2,7
 !sb-patterns,25, 4,32, 4,32, 4,32, 4,32
 !sb-patterns,26, 2,4, 2,4, 2,4, 2,4
 !sb-patterns,27, 2,6, 2,6, 2,6, 2,6
+!hkrss-patterns,1, 3,6, 3,6, 3,6, 3,6
+!hkrss-patterns,2, 3,6, 3,6, 3,6, 3,6
+!hkrss-patterns,3, 5,12, 5,12, 5,12, 5,12
+!hkrss-patterns,4, 17,48, 17,48, 17,48, 17,48
+!hkrss-patterns,6, 3,6, 3,6, 3,6, 3,6
+!hkrss-patterns,7, 2,8, 2,8, 2,8, 2,8
+!hkrss-patterns,8, 1,0, 1,0, 1,0, 1,0
+!hkrss-patterns,9, 2,7, 2,7, 2,7, 2,7
+!hkrss-patterns,11, 2,11, 2,11, 2,11, 2,11
+!hkrss-patterns,12, 2,19, 2,19, 2,19, 2,19
+!hkrss-patterns,13, 5,1024, 5,1024, 5,1024, 5,1024
+!hkrss-patterns,14, 2,8, 2,8, 2,8, 2,8
+!hkrss-patterns,15, 2,8, 2,8, 2,8, 2,8
+!hkrss-patterns,16, 2,8, 2,8, 2,8, 2,8
+!hkrss-patterns,17, 2,8, 2,8, 2,8, 2,8
+!hkrss-patterns,18, 2,16, 2,16, 2,16, 2,16
+!hkrss-patterns,19, 2,64, 2,64, 2,64, 2,64
+!hkrss-patterns,20, 2,64, 2,64, 2,64, 2,64
+!hkrss-patterns,21, 2,1007, 2,1007, 2,1007, 2,1007
+!hkrss-patterns,22, 2,1007, 2,1007, 2,1007, 2,1007
+!hkrss-patterns,23, 2,128, 2,128, 2,128, 2,128
+!hkrss-patterns,24, 2,128, 2,128, 2,128, 2,128
+!hkrss-patterns,25, 2,128, 2,128, 2,128, 2,128
+!hkrss-patterns,26, 2,256, 2,256, 2,256, 2,256
+!hkrss-patterns,27, 2,256, 2,256, 2,256, 2,256
+!hkrss-patterns,28, 2,512, 2,512, 2,512, 2,512
+!hkrss-patterns,29, 4,64, 4,64, 4,64, 4,64
+!hkrss-patterns,30, 6,48, 6,48, 6,48, 6,48
+!hkrss-patterns,31, 1,0, 1,0, 1,0, 1,0
+!hkrss-patterns,32, 4,42, 4,42, 4,42, 4,42
+!hkrss-patterns,33, 4,42, 4,42, 4,42, 4,42
+!hkrss-patterns,34, 3,24, 3,24, 3,24, 3,24
+!hkrss-patterns,35, 3,12, 3,12, 3,12, 3,12
+!hkrss-patterns,36, 19,784, 19,784, 19,784, 19,784
+!hkrss-patterns,37, 3,48, 3,48, 3,48, 3,48
+!hkrss-patterns,38, 3,12, 3,12, 3,12, 3,12
+!hkrss-patterns,39, 4,16, 4,16, 4,16, 4,16
+!hkrss-patterns,40, 5,19, 5,19, 5,19, 5,19
+!hkrss-patterns,41, 7,27, 7,27, 7,27, 7,27
+!hkrss-patterns,42, 7,27, 7,27, 7,27, 7,27
+!hkrss-patterns,43, 9,35, 9,35, 9,35, 9,35
+!hkrss-patterns,44, 7,24, 7,24, 7,24, 7,24
+!hkrss-patterns,45, 13,26, 13,26, 13,26, 13,26
+!hkrss-patterns,46, 6,24, 6,24, 6,24, 6,24
+!hkrss-patterns,47, 6,24, 6,24, 6,24, 6,24
+!hkrss-patterns,48, 3,96, 3,96, 4,128, 4,128
+!hkrss-patterns,49, 2,6, 2,6, 2,6, 2,6
+!hkrss-patterns,50, 2,6, 2,6, 2,6, 2,6
+!hkrss-patterns,51, 3,6, 3,6, 3,6, 3,6
+!hkrss-patterns,52, 5,37, 5,37, 5,37, 5,37
+!hkrss-patterns,53, 4,32, 4,32, 4,32, 4,32
+!hkrss-patterns,54, 4,32, 4,32, 4,32, 4,32
+!hkrss-patterns,55, 5,12, 6,12, 5,12, 6,12
 EOF
 
 diff output expected
