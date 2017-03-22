@@ -27,7 +27,7 @@
 # commonly use as benchmark change, we want to notice it.
 
 set -e
-genltl --dac --eh --sb --hkrss --format=%F,%L,%f >pos
+genltl --dac --eh --sb --hkrss --p --format=%F,%L,%f >pos
 (cat pos; ltlfilt --negate pos/3 --format='!%<,%f') |
     ltlfilt -u -F-/3 >formulas
 
@@ -183,6 +183,24 @@ hkrss-patterns,52, 4,25, 4,25, 5,29, 5,29
 hkrss-patterns,53, 3,22, 3,22, 3,22, 3,22
 hkrss-patterns,54, 3,22, 3,22, 3,22, 3,22
 hkrss-patterns,55, 5,8, 5,8, 5,8, 5,8
+p-patterns,2, 4,36, 4,36, 5,44, 5,44
+p-patterns,3, 2,20, 2,20, 2,20, 2,20
+p-patterns,4, 2,8, 2,8, 2,8, 2,8
+p-patterns,5, 1,4, 1,4, 2,8, 2,8
+p-patterns,6, 4,50, 4,50, 4,50, 4,50
+p-patterns,7, 4,27, 4,27, 4,27, 4,27
+p-patterns,8, 2,10, 2,10, 2,10, 2,10
+p-patterns,9, 1,2, 1,2, 2,4, 2,4
+p-patterns,10, 2,16, 2,16, 2,16, 2,16
+p-patterns,11, 2,20, 2,20, 2,20, 2,20
+p-patterns,12, 3,12, 3,12, 3,12, 3,12
+p-patterns,13, 3,20, 3,20, 3,20, 3,20
+p-patterns,14, 2,13, 2,13, 2,13, 2,13
+p-patterns,15, 2,7, 2,7, 2,7, 2,7
+p-patterns,16, 2,16, 2,16, 2,16, 2,16
+p-patterns,17, 3,20, 3,20, 3,20, 3,20
+p-patterns,18, 5,36, 5,36, 5,36, 5,36
+p-patterns,20, 1,8, 1,8, 3,24, 3,24
 !dac-patterns,1, 2,4, 2,4, 2,4, 2,4
 !dac-patterns,2, 3,10, 3,10, 3,10, 3,10
 !dac-patterns,3, 3,12, 3,12, 3,12, 3,12
@@ -321,6 +339,24 @@ hkrss-patterns,55, 5,8, 5,8, 5,8, 5,8
 !hkrss-patterns,53, 4,32, 4,32, 4,32, 4,32
 !hkrss-patterns,54, 4,32, 4,32, 4,32, 4,32
 !hkrss-patterns,55, 5,12, 6,12, 5,12, 6,12
+!p-patterns,2, 2,15, 2,15, 4,23, 4,23
+!p-patterns,3, 3,41, 3,41, 3,41, 3,41
+!p-patterns,4, 1,1, 1,1, 1,1, 1,1
+!p-patterns,5, 2,6, 2,6, 2,6, 2,6
+!p-patterns,6, 4,42, 4,42, 4,42, 4,42
+!p-patterns,7, 5,34, 5,34, 5,34, 5,34
+!p-patterns,8, 3,24, 3,24, 3,24, 3,24
+!p-patterns,9, 2,4, 2,4, 2,4, 2,4
+!p-patterns,10, 2,11, 2,11, 2,11, 2,11
+!p-patterns,11, 3,48, 3,48, 3,48, 3,48
+!p-patterns,12, 2,4, 2,4, 2,4, 2,4
+!p-patterns,13, 4,32, 4,32, 4,32, 4,32
+!p-patterns,14, 3,24, 3,24, 3,24, 3,24
+!p-patterns,15, 3,12, 3,12, 3,12, 3,12
+!p-patterns,16, 2,17, 2,17, 2,17, 2,17
+!p-patterns,17, 4,31, 4,31, 4,31, 4,31
+!p-patterns,18, 6,43, 6,43, 6,43, 6,43
+!p-patterns,20, 3,16, 3,16, 3,16, 3,16
 EOF
 
 diff output expected

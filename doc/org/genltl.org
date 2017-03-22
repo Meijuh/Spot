@@ -133,15 +133,15 @@ This is because most tools using =lbt='s syntax require atomic
 propositions to have the form =pNN=.
 
 
-Four options provide lists of unrelated LTL formulas, taken from the
+Five options provide lists of unrelated LTL formulas, taken from the
 literature (see the [[./man/genltl.1.html][=genltl=]](1) man page for references):
-=--dac-patterns=, =--eh-patterns=, =--hkrss-patterns=, and
-=--sb-patterns=.  With these options, the range is used to select a
-subset of the list of formulas.  Without range, all formulas are used.
-Here is the complete list:
+=--dac-patterns=, =--eh-patterns=, =--hkrss-patterns=, =--p-patterns=,
+and =--sb-patterns=.  With these options, the range is used to select
+a subset of the list of formulas.  Without range, all formulas are
+used.  Here is the complete list:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-  genltl --dac --eh --hkrss --sb --format=%F:%L,%f
+  genltl --dac --eh --hkrss --p --sb --format=%F:%L,%f
 #+END_SRC
 
 #+RESULTS:
@@ -268,6 +268,26 @@ hkrss-patterns:52,XG(p0 -> (G!p1 | (!Xp1 U p2)))
 hkrss-patterns:53,XG((p0 & !p1) -> (G!p1 | (!p1 U p2)))
 hkrss-patterns:54,XG((p0 & p1) -> ((p1 U p2) | Gp1))
 hkrss-patterns:55,Xp0 & G((!p0 & Xp0) -> XXp0)
+p-patterns:1,G(p0 -> Fp1)
+p-patterns:2,(GFp1 & GFp0) -> GFp2
+p-patterns:3,G(p0 -> (p1 & (p2 U p3)))
+p-patterns:4,F(p0 | p1)
+p-patterns:5,GF(p0 | p1)
+p-patterns:6,(p0 U p1) -> ((p2 U p3) | Gp2)
+p-patterns:7,G(p0 -> (!p1 U (p1 U (!p1 & (p2 R !p1)))))
+p-patterns:8,G(p0 -> (p1 R !p2))
+p-patterns:9,G(!p0 -> Fp0)
+p-patterns:10,G(p0 -> F(p1 | p2))
+p-patterns:11,!(!(p0 | p1) U p2) & G(p3 -> !(!(p0 | p1) U p2))
+p-patterns:12,G!p0 -> G!p1
+p-patterns:13,G(p0 -> (G!p1 | (!p2 U p1)))
+p-patterns:14,G(p0 -> (p1 R (p1 | !p2)))
+p-patterns:15,G((p0 & p1) -> (!p1 R (p0 | !p1)))
+p-patterns:16,G(p0 -> F(p1 & p2))
+p-patterns:17,G(p0 -> (!p1 U (p1 U (p1 & p2))))
+p-patterns:18,G(p0 -> (!p1 U (p1 U (!p1 U (p1 U (p1 & p2))))))
+p-patterns:19,GFp0 -> GFp1
+p-patterns:20,GF(p0 | p1) & GF(p1 | p2)
 sb-patterns:1,p0 U p1
 sb-patterns:2,p0 U (p1 U p2)
 sb-patterns:3,!(p0 U (p1 U p2))

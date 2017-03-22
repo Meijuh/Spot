@@ -6,8 +6,9 @@ New in spot 2.3.2.dev (not yet released)
     and ltl2ldba (from Owl) without needing to specify %f>%O.
 
   - genltl learned --spec-patterns as an alias for --dac-patterns; it
-    also learned a new set of LTL formulas under --hkrss-patterns
-    (a.k.a. --liberouter-patterns).
+    also learned two new sets of LTL formulas under --hkrss-patterns
+    (a.k.a. --liberouter-patterns) and --p-patterns
+    (a.k.a. --beem-patterns).
 
   Bug fixes:
 
