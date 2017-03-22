@@ -142,6 +142,19 @@
 //    number = 03,
 //    institution = {CESNET}
 // }
+//
+// @InProceedings{pelanek.07.spin,
+//   author = {Radek Pel\'{a}nek},
+//   title = {{BEEM}: benchmarks for explicit model checkers},
+//   booktitle = {Proceedings of the 14th international SPIN conference on
+//     Model checking software},
+//   year = 2007,
+//   pages = {263--267},
+//   numpages = {5},
+//   volume = {4595},
+//   series = {Lecture Notes in Computer Science},
+//   publisher = {Springer-Verlag}
+// }
 
 
 #include "common_sys.hh"
@@ -196,6 +209,7 @@ enum {
   OPT_OR_FG,
   OPT_OR_G,
   OPT_OR_GF,
+  OPT_P_PATTERNS,
   OPT_R_LEFT,
   OPT_R_RIGHT,
   OPT_RV_COUNTER,
@@ -235,6 +249,7 @@ const char* const class_name[LAST_CLASS - FIRST_CLASS] =
     "or-fg",
     "or-g",
     "or-gf",
+    "p-patterns",
     "or-r-left",
     "or-r-right",
     "rv-counter",
@@ -303,6 +318,11 @@ static const argp_option options[] =
     OPT_ALIAS(gh-s),
     { "or-gf", OPT_OR_GF, "RANGE", 0, "GF(p1)|GF(p2)|...|GF(pn)", 0 },
     OPT_ALIAS(gh-c1),
+    { "p-patterns", OPT_P_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+      "Pelánek [Spin'07] patterns from BEEM "
+      "(range should be included in 1..20)", 0 },
+    OPT_ALIAS(beem-patterns),
+    OPT_ALIAS(p),
     { "r-left", OPT_R_LEFT, "RANGE", 0, "(((p1 R p2) R p3) ... R pn)", 0 },
     { "r-right", OPT_R_RIGHT, "RANGE", 0, "(p1 R (p2 R (... R pn)))", 0 },
     { "rv-counter", OPT_RV_COUNTER, "RANGE", 0,
@@ -435,6 +455,12 @@ parse_opt(int key, char* arg, struct argp_state*)
         enqueue_job(key, arg);
       else
         enqueue_job(key, 1, 12);
+      break;
+    case OPT_P_PATTERNS:
+      if (arg)
+        enqueue_job(key, arg);
+      else
+        enqueue_job(key, 1, 20);
       break;
     case OPT_SB_PATTERNS:
       if (arg)
@@ -1143,6 +1169,38 @@ eh_pattern(int n)
 }
 
 static formula
+p_pattern(int n)
+{
+  static const char* formulas[] = {
+    "G(p0 -> Fp1)",
+    "(GFp1 & GFp0) -> GFp2",
+    "G(p0 -> (p1 & (p2 U p3)))",
+    "F(p0 | p1)",
+    "GF(p0 | p1)",
+    "(p0 U p1) -> ((p2 U p3) | Gp2)",
+    "G(p0 -> (!p1 U (p1 U (!p1 & (p2 R !p1)))))",
+    "G(p0 -> (p1 R !p2))",
+    "G(!p0 -> Fp0)",
+    "G(p0 -> F(p1 | p2))",
+    "!(!(p0 | p1) U p2) & G(p3 -> !(!(p0 | p1) U p2))",
+    "G!p0 -> G!p1",
+    "G(p0 -> (G!p1 | (!p2 U p1)))",
+    "G(p0 -> (p1 R (p1 | !p2)))",
+    "G((p0 & p1) -> (!p1 R (p0 | !p1)))",
+    "G(p0 -> F(p1 & p2))",
+    "G(p0 -> (!p1 U (p1 U (p1 & p2))))",
+    "G(p0 -> (!p1 U (p1 U (!p1 U (p1 U (p1 & p2))))))",
+    "GFp0 -> GFp1",
+    "GF(p0 | p1) & GF(p1 | p2)",
+  };
+
+  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
+  if (n < 1 || (unsigned) n > max)
+    bad_number("--p-patterns", n, max);
+  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
+}
+
+static formula
 sb_pattern(int n)
 {
   static const char* formulas[] = {
@@ -1487,6 +1545,9 @@ output_pattern(int pattern, int n)
       break;
     case OPT_OR_GF:
       f = GF_n("p", n, false);
+      break;
+    case OPT_P_PATTERNS:
+      f = p_pattern(n);
       break;
     case OPT_R_LEFT:
       f = bin_n("p", n, op::R, false);

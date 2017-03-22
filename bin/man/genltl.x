@@ -46,6 +46,10 @@ kv
 O. Kupferman and M. Y. Vardi: From Linear Time to Branching Time.
 ACM Transactions on Computational Logic, 6(2):273-294, 2005.
 .TP
+p
+R. Pelánek: BEEM: benchmarks for explicit model checkers
+Proceedings of Spin'07.  LNCS 4595.
+.TP
 rv
 K. Rozier and M. Vardi: LTL Satisfiability Checking.
 Proceedings of Spin'07.  LNCS 4595.
