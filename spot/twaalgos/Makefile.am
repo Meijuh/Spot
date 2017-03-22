@@ -49,6 +49,7 @@ twaalgos_HEADERS = \
   emptiness_stats.hh \
   gv04.hh \
   hoa.hh \
+  iscolored.hh \
   isdet.hh \
   isunamb.hh \
   isweakscc.hh \
@@ -110,6 +111,7 @@ libtwaalgos_la_SOURCES = \
   emptiness.cc \
   gv04.cc \
   hoa.cc \
+  iscolored.cc \
   isdet.cc \
   isunamb.cc \
   isweakscc.cc \

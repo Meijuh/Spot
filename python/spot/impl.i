@@ -144,6 +144,7 @@
 #include <spot/twaalgos/sccfilter.hh>
 #include <spot/twaalgos/stats.hh>
 #include <spot/twaalgos/isdet.hh>
+#include <spot/twaalgos/iscolored.hh>
 #include <spot/twaalgos/isunamb.hh>
 #include <spot/twaalgos/isweakscc.hh>
 #include <spot/twaalgos/langmap.hh>
