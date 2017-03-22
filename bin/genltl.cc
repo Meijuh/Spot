@@ -132,6 +132,16 @@
 //   month = nov,
 //   publisher = {Springer}
 // }
+//
+// @techreport{holevek.04.tr,
+//    title = {Verification Results in {Liberouter} Project},
+//    author = {J. Hole\v{c}ek and T. Kratochv\'ila and V. \v{R}eh\'ak
+//              and D. \v{S}afr\'anek and P. \v{S}ime\v{c}ek},
+//    month = {September},
+//    year = 2004,
+//    number = 03,
+//    institution = {CESNET}
+// }
 
 
 #include "common_sys.hh"
@@ -179,6 +189,7 @@ enum {
   OPT_GH_Q,
   OPT_GH_R,
   OPT_GO_THETA,
+  OPT_HKRSS_PATTERNS,
   OPT_KR_N,
   OPT_KR_NLOGN,
   OPT_KV_PSI,
@@ -217,6 +228,7 @@ const char* const class_name[LAST_CLASS - FIRST_CLASS] =
     "gh-q",
     "gh-r",
     "go-theta",
+    "hkrss-patterns",
     "kr-n",
     "kr-nlogn",
     "kv-psi",
@@ -274,6 +286,10 @@ static const argp_option options[] =
       "(GF(p1)|FG(p2))&(GF(p2)|FG(p3))&... &(GF(pn)|FG(p{n+1}))", 0 },
     { "go-theta", OPT_GO_THETA, "RANGE", 0,
       "!((GF(p1)&GF(p2)&...&GF(pn)) -> G(q->F(r)))", 0 },
+    { "hkrss-patterns", OPT_HKRSS_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+      "Holeček et al. patterns from the Liberouter project "
+      "(range should be included in 1..55)", 0 },
+    OPT_ALIAS(liberouter-patterns),
     { "kr-n", OPT_KR_N, "RANGE", 0,
       "linear formula with doubly exponential DBA", 0 },
     { "kr-nlogn", OPT_KR_NLOGN, "RANGE", 0,
@@ -408,6 +424,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       enqueue_job(key, arg);
       break;
     case OPT_DAC_PATTERNS:
+    case OPT_HKRSS_PATTERNS:
       if (arg)
         enqueue_job(key, arg);
       else
@@ -1028,6 +1045,80 @@ dac_pattern(int n)
 }
 
 static formula
+hkrss_pattern(int n)
+{
+  static const char* formulas[] = {
+    "G(Fp0 & F!p0)",
+    "GFp0 & GF!p0",
+    "GF(!(p1 <-> Xp1) | !(p0 <-> Xp0))",
+    "GF(!(p1 <-> Xp1) | !(p0 <-> Xp0) | !(p2 <-> Xp2) | !(p3 <-> Xp3))",
+    "G!p0",
+    "G((p0 -> F!p0) & (!p0 -> Fp0))",
+    "G(p0 -> F(p0 & p1))",
+    "G(p0 -> F((!p0 & p1 & p2 & p3) -> Fp4))",
+    "G(p0 -> F!p1)",
+    "G(p0 -> Fp1)",
+    "G(p0 -> F(p1 -> Fp2))",
+    "G(p0 -> F((p1 & p2) -> Fp3))",
+    "G((p0 -> Fp1) & (p2 -> Fp3) & (p4 -> Fp5) & (p6 -> Fp7))",
+    "G(!p0 & !p1)",
+    "G!(p0 & p1)",
+    "G(p0 -> p1)",
+    "G((p0 -> !p1) & (p1 -> !p0))",
+    "G(!p0 -> (p1 <-> !p2))",
+    "G((!p0 & (p1 | p2 | p3)) -> p4)",
+    "G((p0 & p1) -> (p2 | !(p3 & p4)))",
+    "G((!p0 & p1 & !p2 & !p3 & !p4) -> F(!p5 & !p6 & !p7 & !p8))",
+    "G((p0 & p1 & !p2 & !p3 & !p4) -> F(p5 & !p6 & !p7 & !p8))",
+    "G(!p0 -> !(p1 & p2 & p3 & p4 & p5))",
+    "G(!p0 -> ((p1 & p2 & p3 & p4) -> !p5))",
+    "G((p0 & p1) -> (p2 | p3 | !(p4 & p5)))",
+    "G((!p0 & (p1 | p2 | p3 | p4)) -> (!p5 <-> p6))",
+    "G((p0 & p1) -> (p2 | p3 | p4 | !(p5 & p6)))",
+    "G((p0 & p1) -> (p2 | p3 | p4 | p5 | !(p6 & p7)))",
+    "G((p0 & p1 & !p2 & Xp2) -> X(p3 | X(!p1 | p3)))",
+    "G((p0 & p1 & !p2 & Xp2) -> X(X!p1 | (p2 U (!p2 U (p2 U (!p1 | p3))))))",
+    "G(p0 & p1 & !p2 & Xp2) -> X(X!p1 | (p2 U (!p2 U (p2 U (!p1 | p3)))))",
+    "G(p0 -> (p1 U (!p1 U (!p2 | p3))))",
+    "G(p0 -> (p1 U (!p1 U (p2 | p3))))",
+    "G((!p0 & p1) -> Xp2)",
+    "G(p0 -> X(p0 | p1))",
+    ("G((!(p1 <-> Xp1) | !(p0 <-> Xp0) | !(p2 <-> Xp2) | !(p3 <-> Xp3)) -> "
+     "(X!p4 & X(!(!(p1 <-> Xp1) | !(p0 <-> Xp0) | !(p2 <-> Xp2) | "
+     "!(p3 <-> Xp3)) U p4)))"),
+    "G((p0 & !p1 & Xp1 & Xp0) -> (p2 -> Xp3))",
+    "G(p0 -> X(!p0 U p1))",
+    "G((!p0 & Xp0) -> X((p0 U p1) | Gp0))",
+    "G((!p0 & Xp0) -> X(p0 U (p0 & !p1 & X(p0 & p1))))",
+    ("G((!p0 & Xp0) -> X(p0 U (p0 & !p1 & X(p0 & p1 & (p0 U (p0 & !p1 & "
+     "X(p0 & p1)))))))"),
+    ("G((p0 & X!p0) -> X(!p0 U (!p0 & !p1 & X(!p0 & p1 & (!p0 U (!p0 & !p1 "
+     "& X(!p0 & p1)))))))"),
+    ("G((p0 & X!p0) -> X(!p0 U (!p0 & !p1 & X(!p0 & p1 & (!p0 U (!p0 & !p1 & "
+     "X(!p0 & p1 & (!p0 U (!p0 & !p1 & X(!p0 & p1))))))))))"),
+    "G((!p0 & Xp0) -> X(!(!p0 & Xp0) U (!p1 & Xp1)))",
+    ("G(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | "
+     "X(!p0 | X(!p0 | X!p0)))))))))))"),
+    "G((Xp0 -> p0) -> (p1 <-> Xp1))",
+    "G((Xp0 -> p0) -> ((p1 -> Xp1) & (!p1 -> X!p1)))",
+    ("!p0 U G!((p1 & p2) | (p3 & p4) | (p2 & p3) | (p2 & p4) | (p1 & p4) | "
+     "(p1 & p3))"),
+    "!p0 U p1",
+    "(p0 U p1) | Gp0",
+    "p0 & XG!p0",
+    "XG(p0 -> (G!p1 | (!Xp1 U p2)))",
+    "XG((p0 & !p1) -> (G!p1 | (!p1 U p2)))",
+    "XG((p0 & p1) -> ((p1 U p2) | Gp1))",
+    "Xp0 & G((!p0 & Xp0) -> XXp0)",
+  };
+
+  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
+  if (n < 1 || (unsigned) n > max)
+    bad_number("--hkrss-patterns", n, max);
+  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
+}
+
+static formula
 eh_pattern(int n)
 {
   static const char* formulas[] = {
@@ -1375,6 +1466,9 @@ output_pattern(int pattern, int n)
       break;
     case OPT_GO_THETA:
       f = fair_response("p", "q", "r", n);
+      break;
+    case OPT_HKRSS_PATTERNS:
+      f = hkrss_pattern(n);
       break;
     case OPT_KR_N:
       f = kr2_exp(n, "a", "b", "c", "d");

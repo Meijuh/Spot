@@ -12,21 +12,9 @@ Proceedings of ATVA'13.  LNCS 8172.
 .PP
 Prefixes used in pattern names refer to the following papers:
 .TP
-gh
-J. Geldenhuys and H. Hansen: Larger automata and less
-work for LTL model checking.  Proceedings of Spin'06.  LNCS 3925.
-.TP
 ccj
 J. Cichoń, A. Czubak, and A. Jasiński: Minimal Büchi
 Automata for Certain Classes of LTL Formulas.  Proceedings of DepCoS'09.
-.TP
-go
-P. Gastin and D. Oddoux: Fast LTL to Büchi Automata Translation.
-Proceedings of CAV'01.  LNCS 2102.
-.TP
-rv
-K. Rozier and M. Vardi: LTL Satisfiability Checking.
-Proceedings of Spin'07.  LNCS 4595.
 .TP
 dac
 M. B. Dwyer and G. S. Avrunin and J. C. Corbett: Property
@@ -37,6 +25,31 @@ eh
 K. Etessami and G. J. Holzmann: Optimizing Büchi Automata.
 Proceedings of Concur'00.  LNCS 1877.
 .TP
+gh
+J. Geldenhuys and H. Hansen: Larger automata and less
+work for LTL model checking.  Proceedings of Spin'06.  LNCS 3925.
+.TP
+hkrss
+J. Holeček, T. Kratochvila, V. Řehák, D. Šafránek, and P. Šimeček:
+Verification Results in Liberouter Project.  Tech. Report 03, CESNET, 2004.
+.TP
+go
+P. Gastin and D. Oddoux: Fast LTL to Büchi Automata Translation.
+Proceedings of CAV'01.  LNCS 2102.
+.TP
+kr
+O. Kupferman and A. Rosenberg: The Blow-Up in Translating LTL to Deterministic
+Automata.
+Proceedings of MoChArt'10.  LNAI 6572.
+.TP
+kv
+O. Kupferman and M. Y. Vardi: From Linear Time to Branching Time.
+ACM Transactions on Computational Logic, 6(2):273-294, 2005.
+.TP
+rv
+K. Rozier and M. Vardi: LTL Satisfiability Checking.
+Proceedings of Spin'07.  LNCS 4595.
+.TP
 sb
 F. Somenzi and R. Bloem: Efficient Büchi Automata for LTL Formulae.
 Proceedings of CAV'00.  LNCS 1855.
@@ -44,15 +57,6 @@ Proceedings of CAV'00.  LNCS 1855.
 tv
 D. Tabakov and M. Y. Vardi: Optimized Temporal Monitors for SystemC.
 Proceedings of RV'10.  LNCS 6418.
-.TP
-kr
-O. Kupferman and A. Rosenberg: The Blow-Up in Translating LTL to Deterministic
-Automata.
-Proceedings of MoChArt'10.  LNAI 6572.
-.TP
-rv
-O. Kupferman and M. Y. Vardi: From Linear Time to Branching Time.
-ACM Transactions on Computational Logic, 6(2):273-294, 2005.
 
 [SEE ALSO]
 .BR randltl (1)
