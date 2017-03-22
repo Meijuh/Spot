@@ -5,6 +5,8 @@ New in spot 2.3.2.dev (not yet released)
   - ltldo and ltlcross learned shorthands to talk to ltl2da, ltl2dpa,
     and ltl2ldba (from Owl) without needing to specify %f>%O.
 
+  - genltl learned --spec-patterns as an alias for --dac-patterns
+
   Bug fixes:
 
   - In "lenient" mode the parser would fail to recover from
