@@ -5,6 +5,9 @@ New in spot 2.3.2.dev (not yet released)
   - In "lenient" mode the parser would fail to recover from
     a missing closing brace.
 
+  - The output of 'genltl --r-left=1 --r-right=1 --format=%F'
+    had typos.
+
 New in spot 2.3.2 (2017-03-15)
 
   Tools:
