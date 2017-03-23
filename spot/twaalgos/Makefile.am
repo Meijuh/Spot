@@ -43,6 +43,7 @@ twaalgos_HEADERS = \
   dot.hh \
   dtbasat.hh \
   dtwasat.hh \
+  dualize.hh \
   emptiness.hh \
   emptiness_stats.hh \
   gv04.hh \
@@ -102,6 +103,7 @@ libtwaalgos_la_SOURCES = \
   dot.cc \
   dtbasat.cc \
   dtwasat.cc \
+  dualize.cc \
   emptiness.cc \
   gv04.cc \
   hoa.cc \

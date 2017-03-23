@@ -21,6 +21,8 @@ New in spot 2.3.2.dev (not yet released)
   - twa objects have a new property: prop_complete().  This obviously
     acts as a cache for the is_complete() function.
 
+  - spot::dualize() implements the dual of any alternating automaton.
+
   Bug fixes:
 
   - In "lenient" mode the parser would fail to recover from

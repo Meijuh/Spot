@@ -120,6 +120,7 @@
 #include <spot/twaalgos/cleanacc.hh>
 #include <spot/twaalgos/degen.hh>
 #include <spot/twaalgos/dot.hh>
+#include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/copy.hh>
 #include <spot/twaalgos/complete.hh>
 #include <spot/twaalgos/complement.hh>
@@ -541,6 +542,7 @@ def state_is_accepting(self, src) -> "bool":
 %include <spot/twaalgos/ltl2tgba_fm.hh>
 %include <spot/twaalgos/compsusp.hh>
 %include <spot/twaalgos/determinize.hh>
+%include <spot/twaalgos/dualize.hh>
 %include <spot/twaalgos/langmap.hh>
 %include <spot/twaalgos/magic.hh>
 %include <spot/twaalgos/minimize.hh>
