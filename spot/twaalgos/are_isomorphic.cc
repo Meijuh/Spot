@@ -113,7 +113,7 @@ namespace spot
   isomorphism_checker::isomorphism_checker(const const_twa_graph_ptr ref)
   {
     ref_ = make_twa_graph(ref, twa::prop_set::all());
-    trival prop_det = ref_->prop_deterministic();
+    trival prop_det = ref_->prop_universal();
     if (prop_det)
       {
         ref_deterministic_ = true;
@@ -135,10 +135,10 @@ namespace spot
     if (!aut->is_existential())
       throw std::runtime_error
         ("isomorphism_checker does not yet support alternation");
-    trival autdet = aut->prop_deterministic();
+    trival autdet = aut->prop_universal();
     if (ref_deterministic_)
       {
-        if (!spot::is_deterministic(aut))
+        if (!spot::is_universal(aut))
           return false;
         return are_isomorphic_det(ref_, aut);
       }

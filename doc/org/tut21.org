@@ -132,7 +132,8 @@ corresponding BDD variable number, and then use for instance
     // example, the properties that are set come from the "properties:"
     // line of the input file.
     out << "Complete: " << aut->prop_complete() << '\n';
-    out << "Deterministic: " << aut->prop_deterministic() << '\n';
+    out << "Deterministic: " << (aut->prop_universal()
+                                 && aut->is_existential()) << '\n';
     out << "Unambiguous: " << aut->prop_unambiguous() << '\n';
     out << "State-Based Acc: " << aut->prop_state_acc() << '\n';
     out << "Terminal: " << aut->prop_terminal() << '\n';
@@ -162,57 +163,6 @@ corresponding BDD variable number, and then use for instance
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-Acceptance: Inf(0)&Inf(1)
-Number of sets: 2
-Number of states: 4
-Number of edges: 10
-Initial state: 0
-Atomic propositions: a (=0) b (=1) c (=2)
-Name: Fa | G(Fb & Fc)
-Complete: no
-Deterministic: no
-Unambiguous: yes
-State-Based Acc: maybe
-Terminal: maybe
-Weak: maybe
-Inherently Weak: maybe
-Stutter Invariant: yes
-State 0:
-  edge(0 -> 1)
-    label = a
-    acc sets = {}
-  edge(0 -> 2)
-    label = !a
-    acc sets = {}
-  edge(0 -> 3)
-    label = !a
-    acc sets = {}
-State 1:
-  edge(1 -> 1)
-    label = 1
-    acc sets = {0,1}
-State 2:
-  edge(2 -> 1)
-    label = a
-    acc sets = {}
-  edge(2 -> 2)
-    label = !a
-    acc sets = {}
-State 3:
-  edge(3 -> 3)
-    label = !a & b & c
-    acc sets = {0,1}
-  edge(3 -> 3)
-    label = !a & !b & c
-    acc sets = {1}
-  edge(3 -> 3)
-    label = !a & b & !c
-    acc sets = {0}
-  edge(3 -> 3)
-    label = !a & !b & !c
-    acc sets = {}
-#+end_example
 
 * Python
 
@@ -239,7 +189,7 @@ Here is the very same example, but written in Python:
       name = aut.get_name()
       if name:
           print("Name: ", name)
-      print("Deterministic:", aut.prop_deterministic())
+      print("Deterministic:", aut.prop_universal() and aut.is_existential())
       print("Unambiguous:", aut.prop_unambiguous())
       print("State-Based Acc:", aut.prop_state_acc())
       print("Terminal:", aut.prop_terminal())

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2012, 2013, 2014, 2015 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008-2010, 2012-2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005, 2007 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -130,7 +130,7 @@ namespace spot
       throw std::invalid_argument("random_graph() requires n>0 states");
     auto res = make_twa_graph(dict);
     if (deterministic)
-      res->prop_deterministic(true);
+      res->prop_universal(true);
     if (state_acc)
       res->prop_state_acc(true);
 

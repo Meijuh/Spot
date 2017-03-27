@@ -600,7 +600,7 @@ namespace spot
                        });
         // !unambiguous and !semi-deterministic are not preserved
         if (!Cosimulation)
-          res->prop_deterministic(nb_minato == nb_satoneset);
+          res->prop_universal(nb_minato == nb_satoneset);
         if (Sba)
           res->prop_state_acc(true);
         return res;
@@ -736,7 +736,7 @@ namespace spot
         prev = next;
         direct_simulation<false, Sba> simul(res ? res : t);
         res = simul.run();
-        if (res->prop_deterministic())
+        if (res->prop_universal())
           break;
 
         direct_simulation<true, Sba> cosimul(res);

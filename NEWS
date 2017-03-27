@@ -36,6 +36,18 @@ New in spot 2.3.2.dev (not yet released)
     It was never used.  You always want to use
     spot::twa_graph::set_init_state(unsigned) in practice.
 
+  - The previous implementation of spot::is_deterministic() has been
+    renamed to spot::is_universal().  The new version of
+    spot::is_deterministic() requires the automaton to be both
+    universal and existential.  This should not make any difference in
+    existing code unless you work with the recently added support for
+    alternating automata.
+
+  - The spot::twa::prop_deterministic() methods have been renamed to
+    spot::twa::prop_universal() for consistency with the above change.
+    We have kept spot::twa::prop_deterministic() as a deprecated
+    synonym for spot::twa::prop_universal() to help backward
+    compatibility.
 
 New in spot 2.3.2 (2017-03-15)
 

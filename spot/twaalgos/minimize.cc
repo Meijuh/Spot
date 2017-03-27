@@ -487,7 +487,7 @@ namespace spot
     build_state_set(det_a, non_final);
     auto res = minimize_dfa(det_a, final, non_final);
     res->prop_copy(a, { false, false, false, false, true, true });
-    res->prop_deterministic(true);
+    res->prop_universal(true);
     res->prop_weak(true);
     res->prop_state_acc(true);
     // Quickly check if this is a terminal automaton
@@ -596,7 +596,7 @@ namespace spot
 
     auto res = minimize_dfa(det_a, final, non_final);
     res->prop_copy(a, { false, false, false, false, false, true });
-    res->prop_deterministic(true);
+    res->prop_universal(true);
     res->prop_weak(true);
     // If the input was terminal, then the output is also terminal.
     // FIXME:
@@ -633,7 +633,7 @@ namespace spot
 
     // If the input automaton was already weak and deterministic, the
     // output is necessary correct.
-    if (aut_f->prop_weak() && aut_f->prop_deterministic())
+    if (aut_f->prop_weak() && aut_f->prop_universal())
       return min_aut_f;
 
     // if f is a syntactic obligation formula, the WDBA minimization

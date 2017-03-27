@@ -158,10 +158,10 @@ namespace spot
         // some states without successors do not declare it as
         // colored.
         is_colored = colored && (!has_state_acc || nodeadend);
-        // If the automaton declares that it is deterministic or
+        // If the automaton declares that it is universal or
         // state-based, make sure that it really is.
-        assert(!aut->prop_deterministic().is_known() ||
-               deterministic == aut->prop_deterministic().is_true());
+        assert(!aut->prop_universal().is_known() ||
+               deterministic == aut->prop_universal().is_true());
         assert(!aut->prop_complete().is_known() ||
                complete == aut->prop_complete().is_true());
         assert(state_acc || !aut->prop_state_acc().is_true());

@@ -50,7 +50,7 @@ namespace spot
             break;
         }
       std::const_pointer_cast<twa_graph>(aut)
-        ->prop_deterministic(!nondet_states);
+        ->prop_universal(!nondet_states);
       return nondet_states;
     }
   }
@@ -58,29 +58,35 @@ namespace spot
   unsigned
   count_nondet_states(const const_twa_graph_ptr& aut)
   {
-    if (aut->prop_deterministic())
+    if (aut->prop_universal())
       return 0;
     return count_nondet_states_aux<true>(aut);
   }
 
   bool
-  is_deterministic(const const_twa_graph_ptr& aut)
+  is_universal(const const_twa_graph_ptr& aut)
   {
-    trival d = aut->prop_deterministic();
+    trival d = aut->prop_universal();
     if (d.is_known())
       return d.is_true();
     return !count_nondet_states_aux<false>(aut);
   }
 
+  bool
+  is_deterministic(const const_twa_graph_ptr& aut)
+  {
+    return aut->is_existential() && is_universal(aut);
+  }
+
   void
   highlight_nondet_states(twa_graph_ptr& aut, unsigned color)
   {
-    if (aut->prop_deterministic())
+    if (aut->prop_universal())
       return;
     unsigned ns = aut->num_states();
     auto* highlight = aut->get_or_set_named_prop<std::map<unsigned, unsigned>>
       ("highlight-states");
-    bool deterministic = true;
+    bool universal = true;
     for (unsigned src = 0; src < ns; ++src)
       {
         bdd available = bddtrue;
@@ -88,25 +94,25 @@ namespace spot
           if (!bdd_implies(t.cond, available))
             {
               (*highlight)[src] = color;
-              deterministic = false;
+              universal = false;
             }
           else
             {
               available -= t.cond;
             }
       }
-    aut->prop_deterministic(deterministic);
+    aut->prop_universal(universal);
   }
 
   void
   highlight_nondet_edges(twa_graph_ptr& aut, unsigned color)
   {
-    if (aut->prop_deterministic())
+    if (aut->prop_universal())
       return;
     unsigned ns = aut->num_states();
     auto* highlight = aut->get_or_set_named_prop<std::map<unsigned, unsigned>>
       ("highlight-edges");
-    bool deterministic = true;
+    bool universal = true;
     for (unsigned src = 0; src < ns; ++src)
       {
         // Make a first pass to gather non-deterministic labels
@@ -116,19 +122,19 @@ namespace spot
           if (!bdd_implies(t.cond, available))
             {
               extra |= (t.cond - available);
-              deterministic = false;
+              universal = false;
             }
           else
             {
               available -= t.cond;
             }
         // Second pass to gather the relevant edges.
-        if (!deterministic)
+        if (!universal)
           for (auto& t: aut->out(src))
             if ((t.cond & extra) != bddfalse)
               (*highlight)[aut->get_graph().index_of_edge(t)] = color;
       }
-    aut->prop_deterministic(deterministic);
+    aut->prop_universal(universal);
   }
 
   bool

@@ -272,7 +272,7 @@ namespace spot
         dba = minimize_obligation(a, f, nullptr, reject_bigger);
         if (dba
             && dba->prop_inherently_weak().is_true()
-            && dba->prop_deterministic().is_true())
+            && dba->prop_universal().is_true())
           {
             // The WDBA is a BA, so no degeneralization is required.
             // We just need to add an acceptance set if there is none.

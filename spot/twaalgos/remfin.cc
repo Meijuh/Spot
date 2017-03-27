@@ -228,7 +228,7 @@ namespace spot
       res->new_states(nst);
       res->set_buchi();
       res->set_init_state(aut->get_init_state_number());
-      trival deterministic = aut->prop_deterministic();
+      trival deterministic = aut->prop_universal();
       trival complete = aut->prop_complete();
 
       std::vector<unsigned> state_map(aut->num_states());
@@ -302,7 +302,7 @@ namespace spot
             }
         }
       res->prop_complete(complete);
-      res->prop_deterministic(deterministic);
+      res->prop_universal(deterministic);
       res->purge_dead_states();
       return res;
     }

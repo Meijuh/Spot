@@ -1054,18 +1054,18 @@ better choices.
 There are actually several property flags that are stored into each
 automaton, and that can be queried or set by algorithms:
 
-| flag name            | meaning when =true=                                                                          |
-|----------------------+----------------------------------------------------------------------------------------------|
-| =state_acc=          | automaton should be considered as having state-based acceptance                              |
-| =inherently_weak=    | accepting and rejecting cycles cannot be mixed in the same SCC                               |
-| =weak=               | transitions of an SCC all belong to the same acceptance sets                                 |
-| =very-weak=          | weak automaton where all SCCs have size 1                                                    |
-| =terminal=           | automaton is weak, accepting SCCs are complete, accepting edges may not go to rejecting SCCs |
-| =complete=           | it is always possible to move the automaton forward, using any letter                        |
-| =deterministic=      | there is at most one run *recognizing* a word, but not necessarily accepting it              |
-| =semi-deterministic= | any nondeterminism occurs before entering an accepting SCC                                   |
-| =unambiguous=        | there is at most one run *accepting* a word (but it might be recognized several time)        |
-| =stutter_invariant=  | the property recognized by the automaton is [[https://www.lrde.epita.fr/~adl/dl/adl/michaud.15.spin.pdf][stutter-invariant]]                                |
+| flag name            | meaning when =true=                                                                                                                       |
+|----------------------+-------------------------------------------------------------------------------------------------------------------------------------------|
+| =state_acc=          | automaton should be considered as having state-based acceptance                                                                           |
+| =inherently_weak=    | accepting and rejecting cycles cannot be mixed in the same SCC                                                                            |
+| =weak=               | transitions of an SCC all belong to the same acceptance sets                                                                              |
+| =very-weak=          | weak automaton where all SCCs have size 1                                                                                                 |
+| =terminal=           | automaton is weak, accepting SCCs are complete, accepting edges may not go to rejecting SCCs                                              |
+| =complete=           | it is always possible to move the automaton forward, using any letter                                                                     |
+| =universal=          | there is no non-determinism branching in the automaton (hence each word is *recognized* by at most one run, but not necessarily accepted) |
+| =semi-deterministic= | any nondeterminism occurs before entering an accepting SCC                                                                                |
+| =unambiguous=        | there is at most one run *accepting* a word (but it might be recognized several time)                                                     |
+| =stutter_invariant=  | the property recognized by the automaton is [[https://www.lrde.epita.fr/~adl/dl/adl/michaud.15.spin.pdf][stutter-invariant]]                                                                             |
 
 For each flag =flagname=, the =twa= class has a method
 =prop_flagname()= that returns the value of the flag as an instance of
@@ -1083,12 +1083,14 @@ operator =X= does not prevent the formula from being
 stutter-invariant, but it would require additional work to check.
 
 As another example, if you write an algorithm that must check whether
-an automaton is deterministic, do not call the
-=twa::prop_deterministic()= method, because that might return
-=trival::maybe=.  Instead, call =spot::is_deterministic(...)=: that
-will respond in constant time if the =deterministic= property flag was
-either =true= or =false=, otherwise it will actually explore the
-automaton to decide its determinism.
+an automaton is universal, do not call the =twa::prop_universal()=
+method, because that might return =trival::maybe=.  Instead, call
+=spot::is_universal(...)=: that will respond in constant time if the
+=universal= property flag was either =true= or =false=, otherwise it
+will actually explore the automaton to decide its determinism.  Note
+that there is also a =spot::is_deterministic(...)= function, which is
+equivalent to testing that the automaton is both universal and
+existential.
 
 These automata properties are encoded into the [[file:hoa.org::#property-bits][HOA format]], so they can
 be preserved when building a processing pipeline using the shell.

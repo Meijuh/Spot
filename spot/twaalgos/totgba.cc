@@ -336,7 +336,7 @@ namespace spot
         res->set_init_state(res->new_state());
         res->prop_state_acc(true);
         res->prop_weak(true);
-        res->prop_deterministic(true);
+        res->prop_universal(true);
         res->prop_stutter_invariant(true);
         return res;
       }

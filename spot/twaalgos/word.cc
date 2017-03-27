@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2013-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -226,7 +226,7 @@ namespace spot
     twa_graph_ptr aut = make_twa_graph(dict_);
 
     aut->prop_weak(true);
-    aut->prop_deterministic(true);
+    aut->prop_universal(true);
 
     // Register the atomic propositions used in the word.
     {

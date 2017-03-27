@@ -987,7 +987,7 @@ namespace spot
       trival::repr_t inherently_weak:2;   // Inherently Weak automaton.
       trival::repr_t weak:2;               // Weak automaton.
       trival::repr_t terminal:2;               // Terminal automaton.
-      trival::repr_t deterministic:2;     // Deterministic automaton.
+      trival::repr_t universal:2;         // Universal automaton.
       trival::repr_t unambiguous:2;       // Unambiguous automaton.
       trival::repr_t stutter_invariant:2; // Stutter invariant language.
       trival::repr_t very_weak:2;         // very-weak, or 1-weak
@@ -1292,35 +1292,53 @@ namespace spot
       is.complete = val.val();
     }
 
-    /// \brief Whether the automaton is deterministic.
+    /// \brief Whether the automaton is universal.
     ///
-    /// An automaton is deterministic if the conjunction between the
+    /// An automaton is universal if the conjunction between the
     /// labels of two transitions leaving a state is always false.
     ///
     /// Note that this method may return trival::maybe() when it is
-    /// unknown whether the automaton is deterministic or not.  If you
-    /// need a true/false answer, prefer the is_deterministic() function.
+    /// unknown whether the automaton is universal or not.  If you
+    /// need a true/false answer, prefer the is_universal() function.
     ///
     /// \see prop_unambiguous()
-    /// \see is_deterministic()
-    trival prop_deterministic() const
+    /// \see is_universal()
+    trival prop_universal() const
     {
-      return is.deterministic;
+      return is.universal;
     }
 
-    /// \brief Set the deterministic property.
+    /// \brief Set the universal property.
     ///
-    /// Setting the "deterministic" property automatically sets the
+    /// Setting the "universal" property automatically sets the
     /// "unambiguous" and "semi-deterministic" properties.
     ///
     /// \see prop_unambiguous()
     /// \see prop_semi_deterministic()
+    void prop_universal(trival val)
+    {
+      is.universal = val.val();
+      if (val)
+        // universal implies unambiguous and semi-deterministic
+        is.unambiguous = is.semi_deterministic = val.val();
+    }
+
+    // Starting with Spot 2.4, and automaton is deterministic if it is
+    // both universal and existential, but as we already have
+    // twa::is_existential(), we only need to additionally record the
+    // universal property.  Before that, the deterministic property
+    // was just a synonym for universal, hence we keep the deprecated
+    // function prop_deterministic() with this meaning.
+    SPOT_DEPRECATED("use prop_universal() instead")
     void prop_deterministic(trival val)
     {
-      is.deterministic = val.val();
-      if (val)
-        // deterministic implies unambiguous and semi-deterministic
-        is.unambiguous = is.semi_deterministic = val.val();
+      prop_universal(val);
+    }
+
+    SPOT_DEPRECATED("use prop_universal() instead")
+    trival prop_deterministic() const
+    {
+      return prop_universal();
     }
 
     /// \brief Whether the automaton is unambiguous
@@ -1334,7 +1352,7 @@ namespace spot
     /// unknown whether the automaton is unambiguous or not.  If you
     /// need a true/false answer, prefer the is_unambiguous() function.
     ///
-    /// \see prop_deterministic()
+    /// \see prop_universal()
     /// \see is_unambiguous()
     trival prop_unambiguous() const
     {
@@ -1344,27 +1362,27 @@ namespace spot
     /// \brief Sets the unambiguous property
     ///
     /// Marking an automaton as "non unambiguous" automatically
-    /// marks it as "non deterministic".
+    /// marks it as "non universal".
     ///
     /// \see prop_deterministic()
     void prop_unambiguous(trival val)
     {
       is.unambiguous = val.val();
       if (!val)
-        is.deterministic = val.val();
+        is.universal = val.val();
     }
 
     /// \brief Whether the automaton is semi-deterministic
     ///
     /// An automaton is semi-deterministic if the sub-automaton
-    /// reachable from any accepting SCC is deterministic.
+    /// reachable from any accepting SCC is universal.
     ///
     /// Note that this method may return trival::maybe() when it is
     /// unknown whether the automaton is semi-deterministic or not.
     /// If you need a true/false answer, prefer the
     /// is_semi_deterministic() function.
     ///
-    /// \see prop_deterministic()
+    /// \see prop_universal()
     /// \see is_semi_deterministic()
     trival prop_semi_deterministic() const
     {
@@ -1374,14 +1392,14 @@ namespace spot
     /// \brief Sets the semi-deterministic property
     ///
     /// Marking an automaton as "non semi-deterministic" automatically
-    /// marks it as "non deterministic".
+    /// marks it as "non universal".
     ///
-    /// \see prop_deterministic()
+    /// \see prop_universal()
     void prop_semi_deterministic(trival val)
     {
       is.semi_deterministic = val.val();
       if (!val)
-        is.deterministic = val.val();
+        is.universal = val.val();
     }
 
     /// \brief Whether the automaton is stutter-invariant.
@@ -1434,7 +1452,7 @@ namespace spot
     /// "stutter invariant" properties from \c other_aut to \c code.
     ///
     /// There are two flags for the determinism.  If \code
-    /// deterministic is set, the deterministic, semi-deterministic,
+    /// deterministic is set, the universal, semi-deterministic,
     /// and unambiguous properties are copied as-is.  If deterministic
     /// is unset but improve_det is set, then those properties are
     /// only copied if they are positive.
@@ -1542,15 +1560,15 @@ namespace spot
         }
       if (p.deterministic)
         {
-          prop_deterministic(other->prop_deterministic());
+          prop_universal(other->prop_universal());
           prop_semi_deterministic(other->prop_semi_deterministic());
           prop_unambiguous(other->prop_unambiguous());
         }
       else if (p.improve_det)
         {
-          if (other->prop_deterministic().is_true())
+          if (other->prop_universal().is_true())
             {
-              prop_deterministic(true);
+              prop_universal(true);
             }
           else
             {
@@ -1584,8 +1602,8 @@ namespace spot
         }
       if (!p.deterministic)
         {
-          if (!(p.improve_det && prop_deterministic().is_true()))
-            prop_deterministic(trival::maybe());
+          if (!(p.improve_det && prop_universal().is_true()))
+            prop_universal(trival::maybe());
           if (!(p.improve_det && prop_semi_deterministic().is_true()))
             prop_semi_deterministic(trival::maybe());
           if (!(p.improve_det && prop_unambiguous().is_true()))

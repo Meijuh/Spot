@@ -609,11 +609,11 @@ double-checked by the parser.
 It should be noted that each property can take three values: true,
 false, or maybe.  So actually two bits are used per property.  For
 instance if in some algorithm you want to know whether an automaton is
-deterministic (the equivalent of calling =autfilt -q
---is-deterministic aut.hoa= from the command-line), you should not
-call the method =aut->prop_deterministic()= because that only checks
+complete (the equivalent of calling =autfilt -q
+--is-complete aut.hoa= from the command-line), you should not
+call the method =aut->prop_complete()= because that only checks
 the property bits, and it might return =maybe= even if =aut= is
-deterministic.  Instead, call the function =is_deterministic(aut)=.
+deterministic.  Instead, call the function =is_complete(aut)=.
 This function will first test the property bits, and do the actual
 check in case it is unknown.
 
@@ -639,12 +639,12 @@ this requests "verbose" properties.
 
 The following table summarizes how supported properties are handled.  In
 particular:
-- for the parser =checked= means that the property is always inferred
+- For the parser, =checked= means that the property is always inferred
   and checked against any declaration (if present), =trusted= means
   that the property will be stored without being checked (unless
   =--trust-hoa=no= is specified).
 - Stored properties are those represented as bits in the automaton.
-- the printer will sometime check some properties when it can do
+- The printer will sometime check some properties when it can do
   it as part of its initial "survey scan" of the automaton; in that
   case the stored property is not used.  This makes it possible
   to detect deterministic automata that have been output by algorithms

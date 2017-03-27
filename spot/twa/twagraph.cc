@@ -235,9 +235,9 @@ namespace spot
       return;                        // No unreachable state.
 
     // Removing some non-deterministic dead state could make the
-    // automaton deterministic.
-    if (prop_deterministic().is_false())
-      prop_deterministic(trival::maybe());
+    // automaton universal.
+    if (prop_universal().is_false())
+      prop_universal(trival::maybe());
     if (prop_complete().is_false())
       prop_complete(trival::maybe());
 
@@ -403,9 +403,9 @@ namespace spot
       return;                        // No useless state.
 
     // Removing some non-deterministic dead state could make the
-    // automaton deterministic.  Likewise for non-complete.
-    if (prop_deterministic().is_false())
-      prop_deterministic(trival::maybe());
+    // automaton universal.  Likewise for non-complete.
+    if (prop_universal().is_false())
+      prop_universal(trival::maybe());
     if (prop_complete().is_false())
       prop_complete(trival::maybe());
 

@@ -879,7 +879,7 @@ namespace spot
       a->copy_ap_of(aut);
       if (state_based)
         a->prop_state_acc(true);
-      a->prop_deterministic(true);
+      a->prop_universal(true);
       a->set_acceptance(satdict.cand_nacc, satdict.cand_acc);
       a->new_states(satdict.cand_size);
 
@@ -1474,7 +1474,7 @@ namespace spot
         // mode.  If the desired output is a Büchi automaton, or not
         // desired acceptance was specified, stop here.  There is not
         // point in minimizing a minimal automaton.
-        if (a->prop_inherently_weak() && a->prop_deterministic()
+        if (a->prop_weak() && a->prop_universal()
             && (target_is_buchi || !user_supplied_acc))
           return a;
       }

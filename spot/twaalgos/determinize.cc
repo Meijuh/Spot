@@ -32,6 +32,7 @@
 #include <spot/twaalgos/degen.hh>
 #include <spot/twaalgos/sccfilter.hh>
 #include <spot/twaalgos/simulation.hh>
+#include <spot/twaalgos/isdet.hh>
 
 
 namespace spot
@@ -582,7 +583,7 @@ namespace spot
     if (!a->is_existential())
       throw std::runtime_error
         ("tgba_determinize() does not support alternation");
-    if (a->prop_deterministic())
+    if (is_universal(a))
       return std::const_pointer_cast<twa_graph>(a);
 
     // Degeneralize
@@ -701,7 +702,7 @@ namespace spot
     remove_dead_acc(res, sets);
     // Acceptance is now min(odd) since we con emit Red on paths 0 with new opti
     res->set_acceptance(sets, acc_cond::acc_code::parity(false, true, sets));
-    res->prop_deterministic(true);
+    res->prop_universal(true);
     res->prop_state_acc(false);
 
     if (pretty_print)

@@ -107,9 +107,9 @@ namespace spot
         }
 
       // The product of two non-deterministic automata could be
-      // deterministic.  likewise for non-complete automata.
-      if (left->prop_deterministic() && right->prop_deterministic())
-        res->prop_deterministic(true);
+      // deterministic.  Likewise for non-complete automata.
+      if (left->prop_universal() && right->prop_universal())
+        res->prop_universal(true);
       if (left->prop_complete() && right->prop_complete())
         res->prop_complete(true);
       if (left->prop_stutter_invariant() && right->prop_stutter_invariant())

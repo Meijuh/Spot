@@ -34,7 +34,7 @@ namespace spot
   {
     static bool is_recurrence(formula f, const twa_graph_ptr& aut)
     {
-      if (f.is_syntactic_recurrence() || is_deterministic(aut))
+      if (f.is_syntactic_recurrence() || is_universal(aut))
         return true;
       // If aut is a non-deterministic TGBA, we do
       // TGBA->DPA->DRA->(D?)BA.  The conversion from DRA to

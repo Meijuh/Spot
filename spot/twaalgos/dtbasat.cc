@@ -599,7 +599,7 @@ namespace spot
       a->set_buchi();
       if (state_based)
         a->prop_state_acc(true);
-      a->prop_deterministic(true);
+      a->prop_universal(true);
       a->new_states(satdict.cand_size);
 
 #if DEBUG
