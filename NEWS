@@ -8,6 +8,10 @@ New in spot 2.3.2.dev (not yet released)
   - The output of 'genltl --r-left=1 --r-right=1 --format=%F'
     had typos.
 
+  - 'ltl2tgba Fa | autfilt --complement' would incorrectly claim that
+    the output is "terminal" because dtwa_complement() failed to reset
+    that property.
+
 New in spot 2.3.2 (2017-03-15)
 
   Tools:
