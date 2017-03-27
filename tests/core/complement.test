@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
+# Copyright (C) 2015-2017 Laboratoire de Recherche et Développement de
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -22,12 +22,8 @@
 
 set -e
 
-autfilt=autfilt
-ltl2tgba=ltl2tgba
-randaut=randaut
-
-$randaut -H -A 'random 0..4' -Q1..10 -D -n 50 0..2 >aut
-run 0 $autfilt --complement -H aut >/dev/null
+randaut -H -A 'random 0..4' -Q1..10 -D -n 50 0..2 >aut
+run 0 autfilt --complement -H aut >/dev/null
 
 cat >in <<EOF
 HOA: v1
@@ -36,7 +32,7 @@ Acceptance: 0 t
 --BODY--
 --END--
 EOF
-$autfilt --complement -H in >out
+autfilt --complement -H in >out
 cat >expected <<EOF
 HOA: v1
 States: 1
@@ -54,7 +50,7 @@ EOF
 diff out expected
 
 
-$ltl2tgba -H 'GFa & GFb' Xa | $autfilt --complement -H >out
+ltl2tgba -H 'GFa & GFb' Xa Fa | autfilt --complement -H >out
 cat >expected <<EOF
 HOA: v1
 States: 1
@@ -78,7 +74,7 @@ AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic terminal
+properties: deterministic weak
 --BODY--
 State: 0
 [0] 2
@@ -90,12 +86,27 @@ State: 2 {0}
 State: 3
 [t] 3
 --END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic stutter-invariant weak
+--BODY--
+State: 0 {0}
+[t] 0
+State: 1
+[0] 0
+[!0] 1
+--END--
 EOF
 diff out expected
 
 # The complement of a nondeterministic automaton is currently done via
 # a determinization.
-$ltl2tgba -H 'FGa' | $autfilt --complement >out
+ltl2tgba -H 'FGa' | autfilt --complement >out
 cat >expected <<EOF
 HOA: v1
 States: 2

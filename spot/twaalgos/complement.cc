@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2013-2015, 2017 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <spot/twaalgos/complement.hh>
-#include <spot/twaalgos/sccinfo.hh>
+#include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/complete.hh>
 #include <spot/twaalgos/cleanacc.hh>
 
@@ -27,9 +27,19 @@ namespace spot
   twa_graph_ptr
   dtwa_complement(const const_twa_graph_ptr& aut)
   {
+    if (!is_deterministic(aut))
+      throw
+        std::runtime_error("dtwa_complement() requires a deterministic input");
+
     // Simply complete the automaton, and complement its acceptance.
     auto res = cleanup_acceptance_here(complete(aut));
     res->set_acceptance(res->num_sets(), res->get_acceptance().complement());
+    // Complementing the acceptance is likely to break the terminal
+    // property, but not weakness.  We make a useless call to
+    // prop_keep() just so we remember to update it in the future if a
+    // new argument is added.
+    res->prop_keep({true, true, true, true, true, true});
+    res->prop_terminal(trival::maybe());
     return res;
   }
 }
