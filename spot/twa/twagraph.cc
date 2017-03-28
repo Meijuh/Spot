@@ -245,6 +245,8 @@ namespace spot
     std::vector<unsigned> order;
     order.reserve(num_states);
 
+    bool purge_unreachable_needed = false;
+
     if (is_existential())
       {
         std::vector<std::pair<unsigned, unsigned>> todo; // state, edge
@@ -307,13 +309,16 @@ namespace spot
             const unsigned*& end = std::get<3>(todo.back());
             if (tid == 0U && begin == end)
               {
+                unsigned src = std::get<0>(todo.back());
                 todo.pop_back();
+                // Last transition from a state?
+                if ((int)src >= 0 && (todo.empty()
+                                      || src != std::get<0>(todo.back())))
+                  order.emplace_back(src);
                 if (todo.empty())
                   break;
-                unsigned src = std::get<0>(todo.back());
-                if ((int)src >= 0)
-                  order.emplace_back(src);
-                continue;
+                else
+                  continue;
               }
             unsigned dst = *begin++;
             if (begin == end)
@@ -338,53 +343,76 @@ namespace spot
           }
       }
 
-    // Process states in topological order
-    for (auto s: order)
+    // At this point, all reachable states with successors are marked
+    // as useful.
+    for (;;)
       {
-        auto t = g_.out_iteraser(s);
-        bool useless = true;
-        while (t)
+        bool univ_edge_erased = false;
+        // Process states in topological order to mark those without
+        // successors as useless.
+        for (auto s: order)
           {
-            bool usefuldst = false;
-            for (unsigned d: univ_dests(t->dst))
-              if (useful[d])
-                {
-                  usefuldst = true;
-                  break;
-                }
-            // Erase any edge to a useless state.
-            if (!usefuldst)
+            auto t = g_.out_iteraser(s);
+            bool useless = true;
+            while (t)
               {
-                t.erase();
-                continue;
+                // An edge is useful if all its
+                // destinations are useful.
+                bool usefuledge = true;
+                for (unsigned d: univ_dests(t->dst))
+                  if (!useful[d])
+                    {
+                      usefuledge = false;
+                      break;
+                    }
+                // Erase any useless edge
+                if (!usefuledge)
+                  {
+                    if (is_univ_dest(t->dst))
+                      univ_edge_erased = true;
+                    t.erase();
+                    continue;
+                  }
+                // if we have a edge to a useful state, then the
+                // state is useful.
+                useless = false;
+                ++t;
               }
-            // if we have a edge to a useful state, then the
-            // state is useful.
-            useless = false;
-            ++t;
+            if (useless)
+              useful[s] = 0;
           }
-        if (useless)
-          useful[s] = 0;
+        // If we have erased any universal destination, it is possible
+        // that we have have created some new dead states, so we
+        // actually need to redo the whole thing again until there is
+        // no more universal edge to remove.  Also we might have
+        // created some unreachable states, so we will simply call
+        // purge_unreachable_states() later to clean this.
+        if (!univ_edge_erased)
+          break;
+        else
+          purge_unreachable_needed = true;
       }
 
-    // Make sure at least one initial destination is useful (even if
-    // it has been marked as useless by the previous loop because it
-    // has no successor).
-    bool usefulinit = false;
+    // Is the initial state actually useful?  If not, make this an
+    // empty automaton by resetting the graph.
+    bool usefulinit = true;
     for (unsigned d: univ_dests(init_number_))
-      if (useful[d])
+      if (!useful[d])
         {
-          usefulinit = true;
+          usefulinit = false;
           break;
         }
     if (!usefulinit)
-      for (unsigned d: univ_dests(init_number_))
-        {
-          useful[d] = true;
-          break;
-        }
+      {
+        g_ = graph_t();
+        init_number_ = new_state();
+        prop_deterministic(true);
+        prop_stutter_invariant(true);
+        prop_weak(true);
+        return;
+      }
 
-    // Now renumber each used state.
+    // Renumber each used state.
     unsigned current = 0;
     for (unsigned s = 0; s < num_states; ++s)
       if (useful[s])
@@ -394,6 +422,9 @@ namespace spot
     if (current == num_states)
       return;                        // No useless state.
     defrag_states(std::move(useful), current);
+
+    if (purge_unreachable_needed)
+      purge_unreachable_states();
   }
 
   void twa_graph::defrag_states(std::vector<unsigned>&& newst,
@@ -401,14 +432,46 @@ namespace spot
   {
     if (!is_existential())
       {
+        // Running defrag_states() on alternating automata is tricky,
+        // because we want to
+        // #1 rename the regular states
+        // #2 rename the states in universal destinations
+        // #3 get rid of the unused universal destinations
+        // #4 merge identical universal destinations
+        //
+        // graph::degrag_states() actually does only #1. It it could
+        // do #2, but that would prevent use from doing #3 and #4.  It
+        // cannot do #3 and #4 because the graph object does not know
+        // what an initial state is, and our initial state might be
+        // universal.
+        //
+        // As a consequence this code preforms #2, #3, and #4 before
+        // calling graph::degrag_states() to finish with #1.  We clear
+        // the "dests vector" of the current automaton, recreate all
+        // the new destination groups using a univ_dest_mapper to
+        // simplify an unify them, and extend newst with some new
+        // entries that will point the those new universal destination
+        // so that graph::defrag_states() does not have to deal with
+        // universal destination in any way.
         auto& g = get_graph();
         auto& dests = g.dests_vector();
 
+        // Clear the destination vector, saving the old one.
         std::vector<unsigned> old_dests;
         std::swap(dests, old_dests);
-        std::vector<unsigned> seen(old_dests.size(), -1U);
+        // dests will be updated as a side effect of declaring new
+        // destination groups to uniq.
         internal::univ_dest_mapper<twa_graph::graph_t> uniq(g);
 
+        // The newst entry associated to each of the old destination
+        // group.
+        std::vector<unsigned> seen(old_dests.size(), -1U);
+
+        // Rename a state if it denotes a universal destination.  This
+        // function has to be applied to the destination of each edge,
+        // as well as to the initial state.  The need to work on the
+        // initial state is the reason it cannot be implemented in
+        // graph::defrag_states().
         auto fixup = [&](unsigned& in_dst)
           {
             unsigned dst = in_dst;
@@ -416,8 +479,9 @@ namespace spot
               return;
             dst = ~dst;
             unsigned& nd = seen[dst];
-            if (nd == -1U)
+            if (nd == -1U)      // An unprocessed destination group
               {
+                // store all renamed destination states in tmp
                 std::vector<unsigned> tmp;
                 auto begin = old_dests.data() + dst + 1;
                 auto end = begin + old_dests[dst];
@@ -430,10 +494,17 @@ namespace spot
                   }
                 if (tmp.empty())
                   {
+                    // All destinations of this group were marked for
+                    // removal.  Mark this universal transition for
+                    // removal as well.  Is this really what we expect?
                     nd = -1U;
                   }
                 else
                   {
+                    // register this new destination group, add et two
+                    // newst, and use the index in newst to relabel
+                    // the state so that graph::degrag_states() will
+                    // eventually update it to the correct value.
                     nd = newst.size();
                     newst.emplace_back(uniq.new_univ_dests(tmp.begin(),
                                                            tmp.end()));

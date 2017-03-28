@@ -276,6 +276,27 @@ autfilt -q --intersect=ex1 ex3
 cat >ex4<<EOF
 HOA: v1
 States: 5
+Start: 0&2
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels trans-acc
+properties: deterministic
+--BODY--
+State: 0
+[0] 0
+[!0] 0&2
+State: 1
+[t] 1&4
+State: 2
+[!0] 2 {0}
+[0] 3
+State: 3
+[t] 3
+State: 4
+--END--
+HOA: v1
+States: 5
 Start: 0&2&4
 AP: 1 "a"
 acc-name: co-Buchi
@@ -299,6 +320,24 @@ EOF
 
 cat >expect4<<EOF
 HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+HOA: v1
 States: 4
 Start: 0&1&3
 AP: 1 "a"
@@ -319,10 +358,42 @@ State: 3
 --END--
 EOF
 
+cat >expect4d<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: univ-branch trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+EOF
+
 run 0 autfilt --remove-unreachable-states ex4 > out4
 diff expect4 out4
 run 0 autfilt --remove-dead-states ex4 > out4
-diff ex2 out4
+diff expect4d out4
 
 
 cat >ex5<<EOF
@@ -336,6 +407,33 @@ Acceptance: 1 Fin(0)
 State: 0
 State: 1
 --END--
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+Acceptance: 0 t
+--BODY--
+State: 0
+[0] 1&2
+[!0] 1
+State: 1
+[!0] 1
+State: 2
+--END--
+HOA: v1
+States: 4
+Start: 0&1
+AP: 1 "a"
+Acceptance: 0 t
+--BODY--
+State: 0
+[0] 1&2
+State: 1
+[!0] 1&0&3
+State: 2
+State: 3
+[t] 3
+--END--
 EOF
 
 run 0 autfilt --remove-dead-states ex5 > out5
@@ -347,6 +445,31 @@ AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[!0] 1
+State: 1
+[!0] 1
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
 --BODY--
 State: 0
 --END--
