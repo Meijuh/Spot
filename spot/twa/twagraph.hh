@@ -536,18 +536,26 @@ namespace spot
     /// states without successors, unreachable states, and states
     /// that only have dead successors.
     ///
+    /// This function runs in linear time on non-alternating automata,
+    /// but its current implementation can be quadratic when removing
+    /// dead states from alternating automata.  (In the latter case, a
+    /// universal edge has to be remove when any of its destination is
+    /// dead, but this might cause the other destinations to become
+    /// dead or unreachable themselves.)
+    ///
     /// \see purge_unreachable_states
     void purge_dead_states();
 
     /// \brief Remove all unreachable states.
     ///
-    /// A state is unreachable if it cannot be reached from the initial state.
+    /// A state is unreachable if it cannot be reached from the
+    /// initial state.
     ///
     /// Use this function if you have declared more states than you
-    /// actually need in the automaton.
+    /// actually need in the automaton.  It runs in linear time.
     ///
     /// purge_dead_states() will remove more states than
-    /// purge_unreachable_states().
+    /// purge_unreachable_states(), but it is more costly.
     ///
     /// \see purge_dead_states
     void purge_unreachable_states();

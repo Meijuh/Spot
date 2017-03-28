@@ -87,4 +87,5 @@ assert aut.edge_data(1).cond == bddtrue
 aut.release_iter(it)
 
 aut.purge_dead_states()
+i = aut.get_init_state()
 assert aut.state_is_accepting(i) == False
