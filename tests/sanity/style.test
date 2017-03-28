@@ -150,7 +150,7 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
     case $file in
     *.test);;
     *)
-      $GREP -E '[^<]class[ \t]+[A-Z]' $tmp &&
+      $GREP -E '(>[^>]*|^[^<]*)class[ \t]+[A-Z]' $tmp &&
         diag 'Use lower case class names.'
 
       $GREP '[	 ]if(' $tmp &&
@@ -267,7 +267,7 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
       e$GREP '(->|[.])size\(\) [=!]= 0|![a-zA-Z0-9_]*(->|[.])size\(\)|(if |while |assert)\([a-zA-Z0-9_]*(->|[.])size\(\)\)' $tmp &&
 	diag 'Prefer empty() to check emptiness.'
 
-      e$GREP 'assert\((0|!".*")\)' $tmp | $GREP -v 'static_assert' &&
+      e$GREP 'assert\((0|!".*")\)' $tmp &&
         diag 'Prefer SPOT_UNREACHABLE or SPOT_UNIMPLEMENTED.'
 
       e$GREP '^[^=*<]*([+][+]|--);' $tmp &&
@@ -307,7 +307,7 @@ for dir in "$TOP/spot" "$TOP/bin" "$TOP/tests"; do
 	    *)
 	      $GREP '#.*include.*priv/' $tmp &&
 		diag 'Do not include private headers in public headers.'
-        $GREP -v '#' $tmp | $GREP 'assert[	 ]*(.*)' | $GREP -v 'static_assert'&&
+        $GREP '^[^#]*[^#_]assert[	 ]*(.*)' $tmp &&
           diag 'Use SPOT_ASSERT() instead of assert() in public headers.'
 	      ;;
 
