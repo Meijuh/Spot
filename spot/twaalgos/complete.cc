@@ -42,38 +42,54 @@ namespace spot
       }
     else
       {
-        // Loop over the states and search a state that has only self
-        // loop labeled by the same non-accepting mark.  This will be
-        // our sink state.  Note that we do not even have to ensure
-        // that the state is complete as we will complete the whole
-        // automaton in a second pass.
+        // Loop over the states and search a state that has only
+        // self-loops labeled by the same non-accepting mark.  This
+        // will be our sink state.  Note that we do not even have to
+        // ensure that the state is complete as we will complete the
+        // whole automaton in a second pass.
         for (unsigned i = 0; i < n; ++i)
           {
             bool sinkable = true;
             bool first = true;
-            acc_cond::mark_t commonacc = um.second;
+            acc_cond::mark_t loopmark = um.second;
             for (auto& t: aut->out(i))
               {
-                if (t.dst != i)        // Not a self-loop
+                // A state with an outgoing transition that isn't a
+                // self-loop is not a candidate for a sink state.
+                if (t.dst != i)
                   {
                     sinkable = false;
                     break;
                   }
+                // If this is the first self-loop we see, record its
+                // mark.  We will check that the mark is non accepting
+                // only if this is the only self-loop.
                 if (first)
                   {
-                    commonacc = t.acc;
+                    loopmark = t.acc;
                     first = false;
                   }
-                else if (t.acc != commonacc)
+                // If this this not the first self loop and it as a
+                // different acceptance mark, do not consider this
+                // state as a sink candidate: combining loops with
+                // different marks might be used to build an accepting
+                // cycle.
+                else if (t.acc != loopmark)
                   {
                     sinkable = false;
                     break;
                   }
               }
-            if (sinkable && !aut->acc().accepting(commonacc))
+            // Now if sinkable==true, it means that there is either no
+            // outgoing transition, or just a self-loop.  In the later
+            // case we have to check that the acceptance mark of that
+            // self-loop is non-accepting.  In the former case
+            // "loopmark" was already set to an unsatisfiable mark, so
+            // it's ok to retest it.
+            if (sinkable && !aut->acc().accepting(loopmark))
               {
                 // We have found a sink!
-                um.second = commonacc;
+                um.second = loopmark;
                 sink = i;
                 break;
               }
