@@ -91,6 +91,7 @@ enum {
   OPT_DECOMPOSE_STRENGTH,
   OPT_DECOMPOSE_SCC,
   OPT_DESTUT,
+  OPT_DUALIZE,
   OPT_DNF_ACC,
   OPT_EDGES,
   OPT_EQUIVALENT_TO,
@@ -301,6 +302,8 @@ static const argp_option options[] =
       " (letters may be combined to combine more strengths in the output)", 0 },
     { "decompose-scc", OPT_DECOMPOSE_SCC, "N", 0, "keep only the Nth accepting"
       " SCC as accepting", 0 },
+    { "dualize", OPT_DUALIZE, nullptr, 0,
+      "dualize each automaton", 0 },
     { "exclusive-ap", OPT_EXCLUSIVE_AP, "AP,AP,...", 0,
       "if any of those APs occur in the automaton, restrict all edges to "
       "ensure two of them may not be true at the same time.  Use this option "
@@ -485,6 +488,7 @@ static bool opt_complement = false;
 static bool opt_complement_acc = false;
 static char* opt_decompose_strength = nullptr;
 static int opt_decompose_scc = -1;
+static bool opt_dualize = false;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
@@ -572,6 +576,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_cnf_acc = true;
       break;
     case OPT_COMPLEMENT:
+      if (opt_dualize)
+        error(2, 0, "either --complement or --dualize options"
+                    " can be given, not both");
       opt_complement = true;
       break;
     case OPT_COMPLEMENT_ACC:
@@ -585,6 +592,12 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_DESTUT:
       opt_destut = true;
+      break;
+    case OPT_DUALIZE:
+      if (opt_complement)
+        error(2, 0, "either --complement or --dualize options"
+                    " can be given, not both");
+      opt_dualize = true;
       break;
     case OPT_DNF_ACC:
       opt_dnf_acc = true;
@@ -1248,6 +1261,9 @@ namespace
 
       if (opt_complement)
         aut = spot::dualize(ensure_deterministic(aut));
+
+      if (opt_dualize)
+        aut = spot::dualize(aut);
 
       aut = post.run(aut, nullptr);
 
