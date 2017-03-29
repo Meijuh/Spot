@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+## Copyright (C) 2010, 2011, 2013-2017 Laboratoire de Recherche
 ## et Development de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -32,7 +32,7 @@ AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_builddir) -I$(top_srcdir) \
 #   https://github.com/ipython/ipython/issues/7003
 # Once a fixed version of IPython hits Debian stable, we can remove
 # this.
-SWIGFLAGS = -c++ -python -py3 -O -nofastproxy
+SWIGFLAGS = -c++ -python -py3 -O -nofastproxy -MD
 
 EXTRA_DIST = buddy.i spot/impl.i spot/ltsmin.i
 nobase_python_PYTHON = \
@@ -54,8 +54,11 @@ spot__impl_la_SOURCES = spot/impl_wrap.cxx
 spot__impl_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
 spot__impl_la_LIBADD = $(top_builddir)/spot/libspot.la
 
+@AMDEP_TRUE@@am__include@ @am__quote@./spot/$(DEPDIR)/impl_wrap.Pcxx@am__quote@
+
 ${srcdir}/spot/impl_wrap.cxx: spot/impl.i
-	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot/impl.i
+	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) -MF spot/$(DEPDIR)/impl_wrap.TPcxx $(srcdir)/spot/impl.i
+	mv spot/$(DEPDIR)/impl_wrap.TPcxx spot/$(DEPDIR)/impl_wrap.Pcxx
 
 spot/impl.py: spot/impl.i
 	$(MAKE) $(AM_MAKEFLAGS) spot/impl_wrap.cxx
@@ -68,8 +71,11 @@ spot__ltsmin_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
 spot__ltsmin_la_LIBADD = $(top_builddir)/spot/libspot.la \
                        $(top_builddir)/spot/ltsmin/libspotltsmin.la
 
+@AMDEP_TRUE@@am__include@ @am__quote@./spot/$(DEPDIR)/ltsmin_wrap.Pcxx@am__quote@
+
 ${srcdir}/spot/ltsmin_wrap.cxx: spot/ltsmin.i
-	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) $(srcdir)/spot/ltsmin.i
+	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) -MF spot/$(DEPDIR)/ltsmin_wrap.TPcxx $(srcdir)/spot/ltsmin.i
+	mv spot/$(DEPDIR)/ltsmin_wrap.TPcxx spot/$(DEPDIR)/ltsmin_wrap.Pcxx
 
 spot/ltsmin.py: spot/ltsmin.i
 	$(MAKE) $(AM_MAKEFLAGS) spot/ltsmin_wrap.cxx
@@ -80,8 +86,11 @@ spot/ltsmin.py: spot/ltsmin.i
 _buddy_la_SOURCES = buddy_wrap.cxx
 _buddy_la_LDFLAGS = -avoid-version -module $(BUDDY_LDFLAGS) $(SYMBOLIC_LDFLAGS)
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buddy_wrap.Pcxx@am__quote@
+
 ${srcdir}/buddy_wrap.cxx: buddy.i
-	$(SWIG) $(SWIGFLAGS) $(BUDDY_CPPFLAGS) $(srcdir)/buddy.i
+	$(SWIG) $(SWIGFLAGS) $(BUDDY_CPPFLAGS) -MF $(DEPDIR)/buddy_wrap.TPcxx $(srcdir)/buddy.i
+	mv $(DEPDIR)/buddy_wrap.TPcxx $(DEPDIR)/buddy_wrap.Pcxx
 
 buddy.py: buddy.i
 	$(MAKE) $(AM_MAKEFLAGS) buddy_wrap.cxx
