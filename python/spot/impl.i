@@ -444,6 +444,12 @@ namespace std {
 %include <spot/twa/acc.hh>
 %template(pair_bool_mark) std::pair<bool, spot::acc_cond::mark_t>;
 
+%pythonprepend spot::twa::prop_deterministic %{
+  from warnings import warn
+  warn("use prop_universal() instead of prop_deterministic()",
+       DeprecationWarning)
+%}
+
 %include <spot/twa/twa.hh>
 
 %include <spot/tl/apcollect.hh>
@@ -483,6 +489,7 @@ namespace std {
 
 %noexception spot::twa_graph::edges;
 %noexception spot::twa_graph::univ_dests;
+
 
 // Instead of %feature("shadow") we would like to use just
 //   %pythonprepend spot::twa_graph::out %{ self.report_univ_dest(src) %}
