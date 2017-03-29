@@ -25,7 +25,7 @@ import spot
 
 e = spot.default_environment.instance()
 
-l = ['GFa', 'a U (((b)) xor c)', '!(FFx <=> Fx)', 'a \/ a \/ b \/ a \/ a'];
+l = ['GFa', 'a U (((b)) xor c)', '!(FFx <=> Fx)', 'a \\/ a \\/ b \\/ a \\/ a']
 
 for str1 in l:
     pf = spot.parse_infix_psl(str1, e, False)
