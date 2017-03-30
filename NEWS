@@ -23,6 +23,8 @@ New in spot 2.3.2.dev (not yet released)
 
   - spot::dualize() implements the dual of any alternating automaton.
 
+  - spot::dtwa_complement now simply returns the result of dualize()
+
   Bug fixes:
 
   - In "lenient" mode the parser would fail to recover from
