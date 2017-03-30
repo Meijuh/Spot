@@ -182,7 +182,7 @@ namespace spot
             unsigned dest = e.dst;
             if ((int) dest < 0)
               {
-                // Iterate over all destinations of an universal edge.
+                // Iterate over all destinations of a universal edge.
                 if (todo_.top().univ_pos == 0)
                   todo_.top().univ_pos = ~dest + 1;
                 const auto& v = gr.dests_vector();
