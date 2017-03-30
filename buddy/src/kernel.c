@@ -1147,7 +1147,7 @@ SHORT   {* increases the reference count on a node *}
 PROTO   {* BDD bdd_addref(BDD r) *}
 DESCR   {* Reference counting is done on externaly referenced nodes only
 	   and the count for a specific node {\tt r} can and must be
-	   increased using this function to avoid loosing the node in the next
+	   increased using this function to avoid losing the node in the next
 	   garbage collection. *}
 ALSO    {* bdd\_delref *}
 RETURN  {* The BDD node {\tt r}. *}

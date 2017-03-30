@@ -2138,7 +2138,7 @@ SECTION {* operator *}
 SHORT   {* apply operation and universal quantification *}
 PROTO   {* BDD bdd_appall(BDD left, BDD right, int opr, BDD var) *}
 DESCR   {* Applies the binary operator {\tt opr} to the arguments
-	   {\tt left} and {\tt right} and then performs an universal
+	   {\tt left} and {\tt right} and then performs a universal
 	   quantification of the variables from the variable set
 	   {\tt var}. This is done in a bottom up manner such that both the
 	   apply and quantification is done on the lower nodes before
@@ -2160,7 +2160,7 @@ SECTION {* operator *}
 SHORT   {* apply operation and universal (complemented) quantification *}
 PROTO   {* BDD bdd_appall(BDD left, BDD right, int opr, BDD var) *}
 DESCR   {* Applies the binary operator {\tt opr} to the arguments
-	   {\tt left} and {\tt right} and then performs an universal
+	   {\tt left} and {\tt right} and then performs a universal
 	   quantification of the variables which are {\bf not} in the variable
 	   set {\tt var}. This is done in a bottom up manner such that both the
 	   apply and quantification is done on the lower nodes before
