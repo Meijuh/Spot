@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012-2015, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -58,7 +58,7 @@ namespace spot
   /// for TA (spot::ta_check::check) can also be used to check GTA.
   ///
   /// \param artificial_initial_state_mode When set, the algorithm will build
-  /// a TA automaton with an unique initial state.  This
+  /// a TA automaton with a unique initial state.  This
   /// artificial initial state have one transition to each real initial state,
   /// and this transition is labeled by the corresponding initial condition.
   /// (see spot::ta::get_artificial_initial_state())

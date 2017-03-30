@@ -466,7 +466,7 @@ namespace spot
         // calling graph::degrag_states() to finish with #1.  We clear
         // the "dests vector" of the current automaton, recreate all
         // the new destination groups using a univ_dest_mapper to
-        // simplify an unify them, and extend newst with some new
+        // simplify and unify them, and extend newst with some new
         // entries that will point the those new universal destination
         // so that graph::defrag_states() does not have to deal with
         // universal destination in any way.

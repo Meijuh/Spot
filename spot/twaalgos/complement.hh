@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2013-2015, 2017 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -35,7 +35,7 @@ namespace spot
   ///
   /// Functions like to_generalized_buchi() or remove_fin() are
   /// frequently called after dtwa_complement() to obtain an easier
-  /// acceptance condition (maybe at the cost of loosing determinism.)
+  /// acceptance condition (maybe at the cost of losing determinism.)
   SPOT_API twa_graph_ptr
   dtwa_complement(const const_twa_graph_ptr& aut);
 }

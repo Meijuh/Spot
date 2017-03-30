@@ -48,7 +48,7 @@ namespace spot
                     unsigned left_state,
                     unsigned right_state);
 
-  /// \brief Sum two twa into a new twa, using an universal initial transition,
+  /// \brief Sum two twa into a new twa, using a universal initial transition,
   /// performing the intersection of the two languages of the input automatons.
   ///
   /// \param left Left term of the sum.
@@ -58,7 +58,7 @@ namespace spot
   twa_graph_ptr sum_and(const const_twa_graph_ptr& left,
                         const const_twa_graph_ptr& right);
 
-  /// \brief Sum two twa into a new twa, using an universal initial transition,
+  /// \brief Sum two twa into a new twa, using a universal initial transition,
   /// performing the intersection of the two languages of the input automatons.
   ///
   /// \param left Left term of the sum.

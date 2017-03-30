@@ -94,7 +94,7 @@ namespace spot
                     && (!dest->is_accepting_state()) && (!dest_trans_empty))
                   transitions_to_livelock_states->push_front(*it_trans);
 
-                // optimization to have, after minimization, an unique
+                // optimization to have, after minimization, a unique
                 // livelock state which has no successors
                 if (dest->is_livelock_accepting_state() && (dest_trans_empty))
                   dest->set_accepting_state(false);

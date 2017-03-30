@@ -115,7 +115,7 @@ def ne(string):
 
 
 # --------------------------------------------------------------SUMMARY
-def add_winner(res, winner, looser):
+def add_winner(res, winner, loser):
     """
         Each time this function is called, it increments the scrore
         of one method against another one.
@@ -125,7 +125,7 @@ def add_winner(res, winner, looser):
     for i in range(1, res_length):  # except the first row (header)
         if winner in res[i]:
             for j in range(1, header_length):
-                if looser in res[0][j]:
+                if loser in res[0][j]:
                     if type(res[i][j]) is str:
                         res[i][j] = 1
                     else:

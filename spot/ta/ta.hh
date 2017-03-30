@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012-2017 Laboratoire de Recherche et
 // Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -99,7 +99,7 @@ namespace spot
     /// \brief Get the artificial initial state set of the automaton.
     /// Return 0 if this artificial state is not implemented
     /// (in this case, use \c get_initial_states_set)
-    /// The aim of adding this state is to have an unique initial state. This
+    /// The aim of adding this state is to have a unique initial state. This
     /// artificial initial state have one transition to each real initial state,
     /// and this transition is labeled by the corresponding initial condition.
     /// (For more details, see the paper cited above)
