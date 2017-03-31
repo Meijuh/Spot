@@ -1,7 +1,7 @@
 #!/bin/sh
-RANDLTL=../../src/bin/randltl
-LTLFILT=../../src/bin/ltlfilt
-LTLDO=../../src/bin/ltldo
+RANDLTL=../../bin/randltl
+LTLFILT=../../bin/ltlfilt
+LTLDO=../../bin/ltldo
 
 set -e -x
 

@@ -15,6 +15,9 @@ New in spot 2.3.2.dev (not yet released)
   - spot::twa_graph::purge_unreachable_states() was misbehaving on
     alternating automata.
 
+  - In bench/stutter/ the .cc files were not compiling due to warnings being
+    caught as errors.
+
 New in spot 2.3.2 (2017-03-15)
 
   Tools:

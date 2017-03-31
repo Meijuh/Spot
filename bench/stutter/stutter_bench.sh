@@ -1,7 +1,7 @@
 #!/bin/sh
 
-RANDLTL=../../src/bin/randltl
-LTLFILT=../../src/bin/ltlfilt
+RANDLTL=../../bin/randltl
+LTLFILT=../../bin/ltlfilt
 
 echo 'ltl-user-bench.csv:; ./user.sh' > run.mk
 
