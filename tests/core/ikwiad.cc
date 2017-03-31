@@ -57,7 +57,7 @@
 #include <spot/twaalgos/simulation.hh>
 #include <spot/twaalgos/compsusp.hh>
 #include <spot/twaalgos/powerset.hh>
-#include <spot/twaalgos/complement.hh>
+#include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/complete.hh>
 #include <spot/twaalgos/dtbasat.hh>
@@ -1146,7 +1146,7 @@ checked_main(int argc, char** argv)
       if (opt_dtwacomp)
         {
           tm.start("DTωA complement");
-          a = remove_fin(dtwa_complement(ensure_digraph(a)));
+          a = remove_fin(dualize(ensure_digraph(a)));
           tm.stop("DTωA complement");
         }
 

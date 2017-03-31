@@ -54,7 +54,7 @@
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/isweakscc.hh>
 #include <spot/twaalgos/word.hh>
-#include <spot/twaalgos/complement.hh>
+#include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/cleanacc.hh>
 #include <spot/twaalgos/alternation.hh>
 #include <spot/misc/formater.hh>
@@ -1169,7 +1169,7 @@ namespace
                                 unsigned i)
             {
               if (!no_complement && x[i] && is_deterministic(x[i]))
-                comp[i] = dtwa_complement(x[i]);
+                comp[i] = dualize(x[i]);
             };
 
           for (unsigned i = 0; i < m; ++i)
@@ -1199,7 +1199,7 @@ namespace
                       p.set_type(spot::postprocessor::Generic);
                       p.set_pref(spot::postprocessor::Deterministic);
                       p.set_level(spot::postprocessor::Low);
-                      to[i] = dtwa_complement(p.run(from[i]));
+                      to[i] = dualize(p.run(from[i]));
                       if (verbose)
                         {
                           std::cerr << "info:   " << prefix << i << "\t(";

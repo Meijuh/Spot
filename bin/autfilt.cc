@@ -60,7 +60,7 @@
 #include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/cleanacc.hh>
 #include <spot/twaalgos/dtwasat.hh>
-#include <spot/twaalgos/complement.hh>
+#include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/hoa.hh>
 #include <spot/twaalgos/sccinfo.hh>
@@ -601,7 +601,7 @@ parse_opt(int key, char* arg, struct argp_state*)
         error(2, 0, "only one --equivalent-to option can be given");
       opt->equivalent_pos = read_automaton(arg, opt->dict);
       opt->equivalent_neg =
-        spot::dtwa_complement(ensure_deterministic(opt->equivalent_pos, true));
+        spot::dualize(ensure_deterministic(opt->equivalent_pos, true));
       break;
     case OPT_GENERALIZED_RABIN:
       if (arg)
@@ -675,7 +675,7 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_INCLUDED_IN:
       {
         auto aut = ensure_deterministic(read_automaton(arg, opt->dict), true);
-        aut = spot::dtwa_complement(aut);
+        aut = spot::dualize(aut);
         if (!opt->included_in)
           opt->included_in = aut;
         else
@@ -1159,7 +1159,7 @@ namespace
         matched &= !aut->intersects(opt->included_in);
       if (opt->equivalent_pos)
         matched &= !aut->intersects(opt->equivalent_neg)
-          && (!dtwa_complement(ensure_deterministic(aut, true))->
+          && (!dualize(ensure_deterministic(aut, true))->
               intersects(opt->equivalent_pos));
 
       if (matched && !opt->acc_words.empty())
@@ -1247,7 +1247,7 @@ namespace
         }
 
       if (opt_complement)
-        aut = spot::dtwa_complement(ensure_deterministic(aut));
+        aut = spot::dualize(ensure_deterministic(aut));
 
       aut = post.run(aut, nullptr);
 

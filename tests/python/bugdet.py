@@ -81,11 +81,11 @@ State: 7 {0}
 print("use_simulation=True")
 b1 = spot.tgba_determinize(b, False, True, True, True)
 assert b1.num_states() == 5
-b1 = spot.remove_fin(spot.dtwa_complement(b1))
+b1 = spot.remove_fin(spot.dualize(b1))
 assert not a.intersects(b1);
 
 print("\nuse_simulation=False")
 b2 = spot.tgba_determinize(b, False, True, False, True)
 assert b2.num_states() == 5
-b2 = spot.remove_fin(spot.dtwa_complement(b2))
+b2 = spot.remove_fin(spot.dualize(b2))
 assert not a.intersects(b1);

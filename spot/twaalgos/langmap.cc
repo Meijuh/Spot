@@ -19,8 +19,8 @@
 
 #include <numeric>
 #include <spot/twa/twa.hh>
-#include <spot/twaalgos/complement.hh>
 #include <spot/twaalgos/copy.hh>
+#include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/langmap.hh>
 #include <spot/twaalgos/remfin.hh>
@@ -49,7 +49,7 @@ namespace spot
       alt_init_st_auts[i] = c;
 
       twa_graph_ptr cc =
-        remove_fin(dtwa_complement(copy(c, twa::prop_set::all())));
+        remove_fin(dualize(copy(c, twa::prop_set::all())));
       compl_alt_init_st_auts[i] = cc;
     }
 

@@ -19,7 +19,7 @@
 
 #include <spot/misc/timer.hh>
 #include <spot/tl/apcollect.hh>
-#include <spot/twaalgos/complement.hh>
+#include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/randomgraph.hh>
 #include <spot/twaalgos/dot.hh>
@@ -81,7 +81,7 @@ main(int argc, char** argv)
 					  true);
 	    }
 	  while (a->is_empty());
-	  auto na = spot::remove_fin(spot::dtwa_complement(a));
+	  auto na = spot::remove_fin(spot::dualize(a));
 
 	  std::cout << d << ',' << props_n << ',' << seed;
 	  stats.print(a);

@@ -324,7 +324,7 @@ that provide a function with a similar service.
 | ~tgba/tgbabddfactory.hh~           |                                    | not supported anymore                            |
 | ~tgba/tgbaexplicit.hh~             | ~spot/twa/twagraph.hh~             |                                                  |
 | ~tgba/tgba.hh~                     | ~spot/twa/twa.hh~                  |                                                  |
-| ~tgba/tgbakvcomplement.hh~         |                                    | use ~tgba_determinize()~ and ~dtwa_complement()~ |
+| ~tgba/tgbakvcomplement.hh~         |                                    | use ~tgba_determinize()~ and ~dualize()~         |
 | ~tgba/tgbamask.hh~                 | ~spot/twa/tgbamask.hh~             |                                                  |
 | ~tgba/tgbaproduct.hh~              | ~spot/twa/tgbaproduct.hh~          |                                                  |
 | ~tgba/tgbaproxy.hh~                |                                    | not supported anymore                            |
@@ -333,7 +333,7 @@ that provide a function with a similar service.
 | ~tgba/tgbasgba.hh~                 | ~spot/twaalgos/sbacc.hh~           |                                                  |
 | ~tgba/tgbatba.hh~                  | ~spot/twaalgos/degen.hh~           |                                                  |
 | ~tgba/tgbaunion.hh~                |                                    | not yet reimplemented                            |
-| ~tgba/wdbacomp.hh~                 | ~spot/twaalgos/complement.hh~      | use ~dtwa_complement()~ instead                  |
+| ~tgba/wdbacomp.hh~                 | ~spot/twaalgos/dualize.hh~         | use ~dualize()~ instead                          |
 |------------------------------------+------------------------------------+--------------------------------------------------|
 | ~tgbaparse/public.hh~              | ~spot/parseaut/public.hh~          | single parser for all automata                   |
 

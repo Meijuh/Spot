@@ -36,6 +36,11 @@ namespace spot
   /// Functions like to_generalized_buchi() or remove_fin() are
   /// frequently called after dtwa_complement() to obtain an easier
   /// acceptance condition (maybe at the cost of losing determinism.)
+  ///
+  /// This function was deprecated in spot 2.4. Call the function
+  /// spot::dualize() instead, that is able to complement any input
+  /// automaton, not only deterministic ones.
+  SPOT_DEPRECATED("use spot::dualize() instead")
   SPOT_API twa_graph_ptr
   dtwa_complement(const const_twa_graph_ptr& aut);
 }

@@ -532,7 +532,6 @@ def state_is_accepting(self, src) -> "bool":
 %include <spot/twaalgos/dot.hh>
 %include <spot/twaalgos/copy.hh>
 %include <spot/twaalgos/complete.hh>
-%include <spot/twaalgos/complement.hh>
 %feature("flatnested") spot::twa_run::step;
 %include <spot/twaalgos/emptiness.hh>
 %template(list_step) std::list<spot::twa_run::step>;
@@ -570,6 +569,13 @@ def state_is_accepting(self, src) -> "bool":
 %include <spot/twaalgos/word.hh>
 %template(list_bdd) std::list<bdd>;
 
+%pythonprepend spot::twa::dtwa_complement %{
+  from warnings import warn
+  warn("use dualize() instead of dtwa_complement()",
+       DeprecationWarning)
+%}
+
+%include <spot/twaalgos/complement.hh>
 
 %include <spot/parseaut/public.hh>
 

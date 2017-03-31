@@ -27,7 +27,7 @@
 #include <spot/twaalgos/product.hh>
 #include <spot/twaalgos/ltl2tgba_fm.hh>
 #include <spot/twaalgos/isdet.hh>
-#include <spot/twaalgos/complement.hh>
+#include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/postproc.hh>
 #include <spot/twa/twaproduct.hh>
@@ -631,7 +631,7 @@ namespace spot
             p.set_level(spot::postprocessor::Low);
             tmp = p.run(aut);
           }
-        neg = dtwa_complement(tmp);
+        neg = dualize(tmp);
       }
 
     is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),

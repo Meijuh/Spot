@@ -72,6 +72,14 @@ New in spot 2.3.2.dev (not yet released)
     synonym for spot::twa::prop_universal() to help backward
     compatibility.
 
+  Deprecation notice:
+
+  - spot::dtwa_complement() used to work only on deterministic
+    automatons. Due to the recent implementation of spot::dualize(),
+    that does the same job but on any type of automaton,
+    spot::dtwa_complement() is now kept as a proxy of spot::dualize()
+    in order to help backward compatibility, but is now deprecated.
+
 New in spot 2.3.2 (2017-03-15)
 
   Tools:

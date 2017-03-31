@@ -57,7 +57,7 @@ def produce_phi(rg, n):
 
 def equivalent(a, phi):
   negphi = spot.formula.Not(phi)
-  nega   = spot.dtwa_complement(spot.tgba_determinize(a))
+  nega   = spot.dualize(spot.tgba_determinize(a))
   a2     = spot.ltl_to_tgba_fm(phi, dict)
   nega2  = spot.ltl_to_tgba_fm(negphi, dict)
   return spot.product(a, nega2).is_empty()\
