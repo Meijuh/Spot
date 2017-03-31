@@ -33,6 +33,9 @@ New in spot 2.3.2.dev (not yet released)
   - spot::twa_graph::purge_unreachable_states() was misbehaving on
     alternating automata.
 
+  - In bench/stutter/ the .cc files were not compiling due to warnings being
+    caught as errors.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as

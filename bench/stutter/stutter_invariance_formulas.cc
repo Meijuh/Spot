@@ -54,14 +54,14 @@ namespace
 
     int
     process_string(const std::string& input,
-                   const char* filename, int linenum)
+                   const char* filename, int linenum) override
     {
       formula = input;
       return job_processor::process_string(input, filename, linenum);
     }
 
     int
-    process_formula(spot::formula f, const char*, int)
+    process_formula(spot::formula f, const char*, int) override
     {
       spot::twa_graph_ptr a = trans.run(f);
       spot::twa_graph_ptr na = trans.run(spot::formula::Not(f));
