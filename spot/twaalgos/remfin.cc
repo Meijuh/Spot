@@ -73,7 +73,7 @@ namespace spot
       // accepting, but which becomes non-accepting when extended with
       // more states.
       i -= f;
-      i |= (inf_alone & sets);
+      i |= inf_alone & sets;
       if (!i)
         {
           // Check whether the SCC is accepting.  We do that by simply
@@ -192,14 +192,9 @@ namespace spot
                 ba_final_states[s] = true;
               scc_ba_type = true;
             }
-          // Conversely, if all fin_alone appear in the SCC, then it
-          // cannot be accepting.
-          else if (sets & fin_alone)
-            {
-              scc_ba_type = false;
-            }
-          // In the generale case (no fin_alone involved), we need
-          // a dedicated check.
+          // In the general case, we need a dedicated check.  Note
+          // that the used fin_alone sets can be ignored, as they
+          // cannot contribute to Büchi-typeness,
           else
             {
               scc_ba_type = is_scc_ba_type(aut, si.states_of(scc),

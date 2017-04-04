@@ -36,6 +36,12 @@ New in spot 2.3.2.dev (not yet released)
   - In bench/stutter/ the .cc files were not compiling due to warnings being
     caught as errors.
 
+  - The code in charge of detecting DBA-type Rabin automata is
+    actually written to handle a slightly larger class of acceptance
+    conditions (e.g., Fin(0)|(Fin(1)&Inf(2))), however it failed to
+    correctly detect DBA-typeness in some of these non-Rabin
+    acceptance.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as
