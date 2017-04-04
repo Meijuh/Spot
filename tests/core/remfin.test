@@ -1,7 +1,8 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+
+# Copyright (C) 2015-2017 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -236,6 +237,19 @@ State: 15 [t] 15 {4 15} [1] 16 {4} [!1] 22 {15} State: 16 [t] 16 {4 16}
 [t] 31 {14} [!1] 32 State: 32 [t] 32 {15} [1] 33 State: 33 [t] 33 {16}
 [!1] 36 State: 34 [t] 34 State: 35 [1] 34 {11} [!1] 35 {5} State: 36
 [1] 34 {23} [!1] 36 {17} --END--
+HOA: v1
+States: 2
+Acceptance: 3 Fin(0) | (Fin(1)&Inf(2))
+Start: 0
+AP: 1 "a"
+--BODY--
+State: 0 {0}
+[0] 1
+[!0] 0
+State: 1 {2}
+[0] 1
+[!0] 0
+--END--
 EOF
 
 acctwelve='Inf(0)&Inf(1)&Inf(2)&Inf(3)&Inf(4)&Inf(5)'
@@ -713,6 +727,22 @@ State: 36
 [1] 34
 [!1] 36 {0 1 2 3 4 5 6 7 8 9 10}
 --END--
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[0] 1
+[!0] 0
+State: 1 {0}
+[0] 1
+[!0] 0
+--END--
 EOF
 
 cat >expected-tgba <<EOF
@@ -1155,6 +1185,22 @@ State: 35
 State: 36
 [1] 34
 [!1] 36
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0] 0
+[0] 1
+State: 1 {0}
+[!0] 0
+[0] 1
 --END--
 EOF
 
