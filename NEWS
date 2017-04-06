@@ -1,5 +1,10 @@
 New in spot 2.3.2.dev (not yet released)
 
+  Tools:
+
+  - ltldo and ltlcross learned shorthands to talk to ltl2da, ltl2dpa,
+    and ltl2ldba (from Owl) without needing to specify %f>%O.
+
   Bug fixes:
 
   - In "lenient" mode the parser would fail to recover from
