@@ -441,7 +441,10 @@ namespace std {
 %implicitconv spot::acc_cond::acc_code;
 %feature("flatnested") spot::acc_cond::mark_t;
 %feature("flatnested") spot::acc_cond::acc_code;
+%feature("flatnested") spot::acc_cond::rs_pair;
 %apply bool* OUTPUT {bool& max, bool& odd};
+%template(vector_rs_pair) std::vector<spot::acc_cond::rs_pair>;
+%apply std::vector<spot::acc_cond::rs_pair> &OUTPUT {std::vector<spot::acc_cond::rs_pair>& pairs}
 %include <spot/twa/acc.hh>
 %template(pair_bool_mark) std::pair<bool, spot::acc_cond::mark_t>;
 

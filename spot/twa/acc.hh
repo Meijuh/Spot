@@ -1070,6 +1070,66 @@ namespace spot
     // Returns a number of pairs (>=0) if Streett, or -1 else.
     int is_streett() const;
 
+    struct SPOT_API rs_pair
+    {
+      rs_pair() = default;
+
+      rs_pair(acc_cond::mark_t fin, acc_cond::mark_t inf):
+        fin(fin),
+        inf(inf)
+        {}
+      acc_cond::mark_t fin;
+      acc_cond::mark_t inf;
+
+      bool operator==(rs_pair o) const
+      {
+        return fin == o.fin && inf == o.inf;
+      }
+      bool operator!=(rs_pair o) const
+      {
+        return fin != o.fin || inf != o.inf;
+      }
+      bool operator<(rs_pair o) const
+      {
+        return fin < o.fin || (!(o.fin < fin) && inf < o.inf);
+      }
+      bool operator<=(rs_pair o) const
+      {
+        return !(o < *this);
+      }
+      bool operator>(rs_pair o) const
+      {
+        return o < *this;
+      }
+      bool operator>=(rs_pair o) const
+      {
+        return !(*this < o);
+      }
+    };
+    /// \brief Test whether an acceptance condition is Streett-like
+    ///  and returns each Streett pair in an std::vector<rs_pair>.
+    ///
+    /// An acceptance condition is Streett-like if it can be transformed into
+    /// a Streett acceptance with little modification to its automaton.
+    /// A Streett-like acceptance condition follow one of those rules:
+    /// -It is a conjunction of disjunctive clauses containing at most one
+    ///  Inf and at most one Fin.
+    /// -It is true (with 0 pair)
+    /// -It is false (1 pair [0U, 0U])
+    bool is_streett_like(std::vector<rs_pair>& pairs) const;
+
+    /// \brief Test whether an acceptance condition is Rabin-like
+    ///  and returns each Rabin pair in an std::vector<rs_pair>.
+    ///
+    /// An acceptance condition is Rabin-like if it can be transformed into
+    /// a Rabin acceptance with little modification to its automaton.
+    /// A Rabin-like acceptance condition follow one of those rules:
+    /// -It is a disjunction of conjunctive clauses containing at most one
+    ///  Inf and at most one Fin.
+    /// -It is true (1 pair [0U, 0U])
+    /// -It is false (0 pairs)
+    bool is_rabin_like(std::vector<rs_pair>& pairs) const;
+
     // Return the number of Inf in each pair.
     bool is_generalized_rabin(std::vector<unsigned>& pairs) const;
 

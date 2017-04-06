@@ -381,7 +381,7 @@ namespace spot
         {
           if (s != 4 || mainop != lowop)
             return false;
-          // Pretend we where in a unary highop.
+          // Pretend we were in a unary highop.
           s = 5;
         }
       acc_cond::mark_t seen_fin = 0U;
@@ -416,6 +416,96 @@ namespace spot
       return (!(seen_fin & seen_inf)
               && (seen_fin | seen_inf) == all_sets);
     }
+
+    // Is Rabin-like or Streett-like, depending on highop and lowop.
+    static bool
+    is_rs_like(const acc_cond::acc_code& code,
+              acc_cond::acc_op highop,
+              acc_cond::acc_op lowop,
+              std::vector<acc_cond::rs_pair>& pairs)
+    {
+      assert(pairs.empty());
+      unsigned s = code.back().sub.size;
+      auto mainop = code.back().sub.op;
+
+      if (mainop == acc_cond::acc_op::Fin || mainop == acc_cond::acc_op::Inf)
+        {
+          assert(code.size() != 2);
+
+          auto m = code[0].mark;
+          if (m.count() != 1)
+            return false;
+
+          acc_cond::mark_t fin(0U);
+          acc_cond::mark_t inf(0U);
+          if (mainop == acc_cond::acc_op::Fin)
+            fin = m;
+          else
+            inf = m;
+
+          pairs.emplace_back(fin, inf);
+          return true;
+        }
+      else if (mainop == lowop)      // Single pair?
+        {
+          if (s != 4)
+            return false;
+          // Pretend we were in a unary highop.
+          s = 5;
+        }
+      else if (mainop != highop)
+      {
+        return false;
+      }
+      while (s)
+        {
+          auto op = code[--s].sub.op;
+          auto size = code[s].sub.size;
+          if (op == acc_cond::acc_op::Fin
+              || op == acc_cond::acc_op::Inf)
+            {
+              auto m = code[--s].mark;
+              acc_cond::mark_t fin(0U);
+              acc_cond::mark_t inf(0U);
+
+              if (m.count() != 1)
+                return false;
+              if (op == acc_cond::acc_op::Fin)
+                fin = m;
+              else //fin
+                inf = m;
+              pairs.emplace_back(fin, inf);
+            }
+          else
+            {
+              if (op != lowop || size != 4)
+                return false;
+
+              auto o1 = code[--s].sub.op;
+              auto m1 = code[--s].mark;
+              auto o2 = code[--s].sub.op;
+              auto m2 = code[--s].mark;
+
+              // We assume
+              //   Fin(n) lowop Inf(n+1)
+              //   o1 (m1)       o2 (m2)
+              // swap if it is the converse
+              if (o2 == acc_cond::acc_op::Fin)
+                {
+                  std::swap(o1, o2);
+                  std::swap(m1, m2);
+                }
+              if (o1 != acc_cond::acc_op::Fin
+                  || o2 != acc_cond::acc_op::Inf
+                  || m1.count() != 1
+                  || m2.count() != 1)
+                return false;
+              pairs.emplace_back(m1, m2);
+            }
+        }
+
+      return true;
+    }
   }
 
   int acc_cond::is_rabin() const
@@ -442,6 +532,32 @@ namespace spot
       return num_ / 2;
     else
       return -1;
+  }
+
+  bool acc_cond::is_streett_like(std::vector<rs_pair>& pairs) const
+  {
+    pairs.clear();
+    if (code_.is_t())
+      return true;
+    if (code_.is_f())
+      {
+        pairs.emplace_back(0U, 0U);
+        return true;
+      }
+    return is_rs_like(code_, acc_op::And, acc_op::Or, pairs);
+  }
+
+  bool acc_cond::is_rabin_like(std::vector<rs_pair>& pairs) const
+  {
+    pairs.clear();
+    if (code_.is_f())
+      return true;
+    if (code_.is_t())
+      {
+        pairs.emplace_back(0U, 0U);
+        return true;
+      }
+    return is_rs_like(code_, acc_op::Or, acc_op::And, pairs);
   }
 
   // PAIRS contains the number of Inf in each pair.

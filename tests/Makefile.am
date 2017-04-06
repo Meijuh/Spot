@@ -354,6 +354,7 @@ TESTS_python = \
   python/sccinfo.py \
   python/setacc.py \
   python/setxor.py \
+  python/rs_like.py \
   python/sum.py \
   python/trival.py \
   python/twagraph.py \

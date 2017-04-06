@@ -37,6 +37,21 @@ New in spot 2.3.3.dev (not yet released)
     the second command outputs an automaton with states that show
     references to the first one.
 
+  - spot::acc_cond::is_streett_like() returns whether an acceptance
+    condition is Streett-like, meaning it is a conjunction of
+    disjunctive clauses containing at most one Inf and at most one Fin.
+    It is more permissive than spot::acc_cond::is_streett(),
+    as the only requirement is that all the marks are present in the
+    acceptance condition.
+    In addition, the spot::acc_cond::streett_like_pairs() returns a
+    boolean that indicates if the acceptance condition is Streett-like
+    and takes a vector of the new struct spot::acc_cond::streett_pair,
+    which has members fin and inf, as an output parameter which
+    contains after the call to the function all the Streett-like pairs.
+    Likewise, spot::acc_cond::is_rabin_like() and
+    spot::acc_cond::rabin_like_pairs() are implemented for Rabin-like
+    pairs.
+
   Bugs fixed:
 
   - the transformation to state-based acceptance (spot::sbacc()) was
