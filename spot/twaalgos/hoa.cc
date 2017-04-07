@@ -160,11 +160,22 @@ namespace spot
         is_colored = colored && (!has_state_acc || nodeadend);
         // If the automaton declares that it is universal or
         // state-based, make sure that it really is.
-        assert(!aut->prop_universal().is_known() ||
-               deterministic == aut->prop_universal().is_true());
-        assert(!aut->prop_complete().is_known() ||
-               complete == aut->prop_complete().is_true());
-        assert(state_acc || !aut->prop_state_acc().is_true());
+        if (aut->prop_universal().is_true() && !deterministic)
+          throw std::runtime_error("print_hoa(): automaton is not universal"
+                                   " but prop_universal()==true");
+        if (aut->prop_universal().is_false() && deterministic)
+          throw std::runtime_error("print_hoa(): automaton is universal"
+                                   " despite prop_universal()==false");
+        if (aut->prop_complete().is_true() && !complete)
+          throw std::runtime_error("print_hoa(): automaton is not complete"
+                                   " but prop_complete()==true");
+        if (aut->prop_complete().is_false() && complete)
+          throw std::runtime_error("print_hoa(): automaton is complete"
+                                   " but prop_complete()==false");
+        if (aut->prop_state_acc() && !state_acc)
+          throw std::runtime_error("print_hoa(): automaton has "
+                                   "transition-based acceptance despite"
+                                   " prop_state_acc()==true");
       }
 
       void number_all_ap(const const_twa_graph_ptr& aut)
