@@ -95,7 +95,7 @@ namespace spot
           return sccaut->is_empty();
         }
       // The bits remaining sets in i corresponds to I₁s that have
-      // been seen with seeing the mathing F₁.  In this SCC any state
+      // been seen with seeing the matching F₁.  In this SCC any state
       // in these I₁ is therefore final.  Otherwise we do not know: it
       // is possible that there is a non-accepting cycle in the SCC
       // that do not visit Fᵢ.
@@ -144,7 +144,7 @@ namespace spot
     // concerned about *deterministic* automata, but we apply the
     // algorithm on non-deterministic automata as well: in the worst
     // case it is possible that a Büchi-type SCC with some
-    // non-deterministic has one accepting and one rejecting run for
+    // non-deterministim has one accepting and one rejecting run for
     // the same word.  In this case we may fail to detect the
     // Büchi-typeness of the SCC, but the resulting automaton should
     // be correct nonetheless.
