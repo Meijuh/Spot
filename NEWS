@@ -99,6 +99,11 @@ New in spot 2.3.4.dev (not yet released)
   - It is now possible to change an automaton acceptance condition
     directly by calling twa::set_acceptance().
 
+  - spot::cleanup_acceptance_here now takes an additional boolean
+    parameter specifying whether to strip useless marks from the
+    automaton.  This parameter is defaulted to true, in order to
+    keep this modification backward-compatible.
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -24,11 +24,14 @@
 namespace spot
 {
   /// \brief Remove useless acceptance sets
-  /// @{
+  ///
+  /// If \a strip is true (the default), the remaining acceptance set
+  /// numbers will be shifted down to reduce maximal number of
+  /// acceptance sets used.
   SPOT_API twa_graph_ptr
-  cleanup_acceptance_here(twa_graph_ptr aut);
+  cleanup_acceptance_here(twa_graph_ptr aut, bool strip = true);
 
+  /// \brief Remove useless acceptance sets
   SPOT_API twa_graph_ptr
   cleanup_acceptance(const_twa_graph_ptr aut);
-  /// @}
 }
