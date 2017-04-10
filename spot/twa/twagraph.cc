@@ -19,9 +19,44 @@
 
 #include <spot/twa/twagraph.hh>
 #include <spot/tl/print.hh>
+#include <vector>
 
 namespace spot
 {
+
+  std::string twa_graph::format_state(unsigned n) const
+  {
+    if (is_univ_dest(n))
+      {
+        std::stringstream ss;
+        bool notfirst = false;
+        for (unsigned d: univ_dests(n))
+          {
+            if (notfirst)
+              ss << '&';
+            notfirst = true;
+            ss << format_state(d);
+          }
+        return ss.str();
+      }
+
+    auto named = get_named_prop<std::vector<std::string>>("state-names");
+    if (named && n < named->size())
+      return (*named)[n];
+
+    auto prod = get_named_prop
+      <std::vector<std::pair<unsigned, unsigned>>>("product-states");
+    if (prod && n < prod->size())
+      {
+        auto& p = (*prod)[n];
+        std::stringstream ss;
+        ss << p.first << ',' << p.second;
+        return ss.str();
+      }
+
+    return std::to_string(n);
+  }
+
   void
   twa_graph::release_formula_namer(namer<formula>* namer,
                                    bool keep_names)

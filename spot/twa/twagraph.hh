@@ -336,26 +336,7 @@ namespace spot
       return &g_.state_data(n);
     }
 
-    std::string format_state(unsigned n) const
-    {
-      std::stringstream ss;
-      if (is_univ_dest(n))
-        {
-          bool notfirst = false;
-          for (unsigned d: univ_dests(n))
-            {
-              if (notfirst)
-                ss << '&';
-              notfirst = true;
-              ss << d;
-            }
-        }
-      else
-        {
-          ss << n;
-        }
-      return ss.str();
-    }
+    std::string format_state(unsigned n) const;
 
     virtual std::string format_state(const state* st) const override
     {
