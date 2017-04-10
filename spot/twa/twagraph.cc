@@ -542,6 +542,7 @@ namespace spot
             unsigned dst = newst[s];
             if (dst == s || dst == -1U)
               continue;
+            assert(dst < s);
             (*names)[dst] = std::move((*names)[s]);
           }
         names->resize(used_states);
@@ -557,6 +558,19 @@ namespace spot
               hs2[dst] = p.second;
           }
         std::swap(*hs, hs2);
+      }
+    if (auto os = get_named_prop<std::vector<unsigned>>("original-states"))
+      {
+        unsigned size = os->size();
+        for (unsigned s = 0; s < size; ++s)
+          {
+            unsigned dst = newst[s];
+            if (dst == s || dst == -1U)
+              continue;
+            assert(dst < s);
+            (*os)[dst] = (*os)[s];
+          }
+        os->resize(used_states);
       }
     init_number_ = newst[init_number_];
     g_.defrag_states(std::move(newst), used_states);
@@ -582,5 +596,30 @@ namespace spot
       }
   }
 
+  void twa_graph::copy_state_names_from(const const_twa_graph_ptr& other)
+  {
+    if (other == shared_from_this())
+      return;
+    auto orig = get_named_prop<std::vector<unsigned>>("original-states");
+    if (orig && orig->size() != num_states())
+      throw std::runtime_error("copy_state_names_from(): unexpected size "
+                               "for original-states");
+
+    auto names = std::unique_ptr<std::vector<std::string>>
+      (new std::vector<std::string>);
+    unsigned ns = num_states();
+    unsigned ons = other->num_states();
+
+    for (unsigned s = 0; s < ns; ++s)
+      {
+        unsigned other_s = orig ? (*orig)[s] : s;
+        if (other_s >= ons)
+          throw std::runtime_error("copy_state_names_from(): state does not"
+                                   " exist in source automaton");
+        names->emplace_back(other->format_state(other_s));
+      }
+
+    set_named_prop("state-names", names.release());
+  }
 
 }

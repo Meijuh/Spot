@@ -566,6 +566,14 @@ namespace spot
     /// automaton, those that are not actually used by its labels.
     void remove_unused_ap();
 
+    /// \brief Define the state names of this automaton using
+    /// the names from \a other.
+    ///
+    /// If the "original-states" named property is set, it is used to
+    /// map the state numbers, otherwise an identity mapping is
+    /// assumed.
+    void copy_state_names_from(const const_twa_graph_ptr& other);
+
     acc_cond::mark_t state_acc_sets(unsigned s) const
     {
       if (SPOT_UNLIKELY(!(bool)prop_state_acc()))

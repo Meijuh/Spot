@@ -62,6 +62,10 @@ New in spot 2.3.3.dev (not yet released)
   - The 'spot.gen' package exports the functions from libspotgen.
     See https://spot.lrde.epita.fr/ipynb/gen.html for examples.
 
+  - twa_graph::copy_state_names_from() can be used to copy the state
+    names from another automaton, honoring "original-states" if
+    present.
+
   Bugs fixed:
 
   - the transformation to state-based acceptance (spot::sbacc()) was

@@ -346,6 +346,7 @@ TESTS_python = \
   python/minato.py \
   python/misc-ec.py \
   python/optionmap.py \
+  python/origstate.py \
   python/otfcrash.py \
   python/parsetgba.py \
   python/prodexpt.py \
