@@ -1,20 +1,12 @@
-New in spot 2.3.2.dev (not yet released)
+New in spot 2.3.3.dev (not yet released)
 
   Tools:
-
-  - ltldo and ltlcross learned shorthands to talk to ltl2da, ltl2dpa,
-    and ltl2ldba (from Owl) without needing to specify %f>%O.
 
   - In autfilt, the options --sum(--sum-or) and --sum-and are
     implemented.
 
   - In autfilt, the option --dualize is now available to obtain the dual
     of any automaton.
-
-  - genltl learned --spec-patterns as an alias for --dac-patterns; it
-    also learned two new sets of LTL formulas under --hkrss-patterns
-    (a.k.a. --liberouter-patterns) and --p-patterns
-    (a.k.a. --beem-patterns).
 
   Library:
 
@@ -27,30 +19,6 @@ New in spot 2.3.2.dev (not yet released)
   - spot::dualize() implements the dual of any alternating automaton.
 
   - spot::dtwa_complement now simply returns the result of dualize()
-
-  Bug fixes:
-
-  - In "lenient" mode the parser would fail to recover from
-    a missing closing brace.
-
-  - The output of 'genltl --r-left=1 --r-right=1 --format=%F'
-    had typos.
-
-  - 'ltl2tgba Fa | autfilt --complement' would incorrectly claim that
-    the output is "terminal" because dtwa_complement() failed to reset
-    that property.
-
-  - spot::twa_graph::purge_unreachable_states() was misbehaving on
-    alternating automata.
-
-  - In bench/stutter/ the .cc files were not compiling due to warnings being
-    caught as errors.
-
-  - The code in charge of detecting DBA-type Rabin automata is
-    actually written to handle a slightly larger class of acceptance
-    conditions (e.g., Fin(0)|(Fin(1)&Inf(2))), however it failed to
-    correctly detect DBA-typeness in some of these non-Rabin
-    acceptance.
 
   Backward-incompatible changes:
 
@@ -82,6 +50,42 @@ New in spot 2.3.2.dev (not yet released)
     that does the same job but on any type of automaton,
     spot::dtwa_complement() is now kept as a proxy of spot::dualize()
     in order to help backward compatibility, but is now deprecated.
+
+New in spot 2.3.3 (2017-04-11)
+
+  Tools:
+
+  - ltldo and ltlcross learned shorthands to talk to ltl2da, ltl2dpa,
+    and ltl2ldba (from Owl) without needing to specify %f>%O.
+
+  - genltl learned --spec-patterns as an alias for --dac-patterns; it
+    also learned two new sets of LTL formulas under --hkrss-patterns
+    (a.k.a. --liberouter-patterns) and --p-patterns
+    (a.k.a. --beem-patterns).
+
+  Bugs fixed:
+
+  - In "lenient" mode the formula parser would fail to recover from a
+    missing closing brace.
+
+  - The output of 'genltl --r-left=1 --r-right=1 --format=%F' had
+    typos.
+
+  - 'ltl2tgba Fa | autfilt --complement' would incorrectly claim that
+    the output is "terminal" because dtwa_complement() failed to reset
+    that property.
+
+  - spot::twa_graph::purge_unreachable_states() was misbehaving on
+    alternating automata.
+
+  - In bench/stutter/ the .cc files were not compiling due to warnings
+    being caught as errors.
+
+  - The code in charge of detecting DBA-type Rabin automata is
+    actually written to handle a slightly larger class of acceptance
+    conditions (e.g., Fin(0)|(Fin(1)&Inf(2))), however it failed to
+    correctly detect DBA-typeness in some of these non-Rabin
+    acceptance.
 
 New in spot 2.3.2 (2017-03-15)
 
