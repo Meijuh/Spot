@@ -1,4 +1,4 @@
-New in spot 2.3.2.dev (not yet released)
+New in spot 2.3.3 (2017-04-11)
 
   Tools:
 
@@ -10,13 +10,13 @@ New in spot 2.3.2.dev (not yet released)
     (a.k.a. --liberouter-patterns) and --p-patterns
     (a.k.a. --beem-patterns).
 
-  Bug fixes:
+  Bugs fixed:
 
-  - In "lenient" mode the parser would fail to recover from
-    a missing closing brace.
+  - In "lenient" mode the formula parser would fail to recover from a
+    missing closing brace.
 
-  - The output of 'genltl --r-left=1 --r-right=1 --format=%F'
-    had typos.
+  - The output of 'genltl --r-left=1 --r-right=1 --format=%F' had
+    typos.
 
   - 'ltl2tgba Fa | autfilt --complement' would incorrectly claim that
     the output is "terminal" because dtwa_complement() failed to reset
@@ -25,8 +25,8 @@ New in spot 2.3.2.dev (not yet released)
   - spot::twa_graph::purge_unreachable_states() was misbehaving on
     alternating automata.
 
-  - In bench/stutter/ the .cc files were not compiling due to warnings being
-    caught as errors.
+  - In bench/stutter/ the .cc files were not compiling due to warnings
+    being caught as errors.
 
   - The code in charge of detecting DBA-type Rabin automata is
     actually written to handle a slightly larger class of acceptance
