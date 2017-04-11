@@ -619,7 +619,10 @@ namespace
               st->edges = s.edges;
               st->transitions = s.transitions;
               st->acc = res->acc().num_sets();
-              spot::scc_info m(res);
+              spot::scc_info
+                m(res, (opt_strength
+                        ? spot::scc_info_options::TRACK_STATES
+                        : spot::scc_info_options::NONE));
               unsigned c = m.scc_count();
               st->scc = c;
               st->nondetstates = spot::count_nondet_states(res);
@@ -750,16 +753,9 @@ namespace
     for (size_t i = 0; i < m; ++i)
       if (spot::scc_info* m = maps[i])
         {
-          // r == true iff the automaton i is accepting.
-          bool r = false;
-          for (auto& scc: *m)
-            if (scc.is_accepting())
-              {
-                r = true;
-                break;
-              }
-          res[i] = r;
-          if (r)
+          bool i_is_accepting = m->one_accepting_scc() >= 0;
+          res[i] = i_is_accepting;
+          if (i_is_accepting)
             ++verified;
           else
             ++violated;
@@ -1301,7 +1297,8 @@ namespace
                       std::cerr << "info:   product has " << p->num_states()
                                 << " st., " << p->num_edges()
                                 << " ed.\n";
-                    sm = new spot::scc_info(p);
+                    sm = new
+                      spot::scc_info(p, spot::scc_info_options::TRACK_STATES);
                   }
                 catch (std::bad_alloc&)
                   {
@@ -1334,7 +1331,8 @@ namespace
                         std::cerr << "info:   product has " << p->num_states()
                                   << " st., " << p->num_edges()
                                   << " ed.\n";
-                      sm = new spot::scc_info(p);
+                      sm = new
+                        spot::scc_info(p, spot::scc_info_options::TRACK_STATES);
                     }
                   catch (std::bad_alloc&)
                     {

@@ -557,7 +557,7 @@ namespace spot
         nap = 1 << nap;
       }
 
-      scc_info sm(ref);
+      scc_info sm(ref, scc_info_options::TRACK_STATES_IF_FIN_USED);
       sm.determine_unknown_acceptance();
 
       // Number all the SAT variables we may need.

@@ -316,7 +316,7 @@ namespace spot
         nap = 1 << nap;
       }
 
-      scc_info sm(ref);
+      scc_info sm(ref, scc_info_options::NONE);
 
       // Number all the SAT variables we may need.
       declare_vars(ref, d, ap, state_based, sm);

@@ -589,7 +589,7 @@ namespace spot
           aut2->copy_state_names_from(aut);
         aut = aut2;
       }
-    scc_info scc = scc_info(aut);
+    scc_info scc = scc_info(aut, scc_info_options::TRACK_SUCCS);
     std::vector<bool> is_connected = find_scc_paths(scc);
 
     bdd allap = bddtrue;

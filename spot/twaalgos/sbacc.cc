@@ -43,7 +43,7 @@ namespace spot
         return res;
       }
 
-    scc_info si(old);
+    scc_info si(old, scc_info_options::NONE);
 
     unsigned ns = old->num_states();
     acc_cond::mark_t all = old->acc().all_sets();

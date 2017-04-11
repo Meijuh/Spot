@@ -47,7 +47,8 @@ namespace spot
     if (aut->num_edges() == 0)
       return true;
 
-    scc_info sccmap(aut);
+    scc_info sccmap(aut, scc_info_options::TRACK_SUCCS |
+                    scc_info_options::TRACK_STATES_IF_FIN_USED);
     sccmap.determine_unknown_acceptance();
     unsigned autsz = aut->num_states();
     std::vector<bool> v;

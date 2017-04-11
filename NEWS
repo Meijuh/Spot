@@ -41,6 +41,13 @@ New in spot 2.4.1.dev (not yet released)
   - Rename three methods of spot::scc_info. New names are clearer. The
     old names have been deprecated.
 
+  - scc_info now takes an optional argument to disable some feature
+    that are expansive and not always necessary.  By default scc_info
+    tracks the list of all states that belong to an SCC (you may now
+    ask it not to), tracks the successor SCCs of each SCC (that can
+    but turned off), and explores all SCCs of the automaton (you may
+    request to stop on the first SCC that is found accepting).
+
   - The new function scc_info::states_on_acc_cycle_of() is able to
     return all states visited by any accepting cycles of the
     specified SCC. It must only be called on automata with a

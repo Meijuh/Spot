@@ -219,9 +219,10 @@ namespace spot
     friend class scc_info;
   protected:
     scc_succs succ_;
+    std::vector<unsigned> states_; // States of the component
+    unsigned one_state_;
     acc_cond::mark_t acc_;
     acc_cond::mark_t common_;
-    std::vector<unsigned> states_; // States of the component
     bool trivial_:1;
     bool accepting_:1;        // Necessarily accepting
     bool rejecting_:1;        // Necessarily rejecting
@@ -286,12 +287,65 @@ namespace spot
       return states_;
     }
 
+    unsigned one_state() const
+    {
+      return one_state_;
+    }
+
     const scc_succs& succ() const
     {
       return succ_;
     }
   };
 
+  /// Options to alter the behavior of scc_info
+  enum class scc_info_options
+  {
+    /// Stop exploring when an accepting SCC is found, and do not track
+    /// the states of each SCC.
+    NONE = 0,
+    /// Stop exploring after an accepting SCC has been found.
+    /// Using this option forbids future uses of is_useful_scc() and
+    /// is_useful_state().  Using it will also cause the output of
+    /// succ() to be incomplete.
+    STOP_ON_ACC = 1,
+    /// Keep a vector of all states belonging to each SCC.  Using this
+    /// option is a precondition for using states_of(), edges_of(),
+    /// inner_edges_of(), states_on_acc_cycle_of(), and
+    /// determine_unknown_acceptance().
+    TRACK_STATES = 2,
+    /// Keep a list of successors of each SCCs.
+    /// Using this option is a precondition for using succ(),
+    /// is_useful_scc(), and is_useful_state().
+    TRACK_SUCCS = 4,
+    /// Conditionally track states if the acceptance conditions uses Fin.
+    /// This is sufficiant for determine_unknown_acceptance().
+    TRACK_STATES_IF_FIN_USED = 8,
+    /// Default behavior: explore everything and track states and succs.
+    ALL = TRACK_STATES | TRACK_SUCCS,
+  };
+
+  inline
+  bool operator!(scc_info_options me)
+  {
+    return me == scc_info_options::NONE;
+  }
+
+  inline
+  scc_info_options operator&(scc_info_options left, scc_info_options right)
+  {
+    typedef std::underlying_type_t<scc_info_options> ut;
+    return static_cast<scc_info_options>(static_cast<ut>(left)
+                                         & static_cast<ut>(right));
+  }
+
+  inline
+  scc_info_options operator|(scc_info_options left, scc_info_options right)
+  {
+    typedef std::underlying_type_t<scc_info_options> ut;
+    return static_cast<scc_info_options>(static_cast<ut>(left)
+                                         | static_cast<ut>(right));
+  }
 
   /// \brief Compute an SCC map and gather assorted information.
   ///
@@ -356,6 +410,8 @@ namespace spot
     unsigned initial_state_;
     edge_filter filter_;
     void* filter_data_;
+    int one_acc_scc_ = -1;
+    scc_info_options options_;
 
     // Update the useful_ bits.  Called automatically.
     void determine_usefulness();
@@ -365,14 +421,29 @@ namespace spot
       return node_[scc];
     }
 
-  public:
+#ifndef SWIG
+  private:
+    [[noreturn]] static void report_need_track_states();
+    [[noreturn]] static void report_need_track_succs();
+    [[noreturn]] static void report_incompatible_stop_on_acc();
+#endif
 
-    // Use ~0U instead of -1U to work around a bug in Swig.
-    // See https://github.com/swig/swig/issues/993
+  public:
+    /// @{
+    /// \brief Create the scc_info map for \a aut
     scc_info(const_twa_graph_ptr aut,
+             // Use ~0U instead of -1U to work around a bug in Swig.
+             // See https://github.com/swig/swig/issues/993
              unsigned initial_state = ~0U,
              edge_filter filter = nullptr,
-             void* filter_data = nullptr);
+             void* filter_data = nullptr,
+             scc_info_options options = scc_info_options::ALL);
+
+    scc_info(const_twa_graph_ptr aut, scc_info_options options)
+      : scc_info(aut, ~0U, nullptr, nullptr, options)
+      {
+      }
+    /// @}
 
     const_twa_graph_ptr get_aut() const
     {
@@ -382,6 +453,12 @@ namespace spot
     unsigned scc_count() const
     {
       return node_.size();
+    }
+
+    /// Return the number of one accepting SCC if any, -1 otherwise.
+    int one_accepting_scc() const
+    {
+      return one_acc_scc_;
     }
 
     bool reachable_state(unsigned st) const
@@ -426,6 +503,8 @@ namespace spot
 
     const std::vector<unsigned>& states_of(unsigned scc) const
     {
+      if (SPOT_UNLIKELY(!(options_ & scc_info_options::TRACK_STATES)))
+        report_need_track_states();
       return node(scc).states();
     }
 
@@ -463,7 +542,7 @@ namespace spot
 
     unsigned one_state_of(unsigned scc) const
     {
-      return states_of(scc).front();
+      return node(scc).one_state();
     }
 
     /// \brief Get number of the SCC containing the initial state.
@@ -475,6 +554,8 @@ namespace spot
 
     const scc_succs& succ(unsigned scc) const
     {
+      if (SPOT_UNLIKELY(!(options_ & scc_info_options::TRACK_SUCCS)))
+        report_need_track_succs();
       return node(scc).succ();
     }
 
@@ -505,12 +586,16 @@ namespace spot
 
     bool is_useful_scc(unsigned scc) const
     {
+      if (SPOT_UNLIKELY(!!(options_ & scc_info_options::STOP_ON_ACC)))
+        report_incompatible_stop_on_acc();
+      if (SPOT_UNLIKELY(!(options_ & scc_info_options::TRACK_SUCCS)))
+        report_need_track_succs();
       return node(scc).is_useful();
     }
 
     bool is_useful_state(unsigned st) const
     {
-      return reachable_state(st) && node(scc_of(st)).is_useful();
+      return reachable_state(st) && is_useful_scc(scc_of(st));
     }
 
     /// \brief Returns, for each accepting SCC, the set of all marks appearing

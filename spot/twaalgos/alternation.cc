@@ -333,7 +333,8 @@ namespace spot
 
     public:
       alternation_remover(const const_twa_graph_ptr& aut)
-        : aut_(aut), si_(aut), class_of_(si_.scc_count(), scc_class::accept)
+        : aut_(aut), si_(aut, scc_info_options::TRACK_STATES),
+          class_of_(si_.scc_count(), scc_class::accept)
       {
       }
 

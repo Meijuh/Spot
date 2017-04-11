@@ -288,7 +288,8 @@ namespace spot
       // Compute scc_info if not supplied.
       scc_info* si = given_si;
       if (!si)
-        si = new scc_info(aut);
+        si = new scc_info(aut, scc_info_options::TRACK_SUCCS
+                          | scc_info_options::TRACK_STATES_IF_FIN_USED);
       si->determine_unknown_acceptance();
 
       F filter(si, std::forward<Args>(args)...);

@@ -310,7 +310,7 @@ namespace spot
       dnf_to_streett_converter(const const_twa_graph_ptr& in,
                                const acc_cond::acc_code& code)
         : in_(in),
-          si_(scc_info(in)),
+          si_(scc_info(in, scc_info_options::TRACK_STATES)),
           nb_scc_(si_.scc_count()),
           max_set_in_(code.used_sets().max_set()),
           state_based_(in->prop_state_acc() == true),
@@ -555,7 +555,7 @@ namespace spot
           inf_to_finpairs[mark] |= pair.fin;
       }
 
-    scc_info si(in);
+    scc_info si(in, scc_info_options::NONE);
 
     // Compute the acceptance sets present in each SCC
     unsigned nscc = si.scc_count();

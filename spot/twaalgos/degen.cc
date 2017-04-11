@@ -310,8 +310,9 @@ namespace spot
       std::vector<std::pair<unsigned, bool>> lvl_cache(a->num_states());
 
       // Compute SCCs in order to use any optimization.
-      std::unique_ptr<scc_info> m = use_scc ?
-        std::make_unique<scc_info>(a) : nullptr;
+      std::unique_ptr<scc_info> m = use_scc
+        ? std::make_unique<scc_info>(a, scc_info_options::NONE)
+        : nullptr;
 
       // Cache for common outgoing/incoming acceptances.
       inout_acc inout(a, m.get());
@@ -621,7 +622,7 @@ namespace spot
       if (!remove_extra_scc || res_ns <= a->num_states())
         return res;
 
-      scc_info si_res(res);
+      scc_info si_res(res, scc_info_options::TRACK_STATES);
       unsigned res_scc_count = si_res.scc_count();
       if (res_scc_count <= m->scc_count())
         return res;

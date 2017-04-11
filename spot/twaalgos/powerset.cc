@@ -348,7 +348,7 @@ namespace spot
     {
       det->copy_acceptance_of(ref);
 
-      scc_info sm(det);
+      scc_info sm(det, scc_info_options::NONE);
 
       unsigned scc_count = sm.scc_count();
 

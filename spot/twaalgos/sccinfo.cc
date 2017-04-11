@@ -28,6 +28,23 @@
 
 namespace spot
 {
+  void scc_info::report_need_track_states()
+  {
+    throw std::runtime_error
+      ("scc_info was not run with option TRACK_STATES");
+  }
+
+  void scc_info::report_need_track_succs()
+  {
+    throw std::runtime_error
+      ("scc_info was not run with option TRACK_SUCCS");
+  }
+
+  void scc_info::report_incompatible_stop_on_acc()
+  {
+    throw std::runtime_error
+      ("scc_info was run with option STOP_ON_ACC");
+  }
 
   namespace
   {
@@ -39,11 +56,11 @@ namespace spot
       {
       }
 
-      acc_cond::mark_t in_acc;  // Acceptance sets on the incoming transition
+      acc_cond::mark_t in_acc; // Acceptance sets on the incoming transition
       acc_cond::mark_t acc = 0U; // union of all acceptance marks in the SCC
       acc_cond::mark_t common = -1U; // intersection of all marks in the SCC
-      int index;                // Index of the SCC
-      bool trivial = true;        // Whether the SCC has no cycle
+      int index;                     // Index of the SCC
+      bool trivial = true;           // Whether the SCC has no cycle
       bool accepting = false;        // Necessarily accepting
     };
   }
@@ -51,14 +68,21 @@ namespace spot
   scc_info::scc_info(const_twa_graph_ptr aut,
                      unsigned initial_state,
                      edge_filter filter,
-                     void* filter_data)
+                     void* filter_data,
+                     scc_info_options options)
     : aut_(aut), initial_state_(initial_state),
-      filter_(filter), filter_data_(filter_data)
+      filter_(filter), filter_data_(filter_data),
+      options_(options)
   {
     unsigned n = aut->num_states();
     sccof_.resize(n, -1U);
 
-    std::deque<unsigned> live;
+    if (!!(options & scc_info_options::TRACK_STATES_IF_FIN_USED)
+        && aut->acc().uses_fin_acceptance())
+      options_ = options = options | scc_info_options::TRACK_STATES;
+
+    std::vector<unsigned> live;
+    live.reserve(n);
     std::deque<scc> root_;        // Stack of SCC roots.
     std::vector<int> h_(n, 0);
     // Map of visited states.  Values > 0 designate maximal SCC.
@@ -79,7 +103,6 @@ namespace spot
     std::stack<stack_item> todo_;
     auto& gr = aut->get_graph();
 
-
     std::deque<unsigned> init_states;
     std::vector<bool> init_seen(n, false);
     auto push_init = [&](unsigned s)
@@ -88,6 +111,76 @@ namespace spot
           return;
         init_seen[s] = true;
         init_states.push_back(s);
+      };
+
+    bool track_states = !!(options & scc_info_options::TRACK_STATES);
+    bool track_succs = !!(options & scc_info_options::TRACK_SUCCS);
+    auto backtrack = [&](unsigned curr)
+      {
+        if (root_.back().index == h_[curr])
+          {
+            unsigned num = node_.size();
+            acc_cond::mark_t acc = root_.back().acc;
+            acc_cond::mark_t common = root_.back().common;
+            bool triv = root_.back().trivial;
+            node_.emplace_back(acc, common, triv);
+
+            auto& succ = node_.back().succ_;
+            unsigned np1 = num + 1;
+            auto s = live.rbegin();
+            do
+              {
+                sccof_[*s] = num;
+                h_[*s] = np1;
+
+                // Gather all successor SCCs
+                if (track_succs)
+                  for (auto& t: aut->out(*s))
+                    for (unsigned d: aut->univ_dests(t))
+                      {
+                        unsigned n = sccof_[d];
+                        if (n == num || n == -1U)
+                          continue;
+                        // If edges are cut, we are not able to
+                        // maintain proper successor information.
+                        if (filter_)
+                          switch (filter_(t, d, filter_data_))
+                            {
+                            case edge_filter_choice::keep:
+                              break;
+                            case edge_filter_choice::ignore:
+                            case edge_filter_choice::cut:
+                              continue;
+                            }
+                        succ.emplace_back(n);
+                      }
+              }
+            while (*s++ != curr);
+
+            if (track_states)
+              {
+                auto& nbs = node_.back().states_;
+                nbs.insert(nbs.end(), s.base(), live.end());
+              }
+
+            node_.back().one_state_ = curr;
+            live.erase(s.base(), live.end());
+
+            if (track_succs)
+              {
+                std::sort(succ.begin(), succ.end());
+                succ.erase(std::unique(succ.begin(), succ.end()), succ.end());
+              }
+
+            bool accept = !triv && root_.back().accepting;
+            node_.back().accepting_ = accept;
+            if (accept)
+              one_acc_scc_ = num;
+            bool reject = triv ||
+            aut->acc().maybe_accepting(acc, common).is_false();
+            node_.back().rejecting_ = reject;
+            root_.pop_back();
+          }
       };
 
     // Setup depth-first search from the initial state.  But we may
@@ -128,61 +221,7 @@ namespace spot
                 // remove that SCC from the ARC/ROOT stacks.  We must
                 // discard from H all reachable states from this SCC.
                 assert(!root_.empty());
-                if (root_.back().index == h_[curr])
-                  {
-                    unsigned num = node_.size();
-                    acc_cond::mark_t acc = root_.back().acc;
-                    acc_cond::mark_t common = root_.back().common;
-                    bool triv = root_.back().trivial;
-                    node_.emplace_back(acc, common, triv);
-
-                    // Move all elements of this SCC from the live stack
-                    // to the the node.
-                    auto i = std::find(live.rbegin(), live.rend(), curr);
-                    assert(i != live.rend());
-                    ++i;                // Because base() does -1
-                    auto& nbs = node_.back().states_;
-                    nbs.insert(nbs.end(), i.base(), live.end());
-                    live.erase(i.base(), live.end());
-
-                    std::set<unsigned> dests;
-                    unsigned np1 = num + 1;
-                    for (unsigned s: nbs)
-                      {
-                        sccof_[s] = num;
-                        h_[s] = np1;
-                      }
-                    // Gather all successor SCCs
-                    for (unsigned s: nbs)
-                      for (auto& t: aut->out(s))
-                        for (unsigned d: aut->univ_dests(t))
-                          {
-                            // If edges are cut, we are not able to
-                            // maintain proper successor information.
-                            if (filter_)
-                              switch (filter_(t, d, filter_data_))
-                                {
-                                case edge_filter_choice::keep:
-                                  break;
-                                case edge_filter_choice::ignore:
-                                case edge_filter_choice::cut:
-                                  continue;
-                                }
-                            unsigned n = sccof_[d];
-                            assert(n != -1U);
-                            if (n == num)
-                              continue;
-                            dests.insert(n);
-                          }
-                    auto& succ = node_.back().succ_;
-                    succ.insert(succ.end(), dests.begin(), dests.end());
-                    bool accept = !triv && root_.back().accepting;
-                    node_.back().accepting_ = accept;
-                    bool reject = triv ||
-                      aut->acc().maybe_accepting(acc, common).is_false();
-                    node_.back().rejecting_ = reject;
-                    root_.pop_back();
-                  }
+                backtrack(curr);
                 continue;
               }
 
@@ -290,9 +329,22 @@ namespace spot
               || aut->acc().accepting(root_.back().acc);
             // This SCC is no longer trivial.
             root_.back().trivial = false;
+
+            if (root_.back().accepting
+                && !!(options & scc_info_options::STOP_ON_ACC))
+              {
+                while (!todo_.empty())
+                  {
+                    unsigned curr = todo_.top().src;
+                    todo_.pop();
+                    backtrack(curr);
+                  }
+                return;
+              }
           }
       }
-    determine_usefulness();
+    if (track_succs && !(options & scc_info_options::STOP_ON_ACC))
+      determine_usefulness();
   }
 
   void scc_info::determine_usefulness()
@@ -316,7 +368,6 @@ namespace spot
             }
       }
   }
-
 
   std::set<acc_cond::mark_t> scc_info::marks_of(unsigned scc) const
   {
@@ -376,16 +427,18 @@ namespace spot
         --s;
         if (!is_rejecting_scc(s) && !is_accepting_scc(s))
           {
-            if (!aut_->is_existential())
+            if (SPOT_UNLIKELY(!aut_->is_existential()))
               throw std::runtime_error(
                   "scc_info::determine_unknown_acceptance() "
                   "does not support alternating automata");
+            if (SPOT_UNLIKELY(!(options_ & scc_info_options::TRACK_STATES)))
+              report_need_track_states();
             auto& node = node_[s];
             if (k.empty())
               k.resize(aut_->num_states());
             for (auto i: node.states_)
               k[i] = true;
-            if (mask_keep_accessible_states(aut_, k, node.states_.front())
+            if (mask_keep_accessible_states(aut_, k, node.one_state_)
                 ->is_empty())
               node.rejecting_ = true;
             else
@@ -394,7 +447,7 @@ namespace spot
           }
       }
     while (s);
-    if (changed)
+    if (changed && !!(options_ & scc_info_options::TRACK_SUCCS))
       determine_usefulness();
   }
 
@@ -451,6 +504,8 @@ namespace spot
   scc_info::split_on_sets(unsigned scc, acc_cond::mark_t sets,
                           bool preserve_names) const
   {
+    if (SPOT_UNLIKELY(!(options_ & scc_info_options::TRACK_STATES)))
+      report_need_track_states();
     std::vector<twa_graph_ptr> res;
 
     std::vector<bool> seen(aut_->num_states(), false);
@@ -527,12 +582,8 @@ namespace spot
               scc_info si_tmp(aut);
               unsigned scccount_tmp = si_tmp.scc_count();
               for (unsigned scc_tmp = 0; scc_tmp < scccount_tmp; ++scc_tmp)
-                si_tmp.states_on_acc_cycle_of_rec(scc_tmp,
-                                                  all_fin,
-                                                  all_inf,
-                                                  nb_pairs,
-                                                  pairs,
-                                                  res,
+                si_tmp.states_on_acc_cycle_of_rec(scc_tmp, all_fin, all_inf,
+                                                  nb_pairs, pairs, res,
                                                   *orig_sts);
             }
 
@@ -559,8 +610,8 @@ namespace spot
         for (unsigned i = 0; i < nb_states; ++i)
           old.push_back(i);
 
-        acc_cond::mark_t all_fin = 0u;
-        acc_cond::mark_t all_inf = 0u;
+        acc_cond::mark_t all_fin = 0U;
+        acc_cond::mark_t all_inf = 0U;
         std::tie(all_inf, all_fin) = aut_->get_acceptance().used_inf_fin_sets();
 
         states_on_acc_cycle_of_rec(scc, all_fin, all_inf, nb_pairs, pairs, res,

@@ -271,7 +271,7 @@ namespace spot
         return nullptr;
 
       // if is TBA type
-      scc_info si{aut};
+      scc_info si(aut, scc_info_options::TRACK_STATES);
       std::vector<bool> scc_is_tba_type(si.scc_count(), false);
       std::vector<bool> final(aut->edge_vector().size(), false);
       std::vector<bool> keep(aut->edge_vector().size(), true);
@@ -443,7 +443,7 @@ namespace spot
                                   true,       // complete
                                   true,  // stutter inv.
                                 });
-      scc_info si(res);
+      scc_info si(res, scc_info_options::NONE);
 
       // We will modify res in place, and the resulting
       // automaton will only have one acceptance set.
@@ -671,7 +671,7 @@ namespace spot
         res->prop_state_acc(true);
 
       bool sbacc = res->prop_state_acc().is_true();
-      scc_info si(aut);
+      scc_info si(aut, scc_info_options::TRACK_STATES);
       unsigned nscc = si.scc_count();
       std::vector<unsigned> state_map(nst);
       for (unsigned n = 0; n < nscc; ++n)
