@@ -68,7 +68,7 @@ namespace spot
     /// hash value for this state.
     ///
     /// Note that the hash value is guaranteed to be unique for all
-    /// equal states (in compare()'s sense) for only has long has one
+    /// equal states (in compare()'s sense) for only as long as one
     /// of these states exists.  So it's OK to use a spot::state as a
     /// key in a \c hash_map because the mere use of the state as a
     /// key in the hash will ensure the state continues to exist.
@@ -1192,8 +1192,8 @@ namespace spot
     /// \brief Whether the automaton is terminal.
     ///
     /// An automaton is terminal if it is weak, its accepting strongly
-    /// components are complete, and no accepting edge lead to a
-    /// non-accepting SCC.
+    /// connected components are complete, and no accepting edge leads
+    /// to a non-accepting SCC.
     ///
     /// This property ensures that a word can be accepted as soon as
     /// on of its prefixes move through an accepting edge.

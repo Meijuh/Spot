@@ -314,7 +314,7 @@ def automata(*sources, timeout=None, ignore_abort=True,
     ----------
     *sources : list of str
         These sources can be either commands (end with `|`),
-        textual represantations of automata (contain `\n`),
+        textual representations of automata (contain `\n`),
         or filenames (else).
     timeout : int, optional
         Number of seconds to wait for the result of a command.

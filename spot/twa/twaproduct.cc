@@ -279,7 +279,7 @@ namespace spot
   // twa_product
 
   twa_product::twa_product(const const_twa_ptr& left,
-                             const const_twa_ptr& right)
+                           const const_twa_ptr& right)
     : twa(left->get_dict()), left_(left), right_(right),
       pool_(sizeof(state_product))
   {

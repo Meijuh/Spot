@@ -475,7 +475,7 @@ namespace spot
       // Compute an accepting cycle.
       accepting_cycle();
 
-      // Compute the prefix: it is the shorted path from the initial
+      // Compute the prefix: it is the shortest path from the initial
       // state of the automaton to any state of the cycle.
 
       // Register all states from the cycle as targets of the BFS.
@@ -569,7 +569,7 @@ namespace spot
         return check_impl<true>()->accepting_run();
       }
 
-private:
+    private:
       // A union-like struct to store the result of an emptiness.
       // If the caller only wants to test emptiness, it is sufficient to
       // store the Boolean result.
@@ -684,7 +684,7 @@ private:
             // We are looking at the next successor in SUCC.
             auto succ = todo.top().second;
 
-            // If there is no more successors, backtrack.
+            // If there are no more successors, backtrack.
             if (succ->done())
               {
                 // We have explored all successors of state CURR.
@@ -766,7 +766,7 @@ private:
             if (p.first.second == -1)
               continue;
 
-            // Now this is the most interesting case.  We have reach a
+            // Now this is the most interesting case.  We have reached a
             // state S1 which is already part of a non-dead SCC.  Any such
             // non-dead SCC has necessarily been crossed by our path to
             // this state: there is a state S2 in our path which belongs

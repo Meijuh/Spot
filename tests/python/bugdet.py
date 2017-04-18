@@ -88,4 +88,4 @@ print("\nuse_simulation=False")
 b2 = spot.tgba_determinize(b, False, True, False, True)
 assert b2.num_states() == 5
 b2 = spot.remove_fin(spot.dualize(b2))
-assert not a.intersects(b1);
+assert not a.intersects(b2);

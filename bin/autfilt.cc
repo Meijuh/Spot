@@ -302,7 +302,7 @@ static const argp_option options[] =
     { "decompose-scc", OPT_DECOMPOSE_SCC, "t|w|s|N|aN", 0,
       "extract the (t) terminal, (w) weak, or (s) strong part of an automaton"
       " or (N) the subautomaton leading to the Nth SCC, or (aN) to the Nth "
-      "accepting SCC (option can be combined with ccomas to extract multiple "
+      "accepting SCC (option can be combined with commas to extract multiple "
       "parts)", 0 },
     { "decompose-strength", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     { "dualize", OPT_DUALIZE, nullptr, 0,
