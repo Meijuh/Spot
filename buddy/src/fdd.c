@@ -954,7 +954,7 @@ int fdd_intaddvarblock(int first, int last, int fixed)
       res = tmp;
    }
 
-   bdd_addref(res); // Added by Jaco van de Pol, 25 march 2010
+   bdd_addref(res); /* Added by Jaco van de Pol, 25 march 2010 */
 
    err = bdd_addvarblock(res, fixed);
 
