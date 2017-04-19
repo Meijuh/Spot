@@ -20,6 +20,11 @@ New in spot 2.3.3.dev (not yet released)
 
   - spot::dtwa_complement now simply returns the result of dualize()
 
+  Bugs fixed:
+
+  - the transformation to state-based acceptance (spot::sbacc()) was
+    incorrect on automata where the empty acceptance mark is accepting.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as
