@@ -1,6 +1,9 @@
 New in spot 2.3.3.dev (not yet released)
 
-  Nothing yet.
+  Bugs fixed:
+
+  - the transformation to state-based acceptance (spot::sbacc()) was
+    incorrect on automata where the empty acceptance mark is accepting.
 
 New in spot 2.3.3 (2017-04-11)
 

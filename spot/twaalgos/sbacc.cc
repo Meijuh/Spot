@@ -22,6 +22,7 @@
 #include <utility>
 #include <spot/twaalgos/sbacc.hh>
 #include <spot/twaalgos/sccinfo.hh>
+#include <spot/twaalgos/stripacc.hh>
 
 namespace spot
 {
@@ -32,6 +33,18 @@ namespace spot
     if (!old->is_existential())
       throw std::runtime_error
         ("sbacc() does not support alternation");
+
+    // We will need a mark that is rejecting to mark rejecting states.
+    // If no such mark exist, our work is actually quite simple: we
+    // just have to copy the automaton and give it "t" as acceptance
+    // condition.
+    auto unsat_mark = old->acc().unsat_mark();
+    if (!unsat_mark.first)
+      {
+        auto res = make_twa_graph(old, twa::prop_set::all());
+        strip_acceptance_here(res);
+        return res;
+      }
 
     scc_info si(old);
 
@@ -97,7 +110,7 @@ namespace spot
           {
             unsigned scc_dst = si.scc_of(t.dst);
             acc_cond::mark_t acc = 0U;
-            bool dst_acc = si.is_accepting_scc(scc_dst);
+            bool dst_acc = !si.is_rejecting_scc(scc_dst);
             if (maybe_accepting && scc_src == scc_dst)
               acc = t.acc - common_out[t.src];
             else if (dst_acc)
@@ -106,6 +119,8 @@ namespace spot
               acc = one_in[t.dst];
             if (dst_acc)
               acc |= common_out[t.dst];
+            else
+              acc = unsat_mark.second;
             res->new_edge(one.second, new_state(t.dst, acc),
                           t.cond, one.first.second);
           }
