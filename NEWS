@@ -48,6 +48,9 @@ New in spot 2.3.3.dev (not yet released)
     synonym for spot::twa::prop_universal() to help backward
     compatibility.
 
+  - spot::acc_cond::mark_t::sets() now returns an internal iterable
+    object instead of an std::vector<unsigned>.
+
   Deprecation notice:
 
   - spot::dtwa_complement() used to work only on deterministic

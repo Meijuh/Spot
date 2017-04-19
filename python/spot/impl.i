@@ -787,6 +787,14 @@ def state_is_accepting(self, src) -> "bool":
    }
 }
 
+%extend spot::internal::mark_container {
+  swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
+   {
+      return swig::make_forward_iterator_np(self->begin(), self->begin(),
+				         self->end(), *PYTHON_SELF);
+   }
+}
+
 %extend spot::twa_graph {
   unsigned new_univ_edge(unsigned src, const std::vector<unsigned>& v,
                          bdd cond, acc_cond::mark_t acc = 0U)

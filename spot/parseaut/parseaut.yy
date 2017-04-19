@@ -2173,14 +2173,18 @@ static void fix_acceptance(result_& r)
   unsigned base = 0;
   if (both)
     {
-      auto v = both.sets();
-      auto vs = v.size();
-      base = acc.add_sets(vs);
+      base = acc.add_sets(both.count());
       for (auto& t: r.h->aut->edge_vector())
-	if ((t.acc & both) != both)
-	  for (unsigned i = 0; i < vs; ++i)
-	    if (!t.acc.has(v[i]))
-	      t.acc |= acc.mark(base + i);
+        {
+          unsigned i = 0;
+	  if ((t.acc & both) != both)
+            for (unsigned v : both.sets())
+              {
+                if (!t.acc.has(v))
+                  t.acc |= acc.mark(base + i);
+                i++;
+              }
+        }
     }
 
   if (onlyneg || both)

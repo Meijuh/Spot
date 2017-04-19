@@ -28,6 +28,10 @@
 
 namespace spot
 {
+  namespace internal
+  {
+    class mark_container;
+  }
   class SPOT_API acc_cond
   {
   public:
@@ -297,13 +301,8 @@ namespace spot
           }
       }
 
-      // FIXME: Return some iterable object without building a vector.
-      std::vector<unsigned> sets() const
-      {
-        std::vector<unsigned> res;
-        fill(std::back_inserter(res));
-        return res;
-      }
+      // Returns some iterable object that contains the used sets.
+      spot::internal::mark_container sets() const;
 
       SPOT_API
       friend std::ostream& operator<<(std::ostream& os, mark_t m);
@@ -1243,6 +1242,85 @@ namespace spot
 
   SPOT_API
   std::ostream& operator<<(std::ostream& os, const acc_cond& acc);
+
+  namespace internal
+  {
+    class SPOT_API mark_iterator
+    {
+    public:
+      typedef unsigned value_type;
+      typedef const value_type& reference;
+      typedef const value_type* pointer;
+      typedef std::ptrdiff_t difference_type;
+      typedef std::forward_iterator_tag iterator_category;
+
+      mark_iterator() noexcept
+        : m_(0U)
+      {
+      }
+
+      mark_iterator(acc_cond::mark_t m) noexcept
+        : m_(m)
+      {
+      }
+
+      bool operator==(mark_iterator m) const
+      {
+        return m_ == m.m_;
+      }
+
+      bool operator!=(mark_iterator m) const
+      {
+        return m_ != m.m_;
+      }
+
+      value_type operator*() const
+      {
+        SPOT_ASSERT(m_);
+        return m_.min_set() - 1;
+      }
+
+      mark_iterator operator++()
+      {
+        m_.id &= m_.id - 1;
+        return *this;
+      }
+
+      mark_iterator operator++(int)
+      {
+        mark_iterator it = *this;
+        ++(*this);
+        return it;
+      }
+    private:
+      acc_cond::mark_t m_;
+    };
+
+    class SPOT_API mark_container
+    {
+    public:
+      mark_container(spot::acc_cond::mark_t m) noexcept
+        : m_(m)
+      {
+      }
+
+      mark_iterator begin() const
+      {
+        return {m_};
+      }
+      mark_iterator end() const
+      {
+        return {};
+      }
+    private:
+      spot::acc_cond::mark_t m_;
+    };
+  }
+
+  inline spot::internal::mark_container acc_cond::mark_t::sets() const
+  {
+    return {*this};
+  }
 }
 
 namespace std
