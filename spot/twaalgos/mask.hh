@@ -25,19 +25,26 @@ namespace spot
 {
   /// \brief Clone and mask an automaton.
   ///
-  /// Copy the edges of automaton \a old, into automaton
-  /// \a cpy, creating new states at the same time.  The argument \a
-  /// trans should behave as a function with the following prototype:
+  /// Copy the edges of automaton \a old into the empty automaton \a
+  /// cpy, creating new states as needed.  The argument \a trans
+  /// should behave as a function with the following prototype:
   /// <code>
   ///   void (*trans) (unsigned src, bdd& cond, acc_cond::mark_t& acc,
   ///   unsigned dst)
   /// </code>
-  /// It can modify either the condition or the acceptance sets of
-  /// the edges.  Set the condition to bddfalse to remove the edge
-  /// (this will also remove the destination state and its descendants
-  /// if they are not reachable by another edge).
+  ///
+  /// The \a trans function may modify either the condition or the
+  /// acceptance sets of the edges.  Set the condition to bddfalse to
+  /// remove the edge (this will also remove the destination state and
+  /// its descendants if they are not reachable by another edge).
+  ///
+  /// The mapping between each state of the resulting automaton
+  /// and the original state of the input automaton is stored in the
+  /// "original-states" named property of the produced automaton.  Call
+  /// `aut->get_named_prop<std::vector<unsigned>>("original-states")`
+  /// to retrieve it.
+  ///
   /// \param init The optional new initial state.
-
   template<typename Trans>
   void transform_accessible(const const_twa_graph_ptr& old,
                             twa_graph_ptr& cpy,
@@ -50,6 +57,10 @@ namespace spot
     std::vector<unsigned> todo;
     std::vector<unsigned> seen(old->num_states(), -1U);
 
+    auto orig_states = new std::vector<unsigned>();
+    orig_states->reserve(old->num_states()); // maybe less are needed.
+    cpy->set_named_prop("original-states", orig_states);
+
     auto new_state =
       [&](unsigned old_state) -> unsigned
       {
@@ -58,12 +69,17 @@ namespace spot
           {
             tmp = cpy->new_state();
             seen[old_state] = tmp;
+            orig_states->emplace_back(old_state);
             todo.emplace_back(old_state);
           }
         return tmp;
       };
 
     cpy->set_init_state(new_state(init));
+    if (seen[init] != 0)
+      throw std::runtime_error
+        ("the destination automaton of transform_accessible() should be empty");
+
     while (!todo.empty())
       {
         unsigned old_src = todo.back();
@@ -79,11 +95,12 @@ namespace spot
             trans(t.src, cond, acc, t.dst);
 
             if (cond != bddfalse)
-              cpy->new_edge(new_src,
-                                  new_state(t.dst),
-                                  cond, acc);
+              cpy->new_edge(new_src, new_state(t.dst),
+                            cond, acc);
           }
       }
+
+    orig_states->shrink_to_fit();
   }
 
   /// \brief Copy an automaton and update each edge.
@@ -133,6 +150,7 @@ namespace spot
   {
     transform_accessible(old, cpy, trans, old->get_init_state_number());
   }
+
   template<typename Trans>
   void transform_copy(const const_twa_graph_ptr& old,
                       twa_graph_ptr& cpy,

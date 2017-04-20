@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 2015, Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014 2015, 2017, Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -48,6 +48,14 @@ namespace spot
   ///
   /// The degeneralize_tba() variant produce a degeneralized automaton
   /// with transition-based acceptance.
+  ///
+  /// The mapping between each state of the resulting automaton
+  /// and the original state of the input automaton is stored in the
+  /// "original-states" named property of the produced automaton.  Call
+  /// `aut->get_named_prop<std::vector<unsigned>>("original-states")`
+  /// to retrieve it.  Note that these functions may return the original
+  /// automaton as-is if it is already degeneralized; in this case
+  /// the "original-states" property is not defined.
   /// \@{
   SPOT_API twa_graph_ptr
   degeneralize(const const_twa_graph_ptr& a, bool use_z_lvl = true,

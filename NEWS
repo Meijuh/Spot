@@ -20,6 +20,23 @@ New in spot 2.3.3.dev (not yet released)
 
   - spot::dtwa_complement now simply returns the result of dualize()
 
+  - There is a new named property for automata called
+    "original-states" that can be used to record the origin of a state
+    when an automaton is transformed.  It is currently defined by the
+    degeneralization algorithms, and by transform_accessible() and
+    algorithms based on it (like remove_ap::strip(),
+    decompose_strength(), decompose_scc()).  This is realy meant as an
+    aid for writing algorithms that need this mapping, but it can also
+    be used to debug these algorithms: the "original-states"
+    information is displayed by the dot printer when the 'd' option is
+    passed.  For instance in
+
+      % ltl2tgba 'GF(a <-> Fb)' --dot=s
+      % ltl2tgba 'GF(a <-> Fb)' | autfilt -B --dot=ds
+
+    the second command outputs an automaton with states that show
+    references to the first one.
+
   Bugs fixed:
 
   - the transformation to state-based acceptance (spot::sbacc()) was

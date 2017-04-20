@@ -214,6 +214,10 @@ namespace spot
       // Preserve determinism, weakness, and stutter-invariance
       res->prop_copy(a, { false, true, true, true, true, true });
 
+      auto orig_states = new std::vector<unsigned>();
+      orig_states->reserve(a->num_states()); // likely more are needed.
+      res->set_named_prop("original-states", orig_states);
+
       // Create an order of acceptance conditions.  Each entry in this
       // vector correspond to an acceptance set.  Each index can
       // be used as a level in degen_state to indicate the next expected
@@ -290,16 +294,37 @@ namespace spot
             s.second = 0;
         }
 
-      ds2num[s] = res->new_state();
-      todo.emplace_back(s);
+      auto new_state = [&](degen_state& ds)
+        {
+          unsigned ns = res->new_state();
+          ds2num[ds] = ns;
+          todo.emplace_back(ds);
 
-      // If use_lvl_cache is on insert initial state to level cache
-      // Level cache stores first encountered level for each state.
-      // When entering an SCC first the lvl_cache is checked.
-      // If such state exists level from chache is used.
-      // If not, a new level (starting with 0) is computed.
-      if (use_lvl_cache)
-        lvl_cache[s.first] = std::make_pair(s.second, true);
+          assert(ns == orig_states->size());
+          orig_states->emplace_back(ds.first);
+
+          // Level cache stores one encountered level for each state
+          // (the value of use_lvl_cache determinates which level
+          // should be remembered).
+          // When entering an SCC first the lvl_cache is checked.
+          // If such state exists level from chache is used.
+          if (use_lvl_cache)
+            {
+              unsigned lvl = ds.second;
+              if (lvl_cache[ds.first].second)
+                {
+                  if (use_lvl_cache == 3)
+                    lvl = std::max(lvl_cache[ds.first].first, lvl);
+                  else if (use_lvl_cache == 2)
+                    lvl = std::min(lvl_cache[ds.first].first, lvl);
+                  else
+                    lvl = lvl_cache[ds.first].first; // Do not change
+                }
+              lvl_cache[ds.first] = std::make_pair(lvl, true);
+            }
+          return ns;
+        };
+      new_state(s);
 
       while (!todo.empty())
         {
@@ -502,31 +527,9 @@ namespace spot
               int dest;
               ds2num_map::const_iterator di = ds2num.find(d);
               if (di != ds2num.end())
-                {
-                  dest = di->second;
-                }
+                dest = di->second;
               else
-                {
-                  dest = res->new_state();
-                  ds2num[d] = dest;
-                  todo.emplace_back(d);
-                  // Insert new state to cache
-
-                  if (use_lvl_cache)
-                    {
-                      auto lvl = d.second;
-                      if (lvl_cache[d.first].second)
-                        {
-                          if (use_lvl_cache == 3)
-                            lvl = std::max(lvl_cache[d.first].first, lvl);
-                          else if (use_lvl_cache == 2)
-                            lvl = std::min(lvl_cache[d.first].first, lvl);
-                          else
-                            lvl = lvl_cache[d.first].first; // Do not change
-                        }
-                      lvl_cache[d.first] = std::make_pair(lvl, true);
-                    }
-                }
+                dest = new_state(d);
 
               unsigned& t = tr_cache[dest * 2 + is_acc];
 

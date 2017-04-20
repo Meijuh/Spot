@@ -67,6 +67,7 @@ namespace spot
       std::map<unsigned, unsigned>* highlight_edges_ = nullptr;
       std::map<unsigned, unsigned>* highlight_states_ = nullptr;
       std::vector<std::pair<unsigned, unsigned>>* sprod_ = nullptr;
+      std::vector<unsigned>* orig_ = nullptr;
       std::set<unsigned>* incomplete_ = nullptr;
       std::string* name_ = nullptr;
       acc_cond::mark_t inf_sets_ = 0U;
@@ -87,6 +88,7 @@ namespace spot
       bool opt_all_bullets = false;
       bool opt_ordered_edges_ = false;
       bool opt_numbered_edges_ = false;
+      bool opt_orig_show_ = false;
       bool max_states_given_ = false; // related to max_states_
 
       const_twa_graph_ptr aut_;
@@ -198,6 +200,9 @@ namespace spot
                 opt_node_color_ = std::string(options, end - options);
                 options = end + 1;
               }
+              break;
+            case 'd':
+              opt_orig_show_ = true;
               break;
             case 'e':
               opt_shape_ = ShapeEllipse;
@@ -520,6 +525,8 @@ namespace spot
                   os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
                 else
                   os_ << s;
+                if (orig_ && s < orig_->size())
+                  os_ << " (" << (*orig_)[s] << ')';
                 if (acc)
                   {
                     os_ << "\\n";
@@ -538,6 +545,8 @@ namespace spot
                   os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
                 else
                   os_ << s;
+                if (orig_ && s < orig_->size())
+                  os_ << " (" << (*orig_)[s] << ')';
                 if (acc)
                   {
                     os_ << "<br/>";
@@ -557,6 +566,8 @@ namespace spot
               os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
             else
               os_ << s;
+            if (orig_ && s < orig_->size())
+              os_ << " (" << (*orig_)[s] << ')';
             if (opt_state_labels_)
               escape_str(os_ << "\\n", state_label(s));
             os_ << '"';
@@ -687,6 +698,8 @@ namespace spot
                   sprod_ = nullptr;
               }
           }
+        if (opt_orig_show_)
+          orig_ = aut->get_named_prop<std::vector<unsigned>>("original-states");
         if (opt_state_labels_)
           {
             // Verify that we can use state labels for this automaton.
@@ -720,11 +733,12 @@ namespace spot
                         && aut_->prop_state_acc().is_true());
         if (opt_shape_ == ShapeAuto)
           {
-            if (sn_ || sprod_ || aut->num_states() > 100 || opt_state_labels_)
+            if (sn_ || sprod_ || aut->num_states() > 100
+                || opt_state_labels_ || orig_)
               {
                 opt_shape_ = ShapeEllipse;
                 // If all state names are short, prefer circles.
-                if (!opt_state_labels_ &&
+                if (!opt_state_labels_ && !orig_ &&
                     sn_ && std::all_of(sn_->begin(), sn_->end(),
                                        [](const std::string& s)
                                        { return s.size() <= 2; }))
