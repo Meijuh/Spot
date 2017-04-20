@@ -8,6 +8,11 @@ New in spot 2.3.3.dev (not yet released)
   - In autfilt, the option --dualize is now available to obtain the dual
     of any automaton.
 
+  - Add a new binary: genaut. Similarly to genltl that produces LTL
+    formulas from the literature, this tool produces automata from
+    the literature. It currently features only one class of
+    automata.
+
   Library:
 
   - Add a new library libspotgen. It is intended to be place to gather
