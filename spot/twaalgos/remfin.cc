@@ -444,7 +444,9 @@ namespace spot
 
     twa_graph_ptr street_strategy(const const_twa_graph_ptr& aut)
     {
-      return streett_to_generalized_buchi_maybe(aut);
+      return (aut->get_acceptance().used_inf_fin_sets().first)
+             ? streett_to_generalized_buchi_maybe(aut)
+             : nullptr;
     }
 
     twa_graph_ptr rabin_strategy(const const_twa_graph_ptr& aut)

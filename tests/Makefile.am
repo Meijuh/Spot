@@ -365,6 +365,7 @@ TESTS_python = \
   python/setacc.py \
   python/setxor.py \
   python/simstate.py \
+  python/streett_totgba.py \
   python/rs_like.py \
   python/sum.py \
   python/trival.py \

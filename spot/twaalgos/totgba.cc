@@ -116,17 +116,35 @@ namespace spot
     // do not do anything.
     if (in->acc().is_generalized_buchi())
       return std::const_pointer_cast<twa_graph>(in);
-    int p = in->acc().is_streett();
-    if (p <= 0)
+
+    std::vector<acc_cond::rs_pair> pairs;
+    bool res = in->acc().is_streett_like(pairs);
+    if (!res)
       throw std::runtime_error("streett_to_generalized_buchi() should only be"
-                               " called on automata with Streett acceptance");
+                               " called on automata with Streett-like"
+                               " acceptance");
 
     // In Streett acceptance, inf sets are odd, while fin sets are
     // even.
     acc_cond::mark_t inf;
     acc_cond::mark_t fin;
     std::tie(inf, fin) = in->get_acceptance().used_inf_fin_sets();
-    assert((inf >> 1U) == fin);
+    unsigned p = inf.count();
+
+    if (!p)
+      return remove_fin(in);
+
+    unsigned numsets = in->acc().num_sets();
+    std::vector<acc_cond::mark_t> fin_to_infpairs(numsets, 0U);
+    std::vector<acc_cond::mark_t> inf_to_finpairs(numsets, 0U);
+    for (auto pair: pairs)
+      {
+        for (unsigned mark: pair.fin.sets())
+          fin_to_infpairs[mark] |= pair.inf;
+
+        for (unsigned mark: pair.inf.sets())
+          inf_to_finpairs[mark] |= pair.fin;
+      }
 
     scc_info si(in);
 
@@ -139,8 +157,16 @@ namespace spot
         auto acc = si.acc_sets_of(s); // {0,1,2,3,4,6,7,9}
         auto acc_fin = acc & fin;     // {0,  2,  4,6}
         auto acc_inf = acc & inf;     // {  1,  3,    7,9}
-        auto fin_wo_inf = acc_fin - (acc_inf >> 1U); // {4}
-        auto inf_wo_fin = acc_inf - (acc_fin << 1U); // {9}
+        acc_cond::mark_t fin_wo_inf = 0U;
+        for (unsigned mark: acc_fin.sets())
+          if (!fin_to_infpairs[mark] || (fin_to_infpairs[mark] - acc_inf))
+            fin_wo_inf |= {mark};
+
+        acc_cond::mark_t inf_wo_fin = 0U;
+        for (unsigned mark: acc_inf.sets())
+          if (!inf_to_finpairs[mark] || (inf_to_finpairs[mark] - acc_fin))
+            inf_wo_fin |= {mark};
+
         sccfi.emplace_back(fin_wo_inf, inf_wo_fin, acc_fin == 0U);
       }
 
@@ -199,12 +225,14 @@ namespace spot
                   continue;
                 // For any Fin set we see, we want to see the
                 // corresponding Inf set.
-                pend |= (t.acc & fin) << 1U;
+                for (unsigned mark: (t.acc & fin).sets())
+                  pend |= fin_to_infpairs[mark];
+
                 pend -= t.acc & inf;
                 // Label this transition with all non-pending
                 // inf sets.  The strip will shift everything
                 // to the correct numbers in the targets.
-                acc = (inf - pend).strip(fin) & outall;
+                acc = (inf - pend).strip(fin - inf) & outall;
                 // Adjust the pending sets to what will be necessary
                 // required on the destination state.
                 if (sbacc)
@@ -212,7 +240,9 @@ namespace spot
                     auto a = in->state_acc_sets(t.dst);
                     if (a & scc_fin_wo_inf)
                       continue;
-                    pend |= (a & fin) << 1U;
+                    for (unsigned m: (a & fin).sets())
+                      pend |= fin_to_infpairs[m];
+
                     pend -= a & inf;
                   }
                 pend |= scc_inf_wo_fin;
@@ -244,16 +274,18 @@ namespace spot
             // this has to occur at least once per cycle.
             if (pend == orig_copy && (t.src >= t.dst) && maybe_acc && !no_fin)
               {
-                acc_cond::mark_t pend = 0U;
+                acc_cond::mark_t stpend = 0U;
                 if (sbacc)
                   {
                     auto a = in->state_acc_sets(t.dst);
                     if (a & scc_fin_wo_inf)
                       continue;
-                    pend = (a & fin) << 1U;
-                    pend -= a & inf;
+                    for (unsigned m: (a & fin).sets())
+                      stpend |= fin_to_infpairs[m];
+
+                    stpend -= a & inf;
                   }
-                st2gba_state d(t.dst, pend | scc_inf_wo_fin);
+                st2gba_state d(t.dst, stpend | scc_inf_wo_fin);
                 // Have we already seen this destination?
                 unsigned dest;
                 auto dres = bs2num.emplace(d, 0);
@@ -287,7 +319,7 @@ namespace spot
   twa_graph_ptr
   streett_to_generalized_buchi_maybe(const const_twa_graph_ptr& in)
   {
-    static int min = [&]() {
+    static unsigned min = [&]() {
       const char* c = getenv("SPOT_STREETT_CONV_MIN");
       if (!c)
         return 3;
@@ -297,11 +329,15 @@ namespace spot
         throw std::runtime_error("unexpected value for SPOT_STREETT_CONV_MIN");
       return val;
     }();
-    if (min == 0 || min > in->acc().is_streett())
+
+    std::vector<acc_cond::rs_pair> pairs;
+    in->acc().is_streett_like(pairs);
+    if (min == 0 || min > pairs.size())
       return nullptr;
     else
       return streett_to_generalized_buchi(in);
   }
+
 
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Büchi automaton.

@@ -111,6 +111,9 @@ New in spot 2.3.4.dev (not yet released)
     some simplifications on an acceptance condition, and might lead
     to the removal of some acceptance sets.
 
+  - The function spot::streett_to_generalized_buchi() is now able to
+    work on automatons with Streett-like acceptance.
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.
