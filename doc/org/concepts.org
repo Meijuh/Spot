@@ -1129,8 +1129,8 @@ custom destructor as a third parameter to =twa::set_named_prop()=.
 
 These properties should be considered short-lived.  They are usually
 not propagated to new automata that are created via transformation,
-unless the algorithme has been explicitely implemented to preserve
-that property.  Algorithm that update the automaton in place should
+unless the algorithm has been explicitly implemented to preserve that
+property.  Algorithms that update the automaton in place should
 probably call =release_named_properties()= to ensure they do not
 inadvertently keep a stale property.
 
