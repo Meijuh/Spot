@@ -186,6 +186,7 @@ spot/             Sources for libspot.
    twa/           TωA objects and cousins (Transition-based ω-Automata).
    twaalgos/      Algorithms on TωA.
       gtec/       Couvreur's Emptiness-Check.
+   gen/           Sources for libspotgen.
 bin/              Command-line tools built on top of libspot.
    man/           Man pages for the above tools.
 tests/            Test suite.

@@ -10,6 +10,10 @@ New in spot 2.3.3.dev (not yet released)
 
   Library:
 
+  - Add a new library libspotgen. It is intended to be place to gather
+    functions that generate classes of formulas and automata from the
+    literature. This separation should ease future development.
+
   - spot::sum() and spot::sum_and() implements the union and the
     intersection of two automatons, respectively.
 

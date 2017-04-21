@@ -25,7 +25,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 # List directories in the order they must be built.  Keep tests at the
 # end, after building '.' (since the current directory contains
 # libspot.la needed by the tests)
-SUBDIRS = misc priv tl graph twa twaalgos ta taalgos kripke	\
+SUBDIRS = misc priv tl graph twa twaalgos ta taalgos kripke	gen \
           parseaut parsetl . ltsmin
 
 lib_LTLIBRARIES = libspot.la

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016,
+# Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016-2017,
 # 2017 Laboratoire de Recherche et Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire
 # d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
@@ -279,6 +279,7 @@ AC_CONFIG_FILES([
   spot/twaalgos/gtec/Makefile
   spot/twaalgos/Makefile
   spot/twa/Makefile
+  spot/gen/Makefile
   python/ajax/Makefile
   python/Makefile
   tests/core/defs

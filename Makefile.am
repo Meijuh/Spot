@@ -49,6 +49,7 @@ DEBIAN =					\
   debian/libbddx-dev.install			\
   debian/libspot0.install			\
   debian/libspotltsmin0.install			\
+	debian/libspotgen0.install \
   debian/libspot-dev.install			\
   debian/python3-spot.examples			\
   debian/python3-spot.install			\
