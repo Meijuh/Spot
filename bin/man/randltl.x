@@ -10,6 +10,7 @@ we suggest you cite the following paper:
 Alexandre Duret-Lutz: Manipulating LTL formulas using Spot 1.0.
 Proceedings of ATVA'13.  LNCS 8172.
 [SEE ALSO]
+.BR genaut (1),
 .BR genltl (1),
 .BR ltlfilt (1),
 .BR randaut (1)

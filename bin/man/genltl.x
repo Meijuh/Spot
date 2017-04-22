@@ -63,4 +63,7 @@ D. Tabakov and M. Y. Vardi: Optimized Temporal Monitors for SystemC.
 Proceedings of RV'10.  LNCS 6418.
 
 [SEE ALSO]
+.BR genaut (1),
+.BR ltlfilt (1),
+.BR randaut (1),
 .BR randltl (1)

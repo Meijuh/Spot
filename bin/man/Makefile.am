@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-## Développement de l'Epita (LRDE).
+## Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -27,6 +27,7 @@ convman7 = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
 dist_man1_MANS = \
   autfilt.1 \
   dstar2tgba.1 \
+  genaut.1 \
   genltl.1 \
   ltl2tgba.1 \
   ltl2tgta.1 \
@@ -63,6 +64,9 @@ ltldo.1: $(common_dep) $(srcdir)/ltlcross.x $(srcdir)/../ltldo.cc
 
 ltlfilt.1: $(common_dep) $(srcdir)/ltlfilt.x $(srcdir)/../ltlfilt.cc
 	$(convman) ../ltlfilt$(EXEEXT) $(srcdir)/ltlfilt.x $@
+
+genaut.1: $(common_dep) $(srcdir)/genaut.x $(srcdir)/../genaut.cc
+	$(convman) ../genaut$(EXEEXT) $(srcdir)/genaut.x $@
 
 genltl.1: $(common_dep) $(srcdir)/genltl.x $(srcdir)/../genltl.cc
 	$(convman) ../genltl$(EXEEXT) $(srcdir)/genltl.x $@

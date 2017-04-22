@@ -1,0 +1,51 @@
+# -*- coding: utf-8 -*-
+#+TITLE: =genaut=
+#+DESCRIPTION: Spot command-line tool that generates ω-automata from known patterns
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
+
+This tool outputs ω-automata generated from scalable patterns.
+
+These patterns are usually taken from the literature (see the
+[[./man/genaut.1.html][=genaut=]](1) man page for references).
+
+#+BEGIN_SRC sh :results verbatim :exports results
+genaut --help | sed -n '/Pattern selection:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+
+#+RESULTS:
+:       --ks-cobuchi=RANGE     A co-Büchi automaton with 2N+1 states for which
+:                              any equivalent deterministic co-Büchi automaton
+:                              has at least 2^N/(2N+1) states.
+
+
+By default, the output format is [[file:hoa.org][HOA]], but this can be controlled using
+[[file:oaut.org][the common output options for automata.]]
+
+For instance:
+#+NAME: kscobuchi2
+#+BEGIN_SRC sh :results verbatim :exports code
+genaut --ks-cobuchi=2 --dot
+#+END_SRC
+
+#+BEGIN_SRC dot :file kscobuchi2.png :cmdline -Tpng :var txt=kscobuchi2 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:kscobuchi2.png]]
+
+The patterns can be specified using a range of the form =N= (a single
+value), =N..M= (all values between N and M included), or =..M= (all
+values between 1 and M included).
+
+#+BEGIN_SRC sh :results verbatim :exports code
+genaut --ks-cobuchi=..5 --stats='%F=%L has %s states'
+#+END_SRC
+
+#+RESULTS:
+: ks-cobuchi=1 has 3 states
+: ks-cobuchi=2 has 5 states
+: ks-cobuchi=3 has 7 states
+: ks-cobuchi=4 has 9 states
+: ks-cobuchi=5 has 11 states

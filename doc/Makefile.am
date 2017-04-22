@@ -84,6 +84,7 @@ ORG_FILES = \
   org/compile.org \
   org/concepts.org \
   org/dstar2tgba.org \
+  org/genaut.org \
   org/genltl.org \
   org/hoa.org \
   org/hierarchy.org \
