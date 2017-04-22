@@ -409,6 +409,7 @@ endif
 
 TESTS_sanity = \
   sanity/80columns.test \
+  sanity/bin.test \
   sanity/includes.test \
   sanity/ipynb.pl \
   sanity/private.test \
