@@ -41,8 +41,9 @@ namespace spot
     ///     year={2015},
     ///     organization={Springer}
     /// }
+    ///
+    /// \pre n>0
     SPOT_API twa_graph_ptr
     ks_cobuchi(unsigned n);
   }
 }
-

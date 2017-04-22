@@ -36,3 +36,6 @@ cat >expected <<EOF
 7,20,48,1,Fin(0)
 EOF
 diff out expected
+
+genaut --ks-cobuchi=0 2>err && exit 1
+grep positive err

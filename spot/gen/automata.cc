@@ -29,6 +29,8 @@ namespace spot
     twa_graph_ptr
     ks_cobuchi(unsigned n)
     {
+      if (n == 0)
+        throw std::runtime_error("ks_cobuchi() expects a positive argument");
       // the alphabet has four letters:
       // i, s (for sigma), p (for pi), h (for hash)
       // we encode this four letters alphabet thanks to two AP a and b
@@ -86,4 +88,3 @@ namespace spot
     }
   }
 }
-
