@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2017 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2017 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -51,12 +51,11 @@ enum {
   OPT_KS_COBUCHI = FIRST_CLASS,
   LAST_CLASS,
 };
-/*
+
 const char* const class_name[LAST_CLASS - FIRST_CLASS] =
   {
     "ks-cobuchi",
   };
-*/
 
 #define OPT_ALIAS(o) { #o, 0, nullptr, OPTION_ALIAS, nullptr, 0 }
 
@@ -65,9 +64,10 @@ static const argp_option options[] =
     /**************************************************/
     // Keep this alphabetically sorted (expect for aliases).
     { nullptr, 0, nullptr, 0, "Pattern selection:", 1},
-    { "ks-cobuchi", OPT_KS_COBUCHI, "N", 0,
-      "A co-Bûchi automaton with 2N+1 states for which any equivalent "
+    { "ks-cobuchi", OPT_KS_COBUCHI, "RANGE", 0,
+      "A co-Büchi automaton with 2N+1 states for which any equivalent "
       "deterministic co-Büchi automaton has at least 2^N/(2N+1) states.", 0},
+    RANGE_DOC,
   /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
@@ -84,7 +84,8 @@ static jobs_t jobs;
 
 const struct argp_child children[] =
   {
-    { &aoutput_argp, 0, nullptr, -20 },
+    { &aoutput_argp, 0, nullptr, 3 },
+    { &aoutput_o_format_argp, 0, nullptr, 4 },
     { &misc_argp, 0, nullptr, -1 },
     { nullptr, 0, nullptr, 0 }
   };
@@ -97,16 +98,7 @@ enqueue_job(int pattern, const char* range_str)
   j.range = parse_range(range_str);
   jobs.push_back(j);
 }
-/*
-static void
-enqueue_job(int pattern, int min, int max)
-{
-  job j;
-  j.pattern = pattern;
-  j.range = {min, max};
-  jobs.push_back(j);
-}
-*/
+
 static int
 parse_opt(int key, char* arg, struct argp_state*)
 {
@@ -121,18 +113,7 @@ parse_opt(int key, char* arg, struct argp_state*)
     }
   return 0;
 }
-/*
-static void
-bad_number(const char* pattern, int n, int max = 0)
-{
-  std::ostringstream err;
-  err << "no pattern " << n << " for " << pattern
-      << ", supported range is 1..";
-  if (max)
-    err << max;
-  throw std::runtime_error(err.str());
-}
-*/
+
 static void
 output_pattern(int pattern, int n)
 {
@@ -149,7 +130,7 @@ output_pattern(int pattern, int n)
 
   process_timer timer;
   automaton_printer printer;
-  printer.print(aut, timer);
+  printer.print(aut, timer, nullptr, class_name[pattern - FIRST_CLASS], n);
 }
 
 static void
@@ -173,6 +154,8 @@ run_jobs()
 int
 main(int argc, char** argv)
 {
+  strcpy(F_doc, "the name of the pattern");
+  strcpy(L_doc, "the argument of the pattern");
   setup(argv);
 
   const argp ap = { options, parse_opt, nullptr, argp_program_doc,

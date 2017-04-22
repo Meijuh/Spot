@@ -151,6 +151,7 @@ TESTS_tl = \
   core/length.test \
   core/equals.test \
   core/tostring.test \
+  core/genaut.test \
   core/genltl.test \
   core/lunabbrev.test \
   core/tunabbrev.test \
