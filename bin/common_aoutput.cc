@@ -234,8 +234,6 @@ static const argp_option o_options[] =
       "number of transitions", 0 },
     { "%a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of acceptance sets", 0 },
-    { "%b", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of acceptance sets", 0 },
     { "%g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "acceptance condition (in HOA syntax)", 0 },
     { "%c, %[LETTERS]c", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
