@@ -74,7 +74,7 @@ experience of updating a couple of projects that are using Spot.
 
   7. [[*Various renamings][Several class, functions, and methods, have been renamed]].  Some
      have been completely reimplemented, with different interfaces.
-     In particular the =tgba_explicit_*= familly of classes
+     In particular the =tgba_explicit_*= family of classes
      (=tgba_explicit_formula=, =tgba_explicit_number=,
      =tgba_explicit_string= used to encode a TGBA using a graph whose
      state was named using LTL formulas, integers, or strings) are
