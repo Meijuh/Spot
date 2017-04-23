@@ -12,3 +12,4 @@ buddy.py*
 ajax/*.py
 spot/impl.py
 spot/ltsmin.py
+spot/gen.py

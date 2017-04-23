@@ -335,6 +335,7 @@ TESTS_python = \
   python/declenv.py \
   python/decompose_scc.py \
   python/dualize.py \
+  python/gen.py \
   python/implies.py \
   python/interdep.py \
   python/ltl2tgba.test \

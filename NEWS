@@ -61,6 +61,11 @@ New in spot 2.3.3.dev (not yet released)
     spot::acc_cond::rabin_like_pairs() are implemented for Rabin-like
     pairs.
 
+  Python:
+
+  - The 'spot.gen' package is a wrapper around the functions from
+    the libspotgen library.
+
   Bugs fixed:
 
   - the transformation to state-based acceptance (spot::sbacc()) was

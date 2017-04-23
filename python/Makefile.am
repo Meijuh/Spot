@@ -34,18 +34,21 @@ AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_builddir) -I$(top_srcdir) \
 # this.
 SWIGFLAGS = -c++ -python -py3 -O -nofastproxy -MD
 
-EXTRA_DIST = buddy.i spot/impl.i spot/ltsmin.i
+EXTRA_DIST = buddy.i spot/impl.i spot/ltsmin.i spot/gen.i
 nobase_python_PYTHON = \
   spot/__init__.py \
   spot/aux.py \
   spot/impl.py \
   spot/ltsmin.py \
+  spot/gen.py \
   buddy.py
-nobase_pyexec_LTLIBRARIES = _buddy.la spot/_impl.la spot/_ltsmin.la
+nobase_pyexec_LTLIBRARIES = _buddy.la spot/_impl.la \
+  spot/_ltsmin.la spot/_gen.la
 
 MAINTAINERCLEANFILES = \
   $(srcdir)/spot/impl_wrap.cxx $(srcdir)/spot/impl.py \
   $(srcdir)/spot/ltsmin_wrap.cxx $(srcdir)/spot/ltsmin.py \
+  $(srcdir)/spot/gen_wrap.cxx $(srcdir)/spot/gen.py \
   $(srcdir)/buddy_wrap.cxx $(srcdir)/buddy.py
 
 ## spot
@@ -79,6 +82,23 @@ ${srcdir}/spot/ltsmin_wrap.cxx: spot/ltsmin.i
 
 spot/ltsmin.py: spot/ltsmin.i
 	$(MAKE) $(AM_MAKEFLAGS) spot/ltsmin_wrap.cxx
+
+
+## spot-gen
+
+spot__gen_la_SOURCES = spot/gen_wrap.cxx
+spot__gen_la_LDFLAGS = -avoid-version -module $(SYMBOLIC_LDFLAGS)
+spot__gen_la_LIBADD = $(top_builddir)/spot/libspot.la \
+                       $(top_builddir)/spot/gen/libspotgen.la
+
+@AMDEP_TRUE@@am__include@ @am__quote@./spot/$(DEPDIR)/gen_wrap.Pcxx@am__quote@
+
+${srcdir}/spot/gen_wrap.cxx: spot/gen.i
+	$(SWIG) $(SWIGFLAGS) -I$(srcdir) -I$(top_srcdir) -MF spot/$(DEPDIR)/gen_wrap.TPcxx $(srcdir)/spot/gen.i
+	mv spot/$(DEPDIR)/gen_wrap.TPcxx spot/$(DEPDIR)/gen_wrap.Pcxx
+
+spot/gen.py: spot/gen.i
+	$(MAKE) $(AM_MAKEFLAGS) spot/gen_wrap.cxx
 
 
 ## buddy
