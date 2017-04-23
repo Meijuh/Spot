@@ -1017,24 +1017,30 @@ from the command-line, Python, or C++.
 
 The Spot project can be broken down into several parts, as shown
 above.  Orange boxes are C/C++ libraries.  Red boxes are command-line
-program.  Blue boxes are Python-related.
+programs.  Blue boxes are Python-related.  The gray outline shows the
+components that are distributed and installed by Spot.
 
   - =libbddx= is a customized version of [[https://sourceforge.net/projects/buddy/][the BuDDy library]], for
     manipulating [[#bdd][BDDs]].
   - =libspot= is the main library, containing a C++11 implementation of all the
     data structures and algorithms.  This depends on =libddx=.
-  - all the supplied [[file:tools.org][command-line tools]] are built upon the =libspot=
-    library, exporting some of its features to shell users
-  - =libspot-ltsmin= is a library that helps interfacing Spot with
+  - =libspotgen= is an auxiliary library that contains functions to
+    generate families of automata, useful for benchmarking and testing
+  - all the supplied [[file:tools.org][command-line tools]] distributed with Spot are
+    built upon the =libspot= or =libspotgen= libraries
+  - =libspotltsmin= is a library that helps interfacing Spot with
     dynamic libraries that [[http://fmt.cs.utwente.nl/tools/ltsmin/][LTSmin]] uses to represent state-spaces.  It
     currently supports libraries generated from promela models using
     SpinS or a patched version of DiVinE, but you have to install
     those third-party tools first.  See [[https://gitlab.lrde.epita.fr/spot/spot/blob/next/tests/ltsmin/README][=tests/ltsmin/README=]]
     for details.
   - In addition to the C++11 API, we also provide Python bindings for
-    =libspot-ltsmin= and most of =libspot=.  These are available by
-    importing =spot= or =spot.ltsmin=, and have readily usable in an
-    interactive environment such as the [[http://juptter.org][IPython/Jupyter]] notebook.
+    =libspotgen=, =libspotltsmin=, =libbddx=, and most of =libspot=.
+    These are available by importing =spot.gen=, =spot.ltsmin=, =bdd=,
+    and =spot=.  Those Python bindings also includes some additional
+    code to make them more usable in interactive environments such as
+    the [[http://juptter.org][IPython/Jupyter]] notebook.
+
 * Automaton property flags
    :PROPERTIES:
    :CUSTOM_ID: property-flags

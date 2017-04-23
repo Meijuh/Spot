@@ -10,18 +10,15 @@
 \begin{document}
 
 \begin{tikzpicture}
-  \tikzset{cppbox/.style={minimum width=#1,fill=orange!30, minimum height=1.5cm},
-           pybox/.style={minimum width=#1,fill=cyan!30, minimum height=1cm},
-           shbox/.style={minimum width=#1,fill=red!30, minimum height=8mm},
+  \tikzset{node distance=2mm,
+           basicbox/.style={minimum width=#1,minimum height=8mm},
+           double height/.style={minimum height=18mm},
+           cppbox/.style={basicbox=#1,fill=orange!30},
+           pybox/.style={basicbox=#1,fill=cyan!30},
+           shbox/.style={basicbox=#1,fill=red!30},
            usedby/.style={->,ultra thick,>={Stealth[length=5mm,round]},gray!50!black}}
-  \node[cppbox=7.3cm] (libspot) {\texttt{libspot\strut}};
-  \node[cppbox=4.3cm,right=2mm]
-     (libltsmin) at (libspot.east) {\texttt{libspot-ltsmin\strut}};
-  \node[cppbox=8cm,below right,yshift=-2mm,minimum height=8mm] (buddy) at (libspot.south west) {\texttt{libbddx\strut}};
-
-  \node[pybox=4.3cm,above=2mm] (pyltsmin) at (libltsmin.north) {\texttt{import spot.ltsmin\strut}};
-  \node[pybox=3cm,left=2mm] (pyspot) at (pyltsmin.west) {\texttt{import spot\strut}};
-  \node[shbox=4.1cm,above left,xshift=-2mm,align=center] (shcmd) at (pyspot.south west) {
+  \node[cppbox=14.12cm] (libspot) {\texttt{libspot\strut}};
+  \node[shbox=3cm,above right=2mm and 0mm of libspot.north west,align=center] (shcmd) {
     \texttt{randltl}\\
     \texttt{genltl}\\
     \texttt{ltlfilt}\\
@@ -34,31 +31,52 @@
     \texttt{ltlgrind}\\
     \texttt{ltldo}
   };
-  \node[shbox=1.9cm,below left,yshift=-2mm] (divine) at (libltsmin.south east) {\texttt{divine\strut}};
-  \node[shbox=1.5cm,left,xshift=-2mm] (spins) at (divine.west) {\texttt{SpinS\strut}};
-  \node[pybox=7.5cm,above right,yshift=2mm] (ipython) at (pyspot.north west) {IPython / Jupyter};
+  \node[cppbox=4.7cm,above right=0mm and 2mm of shcmd.south east] (libgen) {\texttt{libspotgen\strut}};
+  \node[cppbox=2.5cm,above right=0mm and 2mm of libgen.south east] (buddy) {\texttt{libbddx\strut}};
+  \node[pybox=2.5cm,above right=0mm and 2mm of buddy.south east,double height] (pyspot) {\texttt{import spot}};
+  \node[cppbox=4cm,above right=0mm and 2mm of pyspot.south east] (libltsmin) {\texttt{libspotltsmin\strut}};
+
+  \node[shbox=1.5cm,above right=2mm and 0mm of libgen.north west,align=center] (genaut) {\texttt{genaut}};
+
+  \node[pybox=3cm,above left=2mm and 0mm of libgen.north east] (pygen) {\texttt{import spot.gen\strut}};
+  \node[pybox=2.5cm,above=of buddy] (pybuddy) {\texttt{import bdd\strut}};
+
+  \node[pybox=4cm,above=2mm] (pyltsmin) at (libltsmin.north) {\texttt{import spot.ltsmin\strut}};
+  \node[shbox=1.5cm,right=of libspot] (spins) {\texttt{SpinS\strut}};
+  \node[shbox=1.5cm,right=of spins] (divine) {\texttt{divine\strut}};
+
+  \node[pybox=12.65cm,above right=2mm and 0mm of pygen.north west] (ipython) {\texttt{python} / \texttt{ipython} / \texttt{jupyter}};
+
   \draw[usedby] (buddy.north) -- ++(0,3mm);
-  \draw[usedby] (buddy.north) ++(3.7cm,0) -- ++(0,3mm);
+  \draw[usedby] (buddy.south) -- ++(0,-3mm);
+  \draw[usedby] (pybuddy.north) -- ++(0,3mm);
   \draw[usedby] (spins.north) -- ++(0,3mm);
   \draw[usedby] (divine.north) -- ++(0,3mm);
-  \draw[usedby] (libspot.east) -- ++(3mm,0);
+  \draw[usedby] (libgen.south |- libspot.north) -- ++(0,3mm);
+  \draw[usedby] (genaut.south |- libgen.north) -- ++(0,3mm);
+  \draw[usedby] (pygen.south |- libgen.north) -- ++(0,3mm);
+  \draw[usedby] (pygen.north) -- ++(0,3mm);
   \draw[usedby] (pyspot.south) ++(0,-2mm) -- ++(0,3mm);
   \draw[usedby] (pyltsmin.south) ++(0,-2mm) -- ++(0,3mm);
   \draw[usedby] (shcmd.south) ++(0,-2mm) -- ++(0,3mm);
   \draw[usedby] (pyspot.north) -- ++(0,3mm);
   \draw[usedby] (pyltsmin.north) -- ++(0,3mm);
+  \coordinate (x) at ($(libltsmin.south west)!.5!(libspot.north east)$);
+  \draw[usedby] (libspot.north -| x) -- ++(0,3mm);
 
-  \begin{pgfonlayer}{background}
-  \path[fill=gray!15,draw=gray,rounded corners=1mm]
-  ($(shcmd.north west)+(-1mm,1mm)$) --
-  ($(shcmd.north east)+(1mm,1mm)$) --
-  ($(pyspot.north west)+(-1mm,1mm)$) --
-  ($(pyltsmin.north east)+(1mm,1mm)$) --
-  ($(libltsmin.south east)+(1mm,-1mm)$) --
-  ($(buddy.north east)+(1mm,1mm)$) --
-  ($(buddy.south east)+(1mm,-1mm)$) --
-  ($(buddy.south west)+(-1mm,-1mm)$) -- cycle;
-  \end{pgfonlayer}
+\begin{pgfonlayer}{background}
+\path[fill=gray!15,draw=gray,rounded corners=1mm]
+($(shcmd.north west)+(-1mm,1mm)$) --
+($(shcmd.north east)+(1mm,1mm)$) --
+($(genaut.north west)+(-1mm,1mm)$) --
+($(genaut.north east)+(1mm,1mm)$) --
+($(pygen.north west)+(-1mm,1mm)$) --
+($(pyltsmin.north east)+(1mm,1mm)$) --
+($(libltsmin.south east)+(1mm,-1mm)$) --
+($(libspot.north east)+(1mm,1mm)$) --
+($(libspot.south east)+(1mm,-1mm)$) --
+($(libspot.south west)+(-1mm,-1mm)$) -- cycle;
+\end{pgfonlayer}
 \end{tikzpicture}
 \end{document}
 %%% Local Variables:
