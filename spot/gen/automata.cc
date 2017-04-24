@@ -84,6 +84,7 @@ namespace spot
         aut->new_edge(q, q, h);
 
       aut->merge_edges();
+      aut->prop_state_acc(true);
       return aut;
     }
   }
