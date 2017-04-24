@@ -25,6 +25,7 @@ import spot.gen as gen
 from sys import exit
 
 k2 = gen.ks_cobuchi(2)
+assert k2.prop_state_acc()
 assert k2.num_states() == 5
 # to_str is defined in the spot package, so this makes sure
 # the type returned by spot.gen.ks_cobuchi() is the correct one.
