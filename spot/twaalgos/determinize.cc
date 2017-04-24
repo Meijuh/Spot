@@ -534,18 +534,6 @@ namespace spot
   bool
   safra_state::operator<(const safra_state& other) const
   {
-    if (nodes_ == other.nodes_)
-      {
-        for (auto& n: nodes_)
-          {
-            auto it = other.nodes_.find(n.first);
-            assert(it != other.nodes_.end());
-            if (nesting_cmp(n.second, it->second))
-              return true;
-          }
-        return false;
-      }
-
     return nodes_ < other.nodes_;
   }
 
