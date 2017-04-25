@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2012, 2013, 2014, 2015, 2016-2017 Laboratoire de Recherche
-## et Développement de l'Epita (LRDE).
+## Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -79,6 +79,7 @@ ltlfilt_SOURCES = ltlfilt.cc
 genaut_SOURCES = genaut.cc
 genaut_LDADD = $(top_builddir)/spot/gen/libspotgen.la $(LDADD)
 genltl_SOURCES = genltl.cc
+genltl_LDADD = $(top_builddir)/spot/gen/libspotgen.la $(LDADD)
 randaut_SOURCES = randaut.cc
 randltl_SOURCES = randltl.cc
 ltl2tgba_SOURCES = ltl2tgba.cc

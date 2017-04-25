@@ -33,6 +33,7 @@
 
 %{
 #include <spot/gen/automata.hh>
+#include <spot/gen/formulas.hh>
 using namespace spot;
 %}
 
@@ -51,3 +52,4 @@ using namespace spot;
 }
 
 %include <spot/gen/automata.hh>
+%include <spot/gen/formulas.hh>

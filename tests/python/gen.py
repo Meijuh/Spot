@@ -37,3 +37,22 @@ except RuntimeError as e:
     assert 'positive argument' in str(e)
 else:
     exit(2)
+
+f = gen.genltl(gen.AND_F, 3)
+assert f.size() == 3
+assert gen.ltl_pattern_name(gen.AND_F) == "and-f"
+
+try:
+    gen.genltl(1000, 3)
+except RuntimeError as e:
+    assert 'unsupported pattern' in str(e)
+else:
+    exit(2)
+
+try:
+    gen.genltl(gen.OR_G, -10)
+except RuntimeError as e:
+     assert 'or-g' in str(e)
+     assert 'positive' in str(e)
+else:
+    exit(2)

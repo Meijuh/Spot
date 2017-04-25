@@ -20,7 +20,6 @@
   \node[cppbox=14.12cm] (libspot) {\texttt{libspot\strut}};
   \node[shbox=3cm,above right=2mm and 0mm of libspot.north west,align=center] (shcmd) {
     \texttt{randltl}\\
-    \texttt{genltl}\\
     \texttt{ltlfilt}\\
     \texttt{randaut}\\
     \texttt{autfilt}\\
@@ -36,7 +35,10 @@
   \node[pybox=2.5cm,above right=0mm and 2mm of buddy.south east,double height] (pyspot) {\texttt{import spot}};
   \node[cppbox=4cm,above right=0mm and 2mm of pyspot.south east] (libltsmin) {\texttt{libspotltsmin\strut}};
 
-  \node[shbox=1.5cm,above right=2mm and 0mm of libgen.north west,align=center] (genaut) {\texttt{genaut}};
+  \node[shbox=1.5cm,above right=2mm and 0mm of libgen.north west,align=center] (genaut) {
+    \texttt{genaut\strut}\\
+    \texttt{genltl}
+  };
 
   \node[pybox=3cm,above left=2mm and 0mm of libgen.north east] (pygen) {\texttt{import spot.gen\strut}};
   \node[pybox=2.5cm,above=of buddy] (pybuddy) {\texttt{import bdd\strut}};

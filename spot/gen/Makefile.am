@@ -21,10 +21,8 @@ AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 spotgendir = $(pkgincludedir)/gen
-spotgen_HEADERS = automata.hh
+spotgen_HEADERS = automata.hh formulas.hh
 
 lib_LTLIBRARIES = libspotgen.la
-libspotgen_la_SOURCES = \
-  automata.cc
-#libspotgen_la_LDFLAGS = $(BUDDY_LDFLAGS) -no-undefined $(SYMBOLIC_LDFLAGS)
-
+libspotgen_la_SOURCES = automata.cc formulas.cc
+libspotgen_la_LDFLAGS = ../libspot.la -no-undefined $(SYMBOLIC_LDFLAGS)

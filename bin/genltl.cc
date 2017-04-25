@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2015, 2016, 2017 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2015-2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -16,145 +16,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-// Families defined here come from the following papers:
-//
-// @InProceedings{cichon.09.depcos,
-//   author = {Jacek Cicho{\'n} and Adam Czubak and Andrzej Jasi{\'n}ski},
-//   title = {Minimal {B\"uchi} Automata for Certain Classes of {LTL} Formulas},
-//   booktitle = {Proceedings of the Fourth International Conference on
-//                Dependability of Computer Systems},
-//   pages = {17--24},
-//   year = 2009,
-//   publisher = {IEEE Computer Society},
-// }
-//
-// @InProceedings{geldenhuys.06.spin,
-//   author = {Jaco Geldenhuys and Henri Hansen},
-//   title = {Larger Automata and Less Work for LTL Model Checking},
-//   booktitle = {Proceedings of the 13th International SPIN Workshop},
-//   year = {2006},
-//   pages = {53--70},
-//   series = {Lecture Notes in Computer Science},
-//   volume = {3925},
-//   publisher = {Springer}
-// }
-//
-// @InProceedings{gastin.01.cav,
-//   author = {Paul Gastin and Denis Oddoux},
-//   title = {Fast {LTL} to {B\"u}chi Automata Translation},
-//   booktitle        = {Proceedings of the 13th International Conference on
-//                   Computer Aided Verification (CAV'01)},
-//   pages = {53--65},
-//   year = 2001,
-//   editor = {G. Berry and H. Comon and A. Finkel},
-//   volume = {2102},
-//   series = {Lecture Notes in Computer Science},
-//   address = {Paris, France},
-//   publisher = {Springer-Verlag}
-// }
-//
-// @InProceedings{rozier.07.spin,
-//   author = {Kristin Y. Rozier and Moshe Y. Vardi},
-//   title = {LTL Satisfiability Checking},
-//   booktitle = {Proceedings of the 12th International SPIN Workshop on
-//                   Model Checking of Software (SPIN'07)},
-//   pages = {149--167},
-//   year = {2007},
-//   volume = {4595},
-//   series = {Lecture Notes in Computer Science},
-//   publisher = {Springer-Verlag}
-// }
-//
-// @InProceedings{dwyer.98.fmsp,
-//   author = {Matthew B. Dwyer and George S. Avrunin and James C. Corbett},
-//   title         = {Property Specification Patterns for Finite-state
-//                   Verification},
-//   booktitle     = {Proceedings of the 2nd Workshop on Formal Methods in
-//                   Software Practice (FMSP'98)},
-//   publisher     = {ACM Press},
-//   address       = {New York},
-//   editor        = {Mark Ardis},
-//   month         = mar,
-//   year          = {1998},
-//   pages         = {7--15}
-// }
-//
-// @InProceedings{etessami.00.concur,
-//   author = {Kousha Etessami and Gerard J. Holzmann},
-//   title = {Optimizing {B\"u}chi Automata},
-//   booktitle = {Proceedings of the 11th International Conference on
-//                Concurrency Theory (Concur'00)},
-//   pages = {153--167},
-//   year = {2000},
-//   editor = {C. Palamidessi},
-//   volume = {1877},
-//   series = {Lecture Notes in Computer Science},
-//   address = {Pennsylvania, USA},
-//   publisher = {Springer-Verlag}
-// }
-//
-// @InProceedings{somenzi.00.cav,
-//   author = {Fabio Somenzi and Roderick Bloem},
-//   title = {Efficient {B\"u}chi Automata for {LTL} Formul{\ae}},
-//   booktitle = {Proceedings of the 12th International Conference on
-//                Computer Aided Verification (CAV'00)},
-//   pages = {247--263},
-//   year = {2000},
-//   volume = {1855},
-//   series = {Lecture Notes in Computer Science},
-//   address = {Chicago, Illinois, USA},
-//   publisher = {Springer-Verlag}
-// }
-//
-// @InProceedings{tabakov.10.rv,
-//   author = {Deian Tabakov and Moshe Y. Vardi},
-//   title = {Optimized Temporal Monitors for {SystemC}},
-//   booktitle = {Proceedings of the 1st International Conference on Runtime
-// 		  Verification (RV'10)},
-//   pages = {436--451},
-//   year = 2010,
-//   volume = {6418},
-//   series = {Lecture Notes in Computer Science},
-//   month = nov,
-//   publisher = {Springer}
-// }
-//
-// @InProceedings{kupferman.10.mochart,
-//   author = {Orna Kupferman and And Rosenberg},
-//   title = {The Blow-Up in Translating LTL do Deterministic Automata},
-//   booktitle = {Proceedings of the 6th International Workshop on Model
-//                Checking and Artificial Intelligence (MoChArt 2010)},
-//   pages = {85--94},
-//   year = 2011,
-//   volume = {6572},
-//   series = {Lecture Notes in Artificial Intelligence},
-//   month = nov,
-//   publisher = {Springer}
-// }
-//
-// @techreport{holevek.04.tr,
-//    title = {Verification Results in {Liberouter} Project},
-//    author = {J. Hole\v{c}ek and T. Kratochv\'ila and V. \v{R}eh\'ak
-//              and D. \v{S}afr\'anek and P. \v{S}ime\v{c}ek},
-//    month = {September},
-//    year = 2004,
-//    number = 03,
-//    institution = {CESNET}
-// }
-//
-// @InProceedings{pelanek.07.spin,
-//   author = {Radek Pel\'{a}nek},
-//   title = {{BEEM}: benchmarks for explicit model checkers},
-//   booktitle = {Proceedings of the 14th international SPIN conference on
-//     Model checking software},
-//   year = 2007,
-//   pages = {263--267},
-//   numpages = {5},
-//   volume = {4595},
-//   series = {Lecture Notes in Computer Science},
-//   publisher = {Springer-Verlag}
-// }
 
 
 #include "common_sys.hh"
@@ -176,95 +37,24 @@
 #include <sstream>
 #include <set>
 #include <string>
-#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <spot/tl/formula.hh>
 #include <spot/tl/relabel.hh>
-#include <spot/tl/parse.hh>
-#include <spot/tl/exclusive.hh>
+#include <spot/gen/formulas.hh>
 
 using namespace spot;
 
 const char argp_program_doc[] ="\
 Generate temporal logic formulas from predefined patterns.";
 
+// We reuse the values from spot::gen::ltl_patterns as option keys.
+// Additional options should therefore start after
+// spot::gen::LAST_CLASS.
 enum {
-  FIRST_CLASS = 256,
-  OPT_AND_F = FIRST_CLASS,
-  OPT_AND_FG,
-  OPT_AND_GF,
-  OPT_CCJ_ALPHA,
-  OPT_CCJ_BETA,
-  OPT_CCJ_BETA_PRIME,
-  OPT_DAC_PATTERNS,
-  OPT_EH_PATTERNS,
-  OPT_GH_Q,
-  OPT_GH_R,
-  OPT_GO_THETA,
-  OPT_HKRSS_PATTERNS,
-  OPT_KR_N,
-  OPT_KR_NLOGN,
-  OPT_KV_PSI,
-  OPT_OR_FG,
-  OPT_OR_G,
-  OPT_OR_GF,
-  OPT_P_PATTERNS,
-  OPT_R_LEFT,
-  OPT_R_RIGHT,
-  OPT_RV_COUNTER,
-  OPT_RV_COUNTER_CARRY,
-  OPT_RV_COUNTER_CARRY_LINEAR,
-  OPT_RV_COUNTER_LINEAR,
-  OPT_SB_PATTERNS,
-  OPT_TV_F1,
-  OPT_TV_F2,
-  OPT_TV_G1,
-  OPT_TV_G2,
-  OPT_TV_UU,
-  OPT_U_LEFT,
-  OPT_U_RIGHT,
-  LAST_CLASS,
-  OPT_POSITIVE,
+  OPT_POSITIVE = spot::gen::LAST_CLASS + 1,
   OPT_NEGATIVE,
 };
-
-const char* const class_name[LAST_CLASS - FIRST_CLASS] =
-  {
-    "and-f",
-    "and-fg",
-    "and-gf",
-    "ccj-alpha",
-    "ccj-beta",
-    "ccj-beta-prime",
-    "dac-patterns",
-    "eh-patterns",
-    "gh-q",
-    "gh-r",
-    "go-theta",
-    "hkrss-patterns",
-    "kr-n",
-    "kr-nlogn",
-    "kv-psi",
-    "or-fg",
-    "or-g",
-    "or-gf",
-    "p-patterns",
-    "r-left",
-    "r-right",
-    "rv-counter",
-    "rv-counter-carry",
-    "rv-counter-carry-linear",
-    "rv-counter-linear",
-    "sb-patterns",
-    "tv-f1",
-    "tv-f2",
-    "tv-g1",
-    "tv-g2",
-    "tv-uu",
-    "u-left",
-    "u-right",
-  };
 
 
 #define OPT_ALIAS(o) { #o, 0, nullptr, OPTION_ALIAS, nullptr, 0 }
@@ -276,75 +66,83 @@ static const argp_option options[] =
     { nullptr, 0, nullptr, 0, "Pattern selection:", 1},
     // J. Geldenhuys and H. Hansen (Spin'06): Larger automata and less
     // work for LTL model checking.
-    { "and-f", OPT_AND_F, "RANGE", 0, "F(p1)&F(p2)&...&F(pn)", 0 },
+    { "and-f", spot::gen::AND_F, "RANGE", 0, "F(p1)&F(p2)&...&F(pn)", 0 },
     OPT_ALIAS(gh-e),
-    { "and-fg", OPT_AND_FG, "RANGE", 0, "FG(p1)&FG(p2)&...&FG(pn)", 0 },
-    { "and-gf", OPT_AND_GF, "RANGE", 0, "GF(p1)&GF(p2)&...&GF(pn)", 0 },
+    { "and-fg", spot::gen::AND_FG, "RANGE", 0, "FG(p1)&FG(p2)&...&FG(pn)", 0 },
+    { "and-gf", spot::gen::AND_GF, "RANGE", 0, "GF(p1)&GF(p2)&...&GF(pn)", 0 },
     OPT_ALIAS(ccj-phi),
     OPT_ALIAS(gh-c2),
-    { "ccj-alpha", OPT_CCJ_ALPHA, "RANGE", 0,
+    { "ccj-alpha", spot::gen::CCJ_ALPHA, "RANGE", 0,
       "F(p1&F(p2&F(p3&...F(pn)))) & F(q1&F(q2&F(q3&...F(qn))))", 0 },
-    { "ccj-beta", OPT_CCJ_BETA, "RANGE", 0,
+    { "ccj-beta", spot::gen::CCJ_BETA, "RANGE", 0,
       "F(p&X(p&X(p&...X(p)))) & F(q&X(q&X(q&...X(q))))", 0 },
-    { "ccj-beta-prime", OPT_CCJ_BETA_PRIME, "RANGE", 0,
+    { "ccj-beta-prime", spot::gen::CCJ_BETA_PRIME, "RANGE", 0,
       "F(p&(Xp)&(XXp)&...(X...X(p))) & F(q&(Xq)&(XXq)&...(X...X(q)))", 0 },
-    { "dac-patterns", OPT_DAC_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "dac-patterns", spot::gen::DAC_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Dwyer et al. [FMSP'98] Spec. Patterns for LTL "
       "(range should be included in 1..55)", 0 },
     OPT_ALIAS(spec-patterns),
-    { "eh-patterns", OPT_EH_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "eh-patterns", spot::gen::EH_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Etessami and Holzmann [Concur'00] patterns "
       "(range should be included in 1..12)", 0 },
-    { "gh-q", OPT_GH_Q, "RANGE", 0,
+    { "gh-q", spot::gen::GH_Q, "RANGE", 0,
       "(F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))", 0 },
-    { "gh-r", OPT_GH_R, "RANGE", 0,
+    { "gh-r", spot::gen::GH_R, "RANGE", 0,
       "(GF(p1)|FG(p2))&(GF(p2)|FG(p3))&... &(GF(pn)|FG(p{n+1}))", 0 },
-    { "go-theta", OPT_GO_THETA, "RANGE", 0,
+    { "go-theta", spot::gen::GO_THETA, "RANGE", 0,
       "!((GF(p1)&GF(p2)&...&GF(pn)) -> G(q->F(r)))", 0 },
-    { "hkrss-patterns", OPT_HKRSS_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "hkrss-patterns", spot::gen::HKRSS_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Holeček et al. patterns from the Liberouter project "
       "(range should be included in 1..55)", 0 },
     OPT_ALIAS(liberouter-patterns),
-    { "kr-n", OPT_KR_N, "RANGE", 0,
+    { "kr-n", spot::gen::KR_N, "RANGE", 0,
       "linear formula with doubly exponential DBA", 0 },
-    { "kr-nlogn", OPT_KR_NLOGN, "RANGE", 0,
+    { "kr-nlogn", spot::gen::KR_NLOGN, "RANGE", 0,
       "quasilinear formula with doubly exponential DBA", 0 },
-    { "kv-psi", OPT_KV_PSI, "RANGE", 0,
+    { "kv-psi", spot::gen::KV_PSI, "RANGE", 0,
       "quadratic formula with doubly exponential DBA", 0 },
     OPT_ALIAS(kr-n2),
-    { "or-fg", OPT_OR_FG, "RANGE", 0, "FG(p1)|FG(p2)|...|FG(pn)", 0 },
+    { "or-fg", spot::gen::OR_FG, "RANGE", 0, "FG(p1)|FG(p2)|...|FG(pn)", 0 },
     OPT_ALIAS(ccj-xi),
-    { "or-g", OPT_OR_G, "RANGE", 0, "G(p1)|G(p2)|...|G(pn)", 0 },
+    { "or-g", spot::gen::OR_G, "RANGE", 0, "G(p1)|G(p2)|...|G(pn)", 0 },
     OPT_ALIAS(gh-s),
-    { "or-gf", OPT_OR_GF, "RANGE", 0, "GF(p1)|GF(p2)|...|GF(pn)", 0 },
+    { "or-gf", spot::gen::OR_GF, "RANGE", 0, "GF(p1)|GF(p2)|...|GF(pn)", 0 },
     OPT_ALIAS(gh-c1),
-    { "p-patterns", OPT_P_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "p-patterns", spot::gen::P_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Pelánek [Spin'07] patterns from BEEM "
       "(range should be included in 1..20)", 0 },
     OPT_ALIAS(beem-patterns),
     OPT_ALIAS(p),
-    { "r-left", OPT_R_LEFT, "RANGE", 0, "(((p1 R p2) R p3) ... R pn)", 0 },
-    { "r-right", OPT_R_RIGHT, "RANGE", 0, "(p1 R (p2 R (... R pn)))", 0 },
-    { "rv-counter", OPT_RV_COUNTER, "RANGE", 0,
+    { "r-left", spot::gen::R_LEFT, "RANGE", 0,
+      "(((p1 R p2) R p3) ... R pn)", 0 },
+    { "r-right", spot::gen::R_RIGHT, "RANGE", 0,
+      "(p1 R (p2 R (... R pn)))", 0 },
+    { "rv-counter", spot::gen::RV_COUNTER, "RANGE", 0,
       "n-bit counter", 0 },
-    { "rv-counter-carry", OPT_RV_COUNTER_CARRY, "RANGE", 0,
+    { "rv-counter-carry", spot::gen::RV_COUNTER_CARRY, "RANGE", 0,
       "n-bit counter w/ carry", 0 },
-    { "rv-counter-carry-linear", OPT_RV_COUNTER_CARRY_LINEAR, "RANGE", 0,
+    { "rv-counter-carry-linear", spot::gen::RV_COUNTER_CARRY_LINEAR, "RANGE", 0,
       "n-bit counter w/ carry (linear size)", 0 },
-    { "rv-counter-linear", OPT_RV_COUNTER_LINEAR, "RANGE", 0,
+    { "rv-counter-linear", spot::gen::RV_COUNTER_LINEAR, "RANGE", 0,
       "n-bit counter (linear size)", 0 },
-    { "sb-patterns", OPT_SB_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "sb-patterns", spot::gen::SB_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Somenzi and Bloem [CAV'00] patterns "
       "(range should be included in 1..27)", 0 },
-    { "tv-f1", OPT_TV_F1, "RANGE", 0, "G(p -> (q | Xq | ... | XX...Xq)", 0 },
-    { "tv-f2", OPT_TV_F2, "RANGE", 0, "G(p -> (q | X(q | X(... | Xq)))", 0 },
-    { "tv-g1", OPT_TV_G1, "RANGE", 0, "G(p -> (q & Xq & ... & XX...Xq)", 0 },
-    { "tv-g2", OPT_TV_G2, "RANGE", 0, "G(p -> (q & X(q & X(... & Xq)))", 0 },
-    { "tv-uu", OPT_TV_UU, "RANGE", 0,
+    { "tv-f1", spot::gen::TV_F1, "RANGE", 0,
+      "G(p -> (q | Xq | ... | XX...Xq)", 0 },
+    { "tv-f2", spot::gen::TV_F2, "RANGE", 0,
+      "G(p -> (q | X(q | X(... | Xq)))", 0 },
+    { "tv-g1", spot::gen::TV_G1, "RANGE", 0,
+      "G(p -> (q & Xq & ... & XX...Xq)", 0 },
+    { "tv-g2", spot::gen::TV_G2, "RANGE", 0,
+      "G(p -> (q & X(q & X(... & Xq)))", 0 },
+    { "tv-uu", spot::gen::TV_UU, "RANGE", 0,
       "G(p1 -> (p1 U (p2 & (p2 U (p3 & (p3 U ...))))))", 0 },
-    { "u-left", OPT_U_LEFT, "RANGE", 0, "(((p1 U p2) U p3) ... U pn)", 0 },
+    { "u-left", spot::gen::U_LEFT, "RANGE", 0,
+      "(((p1 U p2) U p3) ... U pn)", 0 },
     OPT_ALIAS(gh-u),
-    { "u-right", OPT_U_RIGHT, "RANGE", 0, "(p1 U (p2 U (... U pn)))", 0 },
+    { "u-right", spot::gen::U_RIGHT, "RANGE", 0,
+      "(p1 U (p2 U (... U pn)))", 0 },
     OPT_ALIAS(gh-u2),
     OPT_ALIAS(go-phi),
     RANGE_DOC,
@@ -373,7 +171,7 @@ static const argp_option options[] =
 
 struct job
 {
-  int pattern;
+  spot::gen::ltl_pattern pattern;
   struct range range;
 };
 
@@ -393,7 +191,7 @@ static void
 enqueue_job(int pattern, const char* range_str)
 {
   job j;
-  j.pattern = pattern;
+  j.pattern = static_cast<spot::gen::ltl_pattern>(pattern);
   j.range = parse_range(range_str);
   jobs.push_back(j);
 }
@@ -402,7 +200,7 @@ static void
 enqueue_job(int pattern, int min, int max)
 {
   job j;
-  j.pattern = pattern;
+  j.pattern = static_cast<spot::gen::ltl_pattern>(pattern);
   j.range = {min, max};
   jobs.push_back(j);
 }
@@ -413,56 +211,26 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case OPT_AND_F:
-    case OPT_AND_FG:
-    case OPT_AND_GF:
-    case OPT_CCJ_ALPHA:
-    case OPT_CCJ_BETA:
-    case OPT_CCJ_BETA_PRIME:
-    case OPT_GH_Q:
-    case OPT_GH_R:
-    case OPT_GO_THETA:
-    case OPT_KR_N:
-    case OPT_KR_NLOGN:
-    case OPT_KV_PSI:
-    case OPT_OR_FG:
-    case OPT_OR_G:
-    case OPT_OR_GF:
-    case OPT_R_LEFT:
-    case OPT_R_RIGHT:
-    case OPT_RV_COUNTER:
-    case OPT_RV_COUNTER_CARRY:
-    case OPT_RV_COUNTER_CARRY_LINEAR:
-    case OPT_RV_COUNTER_LINEAR:
-    case OPT_TV_F1:
-    case OPT_TV_F2:
-    case OPT_TV_G1:
-    case OPT_TV_G2:
-    case OPT_TV_UU:
-    case OPT_U_LEFT:
-    case OPT_U_RIGHT:
-      enqueue_job(key, arg);
-      break;
-    case OPT_DAC_PATTERNS:
-    case OPT_HKRSS_PATTERNS:
+    case spot::gen::DAC_PATTERNS:
+    case spot::gen::HKRSS_PATTERNS:
       if (arg)
         enqueue_job(key, arg);
       else
         enqueue_job(key, 1, 55);
       break;
-    case OPT_EH_PATTERNS:
+    case spot::gen::EH_PATTERNS:
       if (arg)
         enqueue_job(key, arg);
       else
         enqueue_job(key, 1, 12);
       break;
-    case OPT_P_PATTERNS:
+    case spot::gen::P_PATTERNS:
       if (arg)
         enqueue_job(key, arg);
       else
         enqueue_job(key, 1, 20);
       break;
-    case OPT_SB_PATTERNS:
+    case spot::gen::SB_PATTERNS:
       if (arg)
         enqueue_job(key, arg);
       else
@@ -475,1125 +243,21 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_negative = true;
       break;
     default:
+      if (key >= spot::gen::FIRST_CLASS && key < spot::gen::LAST_CLASS)
+        {
+          enqueue_job(key, arg);
+          break;
+        }
       return ARGP_ERR_UNKNOWN;
     }
   return 0;
 }
 
-#define G_(x) formula::G(x)
-#define F_(x) formula::F(x)
-#define X_(x) formula::X(x)
-#define Not_(x) formula::Not(x)
-
-#define Implies_(x, y) formula::Implies((x), (y))
-#define Equiv_(x, y) formula::Equiv((x), (y))
-#define And_(x, y) formula::And({(x), (y)})
-#define Or_(x, y) formula::Or({(x), (y)})
-#define U_(x, y) formula::U((x), (y))
-
-// F(p_1 & F(p_2 & F(p_3 & ... F(p_n))))
-static formula
-E_n(std::string name, int n)
-{
-  if (n <= 0)
-    return formula::tt();
-
-  formula result = nullptr;
-
-  for (; n > 0; --n)
-    {
-      std::ostringstream p;
-      p << name << n;
-      formula f = formula::ap(p.str());
-      if (result)
-        result = And_(f, result);
-      else
-        result = f;
-      result = F_(result);
-    }
-  return result;
-}
-
-// p & X(p & X(p & ... X(p)))
-static formula
-phi_n(std::string name, int n,
-      op oper = op::And)
-{
-  if (n <= 0)
-    return formula::tt();
-
-  formula result = nullptr;
-  formula p = formula::ap(name);
-  for (; n > 0; --n)
-    {
-      if (result)
-        result = formula::multop(oper, {p, X_(result)});
-      else
-        result = p;
-    }
-  return result;
-}
-
-static formula
-N_n(std::string name, int n)
-{
-  return formula::F(phi_n(name, n));
-}
-
-// p & X(p) & XX(p) & XXX(p) & ... X^n(p)
-static formula
-phi_prime_n(std::string name, int n,
-            op oper = op::And)
-{
-  if (n <= 0)
-    return formula::tt();
-
-  formula result = nullptr;
-  formula p = formula::ap(name);
-  for (; n > 0; --n)
-    {
-      if (result)
-        {
-          p = X_(p);
-          result = formula::multop(oper, {result, p});
-        }
-      else
-        {
-          result = p;
-        }
-    }
-  return result;
-}
-
-static formula
-N_prime_n(std::string name, int n)
-{
-  return F_(phi_prime_n(name, n));
-}
-
-
-// GF(p_1) & GF(p_2) & ... & GF(p_n)   if conj == true
-// GF(p_1) | GF(p_2) | ... | GF(p_n)   if conj == false
-static formula
-GF_n(std::string name, int n, bool conj = true)
-{
-  if (n <= 0)
-    return conj ? formula::tt() : formula::ff();
-
-  formula result = nullptr;
-
-  op o = conj ? op::And : op::Or;
-
-  for (int i = 1; i <= n; ++i)
-    {
-      std::ostringstream p;
-      p << name << i;
-      formula f = G_(F_(formula::ap(p.str())));
-
-      if (result)
-        result = formula::multop(o, {f, result});
-      else
-        result = f;
-    }
-  return result;
-}
-
-// FG(p_1) | FG(p_2) | ... | FG(p_n)   if conj == false
-// FG(p_1) & FG(p_2) & ... & FG(p_n)   if conj == true
-static formula
-FG_n(std::string name, int n, bool conj = false)
-{
-  if (n <= 0)
-    return conj ? formula::tt() : formula::ff();
-
-  formula result = nullptr;
-
-  op o = conj ? op::And : op::Or;
-
-  for (int i = 1; i <= n; ++i)
-    {
-      std::ostringstream p;
-      p << name << i;
-      formula f = F_(G_(formula::ap(p.str())));
-
-      if (result)
-        result = formula::multop(o, {f, result});
-      else
-        result = f;
-    }
-  return result;
-}
-
-//  (((p1 OP p2) OP p3)...OP pn)   if right_assoc == false
-//  (p1 OP (p2 OP (p3 OP (... pn)  if right_assoc == true
-static formula
-bin_n(std::string name, int n, op o, bool right_assoc = false)
-{
-  if (n <= 0)
-    n = 1;
-
-  formula result = nullptr;
-
-  for (int i = 1; i <= n; ++i)
-    {
-      std::ostringstream p;
-      p << name << (right_assoc ? (n + 1 - i) : i);
-      formula f = formula::ap(p.str());
-      if (!result)
-        result = f;
-      else if (right_assoc)
-        result = formula::binop(o, f, result);
-      else
-        result = formula::binop(o, result, f);
-    }
-  return result;
-}
-
-// (GF(p1)|FG(p2))&(GF(p2)|FG(p3))&...&(GF(pn)|FG(p{n+1}))"
-static formula
-R_n(std::string name, int n)
-{
-  if (n <= 0)
-    return formula::tt();
-
-  formula pi;
-
-  {
-    std::ostringstream p;
-    p << name << 1;
-    pi = formula::ap(p.str());
-  }
-
-  formula result = nullptr;
-
-  for (int i = 1; i <= n; ++i)
-    {
-      formula gf = G_(F_(pi));
-      std::ostringstream p;
-      p << name << i + 1;
-      pi = formula::ap(p.str());
-
-      formula fg = F_(G_(pi));
-
-      formula f = Or_(gf, fg);
-
-      if (result)
-        result = And_(f, result);
-      else
-        result = f;
-    }
-  return result;
-}
-
-// (F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))"
-static formula
-Q_n(std::string name, int n)
-{
-  if (n <= 0)
-    return formula::tt();
-
-  formula pi;
-
-  {
-    std::ostringstream p;
-    p << name << 1;
-    pi = formula::ap(p.str());
-  }
-
-  formula result = nullptr;
-
-  for (int i = 1; i <= n; ++i)
-    {
-      formula f = F_(pi);
-
-      std::ostringstream p;
-      p << name << i + 1;
-      pi = formula::ap(p.str());
-
-      formula g = G_(pi);
-
-      f = Or_(f, g);
-
-      if (result)
-        result = And_(f, result);
-      else
-        result = f;
-    }
-  return result;
-}
-
-//  OP(p1) | OP(p2) | ... | OP(Pn) if conj == false
-//  OP(p1) & OP(p2) & ... & OP(Pn) if conj == true
-static formula
-combunop_n(std::string name, int n, op o, bool conj = false)
-{
-  if (n <= 0)
-    return conj ? formula::tt() : formula::ff();
-
-  formula result = nullptr;
-
-  op cop = conj ? op::And : op::Or;
-
-  for (int i = 1; i <= n; ++i)
-    {
-      std::ostringstream p;
-      p << name << i;
-      formula f = formula::unop(o, formula::ap(p.str()));
-
-      if (result)
-        result = formula::multop(cop, {f, result});
-      else
-        result = f;
-    }
-  return result;
-}
-
-// !((GF(p1)&GF(p2)&...&GF(pn))->G(q -> F(r)))
-// From "Fast LTL to Büchi Automata Translation" [gastin.01.cav]
-static formula
-fair_response(std::string p, std::string q, std::string r, int n)
-{
-  formula fair = GF_n(p, n);
-  formula resp = G_(Implies_(formula::ap(q), F_(formula::ap(r))));
-  return Not_(Implies_(fair, resp));
-}
-
-
-// Builds X(X(...X(p))) with n occurrences of X.
-static formula
-X_n(formula p, int n)
-{
-  assert(n >= 0);
-  formula res = p;
-  while (n--)
-    res = X_(res);
-  return res;
-}
-
-// Based on LTLcounter.pl from Kristin Rozier.
-// http://shemesh.larc.nasa.gov/people/kyr/benchmarking_scripts/
-static formula
-ltl_counter(std::string bit, std::string marker, int n, bool linear)
-{
-  formula b = formula::ap(bit);
-  formula neg_b = Not_(b);
-  formula m = formula::ap(marker);
-  formula neg_m = Not_(m);
-
-  std::vector<formula> res(4);
-
-  // The marker starts with "1", followed by n-1 "0", then "1" again,
-  // n-1 "0", etc.
-  if (!linear)
-    {
-      // G(m -> X(!m)&XX(!m)&XXX(m))          [if n = 3]
-      std::vector<formula> v(n);
-      for (int i = 0; i + 1 < n; ++i)
-        v[i] = X_n(neg_m, i + 1);
-      v[n - 1] = X_n(m, n);
-      res[0] = And_(m, G_(Implies_(m, formula::And(std::move(v)))));
-    }
-  else
-    {
-      // G(m -> X(!m & X(!m X(m))))          [if n = 3]
-      formula p = m;
-      for (int i = n - 1; i > 0; --i)
-        p = And_(neg_m, X_(p));
-      res[0] = And_(m, G_(Implies_(m, X_(p))));
-    }
-
-  // All bits are initially zero.
-  if (!linear)
-    {
-      // !b & X(!b) & XX(!b)    [if n = 3]
-      std::vector<formula> v2(n);
-      for (int i = 0; i < n; ++i)
-        v2[i] = X_n(neg_b, i);
-      res[1] = formula::And(std::move(v2));
-    }
-  else
-    {
-      // !b & X(!b & X(!b))     [if n = 3]
-      formula p = neg_b;
-      for (int i = n - 1; i > 0; --i)
-        p = And_(neg_b, X_(p));
-      res[1] = p;
-    }
-
-#define AndX_(x, y) (linear ? X_(And_((x), (y))) : And_(X_(x), X_(y)))
-
-  // If the least significant bit is 0, it will be 1 at the next time,
-  // and other bits stay the same.
-  formula Xnm1_b = X_n(b, n - 1);
-  formula Xn_b = X_(Xnm1_b);
-  res[2] = G_(Implies_(And_(m, neg_b),
-                       AndX_(Xnm1_b, U_(And_(Not_(m), Equiv_(b, Xn_b)), m))));
-
-  // From the least significant bit to the first 0, all the bits
-  // are flipped on the next value.  Remaining bits are identical.
-  formula Xnm1_negb = X_n(neg_b, n - 1);
-  formula Xn_negb = X_(Xnm1_negb);
-  res[3] = G_(Implies_(And_(m, b),
-                       AndX_(Xnm1_negb,
-                             U_(And_(And_(b, neg_m), Xn_negb),
-                                Or_(m, And_(And_(neg_m, neg_b),
-                                            AndX_(Xnm1_b,
-                                                  U_(And_(neg_m,
-                                                          Equiv_(b, Xn_b)),
-                                                     m))))))));
-  return formula::And(std::move(res));
-}
-
-static formula
-ltl_counter_carry(std::string bit, std::string marker,
-                  std::string carry, int n, bool linear)
-{
-  formula b = formula::ap(bit);
-  formula neg_b = Not_(b);
-  formula m = formula::ap(marker);
-  formula neg_m = Not_(m);
-  formula c = formula::ap(carry);
-  formula neg_c = Not_(c);
-
-  std::vector<formula> res(6);
-
-  // The marker starts with "1", followed by n-1 "0", then "1" again,
-  // n-1 "0", etc.
-  if (!linear)
-    {
-      // G(m -> X(!m)&XX(!m)&XXX(m))          [if n = 3]
-      std::vector<formula> v(n);
-      for (int i = 0; i + 1 < n; ++i)
-        v[i] = X_n(neg_m, i + 1);
-      v[n - 1] = X_n(m, n);
-      res[0] = And_(m, G_(Implies_(m, formula::And(std::move(v)))));
-    }
-  else
-    {
-      // G(m -> X(!m & X(!m X(m))))          [if n = 3]
-      formula p = m;
-      for (int i = n - 1; i > 0; --i)
-        p = And_(neg_m, X_(p));
-      res[0] = And_(m, G_(Implies_(m, X_(p))));
-    }
-
-  // All bits are initially zero.
-  if (!linear)
-    {
-      // !b & X(!b) & XX(!b)    [if n = 3]
-      std::vector<formula> v2(n);
-      for (int i = 0; i < n; ++i)
-        v2[i] = X_n(neg_b, i);
-      res[1] = formula::And(std::move(v2));
-    }
-  else
-    {
-      // !b & X(!b & X(!b))     [if n = 3]
-      formula p = neg_b;
-      for (int i = n - 1; i > 0; --i)
-        p = And_(neg_b, X_(p));
-      res[1] = p;
-    }
-
-  formula Xn_b = X_n(b, n);
-  formula Xn_negb = X_n(neg_b, n);
-
-  // If m is 1 and b is 0 then c is 0 and n steps later b is 1.
-  res[2] = G_(Implies_(And_(m, neg_b), And_(neg_c, Xn_b)));
-
-  // If m is 1 and b is 1 then c is 1 and n steps later b is 0.
-  res[3] = G_(Implies_(And_(m, b), And_(c, Xn_negb)));
-
-  if (!linear)
-    {
-      // If there's no carry, then all of the bits stay the same n steps later.
-      res[4] = G_(Implies_(And_(neg_c, X_(neg_m)),
-                           And_(X_(Not_(c)), Equiv_(X_(b), X_(Xn_b)))));
-
-      // If there's a carry, then add one: flip the bits of b and
-      // adjust the carry.
-      res[5] = G_(Implies_(c, And_(Implies_(X_(neg_b),
-                                            And_(X_(neg_c), X_(Xn_b))),
-                                   Implies_(X_(b),
-                                            And_(X_(c), X_(Xn_negb))))));
-    }
-  else
-    {
-      // If there's no carry, then all of the bits stay the same n steps later.
-      res[4] = G_(Implies_(And_(neg_c, X_(neg_m)),
-                           X_(And_(Not_(c), Equiv_(b, Xn_b)))));
-      // If there's a carry, then add one: flip the bits of b and
-      // adjust the carry.
-      res[5] = G_(Implies_(c, X_(And_(Implies_(neg_b, And_(neg_c, Xn_b)),
-                                      Implies_(b, And_(c, Xn_negb))))));
-    }
-  return formula::And(std::move(res));
-}
-
-static formula
-tv_f1(std::string p, std::string q, int n)
-{
-  return G_(Implies_(formula::ap(p), phi_prime_n(q, n, op::Or)));
-}
-
-static formula
-tv_f2(std::string p, std::string q, int n)
-{
-  return G_(Implies_(formula::ap(p), phi_n(q, n, op::Or)));
-}
-
-static formula
-tv_g1(std::string p, std::string q, int n)
-{
-  return G_(Implies_(formula::ap(p), phi_prime_n(q, n)));
-}
-
-static formula
-tv_g2(std::string p, std::string q, int n)
-{
-  return G_(Implies_(formula::ap(p), phi_n(q, n)));
-}
-
-static formula
-tv_uu(std::string name, int n)
-{
-  std::ostringstream p;
-  p << name << n + 1;
-  formula q = formula::ap(p.str());
-  formula f = q;
-
-  for (int i = n; i > 0; --i)
-    {
-      p.str("");
-      p << name << i;
-      q = formula::ap(p.str());
-      f = U_(q, f);
-      if (i > 1)
-        f = And_(q, f);
-    }
-  return G_(Implies_(q,  f));
-}
 
 static void
-bad_number(const char* pattern, int n, int max = 0)
+output_pattern(spot::gen::ltl_pattern pattern, int n)
 {
-  std::ostringstream err;
-  err << "no pattern " << n << " for " << pattern
-      << ", supported range is 1..";
-  if (max)
-    err << max;
-  throw std::runtime_error(err.str());
-}
-
-static formula
-dac_pattern(int n)
-{
-  static const char* formulas[] = {
-    "[](!p0)",
-    "<>p2 -> (!p0 U p2)",
-    "[](p1 -> [](!p0))",
-    "[]((p1 & !p2 & <>p2) -> (!p0 U p2))",
-    "[](p1 & !p2 -> (!p0 W p2))",
-
-    "<>(p0)",
-    "!p2 W (p0 & !p2)",
-    "[](!p1) | <>(p1 & <>p0)",
-    "[](p1 & !p2 -> (!p2 W (p0 & !p2)))",
-    "[](p1 & !p2 -> (!p2 U (p0 & !p2)))",
-
-    "(!p0 W (p0 W (!p0 W (p0 W []!p0))))",
-    "<>p2 -> ((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 |"
-    " ((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 | (!p0 U p2)))))))))",
-    "<>p1 -> (!p1 U (p1 & (!p0 W (p0 W (!p0 W (p0 W []!p0))))))",
-    "[]((p1 & <>p2) -> ((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 |"
-    "((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 | (!p0 U p2))))))))))",
-    "[](p1 -> ((!p0 & !p2) U (p2 | ((p0 & !p2) U (p2 | ((!p0 & !p2) U"
-    "(p2 | ((p0 & !p2) U (p2 | (!p0 W p2) | []p0)))))))))",
-
-    "[](p0)",
-    "<>p2 -> (p0 U p2)",
-    "[](p1 -> [](p0))",
-    "[]((p1 & !p2 & <>p2) -> (p0 U p2))",
-    "[](p1 & !p2 -> (p0 W p2))",
-
-    "!p0 W p3",
-    "<>p2 -> (!p0 U (p3 | p2))",
-    "[]!p1 | <>(p1 & (!p0 W p3))",
-    "[]((p1 & !p2 & <>p2) -> (!p0 U (p3 | p2)))",
-    "[](p1 & !p2 -> (!p0 W (p3 | p2)))",
-
-    "[](p0 -> <>p3)",
-    "<>p2 -> (p0 -> (!p2 U (p3 & !p2))) U p2",
-    "[](p1 -> [](p0 -> <>p3))",
-    "[]((p1 & !p2 & <>p2) -> ((p0 -> (!p2 U (p3 & !p2))) U p2))",
-    "[](p1 & !p2 -> ((p0 -> (!p2 U (p3 & !p2))) W p2))",
-
-    "<>p0 -> (!p0 U (p3 & !p0 & X(!p0 U p4)))",
-    "<>p2 -> (!p0 U (p2 | (p3 & !p0 & X(!p0 U p4))))",
-    "([]!p1) | (!p1 U (p1 & <>p0 -> (!p0 U (p3 & !p0 & X(!p0 U p4)))))",
-    "[]((p1 & <>p2) -> (!p0 U (p2 | (p3 & !p0 & X(!p0 U p4)))))",
-    "[](p1 -> (<>p0 -> (!p0 U (p2 | (p3 & !p0 & X(!p0 U p4))))))",
-
-    "(<>(p3 & X<>p4)) -> ((!p3) U p0)",
-    "<>p2 -> ((!(p3 & (!p2) & X(!p2 U (p4 & !p2)))) U (p2 | p0))",
-    "([]!p1) | ((!p1) U (p1 & ((<>(p3 & X<>p4)) -> ((!p3) U p0))))",
-    "[]((p1 & <>p2) -> ((!(p3 & (!p2) & X(!p2 U (p4 & !p2)))) U (p2 | p0)))",
-    "[](p1 -> (!(p3 & (!p2) & X(!p2 U (p4 & !p2))) U (p2 | p0) |"
-    " [](!(p3 & X<>p4))))",
-
-    "[] (p3 & X<> p4 -> X(<>(p4 & <> p0)))",
-    "<>p2 -> (p3 & X(!p2 U p4) -> X(!p2 U (p4 & <> p0))) U p2",
-    "[] (p1 -> [] (p3 & X<> p4 -> X(!p4 U (p4 & <> p0))))",
-    "[] ((p1 & <>p2) -> (p3 & X(!p2 U p4) -> X(!p2 U (p4 & <> p0))) U p2)",
-    "[] (p1 -> (p3 & X(!p2 U p4) -> X(!p2 U (p4 & <> p0))) U (p2 |"
-    "[] (p3 & X(!p2 U p4) -> X(!p2 U (p4 & <> p0)))))",
-
-    "[] (p0 -> <>(p3 & X<>p4))",
-    "<>p2 -> (p0 -> (!p2 U (p3 & !p2 & X(!p2 U p4)))) U p2",
-    "[] (p1 -> [] (p0 -> (p3 & X<> p4)))",
-    "[] ((p1 & <>p2) -> (p0 -> (!p2 U (p3 & !p2 & X(!p2 U p4)))) U p2)",
-    "[] (p1 -> (p0 -> (!p2 U (p3 & !p2 & X(!p2 U p4)))) U (p2 | []"
-    "(p0 -> (p3 & X<> p4))))",
-
-    "[] (p0 -> <>(p3 & !p5 & X(!p5 U p4)))",
-    "<>p2 -> (p0 -> (!p2 U (p3 & !p2 & !p5 & X((!p2 & !p5) U p4)))) U p2",
-    "[] (p1 -> [] (p0 -> (p3 & !p5 & X(!p5 U p4))))",
-    "[] ((p1 & <>p2) -> (p0 -> (!p2 U (p3 & !p2 & !p5 & X((!p2 & !p5) U"
-    " p4)))) U p2)",
-    "[] (p1 -> (p0 -> (!p2 U (p3 & !p2 & !p5 & X((!p2 & !p5) U p4)))) U (p2 |"
-    "[] (p0 -> (p3 & !p5 & X(!p5 U p4)))))",
-  };
-
-  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
-  if (n < 1 || (unsigned) n > max)
-    bad_number("--dac-patterns", n, max);
-  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
-}
-
-static formula
-hkrss_pattern(int n)
-{
-  static const char* formulas[] = {
-    "G(Fp0 & F!p0)",
-    "GFp0 & GF!p0",
-    "GF(!(p1 <-> Xp1) | !(p0 <-> Xp0))",
-    "GF(!(p1 <-> Xp1) | !(p0 <-> Xp0) | !(p2 <-> Xp2) | !(p3 <-> Xp3))",
-    "G!p0",
-    "G((p0 -> F!p0) & (!p0 -> Fp0))",
-    "G(p0 -> F(p0 & p1))",
-    "G(p0 -> F((!p0 & p1 & p2 & p3) -> Fp4))",
-    "G(p0 -> F!p1)",
-    "G(p0 -> Fp1)",
-    "G(p0 -> F(p1 -> Fp2))",
-    "G(p0 -> F((p1 & p2) -> Fp3))",
-    "G((p0 -> Fp1) & (p2 -> Fp3) & (p4 -> Fp5) & (p6 -> Fp7))",
-    "G(!p0 & !p1)",
-    "G!(p0 & p1)",
-    "G(p0 -> p1)",
-    "G((p0 -> !p1) & (p1 -> !p0))",
-    "G(!p0 -> (p1 <-> !p2))",
-    "G((!p0 & (p1 | p2 | p3)) -> p4)",
-    "G((p0 & p1) -> (p2 | !(p3 & p4)))",
-    "G((!p0 & p1 & !p2 & !p3 & !p4) -> F(!p5 & !p6 & !p7 & !p8))",
-    "G((p0 & p1 & !p2 & !p3 & !p4) -> F(p5 & !p6 & !p7 & !p8))",
-    "G(!p0 -> !(p1 & p2 & p3 & p4 & p5))",
-    "G(!p0 -> ((p1 & p2 & p3 & p4) -> !p5))",
-    "G((p0 & p1) -> (p2 | p3 | !(p4 & p5)))",
-    "G((!p0 & (p1 | p2 | p3 | p4)) -> (!p5 <-> p6))",
-    "G((p0 & p1) -> (p2 | p3 | p4 | !(p5 & p6)))",
-    "G((p0 & p1) -> (p2 | p3 | p4 | p5 | !(p6 & p7)))",
-    "G((p0 & p1 & !p2 & Xp2) -> X(p3 | X(!p1 | p3)))",
-    "G((p0 & p1 & !p2 & Xp2) -> X(X!p1 | (p2 U (!p2 U (p2 U (!p1 | p3))))))",
-    "G(p0 & p1 & !p2 & Xp2) -> X(X!p1 | (p2 U (!p2 U (p2 U (!p1 | p3)))))",
-    "G(p0 -> (p1 U (!p1 U (!p2 | p3))))",
-    "G(p0 -> (p1 U (!p1 U (p2 | p3))))",
-    "G((!p0 & p1) -> Xp2)",
-    "G(p0 -> X(p0 | p1))",
-    ("G((!(p1 <-> Xp1) | !(p0 <-> Xp0) | !(p2 <-> Xp2) | !(p3 <-> Xp3)) -> "
-     "(X!p4 & X(!(!(p1 <-> Xp1) | !(p0 <-> Xp0) | !(p2 <-> Xp2) | "
-     "!(p3 <-> Xp3)) U p4)))"),
-    "G((p0 & !p1 & Xp1 & Xp0) -> (p2 -> Xp3))",
-    "G(p0 -> X(!p0 U p1))",
-    "G((!p0 & Xp0) -> X((p0 U p1) | Gp0))",
-    "G((!p0 & Xp0) -> X(p0 U (p0 & !p1 & X(p0 & p1))))",
-    ("G((!p0 & Xp0) -> X(p0 U (p0 & !p1 & X(p0 & p1 & (p0 U (p0 & !p1 & "
-     "X(p0 & p1)))))))"),
-    ("G((p0 & X!p0) -> X(!p0 U (!p0 & !p1 & X(!p0 & p1 & (!p0 U (!p0 & !p1 "
-     "& X(!p0 & p1)))))))"),
-    ("G((p0 & X!p0) -> X(!p0 U (!p0 & !p1 & X(!p0 & p1 & (!p0 U (!p0 & !p1 & "
-     "X(!p0 & p1 & (!p0 U (!p0 & !p1 & X(!p0 & p1))))))))))"),
-    "G((!p0 & Xp0) -> X(!(!p0 & Xp0) U (!p1 & Xp1)))",
-    ("G(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | X(!p0 | "
-     "X(!p0 | X(!p0 | X!p0)))))))))))"),
-    "G((Xp0 -> p0) -> (p1 <-> Xp1))",
-    "G((Xp0 -> p0) -> ((p1 -> Xp1) & (!p1 -> X!p1)))",
-    ("!p0 U G!((p1 & p2) | (p3 & p4) | (p2 & p3) | (p2 & p4) | (p1 & p4) | "
-     "(p1 & p3))"),
-    "!p0 U p1",
-    "(p0 U p1) | Gp0",
-    "p0 & XG!p0",
-    "XG(p0 -> (G!p1 | (!Xp1 U p2)))",
-    "XG((p0 & !p1) -> (G!p1 | (!p1 U p2)))",
-    "XG((p0 & p1) -> ((p1 U p2) | Gp1))",
-    "Xp0 & G((!p0 & Xp0) -> XXp0)",
-  };
-
-  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
-  if (n < 1 || (unsigned) n > max)
-    bad_number("--hkrss-patterns", n, max);
-  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
-}
-
-static formula
-eh_pattern(int n)
-{
-  static const char* formulas[] = {
-    "p0 U (p1 & G(p2))",
-    "p0 U (p1 & X(p2 U p3))",
-    "p0 U (p1 & X(p2 & (F(p3 & X(F(p4 & X(F(p5 & X(F(p6))))))))))",
-    "F(p0 & X(G(p1)))",
-    "F(p0 & X(p1 & X(F(p2))))",
-    "F(p0 & X(p1 U p2))",
-    "(F(G(p0))) | (G(F(p1)))",
-    "G(p0 -> (p1 U p2))",
-    "G(p0 & X(F(p1 & X(F(p2 & X(F(p3)))))))",
-    "(G(F(p0))) & (G(F(p1))) & (G(F(p2))) & (G(F(p3))) & (G(F(p4)))",
-    "(p0 U (p1 U p2)) | (p1 U (p2 U p0)) | (p2 U (p0 U p1))",
-    "G(p0 -> (p1 U ((G(p2)) | (G(p3)))))",
-  };
-
-  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
-  if (n < 1 || (unsigned) n > max)
-    bad_number("--eh-patterns", n, max);
-  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
-}
-
-static formula
-p_pattern(int n)
-{
-  static const char* formulas[] = {
-    "G(p0 -> Fp1)",
-    "(GFp1 & GFp0) -> GFp2",
-    "G(p0 -> (p1 & (p2 U p3)))",
-    "F(p0 | p1)",
-    "GF(p0 | p1)",
-    "(p0 U p1) -> ((p2 U p3) | Gp2)",
-    "G(p0 -> (!p1 U (p1 U (!p1 & (p2 R !p1)))))",
-    "G(p0 -> (p1 R !p2))",
-    "G(!p0 -> Fp0)",
-    "G(p0 -> F(p1 | p2))",
-    "!(!(p0 | p1) U p2) & G(p3 -> !(!(p0 | p1) U p2))",
-    "G!p0 -> G!p1",
-    "G(p0 -> (G!p1 | (!p2 U p1)))",
-    "G(p0 -> (p1 R (p1 | !p2)))",
-    "G((p0 & p1) -> (!p1 R (p0 | !p1)))",
-    "G(p0 -> F(p1 & p2))",
-    "G(p0 -> (!p1 U (p1 U (p1 & p2))))",
-    "G(p0 -> (!p1 U (p1 U (!p1 U (p1 U (p1 & p2))))))",
-    "GFp0 -> GFp1",
-    "GF(p0 | p1) & GF(p1 | p2)",
-  };
-
-  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
-  if (n < 1 || (unsigned) n > max)
-    bad_number("--p-patterns", n, max);
-  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
-}
-
-static formula
-sb_pattern(int n)
-{
-  static const char* formulas[] = {
-    "p0 U p1",
-    "p0 U (p1 U p2)",
-    "!(p0 U (p1 U p2))",
-    "G(F(p0)) -> G(F(p1))",
-    "(F(p0)) U (G(p1))",
-    "(G(p0)) U p1",
-    "!((F(F(p0))) <-> (F(p)))",
-    "!((G(F(p0))) -> (G(F(p))))",
-    "!((G(F(p0))) <-> (G(F(p))))",
-    "p0 R (p0 | p1)",
-    "(Xp0 U Xp1) | !X(p0 U p1)",
-    "(Xp0 U p1) | !X(p0 U (p0 & p1))",
-    "G(p0 -> F(p1)) & (((X(p0)) U p1) | !X(p0 U (p0 & p1)))",
-    "G(p0 -> F(p1)) & (((X(p0)) U X(p1)) | !X(p0 U p1))",
-    "G(p0 -> F(p1))",
-    "!G(p0 -> X(p1 R p2))",
-    "!(F(G(p0)) | F(G(p1)))",
-    "G(F(p0) & F(p1))",
-    "F(p0) & F(!p0)",
-    "(X(p1) & p2) R X(((p3 U p0) R p2) U (p3 R p2))",
-    "(G(p1 | G(F(p0))) & G(p2 | G(F(!p0)))) | G(p1) | G(p2)",
-    "(G(p1 | F(G(p0))) & G(p2 | F(G(!p0)))) | G(p1) | G(p2)",
-    "!((G(p1 | G(F(p0))) & G(p2 | G(F(!p0)))) | G(p1) | G(p2))",
-    "!((G(p1 | F(G(p0))) & G(p2 | F(G(!p0)))) | G(p1) | G(p2))",
-    "(G(p1 | X(G p0))) & (G (p2 | X(G !p0)))",
-    "G(p1 | (Xp0 & X!p0))",
-    // p0 U p0 can't be represented other than as p0 in Spot
-    "(p0 U p0) | (p1 U p0)",
-  };
-
-  constexpr unsigned max = (sizeof formulas)/(sizeof *formulas);
-  if (n < 1 || (unsigned) n > max)
-    bad_number("--sb-patterns", n, max);
-  return spot::relabel(parse_formula(formulas[n - 1]), Pnn);
-}
-
-static formula
-X_n_kv_exp(formula a, int n, formula b)
-{
-  formula f = X_n(a, n);
-  return And_(f, G_(Implies_(b, f)));
-}
-
-static formula
-kv_exp(int n, std::string a, std::string b, std::string c, std::string d)
-{
-  formula fa = formula::ap(a);
-  formula fb = formula::ap(b);
-  formula fc = formula::ap(c);
-  formula fd = formula::ap(d);
-
-  exclusive_ap m;
-  m.add_group({ fa, fb, fc, fd });
-
-  formula xn = X_(G_(fc));
-  for (int i = 0; i < n; i++)
-    xn = X_(And_(Or_(fa, fb), xn));
-  formula f1 = U_(Not_(fd), And_(fd, xn));
-
-  formula f_and = nullptr;
-  for (int i = 1; i <= n; i++)
-    f_and = And_(f_and, Or_(X_n_kv_exp(fa, i, fd), X_n_kv_exp(fb, i, fd)));
-
-  formula f2 = F_(And_(fc, And_(f_and, X_n(fc, n + 1))));
-
-  return m.constrain(And_(f1, f2));
-}
-
-static formula
-bit_ni(unsigned i, unsigned j, formula fbin[2])
-{
-  return fbin[((1u << j) & (i - 1)) != 0];
-}
-
-static formula
-binary_ki(int k, unsigned i, formula fbin[2])
-{
-  formula res = bit_ni(i, k - 1, fbin);
-  for (int j = k - 1; j >= 1; j--)
-    res = And_(bit_ni(i, j - 1, fbin), X_(res));
-  return res;
-}
-
-static formula
-kr1_exp_1(int k, formula fc, formula fd, formula fbin[2])
-{
-    return And_(fc, X_(Or_(binary_ki(k, 1, fbin), fd)));
-}
-
-static formula
-kr1_exp_2(int n, int k, formula fa, formula fb, formula fbin[2])
-{
-  formula res = formula::tt();
-  for (int i = 1; i <= n - 1; i++)
-    res = And_(res,
-               Implies_(binary_ki(k, i, fbin),
-                        X_n(And_(Or_(fa, fb),
-                            X_(binary_ki(k, i + 1, fbin))), k)));
-
-  return G_(res);
-}
-
-static formula
-kr1_exp_3(int n, int k, formula fa, formula fb, formula fc, formula fd,
-          formula fbin[2])
-{
-  return G_(Implies_(binary_ki(k, n, fbin),
-                     X_n(And_(Or_(fa, fb),
-                              X_(And_(fc,
-                                      X_(Or_(binary_ki(k, 1, fbin),
-                                             Or_(fd,
-                                                 G_(fc))))))), k)));
-}
-
-static formula
-kr1_exp_4(int n, int k, formula fc, formula fd, formula fbin[2])
-{
-  return U_(Not_(fd),
-            And_(fd,
-                 X_(And_(binary_ki(k, 1, fbin), X_n(G_(fc),  n * (k + 1))))));
-}
-
-static formula
-kr1_exp_5_r(int k, int i, formula fr, formula fd, formula fbin[2])
-{
-  return And_(fr, F_(And_(fd, F_(And_(binary_ki(k, i, fbin), X_n(fr, k))))));
-}
-
-static formula
-kr1_exp_5(int n, int k, formula fa, formula fb, formula fc, formula fd,
-          formula fbin[2])
-{
-  formula fand = formula::tt();
-  for (int i = 1; i <= n; i++)
-    {
-      formula for1 = kr1_exp_5_r(k, i, fa, fd, fbin);
-      formula for2 = kr1_exp_5_r(k, i, fb, fd, fbin);
-      fand = And_(fand, Implies_(binary_ki(k, i, fbin), X_n(Or_(for1,
-                  for2), k)));
-    }
-
-    return F_(And_(fc,
-                   X_(And_(Not_(fc),
-                           U_(fand, fc)))));
-}
-
-static formula
-kr1_exp(int n, std::string a, std::string b, std::string c, std::string d,
-        std::string bin0, std::string bin1)
-{
-  int k = ceil(log2(n)) + (n == 1);
-
-  if (n <= 0)
-    bad_number("--kr1-exp", n);
-
-  formula fa = formula::ap(a);
-  formula fb = formula::ap(b);
-  formula fc = formula::ap(c);
-  formula fd = formula::ap(d);
-
-  formula fbin0 = formula::ap(bin0);
-  formula fbin1 = formula::ap(bin1);
-
-  exclusive_ap m;
-  m.add_group({ fa, fb, fc, fd, fbin0, fbin1 });
-
-  formula fbin[2] = { fbin0, fbin1 };
-
-  formula res = formula::And({ kr1_exp_1(k, fc, fd, fbin),
-                               kr1_exp_2(n, k, fa, fb, fbin),
-                               kr1_exp_3(n, k, fa, fb, fc, fd, fbin),
-                               kr1_exp_4(n, k, fc, fd, fbin),
-                               kr1_exp_5(n, k, fa, fb, fc, fd, fbin) });
-
-  return m.constrain(res);
-}
-
-static formula
-kr2_exp_1(formula* fa, formula* fb, formula fc, formula fd)
-{
-  (void) fd;
-  return And_(fc,
-              X_(Or_(fa[0],
-                 Or_(fb[0], fd))));
-}
-
-static formula
-kr2_exp_2(int n, formula* fa, formula* fb)
-{
-  formula res = formula::tt();
-  for (int i = 1; i <= n - 1; i++)
-    res = And_(res, Implies_(Or_(fa[i - 1], fb[i - 1]),
-          X_(Or_(fa[i], fb[i]))));
-
-  return G_(res);
-}
-
-static formula
-kr2_exp_3(int n, formula* fa, formula* fb, formula fc, formula fd)
-{
-  return G_(Implies_(Or_(fa[n - 1], fb[n - 1]),
-                     X_(And_(fc,
-                             X_(Or_(fa[0],
-                                    Or_(fb[0],
-                                        Or_(fd, G_(fc)))))))));
-}
-
-static formula
-kr2_exp_4(int n, formula* fa, formula* fb, formula fc, formula fd)
-{
-  return U_(Not_(fd), And_(fd, X_(And_(Or_(fa[0], fb[0]), X_n(G_(fc), n)))));
-}
-
-static formula
-kr2_exp_5_r(int i, formula* fr, formula fd)
-{
-  return And_(fr[i - 1], F_(And_(fd, F_(fr[i - 1]))));
-}
-
-static formula
-kr2_exp_5(int n, formula* fa, formula* fb, formula fc, formula fd)
-{
-  formula facc = formula::ff();
-  for (int i = 1; i <= n; i++)
-    {
-      formula for1 = kr2_exp_5_r(i, fa, fd);
-      formula for2 = kr2_exp_5_r(i, fb, fd);
-      facc = Or_(facc, (Or_(for1, for2)));
-    }
-
-  return F_(And_(fc,
-                 X_(And_(Not_(fc), U_(facc, fc)))));
-}
-
-static formula
-kr2_exp_mutex(int n, formula* fa, formula* fb, formula fc, formula fd)
-{
-  formula f1or = formula::ff();
-  formula f3and = formula::tt();
-
-  for (int i = 1; i <= n; i++)
-    {
-      f1or = Or_(f1or, Or_(fa[i - 1], fb[i - 1]));
-      f3and = And_(f3and, Implies_(fa[i - 1], Not_(fb[i - 1])));
-    }
-
-  formula f1 = G_(Implies_(Or_(fc, fd), Not_(f1or)));
-  formula f2 = G_(Implies_(fc, Not_(fd)));
-  formula f3 = G_(f3and);
-
-  return And_(f1, And_(f2, f3));
-}
-
-static formula
-kr2_exp(int n, std::string a, std::string b, std::string c, std::string d)
-{
-  if (n <= 0)
-    bad_number("--kr-n", n);
-
-  formula fc = formula::ap(c);
-  formula fd = formula::ap(d);
-
-  formula* fa = new formula[n];
-  formula* fb = new formula[n];
-
-  for (int i = 0; i < n; i++)
-    {
-      fa[i] = formula::ap(a + std::to_string(i + 1));
-      fb[i] = formula::ap(b + std::to_string(i + 1));
-    }
-
-  formula res = formula::And({ kr2_exp_1(fa, fb, fc, fd),
-                               kr2_exp_2(n, fa, fb),
-                               kr2_exp_3(n, fa, fb, fc, fd),
-                               kr2_exp_4(n, fa, fb, fc, fd),
-                               kr2_exp_5(n, fa, fb, fc, fd),
-                               kr2_exp_mutex(n, fa, fb, fc, fd) });
-
-  return res;
-}
-
-static void
-output_pattern(int pattern, int n)
-{
-  formula f = nullptr;
-  switch (pattern)
-    {
-      // Keep this alphabetically-ordered!
-    case OPT_AND_F:
-      f = combunop_n("p", n, op::F, true);
-      break;
-    case OPT_AND_FG:
-      f = FG_n("p", n, true);
-      break;
-    case OPT_AND_GF:
-      f = GF_n("p", n, true);
-      break;
-    case OPT_CCJ_ALPHA:
-      f = formula::And({E_n("p", n), E_n("q", n)});
-      break;
-    case OPT_CCJ_BETA:
-      f = formula::And({N_n("p", n), N_n("q", n)});
-      break;
-    case OPT_CCJ_BETA_PRIME:
-      f = formula::And({N_prime_n("p", n), N_prime_n("q", n)});
-      break;
-    case OPT_DAC_PATTERNS:
-      f = dac_pattern(n);
-      break;
-    case OPT_EH_PATTERNS:
-      f = eh_pattern(n);
-      break;
-    case OPT_GH_Q:
-      f = Q_n("p", n);
-      break;
-    case OPT_GH_R:
-      f = R_n("p", n);
-      break;
-    case OPT_GO_THETA:
-      f = fair_response("p", "q", "r", n);
-      break;
-    case OPT_HKRSS_PATTERNS:
-      f = hkrss_pattern(n);
-      break;
-    case OPT_KR_N:
-      f = kr2_exp(n, "a", "b", "c", "d");
-      break;
-    case OPT_KR_NLOGN:
-      f = kr1_exp(n, "a", "b", "c", "d", "y", "z");
-      break;
-    case OPT_KV_PSI:
-      f = kv_exp(n, "a", "b", "c", "d");
-      break;
-    case OPT_OR_FG:
-      f = FG_n("p", n, false);
-      break;
-    case OPT_OR_G:
-      f = combunop_n("p", n, op::G, false);
-      break;
-    case OPT_OR_GF:
-      f = GF_n("p", n, false);
-      break;
-    case OPT_P_PATTERNS:
-      f = p_pattern(n);
-      break;
-    case OPT_R_LEFT:
-      f = bin_n("p", n, op::R, false);
-      break;
-    case OPT_R_RIGHT:
-      f = bin_n("p", n, op::R, true);
-      break;
-    case OPT_RV_COUNTER_CARRY:
-      f = ltl_counter_carry("b", "m", "c", n, false);
-      break;
-    case OPT_RV_COUNTER_CARRY_LINEAR:
-      f = ltl_counter_carry("b", "m", "c", n, true);
-      break;
-    case OPT_RV_COUNTER:
-      f = ltl_counter("b", "m", n, false);
-      break;
-    case OPT_RV_COUNTER_LINEAR:
-      f = ltl_counter("b", "m", n, true);
-      break;
-    case OPT_SB_PATTERNS:
-      f = sb_pattern(n);
-      break;
-    case OPT_TV_F1:
-      f = tv_f1("p", "q", n);
-      break;
-    case OPT_TV_F2:
-      f = tv_f2("p", "q", n);
-      break;
-    case OPT_TV_G1:
-      f = tv_g1("p", "q", n);
-      break;
-    case OPT_TV_G2:
-      f = tv_g2("p", "q", n);
-      break;
-    case OPT_TV_UU:
-      f = tv_uu("p", n);
-      break;
-    case OPT_U_LEFT:
-      f = bin_n("p", n, op::U, false);
-      break;
-    case OPT_U_RIGHT:
-      f = bin_n("p", n, op::U, true);
-      break;
-    default:
-      error(100, 0, "internal error: pattern not implemented");
-    }
+  formula f = spot::gen::genltl(pattern, n);
 
   // Make sure we use only "p42"-style of atomic propositions
   // in lbt's output.
@@ -1602,12 +266,12 @@ output_pattern(int pattern, int n)
 
   if (opt_positive || !opt_negative)
     {
-      output_formula_checked(f, class_name[pattern - FIRST_CLASS], n);
+      output_formula_checked(f, spot::gen::ltl_pattern_name(pattern), n);
     }
   if (opt_negative)
     {
       std::string tmp = "!";
-      tmp += class_name[pattern - FIRST_CLASS];
+      tmp += spot::gen::ltl_pattern_name(pattern);
       output_formula_checked(spot::formula::Not(f), tmp.c_str(), n);
     }
 }
