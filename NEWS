@@ -2,43 +2,48 @@ New in spot 2.3.3.dev (not yet released)
 
   Tools:
 
-  - In autfilt, the options --sum(--sum-or) and --sum-and are
-    implemented.
+  - autfilt learned to build the union (--sum) or the intersection
+    (--sum-and) of two language by putting two automata side-by-side
+    and fiddling with the initial states.  This complement the already
+    implemented intersection (--product) and union (--product-or),
+    both based on a product.
 
-  - In autfilt, the option --dualize is now available to obtain the dual
-    of any automaton.
+  - autfilt learned to complement any alternating automaton with
+    option --dualize.
 
-  - Add a new binary: genaut. Similarly to genltl that produces LTL
-    formulas from the literature, this tool produces automata from
-    the literature. It currently features only one class of
-    automata.
+  - genaut is a binary to produce families of automata defined in the
+    literature (in the same way as we have genltl for LTL formulas).
+    It currently features only one class of automata.
 
   Library:
 
-  - Add a new library libspotgen. It is intended to be place to gather
-    functions that generate classes of formulas and automata from the
-    literature. This separation should ease future development.
+  - A new library, libspotgen, gathers all functions used to generate
+    families of automata or LTL formulas, used by genltl and genaut.
 
   - spot::sum() and spot::sum_and() implements the union and the
-    intersection of two automatons, respectively.
+    intersection of two automatons by putting them side-by-side and
+    using non-deterministim or universal branching on the initial
+    statae.
 
   - twa objects have a new property: prop_complete().  This obviously
     acts as a cache for the is_complete() function.
 
-  - spot::dualize() implements the dual of any alternating automaton.
+  - spot::dualize() completements any alternating automaton.  Since
+    the dual of a deterministic automaton is still deterministic, the
+    function spot::dtwa_complement() has been deprecated and simply
+    calls spot::dualize().
 
   - spot::dtwa_complement now simply returns the result of dualize()
 
-  - There is a new named property for automata called
-    "original-states" that can be used to record the origin of a state
-    when an automaton is transformed.  It is currently defined by the
-    degeneralization algorithms, and by transform_accessible() and
-    algorithms based on it (like remove_ap::strip(),
-    decompose_strength(), decompose_scc()).  This is realy meant as an
-    aid for writing algorithms that need this mapping, but it can also
-    be used to debug these algorithms: the "original-states"
-    information is displayed by the dot printer when the 'd' option is
-    passed.  For instance in
+  - A new named property for automata called "original-states" can be
+    used to record the origin of a state before transformation.  It is
+    currently defined by the degeneralization algorithms, and by
+    transform_accessible() and algorithms based on it (like
+    remove_ap::strip(), decompose_strength(), decompose_scc()).  This
+    is realy meant as an aid for writing algorithms that need this
+    mapping, but it can also be used to debug these algorithms: the
+    "original-states" information is displayed by the dot printer when
+    the 'd' option is passed.  For instance in
 
       % ltl2tgba 'GF(a <-> Fb)' --dot=s
       % ltl2tgba 'GF(a <-> Fb)' | autfilt -B --dot=ds
@@ -46,25 +51,17 @@ New in spot 2.3.3.dev (not yet released)
     the second command outputs an automaton with states that show
     references to the first one.
 
-  - spot::acc_cond::is_streett_like() returns whether an acceptance
-    condition is Streett-like, meaning it is a conjunction of
-    disjunctive clauses containing at most one Inf and at most one Fin.
-    It is more permissive than spot::acc_cond::is_streett(),
-    as the only requirement is that all the marks are present in the
-    acceptance condition.
-    In addition, the spot::acc_cond::streett_like_pairs() returns a
-    boolean that indicates if the acceptance condition is Streett-like
-    and takes a vector of the new struct spot::acc_cond::streett_pair,
-    which has members fin and inf, as an output parameter which
-    contains after the call to the function all the Streett-like pairs.
-    Likewise, spot::acc_cond::is_rabin_like() and
-    spot::acc_cond::rabin_like_pairs() are implemented for Rabin-like
-    pairs.
+  - The new function spot::acc_cond::is_streett_like() checks whether
+    an acceptance condition is conjunction of disjunctive clauses
+    containing at most one Inf and at most one Fin.  It builds a
+    vector of pairs to use if we want to assume the automaton has
+    Streett acceptance.  The dual function is
+    spot::acc_cond::is_rabin_like() works similarly.
 
   Python:
 
-  - The 'spot.gen' package is a wrapper around the functions from
-    the libspotgen library.
+  - The 'spot.gen' package exports the functions from libspotgen.
+    See https://spot.lrde.epita.fr/ipynb/gen.html for examples.
 
   Bugs fixed:
 
@@ -91,22 +88,19 @@ New in spot 2.3.3.dev (not yet released)
     existing code unless you work with the recently added support for
     alternating automata.
 
-  - The spot::twa::prop_deterministic() methods have been renamed to
-    spot::twa::prop_universal() for consistency with the above change.
-    We have kept spot::twa::prop_deterministic() as a deprecated
-    synonym for spot::twa::prop_universal() to help backward
-    compatibility.
-
   - spot::acc_cond::mark_t::sets() now returns an internal iterable
     object instead of an std::vector<unsigned>.
 
   Deprecation notice:
 
-  - spot::dtwa_complement() used to work only on deterministic
-    automatons. Due to the recent implementation of spot::dualize(),
-    that does the same job but on any type of automaton,
-    spot::dtwa_complement() is now kept as a proxy of spot::dualize()
-    in order to help backward compatibility, but is now deprecated.
+  - spot::dtwa_complement() is deprecated.  Prefer the more generic
+    spot::dualize() instead.
+
+  - The spot::twa::prop_deterministic() methods have been renamed to
+    spot::twa::prop_universal() for consistency with the change to
+    is_deterministic() listed above.  We have kept
+    spot::twa::prop_deterministic() as a deprecated synonym for
+    spot::twa::prop_universal() to help backward compatibility.
 
 New in spot 2.3.3 (2017-04-11)
 
