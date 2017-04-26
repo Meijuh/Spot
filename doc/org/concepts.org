@@ -1065,11 +1065,11 @@ automaton, and that can be queried or set by algorithms:
 | =state_acc=          | automaton should be considered as having state-based acceptance                                                                           |
 | =inherently_weak=    | accepting and rejecting cycles cannot be mixed in the same SCC                                                                            |
 | =weak=               | transitions of an SCC all belong to the same acceptance sets                                                                              |
-| =very-weak=          | weak automaton where all SCCs have size 1                                                                                                 |
+| =very_weak=          | weak automaton where all SCCs have size 1                                                                                                 |
 | =terminal=           | automaton is weak, accepting SCCs are complete, accepting edges may not go to rejecting SCCs                                              |
 | =complete=           | it is always possible to move the automaton forward, using any letter                                                                     |
 | =universal=          | there is no non-determinism branching in the automaton (hence each word is *recognized* by at most one run, but not necessarily accepted) |
-| =semi-deterministic= | any nondeterminism occurs before entering an accepting SCC                                                                                |
+| =semi_deterministic= | any nondeterminism occurs before entering an accepting SCC                                                                                |
 | =unambiguous=        | there is at most one run *accepting* a word (but it might be recognized several time)                                                     |
 | =stutter_invariant=  | the property recognized by the automaton is [[https://www.lrde.epita.fr/~adl/dl/adl/michaud.15.spin.pdf][stutter-invariant]]                                                                             |
 
