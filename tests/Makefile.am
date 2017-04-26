@@ -310,6 +310,7 @@ TESTS_ipython = \
   python/automata.ipynb \
   python/decompose.ipynb \
   python/formulas.ipynb \
+  python/gen.ipynb \
   python/highlighting.ipynb \
   python/ltsmin-dve.ipynb \
   python/ltsmin-pml.ipynb \

@@ -48,7 +48,7 @@ using namespace spot;
 const char argp_program_doc[] ="\
 Generate temporal logic formulas from predefined patterns.";
 
-// We reuse the values from spot::gen::ltl_patterns as option keys.
+// We reuse the values from spot::gen::ltl_pattern_id as option keys.
 // Additional options should therefore start after
 // spot::gen::LAST_CLASS.
 enum {
@@ -171,7 +171,7 @@ static const argp_option options[] =
 
 struct job
 {
-  spot::gen::ltl_pattern pattern;
+  spot::gen::ltl_pattern_id pattern;
   struct range range;
 };
 
@@ -188,54 +188,36 @@ const struct argp_child children[] =
   };
 
 static void
-enqueue_job(int pattern, const char* range_str)
+enqueue_job(int pattern, const char* range_str = nullptr)
 {
   job j;
-  j.pattern = static_cast<spot::gen::ltl_pattern>(pattern);
-  j.range = parse_range(range_str);
-  jobs.push_back(j);
-}
-
-static void
-enqueue_job(int pattern, int min, int max)
-{
-  job j;
-  j.pattern = static_cast<spot::gen::ltl_pattern>(pattern);
-  j.range = {min, max};
+  j.pattern = static_cast<spot::gen::ltl_pattern_id>(pattern);
+  if (range_str)
+    {
+      j.range = parse_range(range_str);
+    }
+  else
+    {
+      j.range.min = 1;
+      j.range.max = spot::gen::ltl_pattern_max(j.pattern);
+      if (j.range.max == 0)
+        error(2, 0, "missing range for %s",
+              spot::gen::ltl_pattern_name(j.pattern));
+    }
   jobs.push_back(j);
 }
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
 {
+  if (key >= spot::gen::FIRST_CLASS && key < spot::gen::LAST_CLASS)
+    {
+      enqueue_job(key, arg);
+      return 0;
+    }
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case spot::gen::DAC_PATTERNS:
-    case spot::gen::HKRSS_PATTERNS:
-      if (arg)
-        enqueue_job(key, arg);
-      else
-        enqueue_job(key, 1, 55);
-      break;
-    case spot::gen::EH_PATTERNS:
-      if (arg)
-        enqueue_job(key, arg);
-      else
-        enqueue_job(key, 1, 12);
-      break;
-    case spot::gen::P_PATTERNS:
-      if (arg)
-        enqueue_job(key, arg);
-      else
-        enqueue_job(key, 1, 20);
-      break;
-    case spot::gen::SB_PATTERNS:
-      if (arg)
-        enqueue_job(key, arg);
-      else
-        enqueue_job(key, 1, 27);
-      break;
     case OPT_POSITIVE:
       opt_positive = true;
       break;
@@ -243,11 +225,6 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_negative = true;
       break;
     default:
-      if (key >= spot::gen::FIRST_CLASS && key < spot::gen::LAST_CLASS)
-        {
-          enqueue_job(key, arg);
-          break;
-        }
       return ARGP_ERR_UNKNOWN;
     }
   return 0;
@@ -255,9 +232,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 
 static void
-output_pattern(spot::gen::ltl_pattern pattern, int n)
+output_pattern(spot::gen::ltl_pattern_id pattern, int n)
 {
-  formula f = spot::gen::genltl(pattern, n);
+  formula f = spot::gen::ltl_pattern(pattern, n);
 
   // Make sure we use only "p42"-style of atomic propositions
   // in lbt's output.

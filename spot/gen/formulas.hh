@@ -165,7 +165,7 @@ namespace spot
 {
   namespace gen
   {
-    enum ltl_pattern {
+    enum ltl_pattern_id {
       FIRST_CLASS = 256,
       AND_F = FIRST_CLASS,
       AND_FG,
@@ -205,15 +205,21 @@ namespace spot
 
     /// \brief generate an LTL from a known pattern
     ///
-    /// The pattern is specified using one value from the ltl_pattern
+    /// The pattern is specified using one value from the ltl_pattern_id
     /// enum.  See the man page of the `genltl` binary for a
     /// description of those pattern, and bibliographic references.
-    SPOT_API formula genltl(ltl_pattern pattern, int n);
+    SPOT_API formula ltl_pattern(ltl_pattern_id pattern, int n);
 
     /// \brief convert an ltl_pattern value into a name
     ///
     /// The returned name is suitable to be used as an option
     /// key for the genltl binary.
-    SPOT_API const char* ltl_pattern_name(ltl_pattern pattern);
+    SPOT_API const char* ltl_pattern_name(ltl_pattern_id pattern);
+
+    /// \brief upper bound for LTL patterns
+    ///
+    /// If an LTL pattern has an upper bound, this returns it.
+    /// Otherwise, this returns 0.
+    SPOT_API int ltl_pattern_max(ltl_pattern_id pattern);
   }
 }

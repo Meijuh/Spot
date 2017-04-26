@@ -1041,7 +1041,7 @@ namespace spot
       }
     }
 
-    formula genltl(ltl_pattern pattern, int n)
+    formula ltl_pattern(ltl_pattern_id pattern, int n)
     {
       if (n < 0)
         {
@@ -1127,7 +1127,7 @@ namespace spot
     }
 
 
-    const char* ltl_pattern_name(ltl_pattern pattern)
+    const char* ltl_pattern_name(ltl_pattern_id pattern)
     {
       static const char* const class_name[] =
         {
@@ -1174,6 +1174,60 @@ namespace spot
       return class_name[pattern - FIRST_CLASS];
     }
 
+    int ltl_pattern_max(ltl_pattern_id pattern)
+    {
+      switch (pattern)
+        {
+          // Keep this alphabetically-ordered!
+        case AND_F:
+        case AND_FG:
+        case AND_GF:
+        case CCJ_ALPHA:
+        case CCJ_BETA:
+        case CCJ_BETA_PRIME:
+          return 0;
+        case DAC_PATTERNS:
+          return 55;
+        case EH_PATTERNS:
+          return 12;
+        case GH_Q:
+        case GH_R:
+        case GO_THETA:
+          return 0;
+        case HKRSS_PATTERNS:
+          return 55;
+        case KR_N:
+        case KR_NLOGN:
+        case KV_PSI:
+        case OR_FG:
+        case OR_G:
+        case OR_GF:
+          return 0;
+        case P_PATTERNS:
+          return 20;
+        case R_LEFT:
+        case R_RIGHT:
+        case RV_COUNTER_CARRY:
+        case RV_COUNTER_CARRY_LINEAR:
+        case RV_COUNTER:
+        case RV_COUNTER_LINEAR:
+          return 0;
+        case SB_PATTERNS:
+          return 27;
+        case TV_F1:
+        case TV_F2:
+        case TV_G1:
+        case TV_G2:
+        case TV_UU:
+        case U_LEFT:
+        case U_RIGHT:
+          return 0;
+        case LAST_CLASS:
+          break;
+        }
+      throw std::runtime_error("unsupported pattern");
+
+    }
 
   }
 }
