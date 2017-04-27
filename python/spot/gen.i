@@ -30,6 +30,7 @@
 %include "std_shared_ptr.i"
 
 %shared_ptr(spot::twa_graph)
+%shared_ptr(spot::bdd_dict)
 
 %{
 #include <spot/gen/automata.hh>
@@ -40,6 +41,7 @@ using namespace spot;
 %import(module="spot.impl") <spot/misc/common.hh>
 %import(module="spot.impl") <spot/tl/formula.hh>
 %import(module="spot.impl") <spot/twa/fwd.hh>
+%import(module="spot.impl") <spot/twa/bdddict.hh>
 
 %exception {
   try {
@@ -85,6 +87,14 @@ def ltl_patterns(*args):
         raise RuntimeError("invalid pattern specification")
     for n in range(min, max + 1):
       yield ltl_pattern(pat, n)
+
+
+# Override aut_pattern now(), because %feature("shadow") does not
+# seem to work correctly.  See https://github.com/swig/swig/issues/980
+def aut_pattern(pattern: 'spot::gen::aut_pattern_id', n: 'int',
+                dict: 'spot::bdd_dict_ptr' = None) -> "spot::twa_graph_ptr":
+  return _gen.aut_pattern(pattern, n, dict or spot._bdd_dict)
+
 
 def aut_patterns(*args):
   """

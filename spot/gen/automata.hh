@@ -21,6 +21,7 @@
 
 #include <spot/misc/common.hh>
 #include <spot/twa/fwd.hh>
+#include <spot/twa/bdddict.hh>
 
 namespace spot
 {
@@ -55,7 +56,13 @@ namespace spot
     /// The pattern is specified using one value from the aut_pattern_id
     /// enum.  See the man page of the `genaut` binary for a
     /// description of those patterns, and bibliographic references.
-    SPOT_API twa_graph_ptr aut_pattern(aut_pattern_id pattern, int n);
+    ///
+    /// In case you want to combine this automaton with other
+    /// automata, pass the bdd_dict to use to make sure that all share
+    /// the same.
+    SPOT_API twa_graph_ptr
+    aut_pattern(aut_pattern_id pattern, int n,
+                spot::bdd_dict_ptr dict = make_bdd_dict());
 
     /// \brief convert an aut_pattern_it value into a name
     ///

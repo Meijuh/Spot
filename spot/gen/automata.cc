@@ -28,7 +28,7 @@ namespace spot
     namespace
     {
       static twa_graph_ptr
-      ks_cobuchi(unsigned n)
+      ks_cobuchi(unsigned n, bdd_dict_ptr dict)
       {
         if (n == 0)
           throw std::runtime_error("ks_cobuchi expects a positive argument");
@@ -45,7 +45,6 @@ namespace spot
         // the automaton has 2n+1 states, numbered from 0 to 2n
         // 0 is the initial state and the only non-deterministic state
 
-        auto dict = make_bdd_dict();
         auto aut = make_twa_graph(dict);
 
         // register aps
@@ -91,7 +90,7 @@ namespace spot
       }
     }
 
-    twa_graph_ptr aut_pattern(aut_pattern_id pattern, int n)
+    twa_graph_ptr aut_pattern(aut_pattern_id pattern, int n, bdd_dict_ptr dict)
     {
       if (n < 0)
         {
@@ -105,7 +104,7 @@ namespace spot
         {
           // Keep this alphabetically-ordered!
         case AUT_KS_COBUCHI:
-          return ks_cobuchi(n);
+          return ks_cobuchi(n, dict);
         case AUT_END:
           break;
         }

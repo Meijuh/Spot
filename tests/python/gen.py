@@ -31,6 +31,9 @@ assert k2.num_states() == 5
 # the type returned by spot.gen.ks_cobuchi() is the correct one.
 assert 'to_str' in dir(k2)
 
+k3 = gen.aut_pattern(gen.AUT_KS_COBUCHI, 3)
+assert k2.get_dict() == k3.get_dict()
+
 try:
     gen.aut_pattern(gen.AUT_KS_COBUCHI, 0)
 except RuntimeError as e:
