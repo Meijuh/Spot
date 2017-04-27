@@ -348,6 +348,7 @@ TESTS_python = \
   python/ltlf.py \
   python/ltlparse.py \
   python/ltlsimple.py \
+  python/merge.py \
   python/minato.py \
   python/misc-ec.py \
   python/optionmap.py \

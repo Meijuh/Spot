@@ -104,6 +104,10 @@ New in spot 2.3.4.dev (not yet released)
     automaton.  This parameter is defaulted to true, in order to
     keep this modification backward-compatible.
 
+  - The new function spot::simplify_acceptance() is able to perform
+    some simplifications on an acceptance condition, and might lead
+    to the removal of some acceptance sets.
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.

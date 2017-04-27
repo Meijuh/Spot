@@ -34,4 +34,17 @@ namespace spot
   /// \brief Remove useless acceptance sets
   SPOT_API twa_graph_ptr
   cleanup_acceptance(const_twa_graph_ptr aut);
+
+  /// \brief Simplify an acceptance condition
+  ///
+  /// Remove useless acceptance sets.
+  /// Merge identical sets.
+  /// If some sets are complement to each other, might result in the
+  /// simplification of some clause in the acceptance condition.
+  SPOT_API twa_graph_ptr
+  simplify_acceptance_here(twa_graph_ptr aut);
+
+  /// \brief Simplify an acceptance condition
+  SPOT_API twa_graph_ptr
+  simplify_acceptance(const_twa_graph_ptr aut);
 }
