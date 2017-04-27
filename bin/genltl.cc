@@ -48,11 +48,10 @@ using namespace spot;
 const char argp_program_doc[] ="\
 Generate temporal logic formulas from predefined patterns.";
 
-// We reuse the values from spot::gen::ltl_pattern_id as option keys.
-// Additional options should therefore start after
-// spot::gen::LAST_CLASS.
+// We reuse the values from gen::ltl_pattern_id as option keys.
+// Additional options should therefore start after gen::LTL_END.
 enum {
-  OPT_POSITIVE = spot::gen::LAST_CLASS + 1,
+  OPT_POSITIVE = gen::LTL_END,
   OPT_NEGATIVE,
 };
 
@@ -66,83 +65,79 @@ static const argp_option options[] =
     { nullptr, 0, nullptr, 0, "Pattern selection:", 1},
     // J. Geldenhuys and H. Hansen (Spin'06): Larger automata and less
     // work for LTL model checking.
-    { "and-f", spot::gen::AND_F, "RANGE", 0, "F(p1)&F(p2)&...&F(pn)", 0 },
+    { "and-f", gen::LTL_AND_F, "RANGE", 0, "F(p1)&F(p2)&...&F(pn)", 0 },
     OPT_ALIAS(gh-e),
-    { "and-fg", spot::gen::AND_FG, "RANGE", 0, "FG(p1)&FG(p2)&...&FG(pn)", 0 },
-    { "and-gf", spot::gen::AND_GF, "RANGE", 0, "GF(p1)&GF(p2)&...&GF(pn)", 0 },
+    { "and-fg", gen::LTL_AND_FG, "RANGE", 0, "FG(p1)&FG(p2)&...&FG(pn)", 0 },
+    { "and-gf", gen::LTL_AND_GF, "RANGE", 0, "GF(p1)&GF(p2)&...&GF(pn)", 0 },
     OPT_ALIAS(ccj-phi),
     OPT_ALIAS(gh-c2),
-    { "ccj-alpha", spot::gen::CCJ_ALPHA, "RANGE", 0,
+    { "ccj-alpha", gen::LTL_CCJ_ALPHA, "RANGE", 0,
       "F(p1&F(p2&F(p3&...F(pn)))) & F(q1&F(q2&F(q3&...F(qn))))", 0 },
-    { "ccj-beta", spot::gen::CCJ_BETA, "RANGE", 0,
+    { "ccj-beta", gen::LTL_CCJ_BETA, "RANGE", 0,
       "F(p&X(p&X(p&...X(p)))) & F(q&X(q&X(q&...X(q))))", 0 },
-    { "ccj-beta-prime", spot::gen::CCJ_BETA_PRIME, "RANGE", 0,
+    { "ccj-beta-prime", gen::LTL_CCJ_BETA_PRIME, "RANGE", 0,
       "F(p&(Xp)&(XXp)&...(X...X(p))) & F(q&(Xq)&(XXq)&...(X...X(q)))", 0 },
-    { "dac-patterns", spot::gen::DAC_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "dac-patterns", gen::LTL_DAC_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Dwyer et al. [FMSP'98] Spec. Patterns for LTL "
       "(range should be included in 1..55)", 0 },
     OPT_ALIAS(spec-patterns),
-    { "eh-patterns", spot::gen::EH_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "eh-patterns", gen::LTL_EH_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Etessami and Holzmann [Concur'00] patterns "
       "(range should be included in 1..12)", 0 },
-    { "gh-q", spot::gen::GH_Q, "RANGE", 0,
+    { "gh-q", gen::LTL_GH_Q, "RANGE", 0,
       "(F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))", 0 },
-    { "gh-r", spot::gen::GH_R, "RANGE", 0,
+    { "gh-r", gen::LTL_GH_R, "RANGE", 0,
       "(GF(p1)|FG(p2))&(GF(p2)|FG(p3))&... &(GF(pn)|FG(p{n+1}))", 0 },
-    { "go-theta", spot::gen::GO_THETA, "RANGE", 0,
+    { "go-theta", gen::LTL_GO_THETA, "RANGE", 0,
       "!((GF(p1)&GF(p2)&...&GF(pn)) -> G(q->F(r)))", 0 },
-    { "hkrss-patterns", spot::gen::HKRSS_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "hkrss-patterns", gen::LTL_HKRSS_PATTERNS,
+      "RANGE", OPTION_ARG_OPTIONAL,
       "Holeček et al. patterns from the Liberouter project "
       "(range should be included in 1..55)", 0 },
     OPT_ALIAS(liberouter-patterns),
-    { "kr-n", spot::gen::KR_N, "RANGE", 0,
+    { "kr-n", gen::LTL_KR_N, "RANGE", 0,
       "linear formula with doubly exponential DBA", 0 },
-    { "kr-nlogn", spot::gen::KR_NLOGN, "RANGE", 0,
+    { "kr-nlogn", gen::LTL_KR_NLOGN, "RANGE", 0,
       "quasilinear formula with doubly exponential DBA", 0 },
-    { "kv-psi", spot::gen::KV_PSI, "RANGE", 0,
+    { "kv-psi", gen::LTL_KV_PSI, "RANGE", 0,
       "quadratic formula with doubly exponential DBA", 0 },
     OPT_ALIAS(kr-n2),
-    { "or-fg", spot::gen::OR_FG, "RANGE", 0, "FG(p1)|FG(p2)|...|FG(pn)", 0 },
+    { "or-fg", gen::LTL_OR_FG, "RANGE", 0, "FG(p1)|FG(p2)|...|FG(pn)", 0 },
     OPT_ALIAS(ccj-xi),
-    { "or-g", spot::gen::OR_G, "RANGE", 0, "G(p1)|G(p2)|...|G(pn)", 0 },
+    { "or-g", gen::LTL_OR_G, "RANGE", 0, "G(p1)|G(p2)|...|G(pn)", 0 },
     OPT_ALIAS(gh-s),
-    { "or-gf", spot::gen::OR_GF, "RANGE", 0, "GF(p1)|GF(p2)|...|GF(pn)", 0 },
+    { "or-gf", gen::LTL_OR_GF, "RANGE", 0, "GF(p1)|GF(p2)|...|GF(pn)", 0 },
     OPT_ALIAS(gh-c1),
-    { "p-patterns", spot::gen::P_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "p-patterns", gen::LTL_P_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Pelánek [Spin'07] patterns from BEEM "
       "(range should be included in 1..20)", 0 },
     OPT_ALIAS(beem-patterns),
     OPT_ALIAS(p),
-    { "r-left", spot::gen::R_LEFT, "RANGE", 0,
-      "(((p1 R p2) R p3) ... R pn)", 0 },
-    { "r-right", spot::gen::R_RIGHT, "RANGE", 0,
-      "(p1 R (p2 R (... R pn)))", 0 },
-    { "rv-counter", spot::gen::RV_COUNTER, "RANGE", 0,
-      "n-bit counter", 0 },
-    { "rv-counter-carry", spot::gen::RV_COUNTER_CARRY, "RANGE", 0,
+    { "r-left", gen::LTL_R_LEFT, "RANGE", 0, "(((p1 R p2) R p3) ... R pn)", 0 },
+    { "r-right", gen::LTL_R_RIGHT, "RANGE", 0, "(p1 R (p2 R (... R pn)))", 0 },
+    { "rv-counter", gen::LTL_RV_COUNTER, "RANGE", 0, "n-bit counter", 0 },
+    { "rv-counter-carry", gen::LTL_RV_COUNTER_CARRY, "RANGE", 0,
       "n-bit counter w/ carry", 0 },
-    { "rv-counter-carry-linear", spot::gen::RV_COUNTER_CARRY_LINEAR, "RANGE", 0,
-      "n-bit counter w/ carry (linear size)", 0 },
-    { "rv-counter-linear", spot::gen::RV_COUNTER_LINEAR, "RANGE", 0,
+    { "rv-counter-carry-linear", gen::LTL_RV_COUNTER_CARRY_LINEAR,
+      "RANGE", 0, "n-bit counter w/ carry (linear size)", 0 },
+    { "rv-counter-linear", gen::LTL_RV_COUNTER_LINEAR, "RANGE", 0,
       "n-bit counter (linear size)", 0 },
-    { "sb-patterns", spot::gen::SB_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
+    { "sb-patterns", gen::LTL_SB_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Somenzi and Bloem [CAV'00] patterns "
       "(range should be included in 1..27)", 0 },
-    { "tv-f1", spot::gen::TV_F1, "RANGE", 0,
+    { "tv-f1", gen::LTL_TV_F1, "RANGE", 0,
       "G(p -> (q | Xq | ... | XX...Xq)", 0 },
-    { "tv-f2", spot::gen::TV_F2, "RANGE", 0,
+    { "tv-f2", gen::LTL_TV_F2, "RANGE", 0,
       "G(p -> (q | X(q | X(... | Xq)))", 0 },
-    { "tv-g1", spot::gen::TV_G1, "RANGE", 0,
+    { "tv-g1", gen::LTL_TV_G1, "RANGE", 0,
       "G(p -> (q & Xq & ... & XX...Xq)", 0 },
-    { "tv-g2", spot::gen::TV_G2, "RANGE", 0,
+    { "tv-g2", gen::LTL_TV_G2, "RANGE", 0,
       "G(p -> (q & X(q & X(... & Xq)))", 0 },
-    { "tv-uu", spot::gen::TV_UU, "RANGE", 0,
+    { "tv-uu", gen::LTL_TV_UU, "RANGE", 0,
       "G(p1 -> (p1 U (p2 & (p2 U (p3 & (p3 U ...))))))", 0 },
-    { "u-left", spot::gen::U_LEFT, "RANGE", 0,
-      "(((p1 U p2) U p3) ... U pn)", 0 },
+    { "u-left", gen::LTL_U_LEFT, "RANGE", 0, "(((p1 U p2) U p3) ... U pn)", 0 },
     OPT_ALIAS(gh-u),
-    { "u-right", spot::gen::U_RIGHT, "RANGE", 0,
-      "(p1 U (p2 U (... U pn)))", 0 },
+    { "u-right", gen::LTL_U_RIGHT, "RANGE", 0, "(p1 U (p2 U (... U pn)))", 0 },
     OPT_ALIAS(gh-u2),
     OPT_ALIAS(go-phi),
     RANGE_DOC,
@@ -171,7 +166,7 @@ static const argp_option options[] =
 
 struct job
 {
-  spot::gen::ltl_pattern_id pattern;
+  gen::ltl_pattern_id pattern;
   struct range range;
 };
 
@@ -191,7 +186,7 @@ static void
 enqueue_job(int pattern, const char* range_str = nullptr)
 {
   job j;
-  j.pattern = static_cast<spot::gen::ltl_pattern_id>(pattern);
+  j.pattern = static_cast<gen::ltl_pattern_id>(pattern);
   if (range_str)
     {
       j.range = parse_range(range_str);
@@ -199,10 +194,10 @@ enqueue_job(int pattern, const char* range_str = nullptr)
   else
     {
       j.range.min = 1;
-      j.range.max = spot::gen::ltl_pattern_max(j.pattern);
+      j.range.max = gen::ltl_pattern_max(j.pattern);
       if (j.range.max == 0)
         error(2, 0, "missing range for %s",
-              spot::gen::ltl_pattern_name(j.pattern));
+              gen::ltl_pattern_name(j.pattern));
     }
   jobs.push_back(j);
 }
@@ -210,7 +205,7 @@ enqueue_job(int pattern, const char* range_str = nullptr)
 static int
 parse_opt(int key, char* arg, struct argp_state*)
 {
-  if (key >= spot::gen::FIRST_CLASS && key < spot::gen::LAST_CLASS)
+  if (key >= gen::LTL_BEGIN && key < gen::LTL_END)
     {
       enqueue_job(key, arg);
       return 0;
@@ -232,9 +227,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 
 static void
-output_pattern(spot::gen::ltl_pattern_id pattern, int n)
+output_pattern(gen::ltl_pattern_id pattern, int n)
 {
-  formula f = spot::gen::ltl_pattern(pattern, n);
+  formula f = gen::ltl_pattern(pattern, n);
 
   // Make sure we use only "p42"-style of atomic propositions
   // in lbt's output.
@@ -243,13 +238,13 @@ output_pattern(spot::gen::ltl_pattern_id pattern, int n)
 
   if (opt_positive || !opt_negative)
     {
-      output_formula_checked(f, spot::gen::ltl_pattern_name(pattern), n);
+      output_formula_checked(f, gen::ltl_pattern_name(pattern), n);
     }
   if (opt_negative)
     {
       std::string tmp = "!";
-      tmp += spot::gen::ltl_pattern_name(pattern);
-      output_formula_checked(spot::formula::Not(f), tmp.c_str(), n);
+      tmp += gen::ltl_pattern_name(pattern);
+      output_formula_checked(formula::Not(f), tmp.c_str(), n);
     }
 }
 

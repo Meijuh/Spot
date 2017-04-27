@@ -166,51 +166,51 @@ namespace spot
   namespace gen
   {
     enum ltl_pattern_id {
-      FIRST_CLASS = 256,
-      AND_F = FIRST_CLASS,
-      AND_FG,
-      AND_GF,
-      CCJ_ALPHA,
-      CCJ_BETA,
-      CCJ_BETA_PRIME,
-      DAC_PATTERNS,
-      EH_PATTERNS,
-      GH_Q,
-      GH_R,
-      GO_THETA,
-      HKRSS_PATTERNS,
-      KR_N,
-      KR_NLOGN,
-      KV_PSI,
-      OR_FG,
-      OR_G,
-      OR_GF,
-      P_PATTERNS,
-      R_LEFT,
-      R_RIGHT,
-      RV_COUNTER,
-      RV_COUNTER_CARRY,
-      RV_COUNTER_CARRY_LINEAR,
-      RV_COUNTER_LINEAR,
-      SB_PATTERNS,
-      TV_F1,
-      TV_F2,
-      TV_G1,
-      TV_G2,
-      TV_UU,
-      U_LEFT,
-      U_RIGHT,
-      LAST_CLASS,
+      LTL_BEGIN = 256,
+      LTL_AND_F = LTL_BEGIN,
+      LTL_AND_FG,
+      LTL_AND_GF,
+      LTL_CCJ_ALPHA,
+      LTL_CCJ_BETA,
+      LTL_CCJ_BETA_PRIME,
+      LTL_DAC_PATTERNS,
+      LTL_EH_PATTERNS,
+      LTL_GH_Q,
+      LTL_GH_R,
+      LTL_GO_THETA,
+      LTL_HKRSS_PATTERNS,
+      LTL_KR_N,
+      LTL_KR_NLOGN,
+      LTL_KV_PSI,
+      LTL_OR_FG,
+      LTL_OR_G,
+      LTL_OR_GF,
+      LTL_P_PATTERNS,
+      LTL_R_LEFT,
+      LTL_R_RIGHT,
+      LTL_RV_COUNTER,
+      LTL_RV_COUNTER_CARRY,
+      LTL_RV_COUNTER_CARRY_LINEAR,
+      LTL_RV_COUNTER_LINEAR,
+      LTL_SB_PATTERNS,
+      LTL_TV_F1,
+      LTL_TV_F2,
+      LTL_TV_G1,
+      LTL_TV_G2,
+      LTL_TV_UU,
+      LTL_U_LEFT,
+      LTL_U_RIGHT,
+      LTL_END
     };
 
     /// \brief generate an LTL from a known pattern
     ///
     /// The pattern is specified using one value from the ltl_pattern_id
     /// enum.  See the man page of the `genltl` binary for a
-    /// description of those pattern, and bibliographic references.
+    /// description of those patterns, and bibliographic references.
     SPOT_API formula ltl_pattern(ltl_pattern_id pattern, int n);
 
-    /// \brief convert an ltl_pattern value into a name
+    /// \brief convert an ltl_pattern_id value into a name
     ///
     /// The returned name is suitable to be used as an option
     /// key for the genltl binary.

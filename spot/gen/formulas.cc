@@ -1054,73 +1054,73 @@ namespace spot
       switch (pattern)
         {
           // Keep this alphabetically-ordered!
-        case AND_F:
+        case LTL_AND_F:
           return combunop_n("p", n, op::F, true);
-        case AND_FG:
+        case LTL_AND_FG:
           return FG_n("p", n, true);
-        case AND_GF:
+        case LTL_AND_GF:
           return GF_n("p", n, true);
-        case CCJ_ALPHA:
+        case LTL_CCJ_ALPHA:
           return formula::And({E_n("p", n), E_n("q", n)});
-        case CCJ_BETA:
+        case LTL_CCJ_BETA:
           return formula::And({N_n("p", n), N_n("q", n)});
-        case CCJ_BETA_PRIME:
+        case LTL_CCJ_BETA_PRIME:
           return formula::And({N_prime_n("p", n), N_prime_n("q", n)});
-        case DAC_PATTERNS:
+        case LTL_DAC_PATTERNS:
           return dac_pattern(n);
-        case EH_PATTERNS:
+        case LTL_EH_PATTERNS:
           return eh_pattern(n);
-        case GH_Q:
+        case LTL_GH_Q:
           return Q_n("p", n);
-        case GH_R:
+        case LTL_GH_R:
           return R_n("p", n);
-        case GO_THETA:
+        case LTL_GO_THETA:
           return fair_response("p", "q", "r", n);
-        case HKRSS_PATTERNS:
+        case LTL_HKRSS_PATTERNS:
           return hkrss_pattern(n);
-        case KR_N:
+        case LTL_KR_N:
           return kr2_exp(n, "a", "b", "c", "d");
-        case KR_NLOGN:
+        case LTL_KR_NLOGN:
           return kr1_exp(n, "a", "b", "c", "d", "y", "z");
-        case KV_PSI:
+        case LTL_KV_PSI:
           return kv_exp(n, "a", "b", "c", "d");
-        case OR_FG:
+        case LTL_OR_FG:
           return FG_n("p", n, false);
-        case OR_G:
+        case LTL_OR_G:
           return combunop_n("p", n, op::G, false);
-        case OR_GF:
+        case LTL_OR_GF:
           return GF_n("p", n, false);
-        case P_PATTERNS:
+        case LTL_P_PATTERNS:
           return p_pattern(n);
-        case R_LEFT:
+        case LTL_R_LEFT:
           return bin_n("p", n, op::R, false);
-        case R_RIGHT:
+        case LTL_R_RIGHT:
           return bin_n("p", n, op::R, true);
-        case RV_COUNTER_CARRY:
+        case LTL_RV_COUNTER_CARRY:
           return ltl_counter_carry("b", "m", "c", n, false);
-        case RV_COUNTER_CARRY_LINEAR:
+        case LTL_RV_COUNTER_CARRY_LINEAR:
           return ltl_counter_carry("b", "m", "c", n, true);
-        case RV_COUNTER:
+        case LTL_RV_COUNTER:
           return ltl_counter("b", "m", n, false);
-        case RV_COUNTER_LINEAR:
+        case LTL_RV_COUNTER_LINEAR:
           return ltl_counter("b", "m", n, true);
-        case SB_PATTERNS:
+        case LTL_SB_PATTERNS:
           return sb_pattern(n);
-        case TV_F1:
+        case LTL_TV_F1:
           return tv_f1("p", "q", n);
-        case TV_F2:
+        case LTL_TV_F2:
           return tv_f2("p", "q", n);
-        case TV_G1:
+        case LTL_TV_G1:
           return tv_g1("p", "q", n);
-        case TV_G2:
+        case LTL_TV_G2:
           return tv_g2("p", "q", n);
-        case TV_UU:
+        case LTL_TV_UU:
           return tv_uu("p", n);
-        case U_LEFT:
+        case LTL_U_LEFT:
           return bin_n("p", n, op::U, false);
-        case U_RIGHT:
+        case LTL_U_RIGHT:
           return bin_n("p", n, op::U, true);
-        case LAST_CLASS:
+        case LTL_END:
           break;
         }
       throw std::runtime_error("unsupported pattern");
@@ -1168,10 +1168,10 @@ namespace spot
       // Make sure we do not forget to update the above table every
       // time a new pattern is added.
       static_assert(sizeof(class_name)/sizeof(*class_name)
-                    == LAST_CLASS - FIRST_CLASS, "size mismatch");
-      if (pattern < FIRST_CLASS || pattern >= LAST_CLASS)
+                    == LTL_END - LTL_BEGIN, "size mismatch");
+      if (pattern < LTL_BEGIN || pattern >= LTL_END)
         throw std::runtime_error("unsupported pattern");
-      return class_name[pattern - FIRST_CLASS];
+      return class_name[pattern - LTL_BEGIN];
     }
 
     int ltl_pattern_max(ltl_pattern_id pattern)
@@ -1179,50 +1179,50 @@ namespace spot
       switch (pattern)
         {
           // Keep this alphabetically-ordered!
-        case AND_F:
-        case AND_FG:
-        case AND_GF:
-        case CCJ_ALPHA:
-        case CCJ_BETA:
-        case CCJ_BETA_PRIME:
+        case LTL_AND_F:
+        case LTL_AND_FG:
+        case LTL_AND_GF:
+        case LTL_CCJ_ALPHA:
+        case LTL_CCJ_BETA:
+        case LTL_CCJ_BETA_PRIME:
           return 0;
-        case DAC_PATTERNS:
+        case LTL_DAC_PATTERNS:
           return 55;
-        case EH_PATTERNS:
+        case LTL_EH_PATTERNS:
           return 12;
-        case GH_Q:
-        case GH_R:
-        case GO_THETA:
+        case LTL_GH_Q:
+        case LTL_GH_R:
+        case LTL_GO_THETA:
           return 0;
-        case HKRSS_PATTERNS:
+        case LTL_HKRSS_PATTERNS:
           return 55;
-        case KR_N:
-        case KR_NLOGN:
-        case KV_PSI:
-        case OR_FG:
-        case OR_G:
-        case OR_GF:
+        case LTL_KR_N:
+        case LTL_KR_NLOGN:
+        case LTL_KV_PSI:
+        case LTL_OR_FG:
+        case LTL_OR_G:
+        case LTL_OR_GF:
           return 0;
-        case P_PATTERNS:
+        case LTL_P_PATTERNS:
           return 20;
-        case R_LEFT:
-        case R_RIGHT:
-        case RV_COUNTER_CARRY:
-        case RV_COUNTER_CARRY_LINEAR:
-        case RV_COUNTER:
-        case RV_COUNTER_LINEAR:
+        case LTL_R_LEFT:
+        case LTL_R_RIGHT:
+        case LTL_RV_COUNTER_CARRY:
+        case LTL_RV_COUNTER_CARRY_LINEAR:
+        case LTL_RV_COUNTER:
+        case LTL_RV_COUNTER_LINEAR:
           return 0;
-        case SB_PATTERNS:
+        case LTL_SB_PATTERNS:
           return 27;
-        case TV_F1:
-        case TV_F2:
-        case TV_G1:
-        case TV_G2:
-        case TV_UU:
-        case U_LEFT:
-        case U_RIGHT:
+        case LTL_TV_F1:
+        case LTL_TV_F2:
+        case LTL_TV_G1:
+        case LTL_TV_G2:
+        case LTL_TV_UU:
+        case LTL_U_LEFT:
+        case LTL_U_RIGHT:
           return 0;
-        case LAST_CLASS:
+        case LTL_END:
           break;
         }
       throw std::runtime_error("unsupported pattern");

@@ -38,9 +38,9 @@ except RuntimeError as e:
 else:
     exit(2)
 
-f = gen.ltl_pattern(gen.AND_F, 3)
+f = gen.ltl_pattern(gen.LTL_AND_F, 3)
 assert f.size() == 3
-assert gen.ltl_pattern_name(gen.AND_F) == "and-f"
+assert gen.ltl_pattern_name(gen.LTL_AND_F) == "and-f"
 
 try:
     gen.ltl_pattern(1000, 3)
@@ -50,13 +50,13 @@ else:
     exit(2)
 
 try:
-    gen.ltl_pattern(gen.OR_G, -10)
+    gen.ltl_pattern(gen.LTL_OR_G, -10)
 except RuntimeError as e:
      assert 'or-g' in str(e)
      assert 'positive' in str(e)
 else:
     exit(2)
 
-assert 40 == sum(p.size() for p in gen.ltl_patterns((gen.OR_G, 1, 5),
-                                                    (gen.GH_Q, 3),
-                                                    gen.EH_PATTERNS))
+assert 40 == sum(p.size() for p in gen.ltl_patterns((gen.LTL_OR_G, 1, 5),
+                                                    (gen.LTL_GH_Q, 3),
+                                                    gen.LTL_EH_PATTERNS))
