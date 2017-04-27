@@ -88,6 +88,39 @@ namespace spot
         aut->prop_state_acc(true);
         return aut;
       }
+
+      static twa_graph_ptr
+      l_nba(unsigned n, bdd_dict_ptr dict)
+      {
+        if (n == 0)
+          throw std::runtime_error("l_nba expects a positive argument");
+
+        auto aut = make_twa_graph(dict);
+
+        bdd p1 = bdd_ithvar(aut->register_ap("a"));
+        bdd p2 = bdd_ithvar(aut->register_ap("b"));
+        bdd a = p1 - p2;
+        bdd b = p2 - p1;
+        bdd s = p1 & p2;
+        bdd all = p1 | p2;
+
+        aut->new_states(3 * n + 1);
+        aut->set_init_state(1);
+        aut->set_buchi();
+        aut->prop_state_acc(true);
+
+        aut->new_acc_edge(0, n + 1, a);
+        aut->new_edge(2 * n + 1, 0, b);
+        for (unsigned s = 1; s <= n; ++s)
+          {
+            aut->new_edge(s + n, std::min(s + n + 1, 2 * n), a);
+            aut->new_edge(s + n, s, b);
+            aut->new_edge(s, s, all);
+            aut->new_edge(s, s + 2 * n, a);
+            aut->new_edge(std::min(s + 2 * n + 1, 3 * n), s + 2 * n, a);
+          }
+        return aut;
+      }
     }
 
     twa_graph_ptr aut_pattern(aut_pattern_id pattern, int n, bdd_dict_ptr dict)
@@ -105,6 +138,8 @@ namespace spot
           // Keep this alphabetically-ordered!
         case AUT_KS_COBUCHI:
           return ks_cobuchi(n, dict);
+        case AUT_L_NBA:
+          return l_nba(n, dict);
         case AUT_END:
           break;
         }
@@ -116,6 +151,7 @@ namespace spot
       static const char* const class_name[] =
         {
           "ks-cobuchi",
+          "l-nba",
         };
       // Make sure we do not forget to update the above table every
       // time a new pattern is added.

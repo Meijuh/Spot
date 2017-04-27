@@ -17,6 +17,9 @@ genaut --help | sed -n '/Pattern selection:/,/^$/p' | sed '1d;$d'
 :       --ks-cobuchi=RANGE     A co-Büchi automaton with 2N+1 states for which
 :                              any equivalent deterministic co-Büchi automaton
 :                              has at least 2^N/(2N+1) states.
+:       --l-nba=RANGE          A Büchi automaton with 3N+1 states whose
+:                              complementary Streett automaton needs at least n!
+:                              states.
 
 
 By default, the output format is [[file:hoa.org][HOA]], but this can be controlled using

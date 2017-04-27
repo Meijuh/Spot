@@ -7,7 +7,11 @@ Prefixes used in pattern names refer to the following papers:
 .TP
 ks
 D. Kuperberg, M. Skrzypczak: On Determinisation of Good-for-Games
-Automata.  Proceddings of ICALP'15.
+Automata.  Proceedings of ICALP'15.
+.TP
+l
+C. Löding: Optimal Bounds for Transformations of ω-Automata.
+Proceedings of FSTTCS'99.
 
 [SEE ALSO]
 .BR autfilt (1),

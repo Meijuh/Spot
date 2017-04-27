@@ -53,6 +53,9 @@ static const argp_option options[] =
     { "ks-cobuchi", gen::AUT_KS_COBUCHI, "RANGE", 0,
       "A co-Büchi automaton with 2N+1 states for which any equivalent "
       "deterministic co-Büchi automaton has at least 2^N/(2N+1) states.", 0},
+    { "l-nba", gen::AUT_L_NBA, "RANGE", 0,
+      "A Büchi automaton with 3N+1 states whose complementary Streett "
+      "automaton needs at least n! states.", 0},
     RANGE_DOC,
   /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },

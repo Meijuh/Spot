@@ -31,7 +31,7 @@ assert k2.num_states() == 5
 # the type returned by spot.gen.ks_cobuchi() is the correct one.
 assert 'to_str' in dir(k2)
 
-k3 = gen.aut_pattern(gen.AUT_KS_COBUCHI, 3)
+k3 = gen.aut_pattern(gen.AUT_L_NBA, 3)
 assert k2.get_dict() == k3.get_dict()
 
 try:
@@ -63,3 +63,7 @@ else:
 assert 40 == sum(p.size() for p in gen.ltl_patterns((gen.LTL_OR_G, 1, 5),
                                                     (gen.LTL_GH_Q, 3),
                                                     gen.LTL_EH_PATTERNS))
+
+assert 32 == sum(p.num_states()
+                 for p in gen.aut_patterns((gen.AUT_L_NBA, 1, 3),
+                                           (gen.AUT_KS_COBUCHI, 5)))

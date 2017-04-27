@@ -31,23 +31,56 @@ namespace spot
       AUT_BEGIN = 256,
       /// \brief A family of co-Büchi automata.
       ///
-      /// ks_cobuchi(n) is a co-Büchi automaton of size 2n+1 that is
-      /// good-for-games and that has no equivalent deterministic co-Büchi
-      /// automaton with less than 2^n / (2n+1) states.
-      /// For details and other classes, see:
-      ///
-      /// @InProceedings{kuperberg2015determinisation,
-      ///     author={Kuperberg, Denis and Skrzypczak, Micha{\l}},
-      ///     title={On Determinisation of Good-for-Games Automata},
-      ///     booktitle={International Colloquium on Automata, Languages, and
-      ///                Programming},
-      ///     pages={299--310},
-      ///     year={2015},
-      ///     organization={Springer}
-      /// }
+      /// Builds a co-Büchi automaton of size 2n+1 that is
+      /// good-for-games and that has no equivalent deterministic
+      /// co-Büchi automaton with less than 2^n / (2n+1) states.
       ///
       /// Only defined for n>0
+      ///
+      /** \verbatim
+          @InProceedings{   kuperberg.15.icalp,
+            author        = {Denis Kuperberg and Micha{\l} Skrzypczak },
+            title         = {On Determinisation of Good-for-Games Automata},
+            booktitle     = {Proceedings of the 42nd International Colloquium on
+                            Automata, Languages, and Programming (ICALP'15)},
+            pages         = {299--310},
+            year          = {2015},
+            publisher     = {Springer},
+            series        = {Lecture Notes in Computer Science},
+            volume        = 9135,
+            doi           = {10.1007/978-3-662-47666-6_24}
+          }
+          \endverbatim */
       AUT_KS_COBUCHI = AUT_BEGIN,
+      /// \brief Hard-to-complement non-deterministic Büchi automata
+      ///
+      /// Build a non-deterministic Büchi automaton with 3n+1 states
+      /// and whose complementary language requires an automaton with
+      /// at least n! states if Streett acceptance is used.
+      ///
+      /// Only defined for n>0.  The automaton constructed corresponds
+      /// to the right part of Fig.1 in the following paper, except
+      /// that only state q_1 is initial.  (The fact that states q_2,
+      /// q_3, ..., and q_n are not initial as in the paper does not
+      /// change the recognized language.)
+      ///
+      /** \verbatim
+          @InProceedings{loding.99.fstts,
+            author	= {Christof L{\"o}ding},
+            title	= {Optimal Bounds for Transformations of
+                           $\omega$-Automata},
+            booktitle	= {Proceedings of the 19th Conference on Foundations of
+                           Software Technology and Theoretical Computer Science
+                           (FSTTCS'99)},
+            year        = 1999,
+            publisher	= {Springer},
+            pages       = {97--109},
+            series	= {Lecture Notes in Computer Science},
+            volume	= 1738,
+            doi		= {10.1007/3-540-46691-6_8}
+          }
+          \endverbatim */
+      AUT_L_NBA,
       AUT_END
     };
 
