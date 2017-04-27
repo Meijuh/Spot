@@ -43,28 +43,14 @@
 
 using namespace spot;
 
-const char argp_program_doc[] ="\
-Generate omega automata from predefined patterns.";
-
-enum {
-  FIRST_CLASS = 256,
-  OPT_KS_COBUCHI = FIRST_CLASS,
-  LAST_CLASS,
-};
-
-const char* const class_name[LAST_CLASS - FIRST_CLASS] =
-  {
-    "ks-cobuchi",
-  };
-
-#define OPT_ALIAS(o) { #o, 0, nullptr, OPTION_ALIAS, nullptr, 0 }
+const char argp_program_doc[] ="Generate ω-automata from predefined patterns.";
 
 static const argp_option options[] =
   {
     /**************************************************/
     // Keep this alphabetically sorted (expect for aliases).
     { nullptr, 0, nullptr, 0, "Pattern selection:", 1},
-    { "ks-cobuchi", OPT_KS_COBUCHI, "RANGE", 0,
+    { "ks-cobuchi", gen::AUT_KS_COBUCHI, "RANGE", 0,
       "A co-Büchi automaton with 2N+1 states for which any equivalent "
       "deterministic co-Büchi automaton has at least 2^N/(2N+1) states.", 0},
     RANGE_DOC,
@@ -75,7 +61,7 @@ static const argp_option options[] =
 
 struct job
 {
-  int pattern;
+  gen::aut_pattern_id pattern;
   struct range range;
 };
 
@@ -94,7 +80,7 @@ static void
 enqueue_job(int pattern, const char* range_str)
 {
   job j;
-  j.pattern = pattern;
+  j.pattern = static_cast<gen::aut_pattern_id>(pattern);
   j.range = parse_range(range_str);
   jobs.push_back(j);
 }
@@ -102,35 +88,23 @@ enqueue_job(int pattern, const char* range_str)
 static int
 parse_opt(int key, char* arg, struct argp_state*)
 {
-  // This switch is alphabetically-ordered.
-  switch (key)
+  if (key >= gen::AUT_BEGIN && key < gen::AUT_END)
     {
-    case OPT_KS_COBUCHI:
       enqueue_job(key, arg);
-      break;
-    default:
-      return ARGP_ERR_UNKNOWN;
+      return 0;
     }
-  return 0;
+  return ARGP_ERR_UNKNOWN;
 }
 
 static void
-output_pattern(int pattern, int n)
+output_pattern(gen::aut_pattern_id pattern, int n)
 {
-  twa_graph_ptr aut = nullptr;
-  switch (pattern)
-    {
-      // Keep this alphabetically-ordered!
-    case OPT_KS_COBUCHI:
-      aut = spot::gen::ks_cobuchi(n);
-      break;
-    default:
-      error(100, 0, "internal error: pattern not implemented");
-    }
-
   process_timer timer;
+  timer.start();
+  twa_graph_ptr aut = spot::gen::aut_pattern(pattern, n);
+  timer.stop();
   automaton_printer printer;
-  printer.print(aut, timer, nullptr, class_name[pattern - FIRST_CLASS], n);
+  printer.print(aut, timer, nullptr, aut_pattern_name(pattern), n);
 }
 
 static void

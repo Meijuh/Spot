@@ -85,4 +85,32 @@ def ltl_patterns(*args):
         raise RuntimeError("invalid pattern specification")
     for n in range(min, max + 1):
       yield ltl_pattern(pat, n)
+
+def aut_patterns(*args):
+  """
+  Generate automata patterns.
+
+  The arguments should be have one of these three forms:
+    - (id, n)
+    - (id, min, max)
+    - id
+  In the first case, the pattern id=n is generated.  In the second
+  case, all pattern id=n for min<=n<=max are generated.  The
+  third case is a shorthand for (id, 1, 10).
+  """
+  for spec in args:
+    if type(spec) is int:
+      pat = spec
+      min = 1
+      max = 10
+    else:
+      ls = len(spec)
+      if ls == 2:
+        pat, min, max = spec[0], spec[1], spec[1]
+      elif ls == 3:
+        pat, min, max = spec
+      else:
+        raise RuntimeError("invalid pattern specification")
+    for n in range(min, max + 1):
+      yield aut_pattern(pat, n)
 %}

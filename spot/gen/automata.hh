@@ -19,31 +19,48 @@
 
 #pragma once
 
-#include <spot/twa/twagraph.hh>
+#include <spot/misc/common.hh>
+#include <spot/twa/fwd.hh>
 
 namespace spot
 {
   namespace gen
   {
-    /// \brief A family of co-Büchi automata.
+    enum aut_pattern_id {
+      AUT_BEGIN = 256,
+      /// \brief A family of co-Büchi automata.
+      ///
+      /// ks_cobuchi(n) is a co-Büchi automaton of size 2n+1 that is
+      /// good-for-games and that has no equivalent deterministic co-Büchi
+      /// automaton with less than 2^n / (2n+1) states.
+      /// For details and other classes, see:
+      ///
+      /// @InProceedings{kuperberg2015determinisation,
+      ///     author={Kuperberg, Denis and Skrzypczak, Micha{\l}},
+      ///     title={On Determinisation of Good-for-Games Automata},
+      ///     booktitle={International Colloquium on Automata, Languages, and
+      ///                Programming},
+      ///     pages={299--310},
+      ///     year={2015},
+      ///     organization={Springer}
+      /// }
+      ///
+      /// Only defined for n>0
+      AUT_KS_COBUCHI = AUT_BEGIN,
+      AUT_END
+    };
+
+    /// \brief generate an automaton from a known pattern
     ///
-    /// ks_cobuchi(n) is a co-Büchi automaton of size 2n+1 that is
-    /// good-for-games and that has no equivalent deterministic co-Büchi
-    /// automaton with less than 2^n / (2n+1) states.
-    /// For details and other classes, see:
+    /// The pattern is specified using one value from the aut_pattern_id
+    /// enum.  See the man page of the `genaut` binary for a
+    /// description of those patterns, and bibliographic references.
+    SPOT_API twa_graph_ptr aut_pattern(aut_pattern_id pattern, int n);
+
+    /// \brief convert an aut_pattern_it value into a name
     ///
-    /// @InProceedings{kuperberg2015determinisation,
-    ///     author={Kuperberg, Denis and Skrzypczak, Micha{\l}},
-    ///     title={On Determinisation of Good-for-Games Automata},
-    ///     booktitle={International Colloquium on Automata, Languages, and
-    ///                Programming},
-    ///     pages={299--310},
-    ///     year={2015},
-    ///     organization={Springer}
-    /// }
-    ///
-    /// \pre n>0
-    SPOT_API twa_graph_ptr
-    ks_cobuchi(unsigned n);
+    /// The returned name is suitable to be used as an option
+    /// key for the genaut binary.
+    SPOT_API const char* aut_pattern_name(aut_pattern_id pattern);
   }
 }

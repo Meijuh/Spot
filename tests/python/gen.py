@@ -24,7 +24,7 @@
 import spot.gen as gen
 from sys import exit
 
-k2 = gen.ks_cobuchi(2)
+k2 = gen.aut_pattern(gen.AUT_KS_COBUCHI, 2)
 assert k2.prop_state_acc()
 assert k2.num_states() == 5
 # to_str is defined in the spot package, so this makes sure
@@ -32,7 +32,7 @@ assert k2.num_states() == 5
 assert 'to_str' in dir(k2)
 
 try:
-    gen.ks_cobuchi(0)
+    gen.aut_pattern(gen.AUT_KS_COBUCHI, 0)
 except RuntimeError as e:
     assert 'positive argument' in str(e)
 else:
