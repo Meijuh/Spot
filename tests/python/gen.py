@@ -27,11 +27,27 @@ from sys import exit
 k2 = gen.aut_pattern(gen.AUT_KS_COBUCHI, 2)
 assert k2.prop_state_acc()
 assert k2.num_states() == 5
+assert k2.prop_universal().is_false()
+assert k2.prop_inherently_weak().is_false()
+assert k2.prop_stutter_invariant().is_false()
+assert k2.prop_semi_deterministic().is_false()
+assert k2.prop_deterministic().is_false()
+assert k2.prop_terminal().is_false()
+
 # to_str is defined in the spot package, so this makes sure
 # the type returned by spot.gen.ks_cobuchi() is the correct one.
 assert 'to_str' in dir(k2)
 
 k3 = gen.aut_pattern(gen.AUT_L_NBA, 3)
+assert k3.num_states() == 10
+assert k3.prop_state_acc()
+assert k3.prop_universal().is_false()
+assert k3.prop_inherently_weak().is_false()
+assert k3.prop_stutter_invariant().is_false()
+assert k3.prop_semi_deterministic().is_false()
+assert k3.prop_deterministic().is_false()
+assert k3.prop_terminal().is_false()
+
 assert k2.get_dict() == k3.get_dict()
 
 try:

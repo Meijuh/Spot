@@ -74,7 +74,7 @@ namespace spot
         aut->new_edge(2, 1, p);
         for (unsigned q = 3; q <= 2*n; ++q)
           aut->new_edge(q, q, p);
-        // s does to next state (mod 2*n, 0 excluded)
+        // s goes to next state (mod 2*n, 0 excluded)
         aut->new_edge(2*n, 1, s);
         for (unsigned q = 1; q < 2*n; ++q)
           aut->new_edge(q, q+1, s);
@@ -86,6 +86,11 @@ namespace spot
 
         aut->merge_edges();
         aut->prop_state_acc(true);
+        aut->prop_universal(false);
+        aut->prop_complete(false);
+        aut->prop_inherently_weak(false);
+        aut->prop_stutter_invariant(false);
+        aut->prop_semi_deterministic(false);
         return aut;
       }
 
@@ -107,7 +112,6 @@ namespace spot
         aut->new_states(3 * n + 1);
         aut->set_init_state(1);
         aut->set_buchi();
-        aut->prop_state_acc(true);
 
         aut->new_acc_edge(0, n + 1, a);
         aut->new_edge(2 * n + 1, 0, b);
@@ -119,6 +123,13 @@ namespace spot
             aut->new_edge(s, s + 2 * n, a);
             aut->new_edge(std::min(s + 2 * n + 1, 3 * n), s + 2 * n, a);
           }
+
+        aut->prop_state_acc(true);
+        aut->prop_universal(false);
+        aut->prop_complete(false);
+        aut->prop_inherently_weak(false);
+        aut->prop_stutter_invariant(false);
+        aut->prop_semi_deterministic(false);
         return aut;
       }
     }
