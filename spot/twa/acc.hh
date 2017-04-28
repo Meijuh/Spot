@@ -387,14 +387,16 @@ namespace spot
               case acc_cond::acc_op::InfNeg:
               case acc_cond::acc_op::Fin:
               case acc_cond::acc_op::FinNeg:
-                pos -= 2;
-                auto m = (*this)[pos].mark;
-                auto om = other[pos].mark;
-                if (m < om)
-                  return true;
-                if (m > om)
-                  return false;
-                break;
+                {
+                  pos -= 2;
+                  auto m = (*this)[pos].mark;
+                  auto om = other[pos].mark;
+                  if (m < om)
+                    return true;
+                  if (m > om)
+                    return false;
+                  break;
+                }
               }
           }
         return false;
@@ -906,6 +908,8 @@ namespace spot
       // If MISSING is unset, Inf(rem) become t while Fin(rem) become
       // f.  Removing 2 from (Inf(1)&Inf(2))|Fin(3) would then give
       // Inf(1)|Fin(3).
+      acc_code remove(acc_cond::mark_t rem, bool missing) const;
+      // Same as remove, but also shift numbers
       acc_code strip(acc_cond::mark_t rem, bool missing) const;
 
       // Return the set of sets appearing in the condition.
@@ -1293,6 +1297,38 @@ namespace spot
           u |= all;
         }
       return u;
+    }
+
+    // Remove all the acceptance sets in rem.
+    //
+    // If MISSING is set, the acceptance sets are assumed to be
+    // missing from the automaton, and the acceptance is updated to
+    // reflect this.  For instance (Inf(1)&Inf(2))|Fin(3) will
+    // become Fin(3) if we remove 2 because it is missing from this
+    // automaton, because there is no way to fulfill Inf(1)&Inf(2)
+    // in this case.  So essentially MISSING causes Inf(rem) to
+    // become f, and Fin(rem) to become t.
+    //
+    // If MISSING is unset, Inf(rem) become t while Fin(rem) become
+    // f.  Removing 2 from (Inf(1)&Inf(2))|Fin(3) would then give
+    // Inf(1)|Fin(3).
+    acc_cond remove(mark_t rem, bool missing) const
+    {
+      return {num_sets(), code_.remove(rem, missing)};
+    }
+
+    // Same as remove, but also shift the set numbers
+    acc_cond strip(mark_t rem, bool missing) const
+    {
+      return
+        { num_sets() - (all_sets() & rem).count(), code_.strip(rem, missing) };
+    }
+
+    // Restrict an acceptance condition to a subset of set numbers
+    // that are occurring at some point.
+    acc_cond restrict_to(mark_t rem) const
+    {
+      return {num_sets(), code_.remove(all_sets() - rem, true)};
     }
 
   protected:

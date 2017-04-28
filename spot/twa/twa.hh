@@ -924,6 +924,14 @@ namespace spot
       acc_.set_acceptance(c);
     }
 
+    /// \brief Set the acceptance condition of the automaton.
+    ///
+    /// \param c another acceptance condition
+    void set_acceptance(const acc_cond& c)
+    {
+      acc_ = c;
+    }
+
     /// Copy the acceptance condition of another TωA.
     void copy_acceptance_of(const const_twa_ptr& a)
     {

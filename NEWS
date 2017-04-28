@@ -93,6 +93,12 @@ New in spot 2.3.4.dev (not yet released)
     scc_info::common_sets_of(scc), and they are used by scc_info to
     classify some SCCs as rejecting more easily.
 
+  - The new function acc_code::remove() removes all the given
+    acceptance sets from the acceptance condition.
+
+  - It is now possible to change an automaton acceptance condition
+    directly by calling twa::set_acceptance().
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.

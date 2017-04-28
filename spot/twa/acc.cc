@@ -1253,9 +1253,7 @@ namespace spot
       SPOT_UNREACHABLE();
       return {};
     }
-
   }
-
 
   acc_cond::acc_code acc_cond::acc_code::complement() const
   {
@@ -1267,7 +1265,8 @@ namespace spot
   namespace
   {
     static acc_cond::acc_code
-    strip_rec(const acc_cond::acc_word* pos, acc_cond::mark_t rem, bool missing)
+    strip_rec(const acc_cond::acc_word* pos, acc_cond::mark_t rem, bool missing,
+              bool strip)
     {
       auto start = pos - pos->sub.size;
       switch (pos->sub.op)
@@ -1278,7 +1277,7 @@ namespace spot
             auto res = acc_cond::acc_code::t();
             do
               {
-                auto tmp = strip_rec(pos, rem, missing) & std::move(res);
+                auto tmp = strip_rec(pos, rem, missing, strip) & std::move(res);
                 std::swap(tmp, res);
                 pos -= pos->sub.size + 1;
               }
@@ -1291,7 +1290,7 @@ namespace spot
             auto res = acc_cond::acc_code::f();
             do
               {
-                auto tmp = strip_rec(pos, rem, missing) | std::move(res);
+                auto tmp = strip_rec(pos, rem, missing, strip) | std::move(res);
                 std::swap(tmp, res);
                 pos -= pos->sub.size + 1;
               }
@@ -1301,11 +1300,15 @@ namespace spot
         case acc_cond::acc_op::Fin:
           if (missing && (pos[-1].mark & rem))
             return acc_cond::acc_code::t();
-          return acc_cond::acc_code::fin(pos[-1].mark.strip(rem));
+          return acc_cond::acc_code::fin(strip
+                                         ? pos[-1].mark.strip(rem)
+                                         : pos[-1].mark - rem);
         case acc_cond::acc_op::Inf:
           if (missing && (pos[-1].mark & rem))
             return acc_cond::acc_code::f();
-          return acc_cond::acc_code::inf(pos[-1].mark.strip(rem));
+          return acc_cond::acc_code::inf(strip
+                                         ? pos[-1].mark.strip(rem)
+                                         : pos[-1].mark - rem);
         case acc_cond::acc_op::FinNeg:
         case acc_cond::acc_op::InfNeg:
           SPOT_UNREACHABLE();
@@ -1321,7 +1324,15 @@ namespace spot
   {
     if (is_t() || is_f())
       return *this;
-    return strip_rec(&back(), rem, missing);
+    return strip_rec(&back(), rem, missing, true);
+  }
+
+  acc_cond::acc_code
+  acc_cond::acc_code::remove(acc_cond::mark_t rem, bool missing) const
+  {
+    if (is_t() || is_f())
+      return *this;
+    return strip_rec(&back(), rem, missing, false);
   }
 
   acc_cond::mark_t
