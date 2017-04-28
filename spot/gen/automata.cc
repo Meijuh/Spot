@@ -132,6 +132,44 @@ namespace spot
         aut->prop_semi_deterministic(false);
         return aut;
       }
+
+      static twa_graph_ptr
+      l_dsa(unsigned n, bdd_dict_ptr dict)
+      {
+        if (n < 1 || n > 16)
+          throw std::runtime_error("l_dsa expects 1 <= n <= 16");
+
+        auto aut = make_twa_graph(dict);
+
+        bdd a = bdd_ithvar(aut->register_ap("a"));
+        bdd b = !a;
+
+        aut->set_acceptance(2 * n, acc_cond::acc_code::streett(n));
+        aut->new_states(4 * n);
+        aut->set_init_state(0);
+
+        for (unsigned s = 0; s < n; ++s)
+          {
+            unsigned col1 = 4 * s;
+            unsigned col2 = 4 * s + 1;
+            unsigned col3 = 4 * s + 2;
+            unsigned col4 = 4 * s + 3;
+            aut->new_edge(col1, 2, a, {2 * s});
+            aut->new_edge(col2, col1, b);
+            aut->new_edge(col2, std::min(col2 + 4, 4 * n - 3), a);
+            aut->new_edge(col3, col4, b);
+            aut->new_edge(col3, std::min(col3 + 4, 4 * n - 2), a);
+            aut->new_edge(col4, 1, a, {2 * s + 1});
+          }
+
+        aut->prop_state_acc(true);
+        aut->prop_universal(true);
+        aut->prop_complete(false);
+        aut->prop_inherently_weak(false);
+        aut->prop_stutter_invariant(false);
+        aut->prop_semi_deterministic(true);
+        return aut;
+      }
     }
 
     twa_graph_ptr aut_pattern(aut_pattern_id pattern, int n, bdd_dict_ptr dict)
@@ -151,6 +189,8 @@ namespace spot
           return ks_cobuchi(n, dict);
         case AUT_L_NBA:
           return l_nba(n, dict);
+        case AUT_L_DSA:
+          return l_dsa(n, dict);
         case AUT_END:
           break;
         }
@@ -163,6 +203,7 @@ namespace spot
         {
           "ks-cobuchi",
           "l-nba",
+          "l-dsa",
         };
       // Make sure we do not forget to update the above table every
       // time a new pattern is added.

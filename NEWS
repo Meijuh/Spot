@@ -13,7 +13,6 @@ New in spot 2.3.3.dev (not yet released)
 
   - genaut is a binary to produce families of automata defined in the
     literature (in the same way as we have genltl for LTL formulas).
-    It currently features only two classes of automata.
 
   Library:
 

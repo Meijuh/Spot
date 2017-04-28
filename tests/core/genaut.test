@@ -29,7 +29,7 @@ s/[=[].*/=1/p
 res=`genaut $opts --stats="--%F=%L"`
 test "$opts" = "$res"
 
-genaut --ks-cobuchi=..3 --l-nba=..3 --stats=%s,%e,%t,%c,%g >out
+genaut --ks-cobuchi=..3 --l-nba=..3 --l-dsa=..3 --stats=%s,%e,%t,%c,%g >out
 cat >expected <<EOF
 3,7,16,1,Fin(0)
 5,14,32,1,Fin(0)
@@ -37,6 +37,9 @@ cat >expected <<EOF
 4,7,9,1,Inf(0)
 7,12,16,1,Inf(0)
 10,17,23,1,Inf(0)
+4,6,6,1,Fin(0) | Inf(1)
+8,12,12,1,(Fin(0) | Inf(1)) & (Fin(2) | Inf(3))
+12,18,18,1,(Fin(0) | Inf(1)) & (Fin(2) | Inf(3)) & (Fin(4) | Inf(5))
 EOF
 diff out expected
 

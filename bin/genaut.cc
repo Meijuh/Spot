@@ -56,6 +56,9 @@ static const argp_option options[] =
     { "l-nba", gen::AUT_L_NBA, "RANGE", 0,
       "A Büchi automaton with 3N+1 states whose complementary Streett "
       "automaton needs at least n! states.", 0},
+    { "l-dsa", gen::AUT_L_DSA, "RANGE", 0,
+      "A deterministic Streett automaton with 4N states with no "
+      "equivalent deterministic Rabin automaton of less than n! states.", 0},
     RANGE_DOC,
   /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
