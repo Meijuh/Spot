@@ -213,7 +213,7 @@ namespace
         {
           case REC:
             {
-              if (pg.winner())
+              if (std::get<0>(pg.solve()).count(pg.get_init_state_number()))
                 std::cout << "REALIZABLE\n";
               else
                 std::cout << "UNREALIZABLE\n";

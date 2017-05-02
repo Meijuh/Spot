@@ -54,14 +54,14 @@ void parity_game::print(std::ostream& os)
     }
 }
 
-bool parity_game::winner() const
+std::pair<parity_game::region_t, parity_game::strategy_t>
+parity_game::solve() const
 {
-  std::unordered_set<unsigned> states_;
+  region_t states_;
   for (unsigned i = 0; i < num_states(); ++i)
     states_.insert(i);
   unsigned m = max_parity();
-  auto w1 = winning_region(states_, m);
-  return w1.find(get_init_state_number()) != w1.end();
+  return solve_rec(states_, m);
 }
 
 bool parity_game::solve_qp() const
@@ -69,94 +69,111 @@ bool parity_game::solve_qp() const
   return reachability_game(*this).is_reachable();
 }
 
-void parity_game::attractor(const std::unordered_set<unsigned>& subgame,
-                            std::unordered_set<unsigned>& set,
-                            unsigned max_parity, bool odd,
-                            bool attr_max) const
+parity_game::strategy_t
+parity_game::attractor(const region_t& subgame, region_t& set,
+                       unsigned max_parity, bool odd, bool attr_max) const
 {
+  strategy_t strategy;
   unsigned size;
+  std::unordered_set<unsigned> complement = subgame;
+  std::unordered_set<unsigned> delta = set;
   do
     {
       size = set.size();
-      for (unsigned s: subgame)
+      for (unsigned s: delta)
+        complement.erase(s);
+      for (unsigned s: complement)
         {
           bool any = false;
           bool all = true;
+          unsigned i = 0;
           for (auto& e: out(s))
             {
-              if (e.acc.max_set() - 1 <= max_parity
-                  && subgame.find(e.dst) != subgame.end())
+              if (e.acc.max_set() - 1 <= max_parity && subgame.count(e.dst))
                 {
-                  if (set.find(e.dst) != set.end()
+                  if (set.count(e.dst)
                       || (attr_max && e.acc.max_set() - 1 == max_parity))
-                    any = true;
+                    {
+                      if (!any && owner_[s] && odd)
+                        strategy[s] = i;
+                      any = true;
+                    }
                   else
                     all = false;
                 }
+              ++i;
             }
           if ((owner_[s] == odd && any) || (owner_[s] != odd && all))
-            set.insert(s);
+            {
+              set.insert(s);
+              delta.insert(s);
+            }
         }
     } while (set.size() != size);
+  return strategy;
 }
 
-std::unordered_set<unsigned>
-parity_game::winning_region(std::unordered_set<unsigned>& subgame,
-                            unsigned max_parity) const
+auto parity_game::solve_rec(region_t& subgame, unsigned max_parity) const
+  -> std::pair<region_t, strategy_t>
 {
   // The algorithm works recursively on subgames. To avoid useless copies of
   // the game at each call, subgame and max_parity are used to filter states
   // and transitions.
   if (max_parity == 0 || subgame.empty())
-    return std::unordered_set<unsigned>();
+    return {};
   bool odd = max_parity % 2 == 1;
-  std::unordered_set<unsigned> w1;
-  std::unordered_set<unsigned> removed;
+  region_t w1;
+  strategy_t strategy;
 
-  while (!subgame.empty())
+  // Recursion on max_parity.
+  region_t u;
+  auto strat_u = attractor(subgame, u, max_parity, odd, true);
+
+  for (unsigned s: u)
+    subgame.erase(s);
+  region_t w00; // Even's winning region in the first recursive call.
+  region_t w10; // Odd's winning region in the first recursive call.
+  strategy_t s10; // Odd's winning strategy in the first recursive call.
+  std::tie(w10, s10) = solve_rec(subgame, max_parity - 1);
+  if (odd && w10.size() != subgame.size())
+    for (unsigned s: subgame)
+      if (w10.find(s) == w10.end())
+        w00.insert(s);
+  // If !odd, w00 is not used, no need to compute it.
+  subgame.insert(u.begin(), u.end());
+
+  if (odd && w10.size() + u.size() == subgame.size())
     {
-      // Recursion on max_parity.
-      std::unordered_set<unsigned> u;
-      attractor(subgame, u, max_parity, odd, true);
-
-      for (unsigned s: u)
-        subgame.erase(s);
-      auto w1_ = winning_region(subgame, max_parity - 1);
-      std::unordered_set<unsigned> w0_;
-      if (odd && w1_.size() != subgame.size())
-        std::set_difference(subgame.begin(), subgame.end(),
-                            w1_.begin(), w1_.end(),
-                            std::inserter(w0_, w0_.begin()));
-      // if !odd, w0_ is not used.
-      for (unsigned s: u)
-        subgame.insert(s);
-
-      if (odd && w1_.size() + u.size() == subgame.size())
-        {
-          for (unsigned s: subgame)
-            w1.insert(s);
-          break;
-        }
-      else if (!odd && w1_.empty())
-        break;
-
-      // Unrolled tail-recursion on game size.
-      auto& wni = odd ? w0_ : w1_;
-      attractor(subgame, wni, max_parity, !odd);
-
-      for (unsigned s: wni)
-      {
-        subgame.erase(s);
-        removed.insert(s);
-      }
-
-      if (!odd)
-        for (unsigned s: wni)
-          w1.insert(s);
+      strategy.insert(s10.begin(), s10.end());
+      strategy.insert(strat_u.begin(), strat_u.end());
+      w1.insert(subgame.begin(), subgame.end());
+      return {w1, strategy};
     }
-  for (unsigned s: removed)
-    subgame.insert(s);
-  return w1;
+  else if (!odd && w10.empty())
+    return {};
+
+  // Recursion on game size.
+  auto& wni = odd ? w00 : w10;
+  auto strat_wni = attractor(subgame, wni, max_parity, !odd);
+  if (!odd)
+    strat_wni.insert(s10.begin(), s10.end());
+
+  for (unsigned s: wni)
+    subgame.erase(s);
+
+  region_t w11; // Odd's winning region in the second recursive call.
+  strategy_t s11; // Odd's winning strategy in the second recursive call.
+  std::tie(w11, s11) = solve_rec(subgame, max_parity);
+
+  w1.insert(w11.begin(), w11.end());
+  strategy.insert(s11.begin(), s11.end());
+  if (!odd)
+    {
+      strategy.insert(strat_wni.begin(), strat_wni.end());
+      w1.insert(wni.begin(), wni.end());
+    }
+  subgame.insert(wni.begin(), wni.end());
+  return {w1, strategy};
 }
 
 int reachability_state::compare(const state* other) const

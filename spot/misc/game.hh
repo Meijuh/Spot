@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <memory>
 #include <ostream>
+#include <unordered_map>
 #include <vector>
 
 #include <bddx.h>
@@ -94,8 +95,12 @@ public:
   /// Print the parity game in PGSolver's format.
   void print(std::ostream& os);
 
-  // Compute the winner of this game using Zielonka's recursive algorithm.
-  // False is Even and True is Odd.
+  typedef std::unordered_set<unsigned> region_t;
+  // Map state number to index of the transition to take.
+  typedef std::unordered_map<unsigned, unsigned> strategy_t;
+
+  /// Compute the winning strategy and winning region of this game for player
+  /// 1 using Zielonka's recursive algorithm.
   /** \verbatim
       @article{ zielonka.98.tcs
         title = "Infinite games on finitely coloured graphs with applications to
@@ -108,7 +113,7 @@ public:
         author = "Wieslaw Zielonka",
       }
       \endverbatim */
-  bool winner() const;
+  std::pair<region_t, strategy_t> solve() const;
 
   /// Whether player 1 has a winning strategy from the initial state.
   /// Implements Calude et al.'s quasipolynomial time algorithm.
@@ -139,17 +144,16 @@ private:
   typedef twa_graph::graph_t::edge_storage_t edge_t;
 
   // Compute (in place) a set of states from which player can force a visit
-  // through set.
+  // through set, and a strategy to do it.
   // if attr_max is true, states that can force a visit through an edge with
   // max parity are also counted in.
-  void attractor(const std::unordered_set<unsigned>& subgame,
-                 std::unordered_set<unsigned>& set, unsigned max_parity,
-                 bool player, bool attr_max = false) const;
+  strategy_t attractor(const region_t& subgame, region_t& set,
+                       unsigned max_parity, bool odd,
+                       bool attr_max = false) const;
 
-  // Compute the winning region for player Odd.
-  std::unordered_set<unsigned>
-  winning_region(std::unordered_set<unsigned>& subgame,
-                 unsigned max_parity) const;
+  // Compute the winning strategy and winning region for player 1.
+  std::pair<region_t, strategy_t>
+  solve_rec(region_t& subgame, unsigned max_parity) const;
 };
 
 
