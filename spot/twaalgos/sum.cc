@@ -21,7 +21,6 @@
 #include <spot/twaalgos/sum.hh>
 #include <spot/twa/twagraph.hh>
 #include <vector>
-#include <map>
 
 namespace spot
 {
