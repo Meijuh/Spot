@@ -36,12 +36,12 @@ EXTRA_DIST = $(srcdir)/libbddx.pc.in
 pkgconfigdir = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA = libbddx.pc
 
-libbddx.pc: $(srcdir)/libbddx.pc.in
+libbddx.pc: $(srcdir)/libbddx.pc.in Makefile
 	sed -e 's![@]prefix[@]!$(prefix)!g' \
 	    -e 's![@]exec_prefix[@]!$(exec_prefix)!g' \
 	    -e 's![@]includedir[@]!$(includedir)!g' \
 	    -e 's![@]libdir[@]!$(libdir)!g' \
 	    -e 's![@]PACKAGE_VERSION[@]!$(PACKAGE_VERSION)!g' \
-	$(srcdir)/libbddx.pc.in > $@
+	$(srcdir)/libbddx.pc.in >$@.tmp && mv $@.tmp $@
 
-DISTCLEANFILES = libbddx.pc
+CLEANFILES = libbddx.pc
