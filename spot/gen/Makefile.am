@@ -26,3 +26,18 @@ spotgen_HEADERS = automata.hh formulas.hh
 lib_LTLIBRARIES = libspotgen.la
 libspotgen_la_SOURCES = automata.cc formulas.cc
 libspotgen_la_LDFLAGS = ../libspot.la -no-undefined $(SYMBOLIC_LDFLAGS)
+
+
+EXTRA_DIST = $(srcdir)/libspotgen.pc.in
+pkgconfigdir = $(libdir)/pkgconfig
+nodist_pkgconfig_DATA = libspotgen.pc
+
+libspotgen.pc: $(srcdir)/libspotgen.pc.in Makefile
+	sed -e 's![@]prefix[@]!$(prefix)!g' \
+	    -e 's![@]exec_prefix[@]!$(exec_prefix)!g' \
+	    -e 's![@]includedir[@]!$(includedir)!g' \
+	    -e 's![@]libdir[@]!$(libdir)!g' \
+	    -e 's![@]PACKAGE_VERSION[@]!$(PACKAGE_VERSION)!g' \
+	$(srcdir)/libspotgen.pc.in > $@.tmp && mv $@.tmp $@
+
+CLEANFILES = libspotgen.pc
