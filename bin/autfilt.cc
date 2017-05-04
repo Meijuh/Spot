@@ -137,6 +137,7 @@ enum {
   OPT_SCCS,
   OPT_SEED,
   OPT_SEP_SETS,
+  OPT_SIMPL_ACC,
   OPT_SIMPLIFY_EXCLUSIVE_AP,
   OPT_SPLIT_EDGES,
   OPT_STATES,
@@ -325,6 +326,9 @@ static const argp_option options[] =
     { "remove-dead-states", OPT_REM_DEAD, nullptr, 0,
       "remove states that are unreachable, or that cannot belong to an "
       "infinite path", 0 },
+    { "simplify-acceptance", OPT_SIMPL_ACC, nullptr, 0,
+      "simplify the acceptance condition by merging identical acceptance sets "
+      "and by simplifying some terms containing complementary sets", 0 },
     { "split-edges", OPT_SPLIT_EDGES, nullptr, 0,
       "split edges into transitions labeled by conjunctions of all atomic "
       "propositions, so they can be read as letters", 0 },
@@ -497,6 +501,7 @@ static bool opt_dualize = false;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
+static bool opt_simpl_acc = false;
 static bool opt_simplify_exclusive_ap = false;
 static bool opt_rem_dead = false;
 static bool opt_rem_unreach = false;
@@ -867,6 +872,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_SEP_SETS:
       opt_sep_sets = true;
       break;
+    case OPT_SIMPL_ACC:
+      opt_simpl_acc = true;
+      break;
     case OPT_SIMPLIFY_EXCLUSIVE_AP:
       opt_simplify_exclusive_ap = true;
       opt_merge = true;
@@ -1074,8 +1082,12 @@ namespace
         spot::strip_acceptance_here(aut);
       if (opt_merge)
         aut->merge_edges();
-      if (opt_clean_acc)
+
+      if (opt_simpl_acc)
+        simplify_acceptance_here(aut);
+      else if (opt_clean_acc)
         cleanup_acceptance_here(aut);
+
       if (opt_sep_sets)
         separate_sets_here(aut);
       if (opt_complement_acc)
