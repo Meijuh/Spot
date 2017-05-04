@@ -54,12 +54,12 @@ EXTRA_DIST = $(srcdir)/libspot.pc.in
 pkgconfigdir = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA = libspot.pc
 
-libspot.pc: $(srcdir)/libspot.pc.in
+libspot.pc: $(srcdir)/libspot.pc.in Makefile
 	sed -e 's![@]prefix[@]!$(prefix)!g' \
 	    -e 's![@]exec_prefix[@]!$(exec_prefix)!g' \
 	    -e 's![@]includedir[@]!$(includedir)!g' \
 	    -e 's![@]libdir[@]!$(libdir)!g' \
 	    -e 's![@]PACKAGE_VERSION[@]!$(PACKAGE_VERSION)!g' \
-	$(srcdir)/libspot.pc.in > $@
+	$(srcdir)/libspot.pc.in > $@.tmp && mv $@.tmp $@
 
-DISTCLEANFILES = libspot.pc
+CLEANFILES = libspot.pc
