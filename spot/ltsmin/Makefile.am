@@ -40,12 +40,12 @@ EXTRA_DIST = $(srcdir)/libspotltsmin.pc.in
 pkgconfigdir = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA = libspotltsmin.pc
 
-libspotltsmin.pc: $(srcdir)/libspotltsmin.pc.in
+libspotltsmin.pc: $(srcdir)/libspotltsmin.pc.in Makefile
 	sed -e 's![@]prefix[@]!$(prefix)!g' \
 	    -e 's![@]exec_prefix[@]!$(exec_prefix)!g' \
 	    -e 's![@]includedir[@]!$(includedir)!g' \
 	    -e 's![@]libdir[@]!$(libdir)!g' \
 	    -e 's![@]PACKAGE_VERSION[@]!$(PACKAGE_VERSION)!g' \
-	$(srcdir)/libspotltsmin.pc.in > $@
+	$(srcdir)/libspotltsmin.pc.in > $@.tmp && mv $@.tmp $@
 
-DISTCLEANFILES = libspotltsmin.pc
+CLEANFILES = libspotltsmin.pc
