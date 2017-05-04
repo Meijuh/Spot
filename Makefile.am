@@ -71,6 +71,7 @@ EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog	\
 dist-hook: gen-ChangeLog
 
 gen_start = 2012-03-10
+gen_start_buddy = 2014-02-13
 .PHONY: gen-ChangeLog deb
 gen-ChangeLog:
 	if test -d .git; then						\
@@ -78,15 +79,25 @@ gen-ChangeLog:
 	  git log --since=$(gen_start) --pretty=oneline |		\
 ## Filter out commits whose subject start with '['.  These are usually
 ## [buddy] or [lbtt] tags to indicate we are committing on a subproject.
-            grep -v '........................................ \[' |	\
+	    grep -v '........................................ \[' |	\
 ## Keep the SHA1
 	    cut -c 1-40 |						\
 ## Feed all that to gitlog-to-changelog
-            $(top_srcdir)/tools/gitlog-to-changelog			\
+	    $(top_srcdir)/tools/gitlog-to-changelog			\
 	      --no-cluster --format='%s%n%n%b%n' --			\
-              --stdin --no-walk > $(distdir)/cl-t;			\
-          rm -f $(distdir)/ChangeLog;					\
-          mv $(distdir)/cl-t $(distdir)/ChangeLog;			\
+	      --stdin --no-walk > $(distdir)/cl-t;			\
+	  rm -f $(distdir)/ChangeLog;					\
+	  mv $(distdir)/cl-t $(distdir)/ChangeLog;			\
+## Now do the same for BuDDy
+	  git log --since=$(gen_start_buddy) --pretty=oneline |		\
+	    grep '........................................ \[buddy\]' |	\
+	    cut -c 1-40 |						\
+	    $(top_srcdir)/tools/gitlog-to-changelog			\
+	      --no-cluster --format='%s%n%n%b%n' --			\
+	      --stdin --no-walk |					\
+	    sed 's/^	\[buddy\] /	/g' >$(distdir)/cl-t;		\
+	  rm -f $(distdir)/buddy/ChangeLog;				\
+	  mv $(distdir)/cl-t $(distdir)/buddy/ChangeLog;		\
 	fi
 
 # Build Debian packages.
