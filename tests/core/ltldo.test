@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015, 2016 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2015-2017 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -152,3 +152,14 @@ genltl --rv-counter=9 | ltldo ltl2tgba --stats='
 print("%[up]R + %[uc]R + %[sp]R + %[sc]R - %R\n");
 die if abs(%[up]R + %[uc]R + %[sp]R + %[sc]R - %R) > 0.02;' > code.pl
 perl code.pl
+
+# ltldo should not leave temporary files behind itself on errors
+ltldo -f a 'ltl2dstar --ltl2nba=spin:ltl2tgba@-DS' && exit 2
+for i in lcr-*; do
+    case $i in
+        'lcr-*');;
+        *)
+           echo $i should not be here;
+           exit 2;;
+    esac
+done

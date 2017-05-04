@@ -70,6 +70,9 @@ New in spot 2.3.3.dev (not yet released)
   - the --help output of randaut and ltl2tgba was showing an
     unsupported %b stat.
 
+  - ltldo and ltlcross could leave temporary files behind when
+    aborting on error.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as

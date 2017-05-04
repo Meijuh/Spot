@@ -43,8 +43,16 @@ This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n", stream);
 }
 
+// This is called on normal exit (i.e., when leaving
+// main or calling exit(), even via error()).
+static void atexit_cleanup()
+{
+  spot::cleanup_tmpfiles();
+}
 
 #ifdef HAVE_SIGACTION
+// This is called on abnormal exit, i.e. when the process is killed by
+// some signal.
 static void sig_handler(int sig)
 {
   spot::cleanup_tmpfiles();
@@ -92,6 +100,7 @@ setup(char** argv)
 
   setup_default_output_format();
   setup_sig_handler();
+  atexit(atexit_cleanup);
 }
 
 
