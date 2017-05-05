@@ -98,6 +98,11 @@ override_dh_auto_build:
 	dh_auto_build
 	$(MAKE) -C tests nb-html
 
+# BuDDy has its own changelog
+override_dh_installchangelogs:
+	dh_installchangelogs -plibbddx0 -plibbddx-dev buddy/ChangeLog
+	dh_installchangelogs -Nlibbddx0 -Nlibbddx-dev ChangeLog
+
 # https://mail.scipy.org/pipermail/ipython-user/2015-August/014016.html
 override_dh_compress:
 	dh_compress -X.ipynb
