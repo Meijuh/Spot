@@ -1,9 +1,9 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire
-## de Recherche et Développement de l'Epita (LRDE).
-## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
-## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-## Université Pierre et Marie Curie.
+## Copyright (C) 2008-2017 Laboratoire de Recherche et Développement
+## de l'Epita (LRDE).
+## Copyright (C) 2003-2005 Laboratoire d'Informatique de Paris 6
+## (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+## Pierre et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -69,6 +69,7 @@ twaalgos_HEADERS = \
   relabel.hh \
   remfin.hh \
   remprop.hh \
+  split.hh \
   strength.hh \
   sbacc.hh \
   sccfilter.hh \
@@ -129,6 +130,7 @@ libtwaalgos_la_SOURCES = \
   remfin.cc \
   remprop.cc \
   relabel.cc \
+  split.cc \
   strength.cc \
   sbacc.cc \
   sccinfo.cc \

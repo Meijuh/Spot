@@ -40,34 +40,35 @@
 #include "common_conv.hh"
 #include "common_hoaread.hh"
 
-#include <spot/twaalgos/product.hh>
-#include <spot/twaalgos/sum.hh>
-#include <spot/twaalgos/isdet.hh>
-#include <spot/twaalgos/stutter.hh>
-#include <spot/twaalgos/isunamb.hh>
 #include <spot/misc/optionmap.hh>
-#include <spot/misc/timer.hh>
 #include <spot/misc/random.hh>
+#include <spot/misc/timer.hh>
 #include <spot/parseaut/public.hh>
 #include <spot/tl/exclusive.hh>
-#include <spot/twaalgos/remprop.hh>
-#include <spot/twaalgos/randomize.hh>
 #include <spot/twaalgos/are_isomorphic.hh>
 #include <spot/twaalgos/canonicalize.hh>
-#include <spot/twaalgos/mask.hh>
-#include <spot/twaalgos/sepsets.hh>
-#include <spot/twaalgos/stripacc.hh>
-#include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/cleanacc.hh>
 #include <spot/twaalgos/dtwasat.hh>
 #include <spot/twaalgos/dualize.hh>
-#include <spot/twaalgos/strength.hh>
-#include <spot/twaalgos/hoa.hh>
-#include <spot/twaalgos/sccinfo.hh>
-#include <spot/twaalgos/isweakscc.hh>
 #include <spot/twaalgos/gtec/gtec.hh>
-#include <spot/twaalgos/totgba.hh>
+#include <spot/twaalgos/hoa.hh>
+#include <spot/twaalgos/isdet.hh>
+#include <spot/twaalgos/isunamb.hh>
+#include <spot/twaalgos/isweakscc.hh>
 #include <spot/twaalgos/langmap.hh>
+#include <spot/twaalgos/mask.hh>
+#include <spot/twaalgos/product.hh>
+#include <spot/twaalgos/randomize.hh>
+#include <spot/twaalgos/remfin.hh>
+#include <spot/twaalgos/remprop.hh>
+#include <spot/twaalgos/sccinfo.hh>
+#include <spot/twaalgos/sepsets.hh>
+#include <spot/twaalgos/split.hh>
+#include <spot/twaalgos/strength.hh>
+#include <spot/twaalgos/stripacc.hh>
+#include <spot/twaalgos/stutter.hh>
+#include <spot/twaalgos/sum.hh>
+#include <spot/twaalgos/totgba.hh>
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter omega-automata.\v\
@@ -137,6 +138,7 @@ enum {
   OPT_SEED,
   OPT_SEP_SETS,
   OPT_SIMPLIFY_EXCLUSIVE_AP,
+  OPT_SPLIT_EDGES,
   OPT_STATES,
   OPT_STRIPACC,
   OPT_SUM_OR,
@@ -323,6 +325,9 @@ static const argp_option options[] =
     { "remove-dead-states", OPT_REM_DEAD, nullptr, 0,
       "remove states that are unreachable, or that cannot belong to an "
       "infinite path", 0 },
+    { "split-edges", OPT_SPLIT_EDGES, nullptr, 0,
+      "split edges into transitions labeled by conjunctions of all atomic "
+      "propositions, so they can be read as letters", 0 },
     { "sum", OPT_SUM_OR, "FILENAME", 0,
       "build the sum with the automaton in FILENAME "
       "to sum languages", 0 },
@@ -497,6 +502,7 @@ static bool opt_rem_dead = false;
 static bool opt_rem_unreach = false;
 static bool opt_rem_unused_ap = false;
 static bool opt_sep_sets = false;
+static bool opt_split_edges = false;
 static const char* opt_sat_minimize = nullptr;
 static int opt_highlight_nondet_states = -1;
 static int opt_highlight_nondet_edges = -1;
@@ -864,6 +870,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_SIMPLIFY_EXCLUSIVE_AP:
       opt_simplify_exclusive_ap = true;
       opt_merge = true;
+      break;
+    case OPT_SPLIT_EDGES:
+      opt_split_edges = true;
       break;
     case OPT_STATES:
       opt_states = parse_range(arg, 0, std::numeric_limits<int>::max());
@@ -1276,6 +1285,9 @@ namespace
         aut = opt->excl_ap.constrain(aut, true);
       else if (opt_rem_unused_ap) // constrain(aut, true) already does that
         aut->remove_unused_ap();
+
+      if (opt_split_edges)
+        aut = spot::split_edges(aut);
 
       if (randomize_st || randomize_tr)
         spot::randomize(aut, randomize_st, randomize_tr);

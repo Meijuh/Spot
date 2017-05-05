@@ -137,3 +137,35 @@ State: 4
 State: 5
 [0&1] 0&1&2
 --END--"""
+
+h = spot.split_edges(aut).to_str('hoa')
+print(h)
+assert h == """HOA: v1
+States: 6
+Start: 0
+AP: 2 "p1" "p2"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: univ-branch trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0&!1] 1&2 {0}
+[0&1] 1&2 {0}
+[!0&1] 0&1
+[0&1] 0&1
+State: 1
+[0&1] 0&1&2
+State: 2
+[!0&1] 2
+[0&!1] 2
+[0&1] 2
+State: 3
+[0&!1] 1&2
+[0&1] 1&2
+[!0&1] 0&1&2
+[0&1] 0&1&2
+State: 4
+[0&1] 0&1&2
+State: 5
+[0&1] 0&1&2
+--END--"""
