@@ -55,20 +55,26 @@ namespace spot
     // Queue of state to be processed.
     typedef std::deque<degen_state> queue_t;
 
-    // Acceptance set common to all outgoing edges (of the same
-    // SCC -- we do not care about the other) of some state.
-    class outgoing_acc final
+    // Acceptance set common to all outgoing or incoming edges (of the
+    // same SCC -- we do not care about the others) of some state.
+    class inout_acc final
     {
       const_twa_graph_ptr a_;
       typedef std::tuple<acc_cond::mark_t,
+                         acc_cond::mark_t,
                          acc_cond::mark_t,
                          bool> cache_entry;
       std::vector<cache_entry> cache_;
       const scc_info* sm_;
 
+      unsigned scc_of(unsigned s)
+      {
+        return sm_ ? sm_->scc_of(s) : 0;
+      }
+
       void fill_cache(unsigned s)
       {
-        unsigned s1 = sm_ ? sm_->scc_of(s) : 0;
+        unsigned s1 = scc_of(s);
         acc_cond::mark_t common = a_->acc().all_sets();
         acc_cond::mark_t union_ = 0U;
         bool has_acc_self_loop = false;
@@ -77,12 +83,12 @@ namespace spot
           {
             // Ignore edges that leave the SCC of s.
             unsigned d = t.dst;
-            unsigned s2 = sm_ ? sm_->scc_of(d) : 0;
-            if (s2 != s1)
+            if (scc_of(d) != s1)
               continue;
 
             common &= t.acc;
             union_ |= t.acc;
+            std::get<2>(cache_[d]) &= t.acc;
 
             // an accepting self-loop?
             has_acc_self_loop |= (t.dst == s) && a_->acc().accepting(t.acc);
@@ -90,37 +96,56 @@ namespace spot
           }
         if (!seen)
           common = 0U;
-        cache_[s] = std::make_tuple(common, union_, has_acc_self_loop);
+        std::get<0>(cache_[s]) = common;
+        std::get<1>(cache_[s]) = union_;
+        std::get<3>(cache_[s]) = has_acc_self_loop;
       }
 
     public:
-      outgoing_acc(const const_twa_graph_ptr& a, const scc_info* sm):
+      inout_acc(const const_twa_graph_ptr& a, const scc_info* sm):
         a_(a), cache_(a->num_states()), sm_(sm)
       {
         unsigned n = a->num_states();
+        acc_cond::mark_t all = a_->acc().all_sets();
+        // slot 2 will hold acceptance mark that are common to the
+        // incoming transitions of each state.  For know with all
+        // marks if there is some incoming edge.  The nextx loop will
+        // constrain this value.
+        for (auto& e: a_->edges())
+          if (scc_of(e.src) == scc_of(e.dst))
+            std::get<2>(cache_[e.dst]) = all;
         for (unsigned s = 0; s < n; ++s)
           fill_cache(s);
+        for (unsigned s = 0; s < n; ++s)
+          std::get<2>(cache_[s]) |= std::get<0>(cache_[s]);
       }
 
       // Intersection of all outgoing acceptance sets
-      acc_cond::mark_t common_acc(unsigned s)
+      acc_cond::mark_t common_out_acc(unsigned s)
       {
         assert(s < cache_.size());
         return std::get<0>(cache_[s]);
       }
 
       // Union of all outgoing acceptance sets
-      acc_cond::mark_t union_acc(unsigned s)
+      acc_cond::mark_t union_out_acc(unsigned s)
       {
         assert(s < cache_.size());
         return std::get<1>(cache_[s]);
+      }
+
+      // Intersection of all incoming acceptance sets
+      acc_cond::mark_t common_inout_acc(unsigned s)
+      {
+        assert(s < cache_.size());
+        return std::get<2>(cache_[s]);
       }
 
       // Has an accepting self-loop
       bool has_acc_selfloop(unsigned s)
       {
         assert(s < cache_.size());
-        return std::get<2>(cache_[s]);
+        return std::get<3>(cache_[s]);
       }
     };
 
@@ -264,22 +289,23 @@ namespace spot
       if (use_scc)
         m = new scc_info(a);
 
-      // Cache for common outgoing acceptances.
-      outgoing_acc outgoing(a, m);
+      // Cache for common outgoing/incoming acceptances.
+      inout_acc inout(a, m);
 
       queue_t todo;
 
       // As a heuristic for building SBA, if the initial state has at
       // least one accepting self-loop, start the degeneralization on
       // the accepting level.
-      if (want_sba && !ignaccsl && outgoing.has_acc_selfloop(s.first))
+      if (want_sba && !ignaccsl && inout.has_acc_selfloop(s.first))
         s.second = order.size();
       // Otherwise, check for acceptance conditions common to all
-      // outgoing edges, and assume we have already seen these and
-      // start on the associated level.
+      // outgoing edges, plus those common to all incoming edges, and
+      // assume we have already seen these and start on the associated
+      // level.
       if (s.second == 0)
         {
-          auto set = outgoing.common_acc(s.first);
+          auto set = inout.common_inout_acc(s.first);
           if (SPOT_UNLIKELY(use_cust_acc_orders))
             s.second = orders.next_level(m->initial(), s.second, set);
           else
@@ -366,7 +392,7 @@ namespace spot
 
               // The old level is slevel.  What should be the new one?
               auto acc = i.acc;
-              auto otheracc = outgoing.common_acc(d.first);
+              auto otheracc = inout.common_inout_acc(d.first);
 
               if (want_sba && is_acc)
                 {
@@ -407,10 +433,10 @@ namespace spot
                   if (!order.empty())
                     {
                       unsigned prev = order.size() - 1;
-                      auto common = outgoing.common_acc(s.first);
+                      auto common = inout.common_out_acc(s.first);
                       if (common.has(order[prev]))
                         {
-                          auto u = outgoing.union_acc(d.first);
+                          auto u = inout.union_out_acc(d.first);
                           if (!u.has(order[prev]))
                             acc -= a->acc().mark(order[prev]);
                         }
@@ -446,7 +472,8 @@ namespace spot
                     {
                       // Complete (or replace) the acceptance sets of
                       // this link with the acceptance sets common to
-                      // all edges leaving the destination state.
+                      // all edges of the destination SCC entering or
+                      // leaving the destination state.
                       if (s_scc == scc)
                         acc |= otheracc;
                       else
@@ -471,18 +498,18 @@ namespace spot
                           // the accepting level.
                           if (s_scc != scc
                               && !ignaccsl
-                              && outgoing.has_acc_selfloop(d.first))
+                              && inout.has_acc_selfloop(d.first))
                             {
                               d.second = order.size();
                             }
                           else
                             {
                               // Consider both the current acceptance
-                              // sets, and the acceptance sets common to
-                              // the outgoing edges of the
-                              // destination state.  But don't do
-                              // that if the state is accepting and we
-                              // are not skipping levels.
+                              // sets, and the acceptance sets common
+                              // to the outgoing edges of the
+                              // destination state.  But don't do that
+                              // if the state is accepting and we are
+                              // not skipping levels.
                               if (skip_levels || !is_acc)
                                 while (next < order.size()
                                        && acc.has(order[next]))
@@ -506,7 +533,7 @@ namespace spot
                   if (is_acc)        // The edge is accepting
                     {
                       d.second = 0; // Make it go to the first level.
-                      // Skip levels as much as possible.
+                      // Skip as many levels as possible.
                       if (!a->acc().accepting(acc) && !skip_levels)
                         {
                           if (use_cust_acc_orders)
@@ -544,9 +571,7 @@ namespace spot
 #ifdef DEGEN_DEBUG
       std::cout << "Orig. order:  \t";
       for (auto i: order)
-        {
-          std::cout << i << ", ";
-        }
+        std::cout << i << ", ";
       std::cout << '\n';
       orders.print();
 #endif

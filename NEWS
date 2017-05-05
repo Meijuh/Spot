@@ -57,6 +57,11 @@ New in spot 2.3.3.dev (not yet released)
     Streett acceptance.  The dual function is
     spot::acc_cond::is_rabin_like() works similarly.
 
+  - The degeneralize() function has learned to consider acceptance
+    marks common to all edges comming to a state to select its initial
+    level.  A similar trick was already used in sbacc(), and saves a
+    few states in some cases.
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.

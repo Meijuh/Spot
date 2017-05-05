@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011, 2015, 2016 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2011, 2015-2017 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -43,3 +43,13 @@ done
 # used to be reused, instead of the first one.
 run 0 ltl2tgba -B -f '(b & Fa) U XXG(a M Gb)' --stats=%s,%t >out
 test "4,14" = "`cat out`"
+
+# Some optimization in the degeneralization allows this formula
+# to be reduced to 3 and 5 states...
+run 0 ltl2tgba -B -f 'G(Fp1 & (F!p1 W X!p1))' -f 'F(!p0 & Fp0) W Gp0' \
+    --stats=%s >out
+cat >exp<<EOF
+3
+5
+EOF
+diff out exp
