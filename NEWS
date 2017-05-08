@@ -93,6 +93,10 @@ New in spot 2.3.3.dev (not yet released)
   - ltldo and ltlcross could leave temporary files behind when
     aborting on error.
 
+  - The LTL simplifcation rule that turns F(f)|q into F(f|q)
+    when q is a subformula that is both eventual and universal
+    was documented but not applied in some forgotten cases.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as
