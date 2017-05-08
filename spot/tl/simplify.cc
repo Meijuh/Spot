@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Developpement de l'Epita (LRDE).
+// Copyright (C) 2011-2017 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -698,7 +698,7 @@ namespace spot
       {
         bool e = f.is_eventual();
         bool u = f.is_universal();
-        bool eu = res_EventUniv && e & u && c_->options.favor_event_univ;
+        bool eu = res_EventUniv && e & u && c_->options.event_univ;
         switch (f.kind())
           {
           case op::X:
@@ -2137,30 +2137,24 @@ namespace spot
                       vec eu;
                       bool seen_g = false;
                       for (auto f: *s.res_EventUniv)
-                        {
-                          if (f.is_eventual() && f.is_universal())
-                            {
-                              if (f.is(op::G))
-                                {
-                                  seen_g = true;
-                                  eu.emplace_back(f[0]);
-                                }
-                              else
-                                {
-                                  eu.emplace_back(f);
-                                }
-                            }
-                          else
-                            {
-                              s.res_other->emplace_back(f);
-                            }
-                        }
+                        if (f.is(op::G))
+                          {
+                            seen_g = true;
+                            eu.emplace_back(f[0]);
+                          }
+                        else
+                          {
+                            eu.emplace_back(f);
+                          }
                       if (seen_g)
                         {
                           eu.emplace_back(allFG);
                           allFG = nullptr;
-                          s.res_other->emplace_back(unop_multop(op::G, op::And,
-                                                             eu));
+                          formula andeu = formula::multop(op::And, eu);
+                          if (!opt_.favor_event_univ)
+                            s.res_G->emplace_back(andeu);
+                          else
+                            s.res_other->emplace_back(formula::G(andeu));
                         }
                       else
                         {
@@ -2673,6 +2667,11 @@ namespace spot
                   formula allGF = unop_unop_multop(op::G, op::F, op::Or,
                                                    std::move(*s.res_GF));
 
+                  bool eu_has_F = false;
+                  for (auto f: *s.res_EventUniv)
+                    if (f.is(op::F))
+                      eu_has_F = true;
+
                   // Xa | Xb = X(a | b)
                   // Xa | Xb | GF(c) = X(a | b | GF(c))
                   // For Universal&Eventual formula f1...fn we also have:
@@ -2686,7 +2685,7 @@ namespace spot
                                       s.res_EventUniv->end());
                     }
                   else if (!opt_.favor_event_univ
-                           && !s.res_F->empty()
+                           && (!s.res_F->empty() || eu_has_F)
                            && s.res_G->empty()
                            && s.res_U_or_W->empty()
                            && s.res_R_or_M->empty()
@@ -2715,9 +2714,8 @@ namespace spot
                       // these differences)
                       s.res_F->emplace_back(allGF);
                       allGF = nullptr;
-                      s.res_F->insert(s.res_F->end(),
-                                      s.res_EventUniv->begin(),
-                                      s.res_EventUniv->end());
+                      for (auto f: *s.res_EventUniv)
+                        s.res_F->emplace_back(f.is(op::F) ? f[0] : f);
                     }
                   else if (opt_.favor_event_univ)
                     {
@@ -2726,7 +2724,7 @@ namespace spot
                       bool seen_f = false;
                       if (s.res_EventUniv->size() > 1)
                         {
-                          // If some of the EventUniv formulae start
+                          // If some of the EventUniv formulas start
                           // with an F, Gather them all under the
                           // same F.  Striping any leading F.
                           for (auto& f: *s.res_EventUniv)
@@ -2750,9 +2748,13 @@ namespace spot
                     }
                   else
                     {
-                      s.res_other->insert(s.res_other->end(),
-                                          s.res_EventUniv->begin(),
-                                          s.res_EventUniv->end());
+                      for (auto f: *s.res_EventUniv)
+                        {
+                          if (f.is(op::F))
+                            s.res_F->emplace_back(f[0]);
+                          else
+                            s.res_other->emplace_back(f);
+                        }
                     }
                   // Xa | Xb | f1...fn = X(a | b | f1...fn)
                   // is built at the end of this multop::Or case.
