@@ -73,6 +73,9 @@ New in spot 2.3.3.dev (not yet released)
     preprocess automata before feeding them to algorithms or tools
     that expect transitions labeled by letters.
 
+  - spot::scc_info has two new methods to easily iterate over the
+    edges of an SCC: edges_of() and inner_edges_of().
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.

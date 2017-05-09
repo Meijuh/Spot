@@ -24,6 +24,168 @@
 
 namespace spot
 {
+  class scc_info;
+
+  namespace internal
+  {
+    struct keep_all
+    {
+      template <typename Edge>
+      bool operator()(const Edge&) const noexcept
+      {
+        return true;
+      }
+    };
+
+    struct keep_inner_scc
+    {
+    private:
+      const std::vector<unsigned>& sccof_;
+      unsigned desired_scc_;
+    public:
+      keep_inner_scc(const std::vector<unsigned>& sccof, unsigned desired_scc)
+        : sccof_(sccof), desired_scc_(desired_scc)
+      {
+      }
+
+      template <typename Edge>
+      bool operator()(const Edge& ed) const noexcept
+      {
+        return sccof_[ed.dst] == desired_scc_;
+      }
+    };
+
+    template <typename Graph, typename Filter>
+    class SPOT_API scc_edge_iterator
+    {
+    public:
+      typedef typename std::conditional<std::is_const<Graph>::value,
+                                        const typename Graph::edge_storage_t,
+                                        typename Graph::edge_storage_t>::type
+        value_type;
+      typedef value_type& reference;
+      typedef value_type* pointer;
+      typedef std::ptrdiff_t difference_type;
+      typedef std::forward_iterator_tag iterator_category;
+
+      typedef std::vector<unsigned>::const_iterator state_iterator;
+
+      typedef typename std::conditional<std::is_const<Graph>::value,
+                                        const typename Graph::edge_vector_t,
+                                        typename Graph::edge_vector_t>::type
+        tv_t;
+
+      typedef typename std::conditional<std::is_const<Graph>::value,
+                                        const typename Graph::state_vector,
+                                        typename Graph::state_vector>::type
+        sv_t;
+    protected:
+
+      state_iterator pos_;
+      state_iterator end_;
+      unsigned t_;
+      tv_t* tv_;
+      sv_t* sv_;
+      Filter filt_;
+
+      void inc_state_maybe_()
+      {
+        while (!t_ && (++pos_ != end_))
+          t_ = (*sv_)[*pos_].succ;
+      }
+
+      void inc_()
+      {
+        t_ = (*tv_)[t_].next_succ;
+        inc_state_maybe_();
+      }
+
+    public:
+      scc_edge_iterator(state_iterator begin, state_iterator end,
+                        tv_t* tv, sv_t* sv, Filter filt) noexcept
+        : pos_(begin), end_(end), tv_(tv), sv_(sv), filt_(filt)
+      {
+        if (pos_ == end_)
+          return;
+
+        t_ = (*sv_)[*pos_].succ;
+        inc_state_maybe_();
+        while (pos_ != end_ && !filt_(**this))
+          inc_();
+      }
+
+      scc_edge_iterator& operator++()
+      {
+        do
+          inc_();
+        while (pos_ != end_ && !filt_(**this));
+        return *this;
+      }
+
+      scc_edge_iterator operator++(int)
+      {
+        scc_edge_iterator old = *this;
+        ++*this;
+        return old;
+      }
+
+      bool operator==(scc_edge_iterator o) const
+      {
+        return pos_ == o.pos_ && t_ == o.t_;
+      }
+
+      bool operator!=(scc_edge_iterator o) const
+      {
+        return pos_ != o.pos_ || t_ != o.t_;
+      }
+
+      reference operator*() const
+      {
+        return (*tv_)[t_];
+      }
+
+      pointer operator->() const
+      {
+        return &**this;
+      }
+    };
+
+
+    template <typename Graph, typename Filter>
+    class SPOT_API scc_edges
+    {
+    public:
+      typedef scc_edge_iterator<Graph, Filter> iter_t;
+      typedef typename iter_t::tv_t tv_t;
+      typedef typename iter_t::sv_t sv_t;
+      typedef typename iter_t::state_iterator state_iterator;
+    private:
+      state_iterator begin_;
+      state_iterator end_;
+      unsigned t_;
+      tv_t* tv_;
+      sv_t* sv_;
+      Filter filt_;
+    public:
+
+      scc_edges(state_iterator begin, state_iterator end,
+                tv_t* tv, sv_t* sv, Filter filt) noexcept
+        : begin_(begin), end_(end), tv_(tv), sv_(sv), filt_(filt)
+      {
+      }
+
+      iter_t begin() const
+      {
+        return {begin_, end_, tv_, sv_, filt_};
+      }
+
+      iter_t end() const
+      {
+        return {end_, end_, nullptr, nullptr, filt_};
+      }
+    };
+  }
+
 
   /// Storage for SCC related information.
   class SPOT_API scc_info_node
@@ -187,6 +349,37 @@ namespace spot
     const std::vector<unsigned>& states_of(unsigned scc) const
     {
       return node(scc).states();
+    }
+
+    /// \brief A fake container to iterate over all edges leaving any
+    /// state of an SCC.
+    ///
+    /// The difference with inner_edges_of() is that edges_of() include
+    /// outgoing edges from all the states, even if they leave the SCC.
+    internal::scc_edges<const twa_graph::graph_t, internal::keep_all>
+    edges_of(unsigned scc) const
+    {
+      auto& states = states_of(scc);
+      return {states.begin(), states.end(),
+              &aut_->edge_vector(), &aut_->states(),
+              internal::keep_all()};
+    }
+
+    /// \brief A fake container to iterate over all edges between
+    /// states of an SCC.
+    ///
+    /// The difference with edges_of() is that inner_edges_of() ignores
+    /// edges leaving the SCC are ignored.
+    internal::scc_edges<const twa_graph::graph_t, internal::keep_inner_scc>
+    inner_edges_of(unsigned scc) const
+    {
+      if (!aut_->is_existential())
+        throw std::runtime_error
+          ("inner_edges_of(): alternating automata are not supported");
+      auto& states = states_of(scc);
+      return {states.begin(), states.end(),
+              &aut_->edge_vector(), &aut_->states(),
+              internal::keep_inner_scc(sccof_, scc)};
     }
 
     unsigned one_state_of(unsigned scc) const

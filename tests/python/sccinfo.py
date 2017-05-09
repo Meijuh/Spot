@@ -52,15 +52,28 @@ l3 = si.states_of(3)
 l = sorted(list(l0) + list(l1) + list(l2) + list(l3))
 assert l == [0, 1, 2, 3, 4]
 
+
+
 i = si.initial()
 todo = {i}
 seen = {i}
+trans = []
+transi = []
 while todo:
     e = todo.pop()
+    for t in si.edges_of(e):
+        trans.append((t.src, t.dst))
+    for t in si.inner_edges_of(e):
+        transi.append((t.src, t.dst, a.edge_number(t)))
     for s in si.succ(e):
         if s not in seen:
             seen.add(s)
             todo.add(s)
 assert seen == {0, 1, 2, 3}
+assert trans == [(1, 0), (1, 1), (1, 2), (1, 3),
+                 (2, 1), (2, 2), (2, 3), (2, 4),
+                 (0, 0), (3, 3), (4, 3), (4, 4)]
+assert transi == [(1, 1, 3), (1, 2, 4), (2, 1, 6), (2, 2, 7),
+                  (0, 0, 1), (3, 3, 10), (4, 4, 12)]
 
 assert not spot.is_weak_automaton(a, si)

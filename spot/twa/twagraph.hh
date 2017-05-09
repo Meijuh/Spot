@@ -349,6 +349,11 @@ namespace spot
       return i->pos();
     }
 
+    unsigned edge_number(const edge_storage_t& e) const
+    {
+      return g_.index_of_edge(e);
+    }
+
     twa_graph_edge_data& edge_data(const twa_succ_iterator* it)
     {
       return g_.edge_data(edge_number(it));

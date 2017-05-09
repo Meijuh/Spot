@@ -51,25 +51,24 @@ namespace spot
           bool first = true;
           acc_cond::mark_t m = 0U;
           if (is_weak)
-            for (auto src: si->states_of(i))
-              for (auto& t: aut->out(src))
-                // In case of a universal edge we only need to check
-                // the first destination of an inside the SCC, because
-                // the other have the same t.acc.
-                if (si->scc_of(*aut->univ_dests(t.dst).begin()) == i)
-                  {
-                    if (first)
-                      {
-                        first = false;
-                        m = t.acc;
-                      }
-                    else if (m != t.acc)
-                      {
-                        is_weak = false;
-                        if (!inweak)
-                          goto exit;
-                      }
-                  }
+            for (auto& t: si->edges_of(i))
+              // In case of a universal edge we only need to check if
+              // the first destination of an edge is inside the SCC,
+              // because the others have the same t.acc.
+              if (si->scc_of(*aut->univ_dests(t.dst).begin()) == i)
+                {
+                  if (first)
+                    {
+                      first = false;
+                      m = t.acc;
+                    }
+                  else if (m != t.acc)
+                    {
+                      is_weak = false;
+                      if (!inweak)
+                        goto exit;
+                    }
+                }
           if (!is_weak && si->is_accepting_scc(i))
             {
               assert(inweak);

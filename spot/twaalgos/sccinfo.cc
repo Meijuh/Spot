@@ -294,20 +294,16 @@ namespace spot
   std::set<acc_cond::mark_t> scc_info::used_acc_of(unsigned scc) const
   {
     std::set<acc_cond::mark_t> res;
-    for (auto src: states_of(scc))
-      for (auto& t: aut_->out(src))
-        if (scc_of(t.dst) == scc)
-          res.insert(t.acc);
+    for (auto& t: inner_edges_of(scc))
+      res.insert(t.acc);
     return res;
   }
 
   acc_cond::mark_t scc_info::acc_sets_of(unsigned scc) const
   {
     acc_cond::mark_t res = 0U;
-    for (auto src: states_of(scc))
-      for (auto& t: aut_->out(src))
-        if (scc_of(t.dst) == scc)
-          res |= t.acc;
+    for (auto& t: inner_edges_of(scc))
+      res |= t.acc;
     return res;
   }
 
@@ -345,9 +341,8 @@ namespace spot
   bdd scc_info::scc_ap_support(unsigned scc) const
   {
     bdd support = bddtrue;
-    for (auto s: states_of(scc))
-      for (auto& t: aut_->out(s))
-        support &= bdd_support(t.cond);
+    for (auto& t: edges_of(scc))
+      support &= bdd_support(t.cond);
     return support;
   }
 

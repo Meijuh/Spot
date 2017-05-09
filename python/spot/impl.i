@@ -555,7 +555,18 @@ def state_is_accepting(self, src) -> "bool":
 %include <spot/twaalgos/totgba.hh>
 %traits_swigtype(spot::scc_info_node);
 %fragment(SWIG_Traits_frag(spot::scc_info_node));
+%nodefaultctor spot::internal::scc_edges;
+%typemap(out, optimal="1") spot::internal::scc_edges<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data> const, spot::internal::keep_all> {
+  $result = SWIG_NewPointerObj((new $1_ltype($1)), $&1_descriptor, SWIG_POINTER_OWN);
+}
+%typemap(out, optimal="1") spot::internal::scc_edges<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data> const, spot::internal::keep_inner_scc> {
+  $result = SWIG_NewPointerObj((new $1_ltype($1)), $&1_descriptor, SWIG_POINTER_OWN);
+}
+%noexception spot::scc_info::edges_of;
+%noexception spot::scc_info::inner_edges_of;
 %include <spot/twaalgos/sccinfo.hh>
+%template(scc_info_scc_edges) spot::internal::scc_edges<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data> const, spot::internal::keep_all>;
+%template(scc_info_inner_scc_edges) spot::internal::scc_edges<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data> const, spot::internal::keep_inner_scc>;
 %include <spot/twaalgos/strength.hh>
 %include <spot/twaalgos/sccfilter.hh>
 %include <spot/twaalgos/stats.hh>
@@ -796,6 +807,22 @@ def state_is_accepting(self, src) -> "bool":
   swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
    {
       return swig::make_forward_iterator_np(self->begin(), self->begin(),
+				         self->end(), *PYTHON_SELF);
+   }
+}
+
+%extend spot::internal::scc_edges<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data> const, spot::internal::keep_all> {
+  swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
+   {
+      return swig::make_forward_iterator(self->begin(), self->begin(),
+				         self->end(), *PYTHON_SELF);
+   }
+}
+
+%extend spot::internal::scc_edges<spot::digraph<spot::twa_graph_state, spot::twa_graph_edge_data> const, spot::internal::keep_inner_scc> {
+  swig::SwigPyIterator* __iter__(PyObject **PYTHON_SELF)
+   {
+      return swig::make_forward_iterator(self->begin(), self->begin(),
 				         self->end(), *PYTHON_SELF);
    }
 }
