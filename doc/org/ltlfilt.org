@@ -55,6 +55,44 @@ ltlfilt --lbt-input -F scheck.ltl
 
 * Altering the formula
 
+The following options can be used to modify the formulas that have
+been read.
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltlfilt --help | sed -n '/Transformation options.*:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+      --boolean-to-isop      rewrite Boolean subformulas as irredundant sum of
+                             products (implies at least -r1)
+      --define[=FILENAME]    when used with --relabel or --relabel-bool, output
+                             the relabeling map using #define statements
+      --exclusive-ap=AP,AP,...   if any of those APs occur in the formula, add
+                             a term ensuring two of them may not be true at the
+                             same time.  Use this option multiple times to
+                             declare independent groups of exclusive
+                             propositions.
+      --from-ltlf[=alive]    transform LTLf (finite LTL) to LTL by introducing
+                             some 'alive' proposition
+      --negate               negate each formula
+      --nnf                  rewrite formulas in negative normal form
+      --relabel[=abc|pnn]    relabel all atomic propositions, alphabetically
+                             unless specified otherwise
+      --relabel-bool[=abc|pnn]   relabel Boolean subexpressions, alphabetically
+                             unless specified otherwise
+      --remove-wm            rewrite operators W and M using U and R (this is
+                             an alias for --unabbreviate=WM)
+      --remove-x             remove X operators (valid only for
+                             stutter-insensitive properties)
+  -r, --simplify[=LEVEL]     simplify formulas according to LEVEL (see below);
+                             LEVEL is set to 3 if omitted
+      --unabbreviate[=STR]   remove all occurrences of the operators specified
+                             by STR, which must be a substring of "eFGiMRW^",
+                             where 'e', 'i', and '^' stand respectively for
+                             <->, ->, and xor.  If no argument is passed, the
+                             subset "eFGiMW^" is used.
+#+end_example
+
 As with [[file:randltl.org][=randltl=]], the =-r= option can be used to simplify formulas.
 
 #+BEGIN_SRC sh :results verbatim :exports both
@@ -188,8 +226,9 @@ words the original set of formulas contains 9 different patterns.
 
 
 An option that can be used in combination with =--relabel= or
-=--relabel-bool= is =--define=.  This causes the correspondence of old
-a new names to be printed as a set of =#define= statements.
+=--relabel-bool= is =--define=.  This causes the correspondence
+between old and new names to be printed as a set of =#define=
+statements.
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltlfilt -f '(a & !b) & GF(a & !b) & FG(!c)' --relabel-bool=pnn --define --spin
