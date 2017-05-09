@@ -92,6 +92,7 @@ check_PROGRAMS = \
   core/sccif \
   core/syntimpl \
   core/taatgba \
+  core/tra2tba \
   core/trival \
   core/tgbagraph \
   core/tostring \
@@ -139,6 +140,7 @@ core_safra_SOURCES = core/safra.cc
 core_sccif_SOURCES = core/sccif.cc
 core_syntimpl_SOURCES = core/syntimpl.cc
 core_tostring_SOURCES = core/tostring.cc
+core_tra2tba_SOURCES = core/tra2tba.cc
 core_trival_SOURCES = core/trival.cc
 core_tunabbrev_SOURCES = core/equalsf.cc
 core_tunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DUNABBREV='"^ieFG"'
@@ -296,8 +298,8 @@ TESTS_twa = \
   core/complementation.test \
   core/randpsl.test \
   core/cycles.test \
-  core/acc_word.test
-
+  core/acc_word.test \
+  core/tra2tba.test
 
 ############################## PYTHON ##############################
 
