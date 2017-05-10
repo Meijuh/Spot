@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2013-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -104,6 +104,11 @@ namespace spot
   twa_graph_ptr translator::run(formula f)
   {
     return run(&f);
+  }
+
+  void translator::clear_caches()
+  {
+    simpl_->clear_caches();
   }
 
 }

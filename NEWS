@@ -100,6 +100,10 @@ New in spot 2.3.3.dev (not yet released)
     when q is a subformula that is both eventual and universal
     was documented but not applied in some forgotten cases.
 
+  - Because of some caching inside of ltl2tgba, translating multiple
+    formula in single ltl2tgba run could produce automata different
+    from those produced by individual runs.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as

@@ -122,7 +122,7 @@ cat >expected <<EOF
 <F(b | Ga), 3 states>, 5, 1
 <F(!b & G(!b | G!a)), 3 states>, 5, 1
 <XF!b, 3 states>, 4, 1
-<Gb | G!b, 3 states>, 4, 1
+<G!b | Gb, 3 states>, 4, 1
 <XFb, 3 states>, 4, 1
 <F(b W a), 3 states>, 6, 1
 <(a & !b & (b | (!b M F!a))) | (!a & (b | (!b & (b W Ga)))), 3 states>, 5, 1

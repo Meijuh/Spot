@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -211,6 +211,10 @@ namespace
             tgta = spot::minimize_tgta(tgta);
           spot::print_dot(std::cout, tgta->get_ta());
         }
+      // If we keep simplification caches around, atomic propositions
+      // will still be defined, and one translation may influence the
+      // variable order of the next one.
+      trans.clear_caches();
       flush_cout();
       return 0;
     }

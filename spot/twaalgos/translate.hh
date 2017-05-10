@@ -132,6 +132,9 @@ namespace spot
     /// by the simplified version.
     twa_graph_ptr run(formula* f);
 
+    /// \brief Clear the LTL simplification caches.
+    void clear_caches();
+
   protected:
     void setup_opt(const option_map* opt);
     void build_simplifier(const bdd_dict_ptr& dict);

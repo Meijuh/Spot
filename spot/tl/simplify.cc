@@ -3481,4 +3481,13 @@ namespace spot
     cache_->clear_as_bdd_cache();
     cache_->lcc.clear();
   }
+
+  void
+  tl_simplifier::clear_caches()
+  {
+    tl_simplifier_cache* c =
+      new tl_simplifier_cache(get_dict(), cache_->options);
+    std::swap(c, cache_);
+    delete c;
+  }
 }
