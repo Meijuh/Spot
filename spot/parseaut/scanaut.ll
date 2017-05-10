@@ -1,5 +1,5 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et Développement
+** Copyright (C) 2014-2017 Laboratoire de Recherche et Développement
 ** de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
@@ -90,7 +90,7 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 
 <INITIAL>[0-9]+[ \t][0-9]+[ts]?  {
 	                  BEGIN(in_LBTT_HEADER);
-			  char* end = 0;
+			  char* end = nullptr;
 			  errno = 0;
 			  unsigned long n = strtoul(yytext, &end, 10);
 			  yylval->num = n;

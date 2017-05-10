@@ -2439,7 +2439,7 @@ namespace spot
     if (r.h->aut && !r.h->aut->is_existential())
       r.h->aut->merge_univ_dests();
     return r.h;
-  };
+  }
 
   parsed_aut_ptr
   parse_aut(const std::string& filename, const bdd_dict_ptr& dict,
