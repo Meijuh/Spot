@@ -385,7 +385,11 @@ namespace spot
       }
 
     auto& os = format(format_);
-    scc_.reset(); // Make sure we do not hold a pointer to the automaton
+    // Make sure we do not hold a pointer to the automaton or the
+    // formula, as these may prevent atomic proposition to be freed
+    // before a next job.
+    scc_.reset();
+    form_ = nullptr;
     return os;
   }
 
