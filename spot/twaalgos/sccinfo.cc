@@ -448,7 +448,8 @@ namespace spot
   }
 
   std::vector<twa_graph_ptr>
-  scc_info::split_on_sets(unsigned scc, acc_cond::mark_t sets) const
+  scc_info::split_on_sets(unsigned scc, acc_cond::mark_t sets,
+                          bool preserve_names) const
   {
     std::vector<twa_graph_ptr> res;
 
@@ -480,7 +481,11 @@ namespace spot
                              },
                              init);
         if (copy->num_edges())
-          res.push_back(copy);
+          {
+            if (preserve_names)
+              copy->copy_state_names_from(aut_);
+            res.push_back(copy);
+          }
       }
     return res;
   }
@@ -564,5 +569,4 @@ namespace spot
 
     return res;
   }
-
 }

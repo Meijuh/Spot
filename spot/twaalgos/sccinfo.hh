@@ -549,14 +549,19 @@ namespace spot
 
     bdd scc_ap_support(unsigned scc) const;
 
-  protected:
-    /// \brief: Remove in 'scc', edges containing any mark in 'sets'.
+    /// \brief Split an SCC into multiple automata separated by some
+    /// acceptance sets.
     ///
-    /// Such a deletion may split the SCC, in which case, the function builds
-    /// and returns more than one automaton representing the specified SCC.
-    std::vector<twa_graph_ptr>
-    split_on_sets(unsigned scc, acc_cond::mark_t sets) const;
-
+    /// Pretend that the transitions of SCC \a scc that belong to any
+    /// of the sets given in \a sets have been removed, and return a
+    /// set of automata necessary to cover all remaining states.
+    ///
+    /// Set \a preserve_names to True if you want to keep the original
+    /// name of each states for display.  (This is a bit slower.)
+    std::vector<twa_graph_ptr> split_on_sets(unsigned scc,
+                                             acc_cond::mark_t sets,
+                                             bool preserve_names = false) const;
+  protected:
     /// \brief: Recursive function used by states_on_acc_cycle_of().
     void
     states_on_acc_cycle_of_rec(unsigned scc,
@@ -573,7 +578,6 @@ namespace spot
     /// acceptance condition.
     std::vector<unsigned>
     states_on_acc_cycle_of(unsigned scc) const;
-
   };
 
 
