@@ -1,4 +1,4 @@
-New in spot 2.3.3.dev (not yet released)
+New in spot 2.3.4.dev (not yet released)
 
   Tools:
 
@@ -85,25 +85,6 @@ New in spot 2.3.3.dev (not yet released)
     names from another automaton, honoring "original-states" if
     present.
 
-  Bugs fixed:
-
-  - the transformation to state-based acceptance (spot::sbacc()) was
-    incorrect on automata where the empty acceptance mark is accepting.
-
-  - the --help output of randaut and ltl2tgba was showing an
-    unsupported %b stat.
-
-  - ltldo and ltlcross could leave temporary files behind when
-    aborting on error.
-
-  - The LTL simplifcation rule that turns F(f)|q into F(f|q)
-    when q is a subformula that is both eventual and universal
-    was documented but not applied in some forgotten cases.
-
-  - Because of some caching inside of ltl2tgba, translating multiple
-    formula in single ltl2tgba run could produce automata different
-    from those produced by individual runs.
-
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as
@@ -134,6 +115,27 @@ New in spot 2.3.3.dev (not yet released)
     is_deterministic() listed above.  We have kept
     spot::twa::prop_deterministic() as a deprecated synonym for
     spot::twa::prop_universal() to help backward compatibility.
+
+New in spot 2.3.4 (2017-05-11)
+
+  Bugs fixed:
+
+  - The transformation to state-based acceptance (spot::sbacc()) was
+    incorrect on automata where the empty acceptance mark is accepting.
+
+  - The --help output of randaut and ltl2tgba was showing an
+    unsupported %b stat.
+
+  - ltldo and ltlcross could leave temporary files behind when
+    aborting on error.
+
+  - The LTL simplifcation rule that turns F(f)|q into F(f|q)
+    when q is a subformula that is both eventual and universal
+    was documented but not applied in some forgotten cases.
+
+  - Because of some caching inside of ltl2tgba, translating multiple
+    formula in single ltl2tgba run could produce automata different
+    from those produced by individual runs.
 
 New in spot 2.3.3 (2017-04-11)
 
