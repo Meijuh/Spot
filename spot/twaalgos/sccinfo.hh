@@ -103,7 +103,7 @@ namespace spot
     public:
       scc_edge_iterator(state_iterator begin, state_iterator end,
                         tv_t* tv, sv_t* sv, Filter filt) noexcept
-        : pos_(begin), end_(end), tv_(tv), sv_(sv), filt_(filt)
+        : pos_(begin), end_(end), t_(0), tv_(tv), sv_(sv), filt_(filt)
       {
         if (pos_ == end_)
           return;
@@ -162,7 +162,6 @@ namespace spot
     private:
       state_iterator begin_;
       state_iterator end_;
-      unsigned t_;
       tv_t* tv_;
       sv_t* sv_;
       Filter filt_;
