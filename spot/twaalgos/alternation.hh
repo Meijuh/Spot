@@ -27,7 +27,7 @@ namespace spot
   /// \brief Helper class combine outgoing edges in alternating
   /// automata
   ///
-  /// The idea is that you can the operator() on some state to get an
+  /// The idea is that you can call the operator() on some state to get an
   /// BDD representation of its outgoing edges (labels and
   /// destinations, but not acceptance marks).  The BDD representation
   /// of different states can combined using & or | to build a new
@@ -65,6 +65,7 @@ namespace spot
   /// Acceptance marks are dropped.
   ///
   /// The results is very likely to be alternating.
+  /// @}
   template<class I>
   SPOT_API
   unsigned states_and(const twa_graph_ptr& aut, I begin, I end)
@@ -97,6 +98,7 @@ namespace spot
   /// acceptance is only used in presence of size-1 rejecting-SCCs.)
   ///
   /// \param named_states name each state for easier debugging
+  /// @}
   SPOT_API
   twa_graph_ptr remove_alternation(const const_twa_graph_ptr& aut,
                                    bool named_states = false);

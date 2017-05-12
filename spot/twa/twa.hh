@@ -947,7 +947,7 @@ namespace spot
 
     /// \brief Set generalized Büchi acceptance
     ///
-    /// \param num the number of acceptance sets to used
+    /// \param num the number of acceptance sets to use
     ///
     /// The acceptance formula of the form
     /// \code
@@ -987,8 +987,8 @@ namespace spot
     /// acceptance.  The returned mark \c {0} can be used to tag
     /// accepting transition.
     ///
-    /// Note that this does not make the automaton as using
-    /// state-based acceptance.  If you want to create a Büchi
+    /// Note that this does not mark the automaton as using
+    /// state-based acceptance. If you want to create a Büchi
     /// automaton with state-based acceptance, call
     /// \code
     /// prop_state_acc(true)
