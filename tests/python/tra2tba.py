@@ -1,28 +1,7 @@
-#!/bin/sh
-# -*- coding: utf-8 -*-
-# Copyright (C) 2017 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
-#
-# This file is part of Spot, a model checking library.
-#
-# Spot is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# Spot is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-# License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import spot
 
-. ./defs
-
-set -e
-
-cat >test1.hoa <<EOF
+# Test 1.
+aut = spot.automaton("""
 HOA: v1
 States: 2
 Start: 0
@@ -35,10 +14,9 @@ State: 0
 State: 1
 [0] 1 {0}
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 2
 Start: 0
 AP: 2 "a" "b"
@@ -51,13 +29,13 @@ State: 0
 [0] 1
 State: 1
 [0] 1
---END--
-EOF
+--END--"""
 
-run 0 ../tra2tba test1.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test2.hoa <<EOF
+# Test 2.
+aut = spot.automaton("""
 HOA: v1
 States: 3
 Start: 0
@@ -74,9 +52,9 @@ State: 2
 [0] 2 {1}
 --END--
 EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 3
 Start: 0
 AP: 1 "a"
@@ -92,13 +70,13 @@ State: 1
 State: 2
 [!0] 1
 [0] 2 {0}
---END--
-EOF
+--END--"""
 
-run 0 ../tra2tba test2.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test3.hoa <<EOF
+# Test 3.
+aut = spot.automaton("""
 HOA: v1
 States: 2
 Start: 0
@@ -111,10 +89,9 @@ State: 0
 State: 1
 [0] 1 {2}
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 2
 Start: 0
 AP: 2 "a" "b"
@@ -127,13 +104,13 @@ State: 0
 [0] 1
 State: 1
 [0] 1
---END--
-EOF
+--END--"""
 
-run 0 ../tra2tba test3.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test4.hoa <<EOF
+# Test 4.
+aut = spot.automaton("""
 HOA: v1
 States: 3
 Start: 0
@@ -149,10 +126,9 @@ State: 1
 State: 2
   [t] 2 {3}
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 3
 Start: 0
 AP: 2 "a" "b"
@@ -168,13 +144,13 @@ State: 1 {0}
 [t] 1
 State: 2 {0}
 [t] 2
---END--
-EOF
+--END--"""
 
-run 0 ../tra2tba test4.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test5.hoa <<EOF
+# Test 5.
+aut = spot.automaton("""
 HOA: v1
 States: 4
 Start: 0
@@ -193,10 +169,9 @@ State: 2
 State: 3
   [t] 3 {5}
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 4
 Start: 0
 AP: 3 "a" "b" "c"
@@ -215,13 +190,13 @@ State: 2 {0}
 [t] 2
 State: 3 {0}
 [t] 3
---END--
-EOF
+--END--"""
 
-run 0 ../tra2tba test5.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test6.hoa <<EOF
+# Test 6.
+aut = spot.automaton("""
 HOA: v1
 States: 2
 Start: 0
@@ -239,10 +214,9 @@ State: 0 "F(Gp3|GFp2)"
 [!0&1] 1 {2 3 }
 [!0&!1] 0 {2 3 }
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 4
 Start: 0
 AP: 2 "p3" "p2"
@@ -269,13 +243,13 @@ State: 2
 State: 3
 [0&1] 3 {0}
 [0&!1] 2 {0}
---END--
-EOF
+--END--"""
 
-run 0 ../tra2tba test6.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test7.hoa <<EOF
+# Test 7.
+aut = spot.automaton("""
 HOA: v1
 name: "FG(a)"
 properties: deterministic
@@ -289,10 +263,9 @@ State: 0 "FG(a)"
 [0] 0 {1 }
 [!0] 0 {0 1 }
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 2
 Start: 0
 AP: 1 "a"
@@ -306,13 +279,13 @@ State: 0
 [0] 1
 State: 1 {0}
 [0] 1
---END--
-EOF
+--END--"""
 
-run 0 ../tra2tba test7.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test8.hoa <<EOF
+# Test 8.
+aut = spot.automaton("""
 HOA: v1
 States: 7
 Start: 0
@@ -346,10 +319,9 @@ State: 3 "6"
 [!0&2] 3 {0 1 2 }
 [!2] 4 {0 1 2 }
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 8
 Start: 0
 AP: 3 "p0" "p2" "p3"
@@ -386,13 +358,13 @@ State: 6
 [!0] 4
 State: 7
 [0&2] 7 {0}
---END--
-EOF
+--END--"""
 
-run 0 ../tra2tba test8.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test9.hoa <<EOF
+# Test 9.
+aut = spot.automaton("""
 HOA: v1
 States: 2
 Start: 0
@@ -406,30 +378,29 @@ State: 1
 [0&!2] 1 {0 1}
 [!0&!2] 0 {0 1}
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 2
 Start: 0
-AP: 3 "p0" "p4" "p1"
+AP: 3 "p4" "p0" "p1"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0 {0}
-[0&!2] 1
-[!0&!2] 0
+[1&!2] 1
+[!1&!2] 0
 State: 1
-[0&!2] 1
-[!0&!2] 0
---END--
-EOF
+[1&!2] 1
+[!1&!2] 0
+--END--"""
 
-run 0 ../tra2tba test9.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test10.hoa <<EOF
+# Test 10.
+aut = spot.automaton("""
 HOA: v1
 States: 2
 Start: 0
@@ -444,10 +415,9 @@ State: 0 "0"
 State: 1 "1"
 [1] 1 {1 }
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 3
 Start: 0
 AP: 2 "p0" "p2"
@@ -464,13 +434,13 @@ State: 1 {0}
 [1] 1
 State: 2 {0}
 [0&1] 2
---END--
-EOF
+--END--"""
 
-run 0 ../tra2tba test10.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
 
-cat >test11.hoa <<EOF
+# Test 11.
+aut = spot.automaton("""
 HOA: v1
 States: 2
 Start: 0
@@ -484,26 +454,98 @@ State: 0 "3"
 [1] 1 {2 3 }
 [!1] 0 {3 }
 --END--
-EOF
+""")
 
-cat >out.exp << EOF
-HOA: v1
+exp = """HOA: v1
 States: 2
 Start: 0
-AP: 2 "p2" "p0"
+AP: 2 "p0" "p2"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic
 --BODY--
 State: 0
-[1] 1
-[!1] 0 {0}
+[0] 1
+[!0] 0 {0}
 State: 1
-[1] 1 {0}
-[!1] 0 {0}
---END--
-EOF
+[0] 1 {0}
+[!0] 0 {0}
+--END--"""
 
-run 0 ../tra2tba test11.hoa > out.hoa
-diff out.hoa out.exp
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
+
+# Test 12.
+aut = spot.automaton("""
+HOA: v1
+properties: deterministic
+properties: complete
+States: 2
+Start: 0
+Acceptance: 3 Fin(0) | Fin(1)&Inf(2)
+AP: 2 "p2" "p0"
+--BODY--
+State: 1 "1"
+[1] 1 {0 1 2}
+[!1] 0 {0 2}
+State: 0 "3"
+[1] 1 {1 2}
+[!1] 0 {2}
+--END--
+""")
+
+exp = """HOA: v1
+States: 4
+Start: 0
+AP: 2 "p0" "p2"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[0] 1
+[!0] 0
+[!0] 2
+[!0] 3
+State: 1
+[0] 1
+[!0] 0
+[!0] 3
+State: 2
+[!0] 2
+State: 3 {0}
+[!0] 3
+--END--"""
+
+res = spot.tra_to_tba(aut)
+assert(res.to_str('hoa') == exp)
+
+# Test 13.
+aut = spot.automaton("""
+HOA: v1
+properties: deterministic
+properties: complete
+States: 2
+Start: 0
+Acceptance: 3 Inf(0) | Fin(1)&Inf(2)
+AP: 2 "p3" "p2"
+--BODY--
+State: 1 "F(Gp3|GFp2)"
+[0&1] 1 {0 2}
+[0&!1] 0 {0}
+[!0&1] 1 {0 1 2}
+[!0&!1] 0 {0 1 2}
+State: 0 "F(Gp3|GFp2)"
+[0&1] 1 {2}
+[0&!1] 0 {0}
+[!0&1] 1 {}
+[!0&!1] 0 {2}
+--END--
+""")
+
+res = spot.tra_to_tba(aut)
+tba = spot.tgba_determinize(res)
+a = spot.dtwa_complement(aut).intersects(tba)
+b = spot.dtwa_complement(tba).intersects(aut)
+assert(a == b)

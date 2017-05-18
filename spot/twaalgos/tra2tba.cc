@@ -108,6 +108,7 @@ namespace spot
     bool is_scc_tba_type(const const_twa_graph_ptr& aut,
                          const scc_info& si,
                          const unsigned scc,
+                         const acc_cond::mark_t fin_alone,
                          std::vector<bool>& final)
     {
       if (si.is_rejecting_scc(scc))
@@ -115,9 +116,18 @@ namespace spot
 
       auto acc_pairs = aut->get_acceptance().used_inf_fin_sets();
       auto infs = si.acc(scc) & acc_pairs.first;
+      auto fins = si.acc(scc) & acc_pairs.second;
       auto infs_with_fins = (si.acc(scc) << 1U) & acc_pairs.first;
       infs -= infs_with_fins;
 
+      // If there is one fin_alone that is not in the SCC,
+      // any cycle in the SCC is accepting.
+      if ((fins & fin_alone) != fin_alone)
+        {
+          for (auto e: scc_edges(aut, si, scc))
+            final[e] = true;
+          return true;
+        }
       auto& states = si.states_of(scc);
       // Firstly consider whole SCC as one large cycle.
       // If there is no inf without matching fin then the cycle formed
@@ -172,7 +182,7 @@ namespace spot
                 }
               if (si.is_rejecting_scc(uscc))
                 continue;
-              if (!is_scc_tba_type(aut, si, uscc, final))
+              if (!is_scc_tba_type(aut, si, uscc, fin_alone, final))
                 return false;
             }
         }
@@ -202,6 +212,7 @@ namespace spot
   {
     if (aut->prop_state_acc().is_true())
       return nullptr;
+
     std::vector<acc_cond::rs_pair> pairs;
     if (!aut->acc().is_rabin_like(pairs))
       return nullptr;
@@ -215,9 +226,17 @@ namespace spot
     std::vector<bool> scc_is_tba_type(si.scc_count(), false);
     std::vector<bool> final(aut->edge_vector().size(), false);
 
+    acc_cond::mark_t inf_alone = 0U;
+    acc_cond::mark_t fin_alone = 0U;
+    for (const auto& p: pairs)
+      if (!p.fin)
+        inf_alone &= p.inf;
+      else if (!p.inf)
+        fin_alone &= p.fin;
+
     for (unsigned scc = 0; scc < si.scc_count(); ++scc)
       {
-        scc_is_tba_type[scc] = is_scc_tba_type(aut, si, scc, final);
+        scc_is_tba_type[scc] = is_scc_tba_type(aut, si, scc, fin_alone, final);
       }
     // compute final edges
     auto res = make_twa_graph(aut->get_dict());
