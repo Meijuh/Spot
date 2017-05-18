@@ -513,6 +513,8 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
   output_aut_ = nullptr;
   input_aut_ = nullptr;
   haut_scc_.reset();
+  aut_ap_.clear();
+  haut_ap_.clear();
   return res;
 }
 

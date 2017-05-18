@@ -121,11 +121,15 @@ protected:
               });
   }
 public:
+  void clear()
+  {
+    val_.clear();
+  }
 
   template<class T>
   void set(T begin, T end)
   {
-    val_.clear();
+    clear();
     val_.insert(val_.end(), begin, end);
     sort();
   }

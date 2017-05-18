@@ -238,3 +238,20 @@ genltl --go-theta=18 | ltl2tgba --low --any -q
 (ltl2tgba Fb ; ltl2tgba 'GFa & GFb') >out1
 ltl2tgba Fb 'GFa & GFb' >out2
 diff out1 out2
+
+# Because atomic proposition were not released by bdd_dict, different
+# order of transitions could be observed in automata output after a
+# previous translation by the same process.  (issue #262).
+ltl2tgba --low --any 'Xp1 xor (Fp1 M (!p1 M (Fp0 W p1)))' \
+         'Fp0 -> XXG(1 U Gp1)' > res1
+ltl2tgba --low --any 'Xp1 xor (Fp1 M (!p1 M (Fp0 W p1)))' >res2
+ltl2tgba --low --any 'Fp0 -> XXG(1 U Gp1)' >>res2
+diff res1 res2
+
+# The same should work when printing SCCs or atomic propositions
+s='--stats=%c,%[,]x'
+ltl2tgba --low --any 'Xp1 xor (Fp1 M (!p1 M (Fp0 W p1)))' \
+         'Fp0 -> XXG(1 U Gp1)' "$s" >res1
+ltl2tgba --low --any 'Xp1 xor (Fp1 M (!p1 M (Fp0 W p1)))' "$s" >res2
+ltl2tgba --low --any 'Fp0 -> XXG(1 U Gp1)' "$s" >>res2
+diff res1 res2

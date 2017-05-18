@@ -239,7 +239,13 @@ namespace
         size_ = spot::length(f);
       if (has('h'))
         class_ = spot::mp_class(f);
-      return format(format_);
+      auto& res = format(format_);
+      // Make sure we do not store the formula until the next one is
+      // printed, as the order in which APs are registered may
+      // influence the automata output.
+      fl_ = nullptr;
+      ap_.clear();
+      return res;
     }
 
   private:

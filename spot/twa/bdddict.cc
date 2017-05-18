@@ -235,7 +235,6 @@ namespace spot
     // ME was the last user of this variable.
     // Let's free it.  First, we need to find
     // if this is a Var or an Acc variable.
-    int n = 1;
     formula f = nullptr;
     switch (bdd_map[v].type)
       {
@@ -249,21 +248,19 @@ namespace spot
         break;
       case anon:
         {
-          bdd_dict_priv::free_anonymous_list_of_type::iterator i;
           // Nobody use this variable as an anonymous variable
           // anymore, so remove it entirely from the anonymous
           // free list so it can be used for something else.
-          for (i = priv_->free_anonymous_list_of.begin();
-               i != priv_->free_anonymous_list_of.end(); ++i)
-            i->second.remove(v, n);
+          for (auto& fal: priv_->free_anonymous_list_of)
+            fal.second.remove(v, 1);
           break;
         }
       }
     // Actually release the associated BDD variables, and the
     // formula itself.
-    priv_->release_variables(v, n);
-    while (n--)
-      bdd_map[v + n].type = anon;
+    priv_->release_variables(v, 1);
+    bdd_map[v].type = anon;
+    bdd_map[v].f = nullptr;
   }
 
   void
@@ -326,7 +323,6 @@ namespace spot
   bdd_dict::assert_emptiness() const
   {
     bool fail = false;
-
     bool var_seen = false;
     bool acc_seen = false;
     bool refs_seen = false;
