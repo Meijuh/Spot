@@ -635,10 +635,21 @@ namespace spot
   {
     if (other == shared_from_this())
       return;
+
     auto orig = get_named_prop<std::vector<unsigned>>("original-states");
+    auto sims = get_named_prop<std::vector<unsigned>>("simulated-states");
+
+    if (orig && sims)
+      throw std::runtime_error("copy_state_names_from(): original-states and "
+                               "simulated-states are both set");
+
     if (orig && orig->size() != num_states())
       throw std::runtime_error("copy_state_names_from(): unexpected size "
                                "for original-states");
+
+    if (sims && sims->size() != other->num_states())
+      throw std::runtime_error("copy_state_names_from(): unexpected size "
+                               "for simulated-states");
 
     auto names = std::unique_ptr<std::vector<std::string>>
       (new std::vector<std::string>);
@@ -647,11 +658,27 @@ namespace spot
 
     for (unsigned s = 0; s < ns; ++s)
       {
-        unsigned other_s = orig ? (*orig)[s] : s;
-        if (other_s >= ons)
-          throw std::runtime_error("copy_state_names_from(): state does not"
-                                   " exist in source automaton");
-        names->emplace_back(other->format_state(other_s));
+        std::string newname = "";
+        if (sims)
+          {
+            for (unsigned t = 0; t < ons; ++t)
+              {
+                if (s == (*sims)[t])
+                  newname += other->format_state(t) + ',';
+              }
+            assert(!newname.empty());
+            newname.pop_back(); // remove trailing comma
+            newname = '[' + newname + ']';
+          }
+        else
+          {
+            unsigned other_s = orig ? (*orig)[s] : s;
+            if (other_s >= ons)
+              throw std::runtime_error("copy_state_names_from(): state does not"
+                                       " exist in source automaton");
+            newname = other->format_state(other_s);
+          }
+        names->emplace_back(newname);
       }
 
     set_named_prop("state-names", names.release());

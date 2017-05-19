@@ -185,7 +185,8 @@ namespace spot
     }
 
     std::string
-    nodes_to_string(const safra_state::nodes_t& states)
+    nodes_to_string(const const_twa_graph_ptr& aut,
+                    const safra_state::nodes_t& states)
     {
       auto copy = sorted_nodes(states);
       std::ostringstream os;
@@ -223,7 +224,7 @@ namespace spot
             }
           if (!first)
             os << ' ';
-          os << n.first;
+          os << aut->format_state(n.first);
           first = false;
         }
       // Finish unwinding stack to print last braces
@@ -236,11 +237,12 @@ namespace spot
     }
 
     std::vector<std::string>*
-    print_debug(std::map<safra_state, int>& states)
+    print_debug(const const_twa_graph_ptr& aut,
+                const std::map<safra_state, int>& states)
     {
       auto res = new std::vector<std::string>(states.size());
-      for (auto& p: states)
-        (*res)[p.second] = nodes_to_string(p.first.nodes_);
+      for (const auto& p: states)
+        (*res)[p.second] = nodes_to_string(aut, p.first.nodes_);
       return res;
     }
 
@@ -576,11 +578,16 @@ namespace spot
 
     // Degeneralize
     twa_graph_ptr aut = spot::degeneralize_tba(a);
+    if (pretty_print)
+      aut->copy_state_names_from(a);
     std::vector<bdd> implications;
     if (use_simulation)
       {
         aut = spot::scc_filter(aut);
-        aut = simulation(aut, &implications);
+        auto aut2 = simulation(aut, &implications);
+        if (pretty_print)
+          aut2->copy_state_names_from(aut);
+        aut = aut2;
       }
     scc_info scc = scc_info(aut);
     std::vector<bool> is_connected = find_scc_paths(scc);
@@ -694,7 +701,7 @@ namespace spot
     res->prop_state_acc(false);
 
     if (pretty_print)
-      res->set_named_prop("state-names", print_debug(seen));
+      res->set_named_prop("state-names", print_debug(aut, seen));
     return res;
   }
 }

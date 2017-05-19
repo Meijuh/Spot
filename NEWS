@@ -54,6 +54,11 @@ New in spot 2.3.4.dev (not yet released)
     the second command outputs an automaton with states that show
     references to the first one.
 
+  - A new named property for automata called "simulated-states" can be
+    used to record the origin of a state through simulation. The
+    behavior is similar to "original-states" above. Determinization
+    takes advantage of this in its pretty print.
+
   - The new function spot::acc_cond::is_streett_like() checks whether
     an acceptance condition is conjunction of disjunctive clauses
     containing at most one Inf and at most one Fin.  It builds a

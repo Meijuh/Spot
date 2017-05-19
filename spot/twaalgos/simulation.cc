@@ -439,6 +439,10 @@ namespace spot
         res->copy_ap_of(a_);
         res->copy_acceptance_of(a_);
 
+        auto state_mapping = new std::vector<unsigned>();
+        state_mapping->resize(a_->num_states());
+        res->set_named_prop("simulated-states", state_mapping);
+
         // Non atomic propositions variables (= acc and class)
         bdd nonapvars = all_proms_ & bdd_support(all_class_var_);
 
@@ -454,6 +458,9 @@ namespace spot
             // its class, or by all the implied classes.
             auto s = gb->new_state(cl.id());
             gb->alias_state(s, relation_[cl].id());
+            // update state_mapping
+            for (auto& st : p.second)
+              (*state_mapping)[st] = s;
             if (implications)
               (*implications)[s] = relation_[cl];
           }
