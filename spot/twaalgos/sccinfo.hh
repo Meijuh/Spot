@@ -277,12 +277,45 @@ namespace spot
     // support that yet.
     typedef scc_info_node scc_node;
     typedef scc_info_node::scc_succs scc_succs;
+    /// @{
+    /// \brief An edge_filter may be called on each edge to decide what
+    /// to do with it.
+    ///
+    /// The edge filter is called with an edge and a destination.  (In
+    /// existential automata the destination is already given by the
+    /// edge, but in alternating automata, one edge may have several
+    /// destinations, and in this case the filter will be called for
+    /// each destination.)  The filter should return a value from
+    /// edge_filter_choice.
+    ///
+    /// \c keep means to use the edge normally, as if no filter had
+    /// been given.  \c ignore means to pretend the edge does not
+    /// exist (if the destination is only reachable through this edge,
+    /// it will not be visited). \c cut also ignores the edge, but
+    /// it remembers to visit the destination state (as if it were an
+    /// initial state) in case it is not reachable otherwise.
+    ///
+    /// Note that successors between SCCs can only be maintained for
+    /// edges that are kept.  If some edges are ignored or cut, the
+    /// SCC graph that you can explore with scc_info::initial() and
+    /// scc_info::succ() will be restricted to the portion reachable
+    /// with "keep" edges.  Additionally SCCs might be created when
+    /// edges are cut, but those will not be reachable from
+    /// scc_info::initial()..
+    enum class edge_filter_choice { keep, ignore, cut };
+    typedef edge_filter_choice
+      (*edge_filter)(const twa_graph::edge_storage_t& e, unsigned dst,
+                     void* filter_data);
+    /// @}
 
   protected:
 
     std::vector<unsigned> sccof_;
     std::vector<scc_node> node_;
     const_twa_graph_ptr aut_;
+    unsigned initial_state_;
+    edge_filter filter_;
+    void* filter_data_;
 
     // Update the useful_ bits.  Called automatically.
     void determine_usefulness();
@@ -293,7 +326,13 @@ namespace spot
     }
 
   public:
-    scc_info(const_twa_graph_ptr aut);
+
+    // Use ~0U instead of -1U to work around a bug in Swig.
+    // See https://github.com/swig/swig/issues/993
+    scc_info(const_twa_graph_ptr aut,
+             unsigned initial_state = ~0U,
+             edge_filter filter = nullptr,
+             void* filter_data = nullptr);
 
     const_twa_graph_ptr get_aut() const
     {
@@ -389,8 +428,8 @@ namespace spot
     /// \brief Get number of the SCC containing the initial state.
     unsigned initial() const
     {
-      SPOT_ASSERT(scc_count() - 1 == scc_of(aut_->get_init_state_number()));
-      return scc_count() - 1;
+      SPOT_ASSERT(filter_ || scc_count() - 1 == scc_of(initial_state_));
+      return scc_of(initial_state_);
     }
 
     const scc_succs& succ(unsigned scc) const

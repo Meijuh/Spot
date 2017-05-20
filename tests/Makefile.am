@@ -88,6 +88,7 @@ check_PROGRAMS = \
   core/reduceu \
   core/reductaustr \
   core/safra \
+  core/sccif \
   core/syntimpl \
   core/taatgba \
   core/trival \
@@ -134,6 +135,7 @@ core_reduceu_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC -DEVENT_UNIV
 core_reductaustr_SOURCES = core/equalsf.cc
 core_reductaustr_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC_TAUSTR
 core_safra_SOURCES = core/safra.cc
+core_sccif_SOURCES = core/sccif.cc
 core_syntimpl_SOURCES = core/syntimpl.cc
 core_tostring_SOURCES = core/tostring.cc
 core_trival_SOURCES = core/trival.cc
@@ -245,6 +247,7 @@ TESTS_twa = \
   core/lbttparse.test \
   core/scc.test \
   core/sccdot.test \
+  core/sccif.test \
   core/sccsimpl.test \
   core/sepsets.test \
   core/split.test \

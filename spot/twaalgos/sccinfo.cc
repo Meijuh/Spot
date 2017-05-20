@@ -47,8 +47,12 @@ namespace spot
     };
   }
 
-  scc_info::scc_info(const_twa_graph_ptr aut)
-    : aut_(aut)
+  scc_info::scc_info(const_twa_graph_ptr aut,
+                     unsigned initial_state,
+                     edge_filter filter,
+                     void* filter_data)
+    : aut_(aut), initial_state_(initial_state),
+      filter_(filter), filter_data_(filter_data)
   {
     unsigned n = aut->num_states();
     sccof_.resize(n, -1U);
@@ -74,10 +78,28 @@ namespace spot
     std::stack<stack_item> todo_;
     auto& gr = aut->get_graph();
 
+
+    std::deque<unsigned> init_states;
+    std::vector<bool> init_seen(n, false);
+    auto push_init = [&](unsigned s)
+      {
+        if (h_[s] != 0 || init_seen[s])
+          return;
+        init_seen[s] = true;
+        init_states.push_back(s);
+      };
+
     // Setup depth-first search from the initial state.  But we may
     // have a conjunction of initial state in alternating automata.
-    for (unsigned init: aut->univ_dests(aut->get_init_state_number()))
+    if (initial_state_ == -1U)
+      initial_state_ = aut->get_init_state_number();
+    for (unsigned init: aut->univ_dests(initial_state_))
+      push_init(init);
+
+    while (!init_states.empty())
       {
+        unsigned init = init_states.front();
+        init_states.pop_front();
         int spi = h_[init];
         if (spi > 0)
           continue;
@@ -133,6 +155,17 @@ namespace spot
                       for (auto& t: aut->out(s))
                         for (unsigned d: aut->univ_dests(t))
                           {
+                            // If edges are cut, we are not able to
+                            // maintain proper successor information.
+                            if (filter_)
+                              switch (filter_(t, d, filter_data_))
+                                {
+                                case edge_filter_choice::keep:
+                                  break;
+                                case edge_filter_choice::ignore:
+                                case edge_filter_choice::cut:
+                                  continue;
+                                }
                             unsigned n = sccof_[d];
                             assert(n != -1U);
                             if (n == num)
@@ -179,6 +212,7 @@ namespace spot
             // We have a successor to look at.
             // Fetch the values we are interested in...
             auto& e = gr.edge_storage(tr_succ);
+
             unsigned dest = e.dst;
             if ((int) dest < 0)
               {
@@ -202,6 +236,19 @@ namespace spot
               {
                 todo_.top().out_edge = e.next_succ;
               }
+
+            // Do we really want to look at this
+            if (filter_)
+              switch (filter_(e, dest, filter_data_))
+                {
+                case edge_filter_choice::keep:
+                  break;
+                case edge_filter_choice::ignore:
+                  continue;
+                case edge_filter_choice::cut:
+                  push_init(e.dst);
+                  continue;
+                }
 
             auto acc = e.acc;
 
