@@ -422,6 +422,7 @@ namespace spot
     is_rs_like(const acc_cond::acc_code& code,
               acc_cond::acc_op highop,
               acc_cond::acc_op lowop,
+              acc_cond::acc_op singleop,
               std::vector<acc_cond::rs_pair>& pairs)
     {
       assert(pairs.empty());
@@ -430,20 +431,23 @@ namespace spot
 
       if (mainop == acc_cond::acc_op::Fin || mainop == acc_cond::acc_op::Inf)
         {
-          assert(code.size() != 2);
+          assert(code.size() == 2);
 
           auto m = code[0].mark;
-          if (m.count() != 1)
+          if (mainop == singleop && m.count() != 1)
             return false;
 
           acc_cond::mark_t fin(0U);
           acc_cond::mark_t inf(0U);
-          if (mainop == acc_cond::acc_op::Fin)
-            fin = m;
-          else
-            inf = m;
+          for (unsigned mark: m.sets())
+            {
+              if (mainop == acc_cond::acc_op::Fin)
+                fin = {mark};
+              else
+                inf = {mark};
 
-          pairs.emplace_back(fin, inf);
+              pairs.emplace_back(fin, inf);
+            }
           return true;
         }
       else if (mainop == lowop)      // Single pair?
@@ -468,13 +472,16 @@ namespace spot
               acc_cond::mark_t fin(0U);
               acc_cond::mark_t inf(0U);
 
-              if (m.count() != 1)
+              if (op == singleop && m.count() != 1)
                 return false;
-              if (op == acc_cond::acc_op::Fin)
-                fin = m;
-              else //fin
-                inf = m;
-              pairs.emplace_back(fin, inf);
+              for (unsigned mark: m.sets())
+                {
+                  if (op == acc_cond::acc_op::Fin)
+                    fin = {mark};
+                  else //fin
+                    inf = {mark};
+                  pairs.emplace_back(fin, inf);
+                }
             }
           else
             {
@@ -544,7 +551,7 @@ namespace spot
         pairs.emplace_back(0U, 0U);
         return true;
       }
-    return is_rs_like(code_, acc_op::And, acc_op::Or, pairs);
+    return is_rs_like(code_, acc_op::And, acc_op::Or, acc_op::Fin, pairs);
   }
 
   bool acc_cond::is_rabin_like(std::vector<rs_pair>& pairs) const
@@ -557,7 +564,7 @@ namespace spot
         pairs.emplace_back(0U, 0U);
         return true;
       }
-    return is_rs_like(code_, acc_op::Or, acc_op::And, pairs);
+    return is_rs_like(code_, acc_op::Or, acc_op::And, acc_op::Inf, pairs);
   }
 
   // PAIRS contains the number of Inf in each pair.

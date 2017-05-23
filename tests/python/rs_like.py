@@ -54,6 +54,9 @@ def test_rabin(acc, expected_rabin_like, expected_pairs):
   o_acc = spot.acc_cond(acc.get_acceptance().complement())
   test_rs(o_acc, 'streett', expected_rabin_like, switch_pairs(expected_pairs))
 
+acc = spot.acc_cond(spot.acc_code('Fin(0)'))
+test_streett(acc, True, [spot.rs_pair(m0, mall)])
+
 acc = spot.acc_cond(spot.acc_code('Fin(0)|Inf(1)'))
 test_streett(acc, True, [spot.rs_pair(m0, m1)])
 
