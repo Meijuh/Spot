@@ -101,12 +101,10 @@ namespace spot
       // that do not visit Fᵢ.
       std::set<unsigned> unknown;
       for (auto s: states)
-        {
-          if (aut->state_acc_sets(s) & i)
-            final[s] = true;
-          else
-            unknown.insert(s);
-        }
+        if (aut->state_acc_sets(s) & i)
+          final[s] = true;
+        else
+          unknown.insert(s);
       // Check whether it is possible to build non-accepting cycles
       // using only the "unknown" states.
       while (!unknown.empty())
@@ -115,7 +113,18 @@ namespace spot
           for (auto s: unknown)
             keep[s] = true;
 
-          scc_info si(mask_keep_states(aut, keep, *unknown.begin()));
+          scc_info::edge_filter filter =
+            [](const twa_graph::edge_storage_t&, unsigned dst,
+               void* filter_data) -> scc_info::edge_filter_choice
+            {
+              auto& keepref = *reinterpret_cast<decltype(keep)*>(filter_data);
+              if (keepref[dst])
+                return scc_info::edge_filter_choice::keep;
+              else
+                return scc_info::edge_filter_choice::ignore;
+            };
+
+          scc_info si(aut, *unknown.begin(), filter, &keep);
           unsigned scc_max = si.scc_count();
           for (unsigned scc = 0; scc < scc_max; ++scc)
             {
