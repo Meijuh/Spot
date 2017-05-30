@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2015  Laboratoire de Recherche et Développement
+# Copyright (C) 2015, 2017  Laboratoire de Recherche et Développement
 # de l'Epita
 #
 # This file is part of Spot, a model checking library.
@@ -30,6 +30,16 @@ assert(a.is_parity(True)[0] == False)
 a.set_acceptance('Inf(4) | (Fin(3)&Inf(2)) | (Fin(3)&Fin(1)&Inf(0))')
 assert(a.is_parity()[0] == False)
 assert(a.is_parity(True) == [True, True, False])
+
+assert a.maybe_accepting([1, 2, 3], [0, 4]).is_true()
+assert a.maybe_accepting([0], []).is_true()
+assert a.maybe_accepting([0], [3]).is_false()
+assert a.maybe_accepting([0, 3], []).is_maybe()
+assert a.maybe_accepting([2, 3], [3]).is_false()
+assert a.maybe_accepting([2, 3], []).is_maybe()
+assert a.maybe_accepting([2], []).is_true()
+assert a.maybe_accepting([0, 1], []).is_maybe()
+assert a.maybe_accepting([0, 1], [1]).is_false()
 
 a = spot.acc_cond(0)
 a.set_acceptance('all')

@@ -215,39 +215,52 @@ namespace spot
       return false;
     }
 
-    static bool
-    inf_eval(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
+    static trival
+    partial_eval(acc_cond::mark_t infinitely_often,
+                 acc_cond::mark_t always_present,
+                 const acc_cond::acc_word* pos)
     {
       switch (pos->sub.op)
         {
         case acc_cond::acc_op::And:
           {
             auto sub = pos - pos->sub.size;
+            trival res = true;
             while (sub < pos)
               {
                 --pos;
-                if (!inf_eval(inf, pos))
-                  return false;
+                res = res &&
+                  partial_eval(infinitely_often, always_present, pos);
+                if (res.is_false())
+                  return res;
                 pos -= pos->sub.size;
               }
-            return true;
+            return res;
           }
         case acc_cond::acc_op::Or:
           {
             auto sub = pos - pos->sub.size;
+            trival res = false;
             while (sub < pos)
               {
                 --pos;
-                if (inf_eval(inf, pos))
-                  return true;
+                res = res ||
+                  partial_eval(infinitely_often, always_present, pos);
+                if (res.is_true())
+                  return res;
                 pos -= pos->sub.size;
               }
-            return false;
+            return res;
           }
         case acc_cond::acc_op::Inf:
-          return (pos[-1].mark & inf) == pos[-1].mark;
+          return (pos[-1].mark & infinitely_often) == pos[-1].mark;
         case acc_cond::acc_op::Fin:
-          return true;
+          if (pos[-1].mark & always_present)
+            return false;
+          else if (pos[-1].mark & infinitely_often)
+            return trival::maybe();
+          else
+            return true;
         case acc_cond::acc_op::FinNeg:
         case acc_cond::acc_op::InfNeg:
           SPOT_UNREACHABLE();
@@ -310,12 +323,20 @@ namespace spot
     return eval(inf, &back());
   }
 
-  bool acc_cond::acc_code::inf_satisfiable(mark_t inf) const
+  trival acc_cond::acc_code::maybe_accepting(mark_t infinitely_often,
+                                             mark_t always_present) const
   {
     if (empty())
       return true;
-    return inf_eval(inf, &back());
+    return partial_eval(infinitely_often | always_present,
+                        always_present, &back());
   }
+
+  bool acc_cond::acc_code::inf_satisfiable(mark_t inf) const
+  {
+    return !maybe_accepting(inf, 0U).is_false();
+  }
+
 
   acc_cond::mark_t acc_cond::accepting_sets(mark_t inf) const
   {

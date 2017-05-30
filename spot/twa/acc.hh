@@ -24,6 +24,7 @@
 #include <sstream>
 #include <vector>
 #include <spot/tl/defaultenv.hh>
+#include <spot/misc/trival.hh>
 #include <iostream>
 
 namespace spot
@@ -888,6 +889,10 @@ namespace spot
 
       bool inf_satisfiable(mark_t inf) const;
 
+      trival maybe_accepting(mark_t infinitely_often,
+                             mark_t always_present) const;
+
+
       // Remove all the acceptance sets in rem.
       //
       // If MISSING is set, the acceptance sets are assumed to be
@@ -1236,6 +1241,11 @@ namespace spot
     bool inf_satisfiable(mark_t inf) const
     {
       return code_.inf_satisfiable(inf);
+    }
+
+    trival maybe_accepting(mark_t infinitely_often, mark_t always_present) const
+    {
+      return code_.maybe_accepting(infinitely_often, always_present);
     }
 
     mark_t accepting_sets(mark_t inf) const;
