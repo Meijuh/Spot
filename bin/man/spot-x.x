@@ -66,6 +66,11 @@ but the use of the environment variable makes more sense if you set
 it up once for many commands.
 
 .TP
+\fBSPOT_DEBUG_PARSER\fR
+If this variable is set to any value, the automaton parser of Spot is
+executed in debug mode, showing how the input is processed.
+
+.TP
 \fBSPOT_DOTDEFAULT\fR
 Whenever the \f(CW--dot\fR option is used without argument (even
 implicitely via \fBSPOT_DEFAULT_FORMAT\fR), the contents of this
@@ -130,6 +135,31 @@ than 2, because the "Fin-removal" approach is better for single-pair
 Streett automata.
 
 .TP
+\fBSPOT_STUTTER_CHECK\fR
+Select the default check used to decide stutter invariance.  The
+variable should hold a value between 1 and 8, corresponding to the
+following tests described in our Spin'15 paper (see the BIBLIOGRAPHY
+section).  The default is 8.
+.RS
+.IP 1
+sl(a) x sl(!a)
+.IP 2
+sl(cl(a)) x !a
+.IP 3
+cl(sl(a)) x !a
+.IP 4
+sl2(a) x sl2(!a)
+.IP 5
+sl2(cl(a)) x !a
+.IP 6
+cl(sl2(a)) x !a
+.IP 7
+sl(a) x sl(!a), performed on-the-fly
+.IP 8
+cl(a) x cl(!a)
+.RE
+
+.TP
 \fBSPOT_TMPDIR\fR, \fBTMPDIR\fR
 These variables control in which directory temporary files (e.g.,
 those who contain the input and output when interfacing with
@@ -181,6 +211,15 @@ SAT Solving.  Proceedings of SAT'10.  LNCS 6175.
 
 Our SAT-based minimization procedures are generalizations of this
 paper to deal with TBA or TGBA.
+
+.TP
+4.
+Thibaud Michaud and Alexandre Duret-Lutz: Practical stutter-invariance
+checks for ω-regular languages, Proceedings of SPIN'15.  LNCS 9232.
+
+Describes the stutter-invariance checks that can be selected through
+\fBSPOT_STUTTER_CHECK\fR.
+
 
 [SEE ALSO]
 .BR ltl2tgba (1)

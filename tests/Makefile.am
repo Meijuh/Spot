@@ -418,6 +418,7 @@ endif
 TESTS_sanity = \
   sanity/80columns.test \
   sanity/bin.test \
+  sanity/getenv.test \
   sanity/includes.test \
   sanity/ipynb.pl \
   sanity/namedprop.test \
