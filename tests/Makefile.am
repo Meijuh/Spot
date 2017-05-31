@@ -420,6 +420,7 @@ TESTS_sanity = \
   sanity/bin.test \
   sanity/includes.test \
   sanity/ipynb.pl \
+  sanity/namedprop.test \
   sanity/private.test \
   sanity/readme.pl \
   sanity/style.test
