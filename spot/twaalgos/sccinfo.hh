@@ -195,6 +195,7 @@ namespace spot
   protected:
     scc_succs succ_;
     acc_cond::mark_t acc_;
+    acc_cond::mark_t common_;
     std::vector<unsigned> states_; // States of the component
     bool trivial_:1;
     bool accepting_:1;        // Necessarily accepting
@@ -207,8 +208,10 @@ namespace spot
     {
     }
 
-    scc_info_node(acc_cond::mark_t acc, bool trivial):
-      acc_(acc), trivial_(trivial), accepting_(false),
+    scc_info_node(acc_cond::mark_t acc,
+                  acc_cond::mark_t common, bool trivial):
+      acc_(acc), common_(common),
+      trivial_(trivial), accepting_(false),
       rejecting_(false), useful_(false)
     {
     }
@@ -244,6 +247,11 @@ namespace spot
     acc_cond::mark_t acc_marks() const
     {
       return acc_;
+    }
+
+    acc_cond::mark_t common_marks() const
+    {
+      return common_;
     }
 
     const std::vector<unsigned>& states() const
@@ -477,7 +485,18 @@ namespace spot
 
     std::set<acc_cond::mark_t> used_acc_of(unsigned scc) const;
 
-    acc_cond::mark_t acc_sets_of(unsigned scc) const;
+    /// sets that contain at least one transition of the SCC
+    acc_cond::mark_t acc_sets_of(unsigned scc) const
+    {
+      // FIXME: Why do we have two name for this method?
+      return acc(scc);
+    }
+
+    /// sets that contain the entire SCC
+    acc_cond::mark_t common_sets_of(unsigned scc) const
+    {
+      return node(scc).common_marks();
+    }
 
     std::vector<bool> weak_sccs() const;
 

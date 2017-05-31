@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Laboratoire de Recherche et Développement de
+# Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement de
 # l'Epita
 #
 # This file is part of Spot, a model checking library.
@@ -186,3 +186,23 @@ State: 7
 --END--
 EOF
 diff expected.hoa out.hoa
+
+
+cat >input <<'EOF'
+HOA: v1
+States: 2
+Start: 0&1
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 2 Inf(0) & Fin(1)
+--BODY--
+State: 0 {0 1}
+[0&1] 0
+[!0&1] 1
+State: 1 {0 1}
+[0&!1] 0
+[!0&!1] 1
+--END--
+EOF
+# This has one useless component
+autfilt --dot=s input | grep grey

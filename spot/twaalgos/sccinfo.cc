@@ -40,7 +40,8 @@ namespace spot
       }
 
       acc_cond::mark_t in_acc;  // Acceptance sets on the incoming transition
-      acc_cond::mark_t acc = 0U; // union of all acceptance sets in the SCC
+      acc_cond::mark_t acc = 0U; // union of all acceptance marks in the SCC
+      acc_cond::mark_t common = -1U; // intersection of all marks in the SCC
       int index;                // Index of the SCC
       bool trivial = true;        // Whether the SCC has no cycle
       bool accepting = false;        // Necessarily accepting
@@ -130,9 +131,10 @@ namespace spot
                 if (root_.back().index == h_[curr])
                   {
                     unsigned num = node_.size();
-                    auto acc = root_.back().acc;
+                    acc_cond::mark_t acc = root_.back().acc;
+                    acc_cond::mark_t common = root_.back().common;
                     bool triv = root_.back().trivial;
-                    node_.emplace_back(acc, triv);
+                    node_.emplace_back(acc, common, triv);
 
                     // Move all elements of this SCC from the live stack
                     // to the the node.
@@ -176,33 +178,8 @@ namespace spot
                     succ.insert(succ.end(), dests.begin(), dests.end());
                     bool accept = !triv && root_.back().accepting;
                     node_.back().accepting_ = accept;
-                    bool reject = triv || !aut->acc().inf_satisfiable(acc);
-                    // If the SCC acceptance is indeterminate, but has
-                    // only self-loops with the same mark, it is
-                    // necessarily rejecting, otherwise we would have
-                    // found it to be accepting.
-                    if (!accept && !reject && nbs.size() == 1)
-                      {
-                        acc_cond::mark_t selfacc = 0;
-                        bool first = true;
-                        reject = true;
-                        for (const auto& e: aut->out(nbs.front()))
-                          for (unsigned d: aut->univ_dests(e))
-                            if (e.src == d)
-                              {
-                                if (first)
-                                  {
-                                    selfacc = e.acc;
-                                    first = false;
-                                  }
-                                else if (selfacc != e.acc)
-                                  {
-                                    reject = false;
-                                    goto break2;
-                                  }
-                              }
-                      }
-                  break2:
+                    bool reject = triv ||
+                      aut->acc().maybe_accepting(acc, common).is_false();
                     node_.back().rejecting_ = reject;
                     root_.pop_back();
                   }
@@ -250,7 +227,7 @@ namespace spot
                   continue;
                 }
 
-            auto acc = e.acc;
+            acc_cond::mark_t acc = e.acc;
 
             // Are we going to a new state?
             int spi = h_[dest];
@@ -288,11 +265,15 @@ namespace spot
             if (dest == e.src)
               is_accepting = aut->acc().accepting(acc);
 
+            acc_cond::mark_t common = acc;
             assert(!root_.empty());
             while (threshold > root_.back().index)
               {
                 acc |= root_.back().acc;
-                acc |= root_.back().in_acc;
+                acc_cond::mark_t in_acc = root_.back().in_acc;
+                acc |= in_acc;
+                common &= root_.back().common;
+                common &= in_acc;
                 is_accepting |= root_.back().accepting;
                 root_.pop_back();
                 assert(!root_.empty());
@@ -303,9 +284,8 @@ namespace spot
             // after this loop, the SCC whose index is threshold might have
             // been merged with a higher SCC.
 
-            // Accumulate all acceptance conditions, states, SCC
-            // successors, and conditions into the merged SCC.
             root_.back().acc |= acc;
+            root_.back().common &= common;
             root_.back().accepting |= is_accepting
               || aut->acc().accepting(root_.back().acc);
             // This SCC is no longer trivial.
@@ -343,14 +323,6 @@ namespace spot
     std::set<acc_cond::mark_t> res;
     for (auto& t: inner_edges_of(scc))
       res.insert(t.acc);
-    return res;
-  }
-
-  acc_cond::mark_t scc_info::acc_sets_of(unsigned scc) const
-  {
-    acc_cond::mark_t res = 0U;
-    for (auto& t: inner_edges_of(scc))
-      res |= t.acc;
     return res;
   }
 

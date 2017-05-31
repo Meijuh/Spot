@@ -88,6 +88,11 @@ New in spot 2.3.4.dev (not yet released)
   - spot::scc_info can now be passed a filter function to ignore
     or cut some edges.
 
+  - spot::scc_info now keeps track of acceptance sets that are common
+    to all edges in an SCC.  These can be retrieved using
+    scc_info::common_sets_of(scc), and they are used by scc_info to
+    classify some SCCs as rejecting more easily.
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.
