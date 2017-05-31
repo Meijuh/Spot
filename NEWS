@@ -6,6 +6,11 @@ New in spot 2.3.4.dev (not yet released)
     single ltl2tgba run could produce automata different from those
     produced by individual runs.
 
+  - The print_dot() function had a couple of issues when printing
+    alternating automata: in particular, when using flag 's' (display
+    SCC) or 'y' (split universal destination by colors) universal
+    edges could be connected to undefined states.
+
 New in spot 2.3.4 (2017-05-11)
 
   Bugs fixed:

@@ -69,6 +69,8 @@ namespace spot
       std::vector<std::pair<unsigned, unsigned>>* sprod_ = nullptr;
       std::set<unsigned>* incomplete_ = nullptr;
       std::string* name_ = nullptr;
+      std::map<std::pair<int, int>, int> univ_done;
+
       acc_cond::mark_t inf_sets_ = 0U;
       acc_cond::mark_t fin_sets_ = 0U;
       unsigned opt_shift_sets_ = 0;
@@ -366,28 +368,39 @@ namespace spot
         return bdd_format_formula(aut_->get_dict(), label);
       }
 
-      std::set<std::pair<int, int>> done;
-
-      void
-      print_dst(int dst, const char* style = nullptr, int scc_num = -1,
-                int color_num = -1)
+      std::string string_dst(int dst, int color_num = -1)
       {
         std::ostringstream tmp_dst;
         tmp_dst << dst;
-        if (scc_num >= 0)
-          tmp_dst << '.' << scc_num;
-        if (!done.emplace(std::make_pair(dst, color_num)).second)
-          return;
-        else if (!opt_shared_univ_dest_ && color_num > 0)
+        if (!opt_shared_univ_dest_ && color_num >= 0)
           tmp_dst << '.' << color_num;
-        std::string dest = tmp_dst.str();
-        os_ << "    " << dest << " [label=<>,shape=point]\n";
-        for (unsigned d: aut_->univ_dests(dst))
+        return tmp_dst.str();
+      }
+
+      void
+      print_dst(int dst, bool print_edges = false,
+                const char* style = nullptr, int color_num = -1)
+      {
+        int& univ = univ_done[std::make_pair(dst, color_num)];
+        if (univ == 2)
+          return;
+        std::string dest = string_dst(dst, color_num);
+        if (univ == 0)
+          os_ << "  " << dest << " [label=<>,shape=point]\n";
+        if (print_edges)
           {
-            os_ << "    " << dest << " -> " << d;
-            if (style && *style)
-              os_ << " [" << style << ']';
-            os_ << '\n';
+            for (unsigned d: aut_->univ_dests(dst))
+              {
+                os_ << "  " << dest << " -> " << d;
+                if (style && *style)
+                  os_ << " [" << style << ']';
+                os_ << '\n';
+              }
+            univ = 2;
+          }
+        else
+          {
+            univ = 1;
           }
       }
 
@@ -478,14 +491,9 @@ namespace spot
         int init = (int) aut_->get_init_state_number();
         os_ << "=0]\n  I -> " << init;
         if (init >= 0)
-          {
-            os_ << '\n';
-          }
+          os_ << '\n';
         else
-          {
-            os_ << " [arrowhead=onormal]\n";
-            print_dst(init);
-          }
+          os_ << " [arrowhead=onormal]\n";
       }
 
       void
@@ -586,63 +594,63 @@ namespace spot
 
       void
       process_link(const twa_graph::edge_storage_t& t, int number,
-                   int scc_num = -1)
+                   bool print_edges)
       {
-        os_ << "  " << t.src << " -> " << (int)t.dst;
-        if (scc_num >= 0)
+        if (print_edges)
           {
-            os_ << '.' << scc_num;
-          }
-        if (aut_->is_univ_dest(t.dst) && highlight_edges_
-            && !opt_shared_univ_dest_)
-          {
-            auto idx = aut_->get_graph().index_of_edge(t);
-            auto iter = highlight_edges_->find(idx);
-            os_ << '.' << iter->second % palette_mod;
-          }
-        std::string label;
-        if (!opt_state_labels_)
-          label = bdd_format_formula(aut_->get_dict(), t.cond);
-        if (!opt_html_labels_)
-          {
-            os_ << " [label=\"";
-            escape_str(os_, label);
-            if (!mark_states_)
-              if (auto a = t.acc)
-                {
-                  if (!opt_state_labels_)
-                    os_ << "\\n";
-                  output_set(a);
-                }
-            os_ << '"';
-          }
-        else
-          {
-            os_ << " [label=<";
-            escape_html(os_, label);
-            if (!mark_states_)
-              if (auto a = t.acc)
-                {
-                  if (!opt_state_labels_)
-                    os_ << "<br/>";
-                  output_html_set(a);
-                }
-            os_ << '>';
-          }
-        if (opt_ordered_edges_ || opt_numbered_edges_)
-          {
-            os_ << ", taillabel=\"";
-            if (opt_ordered_edges_)
-              os_ << number;
-            if (opt_ordered_edges_ && opt_numbered_edges_)
-              os_ << ' ';
-            if (opt_numbered_edges_)
-              os_ << '#' << aut_->get_graph().index_of_edge(t);
-            os_ << '"';
+            os_ << "  " << t.src << " -> " << (int)t.dst;
+            if (aut_->is_univ_dest(t.dst) && highlight_edges_
+                && !opt_shared_univ_dest_)
+              {
+                auto idx = aut_->get_graph().index_of_edge(t);
+                auto iter = highlight_edges_->find(idx);
+                if (iter != highlight_edges_->end())
+                  os_ << '.' << iter->second % palette_mod;
+              }
+            std::string label;
+            if (!opt_state_labels_)
+              label = bdd_format_formula(aut_->get_dict(), t.cond);
+            if (!opt_html_labels_)
+              {
+                os_ << " [label=\"";
+                escape_str(os_, label);
+                if (!mark_states_)
+                  if (auto a = t.acc)
+                    {
+                      if (!opt_state_labels_)
+                        os_ << "\\n";
+                      output_set(a);
+                    }
+                os_ << '"';
+              }
+            else
+              {
+                os_ << " [label=<";
+                escape_html(os_, label);
+                if (!mark_states_)
+                  if (auto a = t.acc)
+                    {
+                      if (!opt_state_labels_)
+                        os_ << "<br/>";
+                      output_html_set(a);
+                    }
+                os_ << '>';
+              }
+            if (opt_ordered_edges_ || opt_numbered_edges_)
+              {
+                os_ << ", taillabel=\"";
+                if (opt_ordered_edges_)
+                  os_ << number;
+                if (opt_ordered_edges_ && opt_numbered_edges_)
+                  os_ << ' ';
+                if (opt_numbered_edges_)
+                  os_ << '#' << aut_->get_graph().index_of_edge(t);
+                os_ << '"';
+              }
           }
 
         std::string highlight;
-        auto color_num = -1;
+        int color_num = -1;
         if (highlight_edges_)
           {
             auto idx = aut_->get_graph().index_of_edge(t);
@@ -654,21 +662,20 @@ namespace spot
                   << palette[iter->second % palette_mod]
                   << '"';
                 highlight = o.str();
-                os_ << ", " << highlight;
+                if (print_edges)
+                  os_ << ", " << highlight;
                 if (!opt_shared_univ_dest_)
                   color_num = iter->second % palette_mod;
               }
           }
-        if (aut_->is_univ_dest(t.dst))
-          os_ << ", arrowhead=onormal";
-        os_ << "]\n";
-        if (aut_->is_univ_dest(t.dst))
+        if (print_edges)
           {
-            if (color_num >= 0)
-              print_dst(t.dst, highlight.c_str(), scc_num, color_num);
-            else
-              print_dst(t.dst, highlight.c_str(), scc_num);
+            if (aut_->is_univ_dest(t.dst))
+              os_ << ", arrowhead=onormal";
+            os_ << "]\n";
           }
+        if (aut_->is_univ_dest(t.dst))
+          print_dst(t.dst, print_edges, highlight.c_str(), color_num);
       }
 
       void print(const const_twa_graph_ptr& aut)
@@ -773,39 +780,29 @@ namespace spot
                   {
                     process_state(s);
                     int trans_num = 0;
+                    unsigned scc_of_s = si->scc_of(s);
                     for (auto& t : aut_->out(s))
-                      {
-                        if (aut_->is_univ_dest(t.dst))
+                      for (unsigned d: aut_->univ_dests(t.dst))
+                        if (si->scc_of(d) == scc_of_s)
                           {
-                            bool to_write = false;
-                            for (unsigned d: aut_->univ_dests(t.dst))
-                              {
-                                to_write = si->scc_of(d) == si->scc_of(s);
-                                if (to_write)
-                                    break;
-                              }
-                            if (to_write)
-                              process_link(t, trans_num++, i);
-                            else
-                              process_link(t, trans_num++);
+                            process_link(t, trans_num++, false);
+                            break;
                           }
-                         else
-                           process_link(t, trans_num++);
-                      }
                   }
                 os_ << "  }\n";
               }
           }
+        int init = (int) aut_->get_init_state_number();
+        if (init < 0)
+          print_dst(init, true);
         unsigned ns = aut_->num_states();
         for (unsigned n = 0; n < ns; ++n)
           {
             if (!si || !si->reachable_state(n))
-              {
-                process_state(n);
-                int trans_num = 0;
-                for (auto& t: aut_->out(n))
-                  process_link(t, trans_num++);
-              }
+              process_state(n);
+            int trans_num = 0;
+            for (auto& t: aut_->out(n))
+              process_link(t, trans_num++, true);
           }
         end();
       }
