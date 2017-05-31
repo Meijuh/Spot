@@ -25,6 +25,7 @@ libpriv_la_SOURCES = \
   accmap.hh \
   bddalloc.cc \
   bddalloc.hh \
+  enumflags.hh \
   freelist.cc \
   freelist.hh \
   satcommon.hh\

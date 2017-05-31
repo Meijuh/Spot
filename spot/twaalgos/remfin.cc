@@ -25,6 +25,7 @@
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/mask.hh>
 #include <spot/twaalgos/alternation.hh>
+#include "spot/priv/enumflags.hh"
 
 //#define TRACE
 #ifdef TRACE
@@ -418,6 +419,328 @@ namespace spot
         }
       return res;
     }
+
+    twa_graph_ptr trivial_strategy(const const_twa_graph_ptr& aut)
+    {
+      return (!aut->acc().uses_fin_acceptance())
+             ? std::const_pointer_cast<twa_graph>(aut)
+             : nullptr;
+    }
+
+    twa_graph_ptr weak_strategy(const const_twa_graph_ptr& aut)
+    {
+      // FIXME: we should check whether the automaton is inherently weak.
+      return (aut->prop_weak().is_true())
+             ? remove_fin_weak(aut)
+             : nullptr;
+    }
+
+    twa_graph_ptr alternation_strategy(const const_twa_graph_ptr& aut)
+    {
+      return (!aut->is_existential())
+             ? remove_fin(remove_alternation(aut))
+             : nullptr;
+    }
+
+    twa_graph_ptr street_strategy(const const_twa_graph_ptr& aut)
+    {
+      return streett_to_generalized_buchi_maybe(aut);
+    }
+
+    twa_graph_ptr rabin_strategy(const const_twa_graph_ptr& aut)
+    {
+      return rabin_to_buchi_maybe(aut);
+    }
+
+    twa_graph_ptr default_strategy(const const_twa_graph_ptr& aut)
+    {
+      {
+        // We want a clean acceptance condition, i.e., one where all
+        // sets are useful.  If that is not the case, clean it first.
+        acc_cond::mark_t unused = aut->acc().all_sets();
+        for (auto& t: aut->edges())
+          {
+            unused -= t.acc;
+            if (!unused)
+              break;
+          }
+        if (unused)
+          return remove_fin(cleanup_acceptance(aut));
+      }
+
+      std::vector<acc_cond::acc_code> code;
+      std::vector<acc_cond::mark_t> rem;
+      std::vector<acc_cond::mark_t> keep;
+      std::vector<acc_cond::mark_t> add;
+      bool has_true_term = false;
+      acc_cond::mark_t allinf = 0U;
+      acc_cond::mark_t allfin = 0U;
+      {
+        auto acccode = aut->get_acceptance();
+        if (!acccode.is_dnf())
+          acccode = acccode.to_dnf();
+
+        auto split = split_dnf_acc_by_fin(acccode);
+
+        auto sz = split.size();
+        assert(sz > 0);
+
+        rem.reserve(sz);
+        code.reserve(sz);
+        keep.reserve(sz);
+        add.reserve(sz);
+        for (auto p: split)
+          {
+            // The empty Fin should always come first
+            assert(p.first != 0U || rem.empty());
+            rem.emplace_back(p.first);
+            allfin |= p.first;
+            acc_cond::mark_t inf = 0U;
+            if (!p.second.empty())
+              {
+                auto pos = &p.second.back();
+                auto end = &p.second.front();
+                while (pos > end)
+                  {
+                    switch (pos->sub.op)
+                      {
+                      case acc_cond::acc_op::And:
+                      case acc_cond::acc_op::Or:
+                        --pos;
+                        break;
+                      case acc_cond::acc_op::Inf:
+                        inf |= pos[-1].mark;
+                        pos -= 2;
+                        break;
+                      case acc_cond::acc_op::Fin:
+                      case acc_cond::acc_op::FinNeg:
+                      case acc_cond::acc_op::InfNeg:
+                        SPOT_UNREACHABLE();
+                        break;
+                      }
+                  }
+              }
+            if (inf == 0U)
+              {
+                has_true_term = true;
+              }
+            code.emplace_back(std::move(p.second));
+            keep.emplace_back(inf);
+            allinf |= inf;
+            add.emplace_back(0U);
+          }
+      }
+      assert(add.size() > 0);
+
+      acc_cond acc = aut->acc();
+      unsigned extra_sets = 0;
+
+      // Do we have common sets between the acceptance terms?
+      // If so, we need extra sets to distinguish the terms.
+      bool interference = false;
+      {
+        auto sz = keep.size();
+        acc_cond::mark_t sofar = 0U;
+        for (unsigned i = 0; i < sz; ++i)
+          {
+            auto k = keep[i];
+            if (k & sofar)
+              {
+                interference = true;
+                break;
+              }
+            sofar |= k;
+          }
+        if (interference)
+          {
+            trace << "We have interferences\n";
+            // We need extra set, but we will try
+            // to reuse the Fin number if they are
+            // not used as Inf as well.
+            std::vector<int> exs(acc.num_sets());
+            for (auto f: allfin.sets())
+              {
+                if (allinf.has(f)) // Already used as Inf
+                  {
+                    exs[f] = acc.add_set();
+                    ++extra_sets;
+                  }
+                else
+                  {
+                    exs[f] = f;
+                  }
+              }
+            for (unsigned i = 0; i < sz; ++i)
+              {
+                acc_cond::mark_t m = 0U;
+                for (auto f: rem[i].sets())
+                  m.set(exs[f]);
+                trace << "rem[" << i << "] = " << rem[i]
+                      << "  m = " << m << '\n';
+                add[i] = m;
+                code[i] &= acc.inf(m);
+                trace << "code[" << i << "] = " << code[i] << '\n';
+              }
+          }
+        else if (has_true_term)
+          {
+            trace << "We have a true term\n";
+            unsigned one = acc.add_sets(1);
+            extra_sets += 1;
+            acc_cond::mark_t m({one});
+            auto c = acc.inf(m);
+            for (unsigned i = 0; i < sz; ++i)
+              {
+                if (!code[i].is_t())
+                  continue;
+                add[i] = m;
+                code[i] &= std::move(c);
+                c = acc.fin(0U);        // Use false for the other terms.
+                trace << "code[" << i << "] = " << code[i] << '\n';
+              }
+
+          }
+      }
+
+      acc_cond::acc_code new_code = aut->acc().fin(0U);
+      for (auto c: code)
+        new_code |= std::move(c);
+
+      unsigned cs = code.size();
+      for (unsigned i = 0; i < cs; ++i)
+        trace << i << " Rem " << rem[i] << "  Code " << code[i]
+              << " Keep " << keep[i] << '\n';
+
+      unsigned nst = aut->num_states();
+      auto res = make_twa_graph(aut->get_dict());
+      res->copy_ap_of(aut);
+      res->prop_copy(aut, { true, false, false, false, false, true });
+      res->new_states(nst);
+      res->set_acceptance(aut->num_sets() + extra_sets, new_code);
+      res->set_init_state(aut->get_init_state_number());
+
+      bool sbacc = aut->prop_state_acc().is_true();
+      scc_info si(aut);
+      unsigned nscc = si.scc_count();
+      std::vector<unsigned> state_map(nst);
+      for (unsigned n = 0; n < nscc; ++n)
+        {
+          auto m = si.acc(n);
+          auto states = si.states_of(n);
+          trace << "SCC #" << n << " uses " << m << '\n';
+
+          // What to keep and add into the main copy
+          acc_cond::mark_t main_sets = 0U;
+          acc_cond::mark_t main_add = 0U;
+          bool intersects_fin = false;
+          for (unsigned i = 0; i < cs; ++i)
+            if (!(m & rem[i]))
+              {
+                main_sets |= keep[i];
+                main_add |= add[i];
+              }
+            else
+              {
+                intersects_fin = true;
+              }
+          trace << "main_sets " << main_sets << "\nmain_add "
+                << main_add << '\n';
+
+          // Create the main copy
+          for (auto s: states)
+            for (auto& t: aut->out(s))
+              {
+                acc_cond::mark_t a = 0U;
+                if (sbacc || SPOT_LIKELY(si.scc_of(t.dst) == n))
+                  a = (t.acc & main_sets) | main_add;
+                res->new_edge(s, t.dst, t.cond, a);
+              }
+
+          // We do not need any other copy if the SCC is non-accepting,
+          // of if it does not intersect any Fin.
+          if (!intersects_fin || si.is_rejecting_scc(n))
+            continue;
+
+          // Create clones
+          for (unsigned i = 0; i < cs; ++i)
+            if (m & rem[i])
+              {
+                auto r = rem[i];
+                trace << "rem[" << i << "] = " << r << " requires a copy\n";
+                unsigned base = res->new_states(states.size());
+                for (auto s: states)
+                  state_map[s] = base++;
+                auto k = keep[i];
+                auto a = add[i];
+                for (auto s: states)
+                  {
+                    auto ns = state_map[s];
+                    for (auto& t: aut->out(s))
+                      {
+                        if ((t.acc & r) || si.scc_of(t.dst) != n)
+                          continue;
+                        auto nd = state_map[t.dst];
+                        res->new_edge(ns, nd, t.cond, (t.acc & k) | a);
+                        // We need only one non-deterministic jump per
+                        // cycle.  As an approximation, we only do
+                        // them on back-links.
+                        if (t.dst <= s)
+                          {
+                            acc_cond::mark_t a = 0U;
+                            if (sbacc)
+                              a = (t.acc & main_sets) | main_add;
+                            res->new_edge(s, nd, t.cond, a);
+                          }
+                      }
+                  }
+              }
+        }
+
+      // If the input had no Inf, the output is a state-based automaton.
+      if (allinf == 0U)
+        res->prop_state_acc(true);
+
+      res->purge_dead_states();
+      trace << "before cleanup: " << res->get_acceptance() << '\n';
+      cleanup_acceptance_here(res);
+      trace << "after cleanup: " << res->get_acceptance() << '\n';
+      res->merge_edges();
+      return res;
+    }
+
+    enum class strategy_t : unsigned
+    {
+      trivial     = 0x01,
+      weak        = 0x02,
+      alternation = 0x04,
+      street      = 0x08,
+      rabin       = 0x016
+    };
+
+    using strategy_flags = strong_enum_flags<strategy_t>;
+    using strategy =
+        std::function<twa_graph_ptr(const const_twa_graph_ptr& aut)>;
+
+    twa_graph_ptr remove_fin_impl(const const_twa_graph_ptr& aut,
+                                  const strategy_flags skip = {})
+    {
+      auto handle = [&](strategy stra, strategy_t type)
+      {
+        return (type & ~skip) ? stra(aut) : nullptr;
+      };
+
+      if (auto maybe = handle(trivial_strategy, strategy_t::trivial))
+        return maybe;
+      if (auto maybe = handle(weak_strategy, strategy_t::weak))
+        return maybe;
+      if (auto maybe = handle(alternation_strategy, strategy_t::alternation))
+        return maybe;
+      if (auto maybe = handle(street_strategy, strategy_t::street))
+        return maybe;
+      if (auto maybe = handle(rabin_strategy, strategy_t::rabin))
+        return maybe;
+      return default_strategy(aut);
+    }
   }
 
   twa_graph_ptr
@@ -491,275 +814,8 @@ namespace spot
     return ra_to_ba(aut, inf_pairs, inf_alone, fin_alone);
   }
 
-
   twa_graph_ptr remove_fin(const const_twa_graph_ptr& aut)
   {
-    if (!aut->acc().uses_fin_acceptance())
-      return std::const_pointer_cast<twa_graph>(aut);
-
-    // FIXME: we should check whether the automaton is inherently weak.
-    if (aut->prop_weak().is_true())
-      return remove_fin_weak(aut);
-
-    if (!aut->is_existential())
-      return remove_fin(remove_alternation(aut));
-
-    if (auto maybe = streett_to_generalized_buchi_maybe(aut))
-      return maybe;
-
-    if (auto maybe = rabin_to_buchi_maybe(aut))
-      return maybe;
-
-    {
-      // We want a clean acceptance condition, i.e., one where all
-      // sets are useful.  If that is not the case, clean it first.
-      acc_cond::mark_t unused = aut->acc().all_sets();
-      for (auto& t: aut->edges())
-        {
-          unused -= t.acc;
-          if (!unused)
-            break;
-        }
-      if (unused)
-        return remove_fin(cleanup_acceptance(aut));
-    }
-
-    std::vector<acc_cond::acc_code> code;
-    std::vector<acc_cond::mark_t> rem;
-    std::vector<acc_cond::mark_t> keep;
-    std::vector<acc_cond::mark_t> add;
-    bool has_true_term = false;
-    acc_cond::mark_t allinf = 0U;
-    acc_cond::mark_t allfin = 0U;
-    {
-      auto acccode = aut->get_acceptance();
-      if (!acccode.is_dnf())
-        acccode = acccode.to_dnf();
-
-      auto split = split_dnf_acc_by_fin(acccode);
-
-      auto sz = split.size();
-      assert(sz > 0);
-
-      rem.reserve(sz);
-      code.reserve(sz);
-      keep.reserve(sz);
-      add.reserve(sz);
-      for (auto p: split)
-        {
-          // The empty Fin should always come first
-          assert(p.first != 0U || rem.empty());
-          rem.emplace_back(p.first);
-          allfin |= p.first;
-          acc_cond::mark_t inf = 0U;
-          if (!p.second.empty())
-            {
-              auto pos = &p.second.back();
-              auto end = &p.second.front();
-              while (pos > end)
-                {
-                  switch (pos->sub.op)
-                    {
-                    case acc_cond::acc_op::And:
-                    case acc_cond::acc_op::Or:
-                      --pos;
-                      break;
-                    case acc_cond::acc_op::Inf:
-                      inf |= pos[-1].mark;
-                      pos -= 2;
-                      break;
-                    case acc_cond::acc_op::Fin:
-                    case acc_cond::acc_op::FinNeg:
-                    case acc_cond::acc_op::InfNeg:
-                      SPOT_UNREACHABLE();
-                      break;
-                    }
-                }
-            }
-          if (inf == 0U)
-            {
-              has_true_term = true;
-            }
-          code.emplace_back(std::move(p.second));
-          keep.emplace_back(inf);
-          allinf |= inf;
-          add.emplace_back(0U);
-        }
-    }
-    assert(add.size() > 0);
-
-    acc_cond acc = aut->acc();
-    unsigned extra_sets = 0;
-
-    // Do we have common sets between the acceptance terms?
-    // If so, we need extra sets to distinguish the terms.
-    bool interference = false;
-    {
-      auto sz = keep.size();
-      acc_cond::mark_t sofar = 0U;
-      for (unsigned i = 0; i < sz; ++i)
-        {
-          auto k = keep[i];
-          if (k & sofar)
-            {
-              interference = true;
-              break;
-            }
-          sofar |= k;
-        }
-      if (interference)
-        {
-          trace << "We have interferences\n";
-          // We need extra set, but we will try
-          // to reuse the Fin number if they are
-          // not used as Inf as well.
-          std::vector<int> exs(acc.num_sets());
-          for (auto f: allfin.sets())
-            {
-              if (allinf.has(f)) // Already used as Inf
-                {
-                  exs[f] = acc.add_set();
-                  ++extra_sets;
-                }
-              else
-                {
-                  exs[f] = f;
-                }
-            }
-          for (unsigned i = 0; i < sz; ++i)
-            {
-              acc_cond::mark_t m = 0U;
-              for (auto f: rem[i].sets())
-                m.set(exs[f]);
-              trace << "rem[" << i << "] = " << rem[i]
-                    << "  m = " << m << '\n';
-              add[i] = m;
-              code[i] &= acc.inf(m);
-              trace << "code[" << i << "] = " << code[i] << '\n';
-            }
-        }
-      else if (has_true_term)
-        {
-          trace << "We have a true term\n";
-          unsigned one = acc.add_sets(1);
-          extra_sets += 1;
-          acc_cond::mark_t m({one});
-          auto c = acc.inf(m);
-          for (unsigned i = 0; i < sz; ++i)
-            {
-              if (!code[i].is_t())
-                continue;
-              add[i] = m;
-              code[i] &= std::move(c);
-              c = acc.fin(0U);        // Use false for the other terms.
-              trace << "code[" << i << "] = " << code[i] << '\n';
-            }
-
-        }
-    }
-
-    acc_cond::acc_code new_code = aut->acc().fin(0U);
-    for (auto c: code)
-      new_code |= std::move(c);
-
-    unsigned cs = code.size();
-    for (unsigned i = 0; i < cs; ++i)
-      trace << i << " Rem " << rem[i] << "  Code " << code[i]
-            << " Keep " << keep[i] << '\n';
-
-    unsigned nst = aut->num_states();
-    auto res = make_twa_graph(aut->get_dict());
-    res->copy_ap_of(aut);
-    res->prop_copy(aut, { true, false, false, false, false, true });
-    res->new_states(nst);
-    res->set_acceptance(aut->num_sets() + extra_sets, new_code);
-    res->set_init_state(aut->get_init_state_number());
-
-    bool sbacc = aut->prop_state_acc().is_true();
-    scc_info si(aut);
-    unsigned nscc = si.scc_count();
-    std::vector<unsigned> state_map(nst);
-    for (unsigned n = 0; n < nscc; ++n)
-      {
-        auto m = si.acc(n);
-        auto states = si.states_of(n);
-        trace << "SCC #" << n << " uses " << m << '\n';
-
-        // What to keep and add into the main copy
-        acc_cond::mark_t main_sets = 0U;
-        acc_cond::mark_t main_add = 0U;
-        bool intersects_fin = false;
-        for (unsigned i = 0; i < cs; ++i)
-          if (!(m & rem[i]))
-            {
-              main_sets |= keep[i];
-              main_add |= add[i];
-            }
-          else
-            {
-              intersects_fin = true;
-            }
-        trace << "main_sets " << main_sets << "\nmain_add " << main_add << '\n';
-
-        // Create the main copy
-        for (auto s: states)
-          for (auto& t: aut->out(s))
-            {
-              acc_cond::mark_t a = 0U;
-              if (sbacc || SPOT_LIKELY(si.scc_of(t.dst) == n))
-                a = (t.acc & main_sets) | main_add;
-              res->new_edge(s, t.dst, t.cond, a);
-            }
-
-        // We do not need any other copy if the SCC is non-accepting,
-        // of if it does not intersect any Fin.
-        if (!intersects_fin || si.is_rejecting_scc(n))
-          continue;
-
-        // Create clones
-        for (unsigned i = 0; i < cs; ++i)
-          if (m & rem[i])
-            {
-              auto r = rem[i];
-              trace << "rem[" << i << "] = " << r << " requires a copy\n";
-              unsigned base = res->new_states(states.size());
-              for (auto s: states)
-                state_map[s] = base++;
-              auto k = keep[i];
-              auto a = add[i];
-              for (auto s: states)
-                {
-                  auto ns = state_map[s];
-                  for (auto& t: aut->out(s))
-                    {
-                      if ((t.acc & r) || si.scc_of(t.dst) != n)
-                        continue;
-                      auto nd = state_map[t.dst];
-                      res->new_edge(ns, nd, t.cond, (t.acc & k) | a);
-                      // We need only one non-deterministic jump per
-                      // cycle.  As an approximation, we only do
-                      // them on back-links.
-                      if (t.dst <= s)
-                        {
-                          acc_cond::mark_t a = 0U;
-                          if (sbacc)
-                            a = (t.acc & main_sets) | main_add;
-                          res->new_edge(s, nd, t.cond, a);
-                        }
-                    }
-                }
-            }
-      }
-
-    // If the input had no Inf, the output is a state-based automaton.
-    if (allinf == 0U)
-      res->prop_state_acc(true);
-
-    res->purge_dead_states();
-    trace << "before cleanup: " << res->get_acceptance() << '\n';
-    cleanup_acceptance_here(res);
-    trace << "after cleanup: " << res->get_acceptance() << '\n';
-    res->merge_edges();
-    return res;
+    return remove_fin_impl(aut);
   }
 }
