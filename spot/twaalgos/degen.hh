@@ -56,6 +56,9 @@ namespace spot
   /// to retrieve it.  Note that these functions may return the original
   /// automaton as-is if it is already degeneralized; in this case
   /// the "original-states" property is not defined.
+  /// Similarly, the property "degen-levels" keeps track of the degeneralization
+  /// levels.  To retrieve it, call
+  /// `aut->get_named_prop<std::vector<unsigned>>("degen-levels")`.
   /// \@{
   SPOT_API twa_graph_ptr
   degeneralize(const const_twa_graph_ptr& a, bool use_z_lvl = true,

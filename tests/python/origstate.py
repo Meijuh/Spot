@@ -67,15 +67,15 @@ acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc
 --BODY--
-State: 0 "0" {0}
+State: 0 "0#1" {0}
 [0] 0
 [!0] 1
 [1] 2
-State: 1 "0"
+State: 1 "0#0"
 [0] 0
 [!0] 1
 [1] 2
-State: 2 "1" {0}
+State: 2 "1#1" {0}
 [1] 2
 --END--"""
 
@@ -90,7 +90,7 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc colored
 properties: deterministic
 --BODY--
-State: 0 "1" {0}
+State: 0 "1#1" {0}
 [1] 0
 --END--"""
 assert aut2.to_str() == ref

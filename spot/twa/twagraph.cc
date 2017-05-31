@@ -607,6 +607,19 @@ namespace spot
           }
         os->resize(used_states);
       }
+    if (auto dl = get_named_prop<std::vector<unsigned>>("degen-levels"))
+      {
+        unsigned size = dl->size();
+        for (unsigned s = 0; s < size; ++s)
+          {
+            unsigned dst = newst[s];
+            if (dst == s || dst == -1U)
+              continue;
+            assert(dst < s);
+            (*dl)[dst] = (*dl)[s];
+          }
+        dl->resize(used_states);
+      }
     init_number_ = newst[init_number_];
     g_.defrag_states(std::move(newst), used_states);
   }
@@ -637,7 +650,10 @@ namespace spot
       return;
 
     auto orig = get_named_prop<std::vector<unsigned>>("original-states");
+    auto lvl = get_named_prop<std::vector<unsigned>>("degen-levels");
     auto sims = get_named_prop<std::vector<unsigned>>("simulated-states");
+
+    assert(!lvl || orig);
 
     if (orig && sims)
       throw std::runtime_error("copy_state_names_from(): original-states and "
@@ -646,6 +662,9 @@ namespace spot
     if (orig && orig->size() != num_states())
       throw std::runtime_error("copy_state_names_from(): unexpected size "
                                "for original-states");
+    if (lvl && lvl->size() != num_states())
+      throw std::runtime_error("copy_state_names_from(): unexpected size "
+                               "for degen-levels");
 
     if (sims && sims->size() != other->num_states())
       throw std::runtime_error("copy_state_names_from(): unexpected size "
@@ -677,6 +696,8 @@ namespace spot
               throw std::runtime_error("copy_state_names_from(): state does not"
                                        " exist in source automaton");
             newname = other->format_state(other_s);
+            if (lvl)
+              newname += '#' + std::to_string((*lvl)[s]);
           }
         names->emplace_back(newname);
       }

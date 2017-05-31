@@ -240,8 +240,11 @@ namespace spot
       res->prop_copy(a, { false, true, true, true, true, true });
 
       auto orig_states = new std::vector<unsigned>();
+      auto levels = new std::vector<unsigned>();
       orig_states->reserve(a->num_states()); // likely more are needed.
+      levels->reserve(a->num_states());
       res->set_named_prop("original-states", orig_states);
+      res->set_named_prop("degen-levels", levels);
 
       // Create an order of acceptance conditions.  Each entry in this
       // vector correspond to an acceptance set.  Each index can
@@ -328,6 +331,7 @@ namespace spot
 
           assert(ns == orig_states->size());
           orig_states->emplace_back(ds.first);
+          levels->emplace_back(ds.second);
 
           // Level cache stores one encountered level for each state
           // (the value of use_lvl_cache determinates which level
