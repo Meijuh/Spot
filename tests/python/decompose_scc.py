@@ -20,7 +20,6 @@
 import spot
 
 aut = spot.translate('(Ga -> Gb) W c')
-
 si = spot.scc_info(aut)
 
 assert (spot.decompose_scc(si, 2).to_str('hoa', '1.1') == """HOA: v1.1
@@ -50,7 +49,7 @@ except ValueError:
 else:
     raise AssertionError
 
-assert (spot.decompose_acc_scc(aut, 1).to_str('hoa', '1.1') == """HOA: v1.1
+assert (spot.decompose_acc_scc(aut, 0).to_str('hoa', '1.1') == """HOA: v1.1
 States: 4
 Start: 0
 AP: 3 "b" "a" "c"
@@ -61,17 +60,17 @@ properties: deterministic
 --BODY--
 State: 0
 [!1&!2] 0
-[1&!2] 1
-[2] 2
-State: 1
+[2] 1
+[1&!2] 2
+State: 1 {0}
+[t] 1
+State: 2
 [!1&!2] 0
-[1&!2] 1
-[!1&2] 2
+[!1&2] 1
+[1&!2] 2
 [1&2] 3
-State: 2 {0}
-[t] 2
 State: 3
-[!1] 2
+[!1] 1
 [1] 3
 --END--""")
 

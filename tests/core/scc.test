@@ -93,8 +93,8 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc
 --BODY--
 State: 0
-[0&2] 1
 [0] 0
+[0&2] 1
 State: 1 {0}
 [2] 1
 --END--

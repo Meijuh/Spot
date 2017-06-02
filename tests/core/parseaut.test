@@ -1712,7 +1712,7 @@ cat >expected <<EOF
 HOA: v1
 name: "(c U d) & G(Fa & Fb)"
 States: 3
-Start: 1
+Start: 0
 AP: 4 "c" "d" "a" "b"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
@@ -1720,39 +1720,39 @@ properties: implicit-labels trans-acc complete deterministic
 properties: stutter-invariant
 --BODY--
 State: 0
+2
 0
+1
+1
+2
 0
+1
+1
+2
 0
+1
+1
+2
 0
-0 {0}
-0 {0}
-0 {0}
-0 {0}
-0 {1}
-0 {1}
-0 {1}
-0 {1}
-0 {0 1}
-0 {0 1}
-0 {0 1}
-0 {0 1}
+1
+1
 State: 1
-2
 1
-0
-0
-2
 1
-0
-0
-2
 1
-0
-0
-2
 1
-0
-0
+1 {0}
+1 {0}
+1 {0}
+1 {0}
+1 {1}
+1 {1}
+1 {1}
+1 {1}
+1 {0 1}
+1 {0 1}
+1 {0 1}
+1 {0 1}
 State: 2
 2
 2

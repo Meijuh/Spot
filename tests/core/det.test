@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2013-2017 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -148,20 +148,20 @@ cat >expected-nd.hoa <<EOF
 HOA: v1.1
 name: "XGa R (!a & Fa)"
 States: 2
-Start: 1
+Start: 0
 AP: 1 "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc !complete
 properties: !deterministic
-spot.highlight.states: 1 1
-spot.highlight.edges: 2 2 3 2
+spot.highlight.states: 0 1
+spot.highlight.edges: 1 2 2 2
 --BODY--
-State: 0 {0}
-[0] 0
-State: 1
+State: 0
 [!0] 0
 [!0] 1
+State: 1 {0}
+[0] 1
 --END--
 EOF
 diff expected-nd.hoa out-nd.hoa
@@ -173,19 +173,19 @@ cat >expected-rand.hoa <<EOF
 HOA: v1.1
 name: "XGa R (!a & Fa)"
 States: 2
-Start: 0
+Start: 1
 AP: 1 "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc !complete
 properties: !deterministic
-spot.highlight.states: 0 1
+spot.highlight.states: 1 1
 --BODY--
-State: 0
-[!0] 0
+State: 0 {0}
+[0] 0
+State: 1
 [!0] 1
-State: 1 {0}
-[0] 1
+[!0] 0
 --END--
 EOF
 diff expected-rand.hoa rand.hoa
@@ -197,20 +197,20 @@ cat >expected-rand2.hoa <<EOF
 HOA: v1.1
 name: "XGa R (!a & Fa)"
 States: 2
-Start: 0
+Start: 1
 AP: 1 "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc !complete
 properties: !deterministic
-spot.highlight.states: 0 5
-spot.highlight.edges: 1 5 2 5
+spot.highlight.states: 1 5
+spot.highlight.edges: 2 5 3 5
 --BODY--
-State: 0
-[!0] 0
+State: 0 {0}
+[0] 0
+State: 1
 [!0] 1
-State: 1 {0}
-[0] 1
+[!0] 0
 --END--
 EOF
 diff expected-rand2.hoa rand2.hoa

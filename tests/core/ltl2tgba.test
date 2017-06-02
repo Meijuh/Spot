@@ -255,3 +255,11 @@ ltl2tgba --low --any 'Xp1 xor (Fp1 M (!p1 M (Fp0 W p1)))' \
 ltl2tgba --low --any 'Xp1 xor (Fp1 M (!p1 M (Fp0 W p1)))' "$s" >res2
 ltl2tgba --low --any 'Fp0 -> XXG(1 U Gp1)' "$s" >>res2
 diff res1 res2
+
+# Another case where different but isomorphic automata
+# were output (issue #262 again).
+f1='F(Gp0 <-> Gp1)'
+f2='Gp1 | FGp0'
+(ltl2tgba -xsimul=1 --low "$f1"; ltl2tgba -xsimul=1 --low "$f2") > res1
+ltl2tgba -xsimul=1 --low "$f1" "$f2" > res2
+diff res1 res2

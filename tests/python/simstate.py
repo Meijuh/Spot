@@ -75,21 +75,21 @@ Acceptance: 4 Fin(0) & (Inf(1) | (Fin(2) & Inf(3)))
 properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic stutter-invariant
 --BODY--
-State: 0 "{₀[1]₀}"
-[0&1] 1 {3}
-[!0&1] 0
+State: 0 "{₀[0]₀}"
 [0&!1] 0 {1}
 [!0&!1] 0
-State: 1 "{₀[1]{₂[0]₂}₀}{₁[2]₁}"
+[!0&1] 0
 [0&1] 1 {3}
-[!0&1] 2
+State: 1 "{₀[0]{₂[2]₂}₀}{₁[1]₁}"
 [0&!1] 0 {1}
 [!0&!1] 0 {2}
-State: 2 "{₀[1]₀}{₁[2]₁}"
-[0&1] 1 {3}
 [!0&1] 2
+[0&1] 1 {3}
+State: 2 "{₀[0]₀}{₁[1]₁}"
 [0&!1] 0 {1}
 [!0&!1] 0 {2}
+[!0&1] 2
+[0&1] 1 {3}
 --END--"""
 
 aut = spot.automaton("""
@@ -166,4 +166,3 @@ State: 11 "{₀[1#1]{₁[0#0,0#1]{₂[1#0]₂}₁}₀}"
 [0&1] 9 {1}
 [!0&1] 1 {1}
 --END--"""
-
