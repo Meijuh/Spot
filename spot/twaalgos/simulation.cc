@@ -275,7 +275,7 @@ namespace spot
 
         // We run through the map bdd/list<state>, and we update
         // the previous_class_ with the new data.
-        for (auto& p: bdd_lstate_)
+        for (auto& p: sorted_classes_)
           {
             // If the signature of a state is bddfalse (no
             // edges) the class of this state is bddfalse
@@ -283,11 +283,11 @@ namespace spot
             // simplifications in the signature by removing a
             // edge which has as a destination a state with
             // no outgoing edge.
-            if (p.first == bddfalse)
-              for (auto s: p.second)
+            if (p->first == bddfalse)
+              for (unsigned s: p->second)
                 previous_class_[s] = bddfalse;
             else
-              for (auto s: p.second)
+              for (unsigned s: p->second)
                 previous_class_[s] = *it_bdd;
             ++it_bdd;
           }
@@ -302,10 +302,10 @@ namespace spot
           {
             update_previous_class();
             nb_partition_before = bdd_lstate_.size();
-            bdd_lstate_.clear();
             nb_po_before = po_size_;
             po_size_ = 0;
             update_sig();
+            // print_partition();
             go_to_next_it();
           }
 
@@ -347,8 +347,18 @@ namespace spot
 
       void update_sig()
       {
+        bdd_lstate_.clear();
+        sorted_classes_.clear();
         for (unsigned s = 0; s < size_a_; ++s)
-          bdd_lstate_[compute_sig(s)].emplace_back(s);
+          {
+            bdd sig = compute_sig(s);
+            auto p = bdd_lstate_.emplace(std::piecewise_construct,
+                                         std::make_tuple(sig),
+                                         std::make_tuple());
+            p.first->second.emplace_back(s);
+            if (p.second)
+              sorted_classes_.emplace_back(p.first);
+          }
       }
 
 
@@ -390,7 +400,7 @@ namespace spot
 
         std::list<bdd>::iterator it_bdd = used_var_.begin();
 
-        for (auto& p: bdd_lstate_)
+        for (auto& p: sorted_classes_)
           {
             // If the signature of a state is bddfalse (no edges) the
             // class of this state is bddfalse instead of an anonymous
@@ -398,9 +408,9 @@ namespace spot
             // removing an edge which has as a destination a state
             // with no outgoing edge.
             bdd acc = bddfalse;
-            if (p.first != bddfalse)
+            if (p->first != bddfalse)
               acc = *it_bdd;
-            now_to_next.emplace_back(p.first, acc);
+            now_to_next.emplace_back(p->first, acc);
             ++it_bdd;
           }
 
@@ -446,10 +456,10 @@ namespace spot
 
         if (implications)
           implications->resize(bdd_lstate_.size());
-        // Create one state per partition.
-        for (auto& p: bdd_lstate_)
+        // Create one state per class.
+        for (auto& p: sorted_classes_)
           {
-            bdd cl = previous_class_[p.second.front()];
+            bdd cl = previous_class_[p->second.front()];
             // A state may be referred to either by
             // its class, or by all the implied classes.
             auto s = gb->new_state(cl.id());
@@ -472,14 +482,14 @@ namespace spot
         auto all_inf = all_inf_;
         // For each class, we will create
         // all the edges between the states.
-        for (auto& p: bdd_lstate_)
+        for (auto& p: sorted_classes_)
           {
             // All states in p.second have the same class, so just
             // pick the class of the first one first one.
-            bdd src = previous_class_[p.second.front()];
+            bdd src = previous_class_[p->second.front()];
 
             // Get the signature to derive successors.
-            bdd sig = compute_sig(p.second.front());
+            bdd sig = compute_sig(p->second.front());
 
             if (Cosimulation)
               sig = bdd_compose(sig, bddfalse, bdd_var(bdd_initial));
@@ -613,12 +623,12 @@ namespace spot
       // where is the new class name.
       void print_partition()
       {
-        for (auto& p: bdd_lstate_)
+        for (auto& p: sorted_classes_)
           {
             std::cerr << "partition: "
-                      << bdd_format_isop(a_->get_dict(), p.first)
+                      << bdd_format_isop(a_->get_dict(), p->first)
                       << std::endl;
-            for (auto s: p.second)
+            for (auto s: p->second)
               std::cerr << "  - "
                         << a_->format_state(a_->state_from_number(s))
                         << '\n';
@@ -646,9 +656,13 @@ namespace spot
       // Represent the class of each state at the previous iteration.
       vector_state_bdd previous_class_;
 
-      // The list of state for each class at the current_iteration.
+      // The list of states for each class at the current_iteration.
       // Computed in `update_sig'.
       map_bdd_lstate bdd_lstate_;
+      // The above map, sorted by states number instead of BDD
+      // identifier to avoid non-determinism while iterating over all
+      // states.
+      std::vector<map_bdd_lstate::const_iterator> sorted_classes_;
 
       // The queue of free bdd. They will be used as the identifier
       // for the class.

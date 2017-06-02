@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Laboratoire de Recherche et Développement
+# Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -39,10 +39,10 @@ properties: trans-labels explicit-labels trans-acc complete
 properties: stutter-invariant
 --BODY--
 State: 0
-[0&1] 1 {1}
-[!0&1] 1
 [0] 0 {1}
 [!0] 0
+[0&1] 1 {1}
+[!0&1] 1
 State: 1
 [0&1] 1 {0 1}
 [!0&1] 1 {0}
@@ -70,10 +70,10 @@ Acceptance: 2 Inf(0)&Inf(1)
 properties: trans-labels explicit-labels trans-acc stutter-invariant
 --BODY--
 State: 0
-[0&1] 1 {1}
-[!0&1] 1
 [0] 0 {1}
 [!0] 0
+[0&1] 1 {1}
+[!0&1] 1
 State: 1
 [0&1] 1 {0 1}
 [!0&1] 1 {0}
