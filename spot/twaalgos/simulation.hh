@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -63,6 +63,12 @@ namespace spot
   /// than 500 in our benchmark), the reduced automaton will use more
   /// acceptance conditions than necessary, and running scc_filter()
   /// again afterwards will remove these superfluous conditions.
+  ///
+  /// The resulting automaton has a named property "simulated-states", that is a
+  /// vector mapping each state of the input to a state of the output. Note that
+  /// some input states may be mapped to -1, as a by-product of improved
+  /// determinism. Typically, if the language of q1 is included in the language
+  /// of q2, only a transition to q2 will be built.
   ///
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received

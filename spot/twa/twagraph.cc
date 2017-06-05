@@ -620,6 +620,16 @@ namespace spot
           }
         dl->resize(used_states);
       }
+    if (auto ss = get_named_prop<std::vector<unsigned>>("simulated-states"))
+      {
+        for (auto& s : *ss)
+          {
+            if (s >= newst.size())
+              s = -1U;
+            else
+              s = newst[s];
+          }
+      }
     init_number_ = newst[init_number_];
     g_.defrag_states(std::move(newst), used_states);
   }

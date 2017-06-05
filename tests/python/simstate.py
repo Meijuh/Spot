@@ -166,3 +166,23 @@ State: 11 "{₀[1#1]{₁[0#0,0#1]{₂[1#0]₂}₁}₀}"
 [0&1] 9 {1}
 [!0&1] 1 {1}
 --END--"""
+
+a = spot.translate('!Gp0 xor FG((p0 W Gp1) M p1)')
+a = spot.degeneralize_tba(a)
+b = spot.simulation(a)
+b.set_init_state(1)
+b.purge_unreachable_states()
+b.copy_state_names_from(a)
+assert b.to_str() == """HOA: v1
+States: 1
+Start: 0
+AP: 2 "p0" "p1"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0 "[1,8,9]"
+[1] 0
+[!1] 0 {0}
+--END--"""

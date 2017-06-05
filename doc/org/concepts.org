@@ -1128,7 +1128,7 @@ Here is a list of named properties currently used inside Spot:
 | ~highlight-edges~   | ~std::map<unsigned, unsigned>~ | map of (edge number, color number) for highlighting the output                                                                  |
 | ~highlight-states~  | ~std::map<unsigned, unsigned>~ | map of (state number, color number) for highlighting the output                                                                 |
 | ~incomplete-states~ | ~std::set<unsigned>~           | set of states numbers that should be displayed as incomplete  (used internally by ~print_dot()~ when truncating large automata) |
-| ~degen-levels~      | ~std::vector<unsigned>~        | level associated to each state by the degenaralization algorithm                                                                |
+| ~degen-levels~      | ~std::vector<unsigned>~        | level associated to each state by the degeneralization algorithm                                                                |
 | ~simulated-states~  | ~std::vector<unsigned>~        | map states of the original automaton to states if the current automaton in the result of simulation-based reductions            |
 
 Objects referenced via named properties are automatically destroyed
