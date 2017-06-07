@@ -1531,7 +1531,7 @@ checked_main(int argc, char** argv)
                               if (graph_run_tgba_opt)
                                 spot::print_dot(std::cout, run->as_twa());
                               else
-                                std::cout << run;
+                                std::cout << *run;
                               tm.stop("printing accepting run");
                             }
                         }
