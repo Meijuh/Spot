@@ -25,7 +25,8 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD =						\
   libcommon.a					\
   $(top_builddir)/lib/libgnu.la			\
-  $(top_builddir)/spot/libspot.la
+  $(top_builddir)/spot/libspot.la		\
+  $(top_builddir)/buddy/src/libbddx.la
 
 noinst_LIBRARIES = libcommon.a
 libcommon_a_SOURCES =				\

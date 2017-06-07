@@ -28,9 +28,11 @@ ltsmin_HEADERS = ltsmin.hh
 lib_LTLIBRARIES = libspotltsmin.la
 libspotltsmin_la_DEPENDENCIES = \
   $(top_builddir)/spot/libspot.la \
+  $(top_builddir)/buddy/src/libbddx.la \
   $(LTDLDEPS)
 libspotltsmin_la_LIBADD = \
   $(top_builddir)/spot/libspot.la \
+  $(top_builddir)/buddy/src/libbddx.la \
   $(LIBLTDL) -lpthread
 libspotltsmin_la_LDFLAGS = -no-undefined $(SYMBOLIC_LDFLAGS)
 libspotltsmin_la_SOURCES = ltsmin.cc

@@ -24,7 +24,8 @@
 AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
-LDADD = $(top_builddir)/spot/libspot.la
+LDADD = $(top_builddir)/spot/libspot.la $(top_builddir)/buddy/src/libbddx.la
+
 
 # Explicitely set it to avoid default value ".test"
 TEST_EXTENSIONS =
@@ -391,7 +392,7 @@ if USE_LTSMIN
 check_PROGRAMS += ltsmin/modelcheck
 
 ltsmin_modelcheck_SOURCES = ltsmin/modelcheck.cc
-ltsmin_modelcheck_LDADD = $(top_builddir)/spot/ltsmin/libspotltsmin.la
+ltsmin_modelcheck_LDADD = $(top_builddir)/spot/ltsmin/libspotltsmin.la $(LDADD)
 
 check_SCRIPTS += ltsmin/defs
 

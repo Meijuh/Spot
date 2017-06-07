@@ -25,8 +25,11 @@ spotgen_HEADERS = automata.hh formulas.hh
 
 lib_LTLIBRARIES = libspotgen.la
 libspotgen_la_SOURCES = automata.cc formulas.cc
-libspotgen_la_LDFLAGS = ../libspot.la -no-undefined $(SYMBOLIC_LDFLAGS)
-
+libspotgen_la_LIBADD = \
+  $(top_builddir)/spot/libspot.la \
+  $(top_builddir)/buddy/src/libbddx.la
+libspotgen_la_DEPENDENCIES = $(libspotgen_la_LIBADD)
+libspotgen_la_LDFLAGS = -no-undefined $(SYMBOLIC_LDFLAGS)
 
 EXTRA_DIST = $(srcdir)/libspotgen.pc.in
 pkgconfigdir = $(libdir)/pkgconfig

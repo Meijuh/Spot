@@ -171,12 +171,6 @@ AC_CHECK_FUNCS([times kill alarm sigaction])
 LT_CONFIG_LTDL_DIR([ltdl])
 LT_INIT([win32-dll])
 LTDL_INIT([subproject convenience])
-# Debian resets this to no, but this break both Spot and the libtool
-# test suite itself.  Instead of requiring developer to install a
-# non-patched version of Libtool on any Debian they use, we just
-# cancel the effect of Debian's patch here.
-link_all_deplibs=yes
-link_all_deplibs_CXX=yes
 
 AX_BSYMBOLIC
 
