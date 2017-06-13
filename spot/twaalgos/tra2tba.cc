@@ -310,6 +310,8 @@ namespace spot
     res->prop_complete(complete);
     res->prop_universal(deterministic);
     res->purge_dead_states();
+    res->merge_edges();
+
     return res;
   }
 

@@ -225,24 +225,20 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels trans-acc
 --BODY--
 State: 0
-[0&1] 1
-[0&!1] 0
-[!0&1] 1
-[!0&!1] 0
+[!1] 0
+[1] 1
 [0&!1] 2
 State: 1
-[0&1] 1 {0}
-[0&!1] 0 {0}
-[!0&1] 1 {0}
-[!0&!1] 0 {0}
-[0&1] 3
+[!1] 0 {0}
+[1] 1 {0}
 [0&!1] 2
+[0&1] 3
 State: 2
-[0&1] 3 {0}
 [0&!1] 2 {0}
+[0&1] 3 {0}
 State: 3
-[0&1] 3 {0}
 [0&!1] 2 {0}
+[0&1] 3 {0}
 --END--"""
 
 res = spot.tra_to_tba(aut)
@@ -274,8 +270,7 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc
 --BODY--
 State: 0
-[0] 0
-[!0] 0
+[t] 0
 [0] 1
 State: 1 {0}
 [0] 1
@@ -330,17 +325,17 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels trans-acc
 --BODY--
 State: 0
-[!0&1&2] 3
-[!0&1&!2 | 0&!1&!2] 4
 [!0&!1 | 0&1] 1
 [0&!1&2] 2
+[!0&1&2] 3
+[!0&1&!2 | 0&!1&!2] 4
 State: 1
 [t] 1 {0}
 State: 2
-[0&2] 5
-[0&!2] 6
 [!0&2] 3
 [!0&!2] 4
+[0&2] 5
+[0&!2] 6
 State: 3
 [0&2] 2
 [!0&2] 3
@@ -348,14 +343,14 @@ State: 3
 State: 4
 [t] 4
 State: 5
-[0&2] 5
-[0&!2] 6
 [!0&2] 3
 [!0&!2] 4
+[0&2] 5
+[0&!2] 6
 [0&2] 7
 State: 6
-[0] 6 {0}
 [!0] 4
+[0] 6 {0}
 State: 7
 [0&2] 7 {0}
 --END--"""
@@ -389,11 +384,11 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0 {0}
-[1&!2] 1
 [!1&!2] 0
+[1&!2] 1
 State: 1
-[1&!2] 1
 [!1&!2] 0
+[1&!2] 1
 --END--"""
 
 res = spot.tra_to_tba(aut)
@@ -426,9 +421,8 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc
 --BODY--
 State: 0
-[0&1] 0
+[0] 0
 [!0&1] 1
-[0&!1] 0
 [0&1] 2
 State: 1 {0}
 [1] 1
@@ -466,11 +460,11 @@ properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic
 --BODY--
 State: 0
+[!0] 0 {0}
 [0] 1
-[!0] 0 {0}
 State: 1
-[0] 1 {0}
 [!0] 0 {0}
+[0] 1 {0}
 --END--"""
 
 res = spot.tra_to_tba(aut)
@@ -504,13 +498,13 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc
 --BODY--
 State: 0
-[0] 1
 [!0] 0
+[0] 1
 [!0] 2
 [!0] 3
 State: 1
-[0] 1
 [!0] 0
+[0] 1
 [!0] 3
 State: 2
 [!0] 2
