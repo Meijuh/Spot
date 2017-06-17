@@ -23,17 +23,18 @@ New in spot 2.4.0.dev (not yet released)
     specified SCC. It must only be called on automata with a
     Streett-like acceptance condition.
 
-  - The new function nsa_to_nca() is able to convert when possible an
-    automaton with a Streett-like acceptance to an equivalent
-    automaton with a co-Büchi acceptance. Actually the resulting
-    automaton will always recognize at least the same language. It can
-    recognize more if the original language can not be expressed with
-    a co-Büchi acceptance condition.
-
   - The new function dnf_to_streett() is able to convert any automaton
     with an acceptance condition in Disjunctive Normal Form to a
     Streett-like automaton. This is used by the new option
     '--streett-like' of autfilt.
+
+  - The new functions nsa_to_nca() and nra_to_nca() are able to convert
+    when possible respectively an automaton with a Streett-like
+    acceptance or a Rabin-like acceptance to an equivalent automaton
+    with a co-Büchi acceptance. Actually the resulting automaton will
+    always recognize at least the same language. It can recognize more
+    if the original language can not be expressed with a co-Büchi
+    acceptance condition.
 
   Deprecation notices:
 

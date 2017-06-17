@@ -28,6 +28,13 @@
 #include <stack>
 #include <unordered_map>
 
+#define DEBUG 0
+#if DEBUG
+#define debug std::cerr
+#else
+#define debug while (0) std::cout
+#endif
+
 namespace spot
 {
   namespace
@@ -250,13 +257,44 @@ namespace spot
 
 
   twa_graph_ptr
+  dnf_to_nca(const const_twa_graph_ptr& ref,
+             bool named_states,
+             vect_nca_info* nca_info)
+  {
+    const acc_cond::acc_code& code = ref->get_acceptance();
+    if (!code.is_dnf())
+      throw std::runtime_error("dnf_to_nca() only works with DNF acceptance "
+                               "condition");
+
+    auto streett_aut = spot::dnf_to_streett(ref, true);
+
+    std::vector<acc_cond::rs_pair> pairs;
+    if (!streett_aut->acc().is_streett_like(pairs))
+      throw std::runtime_error("dnf_to_nca() could not convert the original "
+          "automaton into an intermediate Streett-like automaton");
+
+    nsa_to_nca_converter nca_converter(streett_aut,
+                                       ref,
+                                       pairs,
+                                       named_states,
+                                       true,
+                                       ref->num_states());
+    return nca_converter.run(nca_info);
+  }
+
+
+  twa_graph_ptr
   to_dca(const const_twa_graph_ptr& aut, bool named_states)
   {
+    const acc_cond::acc_code& code = aut->get_acceptance();
+
     std::vector<acc_cond::rs_pair> pairs;
     if (aut->acc().is_streett_like(pairs) || aut->acc().is_parity())
       return nsa_to_nca(aut, named_states);
+    else if (code.is_dnf())
+      return dnf_to_nca(aut, named_states);
     else
-      throw std::runtime_error("to_dca() only works with Streett-like or Parity"
-                               " acceptance condition");
+      throw std::runtime_error("to_dca() only works with Streett-like, Parity "
+                               "or any acceptance condition in DNF");
   }
 }

@@ -26,9 +26,10 @@
 
 namespace spot
 {
-  /// A vector of nca_st_info is given as argument to nsa_to_nca(). Each
-  /// nca_st_info has information about a state that must be seen infinitely
-  /// often. For a state 's' visited infinitely often by a run, the information
+  /// A vector of nca_st_info is given as argument to nsa_to_nca() or
+  /// dnf_to_nca(). Each nca_st_info has information about a state that must be
+  /// seen infinitely often.
+  /// For a state 's' visited infinitely often by a run, the information
   /// provided is:
   ///  - the clause number satisfied by the run (from left to right)
   ///  - the state number of 's'
@@ -78,6 +79,31 @@ namespace spot
   /// \a nca_info retrieve information about state visited infinitely often.
   SPOT_API twa_graph_ptr
   nsa_to_nca(const const_twa_graph_ptr& aut,
+             bool named_states = false,
+             vect_nca_info* nca_info = nullptr);
+
+  /// \brief Converts an aut. with acceptance in DNF to a nondet. co-Büchi aut.
+  ///
+  /// This function converts the Rabin-like automaton into a Strett-like
+  /// automaton and then calls nsa_to_nca() on it. It is described in section
+  /// 3.2 of:
+  /** \verbatim
+      @Article{boker.2009.lcs,
+        author    = {Udi Boker and Orna Kupferman},
+        title     = {Co-Büching Them All},
+        booktitle = {Foundations of Software Science and Computational
+                     Structures - 14th International Conference, FOSSACS 2011}
+        year      = {2011},
+        pages     = {184--198},
+        url       = {\url{www.cs.huji.ac.il/~ornak/publications/fossacs11b.pdf}}
+      }
+      \endverbatim */
+  ///
+  /// \a aut The automaton to convert.
+  /// \a named_states name each state for easier debugging.
+  /// \a nca_info retrieve information about state visited infinitely often.
+  SPOT_API twa_graph_ptr
+  dnf_to_nca(const const_twa_graph_ptr& aut,
              bool named_states = false,
              vect_nca_info* nca_info = nullptr);
 
