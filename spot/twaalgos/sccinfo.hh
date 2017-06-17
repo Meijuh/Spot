@@ -541,6 +541,32 @@ namespace spot
     std::vector<bool> weak_sccs() const;
 
     bdd scc_ap_support(unsigned scc) const;
+
+  protected:
+    /// \brief: Remove in 'scc', edges containing any mark in 'sets'.
+    ///
+    /// Such a deletion may split the SCC, in which case, the function builds
+    /// and returns more than one automaton representing the specified SCC.
+    std::vector<twa_graph_ptr>
+    split_on_sets(unsigned scc, acc_cond::mark_t sets) const;
+
+    /// \brief: Recursive function used by states_on_acc_cycle_of().
+    void
+    states_on_acc_cycle_of_rec(unsigned scc,
+                               acc_cond::mark_t all_fin,
+                               acc_cond::mark_t all_inf,
+                               unsigned nb_pairs,
+                               std::vector<acc_cond::rs_pair>& pairs,
+                               std::vector<unsigned>& res,
+                               std::vector<unsigned>& old) const;
+  public:
+    /// \brief: Get all states visited by any accepting cycles of the 'scc'.
+    ///
+    /// Throws an exception if the automaton does not have a 'Streett-like'
+    /// acceptance condition.
+    std::vector<unsigned>
+    states_on_acc_cycle_of(unsigned scc) const;
+
   };
 
 

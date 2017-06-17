@@ -441,4 +441,122 @@ namespace spot
     return out;
   }
 
+  std::vector<twa_graph_ptr>
+  scc_info::split_on_sets(unsigned scc, acc_cond::mark_t sets) const
+  {
+    std::vector<twa_graph_ptr> res;
+
+    std::vector<bool> seen(aut_->num_states(), false);
+    std::vector<bool> cur(aut_->num_states(), false);
+
+    for (unsigned init: states_of(scc))
+      {
+        if (seen[init])
+          continue;
+        cur.assign(aut_->num_states(), false);
+
+        auto copy = make_twa_graph(aut_->get_dict());
+        copy->copy_acceptance_of(aut_);
+        copy->prop_state_acc(aut_->prop_state_acc());
+        transform_accessible(aut_, copy, [&](unsigned src,
+                                             bdd& cond,
+                                             acc_cond::mark_t& m,
+                                             unsigned dst)
+                             {
+                               cur[src] = seen[src] = true;
+                               if (scc_of(dst) != scc
+                                   || (m & sets)
+                                   || (seen[dst] && !cur[dst]))
+                                 {
+                                   cond = bddfalse;
+                                   return;
+                                 }
+                             },
+                             init);
+        if (copy->num_edges())
+          res.push_back(copy);
+      }
+    return res;
+  }
+
+  void
+  scc_info::states_on_acc_cycle_of_rec(unsigned scc,
+                                       acc_cond::mark_t all_fin,
+                                       acc_cond::mark_t all_inf,
+                                       unsigned nb_pairs,
+                                       std::vector<acc_cond::rs_pair>& pairs,
+                                       std::vector<unsigned>& res,
+                                       std::vector<unsigned>& old) const
+  {
+    if (!is_rejecting_scc(scc))
+      {
+        acc_cond::mark_t all_acc = acc_sets_of(scc);
+        acc_cond::mark_t fin = all_fin & all_acc;
+        acc_cond::mark_t inf = all_inf & all_acc;
+
+        // Get all Fin acceptance set that appears in the SCC and does not have
+        // their corresponding Inf appearing in the SCC.
+        acc_cond::mark_t m = 0u;
+        if (fin)
+          for (unsigned p = 0; p < nb_pairs; ++p)
+            if (fin & pairs[p].fin && !(inf & pairs[p].inf))
+              m |= pairs[p].fin;
+
+        if (m)
+          for (const twa_graph_ptr& aut : split_on_sets(scc, m))
+            {
+              auto orig_sts = aut->get_named_prop
+                <std::vector<unsigned>>("original-states");
+
+              // Update mapping of state numbers between the current automaton
+              // and the starting one.
+              for (unsigned i = 0; i < orig_sts->size(); ++i)
+                (*orig_sts)[i] = old[(*orig_sts)[i]];
+
+              scc_info si_tmp(aut);
+              unsigned scccount_tmp = si_tmp.scc_count();
+              for (unsigned scc_tmp = 0; scc_tmp < scccount_tmp; ++scc_tmp)
+                si_tmp.states_on_acc_cycle_of_rec(scc_tmp,
+                                                  all_fin,
+                                                  all_inf,
+                                                  nb_pairs,
+                                                  pairs,
+                                                  res,
+                                                  *orig_sts);
+            }
+
+        else  // Accepting cycle found.
+          for (unsigned s : states_of(scc))
+            res.push_back(old[s]);
+      }
+  }
+
+  std::vector<unsigned>
+  scc_info::states_on_acc_cycle_of(unsigned scc) const
+  {
+    std::vector<acc_cond::rs_pair> pairs;
+    if (!aut_->acc().is_streett_like(pairs))
+      throw std::runtime_error("states_on_acc_cycle_of only works with "
+                               "Streett-like acceptance condition");
+    unsigned nb_pairs = pairs.size();
+
+    std::vector<unsigned> res;
+    if (!is_rejecting_scc(scc))
+      {
+        std::vector<unsigned> old;
+        unsigned nb_states = aut_->num_states();
+        for (unsigned i = 0; i < nb_states; ++i)
+          old.push_back(i);
+
+        acc_cond::mark_t all_fin = 0u;
+        acc_cond::mark_t all_inf = 0u;
+        std::tie(all_inf, all_fin) = aut_->get_acceptance().used_inf_fin_sets();
+
+        states_on_acc_cycle_of_rec(scc, all_fin, all_inf, nb_pairs, pairs, res,
+                                   old);
+      }
+
+    return res;
+  }
+
 }

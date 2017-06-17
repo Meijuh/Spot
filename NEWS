@@ -14,6 +14,11 @@ New in spot 2.4.0.dev (not yet released)
   - Rename three methods of spot::scc_info. New names are clearer. The
     old names have been deprecated.
 
+  - The new function scc_info::states_on_acc_cycle_of() is able to
+    return all states visited by any accepting cycles of the
+    specified SCC. It must only be called on automata with a
+    Streett-like acceptance condition.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
