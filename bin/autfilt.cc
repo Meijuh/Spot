@@ -142,6 +142,7 @@ enum {
   OPT_SIMPLIFY_EXCLUSIVE_AP,
   OPT_SPLIT_EDGES,
   OPT_STATES,
+  OPT_STREETT_LIKE,
   OPT_STRIPACC,
   OPT_SUM_OR,
   OPT_SUM_AND,
@@ -275,6 +276,9 @@ static const argp_option options[] =
       "initial state.  Implies --remove-unreachable-states.", 0 },
     { "dnf-acceptance", OPT_DNF_ACC, nullptr, 0,
       "put the acceptance condition in Disjunctive Normal Form", 0 },
+    { "streett-like", OPT_STREETT_LIKE, nullptr, 0,
+      "convert to an automaton with Streett-like acceptance. Works only with "
+      "acceptance condition in DNF", 0 },
     { "cnf-acceptance", OPT_CNF_ACC, nullptr, 0,
       "put the acceptance condition in Conjunctive Normal Form", 0 },
     { "remove-fin", OPT_REM_FIN, nullptr, 0,
@@ -520,6 +524,7 @@ static int opt_highlight_nondet_states = -1;
 static int opt_highlight_nondet_edges = -1;
 static bool opt_highlight_languages = false;
 static bool opt_dca = false;
+static bool opt_streett_like = false;
 
 static spot::twa_graph_ptr
 ensure_deterministic(const spot::twa_graph_ptr& aut, bool nonalt = false)
@@ -621,6 +626,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_DNF_ACC:
       opt_dnf_acc = true;
       opt_cnf_acc = false;
+      break;
+    case OPT_STREETT_LIKE:
+      opt_streett_like = true;
       break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
@@ -1204,6 +1212,9 @@ namespace
         aut = spot::to_generalized_streett(aut, opt_gsa == GSA_SHARE_FIN);
       if (opt_dca)
         aut = spot::to_dca(aut, false);
+
+      if (opt_streett_like)
+        aut = spot::dnf_to_streett(aut);
 
       if (opt_simplify_exclusive_ap && !opt->excl_ap.empty())
         aut = opt->excl_ap.constrain(aut, true);

@@ -300,7 +300,8 @@ TESTS_twa = \
   core/randpsl.test \
   core/cycles.test \
   core/acc_word.test \
-  core/dca.test
+  core/dca.test \
+  core/dnfstreett.test
 
 ############################## PYTHON ##############################
 

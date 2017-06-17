@@ -9,6 +9,10 @@ New in spot 2.4.0.dev (not yet released)
     --ms-phi-r=RANGE       (FGa{n}&GFb{n})|((FGa{n-1}|GFb{n-1})&(...))
     --ms-phi-s=RANGE       (FGa{n}|GFb{n})&((FGa{n-1}&GFb{n-1})|(...))
 
+  - autfilt learned --streett-like to convert an automaton in order to
+    have a Streett-like acceptance condition. It only works with
+    ω-automata having an acceptance in disjunctive normal form.
+
   Library:
 
   - Rename three methods of spot::scc_info. New names are clearer. The
@@ -25,6 +29,11 @@ New in spot 2.4.0.dev (not yet released)
     automaton will always recognize at least the same language. It can
     recognize more if the original language can not be expressed with
     a co-Büchi acceptance condition.
+
+  - The new function dnf_to_streett() is able to convert any automaton
+    with an acceptance condition in Disjunctive Normal Form to a
+    Streett-like automaton. This is used by the new option
+    '--streett-like' of autfilt.
 
   Deprecation notices:
 

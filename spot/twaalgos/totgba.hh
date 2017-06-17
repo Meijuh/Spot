@@ -21,6 +21,8 @@
 
 #include <spot/twa/twagraph.hh>
 
+#include <unordered_map>
+
 namespace spot
 {
   /// \brief Take an automaton with any acceptance condition and return
@@ -66,4 +68,38 @@ namespace spot
   SPOT_API twa_graph_ptr
   to_generalized_streett(const const_twa_graph_ptr& aut,
                          bool share_fin = false);
+
+  /// \brief Converts any DNF acceptance condition into Streett-like.
+  ///
+  /// This function is an optimized version of the construction described
+  /// by Lemma 4 and 5 of the paper below.
+  /** \verbatim
+      @Article{boker.2009.lcs,
+        author    = {Udi Boker and Orna Kupferman},
+        title     = {Co-Büching Them All},
+        booktitle = {Foundations of Software Science and Computational
+                     Structures - 14th International Conference, FOSSACS 2011}
+        year      = {2011},
+        pages     = {184--198},
+        url       = {\url{www.cs.huji.ac.il/~ornak/publications/fossacs11b.pdf}}
+      }
+      \endverbatim */
+  ///
+  /// In the described construction, as many copies as there are minterms in
+  /// the acceptance condition are made and the union of all those copies is
+  /// returned.
+  /// Instead of cloning the automaton for each minterm and end up with many
+  /// rejecting and useless SCC, we construct the automaton SCC by SCC. Each SCC
+  /// is copied at most as many times as there are minterms for which it is not
+  /// rejecting and at least one time if it is always rejecting (to be
+  /// consistent with the recognized language).
+  ///
+  /// \a aut The automaton to convert.
+  /// \a original_states Enable mapping between each state of the resulting
+  /// automaton and the original state of the input automaton. This is stored
+  /// in the "original-states" named property of the produced automaton. Call
+  /// `aut->get_named_prop<std::vector<unsigned>>("original-states")`
+  /// to retrieve it.
+  SPOT_API twa_graph_ptr
+  dnf_to_streett(const const_twa_graph_ptr& aut, bool original_states = false);
 }

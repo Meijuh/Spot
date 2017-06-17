@@ -25,8 +25,411 @@
 #include <deque>
 #include <tuple>
 
+#define DEBUG 0
+#if DEBUG
+#define debug std::cerr
+#else
+#define debug while (0) std::cerr
+#endif
+
 namespace spot
 {
+  namespace
+  {
+    class dnf_to_streett_converter
+    {
+    private:
+      typedef std::pair<acc_cond::mark_t, acc_cond::mark_t> mark_pair;
+
+      const const_twa_graph_ptr& in_;             // The given aut.
+      scc_info si_;                               // SCC information.
+      unsigned nb_scc_;                           // Number of SCC.
+      unsigned max_set_in_;                       // Max acc. set nb of in_.
+      bool state_based_;                          // Is in_ state_based ?
+      unsigned init_st_in_;                       // Initial state of in_.
+      bool init_reachable_;                       // Init reach from itself?
+      twa_graph_ptr res_;                         // Resulting automaton.
+      acc_cond::mark_t all_fin_;                  // All acc. set marked as
+                                                  // Fin.
+      acc_cond::mark_t all_inf_;                  // All acc. set marked as
+                                                  // Inf.
+      unsigned num_sets_res_;                     // Future nb of acc. set.
+      std::vector<mark_pair> all_clauses_;        // All clauses.
+      std::vector<acc_cond::mark_t> set_to_keep_; // Set to keep for each clause
+      std::vector<acc_cond::mark_t> set_to_add_;  // New set for each clause.
+      acc_cond::mark_t all_set_to_add_;           // All new set to add.
+      std::vector<unsigned> assigned_sets_;       // Set that will be add.
+      std::vector<std::vector<unsigned>> acc_clauses_; // Acc. clauses.
+      unsigned res_init_;                         // Future initial st.
+
+      // A state can be copied at most as many times as their are clauses for
+      // which it is not rejecting and must be copied one time (to remain
+      // consistent with the recognized language). This vector records each
+      // created state following this format:
+      // st_repr_[orig_st_nb] gives a vector<pair<clause, state>>.
+      std::vector<std::vector<std::pair<unsigned, unsigned>>> st_repr_;
+
+      // Split the DNF acceptance condition and get all the sets used in each
+      // clause. It separates those that must be seen finitely often from
+      // those that must be seen infinitely often.
+      void
+      split_dnf_clauses(const acc_cond::acc_code& code)
+      {
+        bool one_conjunction = false;
+        const acc_cond::acc_op root_op = code.back().sub.op;
+        auto s = code.back().sub.size;
+        while (s)
+          {
+            --s;
+            if (code[s].sub.op == acc_cond::acc_op::And
+                || ((one_conjunction = root_op == acc_cond::acc_op::And)))
+              {
+                debug << "WABA" << std::endl;
+                s = one_conjunction ? s + 1 : s;
+                const unsigned short size = code[s].sub.size;
+                acc_cond::mark_t fin = 0u;
+                acc_cond::mark_t inf = 0u;
+                for (unsigned i = 1; i <= size; i += 2)
+                  {
+                    if (code[s-i].sub.op == acc_cond::acc_op::Fin)
+                      fin |= code[s-i-1].mark;
+                    else if (code[s-i].sub.op == acc_cond::acc_op::Inf)
+                      inf |= code[s-i-1].mark;
+                    else
+                      SPOT_UNREACHABLE();
+                  }
+                all_clauses_.emplace_back(fin, inf);
+                set_to_keep_.emplace_back(fin | inf);
+                s -= size;
+              }
+            else if (code[s].sub.op == acc_cond::acc_op::Fin) // Fin
+              {
+                auto m1 = code[--s].mark;
+                for (unsigned int s : m1.sets())
+                  {
+                    all_clauses_.emplace_back(acc_cond::mark_t({s}), 0u);
+                    set_to_keep_.emplace_back(acc_cond::mark_t({s}));
+                  }
+              }
+            else if (code[s].sub.op == acc_cond::acc_op::Inf) // Inf
+              {
+                auto m2 = code[--s].mark;
+                all_clauses_.emplace_back(0u, m2);
+                set_to_keep_.emplace_back(m2);
+              }
+            else
+              {
+                SPOT_UNREACHABLE();
+              }
+          }
+#if DEBUG
+        debug << "\nPrinting all clauses\n";
+        for (unsigned i = 0; i < all_clauses_.size(); ++i)
+          {
+            debug << i << " Fin:" << all_clauses_[i].first << " Inf:"
+              << all_clauses_[i].second << std::endl;
+          }
+#endif
+      }
+
+      // Compute all the acceptance sets that will be needed:
+      //   -Inf(x) will be converted to (Inf(x) | Fin(y)) with y appearing
+      //     on every edge.
+      //   -Fin(x) will be converted to (Inf(y) | Fin(x)) with y appearing
+      //     nowhere.
+      //
+      // All the previous 'y' are the new sets assigned.
+      void
+      assign_new_sets()
+      {
+        unsigned int next_set = 0;
+        unsigned int missing_set = -1U;
+        assigned_sets_.resize(max_set_in_, -1U);
+
+        acc_cond::mark_t all_m = all_fin_ | all_inf_;
+        for (unsigned set = 0; set < max_set_in_; ++set)
+          if (all_fin_.has(set))
+            {
+              if ((int)missing_set < 0)
+                {
+                  while (all_m & acc_cond::mark_t({next_set}))
+                    ++next_set;
+                  missing_set = next_set++;
+                }
+
+              assigned_sets_[set] = missing_set;
+            }
+          else if (all_inf_.has(set))
+            {
+              while (all_m & acc_cond::mark_t({next_set}))
+                ++next_set;
+
+              assigned_sets_[set] = next_set++;
+            }
+
+        num_sets_res_ = next_set > max_set_in_ ? next_set : max_set_in_;
+      }
+
+      // Precompute:
+      //   -the sets to add for each clause,
+      //   -all sets to add.
+      void
+      find_set_to_add()
+      {
+        assign_new_sets();
+
+        unsigned nb_clause = all_clauses_.size();
+        for (unsigned clause = 0; clause < nb_clause; ++clause)
+          {
+            if (all_clauses_[clause].second)
+              {
+                acc_cond::mark_t m = 0u;
+                for (unsigned set = 0; set < max_set_in_; ++set)
+                  if (all_clauses_[clause].second.has(set))
+                    {
+                      assert((int)assigned_sets_[set] >= 0);
+                      m |= acc_cond::mark_t({assigned_sets_[set]});
+                    }
+                set_to_add_.push_back(m);
+              }
+            else
+              {
+                set_to_add_.emplace_back(0u);
+              }
+          }
+
+        all_set_to_add_ = 0u;
+        for (unsigned s = 0; s < max_set_in_; ++s)
+          if (all_inf_.has(s))
+            {
+              assert((int)assigned_sets_[s] >= 0);
+              all_set_to_add_.set(assigned_sets_[s]);
+            }
+      }
+
+      // Check whether the initial state is reachable from itself.
+      bool
+      is_init_reachable()
+      {
+        for (const auto& e : in_->edges())
+          for (unsigned d : in_->univ_dests(e))
+            if (d == init_st_in_)
+              return true;
+        return false;
+      }
+
+      // Get all non rejecting scc for each clause of the acceptance
+      // condition. Actually, for each clause, an scc will be kept if it
+      // contains all the 'Inf' acc. sets of the clause.
+      void
+      find_probably_accepting_scc(std::vector<std::vector<unsigned>>& res)
+      {
+        res.resize(nb_scc_);
+        unsigned nb_clause = all_clauses_.size();
+        for (unsigned scc = 0; scc < nb_scc_; ++scc)
+          {
+            if (si_.is_rejecting_scc(scc))
+              continue;
+
+            acc_cond::mark_t acc = si_.acc_sets_of(scc);
+            for (unsigned clause = 0; clause < nb_clause; ++clause)
+              {
+                if ((acc & all_clauses_[clause].second)
+                      == all_clauses_[clause].second)
+                  res[scc].push_back(clause);
+              }
+          }
+#if DEBUG
+        debug << "accepting clauses" << std::endl;
+        for (unsigned i = 0; i < res.size(); ++i)
+          {
+            debug << "scc(" << i << ") --> ";
+            for (auto elt : res[i])
+              debug << elt << ',';
+            debug << std::endl;
+          }
+        debug << std::endl;
+#endif
+      }
+
+      // Add all possible representatives of the original state provided.
+      // Actually, this state will be copied as many times as there are clauses
+      // for which its SCC is not rejecting.
+      void
+      add_state(unsigned st)
+      {
+        debug << "add_state(" << st << ')' << std::endl;
+        if (st_repr_[st].empty())
+          {
+            unsigned st_scc = si_.scc_of(st);
+            if (st == init_st_in_ && !init_reachable_)
+              st_repr_[st].emplace_back(-1U, res_init_);
+
+            else if (!acc_clauses_[st_scc].empty())
+              for (const auto& clause : acc_clauses_[st_scc])
+                st_repr_[st].emplace_back(clause, res_->new_state());
+
+            else
+              st_repr_[st].emplace_back(-1U, res_->new_state());
+            debug << "added" << std::endl;
+          }
+      }
+
+      // Compute the mark that will be set (instead of the provided e_acc)
+      // according to the current clause in process. This function is only
+      // called for accepting SCC.
+      acc_cond::mark_t
+      get_edge_mark(const acc_cond::mark_t& e_acc,
+                    unsigned clause)
+      {
+        assert((int)clause >= 0);
+        return (e_acc & set_to_keep_[clause]) | set_to_add_[clause];
+      }
+
+      // Set the acceptance condition once the resulting automaton is ready.
+      void
+      set_acc_condition()
+      {
+        acc_cond::acc_code p_code;
+        for (unsigned set = 0; set < max_set_in_; ++set)
+          {
+            if (all_fin_.has(set))
+              p_code &=
+                acc_cond::acc_code::inf(acc_cond::mark_t({assigned_sets_[set]}))
+                  | acc_cond::acc_code::fin(acc_cond::mark_t({set}));
+            else if (all_inf_.has(set))
+              p_code &=
+                acc_cond::acc_code::inf(acc_cond::mark_t({set}))
+                  | acc_cond::acc_code::fin(
+                      acc_cond::mark_t({assigned_sets_[set]}));
+          }
+        res_->set_acceptance(num_sets_res_, p_code);
+      }
+
+    public:
+      dnf_to_streett_converter(const const_twa_graph_ptr& in,
+                               const acc_cond::acc_code& code)
+        : in_(in),
+          si_(scc_info(in)),
+          nb_scc_(si_.scc_count()),
+          max_set_in_(code.used_sets().max_set()),
+          state_based_(in->prop_state_acc() == true),
+          init_st_in_(in->get_init_state_number()),
+          init_reachable_(is_init_reachable())
+      {
+        debug << "State based ? " << state_based_ << std::endl;
+        std::tie(all_inf_, all_fin_) = code.used_inf_fin_sets();
+        split_dnf_clauses(code);
+        find_set_to_add();
+        find_probably_accepting_scc(acc_clauses_);
+      }
+
+      ~dnf_to_streett_converter()
+      {}
+
+      twa_graph_ptr run(bool original_states)
+      {
+        res_ = make_twa_graph(in_->get_dict());
+        res_->copy_ap_of(in_);
+        st_repr_.resize(in_->num_states());
+        res_init_ = res_->new_state();
+        res_->set_init_state(res_init_);
+
+        for (unsigned scc = 0; scc < nb_scc_; ++scc)
+          {
+            bool rej_scc = acc_clauses_[scc].empty();
+            for (auto st : si_.states_of(scc))
+              {
+                add_state(st);
+                for (const auto& e : in_->out(st))
+                  {
+                    debug << "working_on_edge(" << st << ',' << e.dst << ')'
+                      << std::endl;
+
+                    add_state(e.dst);
+                    bool same_scc = scc == si_.scc_of(e.dst);
+
+                    if (st == init_st_in_)
+                      {
+                        for (const auto& p_dst : st_repr_[e.dst])
+                          res_->new_edge(res_init_, p_dst.second, e.cond, 0u);
+                        if (!init_reachable_)
+                          continue;
+                      }
+
+                    if (!rej_scc)
+                      for (const auto& p_src : st_repr_[st])
+                        for (const auto& p_dst : st_repr_[e.dst])
+                          {
+                            debug << "repr(" << p_src.second << ','
+                              << p_dst.second << ')' << std::endl;
+
+                            if (same_scc && p_src.first == p_dst.first)
+                              res_->new_edge(p_src.second, p_dst.second, e.cond,
+                                             get_edge_mark(e.acc, p_src.first));
+
+                            else if (!same_scc)
+                              res_->new_edge(p_src.second, p_dst.second, e.cond,
+                                             state_based_ ?
+                                               get_edge_mark(e.acc, p_src.first)
+                                             : 0u);
+                          }
+                    else
+                      {
+                        assert(st_repr_[st].size() == 1);
+                        unsigned src = st_repr_[st][0].second;
+
+                        acc_cond::mark_t m = 0u;
+                        if (same_scc || state_based_)
+                          m = all_set_to_add_;
+
+                        for (const auto& p_dst : st_repr_[e.dst])
+                          res_->new_edge(src, p_dst.second, e.cond, m);
+                      }
+                  }
+              }
+          }
+
+        // Mapping between each state of the resulting automaton and the
+        // original state of the input automaton.
+        if (original_states)
+          {
+            auto orig_states = new std::vector<unsigned>();
+            orig_states->resize(res_->num_states(), -1U);
+            res_->set_named_prop("original-states", orig_states);
+            unsigned orig_num_states = in_->num_states();
+            for (unsigned orig = 0; orig < orig_num_states; ++orig)
+              for (const auto& p : st_repr_[orig])
+                (*orig_states)[p.second] = orig;
+#if DEBUG
+            for (unsigned i = 1; i < orig_states->size(); ++i)
+              assert((int)(*orig_states)[i] >= 0);
+#endif
+          }
+
+        set_acc_condition();
+        res_->prop_state_acc(state_based_);
+        return res_;
+      }
+    };
+  }
+
+
+  twa_graph_ptr
+  dnf_to_streett(const const_twa_graph_ptr& in, bool original_states)
+  {
+    const acc_cond::acc_code& code = in->get_acceptance();
+    if (!code.is_dnf())
+          throw std::runtime_error("dnf_to_streett() should only be"
+                                   " called on automata with DNF acceptance");
+    if (code.is_t() || code.is_f() || in->acc().is_streett() > 0)
+      return make_twa_graph(in, twa::prop_set::all());
+
+    dnf_to_streett_converter dnf_to_streett(in, code);
+    return dnf_to_streett.run(original_states);
+  }
+
+
   namespace
   {
     struct st2gba_state
