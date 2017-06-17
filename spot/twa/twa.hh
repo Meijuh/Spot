@@ -963,6 +963,24 @@ namespace spot
       acc_.set_generalized_buchi();
     }
 
+    /// \brief Set generalized co-Büchi acceptance
+    ///
+    /// \param num the number of acceptance sets to use
+    ///
+    /// The acceptance formula of the form
+    /// \code
+    /// Fin(0)&Fin(1)&...&Fin(num-1)
+    /// \endcode
+    /// is generated.
+    ///
+    /// In the case where \a num is null, the state-acceptance
+    /// property is automatically turned on.
+    void set_generalized_co_buchi(unsigned num)
+    {
+      set_num_sets_(num);
+      acc_.set_generalized_co_buchi();
+    }
+
     /// \brief Set Büchi acceptance.
     ///
     /// This declares a single acceptance set, and \c Inf(0)
@@ -981,6 +999,27 @@ namespace spot
     acc_cond::mark_t set_buchi()
     {
       set_generalized_buchi(1);
+      return acc_.mark(0);
+    }
+
+    /// \brief Set co-Büchi acceptance.
+    ///
+    /// This declares a single acceptance set, and \c Fin(0)
+    /// acceptance.  The returned mark \c {0} can be used to tag
+    /// non-accepting transition.
+    ///
+    /// Note that this does not mark the automaton as using
+    /// state-based acceptance. If you want to create a co-Büchi
+    /// automaton with state-based acceptance, call
+    /// \code
+    /// prop_state_acc(true)
+    /// \endcode
+    /// in addition.
+    ///
+    /// \see prop_state_acc
+    acc_cond::mark_t set_co_buchi()
+    {
+      set_generalized_co_buchi(1);
       return acc_.mark(0);
     }
 

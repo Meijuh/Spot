@@ -1027,6 +1027,11 @@ namespace spot
       set_acceptance(inf(all_sets()));
     }
 
+    void set_generalized_co_buchi()
+    {
+      set_acceptance(fin(all_sets()));
+    }
+
     bool is_generalized_buchi() const
     {
       unsigned s = code_.size();
