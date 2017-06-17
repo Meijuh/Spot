@@ -13,6 +13,11 @@ New in spot 2.4.0.dev (not yet released)
     have a Streett-like acceptance condition. It only works with
     ω-automata having an acceptance in disjunctive normal form.
 
+  - autfilt learned --dca to convert a Streett-like automaton or an
+    automaton with an acceptance in disjunctive normal form to a
+    deterministic co-Büchi automaton using the new functions
+    [nsa-dnf]_to_dca() described below.
+
   Library:
 
   - Rename three methods of spot::scc_info. New names are clearer. The
@@ -28,13 +33,14 @@ New in spot 2.4.0.dev (not yet released)
     Streett-like automaton. This is used by the new option
     '--streett-like' of autfilt.
 
-  - The new functions nsa_to_nca() and nra_to_nca() are able to convert
-    when possible respectively an automaton with a Streett-like
-    acceptance or a Rabin-like acceptance to an equivalent automaton
-    with a co-Büchi acceptance. Actually the resulting automaton will
-    always recognize at least the same language. It can recognize more
-    if the original language can not be expressed with a co-Büchi
-    acceptance condition.
+  - The new functions spot::nsa_to_[nca-dca]()
+    (or spot::dnf_to_[nca-dca]()) are able to convert when possible a
+    Streett-like automaton (or any automaton with an acceptance in DNF)
+    to an equivalent 'nca' (nondeterministic co-Büchi automaton) or
+    'dca' (deterministic co-Büchi automaton).  Actually the resulting
+    automaton will always recognize at least the same language.  It can
+    recognize more if the original language can not be expressed with
+    a co-Büchi acceptance condition.
 
   Deprecation notices:
 

@@ -567,6 +567,37 @@ namespace spot
 
 
   twa_graph_ptr
+  dnf_to_dca(const const_twa_graph_ptr& aut, bool named_states)
+  {
+    debug << "DNF_to_dca" << std::endl;
+    const acc_cond::acc_code& code = aut->get_acceptance();
+    std::vector<acc_cond::rs_pair> pairs;
+    if (!code.is_dnf())
+      throw std::runtime_error("dnf_to_dca() only works with DNF (Rabin-like "
+                               "included) acceptance condition");
+
+    // Get states that must be visited infinitely often in NCA.
+    vect_nca_info nca_info;
+    dnf_to_nca(aut, false, &nca_info);
+
+#if DEBUG
+    debug << "PRINTING INFO" << std::endl;
+    for (unsigned i = 0; i < nca_info.size(); ++i)
+      debug << '<' << nca_info[i]->clause_num << ',' << nca_info[i]->state_num
+        << ',' << nca_info[i]->all_dst << '>' << std::endl;
+#endif
+
+    unsigned nb_copy = 0;
+    for (const auto& p : nca_info)
+      if (nb_copy < p->clause_num)
+        nb_copy = p->clause_num;
+
+    dca_breakpoint_cons dca(aut, &nca_info, nb_copy);
+    return dca.run(named_states);
+  }
+
+
+  twa_graph_ptr
   to_dca(const const_twa_graph_ptr& aut, bool named_states)
   {
     const acc_cond::acc_code& code = aut->get_acceptance();
@@ -575,7 +606,7 @@ namespace spot
     if (aut->acc().is_streett_like(pairs) || aut->acc().is_parity())
       return nsa_to_dca(aut, named_states);
     else if (code.is_dnf())
-      return dnf_to_nca(aut, named_states);
+      return dnf_to_dca(aut, named_states);
     else
       throw std::runtime_error("to_dca() only works with Streett-like, Parity "
                                "or any acceptance condition in DNF");

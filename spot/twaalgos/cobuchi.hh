@@ -129,6 +129,28 @@ namespace spot
   SPOT_API twa_graph_ptr
   nsa_to_dca(const const_twa_graph_ptr& aut, bool named_states = false);
 
+  /// \brief Converts an aut. with acceptance in DNF to a det. co-Büchi aut.
+  ///
+  /// This function calls first nra_to_nca() in order to retrieve som
+  /// information and then runs a breakpoint construction. The algorithm is
+  /// described in section 4 of:
+  /** \verbatim
+      @Article{boker.2009.lcs,
+        author    = {Udi Boker and Orna Kupferman},
+        title     = {Co-Büching Them All},
+        booktitle = {Foundations of Software Science and Computational
+                     Structures - 14th International Conference, FOSSACS 2011}
+        year      = {2011},
+        pages     = {184--198},
+        url       = {\url{www.cs.huji.ac.il/~ornak/publications/fossacs11b.pdf}}
+      }
+      \endverbatim */
+  ///
+  /// \a aut The automaton to convert.
+  /// \a named_states name each state for easier debugging.
+  SPOT_API twa_graph_ptr
+  dnf_to_dca(const const_twa_graph_ptr& aut, bool named_states = false);
+
   /// \brief Converts any ω-automata to det. co-buchi (when possible)
   ///
   /// The resulting automaton will always recognize at least the same language.
