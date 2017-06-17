@@ -299,7 +299,8 @@ TESTS_twa = \
   core/complementation.test \
   core/randpsl.test \
   core/cycles.test \
-  core/acc_word.test
+  core/acc_word.test \
+  core/dca.test
 
 ############################## PYTHON ##############################
 
@@ -340,6 +341,7 @@ TESTS_python = \
   python/bdditer.py \
   python/bddnqueen.py \
   python/bugdet.py \
+  python/dca.test \
   python/declenv.py \
   python/decompose_scc.py \
   python/dualize.py \
@@ -390,6 +392,7 @@ nb-html: $(TESTS_ipython:.ipynb=.html)
 EXTRA_DIST = \
   $(TESTS) \
   python/ltl2tgba.py \
+  python/dca.py \
   python/ipnbdoctest.py
 
 

@@ -1,0 +1,58 @@
+#!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2017 Laboratoire de Recherche et
+# Développement de l'EPITA.
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+
+# Skip this test if ltl2dstar is not installed.
+(ltl2dstar --version) || exit 77
+
+cat >ba_formulas << 'EOF'
+FG((Xc & XXa) <-> !(b xor (c M b)))
+F!FGFb
+XF(b & Ga)
+FG(F(b R Fc) R Gc)
+(!c M F(b M Ga)) W (b U a)
+(c xor Gb) M 1
+X!Gc M ((Fb R a) M 1)
+!a | F(b W 0)
+F(!a -> Gb)
+(Gb <-> X(b W Xb)) M (b xor !c)
+(c R (X!c W Fb)) M 1
+!a -> (FX!(0 R F(b | c)) W c)
+XF((!c R a) W !Fb)
+(!a <-> !(c <-> Gb)) M 1
+((0 R a) M c) M ((b xor Fb) M F(b -> a))
+EOF
+cat >dsa_formulas <<'EOF'
+(!b U b) U X(!a -> Fb)
+1 U (a xor b)
+X(!(!b | (a M b)) -> XXa)
+!Gb
+F(XF!a & (Fb U !a))
+EOF
+while read ba_f; do
+  $srcdir/../run "$srcdir/dca.py" "$ba_f" > ba
+  while read dsa_f; do
+    ltldo -f "$dsa_f" "ltl2dstar --automata=streett\
+      --ltl2nba=spin:ltl2tgba@-Ds" -H | autfilt --product=ba > input.hoa
+    autfilt --dca input.hoa > res.hoa
+    autfilt input.hoa --equivalent-to res.hoa
+  done <dsa_formulas
+done <ba_formulas

@@ -19,6 +19,13 @@ New in spot 2.4.0.dev (not yet released)
     specified SCC. It must only be called on automata with a
     Streett-like acceptance condition.
 
+  - The new function nsa_to_nca() is able to convert when possible an
+    automaton with a Streett-like acceptance to an equivalent
+    automaton with a co-Büchi acceptance. Actually the resulting
+    automaton will always recognize at least the same language. It can
+    recognize more if the original language can not be expressed with
+    a co-Büchi acceptance condition.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)

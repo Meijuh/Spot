@@ -47,6 +47,7 @@
 #include <spot/tl/exclusive.hh>
 #include <spot/twaalgos/are_isomorphic.hh>
 #include <spot/twaalgos/canonicalize.hh>
+#include <spot/twaalgos/cobuchi.hh>
 #include <spot/twaalgos/cleanacc.hh>
 #include <spot/twaalgos/dtwasat.hh>
 #include <spot/twaalgos/dualize.hh>
@@ -89,6 +90,7 @@ enum {
   OPT_COMPLEMENT,
   OPT_COMPLEMENT_ACC,
   OPT_COUNT,
+  OPT_DCA,
   OPT_DECOMPOSE_SCC,
   OPT_DESTUT,
   OPT_DUALIZE,
@@ -350,6 +352,12 @@ static const argp_option options[] =
       "solver can be set thanks to the SPOT_SATSOLVER environment variable"
       "(see spot-x)."
       , 0 },
+    { "dca", OPT_DCA, nullptr, 0,
+      "convert to deterministic co-Büchi. The resulting automaton will always "
+      "recognize at least the same language. Actually, it can recognize "
+      "more if the original language can not be expressed using a co-Büchi "
+      "acceptance condition."
+      , 0 },
     { nullptr, 0, nullptr, 0, "Decorations (for -d and -H1.1 output):", 9 },
     { "highlight-nondet-states", OPT_HIGHLIGHT_NONDET_STATES, "NUM",
       OPTION_ARG_OPTIONAL, "highlight nondeterministic states with color NUM",
@@ -511,6 +519,7 @@ static const char* opt_sat_minimize = nullptr;
 static int opt_highlight_nondet_states = -1;
 static int opt_highlight_nondet_edges = -1;
 static bool opt_highlight_languages = false;
+static bool opt_dca = false;
 
 static spot::twa_graph_ptr
 ensure_deterministic(const spot::twa_graph_ptr& aut, bool nonalt = false)
@@ -593,6 +602,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_COMPLEMENT_ACC:
       opt_complement_acc = true;
+      break;
+     case OPT_DCA:
+      opt_dca = true;
       break;
     case OPT_DECOMPOSE_SCC:
       opt_decompose_scc = arg;
@@ -1190,6 +1202,8 @@ namespace
         aut = spot::to_generalized_rabin(aut, opt_gra == GRA_SHARE_INF);
       if (opt_gsa)
         aut = spot::to_generalized_streett(aut, opt_gsa == GSA_SHARE_FIN);
+      if (opt_dca)
+        aut = spot::to_dca(aut, false);
 
       if (opt_simplify_exclusive_ap && !opt->excl_ap.empty())
         aut = opt->excl_ap.constrain(aut, true);
