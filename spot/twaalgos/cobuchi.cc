@@ -19,7 +19,12 @@
 
 #include <spot/twaalgos/cobuchi.hh>
 
+#include <spot/misc/bddlt.hh>
 #include <spot/misc/bitvect.hh>
+#include <spot/misc/hash.hh>
+#include <spot/twa/acc.hh>
+#include <spot/twa/bddprint.hh>
+#include <spot/twa/twagraph.hh>
 #include <spot/twaalgos/powerset.hh>
 #include <spot/twaalgos/product.hh>
 #include <spot/twaalgos/sccinfo.hh>
@@ -283,6 +288,284 @@ namespace spot
   }
 
 
+  namespace
+  {
+    struct mp_hash
+    {
+      size_t operator()(std::pair<unsigned, const bitvect_array*> bv) const
+      {
+        size_t res = 0;
+        size_t size = bv.second->size();
+        for (unsigned i = 0; i < size; ++i)
+          res = wang32_hash(res ^ wang32_hash(bv.second->at(i).hash()));
+        res = wang32_hash(res ^ bv.first);
+        return res;
+      }
+    };
+
+    struct mp_equal
+    {
+      bool operator()(std::pair<unsigned, const bitvect_array*> bvl,
+                      std::pair<unsigned, const bitvect_array*> bvr) const
+      {
+        if (bvl.first != bvr.first)
+          return false;
+        size_t size = bvl.second->size();
+        for (unsigned i = 0; i < size; ++i)
+          if (bvl.second->at(i) != bvr.second->at(i))
+            return false;
+        return true;
+      }
+    };
+
+    typedef std::unordered_map
+      <std::pair<unsigned, const bitvect_array*>, unsigned, mp_hash, mp_equal>
+      dca_st_mapping;
+    class dca_breakpoint_cons final
+    {
+      protected:
+        const_twa_graph_ptr aut_;                        // The given automaton.
+        vect_nca_info* nca_info_;             // Info (cf Header).
+        unsigned nb_copy_;                               // != 0 if was Rabin.
+        bdd ap_;                                         // All AP.
+        std::vector<bdd> num2bdd_;                       // Get bdd from AP num.
+        std::map<bdd, unsigned, bdd_less_than> bdd2num_; // Get AP num from bdd.
+
+        // Each state is characterized by a bitvect_array of 2 bitvects:
+        // bv1 -> the set of original states that it represents
+        // bv2 -> a set of marked states (~)
+        // To do so, we keep a correspondance between a state number and its
+        // bitvect representation.
+        dca_st_mapping bv_to_num_;
+        std::vector<std::pair<unsigned, bitvect_array*>> num_2_bv_;
+
+        // Next states to process.
+        std::stack<std::pair<std::pair<unsigned, bitvect_array*>, unsigned>>
+          todo_;
+        // All allocated bitvect that must be freed at the end.
+        std::vector<const bitvect_array*> toclean_;
+
+      public:
+        dca_breakpoint_cons(const const_twa_graph_ptr aut,
+                            vect_nca_info* nca_info,
+                            unsigned nb_copy)
+          : aut_(aut),
+            nca_info_(nca_info),
+            nb_copy_(nb_copy),
+            ap_(aut->ap_vars())
+        {
+          //  Get all bdds.
+          bdd all = bddtrue;
+          for (unsigned i = 0; all != bddfalse; ++i)
+            {
+              bdd one = bdd_satoneset(all, ap_, bddfalse);
+              num2bdd_.push_back(one);
+              bdd2num_[one] = i;
+              all -= one;
+            }
+        }
+
+        ~dca_breakpoint_cons()
+        {
+          for (auto p : *nca_info_)
+            delete p;
+        }
+
+        twa_graph_ptr run(bool named_states)
+        {
+          unsigned ns = aut_->num_states();
+          unsigned nc = num2bdd_.size();
+
+          // Fill bv_aut_trans_ which is a bitvect of all possible transitions
+          // of each state for each letter.
+          auto bv_aut_trans_ = std::unique_ptr<bitvect_array>(
+              make_bitvect_array(ns, ns * nc));
+          for (unsigned src = 0; src < ns; ++src)
+            {
+              size_t base = src * nc;
+              for (auto& t: aut_->out(src))
+                {
+                  bdd all = t.cond;
+                  while (all != bddfalse)
+                    {
+                      bdd one = bdd_satoneset(all, ap_, bddfalse);
+                      all -= one;
+                      bv_aut_trans_->at(base + bdd2num_[one]).set(t.dst);
+                    }
+                }
+            }
+          debug << "All_states:\n" << *bv_aut_trans_ << std::endl;
+
+          twa_graph_ptr res = make_twa_graph(aut_->get_dict());
+          res->copy_ap_of(aut_);
+          res->set_co_buchi();
+
+          // Rename states of resulting automata (for display purposes).
+          std::vector<std::string>* state_name = nullptr;
+          if (named_states)
+            {
+              state_name = new std::vector<std::string>();
+              res->set_named_prop("state-names", state_name);
+            }
+
+          // Function used to add a new state. A new state number is associated
+          // to the state if has never been added before, otherwise the old
+          // state number is returned.
+          auto new_state = [&](std::pair<unsigned, bitvect_array*> bv_st)
+            -> unsigned
+          {
+            auto p = bv_to_num_.emplace(bv_st, 0);
+            if (!p.second)
+              return p.first->second;
+
+            p.first->second = res->new_state();
+            todo_.emplace(bv_st, p.first->second);
+            assert(num_2_bv_.size() == p.first->second);
+            num_2_bv_.push_back(bv_st);
+
+            // For display purposes only.
+            if (named_states)
+              {
+                assert(p.first->second == state_name->size());
+                std::ostringstream os;
+                bool not_first = false;
+                os << '{';
+                for (unsigned s = 0; s < ns; ++s)
+                  {
+                    if (bv_st.second->at(1).get(s))
+                      {
+                        if (not_first)
+                          os << ',';
+                        else
+                          not_first = true;
+                        os << '~';
+                      }
+                    if (bv_st.second->at(0).get(s))
+                      os << s;
+                  }
+                os << '|' << bv_st.first << '}';
+                state_name->emplace_back(os.str());
+              }
+            return p.first->second;
+          };
+
+          // Set init state
+          auto bv_init = make_bitvect_array(ns, 2);
+          toclean_.push_back(bv_init);
+          bv_init->at(0).set(aut_->get_init_state_number());
+          res->set_init_state(new_state(std::make_pair(0, bv_init)));
+
+          // Processing loop
+          while (!todo_.empty())
+            {
+              auto top = todo_.top();
+              todo_.pop();
+
+              // Bitvect array of all possible moves for each letter.
+              auto bv_trans = make_bitvect_array(ns, nc);
+              for (unsigned s = 0; s < ns; ++s)
+                if (top.first.second->at(0).get(s))
+                  for (unsigned l = 0; l < nc; ++l)
+                    bv_trans->at(l) |= bv_aut_trans_->at(s * nc + l);
+              toclean_.push_back(bv_trans);
+
+              // Bitvect array of all possible moves for each state marked
+              // for each letter. If no state is marked (breakpoint const.),
+              // nothing is set.
+              bool marked = !top.first.second->at(1).is_fully_clear();
+              auto bv_trans_mark = make_bitvect_array(ns, nc);
+              if (marked)
+                for (unsigned s = 0; s < ns; ++s)
+                  if (top.first.second->at(1).get(s))
+                    for (unsigned l = 0; l < nc; ++l)
+                      bv_trans_mark->at(l) |= bv_aut_trans_->at(s * nc + l);
+              toclean_.push_back(bv_trans_mark);
+
+              debug << "src:" << top.second << std::endl;
+              for (unsigned l = 0; l < nc; ++l)
+                {
+                  debug << "l:"
+                    << bdd_format_formula(aut_->get_dict(), num2bdd_[l])
+                    << '\n';
+
+                  auto bv_res = make_bitvect_array(ns, 2);
+                  toclean_.push_back(bv_res);
+                  bv_res->at(0) |= bv_trans->at(l);
+                  // If this state has not any outgoing edges.
+                  if (bv_res->at(0).is_fully_clear())
+                    continue;
+
+                  // Set states that must be marked.
+                  for (const auto& p : *nca_info_)
+                    {
+                      if (p->clause_num != top.first.first)
+                        continue;
+
+                      if (*p->all_dst == bv_res->at(0))
+                        if ((marked && bv_trans_mark->at(l).get(p->state_num))
+                             || (!marked && bv_res->at(0).get(p->state_num)))
+                          bv_res->at(1).set(p->state_num);
+                    }
+
+                  unsigned i = bv_res->at(1).is_fully_clear() ?
+                                (top.first.first + 1) % (nb_copy_ + 1)
+                              : top.first.first;
+
+                  debug << "dest\n" << *bv_res << "i: " << i
+                    << std::endl;
+                  res->new_edge(top.second,
+                                new_state(std::make_pair(i, bv_res)),
+                                num2bdd_[l]);
+                }
+              debug << '\n';
+            }
+
+          // Set accepting states.
+          scc_info si(res);
+          bool state_based = (bool)aut_->prop_state_acc();
+          unsigned res_size = res->num_states();
+          for (unsigned s = 0; s < res_size; ++s)
+            if (num_2_bv_[s].second->at(1).is_fully_clear())
+              for (auto& edge : res->out(s))
+                if (si.scc_of(edge.dst) == si.scc_of(s) || state_based)
+                  edge.acc = acc_cond::mark_t({0});
+
+          // Delete all bitvect arrays allocated by this method (run).
+          for (auto v: toclean_)
+            delete v;
+
+          res->merge_edges();
+          return res;
+        }
+    };
+  }
+
+
+  twa_graph_ptr
+  nsa_to_dca(const const_twa_graph_ptr& aut, bool named_states)
+  {
+    debug << "NSA_to_dca" << std::endl;
+    std::vector<acc_cond::rs_pair> pairs;
+    if (!aut->acc().is_streett_like(pairs) && !aut->acc().is_parity())
+      throw std::runtime_error("nsa_to_dca() only works with Streett-like or "
+                               "Parity acceptance condition");
+
+    // Get states that must be visited infinitely often in NCA.
+    vect_nca_info nca_info;
+    nsa_to_nca(aut, named_states, &nca_info);
+
+#if DEBUG
+    debug << "PRINTING INFO" << std::endl;
+    for (unsigned i = 0; i < nca_info.size(); ++i)
+      debug << '<' << nca_info[i]->clause_num << ',' << nca_info[i]->state_num
+        << ',' << nca_info[i]->all_dst << '>' << std::endl;
+#endif
+
+    dca_breakpoint_cons dca(aut, &nca_info, 0);
+    return dca.run(named_states);
+  }
+
+
   twa_graph_ptr
   to_dca(const const_twa_graph_ptr& aut, bool named_states)
   {
@@ -290,7 +573,7 @@ namespace spot
 
     std::vector<acc_cond::rs_pair> pairs;
     if (aut->acc().is_streett_like(pairs) || aut->acc().is_parity())
-      return nsa_to_nca(aut, named_states);
+      return nsa_to_dca(aut, named_states);
     else if (code.is_dnf())
       return dnf_to_nca(aut, named_states);
     else
