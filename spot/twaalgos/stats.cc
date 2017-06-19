@@ -346,7 +346,7 @@ namespace spot
       }
     else if (has('s') || has('e'))
       {
-        twa_sub_statistics s = sub_stats_reachable(aut);
+        twa_statistics s = stats_reachable(aut);
         states_ = s.states;
         edges_ = s.edges;
       }
