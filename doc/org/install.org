@@ -55,7 +55,7 @@ process.
 
 We build Debian packages for amd64 and i386, for both releases and the
 development versions.  Packages for releases are built for Debian
-Jessie (a.k.a. Debian stable) while packages for development are built
+Stretch (a.k.a. Debian stable) while packages for development are built
 for Sid (a.k.a. Debian unstable).
 
 Here is how to install the stable packages:
@@ -83,12 +83,6 @@ examples).  The packages containing the libraries (=libspot0=,
 =libbddx0=, =libspotltsmin0=) are automatically installed as
 dependencies of the previous packages.
 
-The stable packages should work in a recent *Ubuntu* as well, provided you
-also add a path to a repository that distributes the GCC 4.9 runtime.
-You can do that for instance with:
-
-#+BEGIN_SRC sh
-add-apt-repository -y ppa:ubuntu-toolchain-r/test
 #+END_SRC
 
 * Installing from git
