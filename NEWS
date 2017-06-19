@@ -134,6 +134,12 @@ New in spot 2.3.4.dev (not yet released)
     SCC) or 'y' (split universal destination by colors) universal
     edges could be connected to undefined states.
 
+  - Using --stats=%s or --stats=%s or --stats=%t could take an
+    unnecessary long time on automata with many atomic propositions,
+    due to a typo.  Furthermore, %s/%e/%t/%E/%T were printing
+    a number of reachable states/edges/transitions, but %S was
+    incorrectly counting all states even unreachable.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as

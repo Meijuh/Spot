@@ -74,3 +74,69 @@ test "1,3,1,3,2,1,0" = "$out"
 ltl2tgba 'a' --stats='%[z]c' 2>stderr && exit 1
 cat stderr
 grep -F "ltl2tgba: unknown option 'z' in '%[z]c'" stderr
+
+
+# From issue #269.
+f='!X(FG((a & b) | (a & c) | (a & d) | (a & e) | (a & f) | (g & h) |
+(g & i) | (g & j) | (g & k) | (g & l) | (m & n) | (m & o) | (m & p) |
+(m & q) | (m & r) | (s & t) | (s & u) | (s & v) | (s & w) | (s & x) |
+(y & z) | (ab & y) | (bb & y) | (cb & y) | (db & y) | (eb & g) | (c &
+eb) | (d & eb) | (e & eb) | (eb & f) | (b & m) | (b & i) | (b & j) |
+(b & k) | (b & l) | (h & s) | (h & o) | (h & p) | (h & q) | (h & r) |
+(n & y) | (n & u) | (n & v) | (n & w) | (n & x) | (fb & t) | (ab & t)
+| (bb & t) | (cb & t) | (db & t) | (g & gb) | (b & gb) | (d & gb) |
+(e & gb) | (f & gb) | (c & m) | (c & h) | (c & j) | (c & k) | (c & l) |
+(i & s) | (i & n) | (i & p) | (i & q) | (i & r) | (o & y) | (o & t) |
+(o & v) | (o & w) | (o & x) | (fb & u) | (u & z) | (bb & u) | (cb &
+u) | (db & u) | (g & hb) | (b & hb) | (c & hb) | (e & hb) | (f & hb) |
+(d & m) | (d & h) | (d & i) | (d & k) | (d & l) | (j & s) | (j & n) |
+(j & o) | (j & q) | (j & r) | (p & y) | (p & t) | (p & u) | (p & w) |
+(p & x) | (fb & v) | (v & z) | (ab & v) | (cb & v) | (db & v) | (g &
+ib) | (b & ib) | (c & ib) | (d & ib) | (f & ib) | (e & m) | (e & h) |
+(e & i) | (e & j) | (e & l) | (k & s) | (k & n) | (k & o) | (k & p) |
+(k & r) | (q & y) | (q & t) | (q & u) | (q & v) | (q & x) | (fb & w) |
+(w & z) | (ab & w) | (bb & w) | (db & w) | (g & jb) | (b & jb) | (c &
+jb) | (d & jb) | (e & jb) | (f & m) | (f & h) | (f & i) | (f & j) |
+(f & k) | (l & s) | (l & n) | (l & o) | (l & p) | (l & q) | (r & y) |
+(r & t) | (r & u) | (r & v) | (r & w) | (fb & x) | (x & z) | (ab & x) |
+(bb & x) | (cb & x)) U ((a & b) | (a & c) | (a & d) | (a & e) | (a & f) |
+(g & h) | (g & i) | (g & j) | (g & k) | (g & l) | (m & n) | (m & o) |
+(m & p) | (m & q) | (m & r) | (s & t) | (s & u) | (s & v) | (s & w) |
+(s & x) | (y & z) | (ab & y) | (bb & y) | (cb & y) | (db & y) | (eb &
+g) | (c & eb) | (d & eb) | (e & eb) | (eb & f) | (b & m) | (b & i) |
+(b & j) | (b & k) | (b & l) | (h & s) | (h & o) | (h & p) | (h & q) |
+(h & r) | (n & y) | (n & u) | (n & v) | (n & w) | (n & x) | (fb & t) |
+(ab & t) | (bb & t) | (cb & t) | (db & t) | (g & gb) | (b & gb) | (d &
+gb) | (e & gb) | (f & gb) | (c & m) | (c & h) | (c & j) | (c & k) |
+(c & l) | (i & s) | (i & n) | (i & p) | (i & q) | (i & r) | (o & y) |
+(o & t) | (o & v) | (o & w) | (o & x) | (fb & u) | (u & z) | (bb & u)
+| (cb & u) | (db & u) | (g & hb) | (b & hb) | (c & hb) | (e & hb) |
+(f & hb) | (d & m) | (d & h) | (d & i) | (d & k) | (d & l) | (j & s) |
+(j & n) | (j & o) | (j & q) | (j & r) | (p & y) | (p & t) | (p & u) |
+(p & w) | (p & x) | (fb & v) | (v & z) | (ab & v) | (cb & v) | (db &
+v) | (g & ib) | (b & ib) | (c & ib) | (d & ib) | (f & ib) | (e & m) |
+(e & h) | (e & i) | (e & j) | (e & l) | (k & s) | (k & n) | (k & o) |
+(k & p) | (k & r) | (q & y) | (q & t) | (q & u) | (q & v) | (q & x) |
+(fb & w) | (w & z) | (ab & w) | (bb & w) | (db & w) | (g & jb) | (b &
+jb) | (c & jb) | (d & jb) | (e & jb) | (f & m) | (f & h) | (f & i) |
+(f & j) | (f & k) | (l & s) | (l & n) | (l & o) | (l & p) | (l & q) |
+(r & y) | (r & t) | (r & u) | (r & v) | (r & w) | (fb & x) | (x & z) |
+(ab & x) | (bb & x) | (cb & x)))'
+test 3,5 = `ltl2tgba --low --any --stats=%s,%e "$f"`
+
+cat >foo <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 0
+Acceptance: 0 t
+--BODY--
+State: 0
+[t] 1
+State: 1
+[t] 0
+State: 2
+[t] 2
+--END--
+EOF
+test 2,2 = `autfilt --stats=%S,%s foo`

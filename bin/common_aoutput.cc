@@ -171,11 +171,11 @@ static const argp_option io_options[] =
     { "%M, %m", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "name of the automaton", 0 },
     { "%S, %s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of states", 0 },
+      "number of reachable states", 0 },
     { "%E, %e", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of edges", 0 },
+      "number of reachable edges", 0 },
     { "%T, %t", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of transitions", 0 },
+      "number of reachable transitions", 0 },
     { "%A, %a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of acceptance sets", 0 },
     { "%G, %g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -232,11 +232,11 @@ static const argp_option o_options[] =
     { "%m", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "name of the automaton", 0 },
     { "%s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of states", 0 },
+      "number of reachable states", 0 },
     { "%e", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of edges", 0 },
+      "number of reachable edges", 0 },
     { "%t", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "number of transitions", 0 },
+      "number of reachable transitions", 0 },
     { "%a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of acceptance sets", 0 },
     { "%g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -427,9 +427,9 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
           haut_edges_ = s.edges;
           haut_trans_ = s.transitions;
         }
-      else if (has('E'))
+      else if (has('E') || has('S'))
         {
-          spot::twa_sub_statistics s = sub_stats_reachable(haut->aut);
+          spot::twa_statistics s = stats_reachable(haut->aut);
           haut_states_ = s.states;
           haut_edges_ = s.edges;
         }
@@ -441,8 +441,6 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
           else
             haut_name_.val().clear();
         }
-      if (has('S'))
-        haut_states_ = haut->aut->num_states();
 
       if (has('A'))
         haut_acc_ = haut->aut->acc().num_sets();
