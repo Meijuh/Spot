@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -24,8 +24,13 @@
 
 namespace spot
 {
-  /// replace atomic propositions in an automaton
+  /// \brief replace atomic propositions in an automaton
+  ///
+  /// The relabeling map \a relmap should have keys that are atomic
+  /// propositions, and values that are Boolean formulas.
+  ///
+  /// This function is typically used with maps produced by relabel()
+  /// or relabel_bse().
   SPOT_API void
-  relabel_here(twa_graph_ptr& aut,
-               relabeling_map* relmap);
+  relabel_here(twa_graph_ptr& aut, relabeling_map* relmap);
 }

@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2015  Laboratoire de Recherche et Développement
+# Copyright (C) 2015, 2017  Laboratoire de Recherche et Développement
 # de l'Epita
 #
 # This file is part of Spot, a model checking library.
@@ -30,3 +30,24 @@ print(res)
 assert(res == """#define p0 a & b
 #define p1 c
 GFp0 -> (FGp0 & Gp1)""")
+
+
+autg = g.translate()
+spot.relabel_here(autg, m)
+assert str(autg.ap()) == '(a, b, c)'
+assert spot.isomorphism_checker.are_isomorphic(autg, f.translate())
+
+a = spot.formula('a')
+u = spot.formula('a U b')
+m[a] = u
+try:
+    spot.relabel_here(autg, m)
+except RuntimeError as e:
+    assert "new labels" in str(e)
+
+m = spot.relabeling_map()
+m[u] = a
+try:
+    spot.relabel_here(autg, m)
+except RuntimeError as e:
+    assert "old labels" in str(e)

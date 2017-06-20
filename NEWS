@@ -114,14 +114,19 @@ New in spot 2.3.4.dev (not yet released)
   - The function spot::streett_to_generalized_buchi() is now able to
     work on automatons with Streett-like acceptance.
 
-  Python:
-
-  - The 'spot.gen' package exports the functions from libspotgen.
-    See https://spot.lrde.epita.fr/ipynb/gen.html for examples.
+  - spot::relabel_here() was used on automata to rename atomic
+    propositions, it can now replace atomic propositions by Boolean
+    subformula.  This makes it possible to use relabeling maps
+    produced by relabel_bse() on formulas.
 
   - twa_graph::copy_state_names_from() can be used to copy the state
     names from another automaton, honoring "original-states" if
     present.
+
+  Python:
+
+  - The 'spot.gen' package exports the functions from libspotgen.
+    See https://spot.lrde.epita.fr/ipynb/gen.html for examples.
 
   Bugs fixed:
 
