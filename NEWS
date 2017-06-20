@@ -123,6 +123,17 @@ New in spot 2.3.4.dev (not yet released)
     names from another automaton, honoring "original-states" if
     present.
 
+  - Building automata for LTL formula with a large number N of atomic
+    propositions can be costly, because several loops and
+    data-structures are exponential into N.  However a formula like
+      ((a & b & c) | (d & e & f)) U ((d & e & f) | (g & h & i))
+    can be translated more efficiently by first building an automaton
+    for (p0 | p1) U (p1 | p2), and then substituting p0, p1, p2 by the
+    appropriate Boolean formula.  Such a trick is now attempted
+    for translation of formulas with 4 atomic propositions or
+    more (this threshold can be changed, see -x relabel-bool=N in
+    the spot-x(7) man page).
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.

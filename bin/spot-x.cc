@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -107,6 +107,12 @@ on the Büchi automaton (i.e., after degeneralization has been performed). \
 Set to 1 to use only direct simulation.  Set to 2 to use only reverse \
 simulation.  Set to 3 to iterate both direct and reverse simulations.   \
 The default is 3 in --high mode, and 0 otherwise.") },
+    { DOC("relabel-bool", "If set to a positive integer N, a formula \
+with N atomic propositions or more will have its Boolean subformulas \
+abstracted as atomic propositions during the translation to automaton. \
+This relabeling can speeds the translation if a few Boolean subformulas \
+use a large number of atomic propositions.  By default N=4.  Setting \
+this value to 0 will disable the rewriting.") },
     { DOC("wdba-minimize", "Set to 0 to disable WDBA-minimization.  \
 Enabled by default.") },
     { DOC("tba-det", "Set to 1 to attempt a powerset determinization \

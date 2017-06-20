@@ -21,6 +21,8 @@
 #include <spot/twaalgos/ltl2tgba_fm.hh>
 #include <spot/twaalgos/compsusp.hh>
 #include <spot/misc/optionmap.hh>
+#include <spot/tl/relabel.hh>
+#include <spot/twaalgos/relabel.hh>
 
 namespace spot
 {
@@ -28,10 +30,12 @@ namespace spot
   void translator::setup_opt(const option_map* opt)
   {
     comp_susp_ = early_susp_ = skel_wdba_ = skel_simul_ = 0;
+    relabel_bool_ = -1;
 
     if (!opt)
       return;
 
+    relabel_bool_ = opt->get("relabel-bool", 4);
     comp_susp_ = opt->get("comp-susp", 0);
     if (comp_susp_ == 1)
       {
@@ -71,8 +75,48 @@ namespace spot
         set_pref(pref_ | postprocessor::Deterministic);
       }
 
-    formula r = simpl_->simplify(*f);
-    *f = r;
+    // Do we want to relabel Boolean subformulas?
+    // If we have a huge formula such as
+    //  (a1 & a2 & ... & an) U (b1 | b2 | ... | bm)
+    // then it is more efficient to translate
+    //  a U b
+    // and then fix the automaton.  We use relabel_bse() to find
+    // sub-formulas that are Boolean but do not have common terms.
+    //
+    // This rewriting is enabled only if the formula
+    //  1) has some Boolean subformula
+    //  2) has more than relabel_bool_ atomic propisition (the default
+    //     is 4, but this can be changed)
+    //  3) relabel_bse() actually reduces the number of atomic
+    //     propositions.
+    relabeling_map m;
+    formula to_work_on = *f;
+    if (relabel_bool_ > 0)
+      {
+        bool has_boolean_sub = false; // that is not atomic
+        std::set<formula> aps;
+        to_work_on.traverse([&](const formula& f)
+                            {
+                              if (f.is(op::ap))
+                                aps.insert(f);
+                              else if (f.is_boolean())
+                                has_boolean_sub = true;
+                              return false;
+                            });
+        unsigned atomic_props = aps.size();
+        if (has_boolean_sub && (atomic_props >= (unsigned) relabel_bool_))
+          {
+            formula relabeled = relabel_bse(to_work_on, Pnn, &m);
+            if (m.size() < atomic_props)
+              to_work_on = relabeled;
+            else
+              m.clear();
+          }
+      }
+
+    formula r = simpl_->simplify(to_work_on);
+    if (to_work_on == *f)
+      *f = r;
 
     // This helps ltl_to_tgba_fm() to order BDD variables in a more
     // natural way (improving the degeneralization).
@@ -97,7 +141,11 @@ namespace spot
                              true, false, false, nullptr, nullptr,
                              unambiguous);
       }
+
     aut = this->postprocessor::run(aut, r);
+
+    if (!m.empty())
+      relabel_here(aut, &m);
     return aut;
   }
 
