@@ -479,9 +479,9 @@ namespace spot
           s = 5;
         }
       else if (mainop != highop)
-      {
-        return false;
-      }
+        {
+          return false;
+        }
       while (s)
         {
           auto op = code[--s].sub.op;
@@ -494,7 +494,10 @@ namespace spot
               acc_cond::mark_t inf(0U);
 
               if (op == singleop && m.count() != 1)
-                return false;
+                {
+                  pairs.clear();
+                  return false;
+                }
               for (unsigned mark: m.sets())
                 {
                   if (op == acc_cond::acc_op::Fin)
@@ -507,7 +510,10 @@ namespace spot
           else
             {
               if (op != lowop || size != 4)
-                return false;
+                {
+                  pairs.clear();
+                  return false;
+                }
 
               auto o1 = code[--s].sub.op;
               auto m1 = code[--s].mark;
@@ -527,7 +533,10 @@ namespace spot
                   || o2 != acc_cond::acc_op::Inf
                   || m1.count() != 1
                   || m2.count() != 1)
-                return false;
+                {
+                  pairs.clear();
+                  return false;
+                }
               pairs.emplace_back(m1, m2);
             }
         }

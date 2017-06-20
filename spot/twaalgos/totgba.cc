@@ -331,8 +331,8 @@ namespace spot
     }();
 
     std::vector<acc_cond::rs_pair> pairs;
-    in->acc().is_streett_like(pairs);
-    if (min == 0 || min > pairs.size())
+    bool res = in->acc().is_streett_like(pairs);
+    if (!res || min == 0 || min > pairs.size())
       return nullptr;
     else
       return streett_to_generalized_buchi(in);
