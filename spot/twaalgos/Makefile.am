@@ -84,6 +84,7 @@ twaalgos_HEADERS = \
   tau03.hh \
   tau03opt.hh \
   totgba.hh \
+  toweak.hh \
   translate.hh \
   word.hh
 
@@ -145,6 +146,7 @@ libtwaalgos_la_SOURCES = \
   tau03.cc \
   tau03opt.cc \
   totgba.cc \
+  toweak.cc \
   translate.cc \
   word.cc
 
