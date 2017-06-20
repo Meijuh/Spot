@@ -656,8 +656,8 @@ static BDD apply_rec(BDD l, BDD r)
            l = r;                                       \
            r = tmp;                                     \
          }                                              \
-       if (ISCONST(l))                                  \
-         return 0;                                      \
+       if (ISONE(l))                                    \
+         return rec(r);                                 \
        break;                                           \
      case bddop_less:  /* l < r = r - l */              \
        {                                                \
