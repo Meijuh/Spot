@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
+// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de
 // Recherche et Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -282,7 +282,7 @@ checked_main(int argc, char **argv)
           {
             res = ec->check();
           }
-        catch (std::bad_alloc)
+        catch (const std::bad_alloc&)
           {
             std::cerr << "Out of memory during emptiness check."
                       << std::endl;
@@ -326,7 +326,7 @@ checked_main(int argc, char **argv)
               {
                 run = res->accepting_run();
               }
-            catch (std::bad_alloc)
+            catch (const std::bad_alloc&)
               {
                 std::cerr << "Out of memory while looking for counterexample."
                           << std::endl;

@@ -1112,7 +1112,7 @@ namespace spot
       {
         convert_aps(to_observe, iface, dict, dead, *ps);
       }
-    catch (std::runtime_error)
+    catch (const std::runtime_error&)
       {
         delete ps;
         dict->unregister_all_my_variables(iface.get());
