@@ -255,12 +255,12 @@ namespace spot
         case acc_cond::acc_op::Inf:
           return (pos[-1].mark & infinitely_often) == pos[-1].mark;
         case acc_cond::acc_op::Fin:
-          if (pos[-1].mark & always_present)
+          if ((pos[-1].mark & always_present) == pos[-1].mark)
             return false;
-          else if (pos[-1].mark & infinitely_often)
-            return trival::maybe();
-          else
+          else if ((pos[-1].mark & infinitely_often) != pos[-1].mark)
             return true;
+          else
+            return trival::maybe();
         case acc_cond::acc_op::FinNeg:
         case acc_cond::acc_op::InfNeg:
           SPOT_UNREACHABLE();

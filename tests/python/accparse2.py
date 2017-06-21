@@ -41,6 +41,12 @@ assert a.maybe_accepting([2], []).is_true()
 assert a.maybe_accepting([0, 1], []).is_maybe()
 assert a.maybe_accepting([0, 1], [1]).is_false()
 
+a.set_acceptance('Fin(0)|Fin(1)')
+assert a.maybe_accepting([0, 1], [1]).is_maybe()
+assert a.maybe_accepting([0, 1], [0, 1]).is_false()
+assert a.maybe_accepting([0], []).is_true()
+assert a.maybe_accepting([], [0]).is_true()
+
 a = spot.acc_cond(0)
 a.set_acceptance('all')
 assert(a.is_rabin() == -1)
