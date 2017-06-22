@@ -1,8 +1,8 @@
-New in spot 2.3.4.dev (not yet released)
+New in spot 2.3.5 (2017-06-22)
 
   Bugs fixed:
 
-  - We have fixed new cases where translating multiple formula in a
+  - We have fixed new cases where translating multiple formulas in a
     single ltl2tgba run could produce automata different from those
     produced by individual runs.
 
@@ -16,6 +16,9 @@ New in spot 2.3.4.dev (not yet released)
     due to a typo.  Furthermore, %s/%e/%t/%E/%T were printing
     a number of reachable states/edges/transitions, but %S was
     incorrectly counting all states even unreachable.
+
+  - Our verson of BuDDy had an incorrect optimization for the
+    biimp operator.
 
 New in spot 2.3.4 (2017-05-11)
 
