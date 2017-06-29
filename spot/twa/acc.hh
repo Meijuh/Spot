@@ -217,6 +217,16 @@ namespace spot
         return xv;
       }
 
+      bool subset(mark_t m) const
+      {
+        return this->strip(m) == 0U;
+      }
+
+      bool proper_subset(mark_t m) const
+      {
+        return *this != m && this->subset(m);
+      }
+
       // Number of bits sets.
       unsigned count() const
       {
@@ -1082,6 +1092,7 @@ namespace spot
     struct SPOT_API rs_pair
     {
       rs_pair() = default;
+      rs_pair(const rs_pair&) = default;
 
       rs_pair(acc_cond::mark_t fin, acc_cond::mark_t inf):
         fin(fin),
@@ -1345,6 +1356,90 @@ namespace spot
     bool uses_fin_acceptance_ = false;
 
   };
+
+  struct rs_pairs_view {
+    typedef std::vector<acc_cond::rs_pair> rs_pairs;
+
+    // Creates view of pairs 'p' with restriction only to marks in 'm'
+    explicit rs_pairs_view(const rs_pairs& p, const acc_cond::mark_t& m)
+      : pairs_(p), view_marks_(m) {}
+
+    // Creates view of pairs without restriction to marks
+    explicit rs_pairs_view(const rs_pairs& p)
+      : rs_pairs_view(p, std::numeric_limits<unsigned>::max()) {}
+
+    acc_cond::mark_t infs() const
+    {
+      return do_view([&](const acc_cond::rs_pair& p)
+        {
+          return visible(p.inf) ? p.inf : 0U;
+        });
+    }
+
+    acc_cond::mark_t fins() const
+    {
+      return do_view([&](const acc_cond::rs_pair& p)
+        {
+          return visible(p.fin) ? p.fin : 0U;
+        });
+    }
+
+    acc_cond::mark_t fins_alone() const
+    {
+      return do_view([&](const acc_cond::rs_pair& p)
+        {
+          return !visible(p.inf) && visible(p.fin) ? p.fin : 0U;
+        });
+    }
+
+    acc_cond::mark_t infs_alone() const
+    {
+      return do_view([&](const acc_cond::rs_pair& p)
+        {
+          return !visible(p.fin) && visible(p.inf) ? p.inf : 0U;
+        });
+    }
+
+    acc_cond::mark_t paired_with(unsigned mark) const
+    {
+      acc_cond::mark_t res = 0U;
+      for (const auto& p: pairs_)
+      {
+        if (visible(p.fin) && visible(p.inf))
+          {
+            if (p.fin.has(mark))
+              res |= p.inf;
+            if (p.inf.has(mark))
+              res |= p.fin;
+          }
+      }
+      return res;
+    }
+
+    const rs_pairs& pairs() const
+    {
+      return pairs_;
+    }
+
+  private:
+    template<typename filter>
+    acc_cond::mark_t do_view(const filter& filt) const
+    {
+      acc_cond::mark_t res = 0U;
+      for (const auto& p: pairs_)
+        res |= filt(p);
+      return res;
+    }
+
+    bool visible(const acc_cond::mark_t& v) const
+    {
+      return (view_marks_ & v) != 0;
+    }
+
+    const rs_pairs& pairs_;
+    acc_cond::mark_t view_marks_;
+  };
+
 
   SPOT_API
   std::ostream& operator<<(std::ostream& os, const acc_cond& acc);
