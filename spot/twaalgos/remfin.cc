@@ -38,9 +38,53 @@ namespace spot
 {
   namespace
   {
-    // Check whether the SCC composed of all states STATES, and
-    // visiting all acceptance marks in SETS contains non-accepting
-    // cycles.
+    enum class strategy_t : unsigned
+    {
+      trivial     = 1,
+      weak        = 2,
+      alternation = 4,
+      street      = 8,
+      rabin       = 16
+    };
+
+    using strategy_flags = strong_enum_flags<strategy_t>;
+    using strategy =
+        std::function<twa_graph_ptr(const const_twa_graph_ptr& aut)>;
+
+    twa_graph_ptr
+    remove_fin_impl(const const_twa_graph_ptr&, const strategy_flags);
+
+    using EdgeMask = std::vector<bool>;
+
+    template< typename Edges, typename Apply >
+    void for_each_edge(const_twa_graph_ptr aut,
+                       const Edges& edges,
+                       const EdgeMask& mask,
+                       Apply apply)
+    {
+      for (const auto& e: edges)
+        {
+          unsigned edge_id = aut->edge_number(e);
+          if (mask[edge_id])
+            apply(edge_id);
+        }
+    }
+
+    template< typename Edges >
+    acc_cond::mark_t scc_acc_marks(const_twa_graph_ptr aut,
+                                   const Edges& edges,
+                                   const EdgeMask& mask)
+    {
+      acc_cond::mark_t scc_mark = 0U;
+      for_each_edge(aut, edges, mask, [&] (unsigned e)
+        {
+          const auto& ed = aut->edge_data(e);
+          scc_mark |= ed.acc;
+        });
+      return scc_mark;
+    }
+
+    // Check whether the SCC contains non-accepting cycles.
     //
     // A cycle is accepting (in a Rabin automaton) if there exists an
     // acceptance pair (Fᵢ, Iᵢ) such that some states from Iᵢ are
@@ -50,257 +94,244 @@ namespace spot
     // pairs (Fᵢ, Iᵢ), either no states from Iᵢ are visited or some
     // states from Fᵢ are visited.  (This corresponds to an accepting
     // cycle with Streett acceptance.)
-    static bool
-    is_scc_ba_type(const const_twa_graph_ptr& aut,
-                   const std::vector<unsigned>& states,
-                   std::vector<bool>& final,
-                   acc_cond::mark_t inf_pairs,
-                   acc_cond::mark_t inf_alone,
-                   acc_cond::mark_t sets)
+    //
+    // final are those edges which are used in the resulting tba
+    // acceptance condition.
+    bool is_scc_tba_type(const_twa_graph_ptr aut,
+                         const scc_info& si,
+                         const unsigned scc,
+                         std::vector<bool> keep,
+                         const rs_pairs_view& aut_pairs,
+                         std::vector<bool>& final)
     {
-      // Consider the SCC as one large cycle and check its
-      // intersection with all Fᵢs and Iᵢs: This is the SETS
-      // variable.
-      //
-      // Let f=[F₁,F₂,...] and i=[I₁,I₂,...] be bitvectors where bit
-      // Fᵢ (resp. Iᵢ) indicates that Fᵢ (resp. Iᵢ) has been visited
-      // in the SCC.
-      acc_cond::mark_t f = (sets << 1U) & inf_pairs;
-      acc_cond::mark_t i = sets & inf_pairs;
-      // If we have i&!f = [0,0,...] that means that the cycle formed
+      if (si.is_rejecting_scc(scc))
+        return true;
+
+      auto scc_acc = scc_acc_marks(aut, si.inner_edges_of(scc), keep);
+      auto scc_pairs = rs_pairs_view(aut_pairs.pairs(), scc_acc);
+      // If there is one aut_fin_alone that is not in the SCC,
+      // any cycle in the SCC is accepting.
+      if (scc_pairs.fins_alone().proper_subset(aut_pairs.fins_alone()))
+        {
+          for_each_edge(aut, si.edges_of(scc), keep, [&](unsigned e)
+            {
+              final[e] = true;
+            });
+          return true;
+        }
+
+      auto scc_infs_alone = scc_pairs.infs_alone();
+      // Firstly consider whole SCC as one large cycle.
+      // If there is no inf without matching fin then the cycle formed
       // by the entire SCC is not accepting.  However that does not
       // necessarily imply that all cycles in the SCC are also
       // non-accepting.  We may have a smaller cycle that is
       // accepting, but which becomes non-accepting when extended with
       // more states.
-      i -= f;
-      i |= inf_alone & sets;
-      if (!i)
+      if (!scc_infs_alone)
         {
           // Check whether the SCC is accepting.  We do that by simply
           // converting that SCC into a TGBA and running our emptiness
           // check.  This is not a really smart implementation and
           // could be improved.
-          std::vector<bool> keep(aut->num_states(), false);
+          auto& states = si.states_of(scc);
+          std::vector<bool> keep_states(aut->num_states(), false);
           for (auto s: states)
-            keep[s] = true;
-          auto sccaut = mask_keep_accessible_states(aut, keep, states.front());
-          // Force SBA to false.  It does not affect the emptiness
-          // check result, however it prevent recurring into this
-          // procedure, because is_empty() will call
-          // to_generalized_buchi() which will call remove_fin()...
-          sccaut->prop_state_acc(false);
+            keep_states[s] = true;
+          auto sccaut = mask_keep_accessible_states(aut,
+                                                    keep_states,
+                                                    states.front());
+
+          // Prevent recurring into this function, by skipping the rabin straegy
+          auto skip = strategy_t::rabin;
           // If SCCAUT is empty, the SCC is BA-type (and none
           // of its states are final).  If SCCAUT is nonempty, the SCC
-          // is not BA type.
-          return sccaut->is_empty();
+          // is not BA type
+          return remove_fin_impl(sccaut, skip)->is_empty();
         }
-      // The bits remaining sets in i corresponds to I₁s that have
-      // been seen with seeing the matching F₁.  In this SCC any state
-      // in these I₁ is therefore final.  Otherwise we do not know: it
-      // is possible that there is a non-accepting cycle in the SCC
-      // that do not visit Fᵢ.
+
+      // Remaining infs corresponds to I₁s that have been seen with seeing
+      // the mathing F₁.cIn this SCC any edge in these I₁ is therefore
+      // final. Otherwise we do not know: it is possible that there is
+      // a non-accepting cycle in the SCC that do not visit Fᵢ.
       std::set<unsigned> unknown;
-      for (auto s: states)
-        if (aut->state_acc_sets(s) & i)
-          final[s] = true;
-        else
-          unknown.insert(s);
+      for_each_edge(aut, si.inner_edges_of(scc), keep, [&](unsigned e)
+        {
+          const auto& ed = aut->edge_data(e);
+          if (ed.acc & scc_infs_alone)
+              final[e] = true;
+          else
+              unknown.insert(e);
+        });
       // Check whether it is possible to build non-accepting cycles
-      // using only the "unknown" states.
+      // using only the "unknown" edges.
+      keep.assign(aut->edge_vector().size(), false);
+
+      // Erase edges that cannot form cycle, ie. that edge whose 'dst'
+      // is not 'src' of any unknown edges.
+      std::vector<unsigned> remove;
+      do
+        {
+          remove.clear();
+          std::set<unsigned> srcs;
+          for (auto e: unknown)
+            srcs.insert(aut->edge_storage(e).src);
+          for (auto e: unknown)
+            if (!srcs.count(aut->edge_storage(e).dst))
+              remove.push_back(e);
+          for (auto r: remove)
+            unknown.erase(r);
+        }
+      while (!remove.empty());
+
+      // Check whether it is possible to build non-accepting cycles
+      // using only the "unknown" edges.
+      using filter_data_t = std::pair< const_twa_graph_ptr, std::vector<bool> >;
+
+      scc_info::edge_filter filter =
+        [](const twa_graph::edge_storage_t& t, unsigned, void* data)
+          -> scc_info::edge_filter_choice
+        {
+          const_twa_graph_ptr aut;
+          std::vector<bool> keep;
+          std::tie(aut, keep) = *static_cast<filter_data_t*>(data);
+
+          if (keep[aut->edge_number(t)])
+            return scc_info::edge_filter_choice::keep;
+          else
+            return scc_info::edge_filter_choice::ignore;
+        };
+
       while (!unknown.empty())
         {
-          std::vector<bool> keep(aut->num_states(), false);
-          for (auto s: unknown)
-            keep[s] = true;
+          std::vector<bool> keep(aut->edge_vector().size(), false);
+          for (auto e: unknown)
+            keep[e] = true;
 
-          scc_info::edge_filter filter =
-            [](const twa_graph::edge_storage_t&, unsigned dst,
-               void* filter_data) -> scc_info::edge_filter_choice
-            {
-              auto& keepref = *reinterpret_cast<decltype(keep)*>(filter_data);
-              if (keepref[dst])
-                return scc_info::edge_filter_choice::keep;
-              else
-                return scc_info::edge_filter_choice::ignore;
-            };
+          auto filter_data = filter_data_t{aut, keep};
+          auto init = aut->edge_storage(*unknown.begin()).src;
+          scc_info si(aut, init, filter, &filter_data);
 
-          scc_info si(aut, *unknown.begin(), filter, &keep);
-          unsigned scc_max = si.scc_count();
-          for (unsigned scc = 0; scc < scc_max; ++scc)
+          for (unsigned uscc = 0; uscc < si.scc_count(); ++uscc)
             {
-              for (auto s: si.states_of(scc))
-                unknown.erase(s);
-              if (si.is_rejecting_scc(scc)) // this includes trivial SCCs
+              for_each_edge(aut, si.edges_of(uscc), keep, [&](unsigned e)
+                {
+                  unknown.erase(e);
+                });
+              if (si.is_rejecting_scc(uscc))
                 continue;
-              if (!is_scc_ba_type(aut, si.states_of(scc),
-                                  final, inf_pairs, 0U, si.acc(scc)))
+              if (!is_scc_tba_type(aut, si, uscc, keep, aut_pairs, final))
                 return false;
             }
         }
       return true;
     }
 
-    // Specialized conversion from Rabin acceptance to Büchi acceptance.
-    // Is able to detect SCCs that are Büchi-type (i.e., they can be
+    // Specialized conversion from transition based Rabin acceptance to
+    // transition based Büchi acceptance.
+    // Is able to detect SCCs that are TBA-type (i.e., they can be
     // converted to Büchi acceptance without chaning their structure).
-    // Currently only works with state-based acceptance.
     //
     // See "Deterministic ω-automata vis-a-vis Deterministic Büchi
     // Automata", S. Krishnan, A. Puri, and R. Brayton (ISAAC'94) for
     // some details about detecting Büchi-typeness.
     //
-    // We essentially apply this method SCC-wise.  The paper is
+    // We essentially apply this method SCC-wise. The paper is
     // concerned about *deterministic* automata, but we apply the
     // algorithm on non-deterministic automata as well: in the worst
-    // case it is possible that a Büchi-type SCC with some
-    // non-deterministim has one accepting and one rejecting run for
+    // case it is possible that a TBA-type SCC with some
+    // non-deterministic has one accepting and one rejecting run for
     // the same word.  In this case we may fail to detect the
-    // Büchi-typeness of the SCC, but the resulting automaton should
+    // TBA-typeness of the SCC, but the resulting automaton should
     // be correct nonetheless.
-    static twa_graph_ptr
-    ra_to_ba(const const_twa_graph_ptr& aut,
-             acc_cond::mark_t inf_pairs,
-             acc_cond::mark_t inf_alone,
-             acc_cond::mark_t fin_alone)
+    twa_graph_ptr
+    tra_to_tba(const const_twa_graph_ptr& inaut)
     {
-      assert((bool)aut->prop_state_acc());
+      // cleanup acceptance for easy detection of alone fins and infs
+      auto aut = cleanup_acceptance(inaut);
 
-      scc_info si(aut);
-      // For state-based Rabin automata, we check each SCC for
-      // BA-typeness.  If an SCC is BA-type, its final states are stored
-      // in BA_FINAL_STATES.
-      std::vector<bool> scc_is_ba_type(si.scc_count(), false);
-      bool ba_type = false;
-      std::vector<bool> ba_final_states;
+      std::vector<acc_cond::rs_pair> pairs;
+      if (!aut->acc().is_rabin_like(pairs))
+        return nullptr;
 
-#ifdef DEBUG
-      acc_cond::mark_t fin;
-      acc_cond::mark_t inf;
-      std::tie(inf, fin) = aut->get_acceptance().used_inf_fin_sets();
-      assert(inf == (inf_pairs | inf_alone));
-      assert(fin == ((inf_pairs >> 1U) | fin_alone));
-#endif
-      ba_final_states.resize(aut->num_states(), false);
-      ba_type = true;                // until proven otherwise
-      unsigned scc_max = si.scc_count();
-      for (unsigned scc = 0; scc < scc_max; ++scc)
-        {
-          if (si.is_rejecting_scc(scc)) // this includes trivial SCCs
-            {
-              scc_is_ba_type[scc] = true;
-              continue;
-            }
-          bool scc_ba_type = false;
-          auto sets = si.acc(scc);
-          // If there is one fin_alone that is not in the SCC,
-          // any cycle in the SCC is accepting.  Mark all states
-          // as final.
-          if ((sets & fin_alone) != fin_alone)
-            {
-              for (auto s: si.states_of(scc))
-                ba_final_states[s] = true;
-              scc_ba_type = true;
-            }
-          // In the general case, we need a dedicated check.  Note
-          // that the used fin_alone sets can be ignored, as they
-          // cannot contribute to Büchi-typeness,
-          else
-            {
-              scc_ba_type = is_scc_ba_type(aut, si.states_of(scc),
-                                           ba_final_states,
-                                           inf_pairs, inf_alone, si.acc(scc));
-            }
-          ba_type &= scc_ba_type;
-          scc_is_ba_type[scc] = scc_ba_type;
-        }
+      auto aut_pairs = rs_pairs_view(pairs);
+      auto code = aut->get_acceptance();
+      if (code.is_t())
+        return nullptr;
 
-#ifdef TRACE
-      trace << "SCC DBA-realizibility\n";
-      for (unsigned scc = 0; scc < scc_max; ++scc)
-        {
-            trace << scc << ": " << scc_is_ba_type[scc] << " {";
-            for (auto s: si.states_of(scc))
-              trace << ' ' << s;
-            trace << " }\n";
-        }
-#endif
+      // if is TBA type
+      scc_info si{aut};
+      std::vector<bool> scc_is_tba_type(si.scc_count(), false);
+      std::vector<bool> final(aut->edge_vector().size(), false);
+      std::vector<bool> keep(aut->edge_vector().size(), true);
 
-      unsigned nst = aut->num_states();
+      for (unsigned scc = 0; scc < si.scc_count(); ++scc)
+        scc_is_tba_type[scc] = is_scc_tba_type(aut, si, scc, keep,
+                                               aut_pairs, final);
+
       auto res = make_twa_graph(aut->get_dict());
       res->copy_ap_of(aut);
-      res->prop_copy(aut, { true, false, false, false, false, true });
-      res->new_states(nst);
+      res->prop_copy(aut, { false, false, false, false, false, true });
+      res->new_states(aut->num_states());
       res->set_buchi();
       res->set_init_state(aut->get_init_state_number());
       trival deterministic = aut->prop_universal();
       trival complete = aut->prop_complete();
 
       std::vector<unsigned> state_map(aut->num_states());
-      for (unsigned n = 0; n < scc_max; ++n)
+      for (unsigned scc = 0; scc < si.scc_count(); ++scc)
         {
-          auto states = si.states_of(n);
+          auto states = si.states_of(scc);
 
-          if (scc_is_ba_type[n])
+          if (scc_is_tba_type[scc])
             {
-              // If the SCC is BA-type, we know exactly what state need to
-              // be marked as accepting.
-              for (auto s: states)
+              for (const auto& e: si.edges_of(scc))
                 {
-                  bool acc = ba_final_states[s];
-                  for (auto& t: aut->out(s))
-                    res->new_acc_edge(s, t.dst, t.cond, acc);
+                  bool acc = final[aut->edge_number(e)];
+                  res->new_acc_edge(e.src, e.dst, e.cond, acc);
                 }
             }
           else
             {
-              deterministic = false;
               complete = trival::maybe();
 
               // The main copy is only accepting for inf_alone
               // and for all Inf sets that have no matching Fin
               // sets in this SCC.
-              acc_cond::mark_t sccsets = si.acc(n);
-              acc_cond::mark_t f = (sccsets << 1U) & inf_pairs;
-              acc_cond::mark_t i = sccsets & (inf_pairs | inf_alone);
-              i -= f;
-              for (auto s: states)
+              auto scc_pairs = rs_pairs_view(pairs, si.acc(scc));
+              auto scc_infs_alone = scc_pairs.infs_alone();
+
+              for (const auto& e: si.edges_of(scc))
                 {
-                  bool acc{aut->state_acc_sets(s) & i};
-                  for (auto& t: aut->out(s))
-                    res->new_acc_edge(s, t.dst, t.cond, acc);
+                  bool acc{e.acc & scc_infs_alone};
+                  res->new_acc_edge(e.src, e.dst, e.cond, acc);
                 }
 
-              auto rem = sccsets & ((inf_pairs >> 1U) | fin_alone);
-              assert(rem != 0U);
-              auto sets = rem.sets();
+              auto fins_alone = aut_pairs.fins_alone();
 
-              unsigned ss = states.size();
-
-              for (auto r: sets)
+              for (auto r: scc_pairs.fins().sets())
                 {
-                  unsigned base = res->new_states(ss);
+                  unsigned base = res->new_states(states.size());
                   for (auto s: states)
-                    state_map[s] = base++;
-                  for (auto s: states)
+                      state_map[s] = base++;
+                  for (const auto& e: si.inner_edges_of(scc))
                     {
-                      auto ns = state_map[s];
-                      acc_cond::mark_t acc = aut->state_acc_sets(s);
-                      if (acc.has(r))
+                      if (e.acc.has(r))
                         continue;
-                      bool jacc{acc & inf_alone};
-                      bool cacc = fin_alone.has(r) || acc.has(r + 1);
-                      for (auto& t: aut->out(s))
+                      auto src = state_map[e.src];
+                      auto dst = state_map[e.dst];
+                      bool cacc = fins_alone.has(r)
+                                ? true
+                                : ((scc_pairs.paired_with(r) & e.acc) != 0);
+                      res->new_acc_edge(src, dst, e.cond, cacc);
+                      // We need only one non-deterministic jump per
+                      // cycle.  As an approximation, we only do
+                      // them on back-links.
+                      if (e.dst <= e.src)
                         {
-                          if (si.scc_of(t.dst) != n)
-                            continue;
-                          auto nd = state_map[t.dst];
-                          res->new_acc_edge(ns, nd, t.cond, cacc);
-                          // We need only one non-deterministic jump per
-                          // cycle.  As an approximation, we only do
-                          // them on back-links.
-                          if (t.dst <= s)
-                            res->new_acc_edge(s, nd, t.cond, jacc);
+                          deterministic = false;
+                          bool jacc = ((e.acc & scc_infs_alone) != 0);
+                          res->new_acc_edge(e.src, dst, e.cond, jacc);
                         }
                     }
                 }
@@ -309,7 +340,25 @@ namespace spot
       res->prop_complete(complete);
       res->prop_universal(deterministic);
       res->purge_dead_states();
+      res->merge_edges();
+
       return res;
+    }
+
+    // Transforms automaton from transition based acceptance to state based
+    // acceptance.
+    void make_state_acc(twa_graph_ptr & aut)
+    {
+      unsigned nst = aut->num_states();
+      for (unsigned s = 0; s < nst; ++s)
+        {
+          acc_cond::mark_t acc = 0U;
+          for (auto& t: aut->out(s))
+            acc |= t.acc;
+          for (auto& t: aut->out(s))
+            t.acc = acc;
+        }
+      aut->prop_state_acc(true);
     }
 
     // If the DNF is
@@ -710,19 +759,6 @@ namespace spot
       return res;
     }
 
-    enum class strategy_t : unsigned
-    {
-      trivial     = 1,
-      weak        = 2,
-      alternation = 4,
-      street      = 8,
-      rabin       = 16,
-    };
-
-    using strategy_flags = strong_enum_flags<strategy_t>;
-    using strategy =
-        std::function<twa_graph_ptr(const const_twa_graph_ptr& aut)>;
-
     twa_graph_ptr remove_fin_impl(const const_twa_graph_ptr& aut,
                                   const strategy_flags skip = {})
     {
@@ -748,72 +784,11 @@ namespace spot
   twa_graph_ptr
   rabin_to_buchi_maybe(const const_twa_graph_ptr& aut)
   {
-    if (!aut->prop_state_acc().is_true())
-      return nullptr;
-
-    auto code = aut->get_acceptance();
-
-    if (code.is_t())
-      return nullptr;
-
-    acc_cond::mark_t inf_pairs = 0U;
-    acc_cond::mark_t inf_alone = 0U;
-    acc_cond::mark_t fin_alone = 0U;
-
-    auto s = code.back().sub.size;
-
-    // Rabin 1
-    if (code.back().sub.op == acc_cond::acc_op::And && s == 4)
-      goto start_and;
-    // Co-Büchi
-    else if (code.back().sub.op == acc_cond::acc_op::Fin && s == 1)
-      goto start_fin;
-    // Rabin >1
-    else if (code.back().sub.op != acc_cond::acc_op::Or)
-      return nullptr;
-
-    while (s)
-      {
-        --s;
-        if (code[s].sub.op == acc_cond::acc_op::And)
-          {
-          start_and:
-            auto o1 = code[--s].sub.op;
-            auto m1 = code[--s].mark;
-            auto o2 = code[--s].sub.op;
-            auto m2 = code[--s].mark;
-            // We expect
-            //   Fin({n}) & Inf({n+1})
-            if (o1 != acc_cond::acc_op::Fin ||
-                o2 != acc_cond::acc_op::Inf ||
-                m1.count() != 1 ||
-                m2.count() != 1 ||
-                m2 != (m1 << 1U))
-              return nullptr;
-            inf_pairs |= m2;
-          }
-        else if (code[s].sub.op == acc_cond::acc_op::Fin)
-          {
-          start_fin:
-            fin_alone |= code[--s].mark;
-          }
-        else if (code[s].sub.op == acc_cond::acc_op::Inf)
-          {
-            auto m1 = code[--s].mark;
-            if (m1.count() != 1)
-              return nullptr;
-            inf_alone |= m1;
-          }
-        else
-          {
-            return nullptr;
-          }
-      }
-
-    trace << "inf_pairs: " << inf_pairs << '\n';
-    trace << "inf_alone: " << inf_alone << '\n';
-    trace << "fin_alone: " << fin_alone << '\n';
-    return ra_to_ba(aut, inf_pairs, inf_alone, fin_alone);
+    bool is_state_acc = aut->prop_state_acc().is_true();
+    auto res = tra_to_tba(aut);
+    if (res && is_state_acc)
+      make_state_acc(res);
+    return res;
   }
 
   twa_graph_ptr remove_fin(const const_twa_graph_ptr& aut)

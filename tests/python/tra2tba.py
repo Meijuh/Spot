@@ -31,7 +31,7 @@ State: 1
 [0] 1
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 2.
@@ -51,7 +51,6 @@ State: 2
 [!0] 1 {}
 [0] 2 {1}
 --END--
-EOF
 """)
 
 exp = """HOA: v1
@@ -72,7 +71,7 @@ State: 2
 [0] 2 {0}
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 3.
@@ -106,7 +105,7 @@ State: 1
 [0] 1
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 4.
@@ -146,7 +145,7 @@ State: 2 {0}
 [t] 2
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 5.
@@ -192,7 +191,7 @@ State: 3 {0}
 [t] 3
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 6.
@@ -222,26 +221,26 @@ Start: 0
 AP: 2 "p3" "p2"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels state-acc
 --BODY--
 State: 0
 [!1] 0
 [1] 1
 [0&!1] 2
-State: 1
-[!1] 0 {0}
-[1] 1 {0}
+State: 1 {0}
+[!1] 0
+[1] 1
 [0&!1] 2
 [0&1] 3
-State: 2
-[0&!1] 2 {0}
-[0&1] 3 {0}
-State: 3
-[0&!1] 2 {0}
-[0&1] 3 {0}
+State: 2 {0}
+[0&!1] 2
+[0&1] 3
+State: 3 {0}
+[0&!1] 2
+[0&1] 3
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 7.
@@ -276,7 +275,7 @@ State: 1 {0}
 [0] 1
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 8.
@@ -355,7 +354,7 @@ State: 7
 [0&2] 7 {0}
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 9.
@@ -391,7 +390,7 @@ State: 1
 [1&!2] 1
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 10.
@@ -430,7 +429,7 @@ State: 2 {0}
 [0&1] 2
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 11.
@@ -467,7 +466,8 @@ State: 1
 [0] 1 {0}
 --END--"""
 
-res = spot.tra_to_tba(aut)
+
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 12.
@@ -506,13 +506,13 @@ State: 1
 [!0] 0
 [0] 1
 [!0] 3
-State: 2
+State: 2 {0}
 [!0] 2
 State: 3 {0}
 [!0] 3
 --END--"""
 
-res = spot.tra_to_tba(aut)
+res = spot.remove_fin(aut)
 assert(res.to_str('hoa') == exp)
 
 # Test 13.
@@ -538,8 +538,57 @@ State: 0 "F(Gp3|GFp2)"
 --END--
 """)
 
-res = spot.tra_to_tba(aut)
-tba = spot.tgba_determinize(res)
-a = spot.dtwa_complement(aut).intersects(tba)
-b = spot.dtwa_complement(tba).intersects(aut)
-assert(a == b)
+exp = """HOA: v1
+States: 2
+Start: 0
+AP: 2 "p3" "p2"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!1] 0 {0}
+[1] 1
+State: 1
+[!1] 0 {0}
+[1] 1 {0}
+--END--"""
+
+res = spot.remove_fin(aut)
+assert(res.to_str('hoa') == exp)
+
+# Test 14.
+aut = spot.automaton("""
+HOA: v1
+States: 1
+Start: 0
+Acceptance: 4 (Fin(0)&Inf(1)) | (Fin(2)&Inf(3))
+AP: 2 "b" "a"
+--BODY--
+State: 0
+ 0 {3}          /*{}*/
+ 0 {1 3}        /*{b}*/
+ 0 {2}          /*{a}*/
+ 0 {2 1}        /*{b, a}*/
+--END--""")
+
+exp = """HOA: v1
+States: 2
+Start: 0
+AP: 2 "b" "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0] 0 {0}
+[!0] 0
+[0&!1] 1 {0}
+[!0&!1] 1
+State: 1
+[!1] 1 {0}
+--END--"""
+
+res = spot.remove_fin(aut)
+assert(res.to_str('hoa') == exp)
