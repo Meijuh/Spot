@@ -639,9 +639,9 @@ a /recurrence/ property), is to chain a few algorithms implemented in Spot:
     #+RESULTS:
     [[file:hier-recurrence-6.png]]
 
- 4. Finally, convert the resulting automaton to TGBA, using =autfilt
-    --tgba=.  Spot can convert automata with any acceptance condition
-    to TGBA, but when the input is a deterministic state-based Rabin
+ 4. Finally, convert the resulting automaton to BA, using =autfilt
+    -B=.  Spot can convert automata with any acceptance condition
+    to BA, but when the input is a deterministic state-based Rabin
     automaton, it uses a dedicated algorithm that preserves
     determinism whenever possible (and we know it is possible, because
     we are working on a recurrence formula).  Adding =-D= here to
@@ -653,7 +653,7 @@ a /recurrence/ property), is to chain a few algorithms implemented in Spot:
     #+BEGIN_SRC sh :results verbatim :exports code
     ltl2tgba -G -D 'G(Gb | Fa)' |
       autfilt -S --generalized-rabin |
-      autfilt --tgba -D -d.a
+      autfilt -B -D -d.a
     #+END_SRC
     #+BEGIN_SRC dot :file hier-recurrence-7.png :cmdline -Tpng :var txt=hier-recurrence-7 :exports results
     $txt
