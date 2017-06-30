@@ -137,10 +137,14 @@ namespace spot
   ///        are not terminal.
   /// - 't': keep terminal SCCs (i.e., inherently weak SCCs that are complete)
   /// - 's': keep strong SCCs (i.e., SCCs that are not inherently weak).
+  /// Additionally, the string may contain comma-separated numbers representing
+  /// SCC number, optionally prefixed by 'a' to denote the Nth accepting SCC.
   ///
-  /// This algorithm returns a subautomaton that contains all SCCs of the
-  /// requested strength, plus any upstream SCC (but adjusted not to be
-  /// accepting).
+  /// This algorithm returns a subautomaton that contains all SCCs of
+  /// the requested strength (or given SCC numbers), plus any upstream
+  /// SCC (but adjusted not to be accepting).  The output may be null if
+  /// no SCC match a given strength.  An exception will be raised if
+  /// an incorrect SCC number is supplied.
   ///
   /// The definition are basically those used in the following paper,
   /// except that we extra the "inherently weak" part instead of the
@@ -168,27 +172,33 @@ namespace spot
       \endverbatim */
   ///
   /// \param aut the automaton to decompose
-  /// \param keep a string specifying the strengths to keep: it should
+  /// \param keep a string specifying the strengths/SCCs to keep
+  SPOT_API twa_graph_ptr
+  decompose_scc(const const_twa_graph_ptr& aut, const char* keep);
+
+  /// \brief Extract a sub-automaton of a given strength
+  ///
+  /// This works exactly like
+  /// decompose_scc(const const_twa_graph_ptr&, const char*)
+  /// but takes an \c scc_info as first argument.  This avoids
+  /// wasting time to reconstruct that object if one is already
+  /// available.
+  SPOT_API twa_graph_ptr
+  decompose_scc(scc_info& sm, const char* keep);
+
+  SPOT_DEPRECATED("use decompose_scc() instead")
   SPOT_API twa_graph_ptr
   decompose_strength(const const_twa_graph_ptr& aut, const char* keep);
 
-  /// \brief Extract a sub-automaton of a SCC
+  /// \brief Extract a sub-automaton above an SCC
   ///
   /// This algorithm returns a subautomaton that contains the requested SCC,
   /// plus any upstream SCC (but adjusted not to be accepting).
   ///
   /// \param sm the SCC info map of the automaton
   /// \param scc_num the index in the map of the SCC to keep
+  /// \param accepting if true, scc_num is interpreted as the Nth
+  /// accepting SCC instead of the Nth SCC
   SPOT_API twa_graph_ptr
-  decompose_scc(scc_info& sm, unsigned scc_num);
-
-  /// \brief Extract a sub-automaton of an accepting SCC
-  ///
-  /// This algorithm returns a subautomaton that contains the `scc_index'th
-  /// accepting SCC, plus any upstream SCC (but adjusted not to be accepting).
-  ///
-  /// \param aut the automaton to decompose
-  /// \param scc_index the ID of the accepting SCC to keep
-  SPOT_API twa_graph_ptr
-  decompose_acc_scc(const const_twa_graph_ptr& aut, int scc_index);
+  decompose_scc(scc_info& sm, unsigned scc_num, bool accepting = false);
 }

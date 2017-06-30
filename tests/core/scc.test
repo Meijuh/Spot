@@ -44,6 +44,7 @@ AP: 2 "a" "b"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc deterministic
+properties: terminal
 --BODY--
 State: 0
 [1] 1
@@ -53,7 +54,7 @@ State: 1 {0}
 --END--
 EOF
 
-run 0 autfilt --decompose-scc=0 -F aut> out
+run 0 autfilt --decompose-scc=a0 aut> out
 cat out
 diff out ref
 
@@ -65,20 +66,23 @@ AP: 2 "a" "b"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc colored
-properties: deterministic
+properties: deterministic weak
 --BODY--
 State: 0 {0}
 [0&!1] 0
 --END--
 EOF
 
-run 0 autfilt --decompose-scc=1 -F aut> out
-cat out
+run 0 autfilt --decompose-scc=a1 aut> out
 diff out ref
 
-autfilt --decompose-scc=2 -F aut 2>stderr && exit 1
+autfilt --decompose-scc=a2 aut 2>stderr && exit 1
 [ $? -eq 2 ]
-grep "out of bounds" stderr
+grep "no SCC 'a2'" stderr
+
+autfilt --decompose-scc=2 aut 2>stderr && exit 1
+[ $? -eq 2 ]
+grep "no SCC 2" stderr
 
 # always satisfied acceptance
 ltl2tgba 'Ga R b | Gc R b' > aut
@@ -90,7 +94,7 @@ Start: 0
 AP: 3 "b" "a" "c"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels state-acc
+properties: trans-labels explicit-labels state-acc weak
 --BODY--
 State: 0
 [0] 0
@@ -100,7 +104,7 @@ State: 1 {0}
 --END--
 EOF
 
-run 0 autfilt --decompose-scc=1 -F aut> out
+run 0 autfilt --decompose-scc=a1 -F aut> out
 cat out
 diff out ref
 

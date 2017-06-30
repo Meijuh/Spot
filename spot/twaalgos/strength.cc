@@ -201,11 +201,11 @@ namespace spot
 
 
   twa_graph_ptr
-  decompose_strength(const const_twa_graph_ptr& aut, const char* keep_opt)
+  decompose_scc(scc_info& si, const char* keep_opt)
   {
     if (keep_opt == nullptr || *keep_opt == 0)
       throw std::runtime_error
-        (std::string("option for decompose_strength() should not be empty"));
+        (std::string("option for decompose_scc() should not be empty"));
 
     enum strength {
       Ignore = 0,
@@ -213,13 +213,70 @@ namespace spot
       WeakStrict = 2,
       Weak = Terminal | WeakStrict,
       Strong = 4,
-      Needed = 8,                // Needed SCCs are those that lead to
-                                // the SCCs we want to keep.
+      Needed = 8,  // Needed SCCs are those that lead to the SCCs we
+                   // want to keep, and also unaccepting SCC we were
+                   // asked to keep.
     };
+
+    auto aut = si.get_aut();
+    si.determine_unknown_acceptance();
+    unsigned n = si.scc_count();
+    std::vector<unsigned char> want(n, Ignore);
+
     unsigned char keep = Ignore;
     while (auto c = *keep_opt++)
       switch (c)
         {
+        case ',':
+        case ' ':
+          break;
+        case '0':                 // SCC number N.
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          {
+            char* endptr;
+            long int scc = strtol(keep_opt - 1, &endptr, 10);
+            if (scc >= n)
+              {
+                throw std::runtime_error
+                  (std::string("decompose_scc(): there is no SCC ")
+                   + std::to_string(scc) + " in this automaton");
+              }
+            keep_opt = endptr;
+            want[scc] = Needed;
+            break;
+          }
+        case 'a':               // Accepting SCC number N.
+          {
+            char* endptr;
+            long int scc = strtol(keep_opt, &endptr, 10);
+            if (endptr == keep_opt)
+              throw std::runtime_error
+                ("decompose_scc(): 'a' should be followed by an SCC number");
+            int j = 0;
+            for (unsigned s = 0; s < n; ++s)
+              if (si.is_accepting_scc(s))
+                if (j++ == scc)
+                  {
+                    want[s] = Needed;
+                    break;
+                  }
+            if (j != scc + 1)
+              {
+                throw std::runtime_error
+                  (std::string("decompose_scc(): there is no SCC 'a")
+                   + std::to_string(scc) + "' in this automaton");
+              }
+            keep_opt = endptr;
+            break;
+          }
         case 's':
           keep |= Strong;
           break;
@@ -231,12 +288,12 @@ namespace spot
           break;
         default:
           throw std::runtime_error
-            (std::string("unknown option for decompose_strength(): ") + c);
+            (std::string("unknown option for decompose_scc(): ") + c);
         }
 
     auto p = aut->acc().unsat_mark();
     bool all_accepting = !p.first;
-    acc_cond::mark_t wacc = 0U;        // Acceptance for weak SCCs
+    acc_cond::mark_t wacc = 0U;        // acceptance for weak SCCs
     acc_cond::mark_t uacc = p.second; // Acceptance for "needed" SCCs, that
                                       // we only want to traverse.
 
@@ -244,42 +301,38 @@ namespace spot
     // consider the automaton as weak (even if that is not the
     // case syntactically) and not output any strong part.
     if (all_accepting)
-      {
-        keep &= ~Strong;
-        if (keep == Ignore)
-          return nullptr;
-      }
+      keep &= ~Strong;
 
-    scc_info si(aut);
-    si.determine_unknown_acceptance();
-
-    unsigned n = si.scc_count();
-    std::vector<unsigned char> want(n, Ignore);
     bool nonempty = false;
-    bool strong_seen = false;
+    bool kept_scc_are_weak = true;
+    bool kept_scc_are_terminal = true;
 
     for (unsigned i = 0; i < n; ++i) // SCC are topologically ordered
       {
         if (si.is_accepting_scc(i))
           {
+            strength scc_strength = Ignore;
             if (all_accepting | is_inherently_weak_scc(si, i))
-              {
-                if (keep & Weak)
-                  {
-                    if ((keep & Weak) == Weak)
-                      want[i] = Weak;
-                    else
-                      want[i] = keep &
-                        (is_complete_scc(si, i) ? Terminal : WeakStrict);
-                  }
-              }
+              scc_strength = is_complete_scc(si, i) ? Terminal : WeakStrict;
             else
+              scc_strength = Strong;
+
+            if (want[i] == Needed)
+              want[i] = scc_strength;
+            else
+              want[i] = scc_strength & keep;
+
+            if (want[i])
               {
-                want[i] = keep & Strong;
-                strong_seen = true;
+                if (!(scc_strength & Weak))
+                  kept_scc_are_weak = false;
+                if (!(scc_strength & Terminal))
+                  kept_scc_are_terminal = false;
               }
-            nonempty |= want[i];
           }
+
+        nonempty |= want[i];    // also works "Needed" rejecting SCCs
+
         // An SCC is needed if one of its successor is.
         for (unsigned j: si.succ(i))
           if (want[j])
@@ -296,12 +349,12 @@ namespace spot
     res->copy_ap_of(aut);
     res->prop_copy(aut, { true, false, false, true, false, false });
 
-    if (keep & Strong)
-      res->copy_acceptance_of(aut);
-    else
+    if (kept_scc_are_weak)
       wacc = res->set_buchi();
+    else
+      res->copy_acceptance_of(aut);
 
-    auto fun = [&si, &want, uacc, wacc, keep]
+    auto fun = [&si, &want, uacc, wacc, kept_scc_are_weak]
       (unsigned src, bdd& cond, acc_cond::mark_t& acc, unsigned dst)
       {
         if (want[si.scc_of(dst)] == Ignore)
@@ -314,99 +367,35 @@ namespace spot
             acc = uacc;
             return;
           }
-        if (keep & Strong)
-          return;
-        acc = wacc;
+        if (kept_scc_are_weak)
+          acc = wacc;
       };
 
     transform_accessible(aut, res, fun);
 
-    if (!(keep & Strong))
-      {
-        res->prop_weak(true);
-        if (!(keep & WeakStrict))
-          {
-            assert(keep & Terminal);
-            res->prop_terminal(true);
-          }
-      }
-    else
-      {
-        res->prop_weak(!strong_seen);
-      }
+    res->prop_weak(kept_scc_are_weak);
+    res->prop_terminal(kept_scc_are_terminal);
     return res;
   }
 
-  twa_graph_ptr
-  decompose_scc(scc_info& sm, unsigned scc_num)
-  {
-    unsigned n = sm.scc_count();
-
-    if (n <= scc_num)
-      throw std::invalid_argument
-        (std::string("decompose_scc(): requested SCC index is out of bounds"));
-
-    std::vector<bool> want(n, false);
-    want[scc_num] = true;
-
-    // mark all the SCCs that can reach scc_num as wanted
-    for (unsigned i = scc_num + 1; i < n; ++i)
-      for (unsigned succ : sm.succ(i))
-        if (want[succ])
-          {
-            want[i] = true;
-            break;
-          }
-
-    const_twa_graph_ptr aut = sm.get_aut();
-    twa_graph_ptr res = make_twa_graph(aut->get_dict());
-    res->copy_ap_of(aut);
-    res->prop_copy(aut, { true, false, false, true, false, false });
-    res->copy_acceptance_of(aut);
-
-    auto um = aut->acc().unsat_mark();
-
-    // If aut has an unsatisfying mark, we are going to use it to remove the
-    // acceptance of some transitions. If it doesn't, we make res a rejecting
-    // Büchi automaton, and get back an accepting mark that we are going to set
-    // on the transitions of the SCC we selected.
-    auto new_mark = um.first ? um.second : res->set_buchi();
-    auto fun = [sm, &want, um, new_mark, scc_num]
-      (unsigned src, bdd& cond, acc_cond::mark_t& acc, unsigned dst)
-      {
-        if (!want[sm.scc_of(dst)])
-          {
-            cond = bddfalse;
-            return;
-          }
-        // no need to check if src is wanted, we already know dst is.
-        // if res is accepting, make only the upstream SCCs rejecting
-        // if res is rejecting, make only the requested SCC accepting
-        if (um.first != (sm.scc_of(src) == scc_num))
-          acc = new_mark;
-      };
-
-    transform_accessible(aut, res, fun);
-
-    return res;
-  }
 
   twa_graph_ptr
-  decompose_acc_scc(const const_twa_graph_ptr& aut, int scc_index)
+  decompose_scc(const const_twa_graph_ptr& aut, const char* keep_opt)
   {
     scc_info si(aut);
-    unsigned scc_num = 0;
+    return decompose_scc(si, keep_opt);
+  }
 
-    for (; scc_num < si.scc_count(); ++scc_num)
-      {
-        if (si.is_accepting_scc(scc_num))
-          {
-            if (!scc_index)
-              break;
-            --scc_index;
-          }
-      }
+    twa_graph_ptr
+  decompose_strength(const const_twa_graph_ptr& aut, const char* keep_opt)
+  {
+    return decompose_scc(aut, keep_opt);
+  }
 
-    return decompose_scc(si, scc_num);
+  twa_graph_ptr
+  decompose_scc(scc_info& sm, unsigned scc_num, bool accepting)
+  {
+    std::string num = std::to_string(scc_num);
+    return decompose_scc(sm, (accepting ? ('a' + num) : num).c_str());
   }
 }

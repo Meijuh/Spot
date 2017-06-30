@@ -29,7 +29,7 @@ AP: 3 "b" "a" "c"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc !complete
-properties: deterministic
+properties: deterministic terminal
 --BODY--
 State: 0
 [!1&!2] 0
@@ -44,19 +44,19 @@ State: 2
 
 try:
     spot.decompose_scc(si, 4)
-except ValueError:
+except RuntimeError:
     pass
 else:
     raise AssertionError
 
-assert (spot.decompose_acc_scc(aut, 0).to_str('hoa', '1.1') == """HOA: v1.1
+assert (spot.decompose_scc(si, 0, True).to_str('hoa', '1.1') == """HOA: v1.1
 States: 4
 Start: 0
 AP: 3 "b" "a" "c"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: deterministic terminal
 --BODY--
 State: 0
 [!1&!2] 0
@@ -74,14 +74,14 @@ State: 3
 [1] 3
 --END--""")
 
-assert (spot.decompose_acc_scc(aut, 2).to_str('hoa', '1.1') == """HOA: v1.1
+assert (spot.decompose_scc(si, 2, True).to_str('hoa', '1.1') == """HOA: v1.1
 States: 2
 Start: 0
 AP: 3 "b" "a" "c"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels trans-acc !complete
-properties: deterministic
+properties: deterministic !weak
 --BODY--
 State: 0
 [!1&!2] 0 {0}
@@ -92,8 +92,8 @@ State: 1
 --END--""")
 
 try:
-    spot.decompose_acc_scc(aut, 3)
-except ValueError:
+    spot.decompose_scc(si, 3, True)
+except RuntimeError:
     pass
 else:
     raise AssertionError

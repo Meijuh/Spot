@@ -89,7 +89,6 @@ enum {
   OPT_COMPLEMENT,
   OPT_COMPLEMENT_ACC,
   OPT_COUNT,
-  OPT_DECOMPOSE_STRENGTH,
   OPT_DECOMPOSE_SCC,
   OPT_DESTUT,
   OPT_DUALIZE,
@@ -300,11 +299,12 @@ static const argp_option options[] =
     { "complement-acceptance", OPT_COMPLEMENT_ACC, nullptr, 0,
       "complement the acceptance condition (without touching the automaton)",
       0 },
-    { "decompose-strength", OPT_DECOMPOSE_STRENGTH, "t|w|s", 0,
+    { "decompose-scc", OPT_DECOMPOSE_SCC, "t|w|s|N|aN", 0,
       "extract the (t) terminal, (w) weak, or (s) strong part of an automaton"
-      " (letters may be combined to combine more strengths in the output)", 0 },
-    { "decompose-scc", OPT_DECOMPOSE_SCC, "N", 0, "keep only the Nth accepting"
-      " SCC as accepting", 0 },
+      " or (N) the subautomaton leading to the Nth SCC, or (aN) to the Nth "
+      "accepting SCC (option can be combined with ccomas to extract multiple "
+      "parts)", 0 },
+    { "decompose-strength", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     { "dualize", OPT_DUALIZE, nullptr, 0,
       "dualize each automaton", 0 },
     { "exclusive-ap", OPT_EXCLUSIVE_AP, "AP,AP,...", 0,
@@ -495,8 +495,7 @@ static bool opt_rem_fin = false;
 static bool opt_clean_acc = false;
 static bool opt_complement = false;
 static bool opt_complement_acc = false;
-static char* opt_decompose_strength = nullptr;
-static int opt_decompose_scc = -1;
+static char* opt_decompose_scc = nullptr;
 static bool opt_dualize = false;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
@@ -595,11 +594,8 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_COMPLEMENT_ACC:
       opt_complement_acc = true;
       break;
-    case OPT_DECOMPOSE_STRENGTH:
-      opt_decompose_strength = arg;
-      break;
     case OPT_DECOMPOSE_SCC:
-      opt_decompose_scc = to_pos_int(arg);
+      opt_decompose_scc = arg;
       break;
     case OPT_DESTUT:
       opt_destut = true;
@@ -1259,16 +1255,9 @@ namespace
       if (opt->sum_and)
         aut = spot::sum_and(std::move(aut), opt->sum_and);
 
-      if (opt_decompose_strength)
+      if (opt_decompose_scc)
         {
-          aut = decompose_strength(aut, opt_decompose_strength);
-          if (!aut)
-            return 0;
-        }
-
-      if (opt_decompose_scc != -1)
-        {
-          aut = decompose_acc_scc(aut, opt_decompose_scc);
+          aut = decompose_scc(aut, opt_decompose_scc);
           if (!aut)
             return 0;
         }

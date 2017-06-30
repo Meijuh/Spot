@@ -21,6 +21,10 @@ New in spot 2.3.5.dev (not yet released)
   - autfilt learned --simplify-acceptance to simplify some acceptance
     conditions.  (See spot::simplify_acceptance() below.)
 
+  - autfilt --decompote-strength has been renamed to --decompose-scc
+    because it can now extract the subautomaton leading to an SCC
+    specified by number.  (The old name is still kept as an alias.)
+
   Library:
 
   - A new library, libspotgen, gathers all functions used to generate
@@ -40,6 +44,12 @@ New in spot 2.3.5.dev (not yet released)
     calls spot::dualize().
 
   - spot::dtwa_complement now simply returns the result of dualize()
+
+  - spot::decompose_strength() was extended and renamed to
+    spot::decompose_scc() as it can now also extract a subautomaton
+    leading to a particular SCC.  A demonstration of this feature via
+    the Python bindings can be found at
+    https://spot.lrde.epita.fr/ipynb/decompose.html
 
   - A new named property for automata called "original-states" can be
     used to record the origin of a state before transformation.  It is
@@ -160,6 +170,9 @@ New in spot 2.3.5.dev (not yet released)
     object instead of an std::vector<unsigned>.
 
   Deprecation notice:
+
+  - spot::decompose_strength() is deprecated, it has been renamed
+    to spot::decompose_scc().
 
   - spot::dtwa_complement() is deprecated.  Prefer the more generic
     spot::dualize() instead.
@@ -329,11 +342,6 @@ New in spot 2.3.1 (2017-02-20)
     --kr-nlogn=RANGE, and --kr-n=RANGE.  These formulas, from
     Kupferman & Rosenberg [MoChArt'10] are recognizable by
     deterministic Büchi automata with at least 2^2^n states.
-
-  - autfilt has a new transformation: --decompose-scc, which allows
-    decomposition of automata through their accepting SCCs.
-    A demonstration of this feature via the Python bindings
-    can be found at https://spot.lrde.epita.fr/ipynb/decompose.html
 
   Library:
 
