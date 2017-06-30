@@ -82,7 +82,7 @@ namespace spot
     if (acc().uses_fin_acceptance())
       throw std::runtime_error("twa::accepting_run() does not work with "
                                "Fin acceptance (but twa:is_empty() and "
-                               "twa::accepting_run() can)");
+                               "twa::accepting_word() can)");
     auto res = couvreur99_new_check(shared_from_this());
     if (!res)
       return nullptr;
