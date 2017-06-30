@@ -30,9 +30,6 @@ namespace spot
   {
     if (old->prop_state_acc())
       return old;
-    if (!old->is_existential())
-      throw std::runtime_error
-        ("sbacc() does not support alternation");
 
     // We will need a mark that is rejecting to mark rejecting states.
     // If no such mark exist, our work is actually quite simple: we
@@ -56,16 +53,18 @@ namespace spot
     // Marks that label one incoming transition from the same SCC.
     std::vector<acc_cond::mark_t> one_in(ns, 0U);
     for (auto& e: old->edges())
-      if (si.scc_of(e.src) == si.scc_of(e.dst))
-        {
-          common_in[e.dst] &= e.acc;
-          common_out[e.src] &= e.acc;
-        }
+      for (unsigned d: old->univ_dests(e.dst))
+        if (si.scc_of(e.src) == si.scc_of(d))
+          {
+            common_in[d] &= e.acc;
+            common_out[e.src] &= e.acc;
+          }
     for (unsigned s = 0; s < ns; ++s)
       common_out[s] |= common_in[s];
     for (auto& e: old->edges())
-      if (si.scc_of(e.src) == si.scc_of(e.dst))
-        one_in[e.dst] = e.acc - common_out[e.src];
+      for (unsigned d: old->univ_dests(e.dst))
+        if (si.scc_of(e.src) == si.scc_of(d))
+          one_in[d] = e.acc - common_out[e.src];
 
     auto res = make_twa_graph(old->get_dict());
     res->copy_ap_of(old);
@@ -92,14 +91,24 @@ namespace spot
         return p.first->second;
       };
 
-    unsigned old_init = old->get_init_state_number();
-    acc_cond::mark_t init_acc = 0U;
-    if (!si.is_rejecting_scc(si.scc_of(old_init)))
-      // Use any edge going into the initial state to set the first
-      // acceptance mark.
-      init_acc = one_in[old_init] | common_out[old_init];
+    std::vector<unsigned> old_init;
+    for (unsigned d: old->univ_dests(old->get_init_state_number()))
+      old_init.push_back(d);
 
-    res->set_init_state(new_state(old_init, init_acc));
+    std::vector<unsigned> old_st;
+    internal::univ_dest_mapper<twa_graph::graph_t> uniq(res->get_graph());
+    for (unsigned s: old_init)
+      {
+        acc_cond::mark_t init_acc = 0U;
+        if (!si.is_rejecting_scc(si.scc_of(s)))
+          // Use any edge going into the initial state to set the first
+          // acceptance mark.
+          init_acc = one_in[s] | common_out[s];
+
+        old_st.push_back(new_state(s, init_acc));
+      }
+    res->set_init_state(uniq.new_univ_dests(old_st.begin(), old_st.end()));
+
     while (!todo.empty())
       {
         auto one = todo.back();
@@ -108,20 +117,27 @@ namespace spot
         bool maybe_accepting = !si.is_rejecting_scc(scc_src);
         for (auto& t: old->out(one.first.first))
           {
-            unsigned scc_dst = si.scc_of(t.dst);
-            acc_cond::mark_t acc = 0U;
-            bool dst_acc = !si.is_rejecting_scc(scc_dst);
-            if (maybe_accepting && scc_src == scc_dst)
-              acc = t.acc - common_out[t.src];
-            else if (dst_acc)
-              // We enter a new accepting SCC. Use any edge going into
-              // t.dst from this SCC to set the initial acceptance mark.
-              acc = one_in[t.dst];
-            if (dst_acc)
-              acc |= common_out[t.dst];
-            else
-              acc = unsat_mark.second;
-            res->new_edge(one.second, new_state(t.dst, acc),
+            std::vector<unsigned> dests;
+            for (unsigned d: old->univ_dests(t.dst))
+              {
+                unsigned scc_dst = si.scc_of(d);
+                acc_cond::mark_t acc = 0U;
+                bool dst_acc = !si.is_rejecting_scc(scc_dst);
+                if (maybe_accepting && scc_src == scc_dst)
+                  acc = t.acc - common_out[t.src];
+                else if (dst_acc)
+                  // We enter a new accepting SCC. Use any edge going into
+                  // t.dst from this SCC to set the initial acceptance mark.
+                  acc = one_in[d];
+                if (dst_acc)
+                  acc |= common_out[d];
+                else
+                  acc = unsat_mark.second;
+
+                dests.push_back(new_state(d, acc));
+              }
+            res->new_edge(one.second,
+                          uniq.new_univ_dests(dests.begin(), dests.end()),
                           t.cond, one.first.second);
           }
       }

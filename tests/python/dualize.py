@@ -394,12 +394,11 @@ State: 2
 [0] 2
 --END--""")
 
-
 dual = spot.dualize(aut)
 h = dual.to_str('hoa')
 
 assert h == """HOA: v1
-States: 2
+States: 3
 Start: 0
 AP: 2 "a" "b"
 acc-name: all
@@ -407,9 +406,11 @@ Acceptance: 0 t
 properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0
-[!0 | !1] 1
+[0&1] 1
+[!0 | !1] 2
 State: 1
-[t] 1
+State: 2
+[t] 2
 --END--"""
 
 aut = spot.automaton("""
@@ -492,6 +493,45 @@ State: 2 {0}
 [t] 2
 --END--"""
 
+aut = spot.automaton("""
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+Acceptance: 2 Fin(0) & Inf(1)
+properties: trans-labels explicit-labels
+--BODY--
+State: 0
+[!0] 0
+[0] 1 {0}
+[0] 2 {1}
+State: 1
+[t] 0
+State: 2
+[t] 0
+--END--""")
+
+dual = spot.dualize(aut)
+assert dualtype(aut, dual)
+h = dual.to_str('hoa')
+
+assert h == """HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: parity min even 2
+Acceptance: 2 Inf(0) | Fin(1)
+properties: univ-branch trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0] 0
+[0] 1&2
+State: 1 {0}
+[t] 0
+State: 2 {1}
+[t] 0
+--END--"""
 
 aut = spot.translate('G!a R XFb')
 test_assert(aut)
@@ -499,12 +539,12 @@ dual = spot.dualize(aut)
 h = dual.to_str('hoa')
 
 assert h == """HOA: v1
-States: 5
+States: 6
 Start: 0
 AP: 2 "a" "b"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc complete
+properties: univ-branch trans-labels explicit-labels state-acc complete
 properties: deterministic
 --BODY--
 State: 0
@@ -512,17 +552,22 @@ State: 0
 [!0] 1&2
 State: 1
 [0&!1] 1
-[0&1] 1 {0}
+[0&1] 4
+[!0&1] 2&4
 [!0&!1] 1&2
-[!0&1] 1&2 {0}
 State: 2
 [!0&1] 3
-[0 | !1] 4
-State: 3
-[!0] 3 {0}
-[0] 4
-State: 4
-[t] 4
+[0 | !1] 5
+State: 3 {0}
+[!0] 3
+[0] 5
+State: 4 {0}
+[0&!1] 1
+[0&1] 4
+[!0&1] 2&4
+[!0&!1] 1&2
+State: 5
+[t] 5
 --END--"""
 
 
