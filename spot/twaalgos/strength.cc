@@ -243,7 +243,7 @@ namespace spot
           {
             char* endptr;
             long int scc = strtol(keep_opt - 1, &endptr, 10);
-            if (scc >= n)
+            if ((long unsigned) scc >= n)
               {
                 throw std::runtime_error
                   (std::string("decompose_scc(): there is no SCC ")
