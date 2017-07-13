@@ -84,6 +84,23 @@ namespace spot
       return scc_mark;
     }
 
+    // Transforms automaton from transition based acceptance to state based
+    // acceptance.
+    void make_state_acc(twa_graph_ptr & aut)
+    {
+      unsigned nst = aut->num_states();
+      for (unsigned s = 0; s < nst; ++s)
+        {
+          acc_cond::mark_t acc = 0U;
+          for (auto& t: aut->out(s))
+            acc |= t.acc;
+          for (auto& t: aut->out(s))
+            t.acc = acc;
+        }
+      aut->prop_state_acc(true);
+    }
+
+
     // Check whether the SCC contains non-accepting cycles.
     //
     // A cycle is accepting (in a Rabin automaton) if there exists an
@@ -341,24 +358,9 @@ namespace spot
       res->prop_universal(deterministic);
       res->purge_dead_states();
       res->merge_edges();
-
+      if (!aut_pairs.infs())
+        make_state_acc(res);
       return res;
-    }
-
-    // Transforms automaton from transition based acceptance to state based
-    // acceptance.
-    void make_state_acc(twa_graph_ptr & aut)
-    {
-      unsigned nst = aut->num_states();
-      for (unsigned s = 0; s < nst; ++s)
-        {
-          acc_cond::mark_t acc = 0U;
-          for (auto& t: aut->out(s))
-            acc |= t.acc;
-          for (auto& t: aut->out(s))
-            t.acc = acc;
-        }
-      aut->prop_state_acc(true);
     }
 
     // If the DNF is
