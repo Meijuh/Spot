@@ -360,6 +360,7 @@ TESTS_python = \
   python/relabel.py \
   python/remfin.py \
   python/satmin.py \
+  python/sbacc.py \
   python/sccfilter.py \
   python/sccinfo.py \
   python/setacc.py \
