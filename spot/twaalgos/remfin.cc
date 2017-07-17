@@ -712,11 +712,11 @@ namespace spot
 
     enum class strategy_t : unsigned
     {
-      trivial     = 0x01,
-      weak        = 0x02,
-      alternation = 0x04,
-      street      = 0x08,
-      rabin       = 0x016
+      trivial     = 1,
+      weak        = 2,
+      alternation = 4,
+      street      = 8,
+      rabin       = 16,
     };
 
     using strategy_flags = strong_enum_flags<strategy_t>;
