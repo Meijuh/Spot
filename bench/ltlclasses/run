@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+# Copyright (C) 2010, 2012, 2013, 2017 Laboratoire de Recherche et
 # Développement de l'EPITA (LRDE)
 #
 # This file is part of Spot, a model checking library.
@@ -18,23 +18,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-gen=../../src/bin/genltl
-LTL2TGBA=../../src/tests/ikwiad
+gen=../../bin/genltl
+LTL2TGBA=../../bin/ltl2tgba
 
 for F in alpha beta beta-prime phi xi; do
   echo "# Benching ltl2tgba_fm for family ccj-$F"
   echo "# e.g. `$gen --ccj-$F 3`"
   echo "# the following values are also saved to file 'results$F.fm'"
-  echo "# time1 = translation time"
-  echo "# time2 = exploration time"
-  echo "# n, states, transitions, user time1, system time1, wall time1, user time2, system time2, wall time2"
+  echo "# time = translation time"
+  echo "# n, states, edges, time"
   for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
-    $LTL2TGBA -T -r1 -DS -ks -f "`"$gen" --ccj-$F $n`" >out 2>&1
-    states=`sed -n 's/^states: \([0-9]*\)$/\1/p' out`
-    transitions=`sed -n 's/^transitions: \([0-9]*\)$/\1/p' out`
-    time=`sed -n 's/ *translating formula *| *\([0-9]*\) .*| *\([0-9]*\) .*| *\([0-9]*\) .*|.*/\1,\2,\3/p' out`
-    time2=`sed -n 's/ *producing output *| *\([0-9]*\) .*| *\([0-9]*\) .*| *\([0-9]*\) .*|.*/\1,\2,\3/p' out`
-    echo $n,$states,$transitions,$time,$time2
+    $LTL2TGBA --any --low -B "`"$gen" --ccj-$F $n`" --stats="$n,%s,%e,%r"
   done | tee results$F.fm
 done
 echo "# now run 'gnuplot plot.gnu'"
