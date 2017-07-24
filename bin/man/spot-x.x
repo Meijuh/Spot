@@ -40,6 +40,11 @@ time. Note that it restarts all the encoding each time.
 
 [ENVIRONMENT VARIABLES]
 .TP
+\fBSPOT_BDD_TRACE\fR
+If this variable is set to any value, statistics about BDD garbage
+collection and resizing will be output on standard error.
+
+.TP
 \fBSPOT_DEFAULT_FORMAT\fR
 Set to a value of \fBdot\fR or \fBhoa\fR to override the default
 format used to output automata.  Up to Spot 1.9.6 the default output

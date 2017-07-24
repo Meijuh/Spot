@@ -150,6 +150,10 @@ New in spot 2.3.5.dev (not yet released)
 
   - spot::sbacc() is now able to work on alternating automata.
 
+  - If the SPOT_BDD_TRACE envorinment variable is set, statistics
+    about BDD garbage collection and table resizing are shown.
+
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.
