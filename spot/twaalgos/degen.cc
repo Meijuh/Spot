@@ -50,7 +50,8 @@ namespace spot
     };
 
     // Associate the degeneralized state to its number.
-    typedef std::unordered_map<degen_state, int, degen_state_hash> ds2num_map;
+    typedef std::unordered_map<degen_state, unsigned,
+                               degen_state_hash> ds2num_map;
 
     // Queue of state to be processed.
     typedef std::deque<degen_state> queue_t;
@@ -60,14 +61,16 @@ namespace spot
     class inout_acc final
     {
       const_twa_graph_ptr a_;
-      typedef std::tuple<acc_cond::mark_t,
-                         acc_cond::mark_t,
-                         acc_cond::mark_t,
-                         bool> cache_entry;
+      typedef std::tuple<acc_cond::mark_t, // common out
+                         acc_cond::mark_t, // union out
+                         acc_cond::mark_t, // common in, then common in+out
+                         bool,             // has self-loop
+                         bool> cache_entry; // is true state
       std::vector<cache_entry> cache_;
+      unsigned last_true_state_;
       const scc_info* sm_;
 
-      unsigned scc_of(unsigned s)
+      unsigned scc_of(unsigned s) const
       {
         return sm_ ? sm_->scc_of(s) : 0;
       }
@@ -78,6 +81,7 @@ namespace spot
         acc_cond::mark_t common = a_->acc().all_sets();
         acc_cond::mark_t union_ = 0U;
         bool has_acc_self_loop = false;
+        bool is_true_state = false;
         bool seen = false;
         for (auto& t: a_->out(s))
           {
@@ -91,7 +95,15 @@ namespace spot
             std::get<2>(cache_[d]) &= t.acc;
 
             // an accepting self-loop?
-            has_acc_self_loop |= (t.dst == s) && a_->acc().accepting(t.acc);
+            if ((t.dst == s) && a_->acc().accepting(t.acc))
+              {
+                has_acc_self_loop = true;
+                if (t.cond == bddtrue)
+                  {
+                    is_true_state = true;
+                    last_true_state_ = s;
+                  }
+              }
             seen = true;
           }
         if (!seen)
@@ -99,6 +111,7 @@ namespace spot
         std::get<0>(cache_[s]) = common;
         std::get<1>(cache_[s]) = union_;
         std::get<3>(cache_[s]) = has_acc_self_loop;
+        std::get<4>(cache_[s]) = is_true_state;
       }
 
     public:
@@ -109,7 +122,7 @@ namespace spot
         acc_cond::mark_t all = a_->acc().all_sets();
         // slot 2 will hold acceptance mark that are common to the
         // incoming transitions of each state.  For know with all
-        // marks if there is some incoming edge.  The nextx loop will
+        // marks if there is some incoming edge.  The next loop will
         // constrain this value.
         for (auto& e: a_->edges())
           if (scc_of(e.src) == scc_of(e.dst))
@@ -121,31 +134,41 @@ namespace spot
       }
 
       // Intersection of all outgoing acceptance sets
-      acc_cond::mark_t common_out_acc(unsigned s)
+      acc_cond::mark_t common_out_acc(unsigned s) const
       {
         assert(s < cache_.size());
         return std::get<0>(cache_[s]);
       }
 
       // Union of all outgoing acceptance sets
-      acc_cond::mark_t union_out_acc(unsigned s)
+      acc_cond::mark_t union_out_acc(unsigned s) const
       {
         assert(s < cache_.size());
         return std::get<1>(cache_[s]);
       }
 
       // Intersection of all incoming acceptance sets
-      acc_cond::mark_t common_inout_acc(unsigned s)
+      acc_cond::mark_t common_inout_acc(unsigned s) const
       {
         assert(s < cache_.size());
         return std::get<2>(cache_[s]);
       }
 
-      // Has an accepting self-loop
-      bool has_acc_selfloop(unsigned s)
+      bool has_acc_selfloop(unsigned s) const
       {
         assert(s < cache_.size());
         return std::get<3>(cache_[s]);
+      }
+
+      bool is_true_state(unsigned s) const
+      {
+        assert(s < cache_.size());
+        return std::get<4>(cache_[s]);
+      }
+
+      unsigned last_true_state() const
+      {
+        return last_true_state_;
       }
     };
 
@@ -253,8 +276,6 @@ namespace spot
       // denote accepting states.
       std::vector<unsigned> order;
       {
-        // FIXME: revisit this comment once everything compiles again.
-        //
         // The order is arbitrary, but it turns out that using emplace_back
         // instead of push_front often gives better results because
         // acceptance sets at the beginning if the cycle are more often
@@ -280,10 +301,6 @@ namespace spot
       typedef std::map<int, unsigned> tr_cache_t;
       tr_cache_t tr_cache;
 
-      // Read this early, because it might create a state if the
-      // automaton is empty.
-      degen_state s(a->get_init_state_number(), 0);
-
       // State->level cache
       std::vector<std::pair<unsigned, bool>> lvl_cache(a->num_states());
 
@@ -296,6 +313,8 @@ namespace spot
       inout_acc inout(a, m);
 
       queue_t todo;
+
+      degen_state s(a->get_init_state_number(), 0);
 
       // As a heuristic for building SBA, if the initial state has at
       // least one accepting self-loop, start the degeneralization on
@@ -323,11 +342,30 @@ namespace spot
             s.second = 0;
         }
 
-      auto new_state = [&](degen_state& ds)
+      auto new_state = [&](degen_state ds)
         {
+          // Merge all true states into a single one.
+          bool ts = inout.is_true_state(ds.first);
+          if (ts)
+            ds = {inout.last_true_state(), 0U};
+
+          auto di = ds2num.find(ds);
+          if (di != ds2num.end())
+              return di->second;
+
           unsigned ns = res->new_state();
           ds2num[ds] = ns;
-          todo.emplace_back(ds);
+          if (ts)
+            {
+              res->new_acc_edge(ns, ns, bddtrue, true);
+              // As we do not process all outgoing transition of
+              // ds.first, it is possible that a non-deterministic
+              // automaton becomes deterministic.
+              if (res->prop_universal().is_false())
+                res->prop_universal(trival::maybe());
+            }
+          else
+            todo.emplace_back(ds);
 
           assert(ns == orig_states->size());
           orig_states->emplace_back(ds.first);
@@ -555,12 +593,7 @@ namespace spot
                 }
 
               // Have we already seen this destination?
-              int dest;
-              ds2num_map::const_iterator di = ds2num.find(d);
-              if (di != ds2num.end())
-                dest = di->second;
-              else
-                dest = new_state(d);
+              int dest = new_state(d);
 
               unsigned& t = tr_cache[dest * 2 + is_acc];
 

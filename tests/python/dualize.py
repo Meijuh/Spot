@@ -401,16 +401,20 @@ assert h == """HOA: v1
 States: 3
 Start: 0
 AP: 2 "a" "b"
-acc-name: all
-Acceptance: 0 t
-properties: trans-labels explicit-labels state-acc deterministic
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
 --BODY--
 State: 0
 [0&1] 1
-[!0 | !1] 2
-State: 1
+[0&!1] 2
+[!0] 2
+State: 1 {0}
+[t] 1
 State: 2
-[t] 2
+[0] 2
+[!0] 2
 --END--"""
 
 aut = spot.automaton("""

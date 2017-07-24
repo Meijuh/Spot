@@ -24,3 +24,73 @@ assert not aut.prop_state_acc().is_true()
 aut = spot.sbacc(aut)
 assert aut.num_states() == 2
 assert aut.prop_state_acc().is_true()
+
+
+aut = spot.automaton("""HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 2 Inf(0) | Inf(1)
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0&1] 1
+[0&!1] 2
+State: 1
+[t] 1 {0}
+[0] 0
+State: 2
+[t] 2 {1}
+[0] 1
+--END--""")
+
+s = spot.sbacc(aut)
+h = s.to_str('hoa')
+
+assert h == """HOA: v1
+States: 2
+Start: 0
+AP: 2 "b" "a"
+Acceptance: 2 Inf(0) | Inf(1)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[1] 1
+State: 1 {1}
+[t] 1
+--END--"""
+
+aut = spot.automaton("""HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 2 Inf(0) & Inf(1)
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0&1] 1
+[0&!1] 2
+State: 1
+[t] 1 {0 1}
+[0] 0
+State: 2
+[t] 2 {1 0}
+[0] 1
+--END--""")
+
+d = spot.degeneralize(aut)
+h = d.to_str('hoa')
+
+assert h == """HOA: v1
+States: 2
+Start: 0
+AP: 2 "b" "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[1] 1
+State: 1 {0}
+[t] 1
+--END--"""

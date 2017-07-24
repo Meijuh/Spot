@@ -52,12 +52,22 @@ namespace spot
     std::vector<acc_cond::mark_t> common_out(ns, all);
     // Marks that label one incoming transition from the same SCC.
     std::vector<acc_cond::mark_t> one_in(ns, 0U);
+    std::vector<bool> true_state(ns, false);
+    acc_cond::mark_t true_state_acc = 0U;
+    unsigned true_state_last;
     for (auto& e: old->edges())
       for (unsigned d: old->univ_dests(e.dst))
         if (si.scc_of(e.src) == si.scc_of(d))
           {
             common_in[d] &= e.acc;
             common_out[e.src] &= e.acc;
+            if (e.src == e.dst && e.cond == bddtrue
+                && old->acc().accepting(e.acc))
+              {
+                true_state[d] = true;
+                true_state_acc = e.acc;
+                true_state_last = e.src;
+              }
           }
     for (unsigned s = 0; s < ns; ++s)
       common_out[s] |= common_in[s];
@@ -80,13 +90,29 @@ namespace spot
     auto new_state =
       [&](unsigned state, acc_cond::mark_t m) -> unsigned
       {
+        bool ts = true_state[state];
+        if (ts)
+          {
+            state = true_state_last; // Merge all true states.
+            m = 0U;
+          }
         pair_t x(state, m);
         auto p = s2n.emplace(x, 0);
         if (p.second)                // This is a new state
           {
             unsigned s = res->new_state();
             p.first->second = s;
-            todo.emplace_back(x, s);
+            if (ts)
+              {
+                res->new_edge(s, s, bddtrue, true_state_acc);
+                // As we do not process all outgoing transition of
+                // STATE, it is possible that a non-deterministic
+                // automaton becomes deterministic.
+                if (res->prop_universal().is_false())
+                  res->prop_universal(trival::maybe());
+              }
+            else
+              todo.emplace_back(x, s);
           }
         return p.first->second;
       };
