@@ -209,6 +209,8 @@ namespace
       declare('b', &bool_size_);
       declare('f', &fl_);
       declare('F', &filename_);
+      declare('R', &timer_);
+      declare('r', &timer_);
       declare('L', &line_);
       declare('s', &size_);
       declare('h', &class_);
@@ -220,8 +222,11 @@ namespace
     }
 
     std::ostream&
-    print(const formula_with_location& fl)
+    print(const formula_with_location& fl, spot::process_timer* ptimer)
     {
+      if (has('R') || has('r'))
+        timer_ = *ptimer;
+
       fl_ = &fl;
       filename_ = fl.filename ? fl.filename : "";
       line_ = fl.line;
@@ -252,6 +257,7 @@ namespace
   private:
     const char* format_;
     printable_formula fl_;
+    printable_timer timer_;
     spot::printable_value<const char*> filename_;
     spot::printable_value<int> line_;
     spot::printable_value<const char*> prefix_;
@@ -317,7 +323,7 @@ parse_opt_output(int key, char* arg, struct argp_state*)
 
 static void
 output_formula(std::ostream& out,
-               spot::formula f,
+               spot::formula f, spot::process_timer* ptimer = nullptr,
                const char* filename = nullptr, int linenum = 0,
                const char* prefix = nullptr, const char* suffix = nullptr)
 {
@@ -355,7 +361,7 @@ output_formula(std::ostream& out,
   else
     {
       formula_with_location fl = { f, filename, linenum, prefix, suffix };
-      format->print(fl);
+      format->print(fl, ptimer);
     }
 }
 
@@ -366,7 +372,7 @@ void
 }
 
 void
-output_formula_checked(spot::formula f,
+output_formula_checked(spot::formula f, spot::process_timer* ptimer,
                        const char* filename, int linenum,
                        const char* prefix, const char* suffix)
 {
@@ -384,14 +390,14 @@ output_formula_checked(spot::formula f,
     {
       outputname.str("");
       formula_with_location fl = { f, filename, linenum, prefix, suffix };
-      outputnamer->print(fl);
+      outputnamer->print(fl, ptimer);
       std::string fname = outputname.str();
       auto p = outputfiles.emplace(fname, nullptr);
       if (p.second)
         p.first->second.reset(new output_file(fname.c_str()));
       out = &p.first->second->ostream();
     }
-  output_formula(*out, f, filename, linenum, prefix, suffix);
+  output_formula(*out, f, ptimer, filename, linenum, prefix, suffix);
   *out << output_terminator;
   // Make sure we abort if we can't write to std::cout anymore
   // (like disk full or broken pipe with SIGPIPE ignored).

@@ -26,6 +26,7 @@
 #include <memory>
 #include <spot/tl/formula.hh>
 #include <spot/twaalgos/stats.hh>
+#include <spot/misc/timer.hh>
 #include "common_output.hh"
 #include "common_file.hh"
 
@@ -71,6 +72,7 @@ stream_formula(std::ostream& out,
                spot::formula f, const char* filename, int linenum);
 
 void output_formula_checked(spot::formula f,
+                            spot::process_timer* ptimer = nullptr,
                             const char* filename = nullptr, int linenum = 0,
                             const char* prefix = nullptr,
                             const char* suffix = nullptr);

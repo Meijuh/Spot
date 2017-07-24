@@ -238,6 +238,13 @@ static const argp_option options[] =
       "the name of the input file", 0 },
     { "%L", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the original line number in the input file", 0 },
+    { "%r", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "wall-clock time elapsed in seconds (excluding parsing)", 0 },
+    { "%R, %[LETTERS]R", 0, nullptr,
+      OPTION_DOC | OPTION_NO_USAGE,
+      "CPU time (excluding parsing), in seconds; Add LETTERS to restrict to"
+      "(u) user time, (s) system time, (p) parent process, "
+      "or (c) children processes.", 0 },
     { "%<", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the part of the line before the formula if it "
       "comes from a column extracted from a CSV file", 0 },
@@ -796,7 +803,7 @@ namespace
                                p.second, filename, linenum) << ")\n";
             }
           one_match = true;
-          output_formula_checked(f, filename, linenum, prefix, suffix);
+          output_formula_checked(f, &timer, filename, linenum, prefix, suffix);
           ++match_count;
         }
       return 0;

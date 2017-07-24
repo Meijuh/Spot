@@ -250,13 +250,13 @@ output_pattern(gen::ltl_pattern_id pattern, int n)
 
   if (opt_positive || !opt_negative)
     {
-      output_formula_checked(f, gen::ltl_pattern_name(pattern), n);
+      output_formula_checked(f, nullptr, gen::ltl_pattern_name(pattern), n);
     }
   if (opt_negative)
     {
       std::string tmp = "!";
       tmp += gen::ltl_pattern_name(pattern);
-      output_formula_checked(formula::Not(f), tmp.c_str(), n);
+      output_formula_checked(formula::Not(f), nullptr, tmp.c_str(), n);
     }
 }
 

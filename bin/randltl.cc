@@ -316,7 +316,7 @@ main(int argc, char** argv)
             }
           else
             {
-              output_formula_checked(f, nullptr, ++count);
+              output_formula_checked(f, nullptr, nullptr, ++count);
             }
         };
     }

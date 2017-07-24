@@ -120,7 +120,7 @@ namespace
       auto mutations =
         spot::mutate(f, mut_opts, max_output, mutation_nb, opt_sort);
       for (auto g: mutations)
-        output_formula_checked(g, filename, linenum, prefix, suffix);
+        output_formula_checked(g, nullptr, filename, linenum, prefix, suffix);
       return 0;
     }
   };

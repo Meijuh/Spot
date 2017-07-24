@@ -18,6 +18,15 @@ New in spot 2.4.0.dev (not yet released)
     deterministic co-Büchi automaton using the new functions
     [nsa-dnf]_to_dca() described below.
 
+  - ltlfilt learned to measure wall-time using --format=%r.
+
+  - ltlfilt learned to measure cpu-time (as opposed to wall-time) using
+    --format=%R. User or system time, for children or parent, can be
+    measured separately by adding additional %[LETTER]R options.
+    The difference between %r (wall-clock time) and %R (CPU time) can
+    also be used to detect unreliable measurements. See
+      https://spot.lrde.epita.fr/oaut.html#timing
+
   Library:
 
   - Rename three methods of spot::scc_info. New names are clearer. The
