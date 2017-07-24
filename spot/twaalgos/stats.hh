@@ -103,8 +103,7 @@ namespace spot
     /// The \a f argument is not needed if the Formula does not need
     /// to be output, and so is \a run_time).
     std::ostream&
-      print(const const_twa_graph_ptr& aut, formula f = nullptr,
-            double run_time = -1.);
+      print(const const_twa_graph_ptr& aut, formula f = nullptr);
 
   private:
     const char* format_;
@@ -118,7 +117,6 @@ namespace spot
     printable_value<unsigned> nondetstates_;
     printable_value<unsigned> deterministic_;
     printable_value<unsigned> complete_;
-    printable_value<double> run_time_;
     printable_value<std::string> gen_acc_;
   };
 

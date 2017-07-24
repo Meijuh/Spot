@@ -139,7 +139,7 @@ namespace
                         s.c_str());
         }
 
-      process_timer timer;
+      spot::process_timer timer;
       timer.start();
       auto aut = trans.run(&f);
       timer.stop();

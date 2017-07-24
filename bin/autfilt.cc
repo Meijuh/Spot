@@ -991,7 +991,7 @@ namespace
     int
     process_automaton(const spot::const_parsed_aut_ptr& haut) override
     {
-      process_timer timer;
+      spot::process_timer timer;
       timer.start();
 
       // If --stats or --name is used, duplicate the automaton so we

@@ -290,5 +290,38 @@ namespace spot
     tm_type tm;
   };
 
+  /// \brief Struct used to start and stop  both timer and stopwatch clocks.
+  typedef struct process_timer
+  {
+    void start()
+    {
+      walltimer.start();
+      cputimer.start();
+    }
+    // sw.stop() --> It always returns the duration since the last call to
+    // start(). Therefore, it wont't stop timing, moreover, it can be called
+    // multiple times.
+    void stop()
+    {
+      walltime_lap_ = walltimer.stop();
+      cputimer.stop();
+    }
+
+    double walltime() const
+    {
+      return walltime_lap_;
+    }
+
+    clock_t cputime(bool user, bool system, bool children, bool parent) const
+    {
+      return cputimer.get_uscp(user, system, children, parent);
+    }
+
+  private:
+    spot::timer cputimer;
+    spot::stopwatch walltimer;
+    double walltime_lap_ = 0;
+  } process_timer;
+
   /// @}
 }

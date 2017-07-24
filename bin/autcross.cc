@@ -52,6 +52,7 @@
 #include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/product.hh>
 #include <spot/misc/escape.hh>
+#include <spot/misc/timer.hh>
 
 const char argp_program_doc[] ="\
 Call several tools that process automata and cross-compare their output \
@@ -377,7 +378,7 @@ namespace
       std::string cmd = command.str();
       std::cerr << "Running [" << l << tool_num << "]: "
                 << cmd << std::endl;
-      process_timer timer;
+      spot::process_timer timer;
       timer.start();
       int es = exec_with_timeout(cmd.c_str());
       timer.stop();
@@ -459,7 +460,7 @@ namespace
 
       stats.status_str = status_str;
       stats.status_code = es;
-      stats.time = timer.get_lap_sw();
+      stats.time = timer.walltime();
       if (res)
         {
           stats.ok = true;

@@ -190,7 +190,8 @@ namespace
     }
 
     spot::twa_graph_ptr
-    translate(unsigned int translator_num, bool& problem, process_timer& timer)
+    translate(unsigned int translator_num, bool& problem,
+              spot::process_timer& timer)
     {
       output.reset(translator_num);
 
@@ -343,13 +344,13 @@ namespace
       spot::twa_graph_ptr best_aut = nullptr;
       std::string best_stats;
       std::string best_cmdname;
-      process_timer best_timer;
+      spot::process_timer best_timer;
 
       roundval = round;
       for (unsigned t = 0; t < ts; ++t)
         {
           bool problem;
-          process_timer timer;
+          spot::process_timer timer;
           auto aut = runner.translate(t, problem, timer);
           if (problem)
             {

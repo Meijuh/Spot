@@ -25,8 +25,6 @@
 #include <string>
 #include <vector>
 
-#define UNUSED(expr) do { (void)(expr); } while (0)
-
 namespace spot
 {
   class printable
@@ -87,15 +85,6 @@ namespace spot
       os << val_;
     }
   };
-
-  // This function was defined to avoid compilation error when
-  // instantiating function spot::printable_value<spot::timer>::print
-  // because of: os << val_;
-  std::ostream& operator<<(std::ostream& os, const timer& dt)
-  {
-    UNUSED(dt);
-    return os;
-  }
 
   /// The default callback simply writes "%c".
   class printable_id: public printable

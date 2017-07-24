@@ -122,7 +122,7 @@ namespace
     int
     process_automaton(const spot::const_parsed_aut_ptr& haut) override
     {
-      process_timer timer;
+      spot::process_timer timer;
       timer.start();
       auto nba = spot::to_generalized_buchi(haut->aut);
       auto aut = post.run(nba, nullptr);

@@ -384,6 +384,7 @@ hoa_stat_printer::hoa_stat_printer(std::ostream& os, const char* format,
   declare('F', &filename_);
   declare('L', &location_);
   declare('R', &timer_);
+  declare('r', &timer_);
   if (input != ltl_input)
     declare('f', &filename_);        // Override the formula printer.
   declare('h', &output_aut_);
@@ -396,11 +397,11 @@ std::ostream&
 hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
                         const spot::const_twa_graph_ptr& aut,
                         spot::formula f,
-                        const char* filename, int loc, process_timer& ptimer,
+                        const char* filename, int loc,
+                        spot::process_timer& ptimer,
                         const char* csv_prefix, const char* csv_suffix)
 {
-  timer_ = ptimer.dt;
-  double run_time = ptimer.get_lap_sw();
+  timer_ = ptimer;
 
   filename_ = filename ? filename : "";
   csv_prefix_ = csv_prefix ? csv_prefix : "";
@@ -511,7 +512,7 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
   if (has('x'))
     aut_ap_ = aut->ap();
 
-  auto& res = this->spot::stat_printer::print(aut, f, run_time);
+  auto& res = this->spot::stat_printer::print(aut, f);
   // Make sure we do not store the automaton until the next one is
   // printed, as the registered APs will affect how the next
   // automata are built.
@@ -536,7 +537,7 @@ automaton_printer::automaton_printer(stat_style input)
 void
 automaton_printer::print(const spot::twa_graph_ptr& aut,
                          // Time for statistics
-                         process_timer& ptimer,
+                         spot::process_timer& ptimer,
                          spot::formula f,
                          // Input location for errors and statistics.
                          const char* filename,
@@ -662,11 +663,19 @@ void printable_timer::print(std::ostream& os, const char* pos) const
 #endif
 
   if (*pos != '[')
-  {
-    res = val_.get_uscp(true, true, true, true);
-    os << res / clocks_per_sec;
-    return;
-  }
+    {
+      if (*pos == 'r')
+        {
+          res = val_.walltime();
+          os << res;
+        }
+      else
+        {
+          res = val_.cputime(true, true, true, true);
+          os << res / clocks_per_sec;
+        }
+      return;
+    }
 
   bool user = false;
   bool system = false;
@@ -700,12 +709,15 @@ void printable_timer::print(std::ostream& os, const char* pos) const
       }
   while (*pos != ']');
 
+  if (*(pos + 1) == 'r')
+    percent_error(beg, pos-1);
+
   if (!parent && !children)
     parent = children = true;
   if (!user && !system)
     user = system = true;
 
-  res = val_.get_uscp(user, system, children, parent);
+  res = val_.cputime(user, system, children, parent);
   os << res / clocks_per_sec;
 }
 

@@ -343,7 +343,6 @@ namespace spot
     declare('g', &gen_acc_);
     declare('n', &nondetstates_);
     declare('p', &complete_);
-    declare('r', &run_time_);
     declare('s', &states_);
     declare('S', &scc_);        // Historical.  Deprecated.  Use %c instead.
     declare('t', &trans_);
@@ -353,11 +352,9 @@ namespace spot
   }
 
   std::ostream&
-  stat_printer::print(const const_twa_graph_ptr& aut,
-                      formula f, double run_time)
+  stat_printer::print(const const_twa_graph_ptr& aut, formula f)
   {
     form_ = f;
-    run_time_ = run_time;
 
     if (has('t'))
       {

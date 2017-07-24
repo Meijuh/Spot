@@ -519,7 +519,7 @@ namespace
       std::string cmd = command.str();
       std::cerr << "Running [" << l << translator_num << "]: "
                 << cmd << std::endl;
-      process_timer timer;
+      spot::process_timer timer;
       timer.start();
       int es = exec_with_timeout(cmd.c_str());
       timer.stop();
@@ -603,7 +603,7 @@ namespace
           statistics* st = &(*fstats)[translator_num];
           st->status_str = status_str;
           st->status_code = es;
-          st->time = timer.get_lap_sw();
+          st->time = timer.walltime();
 
           // Compute statistics.
           if (res)

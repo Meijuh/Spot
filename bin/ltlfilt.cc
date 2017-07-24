@@ -36,6 +36,7 @@
 #include "common_range.hh"
 
 #include <spot/misc/hash.hh>
+#include <spot/misc/timer.hh>
 #include <spot/tl/simplify.hh>
 #include <spot/tl/length.hh>
 #include <spot/tl/relabel.hh>
@@ -578,6 +579,10 @@ namespace
     process_formula(spot::formula f,
                     const char* filename = nullptr, int linenum = 0) override
     {
+      spot::process_timer timer;
+      timer.start();
+
+
       if (opt_max_count >= 0 && match_count >= opt_max_count)
         {
           abort_run = true;
@@ -772,6 +777,8 @@ namespace
 
       if (unique && !unique_set.insert(f).second)
         matched = false;
+
+      timer.stop();
 
       if (matched)
         {

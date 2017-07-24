@@ -74,37 +74,17 @@ struct printable_automaton final:
   void print(std::ostream& os, const char* pos) const override;
 };
 
-
-struct process_timer
+struct printable_timer final: public spot::printable
 {
-  void start()
+protected:
+  spot::process_timer val_;
+public:
+  printable_timer& operator=(const spot::process_timer& val)
   {
-    sw.start();
-    dt.start();
+    val_ = val;
+    return *this;
   }
 
-  void stop()
-  {
-    // sw.stop() --> It always returns the duration since the last call to
-    // start(). Therefore, it wont't stop timing, moreover, it can be called
-    // multiple times.
-    sw_lap_ = sw.stop();
-    dt.stop();
-  }
-  double get_lap_sw()
-  {
-    return sw_lap_;
-  }
-
-  spot::timer dt;
-  spot::stopwatch sw;
-  double sw_lap_ = 0;
-};
-
-struct printable_timer final:
-  public spot::printable_value<spot::timer>
-{
-  using spot::printable_value<spot::timer>::operator=;
   void print(std::ostream& os, const char* pos) const override;
 };
 
@@ -166,7 +146,7 @@ public:
     print(const spot::const_parsed_aut_ptr& haut,
         const spot::const_twa_graph_ptr& aut,
         spot::formula f,
-        const char* filename, int loc, process_timer& ptimer,
+        const char* filename, int loc, spot::process_timer& ptimer,
         const char* csv_prefix, const char* csv_suffix);
 
 private:
@@ -210,7 +190,7 @@ public:
 
   void
   print(const spot::twa_graph_ptr& aut,
-        process_timer& ptimer,
+        spot::process_timer& ptimer,
         spot::formula f = nullptr,
         // Input location for errors and statistics.
         const char* filename = nullptr,

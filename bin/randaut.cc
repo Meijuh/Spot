@@ -341,7 +341,7 @@ main(int argc, char** argv)
 
       for (;;)
         {
-          process_timer timer;
+          spot::process_timer timer;
           timer.start();
 
           if (ap_count_given.max > 0

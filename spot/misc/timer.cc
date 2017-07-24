@@ -27,15 +27,6 @@
 
 namespace spot
 {
-  /*
-  std::ostream& operator<<(std::ostream& os, const timer& dt)
-  {
-    os << "utime<" << dt.utime() << ">, cutime<" << dt.cutime()
-      << ">, stime<" << dt.stime() << ">, cstime<" << dt.cstime() << '>';
-    return os;
-  }
-  */
-
 
   std::ostream&
   timer_map::print(std::ostream& os) const

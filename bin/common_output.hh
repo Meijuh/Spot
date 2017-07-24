@@ -104,11 +104,10 @@ public:
 
   std::ostream&
   print(const spot::const_twa_graph_ptr& aut,
-        spot::formula f = nullptr,
-        double run_time = -1.)
+        spot::formula f = nullptr)
   {
     formula_ = f;
-    return this->spot::stat_printer::print(aut, f, run_time);
+    return this->spot::stat_printer::print(aut, f);
   }
 
   printable_formula formula_;
