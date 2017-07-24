@@ -909,7 +909,7 @@ static int mark_roots(void)
 
    /* Make sure the hash is empty. This saves a loop in the initial
       GBC */
-   memset(bddhash, 0, bddnodesize*sizeof(*bddhash));
+   memset(bddhash, 0, bddhashsize*sizeof(*bddhash));
 
    free(dep);
    return 0;
@@ -960,11 +960,11 @@ static void reorder_setLevellookup(void)
    for (n=0 ; n<bddvarnum ; n++)
    {
 #ifdef USERESIZE
-      levels[n].maxsize = bddnodesize / bddvarnum;
+      levels[n].maxsize = bddhashsize / bddvarnum;
       levels[n].start = n * levels[n].maxsize;
       levels[n].size = MIN(levels[n].maxsize, (levels[n].nodenum*5)/4);
 #else
-      levels[n].maxsize = bddnodesize / bddvarnum;
+      levels[n].maxsize = bddhashsize / bddvarnum;
       levels[n].start = n * levels[n].maxsize;
       levels[n].size = levels[n].maxsize;
 #endif
@@ -987,7 +987,7 @@ static void reorder_rehashAll(void)
    reorder_setLevellookup();
    bddfreepos = 0;
 
-   memset(bddhash, 0, sizeof(*bddhash)*bddnodesize);
+   memset(bddhash, 0, sizeof(*bddhash)*bddhashsize);
 
    for (n=bddnodesize-1 ; n>=2 ; n--)
    {

@@ -118,6 +118,7 @@ extern "C" {
 extern int       bddrunning;         /* Flag - package initialized */
 extern int       bdderrorcond;       /* Some error condition was met */
 extern int       bddnodesize;        /* Number of allocated nodes */
+extern int       bddhashsize;        /* Size of node hash tableq */
 extern int       bddmaxnodesize;     /* Maximum allowed number of nodes */
 extern int       bddmaxnodeincrease; /* Max. # of nodes used to inc. table */
 extern BddNode*  bddnodes;           /* All of the bdd nodes */
@@ -130,6 +131,7 @@ extern int*      bddlevel2var;
 extern jmp_buf   bddexception;
 extern int       bddreorderdisabled;
 extern int       bddresized;
+extern int       bddcachesize;
 extern bddCacheStat bddcachestats;
 
   /* from reorder.c */

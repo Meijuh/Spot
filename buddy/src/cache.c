@@ -36,6 +36,7 @@
 *************************************************************************/
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "kernel.h"
 #include "cache.h"
 #include "prime.h"
@@ -50,9 +51,10 @@ void BddCache_reset(BddCache *cache)
     cache->table[n].i.a = -1;
 }
 
+
 int BddCache_init(BddCache *cache, int size)
 {
-   size = bdd_prime_gte(size);
+   size = bdd_nextpower(size);
 
    if ((cache->table=NEW(BddCacheData,size)) == NULL)
       return bdd_error(BDD_MEMORY);

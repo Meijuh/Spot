@@ -40,6 +40,7 @@
 
 unsigned int bdd_prime_gte(unsigned int src);
 unsigned int bdd_prime_lte(unsigned int src);
+unsigned int bdd_nextpower(unsigned int v);
 
 
 #endif /* _PRIME_H */

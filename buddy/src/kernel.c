@@ -101,6 +101,8 @@ int*         bddvar2level;      /* Variable -> level table */
 int*         bddlevel2var;      /* Level -> variable table */
 jmp_buf      bddexception;      /* Long-jump point for interrupting calc. */
 int          bddresized;        /* Flag indicating a resize of the nodetable */
+int          bddcachesize;      /* Size of the operator caches */
+int          bddhashsize;       /* Size of the BDD node hash */
 
 bddCacheStat bddcachestats;
 
@@ -109,7 +111,6 @@ bddCacheStat bddcachestats;
 
 static BDD*     bddvarset;             /* Set of defined BDD variables */
 static int      gbcollectnum;          /* Number of garbage collections */
-static int      cachesize;             /* Size of the operator caches */
 static long int gbcclock;              /* Clock ticks used in GBC */
 static int      usednodes_nextreorder; /* When to do reorder next time */
 static bddinthandler  err_handler;     /* Error handler */
@@ -140,7 +141,7 @@ static const char *errorstrings[BDD_ERRNUM] =
 
 /*=== OTHER INTERNAL DEFINITIONS =======================================*/
 
-#define NODEHASH(lvl,l,h) (TRIPLE(lvl,l,h) % bddnodesize)
+#define NODEHASH(lvl,l,h) (TRIPLE(lvl,l,h) & (bddhashsize - 1))
 
 
 /*************************************************************************
@@ -179,12 +180,13 @@ int bdd_init(int initnodesize, int cs)
    if (bddrunning)
       return bdd_error(BDD_RUNNING);
 
-   bddnodesize = bdd_prime_gte(initnodesize);
+   bddnodesize = initnodesize;
 
    if ((bddnodes=(BddNode*)malloc(sizeof(BddNode)*bddnodesize)) == NULL)
       return bdd_error(BDD_MEMORY);
 
-   if ((bddhash=(int*)calloc(bddnodesize, sizeof(*bddhash))) == NULL)
+   bddhashsize = bdd_nextpower(bddnodesize);
+   if ((bddhash=(int*)calloc(bddhashsize, sizeof(*bddhash))) == NULL)
      {
        free(bddnodes);
        return bdd_error(BDD_MEMORY);
@@ -225,7 +227,7 @@ int bdd_init(int initnodesize, int cs)
    bddvarnum = 0;
    gbcollectnum = 0;
    gbcclock = 0;
-   cachesize = cs;
+   bddcachesize = cs;
    usednodes_nextreorder = bddnodesize;
    bddmaxnodeincrease = DEFAULTMAXNODEINC;
 
@@ -736,7 +738,8 @@ void bdd_stats(bddStat *s)
    s->freenodes = bddfreenum;
    s->minfreenodes = minfreenodes;
    s->varnum = bddvarnum;
-   s->cachesize = cachesize;
+   s->cachesize = bddcachesize;
+   s->hashsize = bddhashsize;
    s->gbcnum = gbcollectnum;
 }
 
@@ -1080,7 +1083,7 @@ void bdd_gbc(void)
 	 bdd_mark(n);
    }
 
-   memset(bddhash, 0, bddnodesize*sizeof(*bddhash));
+   memset(bddhash, 0, bddhashsize*sizeof(*bddhash));
 
    bddfreepos = 0;
    bddfreenum = 0;
@@ -1361,7 +1364,7 @@ int bdd_makenode(unsigned int level, int low, int high)
 #endif
 
       /* Any free nodes to use ? */
-   if (bddfreepos == 0)
+   if (__unlikely(bddfreepos == 0))
    {
       if (bdderrorcond)
 	 return 0;
@@ -1413,20 +1416,19 @@ int bdd_noderesize(int doRehash)
 {
    BddNode *newnodes;
    int oldsize = bddnodesize;
+   int oldhashsize = bddhashsize;
    int n;
 
    if (bddnodesize >= bddmaxnodesize  &&  bddmaxnodesize > 0)
       return -1;
 
-   bddnodesize = bddnodesize << 1;
+   bddnodesize <<= 1;
 
    if (bddnodesize > oldsize + bddmaxnodeincrease)
       bddnodesize = oldsize + bddmaxnodeincrease;
 
    if (bddnodesize > bddmaxnodesize  &&  bddmaxnodesize > 0)
       bddnodesize = bddmaxnodesize;
-
-   bddnodesize = bdd_prime_lte(bddnodesize);
 
    if (resize_handler != NULL)
       resize_handler(oldsize, bddnodesize);
@@ -1436,21 +1438,22 @@ int bdd_noderesize(int doRehash)
       return bdd_error(BDD_MEMORY);
    bddnodes = newnodes;
 
-   /* An error while reallocating bddhash is very unlikely, because
-      the new bddhash should fit easily in the area freed by the old
-      bddnode.  */
+   if (oldhashsize * 2 <= bddnodesize)
+     bddhashsize <<= 1;
+
    if (doRehash)
      {
        free(bddhash);
-       if ((bddhash=(int*)calloc(bddnodesize, sizeof(*bddhash))) == NULL)
+       if ((bddhash=(int*)calloc(bddhashsize, sizeof(*bddhash))) == NULL)
 	 return bdd_error(BDD_MEMORY);
      }
    else
      {
-       bddhash = (int*)realloc(bddhash, sizeof(*bddhash)*bddnodesize);
+       bddhash = (int*)realloc(bddhash, sizeof(*bddhash)*bddhashsize);
        if (bddhash == NULL)
 	 return bdd_error(BDD_MEMORY);
-       memset(bddhash + oldsize, 0, (bddnodesize-oldsize)*sizeof(*bddhash));
+       memset(bddhash + oldhashsize, 0,
+              (bddhashsize-oldhashsize)*sizeof(*bddhash));
      }
 
    /* copy these global variables into local variables to help the

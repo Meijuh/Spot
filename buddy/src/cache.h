@@ -57,7 +57,7 @@ typedef union
 typedef struct
 {
    BddCacheData *table;
-   int tablesize;
+   int tablesize;               /* a power of 2 */
 } BddCache;
 
 
@@ -66,7 +66,7 @@ extern void BddCache_done(BddCache *);
 extern int  BddCache_resize(BddCache *, int);
 extern void BddCache_reset(BddCache *);
 
-#define BddCache_lookup(cache, hash) (&(cache)->table[hash % (cache)->tablesize])
+#define BddCache_lookup(cache, hash) (&(cache)->table[hash & ((cache)->tablesize - 1)])
 
 
 #endif /* _CACHE_H */

@@ -244,6 +244,19 @@ unsigned int bdd_prime_lte(unsigned int src)
   return src;
 }
 
+unsigned int bdd_nextpower(unsigned int v)
+{
+  v--;
+  v |= v >> 1;
+  v |= v >> 2;
+  v |= v >> 4;
+  v |= v >> 8;
+  v |= v >> 16;
+#if INT_MAX > 0x7FFFFFFF
+  v |= v >> 32;
+#endif
+  return v + 1;
+}
 
 
 /*************************************************************************

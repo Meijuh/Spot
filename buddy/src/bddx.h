@@ -154,6 +154,7 @@ DESCR   {* The fields are \\[\baselineskip] \begin{tabular}{lp{10cm}}
 		       garbage collection. \\
   {\tt varnum}       & number of defined bdd variables \\
   {\tt cachesize}    & number of entries in the internal caches \\
+  {\tt hashsize}     & number of entries in the node hash table \\
   {\tt gbcnum}       & number of garbage collections done until now
   \end{tabular} *}
 ALSO    {* bdd\_stats *}
@@ -167,6 +168,7 @@ typedef struct s_bddStat
    int minfreenodes;
    int varnum;
    int cachesize;
+   int hashsize;
    int gbcnum;
 } bddStat;
 

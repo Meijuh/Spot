@@ -261,13 +261,13 @@ static void bdd_operator_noderesize(void)
    if (cacheratio > 0)
    {
       int newcachesize = bddnodesize / cacheratio;
-
       BddCache_resize(&applycache, newcachesize);
       BddCache_resize(&itecache, newcachesize);
       BddCache_resize(&quantcache, newcachesize);
       BddCache_resize(&appexcache, newcachesize);
       BddCache_resize(&replacecache, newcachesize);
       BddCache_resize(&misccache, newcachesize);
+      bddcachesize = misccache.tablesize;
    }
 }
 
