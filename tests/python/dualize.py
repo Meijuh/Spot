@@ -408,13 +408,11 @@ properties: deterministic
 --BODY--
 State: 0
 [0&1] 1
-[0&!1] 2
-[!0] 2
+[!0 | !1] 2
 State: 1 {0}
 [t] 1
 State: 2
-[0] 2
-[!0] 2
+[t] 2
 --END--"""
 
 aut = spot.automaton("""

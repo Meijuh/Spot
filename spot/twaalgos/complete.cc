@@ -108,6 +108,7 @@ namespace spot
       {
         bdd missingcond = bddtrue;
         acc_cond::mark_t acc = 0U;
+        unsigned edge_to_sink = 0;
         for (auto& t: aut->out(i))
           {
             missingcond -= t.cond;
@@ -125,6 +126,8 @@ namespace spot
             // acceptance sets as the last outgoing edge of the
             // state.
             acc = t.acc;
+            if (t.dst == sink)
+              edge_to_sink = aut->edge_number(t);
           }
         // If the state has incomplete successors, we need to add a
         // edge to some sink state.
@@ -136,11 +139,20 @@ namespace spot
                 sink = aut->new_state();
                 aut->new_edge(sink, sink, bddtrue, um.second);
               }
-            // In case the automaton use state-based acceptance, propagate
-            // the acceptance of the first edge to the one we add.
-            if (aut->prop_state_acc() != true)
-              acc = 0U;
-            aut->new_edge(i, sink, missingcond, acc);
+            // If we already have a brother-edge to the sink,
+            // add the missing condition to that edge.
+            if (edge_to_sink)
+              {
+                aut->edge_data(edge_to_sink).cond |= missingcond;
+              }
+            else                // otherwise, create the new edge.
+              {
+                // in case the automaton use state-based acceptance, propagate
+                // the acceptance of the first edge to the one we add.
+                if (!aut->prop_state_acc().is_true())
+                  acc = 0U;
+                aut->new_edge(i, sink, missingcond, acc);
+              }
           }
       }
 
