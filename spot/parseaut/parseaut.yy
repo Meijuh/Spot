@@ -2338,7 +2338,7 @@ static void fix_initial_state(result_& r)
 
 static void fix_properties(result_& r)
 {
-  r.aut_or_ks->prop_deterministic(r.deterministic);
+  r.aut_or_ks->prop_universal(r.deterministic);
   // std::cerr << "fix det: " << r.deterministic << '\n';
   // std::cerr << "fix complete: " << r.complete << '\n';
   r.aut_or_ks->prop_complete(r.complete);
