@@ -914,7 +914,7 @@ namespace spot
     while ((cube = isop.next()) != bddfalse)
       {
         mark_t i = 0U;
-        acc_code c;
+        acc_code f;
         while (cube != bddtrue)
           {
             // The acceptance set associated to this BDD variable
@@ -928,8 +928,7 @@ namespace spot
                 // The strange order here make sure we can smaller set
                 // numbers at the end of the acceptance code, i.e., at
                 // the front of the output.
-                auto a = fin(s) & std::move(c);
-                std::swap(a, c);
+                f = fin(s) & f;
               }
             else                // Positive variable? -> Inf
               {
@@ -937,10 +936,8 @@ namespace spot
                 cube = h;
               }
           }
-        c &= inf(i);
         // See comment above for the order.
-        c |= std::move(rescode);
-        std::swap(c, rescode);
+        rescode = (inf(i) & f) | rescode;
       }
 
     return rescode;
@@ -986,7 +983,7 @@ namespace spot
     while ((cube = isop.next()) != bddfalse)
       {
         mark_t m = 0U;
-        acc_code c = f();
+        acc_code i = f();
         while (cube != bddtrue)
           {
             // The acceptance set associated to this BDD variable
@@ -1000,8 +997,7 @@ namespace spot
                 // The strange order here make sure we can smaller set
                 // numbers at the end of the acceptance code, i.e., at
                 // the front of the output.
-                auto a = inf(s) | std::move(c);
-                std::swap(a, c);
+                i = inf(s) | i;
               }
             else                // Positive variable? -> Fin
               {
@@ -1009,10 +1005,8 @@ namespace spot
                 cube = h;
               }
           }
-        c |= fin(m);
         // See comment above for the order.
-        c &= std::move(rescode);
-        std::swap(c, rescode);
+        rescode = (fin(m) | i) & rescode;
       }
     return rescode;
   }

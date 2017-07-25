@@ -578,11 +578,11 @@ namespace spot
         unsigned n = 0;
         for (Iterator i = begin; i != end; ++i)
           {
-            acc_cond::acc_code pair = fin({n++});
+            unsigned f = n++;
             acc_cond::mark_t m = 0U;
             for (unsigned ni = *i; ni > 0; --ni)
               m.set(n++);
-            pair &= inf(m);
+            auto pair = inf(m) & fin({f});
             std::swap(pair, res);
             res |= std::move(pair);
           }
@@ -596,100 +596,6 @@ namespace spot
       // acceptance formula.
       static acc_code random(unsigned n, double reuse = 0.0);
 
-      acc_code& operator&=(acc_code&& r)
-      {
-        if (is_t() || r.is_f())
-          {
-            *this = std::move(r);
-            return *this;
-          }
-        if (is_f() || r.is_t())
-          return *this;
-        unsigned s = size() - 1;
-        unsigned rs = r.size() - 1;
-        // We want to group all Inf(x) operators:
-        //   Inf(a) & Inf(b) = Inf(a & b)
-        if (((*this)[s].sub.op == acc_op::Inf
-             && r[rs].sub.op == acc_op::Inf)
-            || ((*this)[s].sub.op == acc_op::InfNeg
-                && r[rs].sub.op == acc_op::InfNeg))
-          {
-            (*this)[s - 1].mark |= r[rs - 1].mark;
-            return *this;
-          }
-
-        // In the more complex scenarios, left and right may both
-        // be conjunctions, and Inf(x) might be a member of each
-        // side.  Find it if it exists.
-        // left_inf points to the left Inf mark if any.
-        // right_inf points to the right Inf mark if any.
-        acc_word* left_inf = nullptr;
-        if ((*this)[s].sub.op == acc_op::And)
-          {
-            auto start = &(*this)[s] - (*this)[s].sub.size;
-            auto pos = &(*this)[s] - 1;
-            pop_back();
-            while (pos > start)
-              {
-                if (pos->sub.op == acc_op::Inf)
-                  {
-                    left_inf = pos - 1;
-                    break;
-                  }
-                pos -= pos->sub.size + 1;
-              }
-          }
-        else if ((*this)[s].sub.op == acc_op::Inf)
-          {
-            left_inf = &(*this)[s - 1];
-          }
-
-        acc_word* right_inf = nullptr;
-        auto right_end = &r.back();
-        if (right_end->sub.op == acc_op::And)
-          {
-            auto start = &r[0];
-            auto pos = --right_end;
-            while (pos > start)
-            {
-              if (pos->sub.op == acc_op::Inf)
-                {
-                  right_inf = pos - 1;
-                  break;
-                }
-              pos -= pos->sub.size + 1;
-            }
-          }
-        else if (right_end->sub.op == acc_op::Inf)
-          {
-            right_inf = right_end - 1;
-          }
-
-        if (left_inf && right_inf)
-          {
-            left_inf->mark |= right_inf->mark;
-            insert(this->end(), &r[0], right_inf);
-            insert(this->end(), right_inf + 2, right_end + 1);
-          }
-        else if (right_inf)
-          {
-            // Always insert Inf() at the very first entry.
-            insert(this->begin(), right_inf, right_inf + 2);
-            insert(this->end(), &r[0], right_inf);
-            insert(this->end(), right_inf + 2, right_end + 1);
-          }
-        else
-          {
-            insert(this->end(), &r[0], right_end + 1);
-          }
-
-        acc_word w;
-        w.sub.op = acc_op::And;
-        w.sub.size = size();
-        emplace_back(w);
-        return *this;
-      }
-
       acc_code& operator&=(const acc_code& r)
       {
         if (is_t() || r.is_f())
@@ -701,7 +607,8 @@ namespace spot
           return *this;
         unsigned s = size() - 1;
         unsigned rs = r.size() - 1;
-        // Inf(a) & Inf(b) = Inf(a & b)
+        // We want to group all Inf(x) operators:
+        //   Inf(a) & Inf(b) = Inf(a & b)
         if (((*this)[s].sub.op == acc_op::Inf
              && r[rs].sub.op == acc_op::Inf)
             || ((*this)[s].sub.op == acc_op::InfNeg
@@ -758,29 +665,28 @@ namespace spot
             right_inf = right_end - 1;
           }
 
+        acc_cond::mark_t carry = 0U;
         if (left_inf && right_inf)
           {
-            left_inf->mark |= right_inf->mark;
-            insert(this->end(), &r[0], right_inf);
-            insert(this->end(), right_inf + 2, right_end + 1);
+            carry = left_inf->mark;
+            auto pos = left_inf - &(*this)[0];
+            erase(begin() + pos, begin() + pos + 2);
           }
-        else if (right_inf)
-          {
-            // Always insert Inf() at the very first entry.
-            insert(this->begin(), right_inf, right_inf + 2);
-            insert(this->end(), &r[0], right_inf);
-            insert(this->end(), right_inf + 2, right_end + 1);
-          }
-        else
-          {
-            insert(this->end(), &r[0], right_end + 1);
-          }
+        auto sz = size();
+        insert(end(), &r[0], right_end + 1);
+        if (carry)
+          (*this)[sz + (right_inf - &r[0])].mark |= carry;
 
         acc_word w;
         w.sub.op = acc_op::And;
         w.sub.size = size();
         emplace_back(w);
         return *this;
+      }
+
+      acc_code operator&(const acc_code& r)
+      {
+        return *this &= r;
       }
 
       acc_code operator&(acc_code&& r)
@@ -790,20 +696,13 @@ namespace spot
         return res;
       }
 
-      acc_code operator&(const acc_code& r)
-      {
-        acc_code res = *this;
-        res &= r;
-        return res;
-      }
-
-      acc_code& operator|=(acc_code&& r)
+      acc_code& operator|=(const acc_code& r)
       {
         if (is_t() || r.is_f())
           return *this;
         if (is_f() || r.is_t())
           {
-            *this = std::move(r);
+            *this = r;
             return *this;
           }
         unsigned s = size() - 1;
@@ -817,21 +716,70 @@ namespace spot
             (*this)[s - 1].mark |= r[rs - 1].mark;
             return *this;
           }
+
+        // In the more complex scenarios, left and right may both
+        // be disjunctions, and Fin(x) might be a member of each
+        // side.  Find it if it exists.
+        // left_inf points to the left Inf mark if any.
+        // right_inf points to the right Inf mark if any.
+        acc_word* left_fin = nullptr;
         if ((*this)[s].sub.op == acc_op::Or)
-          pop_back();
-        if (r.back().sub.op == acc_op::Or)
-          r.pop_back();
-        insert(this->end(), r.begin(), r.end());
+          {
+            auto start = &(*this)[s] - (*this)[s].sub.size;
+            auto pos = &(*this)[s] - 1;
+            pop_back();
+            while (pos > start)
+              {
+                if (pos->sub.op == acc_op::Fin)
+                  {
+                    left_fin = pos - 1;
+                    break;
+                  }
+                pos -= pos->sub.size + 1;
+              }
+          }
+        else if ((*this)[s].sub.op == acc_op::Fin)
+          {
+            left_fin = &(*this)[s - 1];
+          }
+
+        const acc_word* right_fin = nullptr;
+        auto right_end = &r.back();
+        if (right_end->sub.op == acc_op::Or)
+          {
+            auto start = &r[0];
+            auto pos = --right_end;
+            while (pos > start)
+            {
+              if (pos->sub.op == acc_op::Fin)
+                {
+                  right_fin = pos - 1;
+                  break;
+                }
+              pos -= pos->sub.size + 1;
+            }
+          }
+        else if (right_end->sub.op == acc_op::Fin)
+          {
+            right_fin = right_end - 1;
+          }
+
+        acc_cond::mark_t carry = 0U;
+        if (left_fin && right_fin)
+          {
+            carry = left_fin->mark;
+            auto pos = (left_fin - &(*this)[0]);
+            this->erase(begin() + pos, begin() + pos + 2);
+          }
+        auto sz = size();
+        insert(end(), &r[0], right_end + 1);
+        if (carry)
+          (*this)[sz + (right_fin - &r[0])].mark |= carry;
         acc_word w;
         w.sub.op = acc_op::Or;
         w.sub.size = size();
         emplace_back(w);
         return *this;
-      }
-
-      acc_code& operator|=(const acc_code& r)
-      {
-        return *this |= acc_code(r);
       }
 
       acc_code operator|(acc_code&& r)
@@ -841,11 +789,9 @@ namespace spot
         return res;
       }
 
-      acc_code operator|(const acc_code& r)
+      acc_code& operator|(const acc_code& r)
       {
-        acc_code res = *this;
-        res |= r;
-        return res;
+        return *this |= r;
       }
 
       acc_code& operator<<=(unsigned sets)

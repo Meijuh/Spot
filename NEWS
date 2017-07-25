@@ -156,6 +156,12 @@ New in spot 2.3.5.dev (not yet released)
   - If the SPOT_BDD_TRACE envorinment variable is set, statistics
     about BDD garbage collection and table resizing are shown.
 
+  - The & and | operators for acceptannce conditions have been changed
+    slightly to be more symmetrical.  In older version, operator &
+    would move Fin() terms to the front, but that is not the case
+    anymore.  Also operator & was already grouping all Inf() terms
+    (for efficiency reasons), in this version operator | is
+    symmetrically grouping all Fin() terms.
 
   Python:
 

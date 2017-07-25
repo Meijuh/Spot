@@ -74,7 +74,7 @@ run 0 autfilt --dot=as in.hoa > out.dot
 cat <<EOF >expected
 digraph G {
   rankdir=LR
-  label="Fin(2) & (Inf(0)&Inf(1))"
+  label="(Inf(0)&Inf(1)) & Fin(2)"
   labelloc="t"
   node [shape="circle"]
   I [label="", style=invis, width=0]
@@ -156,7 +156,7 @@ HOA: v1
 States: 8
 Start: 0
 AP: 2 "a" "b"
-Acceptance: 3 Fin(2) & (Inf(0)&Inf(1))
+Acceptance: 3 (Inf(0)&Inf(1)) & Fin(2)
 properties: trans-labels explicit-labels trans-acc
 --BODY--
 State: 0

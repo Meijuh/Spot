@@ -470,7 +470,7 @@ EOF
 cat >expected <<EOF
 digraph G {
   rankdir=LR
-  label="Fin(⓿) | (Fin(❶) & Inf(❷)) | Fin(❸)"
+  label="(Fin(⓿)|Fin(❸)) | (Fin(❶) & Inf(❷))"
   labelloc="t"
   I [label="", style=invis, width=0]
   I -> 0
@@ -524,7 +524,7 @@ diff out expected
 cat >expected2 <<EOF
 digraph G {
   rankdir=LR
-  label="Fin(⓿) | (Fin(❶) & Inf(❷)) | Fin(❸)"
+  label="(Fin(⓿)|Fin(❸)) | (Fin(❶) & Inf(❷))"
   labelloc="t"
   node [shape="circle"]
   I [label="", style=invis, width=0]

@@ -193,8 +193,7 @@ namespace spot
               for (auto m: seen_fin.sets())
                 inf.front().mark -= complement[m];
 
-              res &= inf;
-              return res;
+              return inf & res;
             }
           case acc_cond::acc_op::Or:
             {
@@ -225,8 +224,7 @@ namespace spot
               for (auto m: seen_inf.sets())
                 fin.front().mark -= complement[m];
 
-              res |= fin;
-              return res;
+              return res | fin;
             }
           case acc_cond::acc_op::Fin:
             return acc_cond::acc_code::fin(pos[-1].mark);

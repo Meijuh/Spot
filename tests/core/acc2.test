@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Laboratoire de Recherche et Développement
+# Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -71,13 +71,13 @@ diff acceptances output
 
 #------------- CNF -------------
 
-res="(Fin(2) | Inf(1)) & (Fin(1) | Inf(3)) & Inf(0)"
+res="Inf(0) & (Inf(1) | Fin(2)) & (Inf(3) | Fin(1))"
 cat >acceptances<<EOF
 2 Inf(0)&Inf(1), 2 Inf(0)&Inf(1)
 2 Fin(0) & Inf(1), 2 Fin(0) & Inf(1)
 2 t, 2 t
 2 f, 2 f
-3 (Inf(1) | Fin(2)) & Inf(0), 3 (Fin(2) | Inf(1)) & Inf(0)
+3 (Inf(1) | Fin(2)) & Inf(0), 3 Inf(0) & (Inf(1) | Fin(2))
 4 (Fin(1) & Fin(2) & Inf(0)) | (Inf(0)&Inf(1)&Inf(3)), 4 $res
 4 $res, 4 $res
 3 (Fin(0) & Fin(2)) | (Fin(1) & Fin(2)), 3 (Fin(0)|Fin(1)) & Fin(2)
@@ -94,7 +94,7 @@ diff acceptances output
 #------------- COMP -------------
 
 a="(Inf(1) | Fin(2)) & (Fin(1) | Inf(3)) & Inf(0)"
-b="(Fin(1) & Inf(2)) | (Fin(3) & Inf(1)) | Fin(0)"
+b="(Fin(1) & Inf(2)) | (Inf(1) & Fin(3)) | Fin(0)"
 cat >acceptances<<EOF
 2 Inf(0)&Inf(1), 2 Fin(0)|Fin(1)
 2 Fin(0) & Inf(1), 2 Inf(0) | Fin(1)
@@ -102,7 +102,7 @@ cat >acceptances<<EOF
 2 f, 2 t
 3 (Inf(1) | Fin(2)) & Inf(0), 3 (Fin(1) & Inf(2)) | Fin(0)
 4 $a, 4 $b
-4 $b, 4 (Inf(1) | Fin(2)) & (Inf(3) | Fin(1)) & Inf(0)
+4 $b, 4 (Inf(1) | Fin(2)) & (Fin(1) | Inf(3)) & Inf(0)
 3 (Fin(0)|Fin(1)) & Fin(2), 3 (Inf(0)&Inf(1)) | Inf(2)
 EOF
 
