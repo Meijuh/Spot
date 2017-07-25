@@ -19,7 +19,6 @@
 
 #include <numeric>
 #include <spot/twa/twa.hh>
-#include <spot/twaalgos/copy.hh>
 #include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/langmap.hh>
@@ -43,29 +42,26 @@ namespace spot
 
     // Prepare all automatons needed.
     for (unsigned i = 0; i < n_states; ++i)
-    {
-      twa_graph_ptr c = copy(aut, twa::prop_set::all());
-      c->set_init_state(i);
-      alt_init_st_auts[i] = c;
-
-      twa_graph_ptr cc =
-        remove_fin(dualize(copy(c, twa::prop_set::all())));
-      compl_alt_init_st_auts[i] = cc;
-    }
+      {
+        twa_graph_ptr c = make_twa_graph(aut, twa::prop_set::all());
+        c->set_init_state(i);
+        alt_init_st_auts[i] = c;
+        compl_alt_init_st_auts[i] = remove_fin(dualize(c));
+      }
 
     for (unsigned i = 1; i < n_states; ++i)
       for (unsigned j = 0; j < i; ++j)
-      {
-        if (res[j] != j)
-          continue;
-
-        if (!alt_init_st_auts[i]->intersects(compl_alt_init_st_auts[j])
-          && (!compl_alt_init_st_auts[i]->intersects(alt_init_st_auts[j])))
         {
-          res[i] = res[j];
-          break;
+          if (res[j] != j)
+            continue;
+
+          if (!alt_init_st_auts[i]->intersects(compl_alt_init_st_auts[j])
+              && (!compl_alt_init_st_auts[i]->intersects(alt_init_st_auts[j])))
+            {
+              res[i] = res[j];
+              break;
+            }
         }
-      }
 
     return res;
   }

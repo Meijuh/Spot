@@ -263,7 +263,7 @@ that provide a function with a similar service.
 | ~tgbaalgos/dtbasat.hh~             | ~spot/twaalgos/dtbasat.hh~         |                                                  |
 | ~tgbaalgos/dtgbacomp.hh~           | ~spot/twaalgos/complement.hh~      |                                                  |
 | ~tgbaalgos/dtgbasat.hh~            | ~spot/twaalgos/dtwasat.hh~         |                                                  |
-| ~tgbaalgos/dupexp.hh~              | ~spot/twaalgos/copy.hh~            | also a copy constructor of twa                   |
+| ~tgbaalgos/dupexp.hh~              | ~spot/twaalgos/twagraph.hh~        | constructor of twa_graph                         |
 | ~tgbaalgos/eltl2tgba_lacim.hh~     |                                    | not supported anymore                            |
 | ~tgbaalgos/emptiness.hh~           | ~spot/twaalgos/emptiness.hh~       |                                                  |
 | ~tgbaalgos/emptiness_stats.hh~     | ~spot/twaalgos/emptiness_stats.hh~ |                                                  |
@@ -615,7 +615,7 @@ for (auto i: aut->succ(s))
 | ~dstar_parse()~                                             | ~parse_aut()~                               | single parser for all automata                            |
 | ~dtgba_complement()~                                        | ~dtwa_complement()~                         |                                                           |
 | ~dupexp_bfs()~                                              |                                             | deleted                                                   |
-| ~dupexp_dfs()~                                              | ~copy()~                                    |                                                           |
+| ~dupexp_dfs()~                                              | ~make_twa_graph()~                          |                                                           |
 | ~format_parse_aut_errors()~                                 | ~parsed_aut::format_errors()~               |                                                           |
 | ~emptiness_check_instantiator::construct()~                 | ~make_emptiness_check_instantiator()~       |                                                           |
 | ~emptiness_check_instantiator::max_acceptance_conditions()~ | ~emptiness_check_instantiator::max_sets()~  |                                                           |

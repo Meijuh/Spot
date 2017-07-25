@@ -23,7 +23,6 @@
 #include <spot/graph/ngraph.hh>
 #include <spot/twa/bdddict.hh>
 #include <spot/twa/twa.hh>
-#include <spot/twaalgos/copy.hh>
 #include <spot/tl/formula.hh>
 #include <sstream>
 
@@ -612,30 +611,42 @@ namespace spot
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states);
   };
 
+  /// \ingroup twa
+  /// \brief Build an explicit automaton from all states of \a aut,
   inline twa_graph_ptr make_twa_graph(const bdd_dict_ptr& dict)
   {
     return std::make_shared<twa_graph>(dict);
   }
 
+  /// \ingroup twa
+  /// \brief Build an explicit automaton from all states of \a aut,
   inline twa_graph_ptr make_twa_graph(const twa_graph_ptr& aut,
                                       twa::prop_set p)
   {
     return std::make_shared<twa_graph>(aut, p);
   }
 
+  /// \ingroup twa
+  /// \brief Build an explicit automaton from all states of \a aut,
   inline twa_graph_ptr make_twa_graph(const const_twa_graph_ptr& aut,
                                       twa::prop_set p)
   {
     return std::make_shared<twa_graph>(aut, p);
   }
 
-  inline twa_graph_ptr make_twa_graph(const const_twa_ptr& aut,
-                                      twa::prop_set p)
-  {
-    auto a = std::dynamic_pointer_cast<const twa_graph>(aut);
-    if (a)
-      return std::make_shared<twa_graph>(a, p);
-    else
-      return copy(aut, p);
-  }
+  /// \ingroup twa
+  /// \brief Build an explicit automaton from all states of \a aut,
+  ///
+  /// This overload works using the abstract interface for automata.
+  ///
+  /// Set \a preserve_names to preserve state names, and set \a max_states
+  /// to a maximum number of states to keep.  States with successors that
+  /// have not been kept will be marked as incomplete; this is mostly useful
+  /// to display a subset of a large state space.
+  SPOT_API twa_graph_ptr
+  make_twa_graph(const const_twa_ptr& aut, twa::prop_set p,
+                 bool preserve_names = false,
+                 // parentheses for SWIG, see
+                 // https://github.com/swig/swig/issues/993
+                 unsigned max_states = -(1U));
 }

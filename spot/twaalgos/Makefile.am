@@ -98,7 +98,6 @@ libtwaalgos_la_SOURCES = \
   complete.cc \
   complement.cc \
   compsusp.cc \
-  copy.cc \
   cycles.cc \
   degen.cc \
   determinize.cc \

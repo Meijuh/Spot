@@ -121,7 +121,6 @@
 #include <spot/twaalgos/degen.hh>
 #include <spot/twaalgos/dot.hh>
 #include <spot/twaalgos/dualize.hh>
-#include <spot/twaalgos/copy.hh>
 #include <spot/twaalgos/complete.hh>
 #include <spot/twaalgos/complement.hh>
 #include <spot/twaalgos/emptiness.hh>
@@ -537,7 +536,6 @@ def state_is_accepting(self, src) -> "bool":
 %include <spot/twaalgos/cleanacc.hh>
 %include <spot/twaalgos/degen.hh>
 %include <spot/twaalgos/dot.hh>
-%include <spot/twaalgos/copy.hh>
 %include <spot/twaalgos/complete.hh>
 %feature("flatnested") spot::twa_run::step;
 %include <spot/twaalgos/emptiness.hh>

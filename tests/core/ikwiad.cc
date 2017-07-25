@@ -39,7 +39,6 @@
 #include <spot/twaalgos/degen.hh>
 #include <spot/twa/twaproduct.hh>
 #include <spot/parseaut/public.hh>
-#include <spot/twaalgos/copy.hh>
 #include <spot/twaalgos/minimize.hh>
 #include <spot/taalgos/minimize.hh>
 #include <spot/twaalgos/neverclaim.hh>
@@ -1185,7 +1184,7 @@ checked_main(int argc, char** argv)
         }
 
       if (dupexp)
-        a = copy(a, spot::twa::prop_set::all());
+        a = make_twa_graph(a, spot::twa::prop_set::all());
 
       //TA, STA, GTA, SGTA and TGTA
       if (ta_opt || tgta_opt)

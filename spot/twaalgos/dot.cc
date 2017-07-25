@@ -30,7 +30,6 @@
 #include <spot/misc/escape.hh>
 #include <spot/twa/twagraph.hh>
 #include <spot/twa/formula2bdd.hh>
-#include <spot/twaalgos/copy.hh>
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/kripke/fairkripke.hh>
 #include <cstdlib>
@@ -833,7 +832,7 @@ namespace spot
       d.parse_opts("k");
     auto aut = std::dynamic_pointer_cast<const twa_graph>(g);
     if (!aut || (d.max_states_given() && aut->num_states() >= d.max_states()))
-      aut = copy(g, twa::prop_set::all(), true, d.max_states() - 1);
+      aut = make_twa_graph(g, twa::prop_set::all(), true, d.max_states() - 1);
     d.print(aut);
     return os;
   }

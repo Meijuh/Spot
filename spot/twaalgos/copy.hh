@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2012-2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
-// Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
+// Copyright (C) 2003-2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
 //
@@ -23,18 +23,20 @@
 #pragma once
 
 #include <spot/misc/common.hh>
-#include <spot/twa/fwd.hh>
-#include <spot/twa/twa.hh>
+#include <spot/twa/twagraph.hh>
 
 namespace spot
 {
   /// \ingroup twa_misc
   /// \brief Build an explicit automaton from all states of \a aut,
   ///
-  /// This works using the abstract interface for automata.  If you
-  /// have a twa_graph that you want to copy, it is more efficient
-  /// to call make_twa_graph() instead.
+  /// This function was deprecated in Spot 2.4.  Use the
+  /// function make_twa_graph() instead.
+  SPOT_DEPRECATED("use make_twa_graph() instead")
   SPOT_API twa_graph_ptr
-  copy(const const_twa_ptr& aut, twa::prop_set p,
-       bool preserve_names = false, unsigned max_states = -1U);
+  inline copy(const const_twa_ptr& aut, twa::prop_set p,
+              bool preserve_names = false, unsigned max_states = -1U)
+  {
+    return make_twa_graph(aut, p, preserve_names, max_states);
+  }
 }

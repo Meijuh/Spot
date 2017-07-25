@@ -196,6 +196,9 @@ New in spot 2.3.5.dev (not yet released)
     spot::twa::prop_deterministic() as a deprecated synonym for
     spot::twa::prop_universal() to help backward compatibility.
 
+  - The spot::copy() function is deprecated.  Use
+    spot::make_twa_graph() instead.
+
 New in spot 2.3.5 (2017-06-22)
 
   Bugs fixed:
