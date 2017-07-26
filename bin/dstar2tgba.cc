@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -108,110 +108,20 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 namespace
 {
-  class dstar_processor final: public job_processor
+  class dstar_processor final: public hoa_processor
   {
   public:
     spot::postprocessor& post;
     automaton_printer printer;
 
     dstar_processor(spot::postprocessor& post)
-      : post(post), printer(aut_input)
+      : hoa_processor(spot::make_bdd_dict()), post(post), printer(aut_input)
     {
     }
-
-    int
-    process_formula(spot::formula, const char*, int) override
-    {
-      SPOT_UNREACHABLE();
-    }
-
-    int process_string(const std::string& input, const char* filename,
-                       int linenum) override
-    {
-      std::ostringstream loc;
-      loc << filename << ':' << linenum;
-      std::string locstr = loc.str();
-      return process_automaton_stream
-        (spot::automaton_stream_parser(input.c_str(), locstr, opt_parse),
-         locstr.c_str());
-    }
-
-    int
-    aborted(const spot::const_parsed_aut_ptr& h, const char* filename)
-    {
-      std::cerr << filename << ':' << h->loc << ": aborted input automaton\n";
-      return 2;
-    }
-
-    int
-    process_file(const char* filename) override
-    {
-      // If we have a filename like "foo/NN" such
-      // that:
-      // ① foo/NN is not a file,
-      // ② NN is a number,
-      // ③ foo is a file,
-      // then it means we want to open foo as
-      // a CSV file and process column NN.
-      if (const char* slash = strrchr(filename, '/'))
-        {
-          char* end;
-          errno = 0;
-          long int col = strtol(slash + 1, &end, 10);
-          if (errno == 0 && !*end && col != 0)
-            {
-              struct stat buf;
-              if (stat(filename, &buf) != 0)
-                {
-                  col_to_read = col;
-                  if (real_filename)
-                    free(real_filename);
-                  real_filename = strndup(filename, slash - filename);
-
-                  // Special case for stdin.
-                  if (real_filename[0] == '-' && real_filename[1] == 0)
-                    return process_stream(std::cin, real_filename);
-
-                  std::ifstream input(real_filename);
-                  if (input)
-                    return process_stream(input, real_filename);
-
-                  error(2, errno, "cannot open '%s' nor '%s'",
-                        filename, real_filename);
-                }
-            }
-        }
-
-      return process_automaton_stream(spot::automaton_stream_parser(filename,
-                                                                    opt_parse),
-                                      filename);
-    }
-
-    int process_automaton_stream(spot::automaton_stream_parser&& hp,
-                                 const char* filename)
-    {
-      int err = 0;
-      while (!abort_run)
-        {
-          auto haut = hp.parse(spot::make_bdd_dict());
-          if (!haut->aut && haut->errors.empty())
-            break;
-          if (haut->format_errors(std::cerr))
-            err = 2;
-          if (!haut->aut)
-            error(2, 0, "failed to read automaton from %s", filename);
-          else if (haut->aborted)
-            err = std::max(err, aborted(haut, filename));
-          else
-            process_automaton(haut, filename);
-        }
-      return err;
-    }
-
 
     int
     process_automaton(const spot::const_parsed_aut_ptr& haut,
-                      const char* filename)
+                      const char* filename) override
     {
       process_timer timer;
       timer.start();
