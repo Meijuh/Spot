@@ -31,7 +31,7 @@
 extern const struct argp trans_argp;
 extern bool opt_relabel;
 
-struct translator_spec
+struct tool_spec
 {
   // The translator command, as specified on the command-line.
   // If this has the form of
@@ -44,13 +44,13 @@ struct translator_spec
   // name of the translator (or spec)
   const char* name;
 
-  translator_spec(const char* spec);
-  translator_spec(const translator_spec& other);
-  translator_spec& operator=(const translator_spec& other);
-  ~translator_spec();
+  tool_spec(const char* spec);
+  tool_spec(const tool_spec& other);
+  tool_spec& operator=(const tool_spec& other);
+  ~tool_spec();
 };
 
-extern std::vector<translator_spec> translators;
+extern std::vector<tool_spec> tools;
 
 struct quoted_string final: public spot::printable_value<std::string>
 {

@@ -73,7 +73,7 @@ static void show_shorthands()
 }
 
 
-translator_spec::translator_spec(const char* spec)
+tool_spec::tool_spec(const char* spec)
   : spec(spec), cmd(spec), name(spec)
 {
   if (*cmd == '{')
@@ -134,7 +134,7 @@ translator_spec::translator_spec(const char* spec)
     cmd = strdup(cmd);
 }
 
-translator_spec::translator_spec(const translator_spec& other)
+tool_spec::tool_spec(const tool_spec& other)
   : spec(other.spec), cmd(other.cmd), name(other.name)
 {
   if (cmd != spec)
@@ -143,7 +143,7 @@ translator_spec::translator_spec(const translator_spec& other)
     name = strdup(name);
 }
 
-translator_spec& translator_spec::operator=(const translator_spec& other)
+tool_spec& tool_spec::operator=(const tool_spec& other)
 {
   spec = other.spec;
   cmd = other.cmd;
@@ -155,7 +155,7 @@ translator_spec& translator_spec::operator=(const translator_spec& other)
   return *this;
 }
 
-translator_spec::~translator_spec()
+tool_spec::~tool_spec()
 {
   if (name != spec)
     free(const_cast<char*>(name));
@@ -163,7 +163,7 @@ translator_spec::~translator_spec()
     free(const_cast<char*>(cmd));
 }
 
-std::vector<translator_spec> translators;
+std::vector<tool_spec> tools;
 
 void
 quoted_string::print(std::ostream& os, const char*) const
@@ -296,14 +296,14 @@ translator_runner::translator_runner(spot::bdd_dict_ptr dict,
   declare('T', &output);
   declare('O', &output);
 
-  size_t s = translators.size();
+  size_t s = tools.size();
   assert(s);
   for (size_t n = 0; n < s; ++n)
     {
       // Check that each translator uses at least one input and
       // one output.
       std::vector<bool> has(256);
-      const translator_spec& t = translators[n];
+      const tool_spec& t = tools[n];
       scan(t.cmd, has);
       if (!(has['f'] || has['s'] || has['l'] || has['w']
             || has['F'] || has['S'] || has['L'] || has['W']))
@@ -317,7 +317,7 @@ translator_runner::translator_runner(spot::bdd_dict_ptr dict,
         error(2, 0, "no output %%-sequence in '%s'.\n      Use  "
               "%%O to indicate where the automaton is output.",
               t.spec);
-      // Remember the %-sequences used by all translators.
+      // Remember the %-sequences used by all tools.
       prime(t.cmd);
     }
 }
@@ -675,7 +675,7 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
   switch (key)
     {
     case 't':
-      translators.push_back(arg);
+      tools.push_back(arg);
       break;
     case 'T':
       timeout = to_pos_int(arg);

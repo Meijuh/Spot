@@ -171,7 +171,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (arg[0] == '-' && !arg[1])
         jobs.emplace_back(arg, true);
       else
-        translators.push_back(arg);
+        tools.push_back(arg);
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -195,7 +195,7 @@ namespace
       output.reset(translator_num);
 
       std::ostringstream command;
-      format(command, translators[translator_num].cmd);
+      format(command, tools[translator_num].cmd);
 
       std::string cmd = command.str();
       //std::cerr << "Running [" << l << translator_num << "]: "
@@ -339,7 +339,7 @@ namespace
       static unsigned round = 1;
       runner.round_formula(f, round);
 
-      unsigned ts = translators.size();
+      unsigned ts = tools.size();
       spot::twa_graph_ptr best_aut = nullptr;
       std::string best_stats;
       std::string best_cmdname;
@@ -364,7 +364,7 @@ namespace
               if (relmap)
                 relabel_here(aut, relmap.get());
 
-              cmdname = translators[t].name;
+              cmdname = tools[t].name;
               aut = post.run(aut, f);
               if (best_type)
                 {
@@ -377,7 +377,7 @@ namespace
                     {
                       best_aut = aut;
                       best_stats = aut_stats;
-                      best_cmdname = translators[t].name;
+                      best_cmdname = tools[t].name;
                       best_timer = timer;
                     }
                   best_stream.str("");
@@ -421,7 +421,7 @@ main(int argc, char** argv)
 
   check_no_formula();
 
-  if (translators.empty())
+  if (tools.empty())
     error(2, 0, "No translator to run?  Run '%s --help' for usage.",
           program_name);
 

@@ -423,7 +423,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (arg[0] == '-' && !arg[1])
         jobs.emplace_back(arg, true);
       else
-        translators.push_back(arg);
+        tools.push_back(arg);
       break;
     case OPT_AUTOMATA:
       opt_automata = true;
@@ -515,7 +515,7 @@ namespace
       output.reset(translator_num);
 
       std::ostringstream command;
-      format(command, translators[translator_num].cmd);
+      format(command, tools[translator_num].cmd);
 
       std::string cmd = command.str();
       std::cerr << "Running [" << l << translator_num << "]: "
@@ -985,7 +985,7 @@ namespace
 
       // These store the result of the translation of the positive and
       // negative formulas.
-      size_t m = translators.size();
+      size_t m = tools.size();
       std::vector<spot::twa_graph_ptr> pos(m);
       std::vector<spot::twa_graph_ptr> neg(m);
       // These store the complement of the above results, when we can
@@ -1408,7 +1408,7 @@ print_stats_csv(const char* filename)
   output_file outf(filename);
   std::ostream& out = outf.ostream();
 
-  unsigned ntrans = translators.size();
+  unsigned ntrans = tools.size();
   unsigned rounds = vstats.size();
   assert(rounds == formulas.size());
 
@@ -1427,7 +1427,7 @@ print_stats_csv(const char* filename)
           out << '"';
           spot::escape_rfc4180(out, formulas[r]);
           out << "\",\"";
-          spot::escape_rfc4180(out, translators[t].name);
+          spot::escape_rfc4180(out, tools[t].name);
           out << "\",";
           vstats[r][t].to_csv(out, !opt_omit);
           out << '\n';
@@ -1444,16 +1444,16 @@ print_stats_json(const char* filename)
   output_file outf(filename);
   std::ostream& out = outf.ostream();
 
-  unsigned ntrans = translators.size();
+  unsigned ntrans = tools.size();
   unsigned rounds = vstats.size();
   assert(rounds == formulas.size());
 
   out << "{\n  \"tool\": [\n    \"";
-  spot::escape_str(out, translators[0].name);
+  spot::escape_str(out, tools[0].name);
   for (unsigned t = 1; t < ntrans; ++t)
     {
       out << "\",\n    \"";
-      spot::escape_str(out, translators[t].name);
+      spot::escape_str(out, tools[t].name);
     }
   out << "\"\n  ],\n  \"formula\": [\n    \"";
   spot::escape_str(out, formulas[0]);
@@ -1495,7 +1495,7 @@ main(int argc, char** argv)
 
   check_no_formula();
 
-  if (translators.empty())
+  if (tools.empty())
     error(2, 0, "No translator to run?  Run '%s --help' for usage.",
           program_name);
 
