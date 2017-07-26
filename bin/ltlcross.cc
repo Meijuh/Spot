@@ -40,6 +40,7 @@
 #include "common_finput.hh"
 #include "common_hoaread.hh"
 #include "common_aoutput.hh"
+#include "common_color.hh"
 #include <spot/parseaut/public.hh>
 #include <spot/tl/print.hh>
 #include <spot/tl/apcollect.hh>
@@ -83,7 +84,6 @@ enum {
   OPT_AMBIGUOUS = 256,
   OPT_AUTOMATA,
   OPT_BOGUS,
-  OPT_COLOR,
   OPT_CSV,
   OPT_DENSITY,
   OPT_DUPS,
@@ -154,10 +154,6 @@ static const argp_option options[] =
     { "unambiguous", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -2 },
-    { "color", OPT_COLOR, "WHEN", OPTION_ARG_OPTIONAL,
-      "colorize output; WHEN can be 'never', 'always' (the default if "
-      "--color is used without argument), or "
-      "'auto' (the default if --color is not used)", 0 },
     { "grind", OPT_GRIND, "[>>]FILENAME", 0,
       "for each formula for which a problem was detected, write a simpler " \
       "formula that fails on the same test in FILENAME", 0 },
@@ -177,30 +173,9 @@ const struct argp_child children[] =
     { &trans_argp, 0, nullptr, 0 },
     { &hoaread_argp, 0, "Parsing of automata:", 4 },
     { &misc_argp, 0, nullptr, -2 },
+    { &color_argp, 0, nullptr, 0 },
     { nullptr, 0, nullptr, 0 }
   };
-
-enum color_type { color_never, color_always, color_if_tty };
-
-static char const *const color_args[] =
-{
-  "always", "yes", "force",
-  "never", "no", "none",
-  "auto", "tty", "if-tty", nullptr
-};
-static color_type const color_types[] =
-{
-  color_always, color_always, color_always,
-  color_never, color_never, color_never,
-  color_if_tty, color_if_tty, color_if_tty
-};
-ARGMATCH_VERIFY(color_args, color_types);
-
-static color_type color_opt = color_if_tty;
-static const char* bright_red = "\033[1;31m";
-static const char* bold = "\033[1m";
-static const char* bold_std = "\033[0;1m";
-static const char* reset_color = "\033[m";
 
 static unsigned states = 200;
 static float density = 0.1;
@@ -233,16 +208,14 @@ static std::ostream&
 global_error()
 {
   global_error_flag = true;
-  if (color_opt)
-    std::cerr << bright_red;
+  std::cerr << bright_red;
   return std::cerr;
 }
 
 static std::ostream&
 example()
 {
-  if (color_opt)
-    std::cerr << bold_std;
+  std::cerr << bold_std;
   return std::cerr;
 }
 
@@ -250,8 +223,7 @@ example()
 static void
 end_error()
 {
-  if (color_opt)
-    std::cerr << reset_color;
+  std::cerr << reset_color;
 }
 
 
@@ -460,14 +432,6 @@ parse_opt(int key, char* arg, struct argp_state*)
       {
         bogus_output = new output_file(arg);
         bogus_output_filename = arg;
-        break;
-      }
-    case OPT_COLOR:
-      {
-        if (arg)
-          color_opt = XARGMATCH("--color", arg, color_args, color_types);
-        else
-          color_opt = color_always;
         break;
       }
     case OPT_CSV:
@@ -912,14 +876,8 @@ namespace
           unsigned mutation_max;
           while        (res)
             {
-              std::cerr << "Trying to find a bogus mutation of ";
-              if (color_opt)
-                std::cerr << bold;
-              std::cerr << bogus;
-              if (color_opt)
-                std::cerr << reset_color;
-              std::cerr << "...\n";
-
+              std::cerr << "Trying to find a bogus mutation of " << bold
+                        << bogus << reset_color << "...\n";
               mutations = mutate(f);
               mutation_count = 1;
               mutation_max = mutations.size();
@@ -944,19 +902,9 @@ namespace
                     bogus_output->ostream() << bogus << std::endl;
                 }
             }
-          std::cerr << "Smallest bogus mutation found for ";
-          if (color_opt)
-            std::cerr << bold;
-          std::cerr << input;
-          if (color_opt)
-            std::cerr << reset_color;
-          std::cerr << " is ";
-          if (color_opt)
-            std::cerr << bold;
-          std::cerr << bogus;
-          if (color_opt)
-            std::cerr << reset_color;
-          std::cerr << ".\n\n";
+          std::cerr << "Smallest bogus mutation found for "
+                    << bold << input << reset_color << " is "
+                    << bold << bogus << reset_color << ".\n\n";
           grind_output->ostream() << bogus << std::endl;
         }
       return 0;
@@ -1017,11 +965,7 @@ namespace
         std::cerr << linenum << ':';
       if (filename || linenum)
         std::cerr << ' ';
-      if (color_opt)
-        std::cerr << bold;
-      std::cerr << fstr << '\n';
-      if (color_opt)
-        std::cerr << reset_color;
+      std::cerr << bold << fstr << reset_color << '\n';
 
       // Make sure we do not translate the same formula twice.
       if (!allow_dups)
@@ -1036,7 +980,6 @@ namespace
               return 0;
             }
         }
-
 
       int problems = 0;
 
@@ -1556,9 +1499,7 @@ main(int argc, char** argv)
     error(2, 0, "No translator to run?  Run '%s --help' for usage.",
           program_name);
 
-  if (color_opt == color_if_tty)
-    color_opt = isatty(STDERR_FILENO) ? color_always : color_never;
-
+  setup_color();
   setup_sig_handler();
 
   processor p;

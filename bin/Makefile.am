@@ -32,6 +32,8 @@ noinst_LIBRARIES = libcommon.a
 libcommon_a_SOURCES =				\
   common_aoutput.cc				\
   common_aoutput.hh				\
+  common_color.cc				\
+  common_color.hh				\
   common_conv.hh				\
   common_conv.cc				\
   common_cout.hh				\
