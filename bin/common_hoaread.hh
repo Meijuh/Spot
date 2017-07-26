@@ -58,8 +58,7 @@ public:
   }
 
   virtual int
-  process_automaton(const spot::const_parsed_aut_ptr& haut,
-                    const char* filename) = 0;
+  process_automaton(const spot::const_parsed_aut_ptr& haut) = 0;
 
   int process_string(const std::string& input, const char* filename,
                      int linenum) override
@@ -68,14 +67,13 @@ public:
     loc << filename << ':' << linenum;
     std::string locstr = loc.str();
     return process_automaton_stream
-      (spot::automaton_stream_parser(input.c_str(), locstr, opt_parse),
-       locstr.c_str());
+      (spot::automaton_stream_parser(input.c_str(), locstr, opt_parse));
   }
 
   int
-  aborted(const spot::const_parsed_aut_ptr& h, const char* filename)
+  aborted(const spot::const_parsed_aut_ptr& h)
   {
-    std::cerr << filename << ':' << h->loc << ": aborted input automaton\n";
+    std::cerr << h->filename << ':' << h->loc << ": aborted input automaton\n";
     return 2;
   }
 
@@ -119,12 +117,10 @@ public:
       }
 
     return process_automaton_stream(spot::automaton_stream_parser(filename,
-                                                                  opt_parse),
-                                    filename);
+                                                                  opt_parse));
   }
 
-  int process_automaton_stream(spot::automaton_stream_parser&& hp,
-                               const char* filename)
+  int process_automaton_stream(spot::automaton_stream_parser&& hp)
   {
     int err = 0;
     while (!abort_run)
@@ -135,11 +131,12 @@ public:
         if (haut->format_errors(std::cerr))
           err = 2;
         if (!haut->aut)
-          error(2, 0, "failed to read automaton from %s", filename);
+          error(2, 0, "failed to read automaton from %s",
+                haut->filename.c_str());
         else if (haut->aborted)
-          err = std::max(err, aborted(haut, filename));
+          err = std::max(err, aborted(haut));
         else
-          process_automaton(haut, filename);
+          process_automaton(haut);
       }
     return err;
   }

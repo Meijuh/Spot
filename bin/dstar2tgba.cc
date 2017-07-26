@@ -120,15 +120,14 @@ namespace
     }
 
     int
-    process_automaton(const spot::const_parsed_aut_ptr& haut,
-                      const char* filename) override
+    process_automaton(const spot::const_parsed_aut_ptr& haut) override
     {
       process_timer timer;
       timer.start();
       auto nba = spot::to_generalized_buchi(haut->aut);
       auto aut = post.run(nba, nullptr);
       timer.stop();
-      printer.print(aut, timer, nullptr, filename, -1, haut);
+      printer.print(aut, timer, nullptr, haut->filename.c_str(), -1, haut);
       flush_cout();
       return 0;
     }

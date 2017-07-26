@@ -969,8 +969,7 @@ namespace
     }
 
     int
-    process_automaton(const spot::const_parsed_aut_ptr& haut,
-                      const char* filename) override
+    process_automaton(const spot::const_parsed_aut_ptr& haut) override
     {
       process_timer timer;
       timer.start();
@@ -1234,7 +1233,8 @@ namespace
 
       ++match_count;
 
-      printer.print(aut, timer, nullptr, filename, -1, haut, prefix, suffix);
+      printer.print(aut, timer, nullptr, haut->filename.c_str(), -1,
+                    haut, prefix, suffix);
 
       if (opt_max_count >= 0 && match_count >= opt_max_count)
         abort_run = true;
