@@ -163,6 +163,10 @@ New in spot 2.3.5.dev (not yet released)
     (for efficiency reasons), in this version operator | is
     symmetrically grouping all Fin() terms.
 
+  - The automaton parser is now reentrant, making it possible to
+    process automata from different streams at the same time (i.e.,
+    using multiple spot::automaton_stream_parser instances at once).
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.

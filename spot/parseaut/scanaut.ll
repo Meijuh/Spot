@@ -20,6 +20,9 @@
 %option noyywrap
 %option prefix="hoayy"
 %option outfile="lex.yy.c"
+%option reentrant
+%option extra-type="struct extra_data*"
+
 /* %option debug */
 
 %{
@@ -29,16 +32,19 @@
 #include "spot/priv/trim.hh"
 
 #define YY_USER_ACTION yylloc->columns(yyleng);
-#define YY_NEVER_INTERACTIVE 1
 
 typedef hoayy::parser::token token;
-static unsigned comment_level = 0;
-static unsigned parent_level = 0;
-static int orig_cond = 0;
-static bool lbtt_s = false;
-static bool lbtt_t = false;
-static unsigned lbtt_states = 0;
-static bool yyin_close = true;
+
+struct extra_data
+{
+  unsigned comment_level = 0;
+  unsigned parent_level = 0;
+  int orig_cond = 0;
+  bool lbtt_s = false;
+  bool lbtt_t = false;
+  unsigned lbtt_states = 0;
+  bool yyin_close = true;
+};
 
 %}
 
@@ -78,9 +84,9 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 {eol2}			yylloc->lines(yyleng / 2); yylloc->step();
 [ \t\v\f]+		yylloc->step();
 "/*"			{
-                          orig_cond = YY_START;
+                          yyextra->orig_cond = YY_START;
 			  BEGIN(in_COMMENT);
-			  comment_level = 1;
+			  yyextra->comment_level = 1;
 			}
 <INITIAL>"HOA:"           BEGIN(in_HOA); return token::HOA;
 <INITIAL,in_HOA>"--ABORT--" BEGIN(INITIAL); throw spot::hoa_abort{*yylloc};
@@ -105,7 +111,7 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 				  "value too large"));
 			      yylval->num = 0;
                             }
-                          lbtt_states = yylval->num;
+                          yyextra->lbtt_states = yylval->num;
 			  return token::LBTT;
 			}
 
@@ -179,7 +185,7 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
   "assert"		return token::ASSERT;
 
   ("!"[ \t]*)?"("	{
-			  parent_level = 1;
+			  yyextra->parent_level = 1;
 			  BEGIN(in_NEVER_PAR);
 			  yylval->str = new std::string(yytext, yyleng);
 			}
@@ -205,24 +211,24 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
   [0-9]+[st]*           {
 			  BEGIN(in_LBTT_STATE);
                           auto end = parse_int();
-			  lbtt_s = false;
-			  lbtt_t = false;
+			  yyextra->lbtt_s = false;
+			  yyextra->lbtt_t = false;
 			  if (end)
 			    while (int c = *end++)
 			      {
 			         if (c == 's')
-			           lbtt_s = true;
+			           yyextra->lbtt_s = true;
 			         else // c == 't'
-			           lbtt_t = true;
+			           yyextra->lbtt_t = true;
 			      }
-  		          if (!lbtt_t)
-			    lbtt_s = true;
-			  if (lbtt_states == 0)
+  		          if (!yyextra->lbtt_t)
+			    yyextra->lbtt_s = true;
+			  if (yyextra->lbtt_states == 0)
 			    {
                               BEGIN(INITIAL);
                               return token::LBTT_EMPTY;
 			    }
-			  if (lbtt_s && !lbtt_t)
+			  if (yyextra->lbtt_s && !yyextra->lbtt_t)
 			    return token::INT_S;
 			  else
 			    return token::INT;
@@ -236,7 +242,7 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 			}
 <in_LBTT_INIT>[01]	{
                            yylval->num = *yytext - '0';
-			   if (lbtt_s)
+			   if (yyextra->lbtt_s)
 			      BEGIN(in_LBTT_S_ACC);
 			   else
 			      BEGIN(in_LBTT_TRANS);
@@ -249,14 +255,14 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 <in_LBTT_TRANS>{
   [0-9]+                {
 			  parse_int();
-			  if (lbtt_t)
+			  if (yyextra->lbtt_t)
 			    BEGIN(in_LBTT_T_ACC);
 			  else
 			    BEGIN(in_LBTT_GUARD);
 			  return token::DEST_NUM;
 			}
   "-1"			{
-                          if (--lbtt_states)
+                          if (--yyextra->lbtt_states)
 			    {
 			       BEGIN(in_LBTT_STATE);
 			       yylloc->step();
@@ -282,21 +288,23 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 
 
 <in_COMMENT>{
-  "/*"                  ++comment_level;
+  "/*"                  ++yyextra->comment_level;
   [^*/\n\r]*		continue;
   "/"[^*\n\r]*		continue;
   "*"                   continue;
   {eol}                 yylloc->lines(yyleng); yylloc->end.column = 1;
   {eol2}		yylloc->lines(yyleng / 2); yylloc->end.column = 1;
   "*/"                  {
-			  if (--comment_level == 0)
+			  if (--yyextra->comment_level == 0)
 			    {
 			      yylloc->step();
-		              BEGIN(orig_cond);
+                              int oc = yyextra->orig_cond;
+		              BEGIN(oc);
 		            }
                         }
   <<EOF>>		{
-                           BEGIN(orig_cond);
+                           int oc = yyextra->orig_cond;
+	                   BEGIN(oc);
                            error_list.push_back(
 			     spot::parse_aut_error(*yylloc,
 			       "unclosed comment"));
@@ -306,14 +314,15 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 
   /* matched late, so that the in_LBTT_GUARD pattern has precedence */
 "\""                    {
-                          orig_cond = YY_START;
+                          yyextra->orig_cond = YY_START;
 			  BEGIN(in_STRING);
-			  comment_level = 1;
+			  yyextra->comment_level = 1;
 			}
 
 <in_STRING>{
   \"	                {
-                           BEGIN(orig_cond);
+                           int oc = yyextra->orig_cond;
+                           BEGIN(oc);
 			   yylval->str = new std::string(s);
 			   return token::STRING;
  			}
@@ -331,7 +340,8 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
                            error_list.push_back(
 			     spot::parse_aut_error(*yylloc,
 			       "unclosed string"));
-                           BEGIN(orig_cond);
+                           int oc = yyextra->orig_cond;
+                           BEGIN(oc);
 			   yylval->str = new std::string(s);
 			   return token::STRING;
                         }
@@ -339,7 +349,7 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 
 <in_NEVER_PAR>{
   "("		        {
-			  ++parent_level;
+			  ++yyextra->parent_level;
 			  yylval->str->append(yytext, yyleng);
 			}
   /* if we match ")&&(" or ")||(", stay in <in_NEVER_PAR> mode */
@@ -348,7 +358,7 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 			}
   ")"                   {
 	                  yylval->str->append(yytext, yyleng);
-			  if (!--parent_level)
+			  if (!--yyextra->parent_level)
 			    {
                               BEGIN(in_NEVER);
 			      spot::trim(*yylval->str);
@@ -368,7 +378,7 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
                           error_list.push_back(
 			    spot::parse_aut_error(*yylloc,
  			      "missing closing parenthese"));
-                          yylval->str->append(parent_level, ')');
+                          yylval->str->append(yyextra->parent_level, ')');
                           BEGIN(in_NEVER);
 			  spot::trim(*yylval->str);
 			  return token::FORMULA;
@@ -387,16 +397,20 @@ identifier  [[:alpha:]_][[:alnum:]_.-]*
 namespace spot
 {
   void
-  hoayyreset()
+  hoayyreset(yyscan_t yyscanner)
   {
+    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     BEGIN(INITIAL);
-    comment_level = 0;
-    parent_level = 0;
+    yyextra->comment_level = 0;
+    yyextra->parent_level = 0;
   }
 
   int
-  hoayyopen(const std::string &name)
+  hoayyopen(const std::string &name, yyscan_t* scanner)
   {
+    yylex_init_extra(new extra_data, scanner);
+    yyscan_t yyscanner = *scanner;
+    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     bool want_interactive = false;
 
     // yy_flex_debug = 1;
@@ -412,37 +426,37 @@ namespace spot
 	  want_interactive = true;
 
         yyin = stdin;
-        yyin_close = false;
+        yyextra->yyin_close = false;
       }
     else
       {
         yyin = fopen(name.c_str(), "r");
         if (!yyin)
 	  return 1;
-        yyin_close = true;
+        yyextra->yyin_close = true;
       }
-    // Reset the lexer in case a previous parse
-    // ended badly.
-    YY_NEW_FILE;
-    hoayyreset();
+
     if (want_interactive)
       yy_set_interactive(1);
     return 0;
   }
 
   int
-  hoayystring(const char* data)
+  hoayystring(const char* data, yyscan_t* scanner)
   {
-    yy_scan_string(data);
-    hoayyreset();
+    yylex_init_extra(new extra_data, scanner);
+    yy_scan_string(data, *scanner);
     return 0;
   }
 
   int
-  hoayyopen(int fd)
+  hoayyopen(int fd, yyscan_t* scanner)
   {
+    yylex_init_extra(new extra_data, scanner);
+    yyscan_t yyscanner = *scanner;
+    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     bool want_interactive = false;
-    yyin_close = false;
+    yyextra->yyin_close = false;
 
     yyin = fdopen(fd, "r");
 
@@ -458,23 +472,22 @@ namespace spot
     if (S_ISFIFO(s.st_mode))
       want_interactive = true;
 
-    // Reset the lexer in case a previous parse
-    // ended badly.
-    YY_NEW_FILE;
-    hoayyreset();
     if (want_interactive)
       yy_set_interactive(1);
     return 0;
   }
 
   void
-  hoayyclose()
+  hoayyclose(yyscan_t yyscanner)
   {
+    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     if (yyin)
       {
-        if (yyin_close)
+        if (yyextra->yyin_close)
           fclose(yyin);
         yyin = NULL;
       }
+    delete yyextra;
+    yylex_destroy(yyscanner);
   }
 }

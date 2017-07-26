@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-// de l'EPITA.
+// Copyright (C) 2014, 2015, 2017 Laboratoire de Recherche et
+// Développement de l'EPITA.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -26,16 +26,17 @@
 # define YY_DECL \
   int hoayylex(hoayy::parser::semantic_type *yylval, \
                spot::location *yylloc, \
+               void* yyscanner, \
                spot::parse_aut_error_list& error_list)
 YY_DECL;
 
 namespace spot
 {
-  void hoayyreset();
-  int hoayyopen(const std::string& name);
-  int hoayyopen(int fd);
-  int hoayystring(const char* data);
-  void hoayyclose();
+  void hoayyreset(void* scanner);
+  int hoayyopen(const std::string& name, void** scanner);
+  int hoayyopen(int fd, void** scanner);
+  int hoayystring(const char* data, void** scanner);
+  void hoayyclose(void* scanner);
 
   // This exception is thrown by the lexer when it reads "--ABORT--".
   struct hoa_abort

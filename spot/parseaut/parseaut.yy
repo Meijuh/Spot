@@ -24,7 +24,8 @@
 %name-prefix "hoayy"
 %debug
 %error-verbose
-%lex-param { PARSE_ERROR_LIST }
+%parse-param {void* scanner}
+%lex-param {void* scanner} { PARSE_ERROR_LIST }
 %define api.location.type "spot::location"
 
 %code requires
@@ -2382,32 +2383,50 @@ namespace spot
 {
   automaton_stream_parser::automaton_stream_parser(const std::string& name,
 						   automaton_parser_options opt)
+  try
     : filename_(name), opts_(opt)
   {
-    if (hoayyopen(name))
+    if (hoayyopen(name, &scanner_))
       throw std::runtime_error(std::string("Cannot open file ") + name);
+  }
+  catch (...)
+  {
+    hoayyclose(scanner_);
+    throw;
   }
 
   automaton_stream_parser::automaton_stream_parser(int fd,
 						   const std::string& name,
 						   automaton_parser_options opt)
+  try
     : filename_(name), opts_(opt)
   {
-    if (hoayyopen(fd))
+    if (hoayyopen(fd, &scanner_))
       throw std::runtime_error(std::string("Cannot open file ") + name);
+  }
+  catch (...)
+  {
+    hoayyclose(scanner_);
+    throw;
   }
 
   automaton_stream_parser::automaton_stream_parser(const char* data,
 						   const std::string& filename,
 						   automaton_parser_options opt)
+  try
     : filename_(filename), opts_(opt)
   {
-    hoayystring(data);
+    hoayystring(data, &scanner_);
+  }
+  catch (...)
+  {
+    hoayyclose(scanner_);
+    throw;
   }
 
   automaton_stream_parser::~automaton_stream_parser()
   {
-    hoayyclose();
+    hoayyclose(scanner_);
   }
 
   static void raise_parse_error(const parsed_aut_ptr& pa)
@@ -2437,10 +2456,10 @@ namespace spot
     else
       r.aut_or_ks = r.h->aut = make_twa_graph(dict);
     r.env = &env;
-    hoayy::parser parser(r, last_loc);
+    hoayy::parser parser(scanner_, r, last_loc);
     static bool env_debug = !!getenv("SPOT_DEBUG_PARSER");
     parser.set_debug_level(opts_.debug || env_debug);
-    hoayyreset();
+    hoayyreset(scanner_);
     try
       {
 	if (parser.parse())

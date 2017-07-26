@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -122,6 +122,7 @@ namespace spot
     spot::location last_loc;
     std::string filename_;
     automaton_parser_options opts_;
+    void* scanner_;
   public:
     /// \brief Parse from a file.
     ///
