@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Laboratoire de Recherche et Développement
+# Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -110,6 +110,6 @@ State: 7 {0 2 4}
 --END--
 EOF
 
-run 0 autfilt --tgba streett.hoa > out.hoa
-autfilt -q --equivalent-to streett.hoa out.hoa
+run 0 autcross --language-preserved \
+    'autfilt --tgba %H | tee out.hoa >%O' -F streett.hoa
 grep 'generalized-Buchi 2' out.hoa

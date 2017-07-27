@@ -163,7 +163,7 @@ test 4 = `ltl2tgba -S 'F(a & X(!a &Xb))' --any --stats=%s`
 
 # Test case from Thibaud Michaud.  This used to fail, because sbacc()
 # would remove acceptance marks from all rejecting SCCS...
-cat >tm.hoa <<EOF
+autcross 'autfilt --sbacc' --language-preserve <<EOF
 HOA: v1
 States: 5
 Start: 1
@@ -188,8 +188,6 @@ State: 4
 [!2] 3 {1}
 --END--
 EOF
-autfilt --sbacc tm.hoa > out.hoa
-autfilt -q --equivalent-to out.hoa tm.hoa
 
 # Tautological acceptances are converted to "t"
 cat >taut.hoa <<EOF

@@ -25,6 +25,7 @@ convman7 = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
           "$(PERL)" "$(top_srcdir)/tools/help2man -s7 -N"
 
 dist_man1_MANS = \
+  autcross.1 \
   autfilt.1 \
   dstar2tgba.1 \
   genaut.1 \
@@ -43,6 +44,9 @@ dist_man7_MANS = \
 
 MAINTAINERCLEANFILES = $(dist_man1_MANS) $(dist_man7_MANS)
 EXTRA_DIST = $(dist_man1_MANS:.1=.x) $(dist_man7_MANS:.7=.x)
+
+autcross.1: $(common_dep) $(srcdir)/autcross.x $(srcdir)/../autcross.cc
+	$(convman) ../autcross$(EXEEXT) $(srcdir)/autcross.x $@
 
 autfilt.1: $(common_dep) $(srcdir)/autfilt.x $(srcdir)/../autfilt.cc
 	$(convman) ../autfilt$(EXEEXT) $(srcdir)/autfilt.x $@

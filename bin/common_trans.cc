@@ -33,14 +33,17 @@
 #include <spot/tl/unabbrev.hh>
 #include "common_conv.hh"
 #include <spot/misc/escape.hh>
+#include <spot/twaalgos/hoa.hh>
+#include <spot/twaalgos/lbtt.hh>
+#include <spot/twaalgos/neverclaim.hh>
 
 // A set of tools for which we know the correct output
-static struct shorthands_t
+struct shorthands_t
 {
   const char* prefix;
   const char* suffix;
-}
-  shorthands[] = {
+};
+static shorthands_t shorthands_ltl[] = {
     { "lbt", " <%L>%O" },
     { "ltl2ba", " -f %s>%O" },
     { "ltl2da", " %f>%O" },
@@ -55,25 +58,30 @@ static struct shorthands_t
     { "spin", " -f %s>%O" },
   };
 
-static void show_shorthands()
+static shorthands_t shorthands_autproc[] = {
+    { "autfilt", " %H>%O" },
+    { "dstar2tgba", " %H>%O" },
+    { "ltl2dstar", " -B %H %O" },
+    { "nba2ldpa", " <%H>%O" },
+    { "seminator", " %H>%O" },
+  };
+
+static void show_shorthands(shorthands_t* begin, shorthands_t* end)
 {
   std::cout
     << ("If a COMMANDFMT does not use any %-sequence, and starts with one of\n"
         "the following words, then the string on the right is appended.\n\n");
-  for (auto& s: shorthands)
-    std::cout << "  "
-              << std::left << std::setw(12) << s.prefix
-              << s.suffix << '\n';
-  std::cout
-    << ("\nAny {name} and directory component is skipped for the purpose of\n"
-        "matching those prefixes.  So for instance\n"
-        "  '{DRA} ~/mytools/ltl2dstar-0.5.2'\n"
-        "will changed into\n"
-        "  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %[MR]L %O'\n");
+  while (begin != end)
+    {
+      std::cout << "  "
+                << std::left << std::setw(12) << begin->prefix
+                << begin->suffix << '\n';
+      ++begin;
+    }
 }
 
 
-tool_spec::tool_spec(const char* spec)
+tool_spec::tool_spec(const char* spec, shorthands_t* begin, shorthands_t* end)
   : spec(spec), cmd(spec), name(spec)
 {
   if (*cmd == '{')
@@ -114,8 +122,9 @@ tool_spec::tool_spec(const char* spec)
           ++pos;
         }
       // Match a shorthand.
-      for (auto& p: shorthands)
+      while (begin != end)
         {
+          auto& p = *begin++;
           int n = strlen(p.prefix);
           if (strncmp(basename, p.prefix, n) == 0)
             {
@@ -164,6 +173,20 @@ tool_spec::~tool_spec()
 }
 
 std::vector<tool_spec> tools;
+
+void tools_push_trans(const char* trans)
+{
+  tools.emplace_back(trans,
+                     std::begin(shorthands_ltl),
+                     std::end(shorthands_ltl));
+}
+
+void tools_push_autproc(const char* proc)
+{
+  tools.emplace_back(proc,
+                     std::begin(shorthands_autproc),
+                     std::end(shorthands_autproc));
+}
 
 void
 quoted_string::print(std::ostream& os, const char*) const
@@ -254,16 +277,8 @@ printable_result_filename::print(std::ostream& os, const char*) const
   spot::quote_shell_string(os, val()->name());
 }
 
-void
-filed_formula::print(std::ostream& os, const char* pos) const
-{
-  std::ostringstream ss;
-  f_.print(ss, pos);
-  os << '\'' << string_to_tmp(ss.str(), serial_) << '\'';
-}
-
-std::string
-filed_formula::string_to_tmp(const std::string str, unsigned n) const
+static std::string
+string_to_tmp(const std::string str, unsigned n)
 {
   char prefix[30];
   snprintf(prefix, sizeof prefix, "lcr-i%u-", n);
@@ -276,6 +291,43 @@ filed_formula::string_to_tmp(const std::string str, unsigned n) const
     error(2, errno, "failed to write into %s", tmpname.c_str());
   tmpfile->close();
   return tmpname;
+}
+
+void
+filed_formula::print(std::ostream& os, const char* pos) const
+{
+  std::ostringstream ss;
+  f_.print(ss, pos);
+  os << '\'' << string_to_tmp(ss.str(), serial_) << '\'';
+}
+
+void
+filed_automaton::print(std::ostream& os, const char* pos) const
+{
+  std::ostringstream ss;
+  char* opt = nullptr;
+  if (*pos == '[')
+    {
+      ++pos;
+      auto end = strchr(pos, ']');
+      opt = strndup(pos, end - pos);
+      pos = end + 1;
+    }
+  switch (*pos)
+    {
+    case 'H':
+      spot::print_hoa(ss, aut_, opt);
+      break;
+    case 'S':
+      spot::print_never_claim(ss, aut_, opt);
+      break;
+    case 'L':
+      spot::print_lbtt(ss, aut_, opt);
+      break;
+    }
+  if (opt)
+    free(opt);
+  os << '\'' << string_to_tmp(ss.str(), serial_) << '\'';
 }
 
 translator_runner::translator_runner(spot::bdd_dict_ptr dict,
@@ -343,6 +395,42 @@ translator_runner::round_formula(spot::formula f, unsigned serial)
 {
   ltl_formula = f;
   filename_formula.new_round(serial);
+}
+
+
+autproc_runner::autproc_runner(bool no_output_allowed)
+{
+  declare('H', &filename_automaton);
+  declare('S', &filename_automaton);
+  declare('L', &filename_automaton);
+  declare('O', &output);
+
+  size_t s = tools.size();
+  assert(s);
+  for (size_t n = 0; n < s; ++n)
+    {
+      // Check that each translator uses at least one input and
+      // one output.
+      std::vector<bool> has(256);
+      const tool_spec& t = tools[n];
+      scan(t.cmd, has);
+      if (!(has['H'] || has['S'] || has['L']))
+        error(2, 0, "no input %%-sequence in '%s'.\n       Use "
+              "one of %%H,%%S,%%L to indicate the input automaton filename.",
+              t.spec);
+      if (!no_output_allowed && !has['O'])
+        error(2, 0, "no output %%-sequence in '%s'.\n      Use  "
+              "%%O to indicate where the automaton is output.",
+              t.spec);
+      // Remember the %-sequences used by all tools.
+      prime(t.cmd);
+    }
+}
+
+void
+autproc_runner::round_automaton(spot::const_twa_graph_ptr aut, unsigned serial)
+{
+  filename_automaton.new_round(aut, serial);
 }
 
 volatile bool timed_out = false;
@@ -553,7 +641,7 @@ exec_command(const char* cmd)
         int fd0 = open(stdin, O_RDONLY, 0644);
         if (fd0 < 0)
           error(2, errno, "failed to open '%s'", stdin);
-        if (dup2(fd0, 0) < 0)
+        if (dup2(fd0, STDIN_FILENO) < 0)
           error(2, errno, "dup2() failed");
         if (close(fd0) < 0)
           error(2, errno, "close() failed");
@@ -563,7 +651,7 @@ exec_command(const char* cmd)
         int fd1 = creat(stdout, 0644);
         if (fd1 < 0)
           error(2, errno, "failed to open '%s'", stdout);
-        if (dup2(fd1, 1) < 0)
+        if (dup2(fd1, STDOUT_FILENO) < 0)
           error(2, errno, "dup2() failed");
         if (close(fd1) < 0)
           error(2, errno, "close() failed");
@@ -602,6 +690,11 @@ exec_with_timeout(const char* cmd)
   if (child_pid == 0)
     {
       setpgid(0, 0);
+      // Close stdin so that children may not read our input.  We had
+      // this nice surprise with Seminator, who greedily consumes its
+      // stdin (which was also ours) even if it does not use it
+      // because it was given a file.
+      close(STDIN_FILENO);
       exec_command(cmd);
       // never reached
       return -1;
@@ -675,7 +768,7 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
   switch (key)
     {
     case 't':
-      tools.push_back(arg);
+      tools_push_trans(arg);
       break;
     case 'T':
       timeout = to_pos_int(arg);
@@ -685,7 +778,14 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
 #endif
       break;
     case OPT_LIST:
-      show_shorthands();
+      show_shorthands(std::begin(shorthands_ltl), std::end(shorthands_ltl));
+      std::cout
+        << ("\nAny {name} and directory component is skipped for the purpose "
+            "of\nmatching those prefixes.  So for instance\n  "
+            "'{DRA} ~/mytools/ltl2dstar-0.5.2'\n"
+            "will be changed into\n  "
+            "'{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %[MW]L %O'"
+            "\n");
       exit(0);
     case OPT_RELABEL:
       opt_relabel = true;
@@ -698,3 +798,61 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
 
 const struct argp trans_argp = { options, parse_opt_trans, nullptr, nullptr,
                                  nullptr, nullptr, nullptr };
+
+
+
+static const argp_option options_aut[] =
+{
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Specifying tools to call:", 2 },
+    { "tool", 't', "COMMANDFMT", 0,
+      "register one tool to call", 0 },
+    { "timeout", 'T', "NUMBER", 0, "kill tools after NUMBER seconds", 0 },
+    { "list-shorthands", OPT_LIST, nullptr, 0,
+      "list availabled shorthands to use in COMMANDFMT", 0},
+    /**************************************************/
+    { nullptr, 0, nullptr, 0,
+      "COMMANDFMT should specify input and output arguments using the "
+      "following character sequences:", 3 },
+    { "%H,%S,%L", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "filename for the input automaton in (H) HOA, (S) Spin's neverclaim, "
+      "or (L) LBTT's format", 0 },
+    { "%O", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "filename for the automaton output in HOA, never claim, LBTT, or "
+      "ltl2dstar's format", 0 },
+    { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
+};
+
+static int parse_opt_autproc(int key, char* arg, struct argp_state*)
+{
+  switch (key)
+    {
+    case 't':
+      tools_push_autproc(arg);
+      break;
+    case 'T':
+      timeout = to_pos_int(arg);
+#if !ENABLE_TIMEOUT
+      std::cerr << "warning: setting a timeout is not supported "
+                << "on your platform" << std::endl;
+#endif
+      break;
+    case OPT_LIST:
+      show_shorthands(std::begin(shorthands_autproc),
+                      std::end(shorthands_autproc));
+      std::cout
+        << ("\nAny {name} and directory component is skipped for the purpose "
+            "of\nmatching those prefixes.  So for instance\n  "
+            "'{AF} ~/mytools/autfilt-2.4 --remove-fin'\n"
+            "will be changed into\n  "
+            "'{AF} ~/mytools/autfilt-2.4 --remove-fin %H>%O'\n");
+      exit(0);
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+  return 0;
+}
+
+const struct argp autproc_argp = { options_aut, parse_opt_autproc, nullptr,
+                                   nullptr, nullptr, nullptr, nullptr };

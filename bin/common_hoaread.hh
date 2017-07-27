@@ -43,6 +43,7 @@ read_automaton(const char* filename, spot::bdd_dict_ptr& dict);
 
 class hoa_processor: public job_processor
 {
+protected:
   spot::bdd_dict_ptr dict_;
 public:
 

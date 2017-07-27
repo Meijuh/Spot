@@ -47,13 +47,14 @@ corresponding commands are hidden.
 - [[file:ltlcross.org][=ltlcross=]] Cross-compare LTL/PSL-to-automata translators.
 - [[file:ltlgrind.org][=ltlgrind=]] List formulas similar to but simpler than a given LTL/PSL
   formula.
+- [[file:ltldo.org][=ltldo=]] Run LTL/PSL formulas through other tools using common [[file:ioltl.org][input]]
+  and [[file:oaut.org][output]] interfaces.
 - [[file:dstar2tgba.org][=dstar2tgba=]] Convert \omega-automata with any acceptance into
   variants of Büchi automata.
 - [[file:randaut.org][=randaut=]] Generate random \omega-automata.
 - [[file:genaut.org][=genaut=]] Generate ω-automata from scalable patterns.
 - [[file:autfilt.org][=autfilt=]] Filter, convert, and transform \omega-automata.
-- [[file:ltldo.org][=ltldo=]] Run LTL/PSL formulas through other tools using common [[file:ioltl.org][input]]
-  and [[file:oaut.org][output]] interfaces.
+- [[file:autcross.org][=autcross=]] Cross-compare tools that process automata.
 
 * Man pages
 
@@ -63,6 +64,7 @@ automatically from the =--help= output of each tool, and often
 completed with additional text (like examples or bibliography).  For
 convenience, you can browse their HTML versions:
 
+[[./man/autcross.1.html][=autcross=]](1),
 [[./man/autfilt.1.html][=autfilt=]](1),
 [[./man/dstar2tgba.1.html][=dstar2tgba=]](1),
 [[./man/genaut.1.html][=genaut=]](1),

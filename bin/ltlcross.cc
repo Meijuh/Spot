@@ -219,7 +219,6 @@ example()
   return std::cerr;
 }
 
-
 static void
 end_error()
 {
@@ -423,7 +422,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (arg[0] == '-' && !arg[1])
         jobs.emplace_back(arg, true);
       else
-        tools.push_back(arg);
+        tools_push_trans(arg);
       break;
     case OPT_AUTOMATA:
       opt_automata = true;
@@ -1111,7 +1110,7 @@ namespace
                                 std::vector<spot::twa_graph_ptr>& comp,
                                 unsigned i)
             {
-              if (!no_complement && x[i] && is_deterministic(x[i]))
+              if (!no_complement && x[i] && is_universal(x[i]))
                 comp[i] = dualize(x[i]);
             };
 

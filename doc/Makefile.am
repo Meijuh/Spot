@@ -78,6 +78,7 @@ ORG_FILES = \
   org/spot.css \
   org/arch.tex \
   $(srcdir)/org/arch.png \
+  org/autcross.org \
   org/autfilt.org \
   org/csv.org \
   org/citing.org \

@@ -515,7 +515,7 @@ static bool opt_highlight_languages = false;
 static spot::twa_graph_ptr
 ensure_deterministic(const spot::twa_graph_ptr& aut, bool nonalt = false)
 {
-  if ((!nonalt || aut->is_existential()) && spot::is_deterministic(aut))
+  if ((!nonalt || aut->is_existential()) && spot::is_universal(aut))
     return aut;
   spot::postprocessor p;
   p.set_type(spot::postprocessor::Generic);

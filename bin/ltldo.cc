@@ -171,7 +171,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (arg[0] == '-' && !arg[1])
         jobs.emplace_back(arg, true);
       else
-        tools.push_back(arg);
+        tools_push_trans(arg);
       break;
     default:
       return ARGP_ERR_UNKNOWN;

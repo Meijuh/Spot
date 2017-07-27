@@ -293,6 +293,8 @@ TESTS_twa = \
   core/ltlcross.test \
   core/spotlbtt2.test \
   core/ltlcross2.test \
+  core/autcross.test \
+  core/autcross2.test \
   core/complementation.test \
   core/randpsl.test \
   core/cycles.test \

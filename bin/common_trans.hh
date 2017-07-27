@@ -28,8 +28,12 @@
 #include <spot/twa/twagraph.hh>
 
 
-extern const struct argp trans_argp;
+extern const struct argp trans_argp; // ltlcross, ltldo
+extern const struct argp autproc_argp; // autcross
+
 extern bool opt_relabel;
+
+struct shorthands_t;
 
 struct tool_spec
 {
@@ -44,13 +48,16 @@ struct tool_spec
   // name of the translator (or spec)
   const char* name;
 
-  tool_spec(const char* spec);
+  tool_spec(const char* spec, shorthands_t* begin, shorthands_t* end);
   tool_spec(const tool_spec& other);
   tool_spec& operator=(const tool_spec& other);
   ~tool_spec();
 };
 
 extern std::vector<tool_spec> tools;
+
+void tools_push_trans(const char* trans);
+void tools_push_autproc(const char* proc);
 
 struct quoted_string final: public spot::printable_value<std::string>
 {
@@ -80,7 +87,25 @@ struct filed_formula final: public spot::printable
  private:
   const quoted_formula& f_;
   unsigned serial_;
-  std::string string_to_tmp(const std::string str, unsigned n) const;
+};
+
+struct filed_automaton final: public spot::printable
+{
+  filed_automaton()
+  {
+  }
+
+  void print(std::ostream& os, const char* pos) const override;
+
+  void new_round(spot::const_twa_graph_ptr aut, unsigned serial)
+  {
+    aut_ = aut;
+    serial_ = serial;
+  }
+
+ private:
+  spot::const_twa_graph_ptr aut_;
+  unsigned serial_;
 };
 
 struct printable_result_filename final:
@@ -115,6 +140,23 @@ public:
                     bool no_output_allowed = false);
   std::string formula() const;
   void round_formula(spot::formula f, unsigned serial);
+};
+
+
+class autproc_runner: protected spot::formater
+{
+protected:
+  // Round-specific variables
+  filed_automaton filename_automaton;
+  // Run-specific variables
+  printable_result_filename output;
+public:
+  using spot::formater::has;
+
+  autproc_runner(// whether we accept the absence of output
+                 // specifier
+                 bool no_output_allowed = false);
+  void round_automaton(spot::const_twa_graph_ptr aut, unsigned serial);
 };
 
 

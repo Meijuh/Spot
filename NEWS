@@ -2,6 +2,14 @@ New in spot 2.3.5.dev (not yet released)
 
   Tools:
 
+  - genaut is a new binary that produces families of automata defined
+    in the literature (in the same way as we have genltl for LTL
+    formulas).
+
+  - autcross is a new binary that compares the output of tools
+    transforming automata (in the same way as we have ltlcross for
+    LTL translators).
+
   - autfilt learned to build the union (--sum) or the intersection
     (--sum-and) of two language by putting two automata side-by-side
     and fiddling with the initial states.  This complement the already
@@ -10,9 +18,6 @@ New in spot 2.3.5.dev (not yet released)
 
   - autfilt learned to complement any alternating automaton with
     option --dualize.
-
-  - genaut is a binary to produce families of automata defined in the
-    literature (in the same way as we have genltl for LTL formulas).
 
   - autfilt learned --split-edges to convert labels that are Boolean
     formulas into labels that are min-terms.  (See spot::split_edges()

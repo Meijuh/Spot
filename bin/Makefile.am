@@ -59,6 +59,7 @@ libcommon_a_SOURCES =				\
   common_trans.hh
 
 bin_PROGRAMS = \
+  autcross \
   autfilt \
   dstar2tgba \
   genaut \
@@ -77,6 +78,7 @@ bin_PROGRAMS = \
 # version number that is automatically updated).
 noinst_PROGRAMS = spot-x spot
 
+autcross_SOURCES = autcross.cc
 autfilt_SOURCES = autfilt.cc
 ltlfilt_SOURCES = ltlfilt.cc
 genaut_SOURCES = genaut.cc
