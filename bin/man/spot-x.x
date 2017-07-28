@@ -100,6 +100,23 @@ the automaton with property "univ-branch" when no universal branching
 is actually used)
 
 .TP
+\fBSPOT_PR_CHECK\fR
+Select the default algorithm that must be used to check the persistence
+or recurrence property of a formula f. The values it can take are 1
+or 2. Both methods work either on f or !f thanks to the duality of
+persistence and recurrence classes.
+See "https://spot.lrde.epita.fr/hierarchy.html" for more details. If
+it is set to:
+.RS
+.IP 1
+It will try to check if f (or !f) is co-Büchi realizable in order to
+tell if f belongs to the persistence (or the recurrence) class.
+.IP 2
+It checks if f (or !f) is det-Büchi realizable to tell if f belongs
+to the recurrence (or the persistence) class.
+.RE
+
+.TP
 \fBSPOT_SATLOG\fR
 If set to a filename, the SAT-based minimization routines will append
 statistics about each iteration to the named file.  Each line lists

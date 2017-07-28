@@ -24,9 +24,50 @@
 
 namespace spot
 {
-  /// \brief Return true if the formula has the recurrence property.
-  SPOT_API
-  bool is_recurrence(formula f, const twa_graph_ptr& aut);
+  /// Enum used to change the behaviour of is_persistence() or is_recurrence().
+  ///
+  /// If PR_Auto, both methodes will first check the environment variable
+  /// <code>SPOT_PR_CHECK</code> to see if one algorithm or the other is wanted
+  /// to be forced. Otherwise, it will make the most appropriate decision.
+  ///
+  /// If PR_via_Rabin, they will check if the formula is detbuchi_realizable
+  /// going through a rabin automaton: TGBA->DPA->DRA->(D?)BA.
+  ///
+  /// If PR_via_CoBuchi, they will check if the formula is cobuchi_realizable.
+  ///
+  /// Note that is_persistence() and is_recurrence() will work on a formula f
+  /// or its negation because of the duality of both classes
+  /// (see https://spot.lrde.epita.fr/hierarchy.html for details).
+  /// For instance if is_recurrence() wants to use PR_via_CoBuchi it will check
+  /// if !f is cobuchi_realizable.
+  enum class prcheck
+  {
+    PR_Auto,
+    PR_via_CoBuchi,
+    PR_via_Rabin
+  };
+
+  /// \brief Return true if \a f has the persistence property.
+  ///
+  /// \param f the formula to check.
+  /// \param aut the corresponding automaton (not required).
+  /// \param algo the algorithm to use (see enum class prcheck).
+  SPOT_API bool
+  is_persistence(formula f,
+                 twa_graph_ptr aut = nullptr,
+                 prcheck algo = prcheck::PR_Auto);
+
+  /// \brief Return true if \a f has the recurrence property.
+  ///
+  /// Actually, it calls is_persistence() with the negation of \a f.
+  ///
+  /// \param f the formula to check.
+  /// \param aut the corresponding automaton (not required).
+  /// \param algo the algorithm to use (see enum class prcheck).
+  SPOT_API bool
+  is_recurrence(formula f,
+                twa_graph_ptr aut = nullptr,
+                prcheck algo = prcheck::PR_Auto);
 
   /// \brief Return the class of \a f in the temporal hierarchy of Manna
   /// and Pnueli (PODC'90).

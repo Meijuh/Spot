@@ -51,8 +51,17 @@ New in spot 2.4.0.dev (not yet released)
     recognize more if the original language can not be expressed with
     a co-Büchi acceptance condition.
 
-  - The function spot::is_recurrence() is now public. It checks if a formula
-    has the reccurence property.
+  - The new functions spot::is_recurrence() and spot::is_persistence()
+    check respectively if a formula f belongs to the recurrence or
+    persistence class. Two algorithms are available, one that
+    checks if a formula is cobuchi_realizable (then it belongs to the
+    persistence class) and the other that checks if it is
+    detbuchi_realizable (then it belongs to the recurrence class).
+    Force one method or the other by setting the environment variable
+    SPOT_PR_CHECK to 1 or 2.
+    Note that thanks to the duality of both classes, both algorithms
+    will work either on f or its negation.
+    (see https://spot.lrde.epita.fr/hierarchy.html for details).
 
   Deprecation notices:
 

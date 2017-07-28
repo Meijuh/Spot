@@ -26,34 +26,149 @@
 #include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/totgba.hh>
+#include <spot/twaalgos/cobuchi.hh>
 
 
 namespace spot
 {
-  bool
-  is_recurrence(formula f, const twa_graph_ptr& aut)
+  namespace
   {
-    if (f.is_syntactic_recurrence() || is_universal(aut))
-      return true;
-    // If aut is a non-deterministic TGBA, we do
-    // TGBA->DPA->DRA->(D?)BA.  The conversion from DRA to
-    // BA will preserve determinism if possible.
-    spot::postprocessor p;
-    p.set_type(spot::postprocessor::Generic);
-    p.set_pref(spot::postprocessor::Deterministic
-               | spot::postprocessor::SBAcc);
-    p.set_level(spot::postprocessor::Low);
-    auto dra = p.run(aut);
-    if (dra->acc().is_generalized_buchi())
-      {
+    static bool
+    cobuchi_realizable(spot::formula f,
+                                 const const_twa_graph_ptr& aut)
+    {
+      twa_graph_ptr cobuchi = nullptr;
+      std::vector<acc_cond::rs_pair> pairs;
+      if (aut->acc().is_streett_like(pairs) || aut->acc().is_parity())
+        cobuchi = nsa_to_dca(aut, false);
+      else if (aut->get_acceptance().is_dnf())
+        cobuchi = dnf_to_dca(aut, false);
+      else
+        throw std::runtime_error("cobuchi_realizable() only works with "
+                                 "Streett-like, Parity or any "
+                                 "acceptance condition in DNF");
+
+      return !cobuchi->intersects(ltl_to_tgba_fm(formula::Not(f),
+                                                 cobuchi->get_dict(),
+                                                 true));
+    }
+
+    static bool
+    detbuchi_realizable(const twa_graph_ptr& aut)
+    {
+      if (is_universal(aut))
         return true;
+
+      // if aut is a non-deterministic TGBA, we do
+      // TGBA->DPA->DRA->(D?)BA.  The conversion from DRA to
+      // BA will preserve determinism if possible.
+      spot::postprocessor p;
+      p.set_type(spot::postprocessor::Generic);
+      p.set_pref(spot::postprocessor::Deterministic);
+      p.set_level(spot::postprocessor::Low);
+      auto dra = p.run(aut);
+      if (dra->acc().is_generalized_buchi())
+        {
+          assert(is_deterministic(dra));
+          return true;
+        }
+      else
+        {
+          auto ba = rabin_to_buchi_maybe(to_generalized_rabin(dra));
+          assert(ba);
+          return is_deterministic(ba);
+        }
+    }
+  }
+
+  static prcheck
+  algo_to_perform(bool is_persistence, bool aut_given, prcheck algo)
+  {
+    if (algo == prcheck::PR_Auto)
+      {
+        // Check environment variable.
+        static int val_s = []()
+          {
+            try
+              {
+                auto s = getenv("SPOT_PR_CHECK");
+                return s ? std::stoi(s) : 0;
+              }
+            catch (const std::exception& e)
+              {
+                throw std::runtime_error("invalid value for SPOT_PR_CHECK "
+                                         "(should be 1 or 2)");
+              }
+          }();
+
+        if (val_s == 1)
+          {
+            return prcheck::PR_via_CoBuchi;
+          }
+        else if (val_s == 2)
+          {
+            return prcheck::PR_via_Rabin;
+          }
+        else if (!val_s)
+          {
+            if (aut_given && !is_persistence)
+              return prcheck::PR_via_Rabin;
+            else if ((aut_given && is_persistence) || !aut_given)
+              return prcheck::PR_via_CoBuchi;
+            else
+              SPOT_UNREACHABLE();
+          }
+        else
+          SPOT_UNREACHABLE();
       }
     else
-      {
-        auto ba = rabin_to_buchi_maybe(to_generalized_rabin(dra));
-        assert(ba);
-        return is_deterministic(ba);
-      }
+      return algo;
+  }
+
+  bool
+  is_persistence(formula f, twa_graph_ptr aut, prcheck algo)
+  {
+    if (f.is_syntactic_persistence())
+      return true;
+
+    switch (algo_to_perform(true, aut != nullptr, algo))
+    {
+      case prcheck::PR_via_CoBuchi:
+        return cobuchi_realizable(f,
+            aut ? aut : ltl_to_tgba_fm(f, make_bdd_dict(), true));
+
+      case prcheck::PR_via_Rabin:
+        return detbuchi_realizable(
+            ltl_to_tgba_fm(formula::Not(f), make_bdd_dict(), true));
+
+      case prcheck::PR_Auto:
+        SPOT_UNREACHABLE();
+    }
+
+    SPOT_UNREACHABLE();
+  }
+
+  bool
+  is_recurrence(formula f, twa_graph_ptr aut, prcheck algo)
+  {
+    if (f.is_syntactic_recurrence())
+      return true;
+
+    switch (algo_to_perform(false, aut != nullptr, algo))
+    {
+      case prcheck::PR_via_CoBuchi:
+        return cobuchi_realizable(formula::Not(f),
+            ltl_to_tgba_fm(formula::Not(f), make_bdd_dict(), true));
+
+      case prcheck::PR_via_Rabin:
+        return detbuchi_realizable(
+            aut ? aut : ltl_to_tgba_fm(f, make_bdd_dict(), true));
+
+      case prcheck::PR_Auto:
+        SPOT_UNREACHABLE();
+    }
+
+    SPOT_UNREACHABLE();
   }
 
   char mp_class(formula f)
@@ -78,9 +193,7 @@ namespace spot
     // Not an obligation.  Could by 'P', 'R', or 'T'.
     if (is_recurrence(f, aut))
       return 'R';
-    f = formula::Not(f);
-    aut = ltl_to_tgba_fm(f, dict, true);
-    if (is_recurrence(f, aut))
+    if (is_persistence(f, aut))
       return 'P';
     return 'T';
   }
