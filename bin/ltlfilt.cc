@@ -46,6 +46,7 @@
 #include <spot/tl/exclusive.hh>
 #include <spot/tl/ltlf.hh>
 #include <spot/tl/print.hh>
+#include <spot/tl/hierarchy.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/ltl2tgba_fm.hh>
 #include <spot/twaalgos/minimize.hh>
@@ -707,6 +708,7 @@ namespace
                       matched = false;
                       break;
                     }
+
             }
 
           // Some combinations of options can be simplified.
@@ -725,18 +727,15 @@ namespace
                 && (!safety || f.is_syntactic_safety())
                 && (!obligation || f.is_syntactic_obligation())))
             {
-              if (persistence)
-                aut = ltl_to_tgba_fm(spot::formula::Not(f),
-                                     simpl.get_dict(), true);
-              else if (!aut)
-                aut = ltl_to_tgba_fm(f, simpl.get_dict(), true);
-
               // Match obligations and subclasses using WDBA minimization.
               // Because this is costly, we compute it later, so that we don't
               // have to compute it on formulas that have been discarded for
               // other reasons.
               if (obligation)
                 {
+                  if (!aut)
+                    aut = ltl_to_tgba_fm(f, simpl.get_dict(), true);
+
                   auto min = minimize_obligation(aut, f);
                   assert(min);
                   if (aut == min)
@@ -752,31 +751,12 @@ namespace
                       matched &= !safety || is_safety_automaton(min, &si);
                     }
                 }
-              // Recurrence properties are those that can be translated to
-              // deterministic BA.  Persistence are those whose negation
-              // can be represented as DBA.
-              else if (!is_deterministic(aut))
-                {
-                  assert(recurrence || persistence);
-                  // if aut is a non-deterministic TGBA, we do
-                  // TGBA->DPA->DRA->(D?)BA.  The conversion from DRA to
-                  // BA will preserve determinism if possible.
-                  spot::postprocessor p;
-                  p.set_type(spot::postprocessor::Generic);
-                  p.set_pref(spot::postprocessor::Deterministic);
-                  p.set_level(spot::postprocessor::Low);
-                  auto dra = p.run(aut);
-                  if (dra->acc().is_generalized_buchi())
-                    {
-                      assert(is_deterministic(dra));
-                    }
-                  else
-                    {
-                      auto ba = rabin_to_buchi_maybe(to_generalized_rabin(dra));
-                      assert(ba);
-                      matched &= is_deterministic(ba);
-                    }
-                }
+
+              else if (persistence)
+                matched &= spot::is_persistence(f);
+
+              else if (recurrence)
+                matched &= spot::is_recurrence(f, aut);
             }
         }
 
