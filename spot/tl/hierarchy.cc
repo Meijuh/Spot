@@ -30,31 +30,30 @@
 
 namespace spot
 {
-  namespace
+  bool
+  is_recurrence(formula f, const twa_graph_ptr& aut)
   {
-    static bool is_recurrence(formula f, const twa_graph_ptr& aut)
-    {
-      if (f.is_syntactic_recurrence() || is_universal(aut))
+    if (f.is_syntactic_recurrence() || is_universal(aut))
+      return true;
+    // If aut is a non-deterministic TGBA, we do
+    // TGBA->DPA->DRA->(D?)BA.  The conversion from DRA to
+    // BA will preserve determinism if possible.
+    spot::postprocessor p;
+    p.set_type(spot::postprocessor::Generic);
+    p.set_pref(spot::postprocessor::Deterministic
+               | spot::postprocessor::SBAcc);
+    p.set_level(spot::postprocessor::Low);
+    auto dra = p.run(aut);
+    if (dra->acc().is_generalized_buchi())
+      {
         return true;
-      // If aut is a non-deterministic TGBA, we do
-      // TGBA->DPA->DRA->(D?)BA.  The conversion from DRA to
-      // BA will preserve determinism if possible.
-      spot::postprocessor p;
-      p.set_type(spot::postprocessor::Generic);
-      p.set_pref(spot::postprocessor::Deterministic);
-      p.set_level(spot::postprocessor::Low);
-      auto dra = p.run(aut);
-      if (dra->acc().is_generalized_buchi())
-        {
-          return true;
-        }
-      else
-        {
-          auto ba = rabin_to_buchi_maybe(to_generalized_rabin(dra));
-          assert(ba);
-          return is_deterministic(ba);
-        }
-    }
+      }
+    else
+      {
+        auto ba = rabin_to_buchi_maybe(to_generalized_rabin(dra));
+        assert(ba);
+        return is_deterministic(ba);
+      }
   }
 
   char mp_class(formula f)

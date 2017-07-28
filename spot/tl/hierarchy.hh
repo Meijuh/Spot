@@ -20,9 +20,14 @@
 #pragma once
 
 #include <spot/tl/formula.hh>
+#include <spot/twa/fwd.hh>
 
 namespace spot
 {
+  /// \brief Return true if the formula has the recurrence property.
+  SPOT_API
+  bool is_recurrence(formula f, const twa_graph_ptr& aut);
+
   /// \brief Return the class of \a f in the temporal hierarchy of Manna
   /// and Pnueli (PODC'90).
   ///

@@ -51,6 +51,9 @@ New in spot 2.4.0.dev (not yet released)
     recognize more if the original language can not be expressed with
     a co-Büchi acceptance condition.
 
+  - The function spot::is_recurrence() is now public. It checks if a formula
+    has the reccurence property.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
