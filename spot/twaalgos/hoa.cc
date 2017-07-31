@@ -50,7 +50,7 @@ namespace spot
       std::vector<bool> common_acc;
       bool has_state_acc;
       bool is_complete;
-      bool is_deterministic;
+      bool is_universal;
       bool is_colored;
       bool use_implicit_labels;
       bool use_state_labels = true;
@@ -65,7 +65,7 @@ namespace spot
                bool state_labels)
       {
         check_det_and_comp(aut);
-        use_implicit_labels = implicit && is_deterministic && is_complete;
+        use_implicit_labels = implicit && is_universal && is_complete;
         use_state_labels &= state_labels;
         number_all_ap(aut);
       }
@@ -95,7 +95,7 @@ namespace spot
         std::string empty;
 
         unsigned ns = aut->num_states();
-        bool deterministic = true;
+        bool universal = true;
         bool complete = true;
         bool state_acc = true;
         bool nodeadend = true;
@@ -117,10 +117,10 @@ namespace spot
                   lastcond = t.cond;
                 if (complete)
                   sum |= t.cond;
-                if (deterministic)
+                if (universal)
                   {
                     if (!bdd_implies(t.cond, available))
-                      deterministic = false;
+                      universal = false;
                     else
                       available -= t.cond;
                   }
@@ -151,7 +151,7 @@ namespace spot
             common_acc.push_back(st_acc);
             state_acc &= st_acc;
           }
-        is_deterministic = deterministic;
+        is_universal = universal;
         is_complete = complete;
         has_state_acc = state_acc;
         // If the automaton has state-based acceptance and contain
@@ -160,10 +160,10 @@ namespace spot
         is_colored = colored && (!has_state_acc || nodeadend);
         // If the automaton declares that it is universal or
         // state-based, make sure that it really is.
-        if (aut->prop_universal().is_true() && !deterministic)
+        if (aut->prop_universal().is_true() && !universal)
           throw std::runtime_error("print_hoa(): automaton is not universal"
                                    " but prop_universal()==true");
-        if (aut->prop_universal().is_false() && deterministic)
+        if (aut->prop_universal().is_false() && universal)
           throw std::runtime_error("print_hoa(): automaton is universal"
                                    " despite prop_universal()==false");
         if (aut->prop_complete().is_true() && !complete)
@@ -455,21 +455,6 @@ namespace spot
           }
         os << str;
       };
-    // It's probable that nobody cares about the "no-univ-branch"
-    // property.  The "univ-branch" property seems more important to
-    // announce that the automaton might not be parsable by tools that
-    // do not support alternating automata.
-    if (!aut->is_existential())
-      {
-        prop(" univ-branch");
-      }
-    else if (verbose)
-      {
-        if (v1_1)
-          prop(" !univ-branch");
-        else
-          prop(" no-univ-branch");
-      }
     implicit_labels = md.use_implicit_labels;
     state_labels = md.use_state_labels;
     if (implicit_labels)
@@ -490,20 +475,60 @@ namespace spot
       prop(" complete");
     else if (v1_1)
       prop(" !complete");
-    if (md.is_deterministic)
-      prop(" deterministic");
-    else if (v1_1)
-      prop(" !deterministic");
+    // The definition of "deterministic" was changed between HOA v1
+    // (were it meant "universal") and HOA v1.1 were it means
+    // ("universal" and "existential").
+    if (!v1_1)
+      {
+        if (md.is_universal)
+          prop(" deterministic");
+        // It's probable that nobody cares about the "no-univ-branch"
+        // property.  The "univ-branch" property seems more important to
+        // announce that the automaton might not be parsable by tools that
+        // do not support alternating automata.
+        if (!aut->is_existential())
+          {
+            prop(" univ-branch");
+          }
+        else if (verbose)
+          {
+            if (v1_1)
+              prop(" !univ-branch");
+            else
+              prop(" no-univ-branch");
+          }
+      }
+    else
+      {
+        if (md.is_universal && aut->is_existential())
+          {
+            prop(" deterministic");
+            if (verbose)
+              prop(" !univ-branch !exist-branch");
+          }
+        else
+          {
+            prop(" !deterministic");
+            if (!aut->is_existential())
+              prop(" univ-branch");
+            else if (verbose)
+              prop(" !univ-branch");
+            if (!md.is_universal)
+              prop(" exist-branch");
+            else if (verbose)
+              prop(" !exist-branch");
+          }
+      }
     // Deterministic automata are also unambiguous, so writing both
     // properties seems redundant.  People working on unambiguous
     // automata are usually concerned about non-deterministic
     // unambiguous automata.  So do not mention "unambiguous"
     // in the case of deterministic automata.
-    if (aut->prop_unambiguous() && (verbose || !md.is_deterministic))
+    if (aut->prop_unambiguous() && (verbose || !md.is_universal))
       prop(" unambiguous");
     else if (v1_1 && !aut->prop_unambiguous())
       prop(" !unambiguous");
-    if (aut->prop_semi_deterministic() && (verbose || !md.is_deterministic))
+    if (aut->prop_semi_deterministic() && (verbose || !md.is_universal))
       prop(" semi-deterministic");
     else if (v1_1 && !aut->prop_semi_deterministic())
       prop(" !semi-deterministic");

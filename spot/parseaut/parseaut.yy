@@ -146,7 +146,8 @@ extern "C" int strverscmp(const char *s1, const char *s2);
       bool accept_all_seen = false;
       bool aliased_states = false;
 
-      spot::trival deterministic = spot::trival::maybe();
+      spot::trival universal = spot::trival::maybe();
+      spot::trival existential = spot::trival::maybe();
       spot::trival complete = spot::trival::maybe();
       bool trans_acc_seen = false;
 
@@ -346,6 +347,7 @@ BOOLEAN: 't' | 'f'
 
 header: format-version header-items
         {
+          bool v1plus = strverscmp("v1", res.format_version.c_str()) < 0;
 	  // Preallocate the states if we know their number.
 	  if (res.states >= 0)
 	    {
@@ -457,14 +459,15 @@ header: format-version header-items
 		res.acc_style = State_Acc;
 	      }
 
-            auto univ_branch = res.prop_is_true("univ-branch");
-	    if (res.opts.want_kripke && univ_branch)
-	      error(univ_branch.loc,
-		    "Kripke structures may not use 'properties: univ-branch'");
+            if (auto univ_branch = res.prop_is_true("univ-branch"))
+              if (res.opts.want_kripke)
+                error(univ_branch.loc,
+                    "Kripke structures may not use 'properties: univ-branch'");
           }
 	  {
 	    unsigned ss = res.start.size();
 	    auto det = res.prop_is_true("deterministic");
+	    auto no_exist = res.prop_is_false("exist-branch");
 	    if (ss > 1)
 	      {
 		if (det)
@@ -472,16 +475,46 @@ header: format-version header-items
 		    error(det.loc,
 			  "deterministic automata should have at most "
 			  "one initial state");
-                    res.deterministic = spot::trival::maybe();
+                    res.universal = spot::trival::maybe();
 		  }
+                else if (no_exist)
+                  {
+		    error(no_exist.loc,
+			  "universal automata should have at most "
+			  "one initial state");
+                    res.universal = spot::trival::maybe();
+                  }
 	      }
 	    else
 	      {
 		// Assume the automaton is deterministic until proven
 		// wrong, or unless we are building a Kripke structure.
                 if (!res.opts.want_kripke)
-                  res.deterministic = true;
+                  {
+                    res.universal = true;
+                    res.existential = true;
+                  }
 	      }
+            for (auto& ss: res.start)
+              {
+                if (ss.second.size() > 1)
+                  {
+                    if (auto no_univ = res.prop_is_false("univ-branch"))
+                      {
+                        error(ss.first,
+                              "conjunct initial state despite...");
+                        error(no_univ.loc, "... property: !univ-branch");
+                      }
+                    else if (v1plus)
+                      if (auto det = res.prop_is_true("deterministic"))
+                        {
+                          error(ss.first,
+                                "conjunct initial state despite...");
+                          error(det.loc, "... property: deterministic");
+                        }
+                    res.existential = false;
+                  }
+              }
 	    auto complete = res.prop_is_true("complete");
 	    if (ss < 1)
 	      {
@@ -1069,14 +1102,29 @@ body: states
               error(@1, "automaton is complete...");
               error(p.loc, "... despite 'properties: !complete'");
             }
-        if (res.deterministic)
+        bool det_warned = false;
+        if (res.universal && res.existential)
           if (auto p = res.prop_is_false("deterministic"))
             {
               error(@1, "automaton is deterministic...");
               error(p.loc, "... despite 'properties: !deterministic'");
+              det_warned = true;
+            }
+        if (res.universal.is_true() && !det_warned)
+          if (auto p = res.prop_is_true("exist-branch"))
+            {
+              error(@1, "automaton has no existential branching...");
+              error(p.loc, "... despite 'properties: exist-branch'");
+              det_warned = true;
+            }
+        if (res.existential.is_true() && !det_warned)
+          if (auto p = res.prop_is_true("univ-branch"))
+            {
+              error(@1, "automaton is has no universal branching...");
+              error(p.loc, "... despite 'properties: univ-branch'");
+              det_warned = true;
             }
       }
-
 state-num: INT
 	   {
 	     if (((int) $1) < 0)
@@ -1132,7 +1180,7 @@ checked-state-num: state-num
 
 states: | states state
         {
-	  if ((res.deterministic.is_true() || res.complete.is_true()))
+	  if ((res.universal.is_true() || res.complete.is_true()))
 	    {
 	      bdd available = bddtrue;
 	      bool det = true;
@@ -1142,14 +1190,20 @@ states: | states state
 		    det = false;
 		  available -= t.cond;
 		}
-	      if (res.deterministic.is_true() && !det)
+	      if (res.universal.is_true() && !det)
 		{
-		  res.deterministic = false;
+		  res.universal = false;
 		  if (auto p = res.prop_is_true("deterministic"))
 		    {
 		      error(@2, "automaton is not deterministic...");
 		      error(p.loc,
 			    "... despite 'properties: deterministic'");
+		    }
+		  else if (auto p = res.prop_is_false("exist-branch"))
+		    {
+		      error(@2, "automaton has existential branching...");
+		      error(p.loc,
+			    "... despite 'properties: !exist-branch'");
 		    }
 		}
 	      if (res.complete.is_true() && available != bddfalse)
@@ -1192,7 +1246,8 @@ state: state-name labeled-edges
        {
 	 // Assume the worse.  This skips the tests about determinism
 	 // we might perform on the state.
-	 res.deterministic = spot::trival::maybe();
+	 res.universal = spot::trival::maybe();
+	 res.existential = spot::trival::maybe();
 	 res.complete = spot::trival::maybe();
        }
 
@@ -1402,6 +1457,7 @@ state-conj-checked: state-conj-2
                           " previous declaration...");
                     error(ub.loc, "... here");
                   }
+                res.existential = false;
               }
 
 /* Block of unlabeled edge, with occasional (incorrect) labeled
@@ -1531,7 +1587,8 @@ dstar_header: dstar_sizes
 	res.info_states.resize(res.states);
       }
     res.acc_style = State_Acc;
-    res.deterministic = true;
+    res.universal = true;
+    res.existential = true;
     res.complete = true;
     fill_guards(res);
     res.cur_guard = res.guards.end();
@@ -2339,9 +2396,7 @@ static void fix_initial_state(result_& r)
 
 static void fix_properties(result_& r)
 {
-  r.aut_or_ks->prop_universal(r.deterministic);
-  // std::cerr << "fix det: " << r.deterministic << '\n';
-  // std::cerr << "fix complete: " << r.complete << '\n';
+  r.aut_or_ks->prop_universal(r.universal);
   r.aut_or_ks->prop_complete(r.complete);
   if (r.acc_style == State_Acc ||
       (r.acc_style == Mixed_Acc && !r.trans_acc_seen))
@@ -2373,7 +2428,7 @@ static void check_version(const result_& r)
       std::ostringstream s;
       s << "we can read HOA v" << supported
 	<< " but this file uses " << v << "; this might "
-	<< "cause the following errors";
+	"cause the following errors";
       r.h->errors.emplace_front(r.format_version_loc, s.str());
       return;
     }

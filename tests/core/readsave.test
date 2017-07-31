@@ -809,8 +809,8 @@ Start: 1
 AP: 2 "a" "b"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: no-univ-branch trans-labels explicit-labels state-acc
-properties: deterministic unambiguous semi-deterministic weak
+properties: trans-labels explicit-labels state-acc deterministic
+properties: no-univ-branch unambiguous semi-deterministic weak
 properties: inherently-weak
 --BODY--
 State: 0

@@ -260,8 +260,8 @@ Start: 2&0
 AP: 0
 acc-name: all
 Acceptance: 0 t
-properties: univ-branch trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: !deterministic univ-branch
 --BODY--
 State: 0
 [t] 0

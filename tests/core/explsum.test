@@ -170,7 +170,7 @@ States: 6
 Start: 5
 AP: 3 "a" "b" "c"
 Acceptance: 2 Inf(0) | Inf(1)
-properties: univ-branch trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels trans-acc univ-branch
 --BODY--
 State: 0
 [0] 0&1
@@ -222,7 +222,7 @@ States: 7
 Start: 0&2&5
 AP: 3 "b" "a" "c"
 Acceptance: 4 Fin(0) | Inf(1) | (Inf(2)&Inf(3))
-properties: univ-branch trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels trans-acc univ-branch
 --BODY--
 State: 0
 [1] 0 {0}
@@ -254,7 +254,7 @@ States: 8
 Start: 7
 AP: 3 "b" "a" "c"
 Acceptance: 4 Fin(0) | Inf(1) | (Inf(2)&Inf(3))
-properties: univ-branch trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels trans-acc univ-branch
 --BODY--
 State: 0
 [1] 0 {0}

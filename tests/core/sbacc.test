@@ -249,7 +249,7 @@ Start: 0
 AP: 1 "a"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: univ-branch trans-labels explicit-labels state-acc
+properties: trans-labels explicit-labels state-acc univ-branch
 --BODY--
 State: 0 {0}
 [0] 3

@@ -129,7 +129,7 @@ diff expect.dot alt.dot
 
 autfilt --trust=no --check=strength alt.hoa | grep properties: >output
 cat >expected <<EOF
-properties: univ-branch trans-labels explicit-labels state-acc
+properties: trans-labels explicit-labels state-acc univ-branch
 properties: very-weak
 EOF
 diff output expected
@@ -168,7 +168,7 @@ Start: 0
 AP: 1 "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: univ-branch trans-labels explicit-labels state-acc complete
+properties: trans-labels explicit-labels state-acc complete univ-branch
 properties: very-weak
 --BODY--
 State: 0 {0}
@@ -211,8 +211,8 @@ Start: 0
 AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [0] 0
@@ -232,8 +232,8 @@ Start: 0&1
 AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [0] 0
@@ -253,8 +253,8 @@ Start: 0
 AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [0] 1
@@ -280,8 +280,8 @@ Start: 0&2
 AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc
-properties: deterministic
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
 --BODY--
 State: 0
 [0] 0
@@ -301,8 +301,8 @@ Start: 0&2&4
 AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc
-properties: deterministic
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
 --BODY--
 State: 0
 [0] 0
@@ -325,8 +325,8 @@ Start: 0&1
 AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [0] 0
@@ -343,8 +343,8 @@ Start: 0&1&3
 AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc
-properties: deterministic
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
 --BODY--
 State: 0
 [0] 0
@@ -365,8 +365,8 @@ Start: 0&1
 AP: 1 "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [0] 0
@@ -896,8 +896,8 @@ Start: 0&1
 AP: 1 "p1"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels trans-acc
-properties: deterministic
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
 --BODY--
 State: 0 "p1"
 [0] 2

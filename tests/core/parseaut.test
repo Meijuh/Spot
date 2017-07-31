@@ -690,12 +690,108 @@ State: 1
 [!0] 1
 [!0] 0
 --END--
+HOA: v1
+States: 2
+Start: 0
+Start: 1
+AP: 2 "a" "\"b\""
+Acceptance: 1 Inf(0)
+properties: !exist-branch univ-branch
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 1
+[!0] 0
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "\"b\""
+Acceptance: 1 Inf(0)
+properties: !exist-branch univ-branch
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 1
+[!0] 0
+--END--
+HOA: v1
+States: 2
+Start: 0&1
+AP: 2 "a" "\"b\""
+Acceptance: 1 Inf(0)
+properties: exist-branch !univ-branch
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 1
+[!0] 0
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "\"b\""
+Acceptance: 1 Inf(0)
+properties: exist-branch !univ-branch
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 1&0
+--END--
+HOA: v1
+States: 2
+Start: 0&1  /* This is ok in the v1 format */
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+properties: deterministic
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 0
+--END--
+HOA: v1.1
+States: 2
+Start: 0&1  /* This is NOT ok since v1.1 */
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+properties: deterministic
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 0
+--END--
 EOF
 expecterr input <<EOF
 input:7.13-25: deterministic automata should have at most one initial state
 input:20.13-20: complete automata should have at least one initial state
 input:33.1-35.6: automaton is not deterministic...
 input:28.13-25: ... despite 'properties: deterministic'
+input:43.13-25: universal automata should have at most one initial state
+input:62.1-64.6: automaton has existential branching...
+input:57.13-25: ... despite 'properties: !exist-branch'
+input:58.9-64.6: automaton is has no universal branching...
+input:57.27-37: ... despite 'properties: univ-branch'
+input:68.1-10: conjunct initial state despite...
+input:71.26-37: ... property: !univ-branch
+input:91.6-8: universal branch used despite previous declaration...
+input:85.26-37: ... here
+input:86.9-91.8: automaton has no existential branching...
+input:85.13-24: ... despite 'properties: exist-branch'
+input:106.6-9: we can read HOA v1 but this file uses v1.1; $t
+input:108.1-10: conjunct initial state despite...
+input:111.13-25: ... property: deterministic
 EOF
 
 # Mix HOA with neverclaims and LBTT automata
@@ -1960,7 +2056,7 @@ Start: 12
 AP: 4 "p2" "c1" "p1" "c2"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels state-acc
+properties: trans-labels explicit-labels state-acc univ-branch
 properties: very-weak
 --BODY--
 State: 0 "X (G(c2))"
@@ -2435,7 +2531,7 @@ Start: 0
 AP: 2 "b" "a"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels state-acc
+properties: trans-labels explicit-labels state-acc univ-branch
 properties: very-weak
 --BODY--
 State: 0 "((((a) U (b)) && GF(b)) && FG(a))"
@@ -2464,8 +2560,8 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [!0&!1] 0&1
@@ -2641,7 +2737,7 @@ Start: 0
 AP: 2 "b" "a"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: univ-branch trans-labels explicit-labels state-acc
+properties: trans-labels explicit-labels state-acc univ-branch
 properties: very-weak
 --BODY--
 State: 0 "((((a) U (b)) && GF(b)) && FG(a))"
@@ -2670,8 +2766,8 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: univ-branch trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [!0&!1] 0&1

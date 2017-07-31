@@ -59,7 +59,7 @@ Start: 0
 AP: 2 "p1" "p2"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: univ-branch trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels trans-acc univ-branch
 --BODY--
 State: 0
 [0] 1&2 {0}
@@ -89,7 +89,7 @@ Start: 0&1
 AP: 2 "p1" "p2"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: univ-branch trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels trans-acc univ-branch
 --BODY--
 State: 0
 [0] 1&2 {0}
@@ -120,7 +120,7 @@ Start: 0
 AP: 2 "p1" "p2"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: univ-branch trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels trans-acc univ-branch
 --BODY--
 State: 0
 [0] 1&2 {0}
@@ -146,7 +146,7 @@ Start: 0
 AP: 2 "p1" "p2"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: univ-branch trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels trans-acc univ-branch
 --BODY--
 State: 0
 [0&!1] 1&2 {0}

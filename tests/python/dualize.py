@@ -125,8 +125,8 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [!0] 3
@@ -289,8 +289,8 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: Streett 1
 Acceptance: 2 Fin(0) | Inf(1)
-properties: univ-branch trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0 {0}
 [0&!1] 1
@@ -523,8 +523,8 @@ Start: 0
 AP: 1 "a"
 acc-name: parity min even 2
 Acceptance: 2 Inf(0) | Fin(1)
-properties: univ-branch trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [!0] 0
@@ -546,8 +546,8 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [0] 1

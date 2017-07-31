@@ -195,8 +195,8 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels state-acc complete
-properties: deterministic very-weak
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic univ-branch very-weak
 --BODY--
 State: 0
 [!0 | 1] 0
@@ -210,8 +210,8 @@ Start: 0&1
 AP: 0
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels state-acc complete
-properties: deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic univ-branch
 --BODY--
 State: 0
 [t] 0
@@ -233,8 +233,8 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels state-acc
-properties: deterministic very-weak
+properties: trans-labels explicit-labels state-acc deterministic
+properties: univ-branch very-weak
 --BODY--
 State: 0
 [!0 | 1] 0
@@ -248,8 +248,8 @@ Start: 0&1
 AP: 0
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: univ-branch trans-labels explicit-labels state-acc
-properties: deterministic
+properties: trans-labels explicit-labels state-acc deterministic
+properties: univ-branch
 --BODY--
 State: 0
 State: 1

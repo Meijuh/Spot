@@ -172,6 +172,15 @@ New in spot 2.3.5.dev (not yet released)
     process automata from different streams at the same time (i.e.,
     using multiple spot::automaton_stream_parser instances at once).
 
+  - The print_hoa() and parse_automaton() functions have been updated
+    to recognize the "exist-branch" property of the non-released HOA
+    v1.1, as well as the new meaning of property "deterministic".  (In
+    HOA v1 "properties: deterministic" means that the automaton has no
+    existential branching; in HOA v1.1 it disallows universal
+    branching as well.)  The meaning of "deterministic" in Spot has
+    been adjusted to these new semantics, see "Backward-incompatible
+    changes" below.
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.
