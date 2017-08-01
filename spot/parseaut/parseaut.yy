@@ -1110,18 +1110,25 @@ body: states
               error(p.loc, "... despite 'properties: !deterministic'");
               det_warned = true;
             }
-        if (res.universal.is_true() && !det_warned)
+        static bool tolerant = getenv("SPOT_HOA_TOLERANT");
+        if (res.universal.is_true() && !det_warned && !tolerant)
           if (auto p = res.prop_is_true("exist-branch"))
             {
               error(@1, "automaton has no existential branching...");
-              error(p.loc, "... despite 'properties: exist-branch'");
+              error(p.loc, "... despite 'properties: exist-branch'\n"
+                    "note: If this is an issue you cannot fix, you may disable "
+                    "this diagnostic\n      by defining the SPOT_HOA_TOLERANT "
+                    "environment variable.");
               det_warned = true;
             }
-        if (res.existential.is_true() && !det_warned)
+        if (res.existential.is_true() && !det_warned && !tolerant)
           if (auto p = res.prop_is_true("univ-branch"))
             {
               error(@1, "automaton is has no universal branching...");
-              error(p.loc, "... despite 'properties: univ-branch'");
+              error(p.loc, "... despite 'properties: univ-branch'\n"
+                    "note: If this is an issue you cannot fix, you may disable "
+                    "this diagnostic\n      by defining the SPOT_HOA_TOLERANT "
+                    "environment variable.");
               det_warned = true;
             }
       }

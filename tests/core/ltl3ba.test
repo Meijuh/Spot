@@ -29,7 +29,11 @@ set -e
 (ltl3ba -v) || exit 77
 
 # The -H1 option will output alternating automata, so this tests
-# ltlcross's support in this area.
+# ltlcross's support in this area.  However ltl3ba 1.1.3 incorrectly
+# output "univ-branch" for all automata produced by -H1, causing
+# error messages from Spot's parser unless SPOT_HOA_TOLERANT is set.
+SPOT_HOA_TOLERANT=1
+export SPOT_HOA_TOLERANT
 # Using '_x' as first formula makes sure that ltlcross automatically
 # relabels the input formula when the atomic propositions are not
 # compatible with Spin's syntax.

@@ -181,6 +181,11 @@ New in spot 2.3.5.dev (not yet released)
     been adjusted to these new semantics, see "Backward-incompatible
     changes" below.
 
+  - The parser for HOA now recognize and verifies correct use of the
+    "univ-branch" property.  This is known to be a problem with option
+    -H1 of ltl3ba 1.1.2 and ltl3dra 0.2.3, so the environment variable
+    SPOT_HOA_TOLERANT can be set to disable the diagnostic.
+
   Python:
 
   - The 'spot.gen' package exports the functions from libspotgen.

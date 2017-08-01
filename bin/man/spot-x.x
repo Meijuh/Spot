@@ -92,6 +92,14 @@ before the first state is output.  This makes it easy to override
 global attributes of the graph.
 
 .TP
+\fBSPOT_HOA_TOLERANT\fR
+If this variable is set, a few sanity checks performed by the HOA
+parser are skipped.  The tests in questions correspond to issues
+in third-party tools that output incorrect HOA (e.g., declaring
+the automaton with property "univ-branch" when no universal branching
+is actually used)
+
+.TP
 \fBSPOT_SATLOG\fR
 If set to a filename, the SAT-based minimization routines will append
 statistics about each iteration to the named file.  Each line lists
