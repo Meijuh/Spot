@@ -89,8 +89,7 @@ namespace spot
     // derive the usefulness from that.
     scc_info sccmap_prod(prod);
     unsigned psc = sccmap_prod.scc_count();
-    std::vector<bool> useful;
-    useful.reserve(psc);
+    std::vector<bool> useful(psc);
     for (unsigned n = 0; n < psc; ++n)
       {
         unsigned one_state = sccmap_prod.states_of(n).front();
