@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement de
+// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -159,6 +159,46 @@ namespace spot
           c->destroy();
       }
     delete this;
+  }
+
+  void
+  fnode::report_non_existing_child()
+  {
+    throw std::runtime_error("access to non-existing child");
+  }
+
+  void
+  fnode::report_too_many_children()
+  {
+    throw std::runtime_error("too many children for formula");
+  }
+
+  void
+  fnode::report_get_child_of_expecting_single_child_node()
+  {
+    throw std::invalid_argument
+      ("get_child_of() expecting single-child node");
+  }
+
+  void
+  fnode::report_min_invalid_arg()
+  {
+    throw std::invalid_argument
+      ("min() only works on Star and FStar nodes");
+  }
+
+  void
+  fnode::report_max_invalid_arg()
+  {
+    throw std::invalid_argument
+      ("min() only works on Star and FStar nodes");
+  }
+
+  void
+  formula::report_ap_invalid_arg()
+  {
+    throw std::invalid_argument("atomic propositions cannot be "
+                                "constructed from arbitrary formulas");
   }
 
   std::string fnode::kindstr() const

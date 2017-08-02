@@ -192,8 +192,7 @@ namespace spot
         if (op_ != o)
           return nullptr;
         if (SPOT_UNLIKELY(size_ != 1))
-          throw std::invalid_argument
-            ("get_child_of() expecting single-child node");
+          report_get_child_of_expecting_single_child_node();
         return nth(0);
       }
 
@@ -214,8 +213,7 @@ namespace spot
       unsigned min() const
       {
         if (SPOT_UNLIKELY(op_ != op::FStar && op_ != op::Star))
-          throw std::invalid_argument
-            ("min() only works on Star and FStar nodes");
+          report_min_invalid_arg();
         return min_;
       }
 
@@ -223,8 +221,7 @@ namespace spot
       unsigned max() const
       {
         if (SPOT_UNLIKELY(op_ != op::FStar && op_ != op::Star))
-          throw std::invalid_argument
-            ("max() only works on Star and FStar nodes");
+          report_max_invalid_arg();
         return max_;
       }
 
@@ -255,8 +252,8 @@ namespace spot
       /// \see formula::nth
       const fnode* nth(unsigned i) const
       {
-        if (i >= size())
-          throw std::runtime_error("access to non-existing child");
+        if (SPOT_UNLIKELY(i >= size()))
+          report_non_existing_child();
         return children[i];
       }
 
@@ -480,6 +477,13 @@ namespace spot
       void setup_props(op o);
       void destroy_aux() const;
 
+      [[noreturn]] static void report_non_existing_child();
+      [[noreturn]] static void report_too_many_children();
+      [[noreturn]] static void
+        report_get_child_of_expecting_single_child_node();
+      [[noreturn]] static void report_min_invalid_arg();
+      [[noreturn]] static void report_max_invalid_arg();
+
       static const fnode* unique(const fnode*);
 
       // Destruction may only happen via destroy().
@@ -509,8 +513,8 @@ namespace spot
          saturated_(0)
       {
         size_t s = std::distance(begin, end);
-        if (s > (size_t) UINT16_MAX)
-          throw std::runtime_error("too many children for formula");
+        if (SPOT_UNLIKELY(s > (size_t) UINT16_MAX))
+          report_too_many_children();
         size_ = s;
         auto pos = children;
         for (auto i = begin; i != end; ++i)
@@ -825,11 +829,9 @@ namespace spot
     /// atomic propositions.
     static formula ap(const formula& a)
     {
-      if (a.kind() == op::ap)
-        return a;
-      else
-        throw std::invalid_argument("atomic propositions cannot be "
-                                    "constructed from arbitrary formulas");
+      if (SPOT_UNLIKELY(a.kind() != op::ap))
+        report_ap_invalid_arg();
+      return a;
     }
 
     /// \brief Build a unary operator.
@@ -1293,7 +1295,7 @@ namespace spot
     class SPOT_API formula_child_iterator final
     {
       const fnode*const* ptr_;
-      public:
+    public:
       formula_child_iterator()
         : ptr_(nullptr)
       {
@@ -1651,6 +1653,11 @@ namespace spot
         for (auto f: *this)
           f.traverse(func);
       }
+
+  private:
+#ifndef SWIG
+    [[noreturn]] static void report_ap_invalid_arg();
+#endif
   };
 
   /// Print the properties of formula \a f on stream \a out.
