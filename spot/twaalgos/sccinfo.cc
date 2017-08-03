@@ -367,15 +367,15 @@ namespace spot
 
   void scc_info::determine_unknown_acceptance()
   {
-    if (!aut_->is_existential())
-      throw std::runtime_error("scc_info::determine_unknown_acceptance() "
-                               "does not support alternating automata");
     std::vector<bool> k;
     unsigned n = scc_count();
     bool changed = false;
     for (unsigned s = 0; s < n; ++s)
       if (!is_rejecting_scc(s) && !is_accepting_scc(s))
         {
+          if (!aut_->is_existential())
+            throw std::runtime_error("scc_info::determine_unknown_acceptance() "
+                                     "does not support alternating automata");
           auto& node = node_[s];
           if (k.empty())
             k.resize(aut_->num_states());

@@ -69,7 +69,8 @@ namespace spot
 
   twa_graph_ptr mask_keep_accessible_states(const const_twa_graph_ptr& in,
                                             std::vector<bool>& to_keep,
-                                            unsigned int init)
+                                            unsigned int init,
+                                            bool drop_univ_branches)
   {
     if (to_keep.size() < in->num_states())
       to_keep.resize(in->num_states(), false);
@@ -83,9 +84,21 @@ namespace spot
                                       acc_cond::mark_t&,
                                       unsigned dst)
                    {
-                     if (!to_keep[src] || !to_keep[dst])
+                     if (!to_keep[src])
+                       {
+                         cond = bddfalse;
+                         return;
+                       }
+                     bool want = false;
+                     for (auto d: in->univ_dests(dst))
+                       if (to_keep[d])
+                         {
+                           want = true;
+                           break;
+                         }
+                     if (!want)
                        cond = bddfalse;
-                   }, init);
+                   }, init, drop_univ_branches);
     return res;
   }
 

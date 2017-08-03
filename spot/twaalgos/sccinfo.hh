@@ -30,13 +30,15 @@ namespace spot
   {
     struct keep_all
     {
-      template <typename Edge>
-      bool operator()(const Edge&) const noexcept
+      template <typename Iterator>
+      bool operator()(Iterator, Iterator) const noexcept
       {
         return true;
       }
     };
 
+    // Keep only transitions that have at least one destination in the
+    // current SCC.
     struct keep_inner_scc
     {
     private:
@@ -48,10 +50,17 @@ namespace spot
       {
       }
 
-      template <typename Edge>
-      bool operator()(const Edge& ed) const noexcept
+      template <typename Iterator>
+      bool operator()(Iterator begin, Iterator end) const noexcept
       {
-        return sccof_[ed.dst] == desired_scc_;
+        bool want = false;
+        while (begin != end)
+          if (sccof_[*begin++] == desired_scc_)
+            {
+              want = true;
+              break;
+            }
+        return want;
       }
     };
 
@@ -79,6 +88,7 @@ namespace spot
                                         const typename Graph::state_vector,
                                         typename Graph::state_vector>::type
         sv_t;
+      typedef const typename Graph::dests_vector_t dv_t;
     protected:
 
       state_iterator pos_;
@@ -86,6 +96,8 @@ namespace spot
       unsigned t_;
       tv_t* tv_;
       sv_t* sv_;
+      dv_t* dv_;
+
       Filter filt_;
 
       void inc_state_maybe_()
@@ -100,17 +112,28 @@ namespace spot
         inc_state_maybe_();
       }
 
+      bool ignore_current()
+      {
+        unsigned dst = (*this)->dst;
+        if ((int)dst >= 0)
+          // Non-universal branching => a single destination.
+          return !filt_(&(*this)->dst, 1 + &(*this)->dst);
+        // Universal branching => multiple destinations.
+        const unsigned* d = dv_->data() + ~dst;
+        return !filt_(d + 1, d + *d + 1);
+      }
+
     public:
       scc_edge_iterator(state_iterator begin, state_iterator end,
-                        tv_t* tv, sv_t* sv, Filter filt) noexcept
-        : pos_(begin), end_(end), t_(0), tv_(tv), sv_(sv), filt_(filt)
+                        tv_t* tv, sv_t* sv, dv_t* dv, Filter filt) noexcept
+        : pos_(begin), end_(end), t_(0), tv_(tv), sv_(sv), dv_(dv), filt_(filt)
       {
         if (pos_ == end_)
           return;
 
         t_ = (*sv_)[*pos_].succ;
         inc_state_maybe_();
-        while (pos_ != end_ && !filt_(**this))
+        while (pos_ != end_ && ignore_current())
           inc_();
       }
 
@@ -118,7 +141,7 @@ namespace spot
       {
         do
           inc_();
-        while (pos_ != end_ && !filt_(**this));
+        while (pos_ != end_ && ignore_current());
         return *this;
       }
 
@@ -158,29 +181,31 @@ namespace spot
       typedef scc_edge_iterator<Graph, Filter> iter_t;
       typedef typename iter_t::tv_t tv_t;
       typedef typename iter_t::sv_t sv_t;
+      typedef typename iter_t::dv_t dv_t;
       typedef typename iter_t::state_iterator state_iterator;
     private:
       state_iterator begin_;
       state_iterator end_;
       tv_t* tv_;
       sv_t* sv_;
+      dv_t* dv_;
       Filter filt_;
     public:
 
       scc_edges(state_iterator begin, state_iterator end,
-                tv_t* tv, sv_t* sv, Filter filt) noexcept
-        : begin_(begin), end_(end), tv_(tv), sv_(sv), filt_(filt)
+                tv_t* tv, sv_t* sv, dv_t* dv, Filter filt) noexcept
+        : begin_(begin), end_(end), tv_(tv), sv_(sv), dv_(dv), filt_(filt)
       {
       }
 
       iter_t begin() const
       {
-        return {begin_, end_, tv_, sv_, filt_};
+        return {begin_, end_, tv_, sv_, dv_, filt_};
       }
 
       iter_t end() const
       {
-        return {end_, end_, nullptr, nullptr, filt_};
+        return {end_, end_, nullptr, nullptr, nullptr, filt_};
       }
     };
   }
@@ -408,23 +433,24 @@ namespace spot
       auto& states = states_of(scc);
       return {states.begin(), states.end(),
               &aut_->edge_vector(), &aut_->states(),
+              &aut_->get_graph().dests_vector(),
               internal::keep_all()};
     }
 
     /// \brief A fake container to iterate over all edges between
     /// states of an SCC.
     ///
-    /// The difference with edges_of() is that inner_edges_of() ignores
-    /// edges leaving the SCC are ignored.
+    /// The difference with edges_of() is that inner_edges_of()
+    /// ignores edges leaving the SCC are ignored.  In the case of
+    /// alternating automaton, an edge is considered to be part of the
+    /// SCC of one of its destination is in the SCC.
     internal::scc_edges<const twa_graph::graph_t, internal::keep_inner_scc>
     inner_edges_of(unsigned scc) const
     {
-      if (!aut_->is_existential())
-        throw std::runtime_error
-          ("inner_edges_of(): alternating automata are not supported");
       auto& states = states_of(scc);
       return {states.begin(), states.end(),
               &aut_->edge_vector(), &aut_->states(),
+              &aut_->get_graph().dests_vector(),
               internal::keep_inner_scc(sccof_, scc)};
     }
 

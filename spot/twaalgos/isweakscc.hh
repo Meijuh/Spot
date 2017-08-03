@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -54,7 +54,9 @@ namespace spot
   /// \brief Whether the SCC number \a scc in \a map is complete.
   ///
   /// An SCC is complete iff for all states and all label there exists
-  /// a transition that stays into this SCC.
+  /// a transition that stays into this SCC.  For this function,
+  /// universal transitions are considered in the SCC if all there
+  /// destination are into the SCC.
   SPOT_API bool
   is_complete_scc(scc_info& map, unsigned scc);
 

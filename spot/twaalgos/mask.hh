@@ -44,16 +44,16 @@ namespace spot
   /// `aut->get_named_prop<std::vector<unsigned>>("original-states")`
   /// to retrieve it.
   ///
+  /// If \a drop_univ_branches branch is set, universal branching is replaced
+  /// by existential branching during the copy.
+  ///
   /// \param init The optional new initial state.
   template<typename Trans>
   void transform_accessible(const const_twa_graph_ptr& old,
                             twa_graph_ptr& cpy,
-                            Trans trans, unsigned int init)
+                            Trans trans, unsigned int init,
+                            bool drop_univ_branches = false)
   {
-    if (!old->is_existential())
-      throw std::runtime_error
-        ("transform_accessible() does not support alternation");
-
     std::vector<unsigned> todo;
     std::vector<unsigned> seen(old->num_states(), -1U);
 
@@ -75,7 +75,27 @@ namespace spot
         return tmp;
       };
 
-    cpy->set_init_state(new_state(init));
+    // Deal with alternating automata, possibly.
+    std::map<std::vector<unsigned>, unsigned> uniq;
+    auto new_univ_state =
+      [&](unsigned old_state) -> unsigned
+      {
+        if (!old->is_univ_dest(old_state))
+          return new_state(old_state);
+
+        std::vector<unsigned> tmp;
+        for (auto s: old->univ_dests(old_state))
+          tmp.emplace_back(new_state(s));
+        std::sort(tmp.begin(), tmp.end());
+        tmp.erase(std::unique(tmp.begin(), tmp.end()), tmp.end());
+        auto p = uniq.emplace(tmp, 0);
+        if (p.second)
+          p.first->second =
+            cpy->get_graph().new_univ_dests(tmp.begin(), tmp.end());
+        return p.first->second;
+      };
+
+    cpy->set_init_state(new_univ_state(init));
     if (seen[init] != 0)
       throw std::runtime_error
         ("the destination automaton of transform_accessible() should be empty");
@@ -93,13 +113,15 @@ namespace spot
             bdd cond = t.cond;
             acc_cond::mark_t acc = t.acc;
             trans(t.src, cond, acc, t.dst);
-
-            if (cond != bddfalse)
-              cpy->new_edge(new_src, new_state(t.dst),
-                            cond, acc);
+            if (cond == bddfalse)
+              continue;
+            if (drop_univ_branches)
+              for (unsigned d: old->univ_dests(t.dst))
+                cpy->new_edge(new_src, new_state(d), cond, acc);
+            else
+              cpy->new_edge(new_src, new_univ_state(t.dst), cond, acc);
           }
       }
-
     orig_states->shrink_to_fit();
   }
 
@@ -186,9 +208,13 @@ namespace spot
   /// will be set to \a init.  Only states that are accessible from \a
   /// init via states in \a to_keep will be preserved.
   ///
+  /// If \a drop_univ_branches branch is set, universal branching is replaced
+  /// by existential branching during the copy.
+  ///
   /// \see mask_keep_states
   SPOT_API
   twa_graph_ptr mask_keep_accessible_states(const const_twa_graph_ptr& in,
                                             std::vector<bool>& to_keep,
-                                            unsigned int init);
+                                            unsigned int init,
+                                            bool drop_univ_branches = false);
 }

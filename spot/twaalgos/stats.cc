@@ -256,15 +256,25 @@ namespace spot
           break;
         case 'i':
           if (pos[1] == 'w')
-            inherently_weak = true;
+            {
+              inherently_weak = true;
+              ++pos;
+            }
           else
-            error(std::string(pos, pos + 2));
+            {
+              error(std::string(pos, pos + 2));
+            }
           break;
         case 'I':
           if (pos[1] == 'W')
-            non_inherently_weak = true;
+            {
+              non_inherently_weak = true;
+              ++pos;
+            }
           else
-            error(std::string(pos, pos + 2));
+            {
+              error(std::string(pos, pos + 2));
+            }
           break;
         case ' ':
         case '\t':

@@ -23,20 +23,29 @@
 
 namespace spot
 {
+  namespace
+  {
+    [[noreturn]] static void
+    invalid_scc_number(const char* fn)
+    {
+      throw std::invalid_argument(std::string(fn) + "(): invalid SCC number");
+    }
+  }
+
   bool
   scc_has_rejecting_cycle(scc_info& map, unsigned scc)
   {
+    if (SPOT_UNLIKELY(scc >= map.scc_count()))
+      invalid_scc_number("scc_has_rejecting_cycle");
     auto aut = map.get_aut();
-    if (!aut->is_existential())
-      throw std::runtime_error
-        ("scc_has_rejecting_cycle() does not support alternation");
     // We check that by cloning the SCC and complementing its
     // acceptance condition.
     std::vector<bool> keep(aut->num_states(), false);
     auto& states = map.states_of(scc);
     for (auto s: states)
       keep[s] = true;
-    auto sccaut = mask_keep_accessible_states(aut, keep, states.front());
+    auto sccaut = mask_keep_accessible_states(aut, keep, states.front(),
+                                              /* drop_univ_branch = */ true);
     sccaut->set_acceptance(sccaut->acc().num_sets(),
                            sccaut->get_acceptance().complement());
     return !sccaut->is_empty();
@@ -45,9 +54,8 @@ namespace spot
   bool
   is_inherently_weak_scc(scc_info& map, unsigned scc)
   {
-    if (!map.get_aut()->is_existential())
-      throw std::runtime_error
-        ("is_inherently_weak_scc() does not support alternation");
+    if (SPOT_UNLIKELY(scc >= map.scc_count()))
+      invalid_scc_number("is_inherently_weak_scc");
      // Weak SCCs are inherently weak.
     if (is_weak_scc(map, scc))
       return true;
@@ -60,10 +68,8 @@ namespace spot
   bool
   is_weak_scc(scc_info& map, unsigned scc)
   {
-    if (!map.get_aut()->is_existential())
-      throw std::runtime_error
-        ("is_weak_scc() does not support alternation");
-
+    if (SPOT_UNLIKELY(scc >= map.scc_count()))
+      invalid_scc_number("is_weak_scc");
     // Rejecting SCCs are weak.
     if (map.is_rejecting_scc(scc))
       return true;
@@ -74,10 +80,9 @@ namespace spot
   bool
   is_complete_scc(scc_info& map, unsigned scc)
   {
+    if (SPOT_UNLIKELY(scc >= map.scc_count()))
+      invalid_scc_number("is_complete_scc");
     auto a = map.get_aut();
-    if (!a->is_existential())
-      throw std::runtime_error
-        ("is_complete_scc() does not support alternation");
     for (auto s: map.states_of(scc))
       {
         bool has_succ = false;
@@ -85,8 +90,16 @@ namespace spot
         for (auto& t: a->out(s))
           {
             has_succ = true;
-            if (map.scc_of(t.dst) == scc)
-              sumall |= t.cond;
+            bool in = true;
+            for (auto d: a->univ_dests(t.dst))
+              if (map.scc_of(d) != scc)
+                {
+                  in = false;
+                  break;
+                }
+            if (!in)
+              continue;
+            sumall |= t.cond;
             if (sumall == bddtrue)
               break;
           }
@@ -99,9 +112,8 @@ namespace spot
   bool
   is_terminal_scc(scc_info& map, unsigned scc)
   {
-    if (!map.get_aut()->is_existential())
-      throw std::runtime_error
-        ("is_terminal_scc() does not support alternation");
+    if (SPOT_UNLIKELY(scc >= map.scc_count()))
+      invalid_scc_number("is_terminal_scc");
 
     // If all transitions use all acceptance conditions, the SCC is weak.
     return (map.is_accepting_scc(scc)

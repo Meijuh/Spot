@@ -1840,6 +1840,7 @@ State: 2 "t"
 EOF
 autfilt --tgba in 2>out && exit 1
 grep 'autfilt.*weak.*alternating' out
+test '0 2 2 1'  = "`autfilt --stats='%[Wiw]c %[w]c %[iw]c %[W]c' in`"
 
 cat >in <<EOF
 HOA: v1
@@ -1860,3 +1861,4 @@ State: 3 /*{0}*/
 EOF
 autfilt --tgba in 2>out && exit 1
 grep 'autfilt.*weak.*alternating' out
+test '2 0 2 2'  = "`autfilt --stats='%[Wiw]c %[w]c %[iw]c %[W]c' in`"
