@@ -211,6 +211,10 @@ New in spot 2.3.5.dev (not yet released)
   - spot::acc_cond::mark_t::sets() now returns an internal iterable
     object instead of an std::vector<unsigned>.
 
+  - The color palette optionally used by print_dot() has been extended
+    from 9 to 16 colors.  While the first 8 colors are similar, they
+    are a bit more saturated now.
+
   Deprecation notice:
 
   - spot::decompose_strength() is deprecated, it has been renamed

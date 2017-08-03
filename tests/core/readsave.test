@@ -394,8 +394,8 @@ diff output expected
 SPOT_DOTDEFAULT=bra ltl2tgba --dot='e.f(Lato)' 'GFa & GFb' >output
 cat output
 
-zero='<font color="#5DA5DA">⓿</font>'
-one='<font color="#F17CB0">❶</font>'
+zero='<font color="#1F78B4">⓿</font>'
+one='<font color="#FF4DA0">❶</font>'
 cat >expected <<EOF
 digraph G {
   rankdir=LR
@@ -892,7 +892,7 @@ run 0 autfilt -dbark input6 >output6d2
 cat >expect6d2 <<EOF
 digraph G {
   rankdir=LR
-  label=<Inf(<font color="#5DA5DA">⓿</font>)>
+  label=<Inf(<font color="#1F78B4">⓿</font>)>
   labelloc="t"
   I [label="", style=invis, width=0]
   I -> 1
@@ -903,7 +903,7 @@ digraph G {
   1 [label=<1<br/>a>]
   1 -> 0 [label=<>]
   1 -> 1 [label=<>]
-  2 [label=<2<br/><font color="#5DA5DA">⓿</font><br/>a>]
+  2 [label=<2<br/><font color="#1F78B4">⓿</font><br/>a>]
   2 -> 2 [label=<>]
   2 -> 0 [label=<>]
   2 -> 1 [label=<>]
@@ -1013,13 +1013,13 @@ digraph G {
   node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 2
-  0 [label="0", peripheries=2, style="bold", color="#5DA5DA"]
-  0 -> 0 [label="1", style=bold, color="#5DA5DA"]
+  0 [label="0", peripheries=2, style="bold", color="#1F78B4"]
+  0 -> 0 [label="1", style=bold, color="#1F78B4"]
   1 [label="1"]
-  1 -> 0 [label="c", style=bold, color="#F17CB0"]
-  1 -> 1 [label="b & !c", style=bold, color="#FAA43A"]
-  2 [label="2", style="bold", color="#B276B2"]
-  2 -> 0 [label="c", style=bold, color="#B276B2"]
+  1 -> 0 [label="c", style=bold, color="#FF4DA0"]
+  1 -> 1 [label="b & !c", style=bold, color="#FF7F00"]
+  2 [label="2", style="bold", color="#6A3D9A"]
+  2 -> 0 [label="c", style=bold, color="#6A3D9A"]
   2 -> 1 [label="!a & b & !c"]
   2 -> 2 [label="a & !c"]
 }

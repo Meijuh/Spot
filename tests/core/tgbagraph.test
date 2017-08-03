@@ -226,16 +226,16 @@ digraph G {
   node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 2
-  0 [label="s1", style="bold", color="#F15854"]
+  0 [label="s1", style="bold", color="#E31A1C"]
   1 [label="s2"]
-  2 [label="s3", style="bold", color="#4D4D4D"]
+  2 [label="s3", style="bold", color="#505050"]
 }
 digraph G {
   rankdir=LR
   node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label="s3", style="bold", color="#4D4D4D"]
+  0 [label="s3", style="bold", color="#505050"]
 }
 HOA: v1.1
 States: 3

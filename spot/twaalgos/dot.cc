@@ -47,16 +47,24 @@ namespace spot
 
     static constexpr const char palette[][8] =
       {
-        "#5DA5DA", /* blue */
-        "#F17CB0", /* pink */
-        "#FAA43A", /* orange */
-        "#B276B2", /* purple */
-        "#60BD68", /* green */
-        "#F15854", /* red */
-        "#B2912F", /* brown */
-        "#4D4D4D", /* gray */
-        "#DECF3F", /* yellow */
+        "#1F78B4", /* blue */
+        "#FF4DA0", /* pink */
+        "#FF7F00", /* orange */
+        "#6A3D9A", /* purple */
+        "#33A02C", /* green */
+        "#E31A1C", /* red */
+        "#C4C400", /* yellowish */
+        "#505050", /* gray */
+        "#6BF6FF", /* light blue */
+        "#FF9AFF", /* light pink */
+        "#FF9C67", /* light orange */
+        "#B2A4FF", /* light purple */
+        "#A7ED79", /* light green */
+        "#FF6868", /* light red */
+        "#FFE040", /* light yellowish */
+        "#C0C090", /* light gray */
       };
+
     constexpr int palette_mod = sizeof(palette) / sizeof(*palette);
 
     class dotty_output final

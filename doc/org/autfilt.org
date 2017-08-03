@@ -423,8 +423,8 @@ autfilt --help | sed -n '/^ *Decorations.*:/,/^$/p' | sed '1d;$d'
 :       --highlight-word=[NUM,]WORD
 :                              highlight one run matching WORD using color NUM
 
-Color numbers are indices in some unspecified color palette.  It is
-the same palette that is currently used to display colored acceptance
+Color numbers are indices in some hard-coded color palette.  It is the
+same palette that is currently used to display colored acceptance
 sets, but this might change in the future.
 
 * Examples

@@ -105,18 +105,18 @@ digraph G {
   -1 [label=<>,shape=point]
   -1 -> 1
   -1 -> 3
-  0 -> -4 [label="a & !b", style=bold, color="#F15854", arrowhead=onormal]
+  0 -> -4 [label="a & !b", style=bold, color="#E31A1C", arrowhead=onormal]
   -4 [label=<>,shape=point]
-  -4 -> 1 [style=bold, color="#F15854"]
-  -4 -> 3 [style=bold, color="#F15854"]
-  -4 -> 5 [style=bold, color="#F15854"]
+  -4 -> 1 [style=bold, color="#E31A1C"]
+  -4 -> 3 [style=bold, color="#E31A1C"]
+  -4 -> 5 [style=bold, color="#E31A1C"]
   1 -> 2 [label="a"]
   1 -> 1 [label="1"]
   2 -> 2 [label="a"]
   3 -> 3 [label="b"]
-  3 -> -8 [label="!b", style=bold, color="#FAA43A", arrowhead=onormal]
-  -8 -> 3 [style=bold, color="#FAA43A"]
-  -8 -> 4 [style=bold, color="#FAA43A"]
+  3 -> -8 [label="!b", style=bold, color="#FF7F00", arrowhead=onormal]
+  -8 -> 3 [style=bold, color="#FF7F00"]
+  -8 -> 4 [style=bold, color="#FF7F00"]
   4 -> 6 [label="b"]
   4 -> 4 [label="!b"]
   5 -> 6 [label="b"]
@@ -500,7 +500,937 @@ style='arrowhead=onormal'
 cat >expect6.dot<<EOF
 digraph G {
   rankdir=LR
-  label=<Fin(<font color="#5DA5DA">⓿</font>)>
+  label=<Fin(<font color="#
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+--BODY--
+State: 0
+[t] 1 {0}
+State: 1
+[t] 1
+[0] 1 {0}
+--END--
+EOF
+diff expected res
+
+
+cat >ex1<<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+cat >ex2<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+cat >ex3<<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 1
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+autfilt -q --equivalent-to=ex1 ex2
+autfilt -q --included-in=ex1 ex2
+autfilt -q --equivalent-to=ex1 ex3 && exit 1
+autfilt -q --intersect=ex1 ex3
+
+
+cat >ex4<<EOF
+HOA: v1
+States: 5
+Start: 0&2
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&2
+State: 1
+[t] 1&4
+State: 2
+[!0] 2 {0}
+[0] 3
+State: 3
+[t] 3
+State: 4
+--END--
+HOA: v1
+States: 5
+Start: 0&2&4
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&2
+State: 1
+[t] 1&4
+State: 2
+[!0] 2 {0}
+[0] 3
+State: 3
+[t] 3
+State: 4
+--END--
+EOF
+
+cat >expect4<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+HOA: v1
+States: 4
+Start: 0&1&3
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+State: 3
+--END--
+EOF
+
+cat >expect4d<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+EOF
+
+run 0 autfilt --remove-unreachable-states ex4 > out4
+diff expect4 out4
+run 0 autfilt --remove-dead-states ex4 > out4
+diff expect4d out4
+
+
+cat >ex5<<EOF
+HOA: v1
+States: 2
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+State: 1
+--END--
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+Acceptance: 0 t
+--BODY--
+State: 0
+[0] 1&2
+[!0] 1
+State: 1
+[!0] 1
+State: 2
+--END--
+HOA: v1
+States: 4
+Start: 0&1
+AP: 1 "a"
+Acceptance: 0 t
+--BODY--
+State: 0
+[0] 1&2
+State: 1
+[!0] 1&0&3
+State: 2
+State: 3
+[t] 3
+--END--
+EOF
+
+run 0 autfilt --remove-dead-states ex5 > out5
+cat >expect <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[!0] 1
+State: 1
+[!0] 1
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+EOF
+diff out5 expect
+
+# Test if split option with color is correct
+cat >ex6<<EOF
+HOA: v1.1
+States: 2
+Start: 0&1
+AP: 3 "c" "b" "a"
+Acceptance: 1 Fin(0)
+spot.highlight.edges: 2 1 3 2
+--BODY--
+State: 0
+[!0&!2] 0
+[!0&1&2] 0&1
+[!0&2] 0&1
+State: 1
+[1] 1
+--END--
+EOF
+
+run 0 autfilt --dot='baryf(Lato)' ex6 > ex6.dot
+
+style='arrowhead=onormal'
+cat >expect6.dot<<EOF
+digraph G {
+  rankdir=LR
+  label=<Fin(<font color="#
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+--BODY--
+State: 0
+[t] 1 {0}
+State: 1
+[t] 1
+[0] 1 {0}
+--END--
+EOF
+diff expected res
+
+
+cat >ex1<<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+cat >ex2<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+cat >ex3<<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 1
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+autfilt -q --equivalent-to=ex1 ex2
+autfilt -q --included-in=ex1 ex2
+autfilt -q --equivalent-to=ex1 ex3 && exit 1
+autfilt -q --intersect=ex1 ex3
+
+
+cat >ex4<<EOF
+HOA: v1
+States: 5
+Start: 0&2
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&2
+State: 1
+[t] 1&4
+State: 2
+[!0] 2 {0}
+[0] 3
+State: 3
+[t] 3
+State: 4
+--END--
+HOA: v1
+States: 5
+Start: 0&2&4
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&2
+State: 1
+[t] 1&4
+State: 2
+[!0] 2 {0}
+[0] 3
+State: 3
+[t] 3
+State: 4
+--END--
+EOF
+
+cat >expect4<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+HOA: v1
+States: 4
+Start: 0&1&3
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+State: 3
+--END--
+EOF
+
+cat >expect4d<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+EOF
+
+run 0 autfilt --remove-unreachable-states ex4 > out4
+diff expect4 out4
+run 0 autfilt --remove-dead-states ex4 > out4
+diff expect4d out4
+
+
+cat >ex5<<EOF
+HOA: v1
+States: 2
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+State: 1
+--END--
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+Acceptance: 0 t
+--BODY--
+State: 0
+[0] 1&2
+[!0] 1
+State: 1
+[!0] 1
+State: 2
+--END--
+HOA: v1
+States: 4
+Start: 0&1
+AP: 1 "a"
+Acceptance: 0 t
+--BODY--
+State: 0
+[0] 1&2
+State: 1
+[!0] 1&0&3
+State: 2
+State: 3
+[t] 3
+--END--
+EOF
+
+run 0 autfilt --remove-dead-states ex5 > out5
+cat >expect <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[!0] 1
+State: 1
+[!0] 1
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+EOF
+diff out5 expect
+
+# Test if split option with color is correct
+cat >ex6<<EOF
+HOA: v1.1
+States: 2
+Start: 0&1
+AP: 3 "c" "b" "a"
+Acceptance: 1 Fin(0)
+spot.highlight.edges: 2 1 3 2
+--BODY--
+State: 0
+[!0&!2] 0
+[!0&1&2] 0&1
+[!0&2] 0&1
+State: 1
+[1] 1
+--END--
+EOF
+
+run 0 autfilt --dot='baryf(Lato)' ex6 > ex6.dot
+
+style='arrowhead=onormal'
+cat >expect6.dot<<EOF
+digraph G {
+  rankdir=LR
+  label=<Fin(<font color="#
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+--BODY--
+State: 0
+[t] 1 {0}
+State: 1
+[t] 1
+[0] 1 {0}
+--END--
+EOF
+diff expected res
+
+
+cat >ex1<<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+cat >ex2<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+cat >ex3<<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 1
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+EOF
+
+autfilt -q --equivalent-to=ex1 ex2
+autfilt -q --included-in=ex1 ex2
+autfilt -q --equivalent-to=ex1 ex3 && exit 1
+autfilt -q --intersect=ex1 ex3
+
+
+cat >ex4<<EOF
+HOA: v1
+States: 5
+Start: 0&2
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&2
+State: 1
+[t] 1&4
+State: 2
+[!0] 2 {0}
+[0] 3
+State: 3
+[t] 3
+State: 4
+--END--
+HOA: v1
+States: 5
+Start: 0&2&4
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&2
+State: 1
+[t] 1&4
+State: 2
+[!0] 2 {0}
+[0] 3
+State: 3
+[t] 3
+State: 4
+--END--
+EOF
+
+cat >expect4<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+HOA: v1
+States: 4
+Start: 0&1&3
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+properties: univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+State: 3
+--END--
+EOF
+
+cat >expect4d<<EOF
+HOA: v1
+States: 3
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic univ-branch
+--BODY--
+State: 0
+[0] 0
+[!0] 0&1
+State: 1
+[!0] 1 {0}
+[0] 2
+State: 2
+[t] 2
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+EOF
+
+run 0 autfilt --remove-unreachable-states ex4 > out4
+diff expect4 out4
+run 0 autfilt --remove-dead-states ex4 > out4
+diff expect4d out4
+
+
+cat >ex5<<EOF
+HOA: v1
+States: 2
+Start: 0&1
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+State: 1
+--END--
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+Acceptance: 0 t
+--BODY--
+State: 0
+[0] 1&2
+[!0] 1
+State: 1
+[!0] 1
+State: 2
+--END--
+HOA: v1
+States: 4
+Start: 0&1
+AP: 1 "a"
+Acceptance: 0 t
+--BODY--
+State: 0
+[0] 1&2
+State: 1
+[!0] 1&0&3
+State: 2
+State: 3
+[t] 3
+--END--
+EOF
+
+run 0 autfilt --remove-dead-states ex5 > out5
+cat >expect <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[!0] 1
+State: 1
+[!0] 1
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant weak
+--BODY--
+State: 0
+--END--
+EOF
+diff out5 expect
+
+# Test if split option with color is correct
+cat >ex6<<EOF
+HOA: v1.1
+States: 2
+Start: 0&1
+AP: 3 "c" "b" "a"
+Acceptance: 1 Fin(0)
+spot.highlight.edges: 2 1 3 2
+--BODY--
+State: 0
+[!0&!2] 0
+[!0&1&2] 0&1
+[!0&2] 0&1
+State: 1
+[1] 1
+--END--
+EOF
+
+run 0 autfilt --dot='baryf(Lato)' ex6 > ex6.dot
+
+style='arrowhead=onormal'
+cat >expect6.dot<<EOF
+digraph G {
+  rankdir=LR
+  label=<Fin(<font color="#1F78B4">⓿</font>)>
   labelloc="t"
   node [shape="circle"]
   fontname="Lato"
@@ -513,14 +1443,14 @@ digraph G {
   -1 -> 1
   0 [label=<0>]
   0 -> 0 [label=<!a &amp; !c>]
-  0 -> -1.1 [label=<a &amp; b &amp; !c>, style=bold, color="#F17CB0", $style]
+  0 -> -1.1 [label=<a &amp; b &amp; !c>, style=bold, color="#FF4DA0", $style]
   -1.1 [label=<>,shape=point]
-  -1.1 -> 0 [style=bold, color="#F17CB0"]
-  -1.1 -> 1 [style=bold, color="#F17CB0"]
-  0 -> -1.2 [label=<a &amp; !c>, style=bold, color="#FAA43A", $style]
+  -1.1 -> 0 [style=bold, color="#FF4DA0"]
+  -1.1 -> 1 [style=bold, color="#FF4DA0"]
+  0 -> -1.2 [label=<a &amp; !c>, style=bold, color="#FF7F00", $style]
   -1.2 [label=<>,shape=point]
-  -1.2 -> 0 [style=bold, color="#FAA43A"]
-  -1.2 -> 1 [style=bold, color="#FAA43A"]
+  -1.2 -> 0 [style=bold, color="#FF7F00"]
+  -1.2 -> 1 [style=bold, color="#FF7F00"]
   1 [label=<1>]
   1 -> 1 [label=<b>]
 }
@@ -559,11 +1489,11 @@ EOF
 
 run 0 autfilt --dot='sbarf(Lato)' ex7 > ex7.dot
 
-color='<font color="#5DA5DA">⓿</font>'
+color='<font color="#1F78B4">⓿</font>'
 cat >expect7.dot<<EOF
 digraph G {
   rankdir=LR
-  label=<Fin(<font color="#F17CB0">❶</font>) &amp; Fin($color)>
+  label=<Fin(<font color="#FF4DA0">❶</font>) &amp; Fin($color)>
   labelloc="t"
   fontname="Lato"
   node [fontname="Lato"]
@@ -616,9 +1546,9 @@ digraph G {
   -10 -> 3
   1 -> 1 [label=<a &amp; b>]
   2 -> 4 [label=<!a>]
-  2 -> 2 [label=<a<br/><font color="#F17CB0">❶</font>>]
+  2 -> 2 [label=<a<br/><font color="#FF4DA0">❶</font>>]
   3 -> 4 [label=<!b>]
-  3 -> 3 [label=<b<br/><font color="#5DA5DA">⓿</font>>]
+  3 -> 3 [label=<b<br/><font color="#1F78B4">⓿</font>>]
   4 -> 4 [label=<1>]
 }
 EOF
@@ -659,7 +1589,7 @@ run 0 autfilt --dot='sbarf(Lato)' ex8 > ex8.dot
 cat >expect8.dot<<EOF
 digraph G {
   rankdir=LR
-  label=<Fin(<font color="#F17CB0">❶</font>) &amp; Fin($color)>
+  label=<Fin(<font color="#FF4DA0">❶</font>) &amp; Fin($color)>
   labelloc="t"
   fontname="Lato"
   node [fontname="Lato"]
@@ -708,9 +1638,9 @@ digraph G {
   -10 -> 2
   -10 -> 3
   2 -> 4 [label=<!a>]
-  2 -> 2 [label=<a<br/><font color="#F17CB0">❶</font>>]
+  2 -> 2 [label=<a<br/><font color="#FF4DA0">❶</font>>]
   3 -> 4 [label=<!b>]
-  3 -> 3 [label=<b<br/><font color="#5DA5DA">⓿</font>>]
+  3 -> 3 [label=<b<br/><font color="#1F78B4">⓿</font>>]
   4 -> 4 [label=<1>]
 }
 EOF
@@ -739,7 +1669,7 @@ run 0 autfilt --dot='baryf(Lato)' ex9 > ex9.dot
 cat >expect9.dot <<EOF
 digraph G {
   rankdir=LR
-  label=<Fin(<font color="#5DA5DA">⓿</font>)>
+  label=<Fin(<font color="#1F78B4">⓿</font>)>
   labelloc="t"
   node [shape="circle"]
   fontname="Lato"
@@ -748,17 +1678,17 @@ digraph G {
   I [label="", style=invis, width=0]
   I -> 0
   0 [label=<0>]
-  0 -> -1.1 [label=<b &amp; c>, style=bold, color="#F17CB0", arrowhead=onormal]
+  0 -> -1.1 [label=<b &amp; c>, style=bold, color="#FF4DA0", arrowhead=onormal]
   -1.1 [label=<>,shape=point]
-  -1.1 -> 1 [style=bold, color="#F17CB0"]
-  -1.1 -> 2 [style=bold, color="#F17CB0"]
+  -1.1 -> 1 [style=bold, color="#FF4DA0"]
+  -1.1 -> 2 [style=bold, color="#FF4DA0"]
   1 [label=<1>]
-  1 -> -1.1 [label=<a &amp; b>, style=bold, color="#F17CB0", arrowhead=onormal]
+  1 -> -1.1 [label=<a &amp; b>, style=bold, color="#FF4DA0", arrowhead=onormal]
   2 [label=<2>]
-  2 -> -1.2 [label=<!a &amp; !b &amp; !c>, style=bold, color="#FAA43A", $style]
+  2 -> -1.2 [label=<!a &amp; !b &amp; !c>, style=bold, color="#FF7F00", $style]
   -1.2 [label=<>,shape=point]
-  -1.2 -> 1 [style=bold, color="#FAA43A"]
-  -1.2 -> 2 [style=bold, color="#FAA43A"]
+  -1.2 -> 1 [style=bold, color="#FF7F00"]
+  -1.2 -> 2 [style=bold, color="#FF7F00"]
 }
 EOF
 
@@ -786,7 +1716,7 @@ run 0 autfilt --dot='baryf(Lato)' ex10 > ex10.dot
 cat >expect10.dot <<EOF
 digraph G {
   rankdir=LR
-  label=<Fin(<font color="#5DA5DA">⓿</font>)>
+  label=<Fin(<font color="#1F78B4">⓿</font>)>
   labelloc="t"
   node [shape="circle"]
   fontname="Lato"
@@ -795,20 +1725,20 @@ digraph G {
   I [label="", style=invis, width=0]
   I -> 0
   0 [label=<0>]
-  0 -> -1.1 [label=<b &amp; c>, style=bold, color="#F17CB0", arrowhead=onormal]
+  0 -> -1.1 [label=<b &amp; c>, style=bold, color="#FF4DA0", arrowhead=onormal]
   -1.1 [label=<>,shape=point]
-  -1.1 -> 1 [style=bold, color="#F17CB0"]
-  -1.1 -> 2 [style=bold, color="#F17CB0"]
+  -1.1 -> 1 [style=bold, color="#FF4DA0"]
+  -1.1 -> 2 [style=bold, color="#FF4DA0"]
   1 [label=<1>]
-  1 -> -1.3 [label=<a &amp; b>, style=bold, color="#B276B2", arrowhead=onormal]
+  1 -> -1.3 [label=<a &amp; b>, style=bold, color="#6A3D9A", arrowhead=onormal]
   -1.3 [label=<>,shape=point]
-  -1.3 -> 1 [style=bold, color="#B276B2"]
-  -1.3 -> 2 [style=bold, color="#B276B2"]
+  -1.3 -> 1 [style=bold, color="#6A3D9A"]
+  -1.3 -> 2 [style=bold, color="#6A3D9A"]
   2 [label=<2>]
-  2 -> -1.2 [label=<!a &amp; !b &amp; !c>, style=bold, color="#FAA43A", $style]
+  2 -> -1.2 [label=<!a &amp; !b &amp; !c>, style=bold, color="#FF7F00", $style]
   -1.2 [label=<>,shape=point]
-  -1.2 -> 1 [style=bold, color="#FAA43A"]
-  -1.2 -> 2 [style=bold, color="#FAA43A"]
+  -1.2 -> 1 [style=bold, color="#FF7F00"]
+  -1.2 -> 2 [style=bold, color="#FF7F00"]
 }
 EOF
 
@@ -842,7 +1772,7 @@ run 2 autfilt --dot='sbarf(Lato)' ex11 > ex11.dot
 cat >expect11.dot <<EOF
 digraph G {
   rankdir=LR
-  label=<Fin(<font color="#5DA5DA">⓿</font>)>
+  label=<Fin(<font color="#1F78B4">⓿</font>)>
   labelloc="t"
   fontname="Lato"
   node [fontname="Lato"]
