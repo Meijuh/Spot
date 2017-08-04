@@ -123,7 +123,7 @@ namespace spot
                   else if (m != t.acc)
                     {
                       throw std::runtime_error
-                        ("alternation_removal() only work with weak "
+                        ("remove_alternation() only works with weak "
                          "alternating automata");
                     }
                   // In case of a universal edge we only
