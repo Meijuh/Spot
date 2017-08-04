@@ -63,11 +63,11 @@ New in spot 2.3.5.dev (not yet released)
     used to record the origin of a state before transformation.  It is
     currently defined by the degeneralization algorithms, and by
     transform_accessible() and algorithms based on it (like
-    remove_ap::strip(), decompose_strength(), decompose_scc()).  This
-    is realy meant as an aid for writing algorithms that need this
-    mapping, but it can also be used to debug these algorithms: the
-    "original-states" information is displayed by the dot printer when
-    the 'd' option is passed.  For instance in
+    remove_ap::strip(), decompose_scc()).  This is realy meant as an
+    aid for writing algorithms that need this mapping, but it can also
+    be used to debug these algorithms: the "original-states"
+    information is displayed by the dot printer when the 'd' option is
+    passed.  For instance in
 
       % ltl2tgba 'GF(a <-> Fb)' --dot=s
       % ltl2tgba 'GF(a <-> Fb)' | autfilt -B --dot=ds
@@ -143,7 +143,7 @@ New in spot 2.3.5.dev (not yet released)
 
   - Building automata for LTL formula with a large number N of atomic
     propositions can be costly, because several loops and
-    data-structures are exponential into N.  However a formula like
+    data-structures are exponential in N.  However a formula like
       ((a & b & c) | (d & e & f)) U ((d & e & f) | (g & h & i))
     can be translated more efficiently by first building an automaton
     for (p0 | p1) U (p1 | p2), and then substituting p0, p1, p2 by the
@@ -186,7 +186,7 @@ New in spot 2.3.5.dev (not yet released)
 
   - The parser for HOA now recognize and verifies correct use of the
     "univ-branch" property.  This is known to be a problem with option
-    -H1 of ltl3ba 1.1.2 and ltl3dra 0.2.3, so the environment variable
+    -H1 of ltl3ba 1.1.2 and ltl3dra 0.2.4, so the environment variable
     SPOT_HOA_TOLERANT can be set to disable the diagnostic.
 
   Python:
