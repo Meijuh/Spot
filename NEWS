@@ -30,6 +30,9 @@ New in spot 2.3.5.dev (not yet released)
     because it can now extract the subautomaton leading to an SCC
     specified by number.  (The old name is still kept as an alias.)
 
+  - The --stats=%c option of tools producing automata can now be
+    restricted to count complete SCCs, using %[c]c.
+
   Library:
 
   - A new library, libspotgen, gathers all functions used to generate

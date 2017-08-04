@@ -184,7 +184,7 @@ static const argp_option io_options[] =
       OPTION_DOC | OPTION_NO_USAGE,
       "number of SCCs; you may filter the SCCs to count "
       "using the following LETTERS, possibly concatenated: (a) accepting, "
-      "(r) rejecting, (v) trivial, (t) terminal, (w) weak, "
+      "(r) rejecting, (c) complete, (v) trivial, (t) terminal, (w) weak, "
       "(iw) inherently weak. Use uppercase letters to negate them.", 0 },
     { "%R, %[LETTERS]R", 0, nullptr,
       OPTION_DOC | OPTION_NO_USAGE,
@@ -244,7 +244,7 @@ static const argp_option o_options[] =
     { "%c, %[LETTERS]c", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of SCCs; you may filter the SCCs to count "
       "using the following LETTERS, possibly concatenated: (a) accepting, "
-      "(r) rejecting, (v) trivial, (t) terminal, (w) weak, "
+      "(r) rejecting, (c) complete, (v) trivial, (t) terminal, (w) weak, "
       "(iw) inherently weak. Use uppercase letters to negate them.", 0 },
     { "%R, %[LETTERS]R", 0, nullptr,
       OPTION_DOC | OPTION_NO_USAGE,

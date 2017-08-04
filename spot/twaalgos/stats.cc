@@ -212,6 +212,8 @@ namespace spot
     bool non_weak = false;
     bool inherently_weak = false;
     bool non_inherently_weak = false;
+    bool complete = false;
+    bool non_complete = false;
 
     const char* beg = pos;
     auto error = [&](std::string str)
@@ -236,17 +238,23 @@ namespace spot
         case 'r':
           rejecting = true;
           break;
-        case 'v':
-          trivial = true;
+        case 'c':
+          complete = true;
           break;
-        case 'V':
-          non_trivial = true;
+        case 'C':
+          non_complete = true;
           break;
         case 't':
           terminal = true;
           break;
         case 'T':
           non_terminal = true;
+          break;
+        case 'v':
+          trivial = true;
+          break;
+        case 'V':
+          non_trivial = true;
           break;
         case 'w':
           weak = true;
@@ -300,6 +308,10 @@ namespace spot
         if (trivial && !val_->is_trivial(i))
           continue;
         if (non_trivial && val_->is_trivial(i))
+          continue;
+        if (complete && !is_complete_scc(*val_, i))
+          continue;
+        if (non_complete && is_complete_scc(*val_, i))
           continue;
         if (terminal && !is_terminal_scc(*val_, i))
           continue;
