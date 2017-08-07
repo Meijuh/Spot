@@ -1,13 +1,14 @@
 alloca.h
-arg-nonnull.h
-c++defs.h
 configmake.h
 dummy.c
 errno.h
 fcntl.h
+getopt-cdefs.h
 getopt.h
 libgnu.a
+limits.h
 stdalign.h
+stdint.h
 stdio.h
 stdlib.h
 string.h
@@ -16,7 +17,6 @@ sys/
 sysexits.h
 time.h
 unistd.h
-warn-on-use.h
 wchar.h
 wctype.h
 *.sed

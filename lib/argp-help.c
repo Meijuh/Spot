@@ -880,7 +880,8 @@ hol_append (struct hol *hol, struct hol *more)
 
           /* Fix up the short options pointers from HOL.  */
           for (e = entries, left = hol->num_entries; left > 0; e++, left--)
-            e->short_options += (short_options - hol->short_options);
+            e->short_options
+              = short_options + (e->short_options - hol->short_options);
 
           /* Now add the short options from MORE, fixing up its entries
              too.  */
@@ -1460,7 +1461,7 @@ argp_args_usage (const struct argp *argp, const struct argp_state *state,
 }
 
 /* Print the documentation for ARGP to STREAM; if POST is false, then
-   everything preceeding a '\v' character in the documentation strings (or
+   everything preceding a '\v' character in the documentation strings (or
    the whole string, for those with none) is printed, otherwise, everything
    following the '\v' character (nothing for strings without).  Each separate
    bit of documentation is separated a blank line, and if PRE_BLANK is true,
@@ -1873,8 +1874,8 @@ __argp_failure (const struct argp_state *state, int status, int errnum,
               char const *s = NULL;
               putc_unlocked (':', stream);
               putc_unlocked (' ', stream);
-# if HAVE_DECL_STRERROR_R
-#  if STRERROR_R_CHAR_P
+# if GNULIB_STRERROR_R_POSIX || HAVE_DECL_STRERROR_R
+#  if !GNULIB_STRERROR_R_POSIX && STRERROR_R_CHAR_P
               s = __strerror_r (errnum, buf, sizeof buf);
 #  else
               if (__strerror_r (errnum, buf, sizeof buf) == 0)
