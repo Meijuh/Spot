@@ -305,8 +305,8 @@ namespace spot
             nb_po_before = po_size_;
             po_size_ = 0;
             update_sig();
-            // print_partition();
             go_to_next_it();
+            // print_partition();
           }
 
         update_previous_class();
@@ -631,27 +631,34 @@ namespace spot
       // where is the new class name.
       void print_partition()
       {
-        for (auto& p: sorted_classes_)
-          {
-            std::cerr << "partition: "
-                      << bdd_format_isop(a_->get_dict(), p->first)
-                      << std::endl;
-            for (auto s: p->second)
-              std::cerr << "  - "
-                        << a_->format_state(a_->state_from_number(s))
-                        << '\n';
-          }
-
-        std::cerr << "\nPrevious iteration\n" << std::endl;
-
+        std::cerr << "\n-----\n\nClasses from previous iteration:\n";
         unsigned ps = previous_class_.size();
         for (unsigned p = 0; p < ps; ++p)
           {
-            std::cerr << a_->format_state(a_->state_from_number(p))
-                      << " was in "
+            std::cerr << "- " << a_->format_state(a_->state_from_number(p))
+                      << " was in class "
                       << bdd_format_set(a_->get_dict(), previous_class_[p])
                       << '\n';
           }
+        std::cerr << "\nPartition:\n";
+        std::list<bdd>::iterator it_bdd = used_var_.begin();
+        for (auto& p: sorted_classes_)
+          {
+            std::cerr << "- ";
+            if (p->first != bddfalse)
+              std::cerr << "new class " << *it_bdd++ << " from ";
+            std::cerr << "sig "
+                      << bdd_format_isop(a_->get_dict(), p->first);
+            std::cerr << '\n';
+            for (auto s: p->second)
+              std::cerr << "    - "
+                        << a_->format_state(a_->state_from_number(s))
+                        << '\n';
+          }
+        std::cerr << "\nClass implications:\n";
+        for (auto& p: relation_)
+          std::cerr << "  - " << p.first << "  =>  " << p.second << '\n';
+
       }
 
     protected:
