@@ -35,7 +35,7 @@ namespace spot
   /// be output as generalized co-Büchi.
   ///
   /// Functions like to_generalized_buchi() or remove_fin() are frequently
-  /// called on existential automatons after dualize() to obtain an easier
+  /// called on existential automata after dualize() to obtain an easier
   /// acceptance condition, but maybe at the cost of losing determinism.
   ///
   /// If the input automaton is deterministic, the output will be deterministic.

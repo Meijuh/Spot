@@ -25,7 +25,7 @@
 namespace spot
 {
   /// \brief Sum two twa into a new twa, performing the union of the two input
-  /// automatons.
+  /// automata.
   ///
   /// \param left Left term of the sum.
   /// \param right Right term of the sum.
@@ -35,7 +35,7 @@ namespace spot
                     const const_twa_graph_ptr& right);
 
   /// \brief Sum two twa into a new twa, performing the union of the two input
-  /// automatons.
+  /// automata.
   ///
   /// \param left Left term of the sum.
   /// \param right Right term of the sum.
@@ -49,7 +49,7 @@ namespace spot
                     unsigned right_state);
 
   /// \brief Sum two twa into a new twa, using a universal initial transition,
-  /// performing the intersection of the two languages of the input automatons.
+  /// performing the intersection of the two languages of the input automata.
   ///
   /// \param left Left term of the sum.
   /// \param right Right term of the sum.
@@ -59,7 +59,7 @@ namespace spot
                         const const_twa_graph_ptr& right);
 
   /// \brief Sum two twa into a new twa, using a universal initial transition,
-  /// performing the intersection of the two languages of the input automatons.
+  /// performing the intersection of the two languages of the input automata.
   ///
   /// \param left Left term of the sum.
   /// \param right Right term of the sum.

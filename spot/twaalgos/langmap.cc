@@ -40,7 +40,7 @@ namespace spot
     std::vector<twa_graph_ptr> alt_init_st_auts(n_states);
     std::vector<twa_graph_ptr> compl_alt_init_st_auts(n_states);
 
-    // Prepare all automatons needed.
+    // Prepare all automata needed.
     for (unsigned i = 0; i < n_states; ++i)
       {
         twa_graph_ptr c = make_twa_graph(aut, twa::prop_set::all());

@@ -343,7 +343,7 @@ namespace spot
               true_state_ = res->new_state();
           }
         // This case does not cover cmpl && !um.first
-        // Due to previous test shortcutting automatons that accept all words.
+        // Due to previous test shortcutting automata that accept all words.
         else
           {
             assert(um.first);

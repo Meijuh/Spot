@@ -68,7 +68,7 @@ def test_aut(aut):
   del os.environ["SPOT_STREETT_CONV_MIN"]
   assert equivalent(sltgba, slftgba)
 
-# Those automatons are generated with ltl2dstar, which is NOT part of spot,
+# Those automata are generated with ltl2dstar, which is NOT part of spot,
 # using the following command:
 # genltl --eh-patterns --dac-patterns --hkrss-patterns --sb-patterns |\
 # ltldo "ltl2dstar --automata=streett --output-format=hoa\
