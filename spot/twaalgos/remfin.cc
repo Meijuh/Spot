@@ -27,7 +27,7 @@
 #include <spot/twaalgos/alternation.hh>
 #include "spot/priv/enumflags.hh"
 
-//#define TRACE
+// #define TRACE
 #ifdef TRACE
 #define trace std::cerr
 #else
@@ -672,7 +672,11 @@ namespace spot
       res->set_acceptance(aut->num_sets() + extra_sets, new_code);
       res->set_init_state(aut->get_init_state_number());
 
-      bool sbacc = aut->prop_state_acc().is_true();
+      // If the input had no Inf, the output is a state-based automaton.
+      if (allinf == 0U)
+        res->prop_state_acc(true);
+
+      bool sbacc = res->prop_state_acc().is_true();
       scc_info si(aut);
       unsigned nscc = si.scc_count();
       std::vector<unsigned> state_map(nst);
@@ -749,9 +753,6 @@ namespace spot
               }
         }
 
-      // If the input had no Inf, the output is a state-based automaton.
-      if (allinf == 0U)
-        res->prop_state_acc(true);
 
       res->purge_dead_states();
       trace << "before cleanup: " << res->get_acceptance() << '\n';

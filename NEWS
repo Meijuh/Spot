@@ -194,6 +194,13 @@ New in spot 2.3.5.dev (not yet released)
   - The 'spot.gen' package exports the functions from libspotgen.
     See https://spot.lrde.epita.fr/ipynb/gen.html for examples.
 
+  Bugs fixed:
+
+  - When the remove_fin() function was called on some automaton with
+    Inf-less acceptance involving at least one disjunction (e.g.,
+    generalized co-Büchi), it would sometime output an automaton with
+    transition-based acceptance but marked as state-based.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as
