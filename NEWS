@@ -59,6 +59,9 @@ New in spot 2.3.5.dev (not yet released)
     the Python bindings can be found at
     https://spot.lrde.epita.fr/ipynb/decompose.html
 
+  - The print_dot() function will now display names for well known
+    acceptance conditions under the formula when option 'a' is used.
+
   - A new named property for automata called "original-states" can be
     used to record the origin of a state before transformation.  It is
     currently defined by the degeneralization algorithms, and by

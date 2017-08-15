@@ -88,6 +88,7 @@ namespace spot
       bool opt_name_ = false;
       bool opt_show_acc_ = false;
       bool mark_states_ = false;
+      bool dcircles_ = false;
       bool opt_scc_ = false;
       bool opt_html_labels_ = false;
       bool opt_state_labels_ = false;
@@ -416,6 +417,65 @@ namespace spot
           }
       }
 
+      void print_acceptance_for_human()
+      {
+        const char* nl = opt_html_labels_ ? "<br/>" : "\\n";
+        if (aut_->acc().is_generalized_buchi())
+          {
+            if (aut_->acc().is_all())
+              os_ << nl << "[all]";
+            else if (aut_->acc().is_buchi())
+              os_ << nl << "[Büchi]";
+            else
+              os_ << nl << "[gen. Büchi " << aut_->num_sets() << ']';
+          }
+        else if (aut_->acc().is_generalized_co_buchi())
+          {
+            if (aut_->acc().is_none())
+              os_ << nl << "[none]";
+            else if (aut_->acc().is_co_buchi())
+              os_ << nl << "[co-Büchi]";
+            else
+              os_ << nl << "[gen. co-Büchi " << aut_->num_sets() << ']';
+          }
+        else
+          {
+            int r = aut_->acc().is_rabin();
+            assert(r != 0);
+            if (r > 0)
+              {
+                os_ << nl << "[Rabin " << r << ']';
+              }
+            else
+              {
+                r = aut_->acc().is_streett();
+                assert(r != 0);
+                if (r > 0)
+                  {
+                    os_ << nl << "[Streett " << r << ']';
+                  }
+                else
+                  {
+                    std::vector<unsigned> pairs;
+                    if (aut_->acc().is_generalized_rabin(pairs))
+                      {
+                        os_ << nl << "[gen. Rabin " << pairs.size() << ']';
+                      }
+                    else
+                      {
+                        bool max = false;
+                        bool odd = false;
+                        if (aut_->acc().is_parity(max, odd))
+                          os_ << nl << "[parity "
+                              << (max ? "max " : "min ")
+                              << (odd ? "odd " : "even ")
+                              << aut_->num_sets() << ']';
+                      }
+                  }
+              }
+          }
+      }
+
       void
       start()
       {
@@ -439,11 +499,17 @@ namespace spot
                       os_ << "\\n";
                   }
                 if (opt_show_acc_)
-                  aut_->get_acceptance().to_text
-                    (os_, [this](std::ostream& os, int v)
-                     {
-                       this->output_set(os, v);
-                     });
+                  {
+                    if (!dcircles_)
+                      {
+                        aut_->get_acceptance().to_text
+                          (os_, [this](std::ostream& os, int v)
+                           {
+                             this->output_set(os, v);
+                           });
+                      }
+                    print_acceptance_for_human();
+                  }
                 os_ << "\"\n";
               }
             else
@@ -456,11 +522,17 @@ namespace spot
                       os_ << "<br/>";
                   }
                 if (opt_show_acc_)
-                  aut_->get_acceptance().to_html
-                    (os_, [this](std::ostream& os, int v)
-                     {
-                       this->output_html_set_aux(os, v);
-                     });
+                  {
+                    if (!dcircles_)
+                      {
+                        aut_->get_acceptance().to_html
+                          (os_, [this](std::ostream& os, int v)
+                           {
+                             this->output_html_set_aux(os, v);
+                           });
+                      }
+                    print_acceptance_for_human();
+                  }
                 os_ << ">\n";
               }
             os_ << "  labelloc=\"t\"\n";
@@ -517,9 +589,7 @@ namespace spot
       void
       process_state(unsigned s)
       {
-        if (mark_states_ &&
-            ((opt_bullet && !opt_bullet_but_buchi)
-             || aut_->num_sets() != 1))
+        if (mark_states_ && !dcircles_)
           {
             acc_cond::mark_t acc = 0U;
             for (auto& t: aut_->out(s))
@@ -589,7 +659,7 @@ namespace spot
             // Use state_acc_sets(), not state_is_accepting() because
             // on co-Büchi automata we want to mark the rejecting
             // states.
-            if (mark_states_ && aut_->state_acc_sets(s))
+            if (dcircles_ && aut_->state_acc_sets(s))
               os_ << ", peripheries=2";
           }
         if (highlight_states_)
@@ -745,6 +815,9 @@ namespace spot
           name_ = aut_->get_named_prop<std::string>("automaton-name");
         mark_states_ = (!opt_force_acc_trans_
                         && aut_->prop_state_acc().is_true());
+        dcircles_ = (mark_states_
+                     && (!opt_bullet || opt_bullet_but_buchi)
+                     && (aut_->acc().is_buchi() || aut_->acc().is_co_buchi()));
         if (opt_shape_ == ShapeAuto)
           {
             if (sn_ || sprod_ || aut->num_states() > 100

@@ -357,7 +357,7 @@ cat output
 cat >expected <<EOF
 digraph G {
   rankdir=LR
-  label="Inf(0)&Inf(1)"
+  label="Inf(0)&Inf(1)\n[gen. Büchi 2]"
   labelloc="t"
   node [shape="circle"]
   I [label="", style=invis, width=0]
@@ -376,7 +376,7 @@ cat output
 cat >expected <<EOF
 digraph G {
   rankdir=LR
-  label="G(Fa & Fb)\nInf(⓿)&Inf(❶)"
+  label="G(Fa & Fb)\nInf(⓿)&Inf(❶)\n[gen. Büchi 2]"
   labelloc="t"
   node [shape="circle"]
   I [label="", style=invis, width=0]
@@ -399,7 +399,7 @@ one='<font color="#FF4DA0">❶</font>'
 cat >expected <<EOF
 digraph G {
   rankdir=LR
-  label=<Inf($zero)&amp;Inf($one)>
+  label=<Inf($zero)&amp;Inf($one)<br/>[gen. Büchi 2]>
   labelloc="t"
   fontname="Lato"
   node [fontname="Lato"]
@@ -470,7 +470,7 @@ EOF
 cat >expected <<EOF
 digraph G {
   rankdir=LR
-  label="(Fin(⓿)|Fin(❸)) | (Fin(❶) & Inf(❷))"
+  label="(Fin(⓿)|Fin(❸)) | (Fin(❶) & Inf(❷))\n[gen. Rabin 3]"
   labelloc="t"
   I [label="", style=invis, width=0]
   I -> 0
@@ -524,7 +524,7 @@ diff out expected
 cat >expected2 <<EOF
 digraph G {
   rankdir=LR
-  label="(Fin(⓿)|Fin(❸)) | (Fin(❶) & Inf(❷))"
+  label="(Fin(⓿)|Fin(❸)) | (Fin(❶) & Inf(❷))\n[gen. Rabin 3]"
   labelloc="t"
   node [shape="circle"]
   I [label="", style=invis, width=0]
@@ -892,7 +892,7 @@ run 0 autfilt -dbark input6 >output6d2
 cat >expect6d2 <<EOF
 digraph G {
   rankdir=LR
-  label=<Inf(<font color="#1F78B4">⓿</font>)>
+  label=<Inf(<font color="#1F78B4">⓿</font>)<br/>[Büchi]>
   labelloc="t"
   I [label="", style=invis, width=0]
   I -> 1
