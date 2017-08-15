@@ -686,7 +686,9 @@ namespace spot
 
       acc_code operator&(const acc_code& r)
       {
-        return *this &= r;
+        acc_code res = *this;
+        res &= r;
+        return res;
       }
 
       acc_code operator&(acc_code&& r)
@@ -789,9 +791,11 @@ namespace spot
         return res;
       }
 
-      acc_code& operator|(const acc_code& r)
+      acc_code operator|(const acc_code& r)
       {
-        return *this |= r;
+        acc_code res = *this;
+        res |= r;
+        return res;
       }
 
       acc_code& operator<<=(unsigned sets)
