@@ -57,7 +57,7 @@ namespace spot
     using EdgeMask = std::vector<bool>;
 
     template< typename Edges, typename Apply >
-    void for_each_edge(const_twa_graph_ptr aut,
+    void for_each_edge(const const_twa_graph_ptr& aut,
                        const Edges& edges,
                        const EdgeMask& mask,
                        Apply apply)
@@ -78,8 +78,7 @@ namespace spot
       acc_cond::mark_t scc_mark = 0U;
       for_each_edge(aut, edges, mask, [&] (unsigned e)
         {
-          const auto& ed = aut->edge_data(e);
-          scc_mark |= ed.acc;
+          scc_mark |= aut->edge_data(e).acc;
         });
       return scc_mark;
     }
@@ -117,7 +116,7 @@ namespace spot
     bool is_scc_tba_type(const_twa_graph_ptr aut,
                          const scc_info& si,
                          const unsigned scc,
-                         std::vector<bool> keep,
+                         const std::vector<bool>& keep,
                          const rs_pairs_view& aut_pairs,
                          std::vector<bool>& final)
     {
@@ -138,13 +137,13 @@ namespace spot
         }
 
       auto scc_infs_alone = scc_pairs.infs_alone();
-      // Firstly consider whole SCC as one large cycle.
-      // If there is no inf without matching fin then the cycle formed
-      // by the entire SCC is not accepting.  However that does not
+      // Firstly consider whole SCC as one large cycle.  If there is
+      // no inf without matching fin then the cycle formed by the
+      // entire SCC is not accepting.  However that does not
       // necessarily imply that all cycles in the SCC are also
       // non-accepting.  We may have a smaller cycle that is
       // accepting, but which becomes non-accepting when extended with
-      // more states.
+      // more edges.
       if (!scc_infs_alone)
         {
           // Check whether the SCC is accepting.  We do that by simply
@@ -158,17 +157,17 @@ namespace spot
           auto sccaut = mask_keep_accessible_states(aut,
                                                     keep_states,
                                                     states.front());
-
-          // Prevent recurring into this function, by skipping the rabin straegy
+          // Prevent recurring into this function by skipping the
+          // Rabin strategy
           auto skip = strategy_t::rabin;
-          // If SCCAUT is empty, the SCC is BA-type (and none
-          // of its states are final).  If SCCAUT is nonempty, the SCC
-          // is not BA type
+          // If SCCAUT is empty, the SCC is BA-type (and none of its
+          // states are final).  If SCCAUT is nonempty, the SCC is not
+          // BA type
           return remove_fin_impl(sccaut, skip)->is_empty();
         }
 
       // Remaining infs corresponds to I₁s that have been seen with seeing
-      // the mathing F₁.cIn this SCC any edge in these I₁ is therefore
+      // the mathing F₁. In this SCC any edge in these I₁ is therefore
       // final. Otherwise we do not know: it is possible that there is
       // a non-accepting cycle in the SCC that do not visit Fᵢ.
       std::set<unsigned> unknown;
@@ -180,12 +179,9 @@ namespace spot
           else
               unknown.insert(e);
         });
-      // Check whether it is possible to build non-accepting cycles
-      // using only the "unknown" edges.
-      keep.assign(aut->edge_vector().size(), false);
 
-      // Erase edges that cannot form cycle, ie. that edge whose 'dst'
-      // is not 'src' of any unknown edges.
+      // Erase edges that cannot belong to a cycle, i.e., that edges
+      // whose 'dst' is not 'src' of any unknown edges.
       std::vector<unsigned> remove;
       do
         {
@@ -194,7 +190,7 @@ namespace spot
           for (auto e: unknown)
             srcs.insert(aut->edge_storage(e).src);
           for (auto e: unknown)
-            if (!srcs.count(aut->edge_storage(e).dst))
+            if (srcs.find(aut->edge_storage(e).dst) == srcs.end())
               remove.push_back(e);
           for (auto r: remove)
             unknown.erase(r);
@@ -203,44 +199,44 @@ namespace spot
 
       // Check whether it is possible to build non-accepting cycles
       // using only the "unknown" edges.
-      using filter_data_t = std::pair< const_twa_graph_ptr, std::vector<bool> >;
+      using filter_data_t = std::pair<const_twa_graph_ptr, std::vector<bool>&>;
 
       scc_info::edge_filter filter =
         [](const twa_graph::edge_storage_t& t, unsigned, void* data)
           -> scc_info::edge_filter_choice
         {
-          const_twa_graph_ptr aut;
-          std::vector<bool> keep;
-          std::tie(aut, keep) = *static_cast<filter_data_t*>(data);
-
-          if (keep[aut->edge_number(t)])
+          auto& d = *static_cast<filter_data_t*>(data);
+          if (d.second[d.first->edge_number(t)])
             return scc_info::edge_filter_choice::keep;
           else
             return scc_info::edge_filter_choice::ignore;
         };
 
-      while (!unknown.empty())
-        {
-          std::vector<bool> keep(aut->edge_vector().size(), false);
-          for (auto e: unknown)
-            keep[e] = true;
+      {
+        std::vector<bool> keep;
+        while (!unknown.empty())
+          {
+            keep.assign(aut->edge_vector().size(), false);
+            for (auto e: unknown)
+              keep[e] = true;
 
-          auto filter_data = filter_data_t{aut, keep};
-          auto init = aut->edge_storage(*unknown.begin()).src;
-          scc_info si(aut, init, filter, &filter_data);
+            auto filter_data = filter_data_t{aut, keep};
+            auto init = aut->edge_storage(*unknown.begin()).src;
+            scc_info si(aut, init, filter, &filter_data);
 
-          for (unsigned uscc = 0; uscc < si.scc_count(); ++uscc)
-            {
-              for_each_edge(aut, si.edges_of(uscc), keep, [&](unsigned e)
-                {
-                  unknown.erase(e);
-                });
-              if (si.is_rejecting_scc(uscc))
-                continue;
-              if (!is_scc_tba_type(aut, si, uscc, keep, aut_pairs, final))
-                return false;
-            }
-        }
+            for (unsigned uscc = 0; uscc < si.scc_count(); ++uscc)
+              {
+                for_each_edge(aut, si.edges_of(uscc), keep, [&](unsigned e)
+                              {
+                                unknown.erase(e);
+                              });
+                if (si.is_rejecting_scc(uscc))
+                  continue;
+                if (!is_scc_tba_type(aut, si, uscc, keep, aut_pairs, final))
+                  return false;
+              }
+          }
+      }
       return true;
     }
 
