@@ -53,3 +53,51 @@ def test_phi(phi):
 
 for p in phi1:
   test_phi(p)
+
+
+phi2 = spot.formula("(G((F a) U b)) W a")
+a2 = spot.automaton("""
+HOA: v1
+States: 7
+Start: 1
+AP: 2 "a" "b"
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels trans-acc complete univ-branch
+--BODY--
+State: 0
+[t] 0 {0 1}
+State: 1
+[0] 0 {0 1}
+[1] 1&2 {0 1}
+[0&!1] 1&3 {0 1}
+[!0&!1] 1&4 {0 1}
+State: 2
+[1] 2 {0 1}
+[0&!1] 3 {0 1}
+[!0&!1] 4 {0 1}
+State: 3
+[1] 2 {0 1}
+[0&!1] 3 {1}
+[!0&!1] 4 {1}
+State: 4
+[0&1] 2 {0 1}
+[0&!1] 3 {1}
+[!0&!1] 4 {1}
+[!0&1] 5 {0 1}
+State: 5
+[0&1] 2 {0 1}
+[0&!1] 3 {0 1}
+[!0&1] 5 {0}
+[!0&!1] 6 {0}
+State: 6
+[0&1] 2 {0 1}
+[0&!1] 3 {1}
+[!0&1] 5 {0}
+[!0&!1] 6
+--END--
+""")
+a2 = spot.to_weak_alternating(a2)
+assert equivalent(a2, phi2)
+
+

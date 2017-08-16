@@ -121,10 +121,11 @@ namespace spot
                   int curr = static_cast<int>(rank);
                   // We must always be able to go to the previous even rank
                   int lower = less_ ? ((curr - 1) & ~1) : 0;
-                  for (int i = curr; i >= lower; --i)
+                  for (int i = curr, start_set = st.mark.min_set() - 1;
+                       i >= lower; --i, start_set = 0)
                     {
                       if (i % 2)
-                        for (unsigned m = 0; m < numsets_; ++m)
+                        for (unsigned m = start_set; m < numsets_; ++m)
                           levels |= state_to_var_[new_state(d, i, {m})];
                       else
                         levels |= state_to_var_[new_state(d, i, 0U)];
