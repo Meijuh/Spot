@@ -71,6 +71,10 @@ do
                     exit_status=2
                 fi
             fi
+            if ! grep -q "{$binary" $top_srcdir/doc/org/arch.tex; then
+                echo "$binary does not occur in doc/org/arch.tex"
+                exit_status=2
+            fi
     esac
 done
 
