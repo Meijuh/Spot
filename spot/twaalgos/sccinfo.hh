@@ -441,7 +441,7 @@ namespace spot
     /// states of an SCC.
     ///
     /// The difference with edges_of() is that inner_edges_of()
-    /// ignores edges leaving the SCC are ignored.  In the case of
+    /// ignores edges leaving the SCC.  In the case of an
     /// alternating automaton, an edge is considered to be part of the
     /// SCC of one of its destination is in the SCC.
     internal::scc_edges<const twa_graph::graph_t, internal::keep_inner_scc>

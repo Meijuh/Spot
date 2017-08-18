@@ -1081,7 +1081,7 @@ namespace spot
     ///
     /// An acceptance condition is Streett-like if it can be transformed into
     /// a Streett acceptance with little modification to its automaton.
-    /// A Streett-like acceptance condition follow one of those rules:
+    /// A Streett-like acceptance condition follows one of those rules:
     /// -It is a conjunction of disjunctive clauses containing at most one
     ///  Inf and at most one Fin.
     /// -It is true (with 0 pair)
@@ -1093,7 +1093,7 @@ namespace spot
     ///
     /// An acceptance condition is Rabin-like if it can be transformed into
     /// a Rabin acceptance with little modification to its automaton.
-    /// A Rabin-like acceptance condition follow one of those rules:
+    /// A Rabin-like acceptance condition follows one of those rules:
     /// -It is a disjunction of conjunctive clauses containing at most one
     ///  Inf and at most one Fin.
     /// -It is true (1 pair [0U, 0U])
@@ -1112,8 +1112,8 @@ namespace spot
     bool is_parity() const
     {
       bool max;
-      bool min;
-      return is_parity(max, min);
+      bool odd;
+      return is_parity(max, odd);
     }
 
     // Return (true, m) if there exist some acceptance mark m that

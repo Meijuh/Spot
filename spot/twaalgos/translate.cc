@@ -85,7 +85,7 @@ namespace spot
     //
     // This rewriting is enabled only if the formula
     //  1) has some Boolean subformula
-    //  2) has more than relabel_bool_ atomic propisition (the default
+    //  2) has more than relabel_bool_ atomic propositions (the default
     //     is 4, but this can be changed)
     //  3) relabel_bse() actually reduces the number of atomic
     //     propositions.

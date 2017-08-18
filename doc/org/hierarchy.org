@@ -31,7 +31,7 @@ this picture for a moment.
   recognized by a deterministic Büchi automaton.
 
 - The dual class, /persistence/ properties, are those that can be
-  reresented by a weak Büchi automaton (i.e., in each SCC either all
+  recognized by a weak Büchi automaton (i.e., in each SCC either all
   states are accepting, or all states are rejecting).
 
 - The intersection of /recurrence/ and /persistence/ classes form the
@@ -43,15 +43,15 @@ this picture for a moment.
   reaching an accepting state, any suffix will be accepted).
 
 - /Safety/ properties are the dual of /Guarantee/ properties: they can
-  be recognized by an ω-automata that accept all their runs (i.e., the
+  be recognized by ω-automata that accept all their runs (i.e., the
   acceptance condition is "true").  Note that since these automata are
-  not necessary complete, it is still possible for some words to not
+  not necessary complete, it is still possible for some words not to
   be accepted.  If we interpret the ω-automata with "true" acceptance
   as finite automata with all states marked as final, we obtain
   monitors, i.e., finite automata that recognize all finite prefixes
   that can be extended into valid ω-words.
 
-- Finally, at the very bottom is an unnamed class that is contains
+- Finally, at the very bottom is an unnamed class that contains
   /Safety/ properties that are also /Guarantee/ properties: those are
   properties that can be represented by monitors in which the only
   cycles are self-loops labeled by true.
@@ -124,9 +124,9 @@ genltl --dac-patterns --format='%[v]h' | sort | uniq -c
 :      12 recurrence
 :      37 safety
 
-In this output, the most precise class is given for each formula, an
+In this output, the most precise class is given for each formula, and
 the count of formulas for each subclass is given.  We have to remember
-that the recurrence class also include obligation, safety, and
+that the recurrence class also includes obligation, safety, and
 guarantee properties.  In this list, there are no formulas that belong
 to the intersection of the /guarantee/ and /safety/ classes (it would
 have been listed as =guarantee safety=).
@@ -150,7 +150,7 @@ genltl --dac-patterns |
 : reactivity, G(p0 -> ((p1 -> (!p2 U (!p2 & p3 & !p4 & X((!p2 & !p4) U p5)))) U (p2 | G(p1 -> (p3 & !p4 & X(!p4 U p5))))))
 
 Similar filtering options exist for other classes.  Since these tests
-are automata-based, they work with PSL formulas as weil. For instance,
+are automata-based, they work with PSL formulas as well. For instance,
 here is how to generate 10 random recurrence PSL formulas that are
 not LTL formulas, and that are not obligations:
 
@@ -226,7 +226,7 @@ is in class syntactic-C).
 =ltlfilt= has options like =--syntactic-guarantee=,
 =--syntactic-persistence=, etc. to match formulas from this classes.
 
-Here is how to generate 10 random LTL formula that describe safety
+Here is how to generate 10 random LTL formulas that describe safety
 properties but that are not in the syntactic-safety class:
 
 #+BEGIN_SRC sh :results verbatim :exports both
@@ -250,7 +250,7 @@ b M Gb
 #+end_example
 
 Since all those formulas describe safety properties, an exercise would
-be suggest equivalent formulas that are in the syntactic-safety
+be to suggest equivalent formulas that are in the syntactic-safety
 fragment.  For instance =b M Gb= can be rewritten as just =Gb=, which
 belongs to this fragment.  In this particular case, =ltlfilt
 --simplify= recognizes this:
@@ -274,14 +274,14 @@ the powerset constructions for restricted classes of ω-automata/,
 ATVA'07]]) in order to detect obligation properties, and produce minimal
 weak deterministic automata for them.
 
-When running =ltl2tgba -D= on an formula that represents and
+When running =ltl2tgba -D= on a formula that represents an
 obligation property, you are guaranteed to obtain a minimal (in the
 number of states) deterministic weak Büchi automaton that recognizes
 it.  Note that since the /obligation/ class includes the /safety/ and
 /guarantee/ classes, minimal deterministic automata will also be
-produced for those classes.  Dax et al.'s determinization of obligations
+produced for those classes.  Dax et al.'s determinization of obligation
 properties combined with Löding's minimization renders obsolete
-older algorithms (and tools) that produced minimial deterministic
+older algorithms (and tools) that produced minimal deterministic
 automata but only for the subclasses of /safety/ or /guarantee/.
 
 If =ltl2tgba= is run without =-D= (but still with the default =--high=
@@ -440,7 +440,7 @@ However, the /safety/ class corresponds to what can be represented
 faithfully by monitors, i.e., automata that accept all their infinite
 runs.
 
-For most safety formula, the acceptance output by =ltl2tgba= will
+For most safety formulas, the acceptance output by =ltl2tgba= will
 already be =t= (meaning that all runs are accepting).  However since
 the translator does not do anything particular about safety formulas,
 it is possible to find some pathological formulas for which the
@@ -490,7 +490,7 @@ If you are working with safety formula, and know you want to work with
 monitors, you can use the =-M= option of =ltl2tgba=.  In this case
 this will output the same automaton, but using the universal
 acceptance (i.e. =t=).  You can interpret this output as a monitor
-(i.e., a finite automaton that accept all prefixes that can be
+(i.e., a finite automaton that accepts all prefixes that can be
 extended into valid ω-words).
 
 #+NAME: hier-safety-1m
@@ -571,7 +571,7 @@ $txt
 [[file:hier-recurrence-2.png]]
 
 
-Here is an example of formula for which =ltl2tgba= does not produce a
+Here is an example of a formula for which =ltl2tgba= does not produce a
 deterministic automaton, even with =-D=.
 
 #+BEGIN_SRC sh :results verbatim :exports both
@@ -630,8 +630,8 @@ a /recurrence/ property), is to chain a few algorithms implemented in Spot:
     (The only change here is in the acceptance condition.)
 
  3. In step 4 we are going to convert the automaton to state-based
-    Büchi, and this sometimes work better if the input Rabin automaton
-    also use state-based acceptance.  So let us add =-S= to the
+    Büchi, and this sometimes works better if the input Rabin automaton
+    also uses state-based acceptance.  So let us add =-S= to the
     previous command:
 
     #+NAME: hier-recurrence-6

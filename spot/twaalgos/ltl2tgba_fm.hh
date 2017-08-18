@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2017 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -58,7 +58,7 @@ namespace spot
   /// \param exprop When set, the algorithm will consider all properties
   /// combinations possible on each state, in an attempt to reduce
   /// the non-determinism.  The automaton will have the same size as
-  /// without this option, but because the transition will be more
+  /// without this option, but because the transitions will be more
   /// deterministic, the product automaton will be smaller (or, at worse,
   /// equal).
   ///
@@ -68,7 +68,7 @@ namespace spot
   ///
   /// \param branching_postponement When set, several transitions leaving
   /// from the same state with the same label (i.e., condition + acceptance
-  /// conditions) will be merged.  This correspond to an optimization
+  /// conditions) will be merged.  This corresponds to an optimization
   /// described in the following paper.
   /** \verbatim
       @InProceedings{          sebastiani.03.charme,

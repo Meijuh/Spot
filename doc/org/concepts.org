@@ -771,7 +771,7 @@ Both extensions are supported by Spot.
    :END:
 
 The DSTAR format is the native format of [[http://ltl2dstar.de/][=ltl2dstar=]].  It allows
-representing Deterministic STreett And Rabin automata, hence the
+representing Deterministic Streett And Rabin automata, hence the
 name.
 
 Spot can read the DSTAR format, but it does not output it.  Adding

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2013, 2015, 2016-2017 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE)
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -40,7 +40,7 @@ namespace spot
     /// \brief Add the parsed options to the map.
     ///
     /// \a options are separated by a space, comma, semicolon or tabulation and
-    /// can be optionnaly followed by an integer value (preceded by an equal
+    /// can be optionally followed by an integer value (preceded by an equal
     /// sign). If not specified, the default value is 1.
     ///
     /// The following three lines are equivalent.
@@ -87,7 +87,7 @@ namespace spot
     std::string set_str(const char* option,
                         std::string val, std::string def = {});
 
-    /// \brief Raise a runtime_error if some option haven't been used.
+    /// \brief Raise a runtime_error if some options have not been used.
     void report_unused_options() const;
 
     /// Acquire all the settings of \a o.
