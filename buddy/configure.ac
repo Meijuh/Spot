@@ -18,11 +18,11 @@ AC_PROG_YACC
 
 AC_PROG_CXX
 
-# Option to activate C/C++14
-AC_ARG_ENABLE([c++14],
-              [AC_HELP_STRING([--enable-c++14],
-                              [Use C++14.])],
-              [enable_14=yes], [enable_14=no])
+# Option to activate C++17
+AC_ARG_ENABLE([c++17],
+              [AC_HELP_STRING([--enable-c++17],
+                              [Compile in C++17 mode.])],
+              [enable_17=yes], [enable_17=no])
 
 LT_INIT([win32-dll])
 AX_BSYMBOLIC
@@ -50,47 +50,12 @@ if test x$enable_warnings = xyes; then
   CF_GCC_WARNINGS
 fi
 
-# Turn on C++11 support
-AC_LANG(C++)
-m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody],
-[AC_LANG_SOURCE([#include <memory>
-#include <string>
-#include <chrono>  // fails with some installation of clang
-#include <map>
-
-    template <typename T>
-    struct check
-    {
-      static_assert(sizeof(int) <= sizeof(T), "not big enough");
-    };
-
-    typedef check<check<bool>> right_angle_brackets;
-
-    auto f = std::make_shared<std::string>("shared_ptr");
-
-    int a;
-    decltype(a) b;
-
-    typedef check<int> check_type;
-    check_type c;
-    check_type&& cr = static_cast<check_type&&>(c);
-
-    auto d = a;
-
-    void test_emplace()
-    {
-       std::map<int, int> m;
-       m.emplace(1, 2); // fails with g++ 4.6
-    }
-])])
-
 # Turn on C++14 support
-# This is currently a copy of the above code for C++11, feel free to add
-# further tests here when necessary.
+AC_LANG(C++)
 m4_define([_AX_CXX_COMPILE_STDCXX_14_testbody],
 [AC_LANG_SOURCE([#include <memory>
 #include <string>
-#include <chrono>  // fails with some installation of clang
+#include <chrono>  // used to fail in C++11 with some installation of clang
 #include <map>
 
     template <typename T>
@@ -101,7 +66,7 @@ m4_define([_AX_CXX_COMPILE_STDCXX_14_testbody],
 
     typedef check<check<bool>> right_angle_brackets;
 
-    auto f = std::make_shared<std::string>("shared_ptr");
+    auto f = std::make_unique<std::string>("uniq_ptr");
 
     int a;
     decltype(a) b;
@@ -111,15 +76,19 @@ m4_define([_AX_CXX_COMPILE_STDCXX_14_testbody],
     check_type&& cr = static_cast<check_type&&>(c);
 
     auto d = a;
-
-    void test_emplace()
-    {
-       std::map<int, int> m;
-       m.emplace(1, 2); // fails with g++ 4.6
-    }
 ])])
 
-if test x"${enable_14}" = xyes; then
+if test x"${enable_17}" = xyes; then
+  for f in -std=c++17 '-std=c++17 -stdlib=libc++' -std=c++1z
+  do
+    AX_CHECK_COMPILE_FLAG([$f], [CXXFLAGS="$CXXFLAGS $f" stdpass=true], [], [],
+                          [_AX_CXX_COMPILE_STDCXX_14_testbody])
+    ${stdpass-false} && break
+  done
+  if ! "${stdpass-false}"; then
+    AC_ERROR([unable to turn on C++17 mode with this compiler])
+  fi
+else
   for f in -std=c++14 '-std=c++14 -stdlib=libc++' -std=c++1y
   do
     AX_CHECK_COMPILE_FLAG([$f], [CXXFLAGS="$CXXFLAGS $f" stdpass=true], [], [],
@@ -128,16 +97,6 @@ if test x"${enable_14}" = xyes; then
   done
   if ! "${stdpass-false}"; then
     AC_ERROR([unable to turn on C++14 mode with this compiler])
-  fi
-else
-  for f in -std=c++11 '-std=c++11 -stdlib=libc++' -std=c++0x
-  do
-    AX_CHECK_COMPILE_FLAG([$f], [CXXFLAGS="$CXXFLAGS $f" stdpass=true], [], [],
-                          [_AX_CXX_COMPILE_STDCXX_11_testbody])
-    ${stdpass-false} && break
-  done
-  if ! "${stdpass-false}"; then
-    AC_ERROR([unable to turn on C++11 mode with this compiler])
   fi
 fi
 
