@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Spot: a platform for LTL and ω-automata manipulation
 #+DESCRIPTION: Spot is a library and tool suite for LTL and ω-automata
-#+KEYWORDS: Spot,C++11,library,platform,framework,tool-suite,LTL,PSL,omega-automata
+#+KEYWORDS: Spot,C++14,library,platform,framework,tool-suite,LTL,PSL,omega-automata
 #+SETUPFILE: setup.org
 #+HTML_HEAD_EXTRA: <style>#org-div-home-and-up { display: none; }</style>
 
-Spot is a C++11 library for LTL, ω-automata manipulation and model
+Spot is a C++14 library for LTL, ω-automata manipulation and model
 checking.  It has the following notable features:
 
 - Support for [[file:concepts.org::#ltl][LTL]] (several syntaxes supported) and

@@ -20,7 +20,7 @@ experience of updating a couple of projects that are using Spot.
   Spot 1.2.6 and Spot 2.0, just to get an idea of what will need to be
   updated.
 
-  1. [[#cpp11][Spot now compiles using the C++11 standard]].  Compliant compiler
+  1. [[#cpp14][Spot now compiles using the C++14 standard]].  Compliant compiler
      are sufficiently widespread now that this should not be an issue.
 
   2. The layout of the source-tree and the layout of the installed
@@ -83,23 +83,22 @@ experience of updating a couple of projects that are using Spot.
      numbered.  Many algorithms have been rewritten on top of this
      =twa_graph= class, and this simplified them a lot.
 
-* Upgrading to C++11
+* Upgrading to C++14
   :PROPERTIES:
   :CUSTOM_ID: cpp11
   :END:
 
-  Because Spot now relies on C++11 features, programs that use Spot
+  Because Spot now relies on C++14 features, programs that use Spot
   should at least be compiled using this version (or a later one) of
   the language.
 
   Before the =g++= 6.0, the default C++ standard used was C++98, and
-  enabling C++11 is usually done by passing the option =-std=c++11=.
+  enabling C++14 is usually done by passing the option =-std=c++14=.
   In =g++= 6.0 the default C++ standard used is C++14, so passing
-  =-std=c++11= is only necessary in projects that are incompatible
-  with C++14.
+  =-std=c++14= is not necessary.
 
-  Upgrading from C++98 or C++03 to C++11 should be relatively smooth
-  as the language is /mostly/ backward compatible.
+  Upgrading from C++98, C++03 or C++11 to C++14 should be relatively
+  smooth as the language is /mostly/ backward compatible.
 
 * Upgrading =#include= directives
   :PROPERTIES:
@@ -598,7 +597,6 @@ for (auto i: aut->succ(s))
   all registered propositions is achievable with =twa::ap()= or
   =twa::ap_vars()=.  All propositions registered by an automaton are
   automatically unregistered when the automaton is destroyed.
-
 
 
 * Various renamings

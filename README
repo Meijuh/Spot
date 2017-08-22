@@ -2,7 +2,7 @@ Overview
 ========
 
 Spot is a model-checking toolkit comprising:
-  - a C++11 library with data-structures and algorithms for working
+  - a C++14 library with data-structures and algorithms for working
     with linear-time temporal logical formulas and ω-automata with
     any acceptance condition.
   - a set of command-line tools for easy access to those algorithms,
@@ -73,8 +73,8 @@ Installation
 Requirements
 ------------
 
-Spot requires a C++11-compliant compiler.
-G++ 4.8 or later, as well as Clang++ 3.5 or later should work.
+Spot requires a C++14-compliant compiler.  G++ 5.x or later, as well
+as Clang++ 3.5 or later should work.
 
 Spot expects a complete installation of Python (version 3.3 or later).
 Especially, Python's headers files should be installed.  If you don't
@@ -140,6 +140,10 @@ flags specific to Spot:
      the regular version.  So if Spot is compiled with this option, all
      client code should be compiled with -D_GLIBCXX_DEBUG as well.  This
      options should normally only be useful to run Spot's test-suite.
+
+   --enable-c++17
+     Build everything in C++17 mode.  We use that in our build farm to
+     ensure that Spot can be used in C++17 projects as well.
 
 Here are the meaning of the fine-tuning options, in case
 --enable/disable-devel is not enough.

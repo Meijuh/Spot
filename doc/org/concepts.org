@@ -1022,7 +1022,7 @@ components that are distributed and installed by Spot.
 
   - =libbddx= is a customized version of [[https://sourceforge.net/projects/buddy/][the BuDDy library]], for
     manipulating [[#bdd][BDDs]].
-  - =libspot= is the main library, containing a C++11 implementation of all the
+  - =libspot= is the main library, containing a C++14 implementation of all the
     data structures and algorithms.  This depends on =libddx=.
   - =libspotgen= is an auxiliary library that contains functions to
     generate families of automata, useful for benchmarking and testing
@@ -1034,7 +1034,7 @@ components that are distributed and installed by Spot.
     SpinS or a patched version of DiVinE, but you have to install
     those third-party tools first.  See [[https://gitlab.lrde.epita.fr/spot/spot/blob/next/tests/ltsmin/README][=tests/ltsmin/README=]]
     for details.
-  - In addition to the C++11 API, we also provide Python bindings for
+  - In addition to the C++14 API, we also provide Python bindings for
     =libspotgen=, =libspotltsmin=, =libbddx=, and most of =libspot=.
     These are available by importing =spot.gen=, =spot.ltsmin=, =bdd=,
     and =spot=.  Those Python bindings also includes some additional

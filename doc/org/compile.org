@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Compiling against Spot
-#+DESCRIPTION: How to compile C++11 programs using Spot
+#+DESCRIPTION: How to compile C++14 programs using Spot
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 
@@ -39,10 +39,10 @@ obvisously.  On this page, we are going to assume that you use =g++=
 same user interface.  To successfully build the =hello= program, we
 might need to tell the compiler several things:
 
-1. The language that we use is C++11 (or C++14).  This usually
-   requires passing an option like =-std=c++11=.  Note that with
-   version 6 of =g++= the default is now to compile C++14, so this
-   option is not necessary.
+1. The language that we use is C++14 (or optionally C++17).  This
+   usually requires passing an option like =-std=c++14=.  Note that
+   with version 6 of =g++= the default is now to compile C++14, so
+   this option is not necessary.
 2. The C++ preprocessor should be able to find =spot/misc/version.hh=.
    This might require appending another directory to the include
    search path with =-I location=.
@@ -78,7 +78,7 @@ be able to find everything by default, and you should be able to
 compile =hello.cc= and then execute =hello= with
 
 #+BEGIN_SRC sh
-g++ -std=c++11 hello.cc -lspot -o hello
+g++ -std=c++14 hello.cc -lspot -o hello
 ./hello
 #+END_SRC
 
@@ -101,11 +101,11 @@ This means that all spot headers have been installed in
 
 Usually, these directories are searched by default, so
 #+BEGIN_SRC sh
-g++ -std=c++11 hello.cc -lspot -o hello
+g++ -std=c++14 hello.cc -lspot -o hello
 #+END_SRC
 should still work.  But if that is not the case, add
 #+BEGIN_SRC sh
-g++ -std=c++11 -I/usr/local/include hello.cc -L/usr/local/lib -lspot -o hello
+g++ -std=c++14 -I/usr/local/include hello.cc -L/usr/local/lib -lspot -o hello
 #+END_SRC
 
 If running =./hello= fails with a message about not finding =libspot.so=,
@@ -131,7 +131,7 @@ libraries in =$HOME/usr/lib=.
 
 You would compile =hello.cc= with
 #+BEGIN_SRC sh
-g++ -std=c++11 -I$HOME/usr/include hello.cc -L$HOME/usr/lib -lspot -o hello
+g++ -std=c++14 -I$HOME/usr/include hello.cc -L$HOME/usr/lib -lspot -o hello
 #+END_SRC
 and execute with
 #+BEGIN_SRC sh
@@ -184,7 +184,7 @@ There are at least two traps with this scenario:
 
 So compiling against a non-installed Spot would look like this:
 #+BEGIN_SRC sh
-/dir/spot-X.Y/libtool link g++ -std=c++11 -I/dir/spot-X.Y -I/dir/spot-X.Y/buddy/src hello.cc /dir/spot-X.Y/spot/libspot.la -o hello
+/dir/spot-X.Y/libtool link g++ -std=c++14 -I/dir/spot-X.Y -I/dir/spot-X.Y/buddy/src hello.cc /dir/spot-X.Y/spot/libspot.la -o hello
 #+END_SRC
 
 Using =libtool link g++= instead of =g++= will cause =libtool= to

@@ -1,5 +1,16 @@
 New in spot 2.3.5.dev (not yet released)
 
+  Build:
+
+  - Spot is now built in C++14 mode, so you need at least GCC 5 or
+    clang 3.4.  The current version of all major linux distributions
+    ship with at least GCC 6, which defaults to C++14, so this should
+    not be a problem.  In *this* release of Spot, most of the header
+    files are still C++11 compatible, so you should be able to include
+    Spot in a C++11 project in case you do not yet want to upgrade.
+    There is also an --enable-c++17 option to configure in case you
+    want to force a build of Spot in C++17 mode.
+
   Tools:
 
   - genaut is a new binary that produces families of automata defined

@@ -16,7 +16,7 @@ successful development build]].
 
 ** Requirements
 
-Spot requires a C++11-compliant compiler.  =g++= 4.8 or later, as well
+Spot requires a C++14-compliant compiler.  =g++= 5.0 or later, as well
 as =clang++= 3.5 or later should work.
 
 Spot expects a complete installation of Python (version 3.3 or later).
@@ -75,7 +75,7 @@ apt-get install spot libspot-dev spot-doc python3-spot # Or a subset of those
 #+END_SRC
 
 The package =spot= contains the [[file:tools.org][command-line tools]]. =libspot-dev=
-contains the header files if you plan to use Spot in a C++11
+contains the header files if you plan to use Spot in a C++14
 program. =spot-doc= contains some html (including these pages) and pdf
 documentation. Finally =python3-spot= contains some Python bindings
 (this package also installs some ipython notebooks that you can use as

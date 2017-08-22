@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2011-2017 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -77,7 +77,7 @@ namespace spot
   public:
     void automaton(const const_twa_graph_ptr& aut)
     {
-      val_ = std::unique_ptr<scc_info>(new scc_info(aut));
+      val_ = std::make_unique<scc_info>(aut);
     }
 
     void reset()
