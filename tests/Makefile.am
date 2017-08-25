@@ -313,7 +313,8 @@ TESTS_twa = \
   core/dnfstreett.test \
   core/parity.test \
   core/parity2.test \
-  core/ltlsynt.test
+  core/ltlsynt.test \
+  core/rabin2parity.test
 
 ############################## PYTHON ##############################
 

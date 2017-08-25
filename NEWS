@@ -83,6 +83,11 @@ New in spot 2.4.4.dev (net yet released)
 
   New functions in the library:
 
+  - spot::iar() and spot::iar_maybe() use index appearance records (IAR)
+    to translate Rabin-like automata into equivalent parity automaton.
+    This translation preserves determinism and is especially useful when
+    the input automaton is deterministic.
+
   - spot::print_aiger() encodes an automaton as an AIGER circuit, as
     required by the SYNTCOMP competition.  It relies on a new named
     property "synthesis outputs" that describes which atomic

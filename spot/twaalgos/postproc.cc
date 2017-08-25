@@ -38,6 +38,7 @@
 #include <spot/twaalgos/parity.hh>
 #include <spot/twaalgos/cobuchi.hh>
 #include <spot/twaalgos/dot.hh>
+#include <spot/twaalgos/rabin2parity.hh>
 
 namespace spot
 {
@@ -240,7 +241,15 @@ namespace spot
     if ((via_gba && !a->acc().is_generalized_buchi())
         || (want_parity && !a->acc().is_parity()))
       {
-        a = to_generalized_buchi(a);
+        twa_graph_ptr b = nullptr;
+        if (want_parity && is_deterministic(a))
+          b = iar_maybe(a);
+        // possible only if a was deterministic and Rabin-like and
+        // we want parity
+        if (b)
+          a = b;
+        else
+          a = to_generalized_buchi(a);
         if (PREF_ == Any && level_ == Low)
           a = do_scc_filter(a, true);
       }
