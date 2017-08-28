@@ -27,6 +27,8 @@ match_strings = [('is_buchi', 'is_co_buchi'),\
                  ('is_all', 'is_all'),
                  ('is_buchi', 'is_all')]
 
+# existential and universal are dual
+# deterministic is self-dual
 def dualtype(aut, dual):
   if dual.acc().is_none(): return True
   return (not spot.is_deterministic(aut) or spot.is_deterministic(dual))\
@@ -63,6 +65,16 @@ def test_aut(aut, d = None):
       or (getattr(aa, p[1])() and getattr(da, p[0])())):
       return (True, '')
   return (False, 'Incorrect acceptance type dual')
+
+# Tests that a (deterministic) automaton and its complement have complementary
+# languages.
+# FIXME This test could be extended to non-deterministic automata with a
+# dealternization procedure.
+def test_complement(aut):
+  assert aut.is_deterministic()
+  d = spot.dualize(aut)
+  s = spot.product_or(aut, d)
+  assert spot.dualize(s).is_empty()
 
 def test_assert(a, d=None):
   t = test_aut(a, d)
@@ -572,7 +584,6 @@ State: 5
 [t] 5
 --END--"""
 
-
 opts = spot.option_map()
 opts.set('output', spot.OUTPUTLTL)
 opts.set('tree_size_min', 15)
@@ -585,3 +596,17 @@ rg = spot.randltlgenerator(2, opts)
 for a in produce_automaton(produce_phi(rg, 1000)):
   test_assert(a)
   test_assert(spot.dualize(a), spot.dualize(spot.dualize(a)))
+
+aut = spot.automaton("""
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+Acceptance: 3 Fin(2) & (Inf(1) | Fin(0))
+--BODY--
+State: 0
+--END--""")
+test_complement(aut)
+
+for a in spot.automata('randaut -A \"random 0..6\" -H -D -n50 4|'):
+  test_complement(a)
