@@ -25,6 +25,14 @@ set -e
 
 cat >automaton <<EOF
 HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+--END--
+HOA: v1
 States: 2
 Start: 0
 AP: 1 "a"
@@ -106,6 +114,18 @@ State: 1 {0}
 EOF
 
 cat >expected <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels state-acc colored complete
+properties: deterministic
+--BODY--
+State: 0 {0}
+[t] 0
+--END--
 HOA: v1
 States: 3
 Start: 0
@@ -210,12 +230,12 @@ Start: 0&1
 AP: 0
 acc-name: co-Buchi
 Acceptance: 1 Fin(0)
-properties: trans-labels explicit-labels state-acc complete
+properties: trans-labels explicit-labels state-acc colored complete
 properties: deterministic univ-branch
 --BODY--
-State: 0
+State: 0 {0}
 [t] 0
-State: 1
+State: 1 {0}
 [t] 0
 --END--
 EOF

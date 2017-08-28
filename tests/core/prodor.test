@@ -24,6 +24,32 @@ set -e
 ltl2tgba=ltl2tgba
 autfilt=autfilt
 
+# Two empty automata
+cat >a1.hoa <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+--END--
+EOF
+cat >a2.hoa <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+Acceptance: 0 f
+--BODY--
+State: 0
+[t] 0
+--END--
+EOF
+
+# the OR product of two empty automata should be empty
+$autfilt --product-or a1.hoa a2.hoa -H | $autfilt --is-empty
+
 $ltl2tgba -DH 'GFa' > gfa.hoa
 $ltl2tgba -DH 'FGb' > fgb.hoa
 $autfilt --product-or gfa.hoa fgb.hoa -H > por.hoa

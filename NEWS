@@ -215,6 +215,9 @@ New in spot 2.3.5.dev (not yet released)
     generalized co-Büchi), it would sometimes output an automaton with
     transition-based acceptance but marked as state-based.
 
+  - The complete() function could complete an empty co-Büchi automaton into an
+    automaton accepting everything.
+
   Backward-incompatible changes:
 
   - spot::acc_cond::mark_t::operator bool() has been marked as

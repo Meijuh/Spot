@@ -69,7 +69,7 @@ namespace spot
                     loopmark = t.acc;
                     first = false;
                   }
-                // If this this not the first self loop and it as a
+                // If this this not the first self loop and it has a
                 // different acceptance mark, do not consider this
                 // state as a sink candidate: combining loops with
                 // different marks might be used to build an accepting
@@ -107,7 +107,7 @@ namespace spot
     for (unsigned i = 0; i < n; ++i)
       {
         bdd missingcond = bddtrue;
-        acc_cond::mark_t acc = 0U;
+        acc_cond::mark_t acc = um.second;
         unsigned edge_to_sink = 0;
         for (auto& t: aut->out(i))
           {
@@ -121,6 +121,8 @@ namespace spot
             // In case the automaton uses edge-based acceptance,
             // it does not matter what acceptance set we put the new
             // edge into.
+            // EXCEPT if there is an incomplete sinkable state: completing it
+            // creates self-loops that must be rejecting.
             //
             // So in both cases, we put the edge in the same
             // acceptance sets as the last outgoing edge of the
@@ -147,10 +149,11 @@ namespace spot
               }
             else                // otherwise, create the new edge.
               {
-                // in case the automaton use state-based acceptance, propagate
+                // in case the automaton uses state-based acceptance, propagate
                 // the acceptance of the first edge to the one we add.
-                if (!aut->prop_state_acc().is_true())
+                if (!aut->prop_state_acc().is_true() && i != sink)
                   acc = 0U;
+
                 aut->new_edge(i, sink, missingcond, acc);
               }
           }
