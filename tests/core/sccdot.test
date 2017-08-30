@@ -74,7 +74,7 @@ run 0 autfilt --dot=as in.hoa > out.dot
 cat <<EOF >expected
 digraph G {
   rankdir=LR
-  label="(Inf(0)&Inf(1)) & Fin(2)"
+  label="(Inf(0)&Inf(1)) & Fin(2)\n[Streett-like 3]"
   labelloc="t"
   node [shape="circle"]
   I [label="", style=invis, width=0]

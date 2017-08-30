@@ -559,10 +559,11 @@ EOF
 run 0 autfilt --dot='sbarf(Lato)' ex7 > ex7.dot
 
 color='<font color="#1F78B4">⓿</font>'
+color1='<font color="#FF4DA0">❶</font>'
 cat >expect7.dot<<EOF
 digraph G {
   rankdir=LR
-  label=<Fin(<font color="#FF4DA0">❶</font>) &amp; Fin($color)>
+  label=<Fin($color1) &amp; Fin($color)<br/>[Streett-like 2]>
   labelloc="t"
   fontname="Lato"
   node [fontname="Lato"]
@@ -658,7 +659,7 @@ run 0 autfilt --dot='sbarf(Lato)' ex8 > ex8.dot
 cat >expect8.dot<<EOF
 digraph G {
   rankdir=LR
-  label=<Fin(<font color="#FF4DA0">❶</font>) &amp; Fin($color)>
+  label=<Fin($color1) &amp; Fin($color)<br/>[Streett-like 2]>
   labelloc="t"
   fontname="Lato"
   node [fontname="Lato"]

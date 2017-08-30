@@ -466,10 +466,25 @@ namespace spot
                         bool max = false;
                         bool odd = false;
                         if (aut_->acc().is_parity(max, odd))
-                          os_ << nl << "[parity "
-                              << (max ? "max " : "min ")
-                              << (odd ? "odd " : "even ")
-                              << aut_->num_sets() << ']';
+                          {
+                            os_ << nl << "[parity "
+                                << (max ? "max " : "min ")
+                                << (odd ? "odd " : "even ")
+                                << aut_->num_sets() << ']';
+                          }
+                        else
+                          {
+                            std::vector<acc_cond::rs_pair> r_pairs;
+                            bool r_like = aut_->acc().is_rabin_like(r_pairs);
+                            unsigned rsz = r_pairs.size();
+                            std::vector<acc_cond::rs_pair> s_pairs;
+                            bool s_like = aut_->acc().is_streett_like(s_pairs);
+                            unsigned ssz = s_pairs.size();
+                            if (r_like && (!s_like || (rsz <= ssz)))
+                              os_ << nl << "[Rabin-like " << rsz << ']';
+                            else if (s_like && (!r_like || (ssz < rsz)))
+                              os_ << nl << "[Streett-like " << ssz << ']';
+                          }
                       }
                   }
               }
