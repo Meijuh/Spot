@@ -72,6 +72,8 @@ New in spot 2.3.5.dev (not yet released)
 
   - The print_dot() function will now display names for well known
     acceptance conditions under the formula when option 'a' is used.
+    We plan to enable 'a' by default in a future release, so a new
+    option 'A' has been added to hide the acceptance condition.
 
   - A new named property for automata called "original-states" can be
     used to record the origin of a state before transformation.  It is

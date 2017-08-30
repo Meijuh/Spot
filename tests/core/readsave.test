@@ -314,7 +314,7 @@ EOF
 
 autfilt -H input |
     SPOT_DEFAULT_FORMAT=dot \
-    SPOT_DOTDEFAULT=vcsn \
+    SPOT_DOTDEFAULT=vcsnaA \
     SPOT_DOTEXTRA='/* hello world */' \
     autfilt >output
 

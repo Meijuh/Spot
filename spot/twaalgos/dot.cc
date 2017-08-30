@@ -187,6 +187,9 @@ namespace spot
             case 'a':
               opt_show_acc_ = true;
               break;
+            case 'A':
+              opt_show_acc_ = false;
+              break;
             case 'b':
               opt_bullet = true;
               opt_bullet_but_buchi = false;
