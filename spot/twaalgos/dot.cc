@@ -23,6 +23,7 @@
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
+#include <spot/tl/print.hh>
 #include <spot/twa/twagraph.hh>
 #include <spot/twaalgos/dot.hh>
 #include <spot/twa/bddprint.hh>
@@ -100,6 +101,10 @@ namespace spot
       bool opt_numbered_edges_ = false;
       bool opt_orig_show_ = false;
       bool max_states_given_ = false; // related to max_states_
+      bool opt_latex_ = false;
+      const char* nl_ = "\\n";
+      const char* label_pre_ = "label=\"";
+      char label_post_ = '"';
 
       const_twa_graph_ptr aut_;
       std::string opt_font_;
@@ -265,6 +270,9 @@ namespace spot
             case 't':
               opt_force_acc_trans_ = true;
               break;
+            case 'x':
+              opt_latex_ = true;
+              break;
             case 'y':
               opt_shared_univ_dest_ = false;
               break;
@@ -272,6 +280,23 @@ namespace spot
               throw std::runtime_error
                 (std::string("unknown option for print_dot(): ") + c);
             }
+        if (opt_html_labels_)
+          {
+            nl_ = "<br/>";
+            label_pre_ = "label=<";
+            label_post_ = '>';
+          }
+        if (opt_latex_)
+          {
+            if (opt_latex_ && opt_html_labels_)
+              throw std::runtime_error
+                (std::string("print_dot(): options 'r' and 'R' "
+                             "are incompatible with 'x'"));
+            nl_ = "\\\\{}";
+            label_pre_ = "texlbl=\"";
+            label_post_ = '"';
+          }
+
       }
 
       dotty_output(std::ostream& os, const char* options)
@@ -306,7 +331,12 @@ namespace spot
       output_set(acc_cond::mark_t a) const
       {
         if (!opt_all_bullets)
-          os_ << '{';
+          {
+            if (opt_latex_)
+              os_ << "\\{";
+            else
+              os_ << '{';
+          }
         const char* space = "";
         for (auto v: a.sets())
           {
@@ -316,7 +346,12 @@ namespace spot
             space = ",";
           }
         if (!opt_all_bullets)
-          os_ << '}';
+          {
+            if (opt_latex_)
+              os_ << "\\}";
+            else
+              os_ << '}';
+          }
       }
 
       const char*
@@ -369,8 +404,30 @@ namespace spot
           os_ << '}';
       }
 
-      std::string
-      state_label(unsigned s) const
+      std::ostream&
+      escape_for_output(std::ostream& os, const std::string& s) const
+      {
+        if (opt_html_labels_)
+          return escape_html(os, s);
+        if (opt_latex_)
+          return escape_latex(os, s);
+        return escape_str(os, s);
+      }
+
+      std::ostream&
+      format_label(std::ostream& os, bdd label) const
+      {
+        formula f = bdd_to_formula(label, aut_->get_dict());
+        if (opt_latex_)
+          {
+            print_sclatex_psl(os << '$', f) << '$';
+            return os;
+          }
+        return escape_for_output(os, str_psl(f));
+      }
+
+      std::ostream&
+      format_state_label(std::ostream& os, unsigned s) const
       {
         bdd label = bddfalse;
         for (auto& t: aut_->out(s))
@@ -380,8 +437,8 @@ namespace spot
           }
         if (label == bddfalse
             && incomplete_ && incomplete_->find(s) != incomplete_->end())
-          return "...";
-        return bdd_format_formula(aut_->get_dict(), label);
+            return os << "...";
+        return format_label(os, label);
       }
 
       std::string string_dst(int dst, int color_num = -1)
@@ -420,26 +477,27 @@ namespace spot
           }
       }
 
-      void print_acceptance_for_human()
+      std::string get_acceptance_for_human()
       {
-        const char* nl = opt_html_labels_ ? "<br/>" : "\\n";
+        std::ostringstream os;
+
         if (aut_->acc().is_generalized_buchi())
           {
             if (aut_->acc().is_all())
-              os_ << nl << "[all]";
+              os << "all";
             else if (aut_->acc().is_buchi())
-              os_ << nl << "[Büchi]";
+              os << "Büchi";
             else
-              os_ << nl << "[gen. Büchi " << aut_->num_sets() << ']';
+              os << "gen. Büchi " << aut_->num_sets();
           }
         else if (aut_->acc().is_generalized_co_buchi())
           {
             if (aut_->acc().is_none())
-              os_ << nl << "[none]";
+              os << "none";
             else if (aut_->acc().is_co_buchi())
-              os_ << nl << "[co-Büchi]";
+              os << "co-Büchi";
             else
-              os_ << nl << "[gen. co-Büchi " << aut_->num_sets() << ']';
+              os << "gen. co-Büchi " << aut_->num_sets();
           }
         else
           {
@@ -447,7 +505,7 @@ namespace spot
             assert(r != 0);
             if (r > 0)
               {
-                os_ << nl << "[Rabin " << r << ']';
+                os << "Rabin " << r;
               }
             else
               {
@@ -455,14 +513,14 @@ namespace spot
                 assert(r != 0);
                 if (r > 0)
                   {
-                    os_ << nl << "[Streett " << r << ']';
+                    os << "Streett " << r;
                   }
                 else
                   {
                     std::vector<unsigned> pairs;
                     if (aut_->acc().is_generalized_rabin(pairs))
                       {
-                        os_ << nl << "[gen. Rabin " << pairs.size() << ']';
+                        os << "gen. Rabin " << pairs.size();
                       }
                     else
                       {
@@ -470,10 +528,10 @@ namespace spot
                         bool odd = false;
                         if (aut_->acc().is_parity(max, odd))
                           {
-                            os_ << nl << "[parity "
-                                << (max ? "max " : "min ")
-                                << (odd ? "odd " : "even ")
-                                << aut_->num_sets() << ']';
+                            os << "parity "
+                               << (max ? "max " : "min ")
+                               << (odd ? "odd " : "even ")
+                               << aut_->num_sets();
                           }
                         else
                           {
@@ -484,14 +542,23 @@ namespace spot
                             bool s_like = aut_->acc().is_streett_like(s_pairs);
                             unsigned ssz = s_pairs.size();
                             if (r_like && (!s_like || (rsz <= ssz)))
-                              os_ << nl << "[Rabin-like " << rsz << ']';
-                            else if (s_like && (!r_like || (ssz < rsz)))
-                              os_ << nl << "[Streett-like " << ssz << ']';
+                              os << "Rabin-like " << rsz;
+                           else if (s_like && (!r_like || (ssz < rsz)))
+                              os << "Streett-like " << ssz;
                           }
                       }
                   }
               }
           }
+        return os.str();
+      }
+
+      void print_acceptance_for_human()
+      {
+        std::string accstr = get_acceptance_for_human();
+        if (accstr.empty())
+          return;
+        os_ << nl_ << '[' << accstr << ']';
       }
 
       void
@@ -503,56 +570,39 @@ namespace spot
         if (opt_bullet && aut_->num_sets() <= MAX_BULLET)
           opt_all_bullets = true;
         os_ << "digraph G {\n";
+        if (opt_latex_)
+          os_ << "  d2tgraphstyle=\"every node/.style={align=center}\"\n";
         if (!opt_vertical_)
           os_ << "  rankdir=LR\n";
         if (name_ || opt_show_acc_)
           {
-            if (!opt_html_labels_)
+            os_ << "  " << label_pre_;
+            if (name_)
+              escape_for_output(os_, *name_);
+            if (opt_show_acc_)
               {
-                os_ << "  label=\"";
-                if (name_)
+                if (!dcircles_)
                   {
-                    escape_str(os_, *name_);
-                    if (opt_show_acc_)
-                      os_ << "\\n";
+                    if (name_)
+                      os_ << nl_;
+                    auto& acc = aut_->get_acceptance();
+                    if (opt_html_labels_)
+                      acc.to_html(os_, [this](std::ostream& os, int v)
+                                  {
+                                    this->output_html_set_aux(os, v);
+                                  });
+                    else if (opt_latex_)
+                      acc.to_latex(os_ << '$') << '$';
+                    else
+                      acc.to_text(os_, [this](std::ostream& os, int v)
+                                  {
+                                    this->output_set(os, v);
+                                  });
+
                   }
-                if (opt_show_acc_)
-                  {
-                    if (!dcircles_)
-                      {
-                        aut_->get_acceptance().to_text
-                          (os_, [this](std::ostream& os, int v)
-                           {
-                             this->output_set(os, v);
-                           });
-                      }
-                    print_acceptance_for_human();
-                  }
-                os_ << "\"\n";
+                print_acceptance_for_human();
               }
-            else
-              {
-                os_ << "  label=<";
-                if (name_)
-                  {
-                    escape_html(os_, *name_);
-                    if (opt_show_acc_)
-                      os_ << "<br/>";
-                  }
-                if (opt_show_acc_)
-                  {
-                    if (!dcircles_)
-                      {
-                        aut_->get_acceptance().to_html
-                          (os_, [this](std::ostream& os, int v)
-                           {
-                             this->output_html_set_aux(os, v);
-                           });
-                      }
-                    print_acceptance_for_human();
-                  }
-                os_ << ">\n";
-              }
+            os_ << label_post_ << '\n';
             os_ << "  labelloc=\"t\"\n";
           }
         switch (opt_shape_)
@@ -607,6 +657,16 @@ namespace spot
       void
       process_state(unsigned s)
       {
+        os_ << "  " << s << " [" << label_pre_;
+        if (sn_ && s < sn_->size() && !(*sn_)[s].empty())
+          escape_for_output(os_, (*sn_)[s]);
+        else if (sprod_)
+          os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
+        else
+          os_ << s;
+        if (orig_ && s < orig_->size())
+          os_ << " (" << (*orig_)[s] << ')';
+
         if (mark_states_ && !dcircles_)
           {
             acc_cond::mark_t acc = 0U;
@@ -616,64 +676,23 @@ namespace spot
                 break;
               }
 
-            bool has_name = sn_ && s < sn_->size() && !(*sn_)[s].empty();
-
-            os_ << "  " << s << " [label=";
-            if (!opt_html_labels_)
+            if (acc)
               {
-                os_ << '"';
-                if (has_name)
-                  escape_str(os_, (*sn_)[s]);
-                else if (sprod_)
-                  os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
+                os_ << nl_;
+                if (opt_html_labels_)
+                  output_html_set(acc);
                 else
-                  os_ << s;
-                if (orig_ && s < orig_->size())
-                  os_ << " (" << (*orig_)[s] << ')';
-                if (acc)
-                  {
-                    os_ << "\\n";
-                    output_set(acc);
-                  }
-                if (opt_state_labels_)
-                  escape_str(os_ << "\\n", state_label(s));
-                os_ << '"';
+                  output_set(acc);
               }
-            else
-              {
-                os_ << '<';
-                if (has_name)
-                  escape_html(os_, (*sn_)[s]);
-                else if (sprod_)
-                  os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
-                else
-                  os_ << s;
-                if (orig_ && s < orig_->size())
-                  os_ << " (" << (*orig_)[s] << ')';
-                if (acc)
-                  {
-                    os_ << "<br/>";
-                    output_html_set(acc);
-                  }
-                if (opt_state_labels_)
-                  escape_html(os_ << "<br/>", state_label(s));
-                os_ << '>';
-              }
+            if (opt_state_labels_)
+              format_state_label(os_ << nl_, s);
+            os_ << label_post_;
           }
         else
           {
-            os_ << "  " << s << " [label=\"";
-            if (sn_ && s < sn_->size() && !(*sn_)[s].empty())
-              escape_str(os_, (*sn_)[s]);
-            else if (sprod_)
-              os_ << (*sprod_)[s].first << ',' << (*sprod_)[s].second;
-            else
-              os_ << s;
-            if (orig_ && s < orig_->size())
-              os_ << " (" << (*orig_)[s] << ')';
             if (opt_state_labels_)
-              escape_str(os_ << "\\n", state_label(s));
-            os_ << '"';
+              format_state_label(os_ << nl_, s);
+            os_ << label_post_;
             // Use state_acc_sets(), not state_is_accepting() because
             // on co-Büchi automata we want to mark the rejecting
             // states.
@@ -713,35 +732,20 @@ namespace spot
                 if (iter != highlight_edges_->end())
                   os_ << '.' << iter->second % palette_mod;
               }
-            std::string label;
+            os_ << " [" << label_pre_;
             if (!opt_state_labels_)
-              label = bdd_format_formula(aut_->get_dict(), t.cond);
-            if (!opt_html_labels_)
-              {
-                os_ << " [label=\"";
-                escape_str(os_, label);
-                if (!mark_states_)
-                  if (auto a = t.acc)
-                    {
-                      if (!opt_state_labels_)
-                        os_ << "\\n";
-                      output_set(a);
-                    }
-                os_ << '"';
-              }
-            else
-              {
-                os_ << " [label=<";
-                escape_html(os_, label);
-                if (!mark_states_)
-                  if (auto a = t.acc)
-                    {
-                      if (!opt_state_labels_)
-                        os_ << "<br/>";
-                      output_html_set(a);
-                    }
-                os_ << '>';
-              }
+              format_label(os_, t.cond);
+            if (!mark_states_)
+              if (auto a = t.acc)
+                {
+                  if (!opt_state_labels_)
+                    os_ << nl_;
+                  if (opt_html_labels_)
+                    output_html_set(a);
+                  else
+                    output_set(a);
+                }
+            os_ << label_post_;
             if (opt_ordered_edges_ || opt_numbered_edges_)
               {
                 os_ << ", taillabel=\"";
@@ -886,7 +890,7 @@ namespace spot
                   {
                     // Reset the label, otherwise the graph label would
                     // be inherited by the cluster.
-                    os_ << "  label=\"\"\n";
+                    os_ << (opt_latex_ ? "  texlbl=\"\"\n" : "  label=\"\"\n");
                   }
                 for (auto s: si->states_of(i))
                   {

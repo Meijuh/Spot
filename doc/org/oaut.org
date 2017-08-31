@@ -579,6 +579,8 @@ digraph G {
 }
 #+end_example
 
+** Converting dot output to images or pdf
+
 This output should be processed with =dot= to be converted into a
 picture.  For instance use =dot -Tpng= or =dot -Tpdf=.
 
@@ -588,6 +590,8 @@ $txt
 
 #+RESULTS:
 [[file:oaut-dot1.png]]
+
+** Customizing the dot output
 
 This output can be customized by passing optional characters to the
 =--dot= option.  For instance =v= requests a vertical layout (instead
@@ -865,6 +869,63 @@ The dot output can also be customized via two environment variables:
 export SPOT_DOTDEFAULT='Brf(Lato)C(#ffffa0)'
 export SPOT_DOTEXTRA='edge[arrowhead=vee, arrowsize=.7]'
 #+END_SRC
+
+** Working with =dot2tex=
+  :PROPERTIES:
+  :CUSTOM_ID: dot2tex
+  :END:
+
+
+The [[https://github.com/kjellmf/dot2tex][=dot2tex= program]] interacts with GraphViz to converts dot files
+into TeX figures.  The layout is still done by tools provided by
+GraphViz (i.e. =dot=, =neato=, =circo=, ...) but the actual rendering
+is done using LaTeX with the TikZ or PSTricks packages.  One advantage
+is that this allows embedding math formulas into the graph, something
+GraphViz alone cannot do.  Another advantage is that you can then
+easily edit the LaTeX figure, for instance to add additional graphical
+elements.
+
+The =dot= formater of Spot has an option =x=, that is convenient to
+use with =dot2tex=.  This option causes labels to be rendered as LaTeX
+mathematical formulas instead of ASCII text.
+
+#+BEGIN_SRC sh :exports code
+ltl2tgba 'p0 U p1' --dot=x | dot2tex --autosize --nominsize > out.tex
+#+END_SRC
+
+The above command should give you a LaTeX file that compiles to the
+following figure:
+
+#+BEGIN_SRC sh :results silent :exports results
+  ltl2tgba 'p0 U p1' --dot=x | dot2tex --autosize --nominsize > dot2tex.tex
+  latexmk --pdf dot2tex.tex
+  convert -density 150 -trim dot2tex.pdf dot2tex.png
+  latexmk -C dot2tex.tex
+  rm -f dot2tex.tex
+#+END_SRC
+[[file:dot2tex.png]]
+
+Caveats:
+- =dot2tex= should be called with option =--autosize= in order to
+  compute the size of each label before calling GraphViz to layout the
+  graph.  This is because GraphViz cannot compute the correct size of
+  mathematical formulas.  Unfortunately, the release of =dot2tex
+  2.9.0= contains a bug where sizes are intepreted as integers instead
+  of floats.  This can cause labels or shapes to disappear.  This bug
+  of =dot2tex= was fixed in 2014, but at the time of writing
+  (summer 2017) no new release of =dot2tex= has been made.  To work around this,
+  make sure you install =dot2tex= from its git repository:
+  #+BEGIN_SRC sh
+  git clone https://github.com/kjellmf/dot2tex.git
+  cd dot2tex
+  sudo python setup.py install
+  #+END_SRC
+- The default size of nodes seems slightly too big for our usage.
+  Using =--nominsize= is just one way around it.  Refer to the
+  [[https://dot2tex.readthedocs.io/en/latest/][=dot2tex= manual]] for finer ways to set the node size.
+- Currently the =x= option of Spot's =--dot= output cannot yet be
+  combined with the =r=, =R=, an =b= options used to display colored
+  bullets.  (Patches are welcome.)
 
 * Statistics
   :PROPERTIES:

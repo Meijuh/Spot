@@ -219,6 +219,7 @@ TESTS_twa = \
   core/gragsa.test \
   core/dstar.test \
   core/readsave.test \
+  core/dot2tex.test \
   core/ltldo.test \
   core/ltldo2.test \
   core/maskacc.test \

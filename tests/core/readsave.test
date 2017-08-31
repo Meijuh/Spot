@@ -406,7 +406,7 @@ digraph G {
   edge [fontname="Lato"]
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label="0"]
+  0 [label=<0>]
   0 -> 0 [label=<a &amp; b<br/>$zero$one>]
   0 -> 0 [label=<!a &amp; !b>]
   0 -> 0 [label=<!a &amp; b<br/>$one>]

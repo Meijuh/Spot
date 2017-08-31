@@ -892,6 +892,13 @@ namespace spot
               std::function<void(std::ostream&, int)>
               set_printer = nullptr) const;
 
+      // Print the acceptance as Latex.  The set_printer function can
+      // be used to implement customized output for set numbers.
+      std::ostream&
+      to_latex(std::ostream& os,
+               std::function<void(std::ostream&, int)>
+               set_printer = nullptr) const;
+
 
       /// \brief Construct an acc_code from a string.
       ///

@@ -573,27 +573,27 @@ digraph G {
   subgraph cluster_0 {
   color=green
   label=""
-  4 [label="t"]
+  4 [label=<t>]
   }
   subgraph cluster_1 {
   color=green
   label=""
-  1 [label="G(a & b)"]
+  1 [label=<G(a &amp; b)>]
   }
   subgraph cluster_2 {
   color=red
   label=""
-  2 [label="F!a"]
+  2 [label=<F!a>]
   }
   subgraph cluster_3 {
   color=red
   label=""
-  3 [label="F!b"]
+  3 [label=<F!b>]
   }
   subgraph cluster_4 {
   color=green
   label=""
-  0 [label="c R (c | G(a & b) | (F!b & F!a))"]
+  0 [label=<c R (c | G(a &amp; b) | (F!b &amp; F!a))>]
   -1 [label=<>,shape=point]
   -4 [label=<>,shape=point]
   -7 [label=<>,shape=point]
@@ -669,26 +669,26 @@ digraph G {
   subgraph cluster_0 {
   color=green
   label=""
-  4 [label="t"]
+  4 [label=<t>]
   }
   subgraph cluster_1 {
   color=red
   label=""
-  2 [label="F!a"]
+  2 [label=<F!a>]
   }
   subgraph cluster_2 {
   color=red
   label=""
-  3 [label="F!b"]
+  3 [label=<F!b>]
   }
   subgraph cluster_3 {
   color=green
   label=""
-  0 [label="c R (c | G(a & b) | (F!b & F!a))"]
+  0 [label=<c R (c | G(a &amp; b) | (F!b &amp; F!a))>]
   -1 [label=<>,shape=point]
   -4 [label=<>,shape=point]
   -7 [label=<>,shape=point]
-  1 [label="G(a & b)"]
+  1 [label=<G(a &amp; b)>]
   -10 [label=<>,shape=point]
   }
   0 -> 4 [label=<c>]
@@ -852,22 +852,22 @@ digraph G {
   subgraph cluster_0 {
   color=green
   label=""
-  3 [label="t"]
+  3 [label=<t>]
   }
   subgraph cluster_1 {
   color=green
   label=""
-  1 [label="Fa"]
+  1 [label=<Fa>]
   }
   subgraph cluster_2 {
   color=green
   label=""
-  2 [label="G!a"]
+  2 [label=<G!a>]
   }
   subgraph cluster_3 {
   color=green
   label=""
-  0 [label="G((b & Fa) | (!b & G!a))"]
+  0 [label=<G((b &amp; Fa) | (!b &amp; G!a))>]
   -1 [label=<>,shape=point]
   -4 [label=<>,shape=point]
   }

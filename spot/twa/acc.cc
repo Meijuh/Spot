@@ -63,20 +63,45 @@ namespace spot
       os << v;
     }
 
-    template<bool html>
+    enum code_output {HTML, TEXT, LATEX};
+
+    template<enum code_output style>
     static void
     print_code(std::ostream& os,
                const acc_cond::acc_code& code, unsigned pos,
                std::function<void(std::ostream&, int)> set_printer)
     {
-      const char* op = " | ";
+      const char* op_ = style == LATEX ? " \\lor " : " | ";
       auto& w = code[pos];
-      const char* negated = "";
+      const char* negated_pre = "";
+      const char* negated_post = "";
+      auto set_neg = [&]() {
+        if (style == LATEX)
+          {
+            negated_pre = "\\overline{";
+            negated_post = "}";
+          }
+        else
+          {
+            negated_pre = "!";
+          }
+      };
       bool top = pos == code.size() - 1;
       switch (w.sub.op)
         {
         case acc_cond::acc_op::And:
-          op = html ? " &amp; " : " & ";
+          switch (style)
+            {
+            case HTML:
+              op_ = " &amp; ";
+              break;
+            case TEXT:
+              op_ = " & ";
+              break;
+            case LATEX:
+              op_ = " \\land ";
+              break;
+            }
           SPOT_FALLTHROUGH;
         case acc_cond::acc_op::Or:
           {
@@ -90,8 +115,8 @@ namespace spot
                 if (first)
                   first = false;
                 else
-                  os << op;
-                print_code<html>(os, code, pos, set_printer);
+                  os << op_;
+                print_code<style>(os, code, pos, set_printer);
                 pos -= code[pos].sub.size;
               }
             if (!top)
@@ -99,14 +124,17 @@ namespace spot
           }
           break;
         case acc_cond::acc_op::InfNeg:
-          negated = "!";
+          set_neg();
           SPOT_FALLTHROUGH;
         case acc_cond::acc_op::Inf:
           {
             auto a = code[pos - 1].mark.id;
             if (a == 0U)
               {
-                os << 't';
+                if (style == LATEX)
+                  os << "\\mathsf{t}";
+                else
+                  os << 't';
               }
             else
               {
@@ -115,16 +143,32 @@ namespace spot
                   top = code[pos - 1].mark.count() == 1;
                 unsigned level = 0;
                 const char* and_ = "";
+                const char* and_next_ = []() {
+                  // The lack of surrounding space in HTML and
+                  // TEXT is on purpose: we want to
+                  // distinguish those grouped "Inf"s from
+                  // other terms that are ANDed together.
+                  switch (style)
+                    {
+                    case HTML:
+                      return "&amp;";
+                    case TEXT:
+                      return "&";
+                    case LATEX:
+                      return " \\land ";
+                    }
+                }();
                 if (!top)
                   os << '(';
+                const char* inf_ = (style == LATEX) ? "\\mathsf{Inf}(" : "Inf(";
                 while (a)
                   {
                     if (a & 1)
                       {
-                        os << and_ << "Inf(" << negated;
+                        os << and_ << inf_ << negated_pre;
                         set_printer(os, level);
-                        os << ')';
-                        and_ = html ? "&amp;" : "&";
+                        os << negated_post << ')';
+                        and_ = and_next_;
                       }
                     a >>= 1;
                     ++level;
@@ -135,14 +179,17 @@ namespace spot
           }
           break;
         case acc_cond::acc_op::FinNeg:
-          negated = "!";
+          set_neg();
           SPOT_FALLTHROUGH;
         case acc_cond::acc_op::Fin:
           {
             auto a = code[pos - 1].mark.id;
             if (a == 0U)
               {
-                os << 'f';
+                if (style == LATEX)
+                  os << "\\mathsf{f}";
+                else
+                  os << 'f';
               }
             else
               {
@@ -153,14 +200,19 @@ namespace spot
                 const char* or_ = "";
                 if (!top)
                   os << '(';
+                const char* fin_ = (style == LATEX) ? "\\mathsf{Fin}(" : "Fin(";
                 while (a)
                   {
                     if (a & 1)
                       {
-                        os << or_ << "Fin(" << negated;
+                        os << or_ << fin_ << negated_pre;
                         set_printer(os, level);
-                        os << ')';
-                        or_ = "|";
+                        os << negated_post << ')';
+                        // The lack of surrounding space in HTML and
+                        // TEXT is on purpose: we want to distinguish
+                        // those grouped "Fin"s from other terms that
+                        // are ORed together.
+                        or_ = style == LATEX ? " \\lor " : "|";
                       }
                     a >>= 1;
                     ++level;
@@ -1407,7 +1459,7 @@ namespace spot
     if (empty())
       os << 't';
     else
-      print_code<true>(os, *this, size() - 1,
+      print_code<HTML>(os, *this, size() - 1,
                        set_printer ? set_printer : default_set_printer);
     return os;
   }
@@ -1420,7 +1472,20 @@ namespace spot
     if (empty())
       os << 't';
     else
-      print_code<false>(os, *this, size() - 1,
+      print_code<TEXT>(os, *this, size() - 1,
+                       set_printer ? set_printer : default_set_printer);
+    return os;
+  }
+
+  std::ostream&
+  acc_cond::acc_code::to_latex(std::ostream& os,
+                              std::function<void(std::ostream&, int)>
+                              set_printer) const
+  {
+    if (empty())
+      os << "\\mathsf{t}";
+    else
+      print_code<LATEX>(os, *this, size() - 1,
                         set_printer ? set_printer : default_set_printer);
     return os;
   }
