@@ -43,8 +43,8 @@ namespace spot
       trivial     = 1,
       weak        = 2,
       alternation = 4,
-      street      = 8,
-      rabin       = 16
+      rabin       = 8,
+      streett     = 16,
     };
 
     using strategy_flags = strong_enum_flags<strategy_t>;
@@ -489,7 +489,7 @@ namespace spot
              : nullptr;
     }
 
-    twa_graph_ptr street_strategy(const const_twa_graph_ptr& aut)
+    twa_graph_ptr streett_strategy(const const_twa_graph_ptr& aut)
     {
       return (aut->get_acceptance().used_inf_fin_sets().first)
              ? streett_to_generalized_buchi_maybe(aut)
@@ -772,9 +772,20 @@ namespace spot
         return maybe;
       if (auto maybe = handle(alternation_strategy, strategy_t::alternation))
         return maybe;
-      if (auto maybe = handle(street_strategy, strategy_t::street))
-        return maybe;
+      // The order between Rabin and Streett matters because for
+      // instance "Streett 1" (even generalized Streett 1) is
+      // Rabin-like, and dually "Rabin 1" is Streett-like.
+      //
+      // We therefore check Rabin before Streett, because the
+      // resulting automata are usually smaller, and it can preserve
+      // determinism.
+      //
+      // Note that SPOT_STREETT_CONV_MIN default to 3, which means
+      // that regardless of this order, Rabin 1 is not handled by
+      // streett_strategy unless SPOT_STREETT_CONV_MIN is changed.
       if (auto maybe = handle(rabin_strategy, strategy_t::rabin))
+        return maybe;
+      if (auto maybe = handle(streett_strategy, strategy_t::streett))
         return maybe;
       return default_strategy(aut);
     }
