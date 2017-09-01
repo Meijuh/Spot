@@ -584,7 +584,8 @@ skip_ws(const char*& cmd)
 //   - can have >stderr and <stdin redirection
 // In particular, variable interpolation is not supported.  Complex
 // redirections (>& and such) are not support.  Chains of commands
-// (pipes, semi-colons, etc.) are not supported.
+// (pipes, semi-colons, etc.) are not supported.  Envvar definitions
+// before the command are not supported.
 static void
 exec_command(const char* cmd)
 {
@@ -635,6 +636,13 @@ exec_command(const char* cmd)
           }
         }
     }
+  // If result is empty, we failed to found the command; let's see if
+  // the shell is smarter.  If the command contains '=', it's unlikely
+  // to be a command, but probably an environment variable defintion
+  // as in
+  //    FOO=1 command args..
+  if (result.empty() || strchr(result[0], '='))
+    goto use_shell;
   {
     if (stdin)
       {
