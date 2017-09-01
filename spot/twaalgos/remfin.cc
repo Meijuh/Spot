@@ -25,7 +25,6 @@
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/mask.hh>
 #include <spot/twaalgos/alternation.hh>
-#include "spot/priv/enumflags.hh"
 
 // #define TRACE
 #ifdef TRACE
@@ -38,21 +37,20 @@ namespace spot
 {
   namespace
   {
-    enum class strategy_t : unsigned
+    enum strategy_t
     {
-      trivial     = 1,
-      weak        = 2,
-      alternation = 4,
-      rabin       = 8,
-      streett     = 16,
+      trivial     = 1U,
+      weak        = 2U,
+      alternation = 4U,
+      rabin       = 8U,
+      streett     = 16U,
     };
 
-    using strategy_flags = strong_enum_flags<strategy_t>;
     using strategy =
         std::function<twa_graph_ptr(const const_twa_graph_ptr& aut)>;
 
     twa_graph_ptr
-    remove_fin_impl(const const_twa_graph_ptr&, const strategy_flags);
+    remove_fin_impl(const const_twa_graph_ptr&, const strategy_t);
 
     using EdgeMask = std::vector<bool>;
 
@@ -759,11 +757,11 @@ namespace spot
     }
 
     twa_graph_ptr remove_fin_impl(const const_twa_graph_ptr& aut,
-                                  const strategy_flags skip = {})
+                                  const strategy_t skip = {})
     {
-      auto handle = [&](strategy stra, strategy_t type)
+      auto handle = [&](strategy stra, strategy_t type) -> twa_graph_ptr
       {
-        return (type & ~skip) ? stra(aut) : nullptr;
+        return (type & skip) ? nullptr : stra(aut);
       };
 
       if (auto maybe = handle(trivial_strategy, strategy_t::trivial))

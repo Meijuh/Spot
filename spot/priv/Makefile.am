@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-## Développement de l'Epita (LRDE).
+## Copyright (C) 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche
+## et Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -25,7 +25,6 @@ libpriv_la_SOURCES = \
   accmap.hh \
   bddalloc.cc \
   bddalloc.hh \
-  enumflags.hh \
   freelist.cc \
   freelist.hh \
   satcommon.hh\
