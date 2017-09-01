@@ -130,6 +130,7 @@ namespace spot
     acc_cond::mark_t fin;
     std::tie(inf, fin) = in->get_acceptance().used_inf_fin_sets();
     unsigned p = inf.count();
+    acc_cond::mark_t fin_not_inf = fin - inf;
 
     if (!p)
       return remove_fin(in);
@@ -150,7 +151,8 @@ namespace spot
 
     // Compute the acceptance sets present in each SCC
     unsigned nscc = si.scc_count();
-    std::vector<std::tuple<acc_cond::mark_t, acc_cond::mark_t, bool>> sccfi;
+    std::vector<std::tuple<acc_cond::mark_t, acc_cond::mark_t,
+                           bool, bool>> sccfi;
     sccfi.reserve(nscc);
     for (unsigned s = 0; s < nscc; ++s)
       {
@@ -160,21 +162,21 @@ namespace spot
         acc_cond::mark_t fin_wo_inf = 0U;
         for (unsigned mark: acc_fin.sets())
           if (!fin_to_infpairs[mark] || (fin_to_infpairs[mark] - acc_inf))
-            fin_wo_inf |= {mark};
+            fin_wo_inf.set(mark);
 
         acc_cond::mark_t inf_wo_fin = 0U;
         for (unsigned mark: acc_inf.sets())
           if (!inf_to_finpairs[mark] || (inf_to_finpairs[mark] - acc_fin))
-            inf_wo_fin |= {mark};
+            inf_wo_fin.set(mark);
 
-        sccfi.emplace_back(fin_wo_inf, inf_wo_fin, acc_fin == 0U);
+        sccfi.emplace_back(fin_wo_inf, inf_wo_fin,
+                           acc_fin == 0U, acc_inf == 0U);
       }
 
     auto out = make_twa_graph(in->get_dict());
     out->copy_ap_of(in);
     out->prop_copy(in, {false, false, false, false, false, true});
     out->set_generalized_buchi(p);
-    acc_cond::mark_t outall = out->acc().all_sets();
 
     // Map st2gba pairs to the state numbers used in out.
     typedef std::unordered_map<st2gba_state, unsigned,
@@ -207,7 +209,9 @@ namespace spot
         acc_cond::mark_t scc_fin_wo_inf;
         acc_cond::mark_t scc_inf_wo_fin;
         bool no_fin;
-        std::tie(scc_fin_wo_inf, scc_inf_wo_fin, no_fin) = sccfi[scc_src];
+        bool no_inf;
+        std::tie(scc_fin_wo_inf, scc_inf_wo_fin, no_fin, no_inf)
+          = sccfi[scc_src];
 
         for (auto& t: in->out(s.s))
           {
@@ -215,7 +219,6 @@ namespace spot
             acc_cond::mark_t acc = 0U;
 
             bool maybe_acc = maybe_acc_scc && (scc_src == si.scc_of(t.dst));
-
             if (pend != orig_copy)
               {
                 if (!maybe_acc)
@@ -232,7 +235,7 @@ namespace spot
                 // Label this transition with all non-pending
                 // inf sets.  The strip will shift everything
                 // to the correct numbers in the targets.
-                acc = (inf - pend).strip(fin - inf) & outall;
+                acc = (inf - pend).strip(fin - inf);
                 // Adjust the pending sets to what will be necessary
                 // required on the destination state.
                 if (sbacc)
@@ -249,9 +252,12 @@ namespace spot
               }
             else if (no_fin && maybe_acc)
               {
-                assert(maybe_acc);
-                acc = outall;
+                // If the acceptance is (Fin(0) | Inf(1)) & Inf(2)
+                // but we do not see any Fin set in this SCC, an
+                // mark {2} should become {1,2} before striping.
+                acc = (t.acc | (inf - scc_inf_wo_fin)).strip(fin_not_inf);
               }
+            assert((acc & out->acc().all_sets()) == acc);
 
             st2gba_state d(t.dst, pend);
             // Have we already seen this destination?
@@ -302,17 +308,6 @@ namespace spot
               }
           }
       }
-
-
-    // for (auto s: bs2num)
-    // {
-    //         std::cerr << s.second << " ("
-    //                   << s.first.s << ", ";
-    //         if (s.first.pend == orig_copy)
-    //           std::cerr << "-)\n";
-    //         else
-    //           std::cerr << s.first.pend << ")\n";
-    // }
     return out;
   }
 
