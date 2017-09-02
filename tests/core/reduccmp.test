@@ -302,8 +302,10 @@ GFa M b, GFa & b
 
 G(a & XFb), G(a & Fb)
 G(a & XF(b & XFc & Fd)), G(a & Fb & Fc & Fd)
+GF(a & XF(b & Fc)), G(Fa & Fb & Fc)
 F(a | XGb), F(a | Gb)
 F(a | XG(b | XGc | Gd)), F(a | Gb | Gc | Gd)
+FG(a | XG(b | Gc)), F(Ga | Gb | Gc)
 
 Fa|Xb|GFc, Fa | X(b|GFc)
 Fa|GFc, F(a|GFc)

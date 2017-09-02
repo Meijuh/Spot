@@ -910,6 +910,23 @@ namespace spot
               if (opt_.event_univ && c.is_eventual())
                 return c;
 
+              auto g_in_f = [this](formula g, std::vector<formula>* to)
+                {
+                  if (g[0].is(op::Or))
+                    {
+                      mospliter s2(mospliter::Split_Univ, g[0], c_);
+                      for (formula e: *s2.res_Univ)
+                        to->push_back(e.is(op::X) ? e[0] : e);
+                      to->push_back
+                      (unop_multop(op::G, op::Or,
+                                   std::move(*s2.res_other)));
+                    }
+                  else
+                    {
+                      to->push_back(g);
+                    }
+                };
+
               if (opt_.reduce_basics)
                 {
                   // F(a U b) = F(b)
@@ -926,6 +943,17 @@ namespace spot
                   // FXG(a) = XFG(a) = FG(a) ...
                   if (c.is(op::X))
                     return recurse(unop_unop(op::X, op::F, c[0]));
+
+                  // G(F(a & Fb)) = G(Fa & Fb)
+                  if (c.is({op::G, op::Or}))
+                    {
+                      std::vector<formula> toadd;
+                      g_in_f(c, &toadd);
+                      formula res = unop_multop(op::F, op::Or,
+                                                std::move(toadd));
+                      if (res != f)
+                        return recurse(res);
+                    }
 
                   // FG(a & Xb) = FG(a & b)
                   // FG(a & Gb) = FG(a & b)
@@ -1018,18 +1046,7 @@ namespace spot
                   std::vector<formula>* to = opt_.favor_event_univ ?
                     s.res_Univ.get() : s.res_other.get();
                   for (formula g: *s.res_G)
-                    if (g[0].is(op::Or))
-                      {
-                        mospliter s2(mospliter::Split_Univ, g[0], c_);
-                        for (formula u: *s2.res_Univ)
-                          to->push_back(u.is(op::X) ? u[0] : u);
-                        to->push_back(unop_multop(op::G, op::Or,
-                                                  std::move(*s2.res_other)));
-                      }
-                    else
-                      {
-                        to->push_back(g);
-                      }
+                    g_in_f(g, to);
                   formula res = unop_multop(op::F, op::Or,
                                             std::move(*s.res_other));
                   if (s.res_Univ)
@@ -1057,6 +1074,23 @@ namespace spot
               if (opt_.event_univ && c.is_universal())
                 return c;
 
+              auto f_in_g = [this](formula f, std::vector<formula>* to)
+                {
+                  if (f[0].is(op::And))
+                    {
+                      mospliter s2(mospliter::Split_Event, f[0], c_);
+                      for (formula e: *s2.res_Event)
+                        to->push_back(e.is(op::X) ? e[0] : e);
+                      to->push_back
+                      (unop_multop(op::F, op::And,
+                                   std::move(*s2.res_other)));
+                    }
+                  else
+                    {
+                      to->push_back(f);
+                    }
+                };
+
               if (opt_.reduce_basics)
                 {
                   // G(a R b) = G(b)
@@ -1073,6 +1107,17 @@ namespace spot
                   // GXF(a) = XGF(a) = GF(a) ...
                   if (c.is(op::X))
                     return recurse(unop_unop(op::X, op::G, c[0]));
+
+                  // G(F(a & Fb)) = G(Fa & Fb)
+                  if (c.is({op::F, op::And}))
+                    {
+                      std::vector<formula> toadd;
+                      f_in_g(c, &toadd);
+                      formula res = unop_multop(op::G, op::And,
+                                                std::move(toadd));
+                      if (res != f)
+                        return recurse(res);
+                    }
 
                   // G(f1|f2|GF(f3)|GF(f4)|f5|f6) =
                   //                        G(f1|f2) | GF(f3|f4) | f5 | f6
@@ -1118,19 +1163,8 @@ namespace spot
                       std::vector<formula>* to = opt_.favor_event_univ ?
                         s.res_Event.get() : s.res_other.get();
                       for (formula f: *s.res_F)
-                        if (f[0].is(op::And))
-                          {
-                            mospliter s2(mospliter::Split_Event, f[0], c_);
-                            for (formula e: *s2.res_Event)
-                              to->push_back(e.is(op::X) ? e[0] : e);
-                            to->push_back
-                              (unop_multop(op::F, op::And,
-                                           std::move(*s2.res_other)));
-                          }
-                        else
-                          {
-                            to->push_back(f);
-                          }
+                        f_in_g(f, to);
+
                       formula res = unop_multop(op::G, op::And,
                                                 std::move(*s.res_other));
                       if (s.res_Event)
