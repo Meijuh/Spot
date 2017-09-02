@@ -1,9 +1,9 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
-// Laboratoire de Recherche et Développement de l'Epita (LRDE).
-// Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
-// d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
-// Coopératifs (SRC), Université Pierre et Marie Curie.
+// Copyright (C) 2008-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
+// Copyright (C) 2003-2006 Laboratoire d'Informatique de Paris 6
+// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1326,10 +1326,20 @@ namespace spot
               bdd f1 = recurse(node[0]);
               bdd f2 = recurse(node[1]);
               // r(f1 U f2) = r(f2) + a(f2)r(f1)X(f1 U f2) if not recurring
+              //                                           and f1 not universal
+              // r(f1 U f2) = r(f2) + a(f2)r(f1)X(Ff2)     if not recurring
+              //                                           and f1 universal
               // r(f1 U f2) = r(f2) + a(f2)r(f1)           if recurring
               f1 &= bdd_ithvar(dict_.register_a_variable(node[1]));
               if (!recurring_)
-                f1 &= bdd_ithvar(dict_.register_next_variable(node));
+                {
+                  formula nxt =
+                    node[0].is_universal() ? formula::F(node[1]) : node;
+                  // rewriting r(f1)X(f1 U f2) as r(f1)X(Ff2) when f1 is
+                  // universal is an optimization that helps with formulas
+                  // such as (G(Fa & Fb)) U a.
+                  f1 &= bdd_ithvar(dict_.register_next_variable(nxt));
+                }
               if (dict_.unambiguous)
                 f1 &= neg_of(node[1]);
               return f2 | f1;

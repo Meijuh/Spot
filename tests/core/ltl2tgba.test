@@ -263,3 +263,5 @@ f2='Gp1 | FGp0'
 (ltl2tgba -xsimul=1 --low "$f1"; ltl2tgba -xsimul=1 --low "$f2") > res1
 ltl2tgba -xsimul=1 --low "$f1" "$f2" > res2
 diff res1 res2
+
+test 3 = `ltl2tgba -f 'G(Fa & Fb) U a' --stats=%s`
