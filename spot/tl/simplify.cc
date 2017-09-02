@@ -995,28 +995,52 @@ namespace spot
                       return recurse(res);
                   }
               // If u3 and u4 are universal formulae and h is not:
-              // F(f1 | f2 | Fu3 | u4 | FGg | Fh)
-              //    = F(f1 | f2 | u3 | u4 | Gg | h)
+              // F(f1 | f2 | Fu3 | u4 | FGg | Fh | Xu5 | G(f6 | Xu7 | u8))
+              //    = F(f1 | f2 | u3 | u4 | Gg | h | u5 | Gf6 | u7 | u8)
               // or
-              // F(f1 | f2 | Fu3 | u4 | FGg | Fh)
-              //    = F(f1 | f2 | h) | F(u3 | u4 | Gg)
+              // F(f1 | f2 | Fu3 | u4 | FGg | Fh | Xu5)
+              //    = F(f1 | f2 | h) | F(u3 | u4 | Gg | u5 | Gf6 | u7 | u8)
               // depending on whether favor_event_univ is set.
               if (c.is(op::Or))
                 {
-                  int w = mospliter::Strip_F;
+                  int w = mospliter::Strip_F
+                    | mospliter::Strip_X | mospliter::Split_G;
                   if (opt_.favor_event_univ)
                     w |= mospliter::Split_Univ;
                   mospliter s(w, c, c_);
                   s.res_other->insert(s.res_other->end(),
                                       s.res_F->begin(), s.res_F->end());
+                  for (formula f: *s.res_X)
+                    if (f.is_universal())
+                      s.res_other->push_back(f);
+                    else
+                      s.res_other->push_back(formula::X(f));
+                  std::vector<formula>* to = opt_.favor_event_univ ?
+                    s.res_Univ.get() : s.res_other.get();
+                  for (formula g: *s.res_G)
+                    if (g[0].is(op::Or))
+                      {
+                        mospliter s2(mospliter::Split_Univ, g[0], c_);
+                        for (formula u: *s2.res_Univ)
+                          to->push_back(u.is(op::X) ? u[0] : u);
+                        to->push_back(unop_multop(op::G, op::Or,
+                                                  std::move(*s2.res_other)));
+                      }
+                    else
+                      {
+                        to->push_back(g);
+                      }
                   formula res = unop_multop(op::F, op::Or,
                                             std::move(*s.res_other));
                   if (s.res_Univ)
                     {
-                      // Strip any F.
+                      std::vector<formula> toadd;
                       for (auto& g: *s.res_Univ)
-                        if (g.is(op::F))
+                        // Strip any F or X
+                        if (g.is(op::F, op::X))
                           g = g[0];
+                      s.res_Univ->insert(s.res_Univ->end(),
+                                         toadd.begin(), toadd.end());
                       formula fu = unop_multop(op::F, op::Or,
                                                std::move(*s.res_Univ));
                       res = formula::Or({res, fu});
@@ -1071,29 +1095,55 @@ namespace spot
                         return recurse(res);
                     }
                   // If e3 and e4 are eventual formulae and h is not:
-                  // G(f1 & f2 & Ge3 & e4 & GFg & Gh)
-                  //    = G(f1 & f2 & e3 & e4 & Fg & h)
+                  // G(f1 & f2 & Ge3 & e4 & GFg & Gh & Xe5 & F(f6 & Xe7 & e8))
+                  //    = G(f1 & f2 & e3 & e4 & Fg & h & e5 & Ff6 & e7 & e8)
                   // or
-                  // G(f1 & f2 & Ge3 & e4 & GFg & Gh)
-                  //    = G(f1 & f2 & h) & G(e3 & e4 & Fg)
+                  // G(f1 & f2 & Ge3 & e4 & GFg & Gh & Xe5 & F(f6 & Xe7 & e8))
+                  //    = G(f1 & f2 & h) & G(e3 & e4 & Fg & e5 & Ff6 & e7 & e8)
                   // depending on whether favor_event_univ is set.
                   else if (c.is(op::And))
                     {
-                      int w = mospliter::Strip_G;
+                      int w = mospliter::Strip_G |
+                        mospliter::Strip_X | mospliter::Split_F;
                       if (opt_.favor_event_univ)
                         w |= mospliter::Split_Event;
                       mospliter s(w, c, c_);
                       s.res_other->insert(s.res_other->end(),
                                           s.res_G->begin(), s.res_G->end());
+                      for (formula f: *s.res_X)
+                        if (f.is_eventual())
+                          s.res_other->push_back(f);
+                        else
+                          s.res_other->push_back(formula::X(f));
+                      std::vector<formula>* to = opt_.favor_event_univ ?
+                        s.res_Event.get() : s.res_other.get();
+                      for (formula f: *s.res_F)
+                        if (f[0].is(op::And))
+                          {
+                            mospliter s2(mospliter::Split_Event, f[0], c_);
+                            for (formula e: *s2.res_Event)
+                              to->push_back(e.is(op::X) ? e[0] : e);
+                            to->push_back
+                              (unop_multop(op::F, op::And,
+                                           std::move(*s2.res_other)));
+                          }
+                        else
+                          {
+                            to->push_back(f);
+                          }
                       formula res = unop_multop(op::G, op::And,
                                                 std::move(*s.res_other));
-
                       if (s.res_Event)
                         {
-                          // Strip any G.
+                          std::vector<formula> toadd;
+                          // Strip any G or X
                           for (auto& g: *s.res_Event)
-                            if (g.is(op::G))
-                              g = g[0];
+                            if (g.is(op::G, op::X))
+                              {
+                                g = g[0];
+                              }
+                          s.res_Event->insert(s.res_Event->end(),
+                                              toadd.begin(), toadd.end());
                           formula ge =
                             unop_multop(op::G, op::And,
                                         std::move(*s.res_Event));

@@ -300,6 +300,11 @@ a W ((a&b) W c), a W c
 Fa M b, Fa & b
 GFa M b, GFa & b
 
+G(a & XFb), G(a & Fb)
+G(a & XF(b & XFc & Fd)), G(a & Fb & Fc & Fd)
+F(a | XGb), F(a | Gb)
+F(a | XG(b | XGc | Gd)), F(a | Gb | Gc | Gd)
+
 Fa|Xb|GFc, Fa | X(b|GFc)
 Fa|GFc, F(a|GFc)
 FGa|GFc, F(Ga|GFc)

@@ -173,6 +173,10 @@ New in spot 2.3.5.dev (not yet released)
     more (this threshold can be changed, see -x relabel-bool=N in
     the spot-x(7) man page).
 
+  - The LTL simplification routines learned that an LTL formula like
+    G(a & XF(b & XFc & Fd) can be simplified to G(a & Fb & Fc & Fd),
+    and dually F(a | XG(b | XGc | Gd)) = F(a | Gb | Gc | Gd).
+
   - The new function spot::to_weak_alternating() is able to take an
     input automaton with generalized Büchi/co-Büchi acceptance and
     convert it to a weak alternating automaton.
