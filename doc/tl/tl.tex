@@ -1560,8 +1560,9 @@ presence of \samp{$\AND$} operators, but unfortunately not when the
 
 We extend the above definition to bounded repetitions with:
 \begin{align*}
-  r\STAR{\mvar{i}..\mvar{j}} & \equiv r^\square\STAR{0..\mvar{j}}\quad\text{if}\quad\varepsilon\VDash r\STAR{\mvar{i}..\mvar{j}}\text{~and~}\varepsilon\not\VDash r^\square\\
-  r\STAR{\mvar{i}..\mvar{j}} & \equiv r^\square\STAR{1..\mvar{j}}\quad\text{if}\quad\varepsilon\VDash r\STAR{\mvar{i}..\mvar{j}}\text{~and~}\varepsilon\VDash r^\square
+  r\STAR{\mvar{i}..\mvar{j}} & \equiv r^\square\STAR{0..\mvar{j}}\quad\text{if}\quad\varepsilon\VDash r\STAR{\mvar{i}..\mvar{j}},\,\varepsilon\not\VDash r^\square,\,\text{~and~}j>1\\
+  r\STAR{\mvar{i}..\mvar{j}} & \equiv r^\square\STAR{1..\mvar{j}}\quad\text{if}\quad\varepsilon\VDash r\STAR{\mvar{i}..\mvar{j}},\,\varepsilon\VDash r^\square\,\text{~and~}j>1\\
+  r\STAR{\mvar{i}..\mvar{j}} & \equiv r\phantom{^\square\STAR{1..\mvar{j}}}\quad\text{if}\quad\varepsilon\VDash r\text{~and~}\mvar{j}=1
 \end{align*}
 where $r^\square$ is recursively defined as follows:
 \begin{align*}

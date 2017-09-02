@@ -1362,6 +1362,8 @@ namespace spot
               if (!f.accepts_eword())
                 return f;
               formula h = f[0];
+              if (f.max() == 1 && h.accepts_eword())
+                return h;
               auto min = 0;
               if (f.max() == formula::unbounded())
                 {

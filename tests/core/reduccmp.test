@@ -376,6 +376,7 @@ G(GFc|GFd|FGe|FGf), F(GF(c|d)|Ge|Gf)
 {a:b*:c:d*}[]->e, !a | ((!c | (e W !d)) W !b)
 {a|b*|c|d*}[]->e, (e | !(a | c)) & (e W !b) & (e W !d)
 {{[*0]|a};b;{[*0]|a};c;e[*]}[]->f,{{[*0]|a};b;{[*0]|a}}[]->X((f&X(f W !e))|!c)
+{(a[*]|b)[*0..1];c}, {{b | a[*]};c}
 
 {a&b&c*}<>->!Xb, (a & b & X!b) | (a & b & c & X(c U !b))
 {[*]}<>->b, Fb

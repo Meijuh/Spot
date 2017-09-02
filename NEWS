@@ -184,6 +184,10 @@ New in spot 2.3.5.dev (not yet released)
     G(a & XF(b & XFc & Fd) can be simplified to G(a & Fb & Fc & Fd),
     and dually F(a | XG(b | XGc | Gd)) = F(a | Gb | Gc | Gd).
 
+    When working with SERE, the simplification of "expr[*0..1]" was
+    improved.  E.g. {{a[*]|b}[*0..1]} becomes {a[*]|b} instead of
+    {{a[+]|b}[*0..1]}.
+
   - The new function spot::to_weak_alternating() is able to take an
     input automaton with generalized Büchi/co-Büchi acceptance and
     convert it to a weak alternating automaton.
