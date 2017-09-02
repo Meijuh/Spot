@@ -110,7 +110,8 @@ EOF
 diff output expected
 
 
-genltl --kr-n2=1..2 --kr-nlogn=1..2 --kr-n=1..2 --format=%F=%L,%f |
+genltl --kr-n2=1..2 --kr-nlogn=1..2 --kr-n=1..2 --gxf-and=0..3 --fxg-or=0..3 \
+       --format=%F=%L,%f |
     ltl2tgba --low --det -F-/2 --stats='%<,%s' > out
 cat >exp<<EOF
 kv-psi=1,15
@@ -119,6 +120,14 @@ kr-nlogn=1,19
 kr-nlogn=2,147
 kr-n=1,12
 kr-n=2,82
+gxf-and=0,1
+gxf-and=1,1
+gxf-and=2,1
+gxf-and=3,1
+fxg-or=0,2
+fxg-or=1,3
+fxg-or=2,4
+fxg-or=3,5
 EOF
 diff out exp
 

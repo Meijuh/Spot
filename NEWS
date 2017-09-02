@@ -21,6 +21,13 @@ New in spot 2.3.5.dev (not yet released)
     transforming automata (in the same way as we have ltlcross for
     LTL translators).
 
+  - genltl learned two generate to new families of formulas:
+      --fxg-or=RANGE         F(p0 | XG(p1 | XG(p2 | ... XG(pn))))
+      --gxf-and=RANGE        G(p0 & XF(p1 & XF(p2 & ... XF(pn))))
+    The later is a generalization of --eh-pattern=9, for which a
+    single state TGBA always exists (but previous version of Spot
+    would build larger automata).
+
   - autfilt learned to build the union (--sum) or the intersection
     (--sum-and) of two languages by putting two automata side-by-side
     and fiddling with the initial states.  This complements the already

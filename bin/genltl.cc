@@ -84,12 +84,16 @@ static const argp_option options[] =
     { "eh-patterns", gen::LTL_EH_PATTERNS, "RANGE", OPTION_ARG_OPTIONAL,
       "Etessami and Holzmann [Concur'00] patterns "
       "(range should be included in 1..12)", 0 },
+    { "fxg-or", gen::LTL_FXG_OR, "RANGE", 0,
+      "F(p0 | XG(p1 | XG(p2 | ... XG(pn))))", 0},
     { "gh-q", gen::LTL_GH_Q, "RANGE", 0,
       "(F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))", 0 },
     { "gh-r", gen::LTL_GH_R, "RANGE", 0,
       "(GF(p1)|FG(p2))&(GF(p2)|FG(p3))&... &(GF(pn)|FG(p{n+1}))", 0 },
     { "go-theta", gen::LTL_GO_THETA, "RANGE", 0,
       "!((GF(p1)&GF(p2)&...&GF(pn)) -> G(q->F(r)))", 0 },
+    { "gxf-and", gen::LTL_GXF_AND, "RANGE", 0,
+      "G(p0 & XF(p1 & XF(p2 & ... XF(pn))))", 0},
     { "hkrss-patterns", gen::LTL_HKRSS_PATTERNS,
       "RANGE", OPTION_ARG_OPTIONAL,
       "Holeček et al. patterns from the Liberouter project "

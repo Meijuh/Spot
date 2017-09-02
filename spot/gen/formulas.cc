@@ -41,6 +41,40 @@ namespace spot
   {
     namespace
     {
+      // G(p_0 & XF(p_1 & XF(p_2 & ... XF(p_n))))
+      // This is a generalization of eh-pattern=9
+      static formula
+      GXF_and_n(std::string name, int n)
+      {
+        formula result = formula::tt();
+
+        for (; n >= 0; --n)
+          {
+            std::ostringstream p;
+            p << name << n;
+            formula f = formula::ap(p.str());
+            result = And_(f, X_(F_(result)));
+          }
+        return G_(result);
+      }
+
+      // F(p_0 | XG(p_1 | XG(p_2 | ... XG(p_n))))
+      // This the dual of the above
+      static formula
+      FXG_or_n(std::string name, int n)
+      {
+        formula result = formula::ff();
+
+        for (; n >= 0; --n)
+          {
+            std::ostringstream p;
+            p << name << n;
+            formula f = formula::ap(p.str());
+            result = Or_(f, X_(G_(result)));
+          }
+        return F_(result);
+      }
+
       // F(p_1 & F(p_2 & F(p_3 & ... F(p_n))))
       static formula
       E_n(std::string name, int n)
@@ -1070,12 +1104,16 @@ namespace spot
           return dac_pattern(n);
         case LTL_EH_PATTERNS:
           return eh_pattern(n);
+        case LTL_FXG_OR:
+          return FXG_or_n("p", n);
         case LTL_GH_Q:
           return Q_n("p", n);
         case LTL_GH_R:
           return R_n("p", n);
         case LTL_GO_THETA:
           return fair_response("p", "q", "r", n);
+        case LTL_GXF_AND:
+          return GXF_and_n("p", n);
         case LTL_HKRSS_PATTERNS:
           return hkrss_pattern(n);
         case LTL_KR_N:
@@ -1139,9 +1177,11 @@ namespace spot
           "ccj-beta-prime",
           "dac-patterns",
           "eh-patterns",
+          "fxg-or",
           "gh-q",
           "gh-r",
           "go-theta",
+          "gxf-and",
           "hkrss-patterns",
           "kr-n",
           "kr-nlogn",
@@ -1190,9 +1230,11 @@ namespace spot
           return 55;
         case LTL_EH_PATTERNS:
           return 12;
+        case LTL_FXG_OR:
         case LTL_GH_Q:
         case LTL_GH_R:
         case LTL_GO_THETA:
+        case LTL_GXF_AND:
           return 0;
         case LTL_HKRSS_PATTERNS:
           return 55;
