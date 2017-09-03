@@ -28,10 +28,10 @@ namespace spot
     namespace
     {
       static twa_graph_ptr
-      ks_cobuchi(unsigned n, bdd_dict_ptr dict)
+      ks_nca(unsigned n, bdd_dict_ptr dict)
       {
         if (n == 0)
-          throw std::runtime_error("ks_cobuchi expects a positive argument");
+          throw std::runtime_error("ks_nca expects a positive argument");
         // the alphabet has four letters:
         // i, s (for sigma), p (for pi), h (for hash)
         // we encode this four letters alphabet thanks to two AP a and b
@@ -185,8 +185,8 @@ namespace spot
       switch (pattern)
         {
           // Keep this alphabetically-ordered!
-        case AUT_KS_COBUCHI:
-          return ks_cobuchi(n, dict);
+        case AUT_KS_NCA:
+          return ks_nca(n, dict);
         case AUT_L_NBA:
           return l_nba(n, dict);
         case AUT_L_DSA:
@@ -201,7 +201,7 @@ namespace spot
     {
       static const char* const class_name[] =
         {
-          "ks-cobuchi",
+          "ks-nca",
           "l-nba",
           "l-dsa",
         };

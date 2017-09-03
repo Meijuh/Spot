@@ -35,7 +35,7 @@ namespace spot
       /// good-for-games and that has no equivalent deterministic
       /// co-Büchi automaton with less than 2^n / (2n+1) states.
       ///
-      /// Only defined for n>0
+      /// Only defined for n>0.
       ///
       /** \verbatim
           @InProceedings{   kuperberg.15.icalp,
@@ -51,7 +51,7 @@ namespace spot
             doi           = {10.1007/978-3-662-47666-6_24}
           }
           \endverbatim */
-      AUT_KS_COBUCHI = AUT_BEGIN,
+      AUT_KS_NCA = AUT_BEGIN,
       /// \brief Hard-to-complement non-deterministic Büchi automata
       ///
       /// Build a non-deterministic Büchi automaton with 3n+1 states

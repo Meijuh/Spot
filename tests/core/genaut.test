@@ -29,7 +29,7 @@ s/[=[].*/=1/p
 res=`genaut $opts --stats="--%F=%L"`
 test "$opts" = "$res"
 
-genaut --ks-cobuchi=..3 --l-nba=..3 --l-dsa=..3 --stats=%s,%e,%t,%c,%g >out
+genaut --ks-nca=..3 --l-nba=..3 --l-dsa=..3 --stats=%s,%e,%t,%c,%g >out
 cat >expected <<EOF
 3,7,16,1,Fin(0)
 5,14,32,1,Fin(0)
@@ -43,7 +43,7 @@ cat >expected <<EOF
 EOF
 diff out expected
 
-genaut --ks-cobuchi=0 2>err && exit 1
+genaut --ks-nca=0 2>err && exit 1
 grep positive err
 genaut --l-nba=0 2>err && exit 1
 grep positive err

@@ -24,7 +24,7 @@
 import spot.gen as gen
 from sys import exit
 
-k2 = gen.aut_pattern(gen.AUT_KS_COBUCHI, 2)
+k2 = gen.aut_pattern(gen.AUT_KS_NCA, 2)
 assert k2.prop_state_acc()
 assert k2.num_states() == 5
 assert k2.prop_universal().is_false()
@@ -35,7 +35,7 @@ assert k2.prop_deterministic().is_false()
 assert k2.prop_terminal().is_false()
 
 # to_str is defined in the spot package, so this makes sure
-# the type returned by spot.gen.ks_cobuchi() is the correct one.
+# the type returned by spot.gen.ks_nca() is the correct one.
 assert 'to_str' in dir(k2)
 
 k3 = gen.aut_pattern(gen.AUT_L_NBA, 3)
@@ -51,7 +51,7 @@ assert k3.prop_terminal().is_false()
 assert k2.get_dict() == k3.get_dict()
 
 try:
-    gen.aut_pattern(gen.AUT_KS_COBUCHI, 0)
+    gen.aut_pattern(gen.AUT_KS_NCA, 0)
 except RuntimeError as e:
     assert 'positive argument' in str(e)
 else:
@@ -82,4 +82,4 @@ assert 40 == sum(p.size() for p in gen.ltl_patterns((gen.LTL_OR_G, 1, 5),
 
 assert 32 == sum(p.num_states()
                  for p in gen.aut_patterns((gen.AUT_L_NBA, 1, 3),
-                                           (gen.AUT_KS_COBUCHI, 5)))
+                                           (gen.AUT_KS_NCA, 5)))

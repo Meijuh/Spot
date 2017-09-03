@@ -50,7 +50,7 @@ static const argp_option options[] =
     /**************************************************/
     // Keep this alphabetically sorted (expect for aliases).
     { nullptr, 0, nullptr, 0, "Pattern selection:", 1},
-    { "ks-cobuchi", gen::AUT_KS_COBUCHI, "RANGE", 0,
+    { "ks-nca", gen::AUT_KS_NCA, "RANGE", 0,
       "A co-Büchi automaton with 2N+1 states for which any equivalent "
       "deterministic co-Büchi automaton has at least 2^N/(2N+1) states.", 0},
     { "l-nba", gen::AUT_L_NBA, "RANGE", 0,

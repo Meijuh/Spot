@@ -14,9 +14,12 @@ genaut --help | sed -n '/Pattern selection:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 
 #+RESULTS:
-:       --ks-cobuchi=RANGE     A co-Büchi automaton with 2N+1 states for which
+:       --ks-nca=RANGE         A co-Büchi automaton with 2N+1 states for which
 :                              any equivalent deterministic co-Büchi automaton
 :                              has at least 2^N/(2N+1) states.
+:       --l-dsa=RANGE          A deterministic Streett automaton with 4N states
+:                              with no equivalent deterministic Rabin automaton
+:                              of less than n! states.
 :       --l-nba=RANGE          A Büchi automaton with 3N+1 states whose
 :                              complementary Streett automaton needs at least n!
 :                              states.
@@ -28,7 +31,7 @@ By default, the output format is [[file:hoa.org][HOA]], but this can be controll
 For instance:
 #+NAME: kscobuchi2
 #+BEGIN_SRC sh :results verbatim :exports code
-genaut --ks-cobuchi=2 --dot
+genaut --ks-nca=2 --dot
 #+END_SRC
 
 #+BEGIN_SRC dot :file kscobuchi2.png :cmdline -Tpng :var txt=kscobuchi2 :exports results
@@ -43,12 +46,12 @@ value), =N..M= (all values between N and M included), or =..M= (all
 values between 1 and M included).
 
 #+BEGIN_SRC sh :results verbatim :exports code
-genaut --ks-cobuchi=..5 --stats='%F=%L has %s states'
+genaut --ks-nca=..5 --stats='%F=%L has %s states'
 #+END_SRC
 
 #+RESULTS:
-: ks-cobuchi=1 has 3 states
-: ks-cobuchi=2 has 5 states
-: ks-cobuchi=3 has 7 states
-: ks-cobuchi=4 has 9 states
-: ks-cobuchi=5 has 11 states
+: ks-nca=1 has 3 states
+: ks-nca=2 has 5 states
+: ks-nca=3 has 7 states
+: ks-nca=4 has 9 states
+: ks-nca=5 has 11 states
