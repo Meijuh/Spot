@@ -142,6 +142,7 @@ static const argp_option options[] =
       "(ignored with --lbtt or --spin)", 0 },
     { "stats", OPT_STATS, "FORMAT", 0,
       "output statistics about the automaton", 0 },
+    { "format", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     { "check", OPT_CHECK, "PROP", OPTION_ARG_OPTIONAL,
       "test for the additional property PROP and output the result "
       "in the HOA format (implies -H).  PROP may be any prefix of "

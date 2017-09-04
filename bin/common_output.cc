@@ -60,6 +60,7 @@ static const argp_option options[] =
       "quote the formula for use in a CSV file", -20 },
     { "format", OPT_FORMAT, "FORMAT", 0,
       "specify how each line should be output (default: \"%f\")", -20 },
+    { "stats", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     { "output", 'o', "FORMAT", 0,
       "send output to a file named FORMAT instead of standard output.  The"
       " first formula sent to a file truncates it unless FORMAT starts"

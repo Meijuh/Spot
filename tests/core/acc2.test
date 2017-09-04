@@ -26,7 +26,7 @@ set -e
 ltl2tgba -H 'GFa & GFb' > in
 grep 'Acceptance:' in > expected
 ltl2tgba -H 'GFa & GFb' --stats='Acceptance: %a %g' > out1
-autfilt -H in --stats='Acceptance: %A %G' > out2
+autfilt -H in --format='Acceptance: %A %G' > out2
 diff out1 expected
 diff out2 expected
 

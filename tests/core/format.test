@@ -23,7 +23,7 @@
 
 set -e
 
-genltl --dac=1..10 --format='%s,%b,%x,%f' > output
+genltl --dac=1..10 --stats='%s,%b,%x,%f' > output
 cat >expected <<EOF
 3,2,1,G!p0
 7,6,2,Fp0 -> (!p1 U p0)

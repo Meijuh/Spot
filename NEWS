@@ -51,6 +51,12 @@ New in spot 2.3.5.dev (not yet released)
   - The --stats=%c option of tools producing automata can now be
     restricted to count complete SCCs, using %[c]c.
 
+  - Tools producing automata have a --stats=... option, and tools
+    producing formulas have a --format=... option.  These two options
+    work similarly, the use of different names is just historical.
+    Starting with this release, all tools that recognize one of these
+    two options also accept the other one as an alias.
+
   Library:
 
   - A new library, libspotgen, gathers all functions used to generate
