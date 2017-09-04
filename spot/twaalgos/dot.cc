@@ -92,6 +92,7 @@ namespace spot
       bool dcircles_ = false;
       bool opt_scc_ = false;
       bool opt_html_labels_ = false;
+      bool opt_color_sets_ = false;
       bool opt_state_labels_ = false;
       bool opt_rainbow = false;
       bool opt_bullet = false;
@@ -254,11 +255,11 @@ namespace spot
               opt_ordered_edges_ = true;
               break;
             case 'r':
-              opt_html_labels_ = true;
+              opt_color_sets_ = true;
               opt_rainbow = true;
               break;
             case 'R':
-              opt_html_labels_ = true;
+              opt_color_sets_ = true;
               opt_rainbow = false;
               break;
             case 's':
@@ -280,6 +281,8 @@ namespace spot
               throw std::runtime_error
                 (std::string("unknown option for print_dot(): ") + c);
             }
+        if (opt_color_sets_ && !opt_latex_)
+          opt_html_labels_ = true;
         if (opt_html_labels_)
           {
             nl_ = "<br/>";
@@ -288,10 +291,6 @@ namespace spot
           }
         if (opt_latex_)
           {
-            if (opt_latex_ && opt_html_labels_)
-              throw std::runtime_error
-                (std::string("print_dot(): options 'r' and 'R' "
-                             "are incompatible with 'x'"));
             nl_ = "\\\\{}";
             label_pre_ = "texlbl=\"";
             label_post_ = '"';
@@ -305,11 +304,32 @@ namespace spot
         parse_opts(options ? options : ".");
       }
 
+      const char*
+      html_set_color(int v) const
+      {
+        if (opt_rainbow)
+          return palette[v % palette_mod];
+        // Color according to Fin/Inf
+        if (inf_sets_.has(v))
+          {
+            if (fin_sets_.has(v))
+              return palette[2];
+            else
+              return palette[0];
+          }
+        else
+          {
+            return palette[1];
+          }
+      }
+
       void
       output_set(std::ostream& os, int v) const
       {
         v += opt_shift_sets_;
-        if (opt_bullet && (v >= 0) & (v <= MAX_BULLET))
+        if (opt_html_labels_)
+          os << "<font color=\"" << html_set_color(v) << "\">";
+        if (!opt_latex_ && opt_bullet && (v >= 0) & (v <= MAX_BULLET))
           {
             static const char* const tab[MAX_BULLET + 1] = {
               "⓿", "❶", "❷", "❸",
@@ -321,14 +341,21 @@ namespace spot
             };
             os << tab[v];
           }
+        else if (opt_latex_ && opt_bullet)
+          {
+            os << "\\accset{" << v << '}';
+          }
         else
           {
             os << v;
           }
+        if (opt_html_labels_)
+          os << "</font>";
       }
 
+
       void
-      output_set(acc_cond::mark_t a) const
+      output_mark(acc_cond::mark_t a) const
       {
         if (!opt_all_bullets)
           {
@@ -354,55 +381,6 @@ namespace spot
           }
       }
 
-      const char*
-      html_set_color(int v) const
-      {
-        if (opt_rainbow)
-          return palette[(v + opt_shift_sets_) % palette_mod];
-        // Color according to Fin/Inf
-        if (inf_sets_.has(v))
-          {
-            if (fin_sets_.has(v))
-              return palette[2];
-            else
-              return palette[0];
-          }
-        else
-          {
-            return palette[1];
-          }
-      }
-
-      void
-      output_html_set_aux(std::ostream& os, int v) const
-      {
-        os << "<font color=\"" << html_set_color(v) << "\">";
-        output_set(os, v);
-        os << "</font>";
-      }
-
-      void
-      output_html_set(int v) const
-      {
-        output_html_set_aux(os_, v);
-      }
-
-      void
-      output_html_set(acc_cond::mark_t a) const
-      {
-        if (!opt_all_bullets)
-          os_ << '{';
-        const char* space = "";
-        for (auto v: a.sets())
-          {
-            if (!opt_all_bullets)
-              os_ << space;
-            output_html_set(v);
-            space = ",";
-          }
-        if (!opt_all_bullets)
-          os_ << '}';
-      }
 
       std::ostream&
       escape_for_output(std::ostream& os, const std::string& s) const
@@ -567,11 +545,32 @@ namespace spot
         if (opt_html_labels_)
           std::tie(inf_sets_, fin_sets_) =
             aut_->get_acceptance().used_inf_fin_sets();
-        if (opt_bullet && aut_->num_sets() <= MAX_BULLET)
+        // UTF-8 has no glyphs for circled numbers larger than MAX_BULLET.
+        if (opt_bullet && (aut_->num_sets() <= MAX_BULLET || opt_latex_))
           opt_all_bullets = true;
         os_ << "digraph G {\n";
         if (opt_latex_)
-          os_ << "  d2tgraphstyle=\"every node/.style={align=center}\"\n";
+          {
+            os_ << "  d2tgraphstyle=\"every node/.style={align=center}\"\n";
+            if (opt_bullet)
+              {
+                os_ << ("  d2tdocpreamble=\""
+                        "\\DeclareRobustCommand{\\accset}[1]{"
+                        "\\tikz[baseline=(num.base)]{\\node[fill=")
+                    << (opt_color_sets_ ? "accset#1" : "black")
+                    << (",draw=white,text=white,thin,circle,inner sep=1pt,"
+                        "font=\\bfseries\\sffamily] (num) {#1};}}");
+                if (opt_color_sets_)
+                  {
+                    unsigned n = aut_->num_sets();
+                    for (unsigned i = 0; i < n; ++i)
+                      os_ << "\n\\definecolor{accset" << i << "}{HTML}{"
+                          << (html_set_color(i) + 1) << '}';
+                  }
+                if (opt_bullet)
+                  os_ << "\"\n";
+              }
+          }
         if (!opt_vertical_)
           os_ << "  rankdir=LR\n";
         if (name_ || opt_show_acc_)
@@ -586,18 +585,16 @@ namespace spot
                     if (name_)
                       os_ << nl_;
                     auto& acc = aut_->get_acceptance();
-                    if (opt_html_labels_)
-                      acc.to_html(os_, [this](std::ostream& os, int v)
-                                  {
-                                    this->output_html_set_aux(os, v);
-                                  });
-                    else if (opt_latex_)
-                      acc.to_latex(os_ << '$') << '$';
-                    else
-                      acc.to_text(os_, [this](std::ostream& os, int v)
+                    auto outset = [this](std::ostream& os, int v)
                                   {
                                     this->output_set(os, v);
-                                  });
+                                  };
+                    if (opt_html_labels_)
+                      acc.to_html(os_, outset);
+                    else if (opt_latex_)
+                      acc.to_latex(os_ << '$', outset) << '$';
+                    else
+                      acc.to_text(os_, outset);
 
                   }
                 print_acceptance_for_human();
@@ -679,10 +676,7 @@ namespace spot
             if (acc)
               {
                 os_ << nl_;
-                if (opt_html_labels_)
-                  output_html_set(acc);
-                else
-                  output_set(acc);
+                output_mark(acc);
               }
             if (opt_state_labels_)
               format_state_label(os_ << nl_, s);
@@ -740,10 +734,7 @@ namespace spot
                 {
                   if (!opt_state_labels_)
                     os_ << nl_;
-                  if (opt_html_labels_)
-                    output_html_set(a);
-                  else
-                    output_set(a);
+                  output_mark(a);
                 }
             os_ << label_post_;
             if (opt_ordered_edges_ || opt_numbered_edges_)

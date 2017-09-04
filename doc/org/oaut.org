@@ -876,7 +876,7 @@ export SPOT_DOTEXTRA='edge[arrowhead=vee, arrowsize=.7]'
   :END:
 
 
-The [[https://github.com/kjellmf/dot2tex][=dot2tex= program]] interacts with GraphViz to converts dot files
+The [[https://github.com/kjellmf/dot2tex][=dot2tex= program]] interacts with GraphViz to convert dot files
 into TeX figures.  The layout is still done by tools provided by
 GraphViz (i.e. =dot=, =neato=, =circo=, ...) but the actual rendering
 is done using LaTeX with the TikZ or PSTricks packages.  One advantage
@@ -905,6 +905,21 @@ following figure:
 #+END_SRC
 [[file:dot2tex.png]]
 
+Here an example with bullets denoting acceptance sets, and SCCs:
+
+#+BEGIN_SRC sh :exports code
+ltl2tgba -G -D '!a & FGa' --dot=sbarx | dot2tex --autosize --nominsize > out.tex
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent :exports results
+  ltl2tgba -G -D '!a & FGa' --dot=sbarx | dot2tex --autosize --nominsize > dot2tex2.tex
+  latexmk --pdf dot2tex2.tex
+  convert -density 150 -trim dot2tex2.pdf dot2tex2.png
+  latexmk -C dot2tex2.tex
+  rm -f dot2tex2.tex
+#+END_SRC
+[[file:dot2tex2.png]]
+
 Caveats:
 - =dot2tex= should be called with option =--autosize= in order to
   compute the size of each label before calling GraphViz to layout the
@@ -923,9 +938,6 @@ Caveats:
 - The default size of nodes seems slightly too big for our usage.
   Using =--nominsize= is just one way around it.  Refer to the
   [[https://dot2tex.readthedocs.io/en/latest/][=dot2tex= manual]] for finer ways to set the node size.
-- Currently the =x= option of Spot's =--dot= output cannot yet be
-  combined with the =r=, =R=, an =b= options used to display colored
-  bullets.  (Patches are welcome.)
 
 * Statistics
   :PROPERTIES:
