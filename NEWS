@@ -164,6 +164,11 @@ New in spot 2.3.5.dev (not yet released)
   - The function spot::streett_to_generalized_buchi() is now able to
     work on automata with Streett-like acceptance.
 
+  - The function for converting deterministic Rabin automata to
+    deterministic Büchi automata (when possible), internal to the
+    remove_fin() procedure, has been updated to work with
+    transition-based acceptance and with Rabin-like acceptance.
+
   - spot::relabel_here() was used on automata to rename atomic
     propositions, it can now replace atomic propositions by Boolean
     subformula.  This makes it possible to use relabeling maps
@@ -202,7 +207,7 @@ New in spot 2.3.5.dev (not yet released)
   - spot::sbacc() and spot::degeneralize() learned to merge
     accepting sinks.
 
-  - If the SPOT_BDD_TRACE envorinment variable is set, statistics
+  - If the SPOT_BDD_TRACE environment variable is set, statistics
     about BDD garbage collection and table resizing are shown.
 
   - The & and | operators for acceptannce conditions have been changed
@@ -269,8 +274,9 @@ New in spot 2.3.5.dev (not yet released)
     from 9 to 16 colors.  While the first 8 colors are similar, they
     are a bit more saturated now.
 
-  Deprecation notices (code using these functions will still work, but
-  the compiler will emit warnings):
+  Deprecation notices:
+
+  (These functions still work but compilers emit warnings.)
 
   - spot::decompose_strength() is deprecated, it has been renamed
     to spot::decompose_scc().
