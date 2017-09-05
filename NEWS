@@ -21,7 +21,7 @@ New in spot 2.3.5.dev (not yet released)
     transforming automata (in the same way as we have ltlcross for
     LTL translators).
 
-  - genltl learned two generate to new families of formulas:
+  - genltl learned two generate two new families of formulas:
       --fxg-or=RANGE         F(p0 | XG(p1 | XG(p2 | ... XG(pn))))
       --gxf-and=RANGE        G(p0 & XF(p1 & XF(p2 & ... XF(pn))))
     The later is a generalization of --eh-pattern=9, for which a
@@ -35,7 +35,7 @@ New in spot 2.3.5.dev (not yet released)
     both based on a product.
 
   - autfilt learned to complement any alternating automaton with
-    option --dualize.
+    option --dualize.   (See spot::dualize() below.)
 
   - autfilt learned --split-edges to convert labels that are Boolean
     formulas into labels that are min-terms.  (See spot::split_edges()
@@ -65,7 +65,7 @@ New in spot 2.3.5.dev (not yet released)
   - spot::sum() and spot::sum_and() implements the union and the
     intersection of two automata by putting them side-by-side and
     using non-deterministim or universal branching on the initial
-    statae.
+    state.
 
   - twa objects have a new property: prop_complete().  This obviously
     acts as a cache for the is_complete() function.
@@ -74,8 +74,6 @@ New in spot 2.3.5.dev (not yet released)
     the dual of a deterministic automaton is still deterministic, the
     function spot::dtwa_complement() has been deprecated and simply
     calls spot::dualize().
-
-  - spot::dtwa_complement now simply returns the result of dualize()
 
   - spot::decompose_strength() was extended and renamed to
     spot::decompose_scc() as it can now also extract a subautomaton
@@ -198,7 +196,8 @@ New in spot 2.3.5.dev (not yet released)
     input automaton with generalized Büchi/co-Büchi acceptance and
     convert it to a weak alternating automaton.
 
-  - spot::sbacc() is now able to work on alternating automata.
+  - spot::sbacc() is can now also convert alternating automata
+    to state-based acceptance.
 
   - spot::sbacc() and spot::degeneralize() learned to merge
     accepting sinks.
@@ -207,7 +206,7 @@ New in spot 2.3.5.dev (not yet released)
     about BDD garbage collection and table resizing are shown.
 
   - The & and | operators for acceptannce conditions have been changed
-    slightly to be more symmetrical.  In older version, operator &
+    slightly to be more symmetrical.  In older versions, operator &
     would move Fin() terms to the front, but that is not the case
     anymore.  Also operator & was already grouping all Inf() terms
     (for efficiency reasons), in this version operator | is
@@ -243,8 +242,8 @@ New in spot 2.3.5.dev (not yet released)
     generalized co-Büchi), it would sometimes output an automaton with
     transition-based acceptance but marked as state-based.
 
-  - The complete() function could complete an empty co-Büchi automaton into an
-    automaton accepting everything.
+  - The complete() function could complete an empty co-Büchi automaton
+    into an automaton accepting everything.
 
   Backward-incompatible changes:
 
@@ -270,7 +269,8 @@ New in spot 2.3.5.dev (not yet released)
     from 9 to 16 colors.  While the first 8 colors are similar, they
     are a bit more saturated now.
 
-  Deprecation notice:
+  Deprecation notices (code using these functions will still work, but
+  the compiler will emit warnings):
 
   - spot::decompose_strength() is deprecated, it has been renamed
     to spot::decompose_scc().
