@@ -56,7 +56,7 @@
 const char argp_program_doc[] ="\
 Call several tools that process automata and cross-compare their output \
 to detect bugs, or to gather statistics.  The list of automata to use \
-should be supplied on standard input, or using the -f or -F options.\v\
+should be supplied on standard input, or using the -F option.\v\
 Exit status:\n\
   0  everything went fine (timeouts are OK too)\n\
   1  some tools failed to output something we understand, or failed\n\
