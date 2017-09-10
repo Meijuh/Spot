@@ -82,33 +82,74 @@ public:
     return owner_[src];
   }
 
+  unsigned max_parity() const
+  {
+    unsigned max_parity = 0;
+      for (auto& e: dpa_->edges())
+        max_parity = std::max(max_parity, e.acc.max_set());
+    SPOT_ASSERT(max_parity);
+    return max_parity - 1;
+  }
+
   /// Print the parity game in PGSolver's format.
   void print(std::ostream& os);
+
+  // Compute the winner of this game using Zielonka's recursive algorithm.
+  // False is Even and True is Odd.
+  /** \verbatim
+      @article{ zielonka.98.tcs
+        title = "Infinite games on finitely coloured graphs with applications to
+        automata on infinite trees",
+        journal = "Theoretical Computer Science",
+        volume = "200",
+        number = "1",
+        pages = "135 - 183",
+        year = "1998",
+        author = "Wieslaw Zielonka",
+      }
+      \endverbatim */
+  bool winner() const;
 
   /// Whether player 1 has a winning strategy from the initial state.
   /// Implements Calude et al.'s quasipolynomial time algorithm.
   /** \verbatim
       @inproceedings{calude.17.stoc,
-       author = {Calude, Cristian S. and Jain, Sanjay and Khoussainov,
-                 Bakhadyr and Li, Wei and Stephan, Frank},
-       title = {Deciding Parity Games in Quasipolynomial Time},
-       booktitle = {Proceedings of the 49th Annual ACM SIGACT Symposium on
-                    Theory of Computing},
-       series = {STOC 2017},
-       year = {2017},
-       isbn = {978-1-4503-4528-6},
-       location = {Montreal, Canada},
-       pages = {252--263},
-       numpages = {12},
-       url = {http://doi.acm.org/10.1145/3055399.3055409},
-       doi = {10.1145/3055399.3055409},
-       acmid = {3055409},
-       publisher = {ACM},
-       address = {New York, NY, USA},
-       keywords = {Muller Games, Parity Games, Quasipolynomial Time Algorithm},
+        author = {Calude, Cristian S. and Jain, Sanjay and Khoussainov,
+                  Bakhadyr and Li, Wei and Stephan, Frank},
+        title = {Deciding Parity Games in Quasipolynomial Time},
+        booktitle = {Proceedings of the 49th Annual ACM SIGACT Symposium on
+                     Theory of Computing},
+        series = {STOC 2017},
+        year = {2017},
+        isbn = {978-1-4503-4528-6},
+        location = {Montreal, Canada},
+        pages = {252--263},
+        numpages = {12},
+        url = {http://doi.acm.org/10.1145/3055399.3055409},
+        doi = {10.1145/3055399.3055409},
+        acmid = {3055409},
+        publisher = {ACM},
+        address = {New York, NY, USA},
+        keywords = {Muller Games, Parity Games, Quasipolynomial Time Algorithm},
       }
       \endverbatim */
   bool solve_qp() const;
+
+private:
+  typedef twa_graph::graph_t::edge_storage_t edge_t;
+
+  // Compute (in place) a set of states from which player can force a visit
+  // through set.
+  // if attr_max is true, states that can force a visit through an edge with
+  // max parity are also counted in.
+  void attractor(const std::unordered_set<unsigned>& subgame,
+                 std::unordered_set<unsigned>& set, unsigned max_parity,
+                 bool player, bool attr_max = false) const;
+
+  // Compute the winning region for player Odd.
+  std::unordered_set<unsigned>
+  winning_region(std::unordered_set<unsigned>& subgame,
+                 unsigned max_parity) const;
 };
 
 
@@ -246,8 +287,7 @@ private:
 public:
 
   reachability_game(const parity_game& pg)
-    : twa(std::make_shared<bdd_dict>()),
-      pg_(pg)
+    : twa(std::make_shared<bdd_dict>()), pg_(pg)
   {
     init_state_ = std::shared_ptr<const reachability_state>(get_init_state());
   }

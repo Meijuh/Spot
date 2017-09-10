@@ -39,12 +39,24 @@
 
 enum
 {
-  OPT_INPUT = 256,
+  OPT_ALGO = 256,
+  OPT_INPUT,
+  OPT_OUTPUT,
   OPT_PRINT
+};
+
+enum solver
+{
+  QP,
+  REC
 };
 
 static const argp_option options[] =
   {
+    { "algo", OPT_ALGO, "ALGO", 0,
+      "choose the parity game algorithm, valid ones are rec (Zielonka's"
+      " recursive algorithm, default) and qp (Calude et al.'s quasi-polynomial"
+      " time algorithm)", 0 },
     { "input", OPT_INPUT, "PROPS", 0,
       "comma-separated list of atomic propositions", 0},
     { "print-pg", OPT_PRINT, nullptr, 0,
@@ -65,7 +77,9 @@ const char argp_program_doc[] =
 
 std::vector<std::string> input_aps;
 
-bool opt_print_pg{false};
+bool opt_print_pg(false);
+bool opt_real(false);
+solver opt_solver(REC);
 
 namespace
 {
@@ -195,11 +209,26 @@ namespace
           pg.print(std::cout);
           return 0;
         }
-      if (pg.solve_qp())
-        std::cout << "realizable\n";
-      else
-        std::cout << "unrealizable\n";
-      return 0;
+      switch (opt_solver)
+        {
+          case REC:
+            {
+              if (pg.winner())
+                std::cout << "REALIZABLE\n";
+              else
+                std::cout << "UNREALIZABLE\n";
+              return 0;
+            }
+          case QP:
+            if (pg.solve_qp())
+              std::cout << "REALIZABLE\n";
+            else
+              std::cout << "UNREALIZABLE\n";
+            return 0;
+          default:
+            SPOT_UNREACHABLE();
+            return 0;
+        }
     }
   };
 }
@@ -223,6 +252,17 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_PRINT:
       opt_print_pg = true;
       break;
+    case OPT_ALGO:
+      if (arg && strcmp(arg, "rec") == 0)
+        opt_solver = REC;
+      else if (arg && strcmp(arg, "qp") == 0)
+        opt_solver = QP;
+      else
+        {
+          std::cout << "Unknown solver: " << (arg ? arg : "") << '\n';
+          return 1;
+        }
+      break;
     }
   return 0;
 }
@@ -234,6 +274,8 @@ int main(int argc, char **argv)
                     argp_program_doc, children, nullptr, nullptr };
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
+  check_no_formula();
+
   spot::translator trans;
   ltl_processor processor(trans, input_aps);
   processor.run();

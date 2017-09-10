@@ -50,6 +50,10 @@ The tool reduces the synthesis problem to a parity game, and solves the parity
 game using Zielonka's recursive algorithm.  The full reduction from LTL to
 parity game is described in a paper yet to be written and published.
 
-You can ask =ltlsynt= not to solve the game and print it instead (in the
+You can control the parity game solving step in two ways:
+- By choosing a different algorithm using the =--algo= option. The default is
+=rec= for Zielonka's recursive algorithm, and as of now the only other
+available option is =qp= for Calude et al.'s quasi-polynomial time algorithm.
+- By asking =ltlsynt= not to solve the game and print it instead (in the
 PGSolver format) using the =--print-pg= option, and leaving you the choice of
 an external solver such as PGSolver.

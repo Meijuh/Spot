@@ -54,9 +54,109 @@ void parity_game::print(std::ostream& os)
     }
 }
 
+bool parity_game::winner() const
+{
+  std::unordered_set<unsigned> states_;
+  for (unsigned i = 0; i < num_states(); ++i)
+    states_.insert(i);
+  unsigned m = max_parity();
+  auto w1 = winning_region(states_, m);
+  return w1.find(get_init_state_number()) != w1.end();
+}
+
 bool parity_game::solve_qp() const
 {
   return reachability_game(*this).is_reachable();
+}
+
+void parity_game::attractor(const std::unordered_set<unsigned>& subgame,
+                            std::unordered_set<unsigned>& set,
+                            unsigned max_parity, bool odd,
+                            bool attr_max) const
+{
+  unsigned size;
+  do
+    {
+      size = set.size();
+      for (unsigned s: subgame)
+        {
+          bool any = false;
+          bool all = true;
+          for (auto& e: out(s))
+            {
+              if (e.acc.max_set() - 1 <= max_parity
+                  && subgame.find(e.dst) != subgame.end())
+                {
+                  if (set.find(e.dst) != set.end()
+                      || (attr_max && e.acc.max_set() - 1 == max_parity))
+                    any = true;
+                  else
+                    all = false;
+                }
+            }
+          if ((owner_[s] == odd && any) || (owner_[s] != odd && all))
+            set.insert(s);
+        }
+    } while (set.size() != size);
+}
+
+std::unordered_set<unsigned>
+parity_game::winning_region(std::unordered_set<unsigned>& subgame,
+                            unsigned max_parity) const
+{
+  // The algorithm works recursively on subgames. To avoid useless copies of
+  // the game at each call, subgame and max_parity are used to filter states
+  // and transitions.
+  if (max_parity == 0 || subgame.empty())
+    return std::unordered_set<unsigned>();
+  bool odd = max_parity % 2 == 1;
+  std::unordered_set<unsigned> w1;
+  std::unordered_set<unsigned> removed;
+
+  while (!subgame.empty())
+    {
+      // Recursion on max_parity.
+      std::unordered_set<unsigned> u;
+      attractor(subgame, u, max_parity, odd, true);
+
+      for (unsigned s: u)
+        subgame.erase(s);
+      auto w1_ = winning_region(subgame, max_parity - 1);
+      std::unordered_set<unsigned> w0_;
+      if (odd && w1_.size() != subgame.size())
+        std::set_difference(subgame.begin(), subgame.end(),
+                            w1_.begin(), w1_.end(),
+                            std::inserter(w0_, w0_.begin()));
+      // if !odd, w0_ is not used.
+      for (unsigned s: u)
+        subgame.insert(s);
+
+      if (odd && w1_.size() + u.size() == subgame.size())
+        {
+          for (unsigned s: subgame)
+            w1.insert(s);
+          break;
+        }
+      else if (!odd && w1_.empty())
+        break;
+
+      // Unrolled tail-recursion on game size.
+      auto& wni = odd ? w0_ : w1_;
+      attractor(subgame, wni, max_parity, !odd);
+
+      for (unsigned s: wni)
+      {
+        subgame.erase(s);
+        removed.insert(s);
+      }
+
+      if (!odd)
+        for (unsigned s: wni)
+          w1.insert(s);
+    }
+  for (unsigned s: removed)
+    subgame.insert(s);
+  return w1;
 }
 
 int reachability_state::compare(const state* other) const
