@@ -100,6 +100,7 @@ ORG_FILES = \
   org/ltldo.org \
   org/ltlfilt.org \
   org/ltlgrind.org \
+  org/ltlsynt.org \
   org/oaut.org \
   org/randaut.org \
   org/randltl.org \

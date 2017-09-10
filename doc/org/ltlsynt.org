@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+#+TITLE: =ltlsynt=
+#+DESCRIPTION: Spot command-line tool for synthesizing AIGER circuits from LTL/PSL formulas.
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
+
+* Basic usage
+
+This tool answers whether a controller can be built given an LTL/PSL formula
+specifying its behavior.  =ltlsynt= is typically called with
+the following three options:
+
+- =--input=: a comma-separated list of input signal names
+- =--output=: a comma-separated list of output signal names
+- =--formula= or =--file=: the LTL/PSL specification.
+
+The following example is unrealizable, because =a= is an input, so no circuit
+can guarantee that it will be true eventually.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlsynt --input=a --output=b -f 'F a'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+UNREALIZABLE
+#+end_example
+
+* TLSF
+
+=ltlsynt= was made with the [[http://syntcomp.org/][SYNTCOMP]] competition in
+mind, and more specifically the TLSF track of this competition.  TLSF is a
+high-level specification language created for the purpose of this competition.
+Fortunately, the SYNTCOMP organizers also provide a tool called =syfco= which
+can translate a TLSF specification to an LTL formula.
+
+The following four steps show you how a TLSF specification called spec.tlsf can
+be tested for realizability using =syfco= and =ltlsynt=:
+
+#+BEGIN_SRC sh
+LTL=$(syfco FILE -f ltlxba -m fully)
+IN=$(syfco FILE -f ltlxba -m fully)
+OUT=$(syfco FILE -f ltlxba -m fully)
+ltlsynt --formula="$LTL" --input="$IN" --output="$OUT"
+#+END_SRC
+
+* Algorithm
+
+The tool reduces the synthesis problem to a parity game, and solves the parity
+game using Zielonka's recursive algorithm.  The full reduction from LTL to
+parity game is described in a paper yet to be written and published.
+
+You can ask =ltlsynt= not to solve the game and print it instead (in the
+PGSolver format) using the =--print-pg= option, and leaving you the choice of
+an external solver such as PGSolver.

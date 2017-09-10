@@ -31,6 +31,9 @@ New in spot 2.4.0.dev (not yet released)
     also be used to detect unreliable measurements. See
       https://spot.lrde.epita.fr/oaut.html#timing
 
+  - ltlsynt is a new tool for synthesizing AIGER circuits from LTL/PSL
+    formulas.
+
   Library:
 
   - Rename three methods of spot::scc_info. New names are clearer. The

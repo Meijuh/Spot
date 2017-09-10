@@ -49,6 +49,7 @@ corresponding commands are hidden.
   formula.
 - [[file:ltldo.org][=ltldo=]] Run LTL/PSL formulas through other tools using common [[file:ioltl.org][input]]
   and [[file:oaut.org][output]] interfaces.
+- [[file:ltlsynt.org][=ltlsynt=]] Synthesize AIGER circuits from LTL/PSL specifications.
 - [[file:dstar2tgba.org][=dstar2tgba=]] Convert \omega-automata with any acceptance into
   variants of Büchi automata.
 - [[file:randaut.org][=randaut=]] Generate random \omega-automata.
@@ -73,8 +74,9 @@ convenience, you can browse their HTML versions:
 [[./man/ltl2tgta.1.html][=ltl2tgta=]](1),
 [[./man/ltlcross.1.html][=ltlcross=]](1),
 [[./man/ltldo.1.html][=ltldo=]](1),
-[[./man/ltlgrind.1.html][=ltlgrind=]](1),
 [[./man/ltlfilt.1.html][=ltlfilt=]](1),
+[[./man/ltlgrind.1.html][=ltlgrind=]](1),
+[[./man/ltlsynt.1.html][=ltlsynt=]](1),
 [[./man/randaut.1.html][=randaut=]](1),
 [[./man/randltl.1.html][=randltl=]](1),
 [[./man/spot-x.7.html][=spot-x=]](7),

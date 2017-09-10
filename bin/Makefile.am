@@ -70,6 +70,7 @@ bin_PROGRAMS = \
   ltldo \
   ltlfilt \
   ltlgrind \
+  ltlsynt \
   randaut \
   randltl
 
@@ -92,6 +93,7 @@ ltl2tgta_SOURCES = ltl2tgta.cc
 ltlcross_SOURCES = ltlcross.cc
 ltlgrind_SOURCES = ltlgrind.cc
 ltldo_SOURCES = ltldo.cc
+ltlsynt_SOURCES = ltlsynt.cc
 dstar2tgba_SOURCES = dstar2tgba.cc
 spot_x_SOURCES = spot-x.cc
 spot_SOURCES = spot.cc

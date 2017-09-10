@@ -38,6 +38,7 @@ misc_HEADERS = \
   escape.hh \
   fixpool.hh \
   formater.hh \
+  game.hh \
   hash.hh \
   hashfunc.hh \
   intvcomp.hh \
@@ -62,6 +63,7 @@ libmisc_la_SOURCES = \
   bitvect.cc \
   escape.cc \
   formater.cc \
+  game.cc \
   intvcomp.cc \
   intvcmp2.cc \
   memusage.cc \

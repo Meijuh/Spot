@@ -36,6 +36,7 @@ dist_man1_MANS = \
   ltldo.1 \
   ltlfilt.1 \
   ltlgrind.1 \
+  ltlsynt.1 \
   randaut.1 \
   randltl.1
 dist_man7_MANS = \
@@ -69,6 +70,12 @@ ltldo.1: $(common_dep) $(srcdir)/ltlcross.x $(srcdir)/../ltldo.cc
 ltlfilt.1: $(common_dep) $(srcdir)/ltlfilt.x $(srcdir)/../ltlfilt.cc
 	$(convman) ../ltlfilt$(EXEEXT) $(srcdir)/ltlfilt.x $@
 
+ltlgrind.1: $(common_dep) $(srcdir)/ltlgrind.x $(srcdir)/../ltlgrind.cc
+	$(convman) ../ltlgrind$(EXEEXT) $(srcdir)/ltlgrind.x $@
+
+ltlsynt.1: $(common_dep) $(srcdir)/ltlsynt.x $(srcdir)/../ltlsynt.cc
+	$(convman) ../ltlsynt$(EXEEXT) $(srcdir)/ltlsynt.x $@
+
 genaut.1: $(common_dep) $(srcdir)/genaut.x $(srcdir)/../genaut.cc
 	$(convman) ../genaut$(EXEEXT) $(srcdir)/genaut.x $@
 
@@ -86,6 +93,3 @@ spot-x.7: $(common_dep) $(srcdir)/spot-x.x $(srcdir)/../spot-x.cc
 
 spot.7: $(common_dep) $(srcdir)/spot.x $(srcdir)/../spot.cc
 	$(convman7) ../spot$(EXEEXT) $(srcdir)/spot.x $@
-
-ltlgrind.1: $(common_dep) $(srcdir)/ltlgrind.x $(srcdir)/../ltlgrind.cc
-	$(convman) ../ltlgrind$(EXEEXT) $(srcdir)/ltlgrind.x $@
