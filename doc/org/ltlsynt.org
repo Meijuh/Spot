@@ -6,13 +6,40 @@
 
 * Basic usage
 
-This tool answers whether a controller can be built given an LTL/PSL formula
-specifying its behavior.  =ltlsynt= is typically called with
-the following three options:
+This tool synthesizes [[http://fmv.jku.at/aiger/][AIGER]] circuits from LTL/PSL
+formulas.  =ltlsynt= is typically called with the following three options:
 
 - =--input=: a comma-separated list of input signal names
 - =--output=: a comma-separated list of output signal names
 - =--formula= or =--file=: the LTL/PSL specification.
+
+The following example illustrates the synthesis of an =AND= gate.  We call the two
+inputs =a= and =b=, and the output =c=.  We want the relationship between the
+inputs and the output to always hold, so we prefix the propositional formula
+with a =G= operator:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlsynt --input=a,b --output=c --formula 'G (a & b <=> c)'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+REALIZABLE
+aag 3 2 0 1 1
+2
+4
+6
+6 2 4
+i0 a
+i1 b
+o0 c
+#+end_example
+
+The output is composed of two sections.  The first one is a single line
+containing either REALIZABLE or UNREALIZABLE, and the second one is an AIGER
+circuit that satisfies the specification (or nothing if it is unrealizable).
+In this example, the generated circuit contains, as expected, a single =AND=
+gate linking the two inputs to the output.
 
 The following example is unrealizable, because =a= is an input, so no circuit
 can guarantee that it will be true eventually.
@@ -35,7 +62,7 @@ Fortunately, the SYNTCOMP organizers also provide a tool called =syfco= which
 can translate a TLSF specification to an LTL formula.
 
 The following four steps show you how a TLSF specification called spec.tlsf can
-be tested for realizability using =syfco= and =ltlsynt=:
+be synthesized using =syfco= and =ltlsynt=:
 
 #+BEGIN_SRC sh
 LTL=$(syfco FILE -f ltlxba -m fully)
