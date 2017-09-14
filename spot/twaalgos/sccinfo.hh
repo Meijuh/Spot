@@ -476,9 +476,10 @@ namespace spot
       return node(scc).is_trivial();
     }
 
+    SPOT_DEPRECATED("use acc_sets_of() instead")
     acc_cond::mark_t acc(unsigned scc) const
     {
-      return node(scc).acc_marks();
+      return acc_sets_of(scc);
     }
 
     bool is_accepting_scc(unsigned scc) const
@@ -505,20 +506,33 @@ namespace spot
       return reachable_state(st) && node(scc_of(st)).is_useful();
     }
 
-    /// \brief Return the set of all used acceptance combinations, for
-    /// each accepting SCC.
-    std::vector<std::set<acc_cond::mark_t>> used_acc() const;
+    /// \brief Returns, for each accepting SCC, the set of all marks appearing
+    /// in it.
+    std::vector<std::set<acc_cond::mark_t>> marks() const;
+    std::set<acc_cond::mark_t> marks_of(unsigned scc) const;
 
-    std::set<acc_cond::mark_t> used_acc_of(unsigned scc) const;
-
-    /// sets that contain at least one transition of the SCC
-    acc_cond::mark_t acc_sets_of(unsigned scc) const
+    // Same as above, with old names.
+    SPOT_DEPRECATED("use marks() instead")
+    std::vector<std::set<acc_cond::mark_t>> used_acc() const
     {
-      // FIXME: Why do we have two name for this method?
-      return acc(scc);
+      return marks();
+    }
+    SPOT_DEPRECATED("use marks_of() instead")
+    std::set<acc_cond::mark_t> used_acc_of(unsigned scc) const
+    {
+      return marks_of(scc);
     }
 
-    /// sets that contain the entire SCC
+    /// \brief Returns, for a given SCC, the set of all colors appearing in it.
+    /// It is the set of colors that appear in some mark among those returned by
+    /// marks_of().
+    acc_cond::mark_t acc_sets_of(unsigned scc) const
+    {
+      return node(scc).acc_marks();
+    }
+
+    /// Returns, for a given SCC, the set of colors that appear on all of its
+    /// transitions.
     acc_cond::mark_t common_sets_of(unsigned scc) const
     {
       return node(scc).common_marks();

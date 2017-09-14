@@ -74,7 +74,7 @@ namespace spot
     if (map.is_rejecting_scc(scc))
       return true;
     // If all transitions use the same acceptance set, the SCC is weak.
-    return map.used_acc_of(scc).size() == 1;
+    return map.marks_of(scc).size() == 1;
   }
 
   bool
@@ -117,7 +117,7 @@ namespace spot
 
     // If all transitions use all acceptance conditions, the SCC is weak.
     return (map.is_accepting_scc(scc)
-            && map.used_acc_of(scc).size() == 1
+            && map.marks_of(scc).size() == 1
             && is_complete_scc(map, scc));
   }
 }

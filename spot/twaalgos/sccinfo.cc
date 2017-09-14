@@ -318,7 +318,7 @@ namespace spot
   }
 
 
-  std::set<acc_cond::mark_t> scc_info::used_acc_of(unsigned scc) const
+  std::set<acc_cond::mark_t> scc_info::marks_of(unsigned scc) const
   {
     std::set<acc_cond::mark_t> res;
     for (auto& t: inner_edges_of(scc))
@@ -326,7 +326,7 @@ namespace spot
     return res;
   }
 
-  std::vector<std::set<acc_cond::mark_t>> scc_info::used_acc() const
+  std::vector<std::set<acc_cond::mark_t>> scc_info::marks() const
   {
     unsigned n = aut_->num_states();
     std::vector<std::set<acc_cond::mark_t>> result(scc_count());
@@ -351,7 +351,7 @@ namespace spot
   {
     unsigned n = scc_count();
     std::vector<bool> result(scc_count());
-    auto acc = used_acc();
+    auto acc = marks();
     for (unsigned s = 0; s < n; ++s)
       result[s] = is_rejecting_scc(s) || acc[s].size() == 1;
     return result;
@@ -413,7 +413,8 @@ namespace spot
         q.pop();
 
         out << "  " << state << " [shape=box,"
-            << (aut->acc().accepting(m->acc(state)) ? "style=bold," : "")
+            << (aut->acc().accepting(m->acc_sets_of(state)) ?
+                "style=bold," : "")
             << "label=\"" << state;
         {
           size_t n = m->states_of(state).size();

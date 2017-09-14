@@ -309,7 +309,7 @@ namespace spot
               // The main copy is only accepting for inf_alone
               // and for all Inf sets that have no matching Fin
               // sets in this SCC.
-              auto scc_pairs = rs_pairs_view(pairs, si.acc(scc));
+              auto scc_pairs = rs_pairs_view(pairs, si.acc_sets_of(scc));
               auto scc_infs_alone = scc_pairs.infs_alone();
 
               for (const auto& e: si.edges_of(scc))
@@ -676,7 +676,7 @@ namespace spot
       std::vector<unsigned> state_map(nst);
       for (unsigned n = 0; n < nscc; ++n)
         {
-          auto m = si.acc(n);
+          auto m = si.acc_sets_of(n);
           auto states = si.states_of(n);
           trace << "SCC #" << n << " uses " << m << '\n';
 

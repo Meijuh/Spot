@@ -400,7 +400,7 @@ namespace spot
       d.is_weak_scc = sm.weak_sccs();
       unsigned scccount = sm.scc_count();
       {
-        auto tmp = sm.used_acc();
+        auto tmp = sm.marks();
         d.scc_marks.reserve(scccount);
         for (auto& v: tmp)
           {

@@ -9,6 +9,20 @@ New in spot 2.4.0.dev (not yet released)
     --ms-phi-r=RANGE       (FGa{n}&GFb{n})|((FGa{n-1}|GFb{n-1})&(...))
     --ms-phi-s=RANGE       (FGa{n}|GFb{n})&((FGa{n-1}&GFb{n-1})|(...))
 
+  Library:
+
+  - Rename three methods of spot::scc_info. New names are clearer. The
+    old names have been deprecated.
+
+  Deprecation notices:
+
+  (These functions still work but compilers emit warnings.)
+
+  - spot::scc_info::used_acc(), spot::scc_info::used_acc_of() and
+    spot::scc_info::acc() are deprecated. They have been renamed
+    spot::scc_info::marks(), spot::scc_info::marks_of() and
+    spot::scc_info::acc_sets_of() respectively.
+
 New in spot 2.4 (2017-09-06)
 
   Build:
@@ -285,23 +299,23 @@ New in spot 2.4 (2017-09-06)
     from 9 to 16 colors.  While the first 8 colors are similar, they
     are a bit more saturated now.
 
-  Deprecation notices:
+  deprecation notices:
 
-  (These functions still work but compilers emit warnings.)
+  (these functions still work but compilers emit warnings.)
 
   - spot::decompose_strength() is deprecated, it has been renamed
     to spot::decompose_scc().
 
-  - spot::dtwa_complement() is deprecated.  Prefer the more generic
+  - spot::dtwa_complement() is deprecated.  prefer the more generic
     spot::dualize() instead.
 
-  - The spot::twa::prop_deterministic() methods have been renamed to
+  - the spot::twa::prop_deterministic() methods have been renamed to
     spot::twa::prop_universal() for consistency with the change to
-    is_deterministic() listed above.  We have kept
+    is_deterministic() listed above.  we have kept
     spot::twa::prop_deterministic() as a deprecated synonym for
     spot::twa::prop_universal() to help backward compatibility.
 
-  - The spot::copy() function is deprecated.  Use
+  - the spot::copy() function is deprecated.  use
     spot::make_twa_graph() instead.
 
 New in spot 2.3.5 (2017-06-22)

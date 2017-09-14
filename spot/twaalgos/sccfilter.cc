@@ -223,7 +223,7 @@ namespace spot
              "generalized Büchi acceptance");
 
         unsigned scc_count = this->si->scc_count();
-        auto used_acc = this->si->used_acc();
+        auto used_acc = this->si->marks();
         assert(used_acc.size() == scc_count);
         strip_.resize(scc_count);
         std::vector<unsigned> cnt(scc_count); // # of useful sets in each SCC
