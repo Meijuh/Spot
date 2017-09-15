@@ -134,3 +134,26 @@ diff out exp
 test $(genltl --kr-n2=4 | ltl2tgba --low --stats=%s) -ge 16
 test $(genltl --kr-nlogn=4 | ltl2tgba --low --stats=%s) -ge 16
 test $(genltl --kr-n=4 | ltl2tgba --low --stats=%s) -ge 16
+
+genltl --ms-example=0..4 --ms-phi-r=0..2 --ms-phi-s=0..2 --ms-phi-h=0..4 \
+       --format=%F=%L,%f |
+    ltl2tgba -G -D -F-/2 --stats='%<,%s' > out
+cat >exp<<EOF
+ms-example=0,1
+ms-example=1,2
+ms-example=2,4
+ms-example=3,7
+ms-example=4,12
+ms-phi-r=0,2
+ms-phi-r=1,16
+ms-phi-r=2,25
+ms-phi-s=0,5
+ms-phi-s=1,7
+ms-phi-s=2,1322
+ms-phi-h=0,2
+ms-phi-h=1,4
+ms-phi-h=2,21
+ms-phi-h=3,170
+ms-phi-h=4,1816
+EOF
+diff out exp

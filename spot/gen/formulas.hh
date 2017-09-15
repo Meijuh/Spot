@@ -160,6 +160,20 @@
 //   series = {Lecture Notes in Computer Science},
 //   publisher = {Springer-Verlag}
 // }
+//
+// @InProceedings{muller.17.gandalf,
+//   author = {David M\"uller and Salomon Sickert},
+//   title = {{LTL} to Deterministic {E}merson-{L}ei Automata},
+//   booktitle = {Proceedings of the 8th International Sumposium on Games,
+//                Automata, Logics and Formal Verification (GandALF'17)},
+//   year = 2017,
+//   publisher = {Springer-Verlag}
+//   series    = {Electronic Proceedings in Theoretical Computer Science},
+//   volume    = {256},
+//   publisher = {Open Publishing Association},
+//   pages     = {180--194},
+//   doi       = {10.4204/EPTCS.256.13}
+// }
 
 namespace spot
 {
@@ -184,6 +198,10 @@ namespace spot
       LTL_KR_N,
       LTL_KR_NLOGN,
       LTL_KV_PSI,
+      LTL_MS_EXAMPLE,
+      LTL_MS_PHI_H,
+      LTL_MS_PHI_R,
+      LTL_MS_PHI_S,
       LTL_OR_FG,
       LTL_OR_G,
       LTL_OR_GF,

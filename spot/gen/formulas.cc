@@ -41,6 +41,59 @@ namespace spot
   {
     namespace
     {
+      static formula
+      ms_example(const char* a, const char* b, int n)
+      {
+        formula ax = formula::tt();
+        formula fb = formula::tt();
+        for (int i = n; i > 0; --i)
+          {
+            std::ostringstream ans;
+            ans << a << i;
+            ax = And_(formula::ap(ans.str()), X_(ax));
+            ans.str("");
+            ans << b << i;
+            fb = F_(And_(formula::ap(ans.str()), fb));
+          }
+        return And_(G_(F_(ax)), fb);
+      }
+
+      static formula
+      ms_phi_h(const char* a, const char* b, int n)
+      {
+        formula fa = formula::ap(a);
+        formula fb = formula::ap(b);
+        formula out = formula::ff();
+        do
+          {
+            out = Or_(F_(G_(Or_(fa, fb))), out);
+            fa = Not_(fa);
+            fb = X_(fb);
+          }
+        while (n--);
+        return out;
+      }
+
+      static formula
+      ms_phi_rs(const char* a, const char* b, int n, bool r = true)
+      {
+        formula fgan = [=]() {
+          std::ostringstream ans;
+          ans << a << n;
+          return F_(G_(formula::ap(ans.str())));
+        } ();
+        formula gfbn = [=]() {
+          std::ostringstream ans;
+          ans << b << n;
+          return G_(F_(formula::ap(ans.str())));
+        } ();
+        formula top = r ? And_(fgan, gfbn) : Or_(fgan, gfbn);
+        if (n == 0)
+          return top;
+        formula sub = ms_phi_rs(a, b, n - 1, !r);
+        return r ? Or_(sub, top) : And_(sub, top);
+      }
+
       // G(p_0 & XF(p_1 & XF(p_2 & ... XF(p_n))))
       // This is a generalization of eh-pattern=9
       static formula
@@ -1128,6 +1181,14 @@ namespace spot
           return combunop_n("p", n, op::G, false);
         case LTL_OR_GF:
           return GF_n("p", n, false);
+        case LTL_MS_EXAMPLE:
+          return ms_example("a", "b", n);
+        case LTL_MS_PHI_H:
+          return ms_phi_h("a", "b", n);
+        case LTL_MS_PHI_R:
+          return ms_phi_rs("a", "b", n, true);
+        case LTL_MS_PHI_S:
+          return ms_phi_rs("a", "b", n, false);
         case LTL_P_PATTERNS:
           return p_pattern(n);
         case LTL_R_LEFT:
@@ -1186,6 +1247,10 @@ namespace spot
           "kr-n",
           "kr-nlogn",
           "kv-psi",
+          "ms-example",
+          "ms-phi-h",
+          "ms-phi-r",
+          "ms-phi-s",
           "or-fg",
           "or-g",
           "or-gf",
@@ -1241,6 +1306,10 @@ namespace spot
         case LTL_KR_N:
         case LTL_KR_NLOGN:
         case LTL_KV_PSI:
+        case LTL_MS_EXAMPLE:
+        case LTL_MS_PHI_H:
+        case LTL_MS_PHI_R:
+        case LTL_MS_PHI_S:
         case LTL_OR_FG:
         case LTL_OR_G:
         case LTL_OR_GF:

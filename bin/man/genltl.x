@@ -46,6 +46,10 @@ kv
 O. Kupferman and M. Y. Vardi: From Linear Time to Branching Time.
 ACM Transactions on Computational Logic, 6(2):273-294, 2005.
 .TP
+ms
+D. Müller and S. Sickert: LTL to Deterministic Emerson-Lei Automata.
+Proceedings of GandALF'17.  EPTCS 256.
+.TP
 p
 R. Pelánek: BEEM: benchmarks for explicit model checkers
 Proceedings of Spin'07.  LNCS 4595.
