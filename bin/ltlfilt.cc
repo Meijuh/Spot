@@ -751,8 +751,7 @@ namespace
                   // BA will preserve determinism if possible.
                   spot::postprocessor p;
                   p.set_type(spot::postprocessor::Generic);
-                  p.set_pref(spot::postprocessor::Deterministic
-                             | spot::postprocessor::SBAcc);
+                  p.set_pref(spot::postprocessor::Deterministic);
                   p.set_level(spot::postprocessor::Low);
                   auto dra = p.run(aut);
                   if (dra->acc().is_generalized_buchi())
