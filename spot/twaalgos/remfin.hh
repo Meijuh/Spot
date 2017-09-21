@@ -24,6 +24,13 @@
 namespace spot
 {
   /// \ingroup twa_acc_transform
+  /// \brief Check if \aut is Büchi-realizable. This is inspired
+  /// from rabin_to_buchi_maybe()'s algorithm. The main difference is that
+  /// here, no automaton is built.
+  SPOT_API bool
+  rabin_is_buchi_realizable(const const_twa_graph_ptr& aut);
+
+  /// \ingroup twa_acc_transform
   /// \brief Convert a Rabin automaton to Büchi automaton, preserving
   /// determinism when possible.
   ///

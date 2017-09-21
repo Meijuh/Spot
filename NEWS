@@ -224,6 +224,10 @@ New in spot 2.4.4.dev (net yet released)
 
   - The test suite is now using v4 of the Jupyter Notebook format.
 
+  - The function rabin_is_buchi_realizable() as its name suggests checks
+    if a rabin aut. is Büchi realizable. It is heavily based on
+    tra_to_tba() algorithm.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)

@@ -67,17 +67,16 @@ namespace spot
       p.set_type(spot::postprocessor::Generic);
       p.set_pref(spot::postprocessor::Deterministic);
       p.set_level(spot::postprocessor::Low);
-      auto dra = p.run(aut);
-      if (dra->acc().is_generalized_buchi())
+      auto dpa = p.run(aut);
+      if (dpa->acc().is_generalized_buchi())
         {
-          assert(is_deterministic(dra));
+          assert(is_deterministic(dpa));
           return true;
         }
       else
         {
-          auto ba = rabin_to_buchi_maybe(to_generalized_rabin(dra));
-          assert(ba);
-          return is_deterministic(ba);
+          auto dra = to_generalized_rabin(dpa);
+          return rabin_is_buchi_realizable(dra);
         }
     }
   }

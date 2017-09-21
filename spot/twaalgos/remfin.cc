@@ -220,7 +220,8 @@ namespace spot
 
             auto filter_data = filter_data_t{aut, keep};
             auto init = aut->edge_storage(*unknown.begin()).src;
-            scc_info si(aut, init, filter, &filter_data);
+            scc_info si(aut, init, filter, &filter_data,
+                scc_info_options::TRACK_STATES);
 
             for (unsigned uscc = 0; uscc < si.scc_count(); ++uscc)
               {
@@ -274,8 +275,8 @@ namespace spot
       std::vector<bool> keep(aut->edge_vector().size(), true);
 
       for (unsigned scc = 0; scc < si.scc_count(); ++scc)
-        scc_is_tba_type[scc] = is_scc_tba_type(aut, si, scc, keep,
-                                               aut_pairs, final);
+          scc_is_tba_type[scc] = is_scc_tba_type(aut, si, scc, keep,
+                                                 aut_pairs, final);
 
       auto res = make_twa_graph(aut->get_dict());
       res->copy_ap_of(aut);
@@ -783,6 +784,31 @@ namespace spot
         return maybe;
       return default_strategy(simp);
     }
+  }
+
+  bool
+  rabin_is_buchi_realizable(const const_twa_graph_ptr& inaut)
+  {
+    auto aut = cleanup_acceptance(inaut);
+
+    std::vector<acc_cond::rs_pair> pairs;
+    if (!aut->acc().is_rabin_like(pairs))
+      return false;
+
+    auto aut_pairs = rs_pairs_view(pairs);
+    if (aut->get_acceptance().is_t())
+      return false;
+
+    // if is TBA type
+    scc_info si(aut, scc_info_options::TRACK_STATES);
+    std::vector<bool> final(aut->edge_vector().size(), false);
+    std::vector<bool> keep(aut->edge_vector().size(), true);
+
+    for (unsigned scc = 0; scc < si.scc_count(); ++scc)
+      if (!is_scc_tba_type(aut, si, scc, keep, aut_pairs, final))
+        return false;
+
+    return true;
   }
 
   twa_graph_ptr
