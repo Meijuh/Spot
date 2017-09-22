@@ -157,3 +157,15 @@ ms-phi-h=3,170
 ms-phi-h=4,1816
 EOF
 diff out exp
+
+genltl --gf-equiv=0..5 --format=%F=%L,%f |
+  ltl2tgba -G -D -F-/2 --stats='%<,%s' > out
+cat >exp<<EOF
+gf-equiv=0,1
+gf-equiv=1,4
+gf-equiv=2,8
+gf-equiv=3,21
+gf-equiv=4,81
+gf-equiv=5,431
+EOF
+diff out exp

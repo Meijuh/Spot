@@ -42,6 +42,18 @@ namespace spot
     namespace
     {
       static formula
+      LTL_GF_equiv(int n, const std::string& a, const std::string& z)
+      {
+        std::vector<formula> gfs;
+        for (int i = 0; i < n; ++i)
+          gfs.emplace_back(formula::G(formula::F(
+                  formula::ap(a + std::to_string(i+1)))));
+
+        return formula::Equiv(formula::And(gfs),
+                              formula::G(formula::F(formula::ap(z))));
+      }
+
+      static formula
       ms_example(const char* a, const char* b, int n)
       {
         formula ax = formula::tt();
@@ -1159,6 +1171,8 @@ namespace spot
           return eh_pattern(n);
         case LTL_FXG_OR:
           return FXG_or_n("p", n);
+        case LTL_GF_EQUIV:
+          return LTL_GF_equiv(n, "a", "z");
         case LTL_GH_Q:
           return Q_n("p", n);
         case LTL_GH_R:
@@ -1239,6 +1253,7 @@ namespace spot
           "dac-patterns",
           "eh-patterns",
           "fxg-or",
+          "gf-equiv",
           "gh-q",
           "gh-r",
           "go-theta",
@@ -1296,6 +1311,7 @@ namespace spot
         case LTL_EH_PATTERNS:
           return 12;
         case LTL_FXG_OR:
+        case LTL_GF_EQUIV:
         case LTL_GH_Q:
         case LTL_GH_R:
         case LTL_GO_THETA:

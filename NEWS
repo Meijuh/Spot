@@ -2,6 +2,10 @@ New in spot 2.4.0.dev (not yet released)
 
   Tools:
 
+  - genltl learned to generate a new family of formulas, taken from
+    the SYNTCOMP competition on reactive synthesis:
+    --gf-equiv=RANGE      (GFa{1} & GFa{2} & ... & GFa{n}) <-> GFz
+
   - genltl learned to generate 4 new families of formulas, taken
     from Müller & Sickert's GandALF'17 paper:
     --ms-example=RANGE     GF(a1&X(a2&X(a3&...)))&F(b1&F(b2&F(b3&...)))

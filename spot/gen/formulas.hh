@@ -190,6 +190,7 @@ namespace spot
       LTL_DAC_PATTERNS,
       LTL_EH_PATTERNS,
       LTL_FXG_OR,
+      LTL_GF_EQUIV,
       LTL_GH_Q,
       LTL_GH_R,
       LTL_GO_THETA,

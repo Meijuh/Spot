@@ -61,7 +61,7 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    // Keep this alphabetically sorted (expect for aliases).
+    // Keep this alphabetically sorted (except for aliases).
     { nullptr, 0, nullptr, 0, "Pattern selection:", 1},
     // J. Geldenhuys and H. Hansen (Spin'06): Larger automata and less
     // work for LTL model checking.
@@ -86,6 +86,8 @@ static const argp_option options[] =
       "(range should be included in 1..12)", 0 },
     { "fxg-or", gen::LTL_FXG_OR, "RANGE", 0,
       "F(p0 | XG(p1 | XG(p2 | ... XG(pn))))", 0},
+    { "gf-equiv", gen::LTL_GF_EQUIV, "RANGE", 0,
+      "(GFa1 & GFa2 & ... & GFan) <-> GFz", 0},
     { "gh-q", gen::LTL_GH_Q, "RANGE", 0,
       "(F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))", 0 },
     { "gh-r", gen::LTL_GH_R, "RANGE", 0,
