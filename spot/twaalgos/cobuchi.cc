@@ -32,7 +32,6 @@
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/sbacc.hh>  // For issue #317
-
 #include <stack>
 #include <unordered_map>
 
@@ -69,7 +68,22 @@ namespace spot
                     bool named_states,
                     struct power_map& pmap)
     {
-      twa_graph_ptr res = product(aut_prod, tgba_powerset(aut_power, pmap));
+      twa_graph_ptr res = nullptr;
+
+      if (is_deterministic(aut_prod))
+        {
+          res = make_twa_graph(aut_prod, twa::prop_set::all());
+          auto v = new product_states;
+          res->set_named_prop("product-states", v);
+          for (unsigned s = 0; s < aut_power->num_states(); ++s)
+            v->emplace_back(s, s);
+          for (unsigned s = 0; s < aut_power->num_states(); ++s)
+            pmap.map_.push_back({s});
+        }
+      else
+        {
+          res = product(aut_prod, tgba_powerset(aut_power, pmap));
+        }
 
       if (named_states)
         {
