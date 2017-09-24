@@ -582,10 +582,10 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels trans-acc
 --BODY--
 State: 0
-[0] 0 {0}
 [!0] 0
-[0&!1] 1 {0}
+[0] 0 {0}
 [!0&!1] 1
+[0&!1] 1 {0}
 State: 1
 [!1] 1 {0}
 --END--"""

@@ -82,8 +82,8 @@ properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic stutter-invariant
 --BODY--
 State: 0
-[0] 0 {0}
 [!0] 0
+[0] 0 {0}
 --END--
 EOF
 diff output expected
@@ -103,8 +103,8 @@ properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic stutter-invariant
 --BODY--
 State: 0
-[0] 0 {0}
 [!0] 0
+[0] 0 {0}
 --END--
 EOF
 diff output expected
@@ -124,8 +124,8 @@ properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic
 --BODY--
 State: 0
-[0] 0 {0}
 [!0] 0
+[0] 0 {0}
 --END--
 EOF
 diff output expected
