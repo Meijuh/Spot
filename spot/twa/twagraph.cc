@@ -19,6 +19,7 @@
 
 #include <spot/twa/twagraph.hh>
 #include <spot/tl/print.hh>
+#include <spot/misc/bddlt.hh>
 #include <vector>
 #include <deque>
 
@@ -79,11 +80,11 @@ namespace spot
     delete namer;
   }
 
-    /// \brief Merge universal destinations
-    ///
-    /// If several states have the same universal destination, merge
-    /// them all.  Also remove unused destination, and any redundant
-    /// state in each destination.
+  /// \brief Merge universal destinations
+  ///
+  /// If several states have the same universal destination, merge
+  /// them all.  Also remove unused destination, and any redundant
+  /// state in each destination.
   void twa_graph::merge_univ_dests()
   {
     auto& g = get_graph();
@@ -198,7 +199,8 @@ namespace spot
                            return true;
                          if (lhs.dst > rhs.dst)
                            return false;
-                         return lhs.cond.id() < rhs.cond.id();
+                         bdd_less_than_stable lt;
+                         return lt(lhs.cond, rhs.cond);
                          // Do not sort on acceptance, we'll merge
                          // them.
                        });

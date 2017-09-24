@@ -183,6 +183,6 @@ properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic stutter-invariant
 --BODY--
 State: 0 "[1,8,9]"
-[1] 0
 [!1] 0 {0}
+[1] 0
 --END--"""

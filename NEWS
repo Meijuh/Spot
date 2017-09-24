@@ -2,6 +2,14 @@ New in spot 2.4.0.dev (not yet released)
 
   Nothing yet.
 
+  Bugs fixed:
+
+  - The twa_graph::mege_edges() function relied on BDD IDs to sort
+    edges.  This in turn caused some algorithm (like the
+    degeneralization) to produce slighltly different outputs (but
+    still correct outputs) depending on the BDD operations performed
+    before.
+
 New in spot 2.4 (2017-09-06)
 
   Build:

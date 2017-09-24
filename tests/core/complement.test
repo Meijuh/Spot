@@ -62,10 +62,10 @@ properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic stutter-invariant
 --BODY--
 State: 0
-[0&1] 0 {0 1}
 [!0&!1] 0
 [!0&1] 0 {1}
 [0&!1] 0 {0}
+[0&1] 0 {0 1}
 --END--
 HOA: v1
 States: 4

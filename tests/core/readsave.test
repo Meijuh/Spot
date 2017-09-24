@@ -363,10 +363,10 @@ digraph G {
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 0 [label="a & b\n{0,1}"]
   0 -> 0 [label="!a & !b"]
   0 -> 0 [label="!a & b\n{1}"]
   0 -> 0 [label="a & !b\n{0}"]
+  0 -> 0 [label="a & b\n{0,1}"]
 }
 EOF
 diff output expected
@@ -382,10 +382,10 @@ digraph G {
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 0 [label="a & b\n⓿❶"]
   0 -> 0 [label="!a & !b"]
   0 -> 0 [label="!a & b\n❶"]
   0 -> 0 [label="a & !b\n⓿"]
+  0 -> 0 [label="a & b\n⓿❶"]
 }
 EOF
 diff output expected
@@ -407,10 +407,10 @@ digraph G {
   I [label="", style=invis, width=0]
   I -> 0
   0 [label=<0>]
-  0 -> 0 [label=<a &amp; b<br/>$zero$one>]
   0 -> 0 [label=<!a &amp; !b>]
   0 -> 0 [label=<!a &amp; b<br/>$one>]
   0 -> 0 [label=<a &amp; !b<br/>$zero>]
+  0 -> 0 [label=<a &amp; b<br/>$zero$one>]
 }
 EOF
 diff output expected
