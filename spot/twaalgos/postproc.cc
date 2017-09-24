@@ -152,7 +152,7 @@ namespace spot
     if (scc_filter_ == 0)
       return a;
     // If the automaton is weak, using transition-based acceptance
-    // won't help, so let's preserve it.
+    // won't help, so let's preserve state-based acceptance.
     if ((state_based_ || a->prop_inherently_weak().is_true())
         && a->prop_state_acc().is_true())
       return scc_filter_states(a, arg);
