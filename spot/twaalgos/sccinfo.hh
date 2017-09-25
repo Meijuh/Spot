@@ -246,19 +246,21 @@ namespace spot
       return trivial_;
     }
 
-    /// \brief True if we are sure that the SCC is accepting
+    /// \brief True if we know that the SCC has an accepting cycle
     ///
     /// Note that both is_accepting() and is_rejecting() may return
     /// false if an SCC interesects a mix of Fin and Inf sets.
+    /// Call determine_unknown_acceptance() to decide.
     bool is_accepting() const
     {
       return accepting_;
     }
 
-    // True if we are sure that the SCC is rejecting
+    /// \brief True if we know that all cycles in the SCC are rejecting
     ///
     /// Note that both is_accepting() and is_rejecting() may return
     /// false if an SCC interesects a mix of Fin and Inf sets.
+    /// Call determine_unknown_acceptance() to decide.
     bool is_rejecting() const
     {
       return rejecting_;
@@ -295,8 +297,13 @@ namespace spot
   ///
   /// This takes twa_graph as input and compute its SCCs.  This
   /// class maps all input states to their SCCs, and vice-versa.
-  /// It allows iterating over all SCCs of the automaton, and check
+  /// It allows iterating over all SCCs of the automaton, and checks
   /// their acceptance or non-acceptance.
+  ///
+  /// SCC are numbered in reverse topological order, i.e. the SCC of the
+  /// initial state has the highest number, and if s1 is reachable from
+  /// s2, then s1 < s2. Many algorithms depend on this property to
+  /// determine in what order to iterate the SCCs.
   ///
   /// Additionally this class can be used on alternating automata, but
   /// in this case, universal transitions are handled like existential

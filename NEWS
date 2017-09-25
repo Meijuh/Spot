@@ -70,6 +70,11 @@ New in spot 2.4.0.dev (not yet released)
     will work either on f or its negation.
     (see https://spot.lrde.epita.fr/hierarchy.html for details).
 
+  Bugs fixed:
+
+  - spot::scc_info::determine_unknown_acceptance() incorrectly
+    considered some rejecting SCC as accepting.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
