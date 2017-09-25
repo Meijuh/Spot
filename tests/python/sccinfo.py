@@ -52,8 +52,6 @@ l3 = si.states_of(3)
 l = sorted(list(l0) + list(l1) + list(l2) + list(l3))
 assert l == [0, 1, 2, 3, 4]
 
-
-
 i = si.initial()
 todo = {i}
 seen = {i}
@@ -77,3 +75,34 @@ assert transi == [(0, 0, 1), (0, 3, 4), (3, 0, 7),
                   (3, 3, 9), (1, 1, 5), (2, 2, 6), (4, 4, 12)]
 
 assert not spot.is_weak_automaton(a, si)
+
+
+a = spot.automaton("""
+HOA: v1
+States: 4
+Start: 0
+AP: 1 "a"
+Acceptance: 2 Inf(0)&Fin(1)
+--BODY--
+State: 0
+[t] 0 {1}
+[t] 1 {0}
+State: 1
+[t] 1 {1}
+[t] 0 {1}
+[t] 2
+State: 2
+[t] 2 {1}
+[t] 3 {0}
+State: 3
+[t] 3 {1}
+[t] 2
+--END--
+""")
+si = spot.scc_info(a)
+si.determine_unknown_acceptance()
+assert si.scc_count() == 2
+assert si.is_accepting_scc(0)
+assert not si.is_rejecting_scc(0)
+assert si.is_rejecting_scc(1)
+assert not si.is_accepting_scc(1)

@@ -1,8 +1,9 @@
 New in spot 2.4.0.dev (not yet released)
 
-  Nothing yet.
-
   Bugs fixed:
+
+  - spot::scc_info::determine_unknown_acceptance() incorrectly
+    considered some rejecting SCC as accepting.
 
   - The twa_graph::mege_edges() function relied on BDD IDs to sort
     edges.  This in turn caused some algorithm (like the
