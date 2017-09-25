@@ -30,30 +30,20 @@ GF!b
 (b & GF!b) | (!b & FGb)
 b | (a & XF(b R a)) | (!a & XG(!b U !a))"""
 
-phi1 = phi1.split('\n')
-
-bdddict = spot.make_bdd_dict()
-
 def equivalent(a, phi):
-  negphi = spot.formula.Not(phi)
-  nega = spot.dualize(a)
-  a2 = spot.translate(phi, 'TGBA', 'SBAcc' )
-  nega2 = spot.translate(negphi, 'TGBA', 'SBAcc')
-  ra = spot.remove_alternation(a)
-  ran = spot.remove_alternation(nega)
-  return spot.product(spot.remove_alternation(a), nega2).is_empty()\
-         and spot.product(spot.remove_alternation(nega), a2).is_empty()
+    negphi = spot.formula.Not(phi)
+    nega = spot.dualize(a)
+    return not (spot.translate(negphi).intersects(a)
+                or spot.translate(phi).intersects(nega))
 
 def test_phi(phi):
-  a =  spot.translate(phi, 'TGBA', 'SBAcc')
-  a0 = spot.dualize(a)
+    a =  spot.translate(phi, 'TGBA', 'SBAcc')
+    res = spot.to_weak_alternating(spot.dualize(a))
+    assert equivalent(res, spot.formula.Not(spot.formula(phi)))
 
-  res = spot.to_weak_alternating(a0)
-  assert equivalent(res, spot.formula.Not(spot.formula(phi)))
-
-for p in phi1:
-  test_phi(p)
-
+for p in phi1.split('\n'):
+    print(p)
+    test_phi(p)
 
 phi2 = spot.formula("(G((F a) U b)) W a")
 a2 = spot.automaton("""
@@ -99,5 +89,3 @@ State: 6
 """)
 a2 = spot.to_weak_alternating(a2)
 assert equivalent(a2, phi2)
-
-
