@@ -120,6 +120,7 @@ static const argp_option options[] =
     { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     COMMON_LTL_OUTPUT_SPECS,
+    /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
@@ -127,8 +128,8 @@ static const argp_option options[] =
 
 const struct argp_child children[] =
   {
-    { &output_argp, 0, nullptr, -20 },
-    { &misc_argp, 0, nullptr, -1 },
+    { &output_argp, 0, nullptr, 0 },
+    { &misc_argp, 0, nullptr, 0 },
     { nullptr, 0, nullptr, 0 }
   };
 

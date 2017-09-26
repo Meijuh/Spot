@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -75,13 +75,14 @@ static const argp_option options[] = {
   { "simplify-bounds", OPT_SIMPLIFY_BOUNDS, nullptr, 0,
     "on a bounded unary operator, decrement one of the bounds, or set min to "
     "0 or max to unbounded", 15 },
-  { nullptr, 0, nullptr, 0, "Output options:", 20 },
-  { "max-count", 'n', "NUM", 0, "maximum number of mutations to output", 20 },
+    /**************************************************/
+  { nullptr, 0, nullptr, 0, "Output options:", -20 },
+  { "max-count", 'n', "NUM", 0, "maximum number of mutations to output", 0 },
   { "mutations", 'm', "NUM", 0, "number of mutations to apply to the "
     "formulae (default: 1)", 0 },
   { "sort", OPT_SORT, nullptr, 0, "sort the result by formula size", 0 },
   { nullptr, 0, nullptr, 0, "The FORMAT string passed to --format may use "
-    "the following interpreted sequences:", 21 },
+    "the following interpreted sequences:", -19 },
   { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
     "the formula (in the selected syntax)", 0 },
   { "%F", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
@@ -97,14 +98,15 @@ static const argp_option options[] = {
   { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
     "a single %", 0 },
   COMMON_LTL_OUTPUT_SPECS,
+    /**************************************************/
   { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
   { nullptr, 0, nullptr, 0, nullptr, 0 }
 };
 
 static const argp_child children[] = {
   { &finput_argp, 0, nullptr, 10 },
-  { &output_argp, 0, nullptr, 20 },
-  { &misc_argp, 0, nullptr, -1 },
+  { &output_argp, 0, nullptr, 0 },
+  { &misc_argp, 0, nullptr, 0 },
   { nullptr, 0, nullptr, 0 }
 };
 

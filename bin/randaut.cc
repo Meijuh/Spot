@@ -128,7 +128,7 @@ static const struct argp_child children[] =
   {
     { &aoutput_argp, 0, nullptr, 3 },
     { &aoutput_o_format_argp, 0, nullptr, 4 },
-    { &misc_argp, 0, nullptr, -1 },
+    { &misc_argp, 0, nullptr, 0 },
     { nullptr, 0, nullptr, 0 }
   };
 

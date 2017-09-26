@@ -76,6 +76,21 @@ do
                 exit_status=2
             fi
     esac
+
+    # Check --help text.  Set a high rmargin to workaround some
+    # bug in argp where an extra line it sometimes added if the end
+    # of the document string fall right into the rmargin.
+    ARGP_HELP_FMT=rmargin=10000 \
+    $top_builddir/bin/$binary --help > help-$binary.tmp
+    if ! perl -ne '/\n\s*\n(\s*-.*\n)/ && print("$1") && exit(1)' \
+            -0777 help-$binary.tmp > help-err
+    then
+        echo "bin/$binary --help has options after blank line;" \
+             "missing section header?"
+        cat help-err
+    fi
+    rm -f help-$binary.tmp help-err
+
 done
 
 exit $exit_status

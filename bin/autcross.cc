@@ -112,11 +112,16 @@ static const argp_option options[] =
     { "high", OPT_HIGH, nullptr, 0,
       "all available optimizations (slow, default)", 0 },
     /**************************************************/
-    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -2 },
+    { nullptr, 0, nullptr, 0, "Output options:", -15 },
     { "save-bogus", OPT_BOGUS, "[>>]FILENAME", 0,
-      "save formulas for which problems were detected in FILENAME", 0 },
+      "save formulas for which problems were detected in FILENAME", -1 },
     { "verbose", OPT_VERBOSE, nullptr, 0,
-      "print what is being done, for debugging", 0 },
+      "print what is being done, for debugging", -1 },
+    { nullptr, 0, nullptr, 0,
+      "If an output FILENAME is prefixed with '>>', it is open "
+      "in append mode instead of being truncated.", -14 },
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
@@ -124,7 +129,7 @@ const struct argp_child children[] =
   {
     { &autproc_argp, 0, nullptr, 0 },
     { &hoaread_argp, 0, "Parsing of automata:", 4 },
-    { &misc_argp, 0, nullptr, -2 },
+    { &misc_argp, 0, nullptr, -1 },
     { &color_argp, 0, nullptr, 0 },
     { nullptr, 0, nullptr, 0 }
   };

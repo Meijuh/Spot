@@ -62,27 +62,35 @@ enum solver
 
 static const argp_option options[] =
   {
-    { "algo", OPT_ALGO, "ALGO", 0,
-      "choose the parity game algorithm, valid ones are rec (Zielonka's"
-      " recursive algorithm, default) and qp (Calude et al.'s quasi-polynomial"
-      " time algorithm)", 0 },
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Input options:", 1 },
     { "input", OPT_INPUT, "PROPS", 0,
       "comma-separated list of uncontrollable (a.k.a. input) atomic"
       " propositions", 0},
     { "output", OPT_OUTPUT, "PROPS", 0,
       "comma-separated list of controllable (a.k.a. output) atomic"
       " propositions", 0},
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Fine tuning:", 10 },
+    { "algo", OPT_ALGO, "ALGO", 0,
+      "choose the parity game algorithm, valid ones are rec (Zielonka's"
+      " recursive algorithm, default) and qp (Calude et al.'s quasi-polynomial"
+      " time algorithm)", 0 },
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Output options:", 20 },
     { "print-pg", OPT_PRINT, nullptr, 0,
       "print the parity game in the pgsolver format, do not solve it", 0},
     { "realizability", OPT_REAL, nullptr, 0,
       "realizability only, do not synthesize the circuit", 0},
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 },
   };
 
 const struct argp_child children[] =
   {
-    { &finput_argp, 0, nullptr, 1 },
-    { &misc_argp, 0, nullptr, -1 },
+    { &finput_argp_headless, 0, nullptr, 0 },
+    { &misc_argp, 0, nullptr, 0 },
     { nullptr, 0, nullptr, 0 }
   };
 

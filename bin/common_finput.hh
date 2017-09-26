@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -41,6 +41,7 @@ extern jobs_t jobs;
 extern bool lbt_input;
 
 extern const struct argp finput_argp;
+extern const struct argp finput_argp_headless;
 
 int parse_opt_finput(int key, char* arg, struct argp_state* state);
 

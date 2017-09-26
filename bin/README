@@ -50,3 +50,10 @@ Recommendations when adding new tools or features:
      randaut -n N     means   --automata=N
   but in all cases, the intent is to specify the number of items
   to output.
+
+ - In the --help output, all options should appear in a named
+   section (like "Input options:", "Output options:"), and those
+   sections are best ordered according to one's mental view
+   of how the tool works: first, it reads the input, then
+   it processes it, then it outputs the result.  Keep --help
+   and --version at the very bottom.

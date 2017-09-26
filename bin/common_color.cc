@@ -69,7 +69,7 @@ static const argp_option options_color[] =
     { "color", OPT_COLOR, "WHEN", OPTION_ARG_OPTIONAL,
       "colorize output; WHEN can be 'never', 'always' (the default if "
       "--color is used without argument), or "
-      "'auto' (the default if --color is not used)", -2 },
+      "'auto' (the default if --color is not used)", -15 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 

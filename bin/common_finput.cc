@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
+// Copyright (C) 2012-2017 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -37,22 +37,27 @@ static bool lenient = false;
 static const argp_option options[] =
   {
     { nullptr, 0, nullptr, 0, "Input options:", 1 },
-    { "formula", 'f', "STRING", 0, "process the formula STRING", 0 },
+    { "formula", 'f', "STRING", 0, "process the formula STRING", 1 },
     { "file", 'F', "FILENAME[/COL]", 0,
       "process each line of FILENAME as a formula; if COL is a "
       "positive integer, assume a CSV file and read column COL; use "
-      "a negative COL to drop the first line of the CSV file", 0 },
+      "a negative COL to drop the first line of the CSV file", 1 },
     { "lbt-input", OPT_LBT, nullptr, 0,
-      "read all formulas using LBT's prefix syntax", 0 },
+      "read all formulas using LBT's prefix syntax", 1 },
     { "lenient", OPT_LENIENT, nullptr, 0,
       "parenthesized blocks that cannot be parsed as subformulas "
-      "are considered as atomic properties", 0 },
+      "are considered as atomic properties", 1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 const struct argp finput_argp = { options, parse_opt_finput,
                                   nullptr, nullptr, nullptr,
                                   nullptr, nullptr };
+
+const struct argp finput_argp_headless = { options + 1, parse_opt_finput,
+                                           nullptr, nullptr, nullptr,
+                                           nullptr, nullptr };
+
 
 int
 parse_opt_finput(int key, char* arg, struct argp_state*)

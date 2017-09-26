@@ -153,7 +153,7 @@ static const argp_option options[] =
       "[not supported for alternating automata]", 0 },
     { "unambiguous", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
-    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -2 },
+    { nullptr, 0, nullptr, 0, "Output options:", -15 },
     { "grind", OPT_GRIND, "[>>]FILENAME", 0,
       "for each formula for which a problem was detected, write a simpler " \
       "formula that fails on the same test in FILENAME", 0 },
@@ -162,8 +162,10 @@ static const argp_option options[] =
     { "verbose", OPT_VERBOSE, nullptr, 0,
       "print what is being done, for debugging", 0 },
     { nullptr, 0, nullptr, 0,
-      "If an output FILENAME is prefixed with '>>', is it open "
-      "in append mode instead of being truncated.", -1 },
+      "If an output FILENAME is prefixed with '>>', it is open "
+      "in append mode instead of being truncated.", -14 },
+    /**************************************************/
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
@@ -172,8 +174,8 @@ const struct argp_child children[] =
     { &finput_argp, 0, nullptr, 1 },
     { &trans_argp, 0, nullptr, 0 },
     { &hoaread_argp, 0, "Parsing of automata:", 4 },
-    { &misc_argp, 0, nullptr, -2 },
     { &color_argp, 0, nullptr, 0 },
+    { &misc_argp, 0, nullptr, -1 },
     { nullptr, 0, nullptr, 0 }
   };
 
