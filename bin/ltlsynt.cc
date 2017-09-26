@@ -27,6 +27,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "argmatch.h"
+
 #include "common_aoutput.hh"
 #include "common_finput.hh"
 #include "common_setup.hh"
@@ -54,12 +56,6 @@ enum
   OPT_REAL
 };
 
-enum solver
-{
-  QP,
-  REC
-};
-
 static const argp_option options[] =
   {
     /**************************************************/
@@ -72,7 +68,7 @@ static const argp_option options[] =
       " propositions", 0},
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Fine tuning:", 10 },
-    { "algo", OPT_ALGO, "ALGO", 0,
+    { "algo", OPT_ALGO, "qp|rec", 0,
       "choose the parity game algorithm, valid ones are rec (Zielonka's"
       " recursive algorithm, default) and qp (Calude et al.'s quasi-polynomial"
       " time algorithm)", 0 },
@@ -104,7 +100,27 @@ std::unordered_map<unsigned, unsigned> bddvar_to_outputnum;
 
 bool opt_print_pg(false);
 bool opt_real(false);
-solver opt_solver(REC);
+
+enum solver
+{
+  QP,
+  REC
+};
+
+static char const *const solver_args[] =
+{
+  "qp", "quasi-polynomial",
+  "recursive",
+  nullptr
+};
+static solver const solver_types[] =
+{
+  QP, QP,
+  REC,
+};
+ARGMATCH_VERIFY(solver_args, solver_types);
+
+solver opt_solver = REC;
 
 namespace
 {
@@ -687,15 +703,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_print_pg = true;
       break;
     case OPT_ALGO:
-      if (arg && strcmp(arg, "rec") == 0)
-        opt_solver = REC;
-      else if (arg && strcmp(arg, "qp") == 0)
-        opt_solver = QP;
-      else
-        {
-          std::cout << "Unknown solver: " << (arg ? arg : "") << '\n';
-          return 1;
-        }
+      opt_solver = XARGMATCH("--algo", arg, solver_args, solver_types);
       break;
     case OPT_REAL:
       opt_real = true;
