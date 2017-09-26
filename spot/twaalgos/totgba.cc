@@ -130,7 +130,9 @@ namespace spot
     acc_cond::mark_t fin;
     std::tie(inf, fin) = in->get_acceptance().used_inf_fin_sets();
     unsigned p = inf.count();
-    acc_cond::mark_t fin_not_inf = fin - inf;
+    // At some point we will remove anything that is not used as Inf.
+    acc_cond::mark_t to_strip = in->acc().all_sets() - inf;
+    acc_cond::mark_t inf_alone = 0U;
 
     if (!p)
       return remove_fin(in);
@@ -140,8 +142,11 @@ namespace spot
     std::vector<acc_cond::mark_t> inf_to_finpairs(numsets, 0U);
     for (auto pair: pairs)
       {
-        for (unsigned mark: pair.fin.sets())
-          fin_to_infpairs[mark] |= pair.inf;
+        if (pair.fin)
+          for (unsigned mark: pair.fin.sets())
+            fin_to_infpairs[mark] |= pair.inf;
+        else
+          inf_alone |= pair.inf;
 
         for (unsigned mark: pair.inf.sets())
           inf_to_finpairs[mark] |= pair.fin;
@@ -231,11 +236,14 @@ namespace spot
                 for (unsigned mark: (t.acc & fin).sets())
                   pend |= fin_to_infpairs[mark];
 
+                // If we see some Inf set immediately, they are not
+                // pending anymore.
                 pend -= t.acc & inf;
+
                 // Label this transition with all non-pending
                 // inf sets.  The strip will shift everything
                 // to the correct numbers in the targets.
-                acc = (inf - pend).strip(fin - inf);
+                acc = (inf - pend).strip(to_strip);
                 // Adjust the pending sets to what will be necessary
                 // required on the destination state.
                 if (sbacc)
@@ -248,14 +256,14 @@ namespace spot
 
                     pend -= a & inf;
                   }
-                pend |= scc_inf_wo_fin;
+                pend |= inf_alone;
               }
             else if (no_fin && maybe_acc)
               {
                 // If the acceptance is (Fin(0) | Inf(1)) & Inf(2)
-                // but we do not see any Fin set in this SCC, an
+                // but we do not see any Fin set in this SCC, a
                 // mark {2} should become {1,2} before striping.
-                acc = (t.acc | (inf - scc_inf_wo_fin)).strip(fin_not_inf);
+                acc = (t.acc | (inf - scc_inf_wo_fin)).strip(to_strip);
               }
             assert((acc & out->acc().all_sets()) == acc);
 
@@ -291,7 +299,7 @@ namespace spot
 
                     stpend -= a & inf;
                   }
-                st2gba_state d(t.dst, stpend | scc_inf_wo_fin);
+                st2gba_state d(t.dst, stpend | inf_alone);
                 // Have we already seen this destination?
                 unsigned dest;
                 auto dres = bs2num.emplace(d, 0);
