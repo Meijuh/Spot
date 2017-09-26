@@ -1281,7 +1281,8 @@ namespace spot
         props = children[0]->props & children[1]->props;
         is_.eventual = false;
         is_.universal = false;
-        is_.sere_formula = is_.boolean;
+        is_.sere_formula = (children[0]->is_boolean()
+                            && children[1]->is_sere_formula());
         is_.sugar_free_boolean = false;
         is_.in_nenoform = false;
         is_.syntactic_safety = (children[0]->is_syntactic_guarantee()

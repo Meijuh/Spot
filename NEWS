@@ -2,6 +2,9 @@ New in spot 2.4.0.dev (not yet released)
 
   Bugs fixed:
 
+  - The formula class failed to build {a->c[*]} althought it is
+    alowed in our grammar.
+
   - spot::scc_info::determine_unknown_acceptance() incorrectly
     considered some rejecting SCC as accepting.
 
