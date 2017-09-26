@@ -70,11 +70,6 @@ New in spot 2.4.0.dev (not yet released)
     will work either on f or its negation.
     (see https://spot.lrde.epita.fr/hierarchy.html for details).
 
-  Bugs fixed:
-
-  - spot::scc_info::determine_unknown_acceptance() incorrectly
-    considered some rejecting SCC as accepting.
-
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
@@ -85,6 +80,16 @@ New in spot 2.4.0.dev (not yet released)
     spot::scc_info::acc_sets_of() respectively.
 
   Bugs fixed:
+
+  - spot::scc_info::determine_unknown_acceptance() incorrectly
+    considered some rejecting SCC as accepting.
+
+  - spot::streett_to_generalized_buchi() could generate automata with
+    empty language if some Fin set did not intersect all accepting
+    SCCs.  As a consequence, some Streett-like automata were
+    considered empty even though they were not.  Also, the same
+    function could crash on input that had a Streett-like acceptance
+    not using all declared sets.
 
   - The twa_graph::mege_edges() function relied on BDD IDs to sort
     edges.  This in turn caused some algorithm (like the

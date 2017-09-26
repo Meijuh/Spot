@@ -1051,6 +1051,15 @@ namespace spot
     // Returns a number of pairs (>=0) if Streett, or -1 else.
     int is_streett() const;
 
+    /// \brief Rabin/streett pairs used by is_rabin_like and is_streett_like.
+    ///
+    /// These pairs hold two marks which can each contain one or no set.
+    ///
+    /// For instance is_streett_like() rewrites  Inf(0)&(Inf(2)|Fin(1))&Fin(3)
+    /// as three pairs: [(fin={},inf={0}),(fin={1},inf={2}),(fin={3},inf={})].
+    ///
+    /// Empty marks should be interpreted in a way that makes them
+    /// false in Streett, and true in Rabin.
     struct SPOT_API rs_pair
     {
       rs_pair() = default;
