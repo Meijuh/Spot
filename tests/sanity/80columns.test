@@ -1,6 +1,6 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012, 2016 Laboratoire de Recherche et Développement de
+# Copyright (C) 2012, 2016, 2017 Laboratoire de Recherche et Développement de
 # l'Epita (LRDE).
 # Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
 # (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -42,7 +42,7 @@ fi
 x="$x$x$x$x$x$x$x$x$x" # 9x
 x="$x$x$x$x$x$x$x$x$x" # 81x
 
-for dir in "${srcdir-.}/../../spot" "${srcdir-.}/.."; do
+for dir in "${srcdir-.}/../../spot" "${srcdir-.}/../../bin" "${srcdir-.}/.."; do
 
   find "$dir" \(    -name "${1-*}.hh" \
                  -o -name "${1-*}.hxx" \

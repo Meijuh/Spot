@@ -643,8 +643,10 @@ namespace
                   std::cout << "REALIZABLE\n";
                   if (!opt_real)
                     {
-                      auto strat_aut = strat_to_aut(pg, strategy, dpa, all_outputs);
-                      auto circuit = aut_to_aiger(strat_aut, all_inputs, all_outputs);
+                      auto strat_aut =
+                        strat_to_aut(pg, strategy, dpa, all_outputs);
+                      auto circuit =
+                        aut_to_aiger(strat_aut, all_inputs, all_outputs);
                       circuit.print();
                     }
                 }
