@@ -687,7 +687,7 @@ namespace spot
 
             // Nondeterministically jump to level ∅.  We need to do
             // that only once per cycle.  As an approximation, we
-            // only to that for transition where t.src >= t.dst as
+            // only do that for transitions where t.src >= t.dst as
             // this has to occur at least once per cycle.
             if (pend == orig_copy && (t.src >= t.dst) && maybe_acc && !no_fin)
               {
