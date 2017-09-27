@@ -70,6 +70,28 @@ New in spot 2.4.0.dev (not yet released)
     will work either on f or its negation.
     (see https://spot.lrde.epita.fr/hierarchy.html for details).
 
+  - The new function spot::is_colored() checks if an automaton is colored
+    (i.e., every transition belongs to exactly one acceptance set)
+
+  - The new function spot::change_parity() can convert an automaton with parity
+    acceptance condition to an equivalent automaton with another type of parity
+    acceptance condition. The type of a parity acceptance condition states
+    whether it is an odd or even parity acceptance condition, and whether it is
+    a min or max parity acceptance condition.
+
+  - The new function spot::colorize_parity() can colorize an automaton with
+    a parity acceptance condition. The resulting automaton is a parity automaton
+    and every transition belongs to exactly one acceptance set.
+
+  - The new function spot::cleanup_parity_acceptance() can simplify the
+    acceptance condition of an automaton with parity acceptance condition. It
+    removes the unused acceptance sets and merges acceptance sets to keep the
+    parity acceptance condition.
+
+  - The new functions spot::parity_product() and spot::parity_product_or()
+    compute respectively the intersection and the union of two automata with
+    parity acceptance condition and keep the parity acceptance condition.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
