@@ -582,7 +582,9 @@ namespace spot
         res->set_init_state(gb->get_state(previous_class_
                                           [a_->get_init_state_number()].id()));
 
-        res->merge_edges(); // FIXME: is this really needed?
+        res->merge_edges(); // This helps merging some edges with
+                            // identical conditions, but different
+                            // mark sets.
 
         // Mark all accepting state in a second pass, when
         // dealing with SBA in cosimulation.
@@ -616,8 +618,10 @@ namespace spot
                          true, // stutter inv.
                        });
         // !unambiguous and !semi-deterministic are not preserved
-        if (!Cosimulation)
-          res->prop_universal(nb_minato == nb_satoneset);
+        if (!Cosimulation && nb_minato == nb_satoneset)
+          // Note that nb_minato != nb_satoneset does not imply
+          // non-deterministic, because of the merge_edges() above.
+          res->prop_universal(true);
         if (Sba)
           res->prop_state_acc(true);
         return res;

@@ -265,3 +265,8 @@ ltl2tgba -xsimul=1 --low "$f1" "$f2" > res2
 diff res1 res2
 
 test 3 = `ltl2tgba -f 'G(Fa & Fb) U a' --stats=%s`
+
+# issue #286, the following automaton caused the print_hoa() function to
+# report inconsistent "universal" property.
+ltl2tgba --low 'X(((1) U (p1)) | (((p1) | (F(p0))) U ((0) R ((p2) M (p1)))))'>o
+grep deterministic o
