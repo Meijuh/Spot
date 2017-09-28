@@ -91,6 +91,9 @@ has an accepting self-loop, then level L is replaced by the accepting \
 level, as it might favor finding accepting cycles earlier.  If \
 degen-lowinit is non-zero, then level L is always used without looking \
 for the presence of an accepting self-loop.") },
+    { DOC("degen-remscc", "If non-zero (the default), make sure the output \
+of the degenalization has as many SCCs as the input, by removing superfluous \
+ones.") },
     { DOC("det-scc", "Set to 0 to disable scc-based optimizations in \
 the determinization algorithm.") },
     { DOC("det-simul", "Set to 0 to disable simulation-based optimizations in \

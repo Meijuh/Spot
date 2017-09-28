@@ -62,6 +62,7 @@ namespace spot
         degen_cache_ = opt->get("degen-lcache", 1);
         degen_lskip_ = opt->get("degen-lskip", 1);
         degen_lowinit_ = opt->get("degen-lowinit", 0);
+        degen_remscc_ = opt->get("degen-remscc", 1);
         det_scc_ = opt->get("det-scc", 1);
         det_simul_ = opt->get("det-simul", 1);
         det_stutter_ = opt->get("det-stutter", 1);
@@ -142,7 +143,7 @@ namespace spot
     auto d = degeneralize(a,
                           degen_reset_, degen_order_,
                           degen_cache_, degen_lskip_,
-                          degen_lowinit_);
+                          degen_lowinit_, degen_remscc_);
     return do_sba_simul(d, ba_simul_);
   }
 

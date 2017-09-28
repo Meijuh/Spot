@@ -26,6 +26,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include <memory>
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/twa/bddprint.hh>
 
@@ -240,7 +241,8 @@ namespace spot
     twa_graph_ptr
     degeneralize_aux(const const_twa_graph_ptr& a, bool use_z_lvl,
                      bool use_cust_acc_orders, int use_lvl_cache,
-                     bool skip_levels, bool ignaccsl)
+                     bool skip_levels, bool ignaccsl,
+                     bool remove_extra_scc)
     {
       if (!a->acc().is_generalized_buchi())
         throw std::runtime_error
@@ -249,7 +251,10 @@ namespace spot
         throw std::runtime_error
           ("degeneralize() does not support alternation");
 
-      bool use_scc = use_lvl_cache || use_cust_acc_orders || use_z_lvl;
+      bool use_scc = (use_lvl_cache
+                      || use_cust_acc_orders
+                      || use_z_lvl
+                      || remove_extra_scc);
 
       bdd_dict_ptr dict = a->get_dict();
 
@@ -305,12 +310,11 @@ namespace spot
       std::vector<std::pair<unsigned, bool>> lvl_cache(a->num_states());
 
       // Compute SCCs in order to use any optimization.
-      scc_info* m = nullptr;
-      if (use_scc)
-        m = new scc_info(a);
+      std::unique_ptr<scc_info> m = use_scc ?
+        std::make_unique<scc_info>(a) : nullptr;
 
       // Cache for common outgoing/incoming acceptances.
-      inout_acc inout(a, m);
+      inout_acc inout(a, m.get());
 
       queue_t todo;
 
@@ -337,7 +341,7 @@ namespace spot
                 if (!skip_levels)
                   break;
               }
-          // There is not accepting level for TBA, let reuse level 0.
+          // There is no accepting level for TBA, let reuse level 0.
           if (!want_sba && s.second == order.size())
             s.second = 0;
         }
@@ -373,9 +377,8 @@ namespace spot
 
           // Level cache stores one encountered level for each state
           // (the value of use_lvl_cache determinates which level
-          // should be remembered).
-          // When entering an SCC first the lvl_cache is checked.
-          // If such state exists level from chache is used.
+          // should be remembered).  This cache is used when
+          // re-entering the SCC.
           if (use_lvl_cache)
             {
               unsigned lvl = ds.second;
@@ -612,10 +615,49 @@ namespace spot
       std::cout << '\n';
       orders.print();
 #endif
-
-      delete m;
-
       res->merge_edges();
+
+      unsigned res_ns = res->num_states();
+      if (!remove_extra_scc || res_ns <= a->num_states())
+        return res;
+
+      scc_info si_res(res);
+      unsigned res_scc_count = si_res.scc_count();
+      if (res_scc_count <= m->scc_count())
+        return res;
+
+      // If we reach this place, we have more SCCs in the output than
+      // in the input.  This means that we have created some redundant
+      // SCCs.  Often, these are trivial SCCs created in front of
+      // their larger sisters, because we did not pick the correct
+      // level when entering the SCC for the first time, and the level
+      // we picked has not been seen again when exploring the SCC.
+      // But it could also be the case that by entering the SCC in two
+      // different ways, we create two clones of the SCC (I haven't
+      // encountered any such case, but I do not want to rule it out
+      // in the code below).
+      //
+      // Now we will iterate over the SCCs in topological order to
+      // remember the "bottomost" SCCs that contain each original
+      // state.  If an original state is duplicated in a higher SCC,
+      // it can be shunted away.  Amen.
+      std::vector<unsigned> bottomost_occurence(a->num_states());
+      {
+        unsigned n = res_scc_count;
+        do
+          for (unsigned s: si_res.states_of(--n))
+            bottomost_occurence[(*orig_states)[s]] = s;
+        while (n);
+      }
+      std::vector<unsigned> retarget(res_ns);
+      for (unsigned n = 0; n < res_ns; ++n)
+        {
+          unsigned other = bottomost_occurence[(*orig_states)[n]];
+          retarget[n] = (si_res.scc_of(n) != si_res.scc_of(other)) ? other : n;
+        }
+      for (auto& e: res->edges())
+        e.dst = retarget[e.dst];
+      res->purge_unreachable_states();
       return res;
     }
   }
@@ -623,7 +665,8 @@ namespace spot
   twa_graph_ptr
   degeneralize(const const_twa_graph_ptr& a,
                bool use_z_lvl, bool use_cust_acc_orders,
-               int use_lvl_cache, bool skip_levels, bool ignaccsl)
+               int use_lvl_cache, bool skip_levels, bool ignaccsl,
+               bool remove_extra_scc)
   {
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
@@ -631,13 +674,15 @@ namespace spot
       return std::const_pointer_cast<twa_graph>(a);
 
     return degeneralize_aux<true>(a, use_z_lvl, use_cust_acc_orders,
-                                  use_lvl_cache, skip_levels, ignaccsl);
+                                  use_lvl_cache, skip_levels, ignaccsl,
+                                  remove_extra_scc);
   }
 
   twa_graph_ptr
   degeneralize_tba(const const_twa_graph_ptr& a,
                    bool use_z_lvl, bool use_cust_acc_orders,
-                   int use_lvl_cache, bool skip_levels, bool ignaccsl)
+                   int use_lvl_cache, bool skip_levels, bool ignaccsl,
+                   bool remove_extra_scc)
   {
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
@@ -645,6 +690,7 @@ namespace spot
       return std::const_pointer_cast<twa_graph>(a);
 
     return degeneralize_aux<false>(a, use_z_lvl, use_cust_acc_orders,
-                                   use_lvl_cache, skip_levels, ignaccsl);
+                                   use_lvl_cache, skip_levels, ignaccsl,
+                                   remove_extra_scc);
   }
 }

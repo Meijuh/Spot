@@ -207,6 +207,7 @@ namespace spot
     int degen_cache_ = 1;
     bool degen_lskip_ = true;
     bool degen_lowinit_ = false;
+    bool degen_remscc_ = true;
     bool det_scc_ = true;
     bool det_simul_ = true;
     bool det_stutter_ = true;

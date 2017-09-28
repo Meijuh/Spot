@@ -41,7 +41,7 @@ cat >formulas <<'EOF'
 1,6,GF!a U Xa
 1,5,(a | G(a M !b)) W Fc
 1,6,Fa W Xb
-1,10,X(a R ((!b & F!c) M X!a))
+1,9,X(a R ((!b & F!c) M X!a))
 1,2,XG!a R Fb
 1,4,GFc | (a & Fb)
 1,6,X(a R (Fb R F!b))

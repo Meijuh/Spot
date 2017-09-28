@@ -247,6 +247,7 @@ TESTS_twa = \
   core/degendet.test \
   core/degenid.test \
   core/degenlskip.test \
+  core/degenscc.test \
   core/randomize.test \
   core/lbttparse.test \
   core/scc.test \

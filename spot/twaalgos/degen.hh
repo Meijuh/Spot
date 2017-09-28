@@ -41,7 +41,9 @@ namespace spot
   /// smallest number, 3 to keep the largest level, and 1 to keep the
   /// first level found). If \a ignaccsl is set, we do not directly
   /// jump to the accepting level if the entering state has an
-  /// accepting self-loop.
+  /// accepting self-loop.  If \a remove_extra_scc is set (the default)
+  /// we ensure that the output automaton has as many SCCs as the input
+  /// by removing superfluous SCCs.
   ///
   /// Any of these three options will cause the SCCs of the automaton
   /// \a a to be computed prior to its actual degeneralization.
@@ -65,13 +67,15 @@ namespace spot
                bool use_cust_acc_orders = false,
                int use_lvl_cache = 1,
                bool skip_levels = true,
-               bool ignaccsl = false);
+               bool ignaccsl = false,
+               bool remove_extra_scc = true);
 
   SPOT_API twa_graph_ptr
   degeneralize_tba(const const_twa_graph_ptr& a, bool use_z_lvl = true,
                    bool use_cust_acc_orders = false,
                    int use_lvl_cache = 1,
                    bool skip_levels = true,
-                   bool ignaccsl = false);
+                   bool ignaccsl = false,
+                   bool remove_extra_scc = true);
   /// \@}
 }

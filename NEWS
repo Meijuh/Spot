@@ -96,6 +96,14 @@ New in spot 2.4.0.dev (not yet released)
     transitions on the fly from an alternating Büchi automaton
     using Miyano and Hayashi's breakpoint algorithm.
 
+  - In some cases, spot::degeneralize() would output Büchi automata
+    with more SCCs than its input.  This was hard to notice, because
+    very often simulation-based simplifications remove those extra
+    SCCs.  This situation is now detected by spot::degeneralized() and
+    fixed before returning the automaton.  A new optionnal argument
+    can be passed to disable this behavior (or use -x degen-remscc=0
+    from the command-line).
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
