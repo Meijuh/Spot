@@ -126,6 +126,9 @@ New in spot 2.4.0.dev (not yet released)
     still correct outputs) depending on the BDD operations performed
     before.
 
+  - spot::simulation() would occasionally incorrectly flag an
+    automaton as non-deterministic.
+
 New in spot 2.4 (2017-09-06)
 
   Build:
