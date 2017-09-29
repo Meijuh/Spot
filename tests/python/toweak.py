@@ -21,7 +21,6 @@ import spot
 
 phi1 = """GFb
 X(!b | GF!a)
-!a U X(b | GF!b)
 GFa
 G(a M b)
 (!a | b) & GFb
