@@ -2,8 +2,8 @@ New in spot 2.4.0.dev (not yet released)
 
   Bugs fixed:
 
-  - The formula class failed to build {a->c[*]} althought it is
-    alowed in our grammar.
+  - The formula class failed to build {a->c[*]} although it is
+    allowed by our grammar.
 
   - spot::scc_info::determine_unknown_acceptance() incorrectly
     considered some rejecting SCC as accepting.
@@ -15,14 +15,13 @@ New in spot 2.4.0.dev (not yet released)
     function could crash on input that had a Streett-like acceptance
     not using all declared sets.
 
-  - The twa_graph::mege_edges() function relied on BDD IDs to sort
-    edges.  This in turn caused some algorithm (like the
-    degeneralization) to produce slighltly different outputs (but
-    still correct outputs) depending on the BDD operations performed
-    before.
+  - The twa_graph::merge_edges() function relied on BDD IDs to sort
+    edges.  This in turn caused some algorithms (like the
+    degeneralization) to produce slighltly different (but still correct)
+    outputs depending on the BDD operations performed before.
 
-  - spot::simulation() would occasionally incorrectly flag an
-    automaton as non-deterministic.
+  - spot::simulation() could incorrectly flag an automaton as
+    non-deterministic.
 
 New in spot 2.4 (2017-09-06)
 
