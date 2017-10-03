@@ -609,7 +609,7 @@ SPOT macros
     that a compiler might not see as unreachable.
 
   * Use SPOT_API in front of functions and class that should be
-    exported by the shared library.  See "Exporting symbolss" above.
+    exported by the shared library.  See "Exporting symbols" above.
 
   * Use SPOT_ASSERT(...) if you ever have to put an assertion in
     some header file.  See "Assertions" above.

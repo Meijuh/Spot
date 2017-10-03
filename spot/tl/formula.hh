@@ -72,7 +72,7 @@ namespace spot
     G,                         ///< Globally
     Closure,                   ///< PSL Closure
     NegClosure,                ///< Negated PSL Closure
-    NegClosureMarked,          ///< marked version of the Negated PSL Clusure
+    NegClosureMarked,          ///< marked version of the Negated PSL Closure
     // binary operators
     Xor,                       ///< Exclusive Or
     Implies,                   ///< Implication
