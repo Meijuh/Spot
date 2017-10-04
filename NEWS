@@ -132,6 +132,11 @@ New in spot 2.4.1.dev (not yet released)
     https://spot.lrde.epita.fr/ipynb/stutter-inv-states.html for
     examples.
 
+  - Determinization has been heavily rewritten and optimized. The algorithm has
+    (almost) not changed, but it runs muuuch faster now. It also features an
+    optimization for stutter-invariant automata that may produce slightly
+    smaller automata.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
