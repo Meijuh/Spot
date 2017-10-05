@@ -899,7 +899,7 @@ following figure:
 #+BEGIN_SRC sh :results silent :exports results
   ltl2tgba 'p0 U p1' --dot=x | dot2tex --autosize --nominsize > dot2tex.tex
   latexmk --pdf dot2tex.tex
-  convert -density 300 -scale='50%' -trim dot2tex.pdf dot2tex.png
+  convert -density 300 -scale '50%' -trim dot2tex.pdf dot2tex.png
   latexmk -C dot2tex.tex
   rm -f dot2tex.tex
 #+END_SRC
@@ -914,7 +914,7 @@ ltl2tgba -G -D '!a & FGa' --dot=sbarx | dot2tex --autosize --nominsize > out.tex
 #+BEGIN_SRC sh :results silent :exports results
   ltl2tgba -G -D '!a & FGa' --dot=sbarx | dot2tex --autosize --nominsize > dot2tex2.tex
   latexmk --pdf dot2tex2.tex
-  convert -density 300 -scale='50%' -trim dot2tex2.pdf dot2tex2.png
+  convert -density 300 -scale '50%' -trim dot2tex2.pdf dot2tex2.png
   latexmk -C dot2tex2.tex
   rm -f dot2tex2.tex
 #+END_SRC
