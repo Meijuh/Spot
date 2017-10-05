@@ -1,4 +1,4 @@
-New in spot 2.4.0.dev (not yet released)
+New in spot 2.4.1.dev (not yet released)
 
   Tools:
 
@@ -112,6 +112,8 @@ New in spot 2.4.0.dev (not yet released)
     spot::scc_info::acc() are deprecated. They have been renamed
     spot::scc_info::marks(), spot::scc_info::marks_of() and
     spot::scc_info::acc_sets_of() respectively.
+
+New in spot 2.4.1 (2017-10-05)
 
   Bugs fixed:
 
