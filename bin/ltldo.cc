@@ -57,10 +57,12 @@ enum {
 
 static const argp_option options[] =
   {
+    /**************************************************/
     { nullptr, 0, nullptr, 0, "Error handling:", 4 },
     { "errors", OPT_ERRORS, "abort|warn|ignore", 0,
       "how to deal with tools returning with non-zero exit codes or "
       "automata that ltldo cannot parse (default: abort)", 0 },
+    /**************************************************/
     { nullptr, 0, nullptr, 0, "Output selection:", 5 },
     { "smallest", OPT_SMALLEST, "FORMAT", OPTION_ARG_OPTIONAL,
       "for each formula select the smallest automaton given by all "
@@ -68,6 +70,8 @@ static const argp_option options[] =
     { "greatest", OPT_GREATEST, "FORMAT", OPTION_ARG_OPTIONAL,
       "for each formula select the greatest automaton given by all "
       "translators, using FORMAT for ordering (default is %s,%e)", 0 },
+    { "max-count", 'n', "NUM", 0, "output at most NUM automata", 0 },
+    /**************************************************/
     { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
@@ -121,6 +125,7 @@ static errors_type errors_opt;
 
 static int best_type = 0;       // -1 smallest, 1 greatest, 0 no selection
 static const char* best_format = "%s,%e";
+static int opt_max_count = -1;
 
 static char const *const errors_args[] =
 {
@@ -166,6 +171,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       best_type = -1;
       if (arg)
         best_format = arg;
+      break;
+    case 'n':
+      opt_max_count = to_pos_int(arg);
       break;
     case ARGP_KEY_ARG:
       if (arg[0] == '-' && !arg[1])
@@ -318,6 +326,19 @@ namespace
       return 0;
     }
 
+    void output_aut(const spot::twa_graph_ptr& aut,
+                    spot::process_timer& ptimer,
+                    spot::formula f,
+                    const char* filename, int loc,
+                    const char* csv_prefix, const char* csv_suffix)
+    {
+      static long int output_count = 0;
+      ++output_count;
+      printer.print(aut, ptimer, f, filename, loc, nullptr,
+                    csv_prefix, csv_suffix);
+      if (opt_max_count >= 0 && output_count >= opt_max_count)
+        abort_run = true;
+    }
 
     int
     process_formula(spot::formula f,
@@ -385,17 +406,18 @@ namespace
                 }
               else
                 {
-                  printer.print(aut, timer, f, filename, linenum,
-                                nullptr, prefix, suffix);
+                  output_aut(aut, timer, f, filename, linenum,
+                             prefix, suffix);
+                  if (abort_run)
+                    break;
                 }
             }
         }
       if (best_aut)
         {
           cmdname = best_cmdname;
-          printer.print(best_aut, best_timer,
-                        f, filename, linenum,
-                        nullptr, prefix, suffix);
+          output_aut(best_aut, best_timer, f, filename, linenum,
+                     prefix, suffix);
         }
 
       spot::cleanup_tmpfiles();

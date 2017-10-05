@@ -34,6 +34,8 @@ New in spot 2.4.1.dev (not yet released)
   - ltlsynt is a new tool for synthesizing AIGER circuits from LTL/PSL
     formulas.
 
+  - ltldo learned to limit the number of automata it outputs using -n.
+
   Library:
 
   - Rename three methods of spot::scc_info. New names are clearer. The

@@ -148,6 +148,10 @@ $ltldo '{name} foo/bar/ltl2baextended' -f GFa 2>stderr && exit 1
 grep 'error:.*foo/bar/ltl2baextended -f .*>.*' stderr
 
 
+test 2 = `genltl --and-gf=1..4 | ltldo ltl2tgba -n2 | autfilt -c`
+test 3 = `genltl --and-gf=1..2 | ltldo ltl2tgba 'ltl2tgba -s' -n3 | autfilt -c`
+
+
 genltl --rv-counter=9 | ltldo ltl2tgba --stats='
 print("%[up]R + %[uc]R + %[sp]R + %[sc]R - %R\n");
 die if abs(%[up]R + %[uc]R + %[sp]R + %[sc]R - %R) > 0.02;' > code.pl
