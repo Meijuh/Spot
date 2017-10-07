@@ -27,7 +27,6 @@
 #include <spot/twa/bddprint.hh>
 #include <spot/twaalgos/reachiter.hh>
 #include <spot/twaalgos/sccfilter.hh>
-#include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/sepsets.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/misc/bddlt.hh>
@@ -163,8 +162,6 @@ namespace spot
         if (!in->is_existential())
           throw std::runtime_error
             ("direct_simulation() does not yet support alternation");
-
-        scc_info_.reset(new scc_info(in));
 
         unsigned ns = in->num_states();
         size_a_ = ns;
@@ -709,8 +706,6 @@ namespace spot
       bdd all_proms_;
 
       automaton_size stat;
-
-      std::unique_ptr<scc_info> scc_info_;
 
       const const_twa_graph_ptr original_;
     };
