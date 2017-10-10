@@ -41,9 +41,9 @@ namespace spot
       twa_graph_ptr cobuchi = nullptr;
       std::vector<acc_cond::rs_pair> pairs;
       if (aut->acc().is_streett_like(pairs) || aut->acc().is_parity())
-        cobuchi = nsa_to_dca(aut, false);
+        cobuchi = nsa_to_nca(aut, false);
       else if (aut->get_acceptance().is_dnf())
-        cobuchi = dnf_to_dca(aut, false);
+        cobuchi = dnf_to_nca(aut, false);
       else
         throw std::runtime_error("cobuchi_realizable() only works with "
                                  "Streett-like, Parity or any "
@@ -107,7 +107,7 @@ namespace spot
           {
             if (aut_given && !is_persistence)
               return prcheck::via_Rabin;
-            else if ((aut_given && is_persistence) || !aut_given)
+            else if (is_persistence || !aut_given)
               return prcheck::via_CoBuchi;
             else
               SPOT_UNREACHABLE();

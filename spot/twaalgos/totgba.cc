@@ -84,7 +84,6 @@ namespace spot
             if (code[s].sub.op == acc_cond::acc_op::And
                 || ((one_conjunction = root_op == acc_cond::acc_op::And)))
               {
-                debug << "WABA" << std::endl;
                 s = one_conjunction ? s + 1 : s;
                 const unsigned short size = code[s].sub.size;
                 acc_cond::mark_t fin = 0u;
