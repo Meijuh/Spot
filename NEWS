@@ -113,6 +113,12 @@ New in spot 2.4.1.dev (not yet released)
     can be passed to disable this behavior (or use -x degen-remscc=0
     from the command-line).
 
+  - In addition to detecting stutter-invariant formulas/automata, some
+    can now study a stutter-sensitive automaton and detect the subset
+    of states that are stutter-invariant.  See
+    https://spot.lrde.epita.fr/ipynb/stutter-inv-states.html for
+    examples.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)

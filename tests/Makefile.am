@@ -332,6 +332,7 @@ TESTS_ipython = \
   python/product.ipynb \
   python/randaut.ipynb \
   python/randltl.ipynb \
+  python/stutter-inv-states.ipynb \
   python/testingaut.ipynb \
   python/word.ipynb
 

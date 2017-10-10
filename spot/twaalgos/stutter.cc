@@ -30,12 +30,16 @@
 #include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/remfin.hh>
 #include <spot/twaalgos/postproc.hh>
+#include <spot/twaalgos/sccinfo.hh>
+#include <spot/twaalgos/postproc.hh>
+#include <spot/twaalgos/dualize.hh>
 #include <spot/twa/twaproduct.hh>
 #include <spot/twa/bddprint.hh>
 #include <deque>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <numeric>
 
 namespace spot
 {
@@ -638,5 +642,118 @@ namespace spot
                                    std::move(neg), aut->ap_vars());
     aut->prop_stutter_invariant(is_stut);
     return is_stut;
+  }
+
+  std::vector<bool>
+  stutter_invariant_states(const const_twa_graph_ptr& pos, formula f,
+                           bool local)
+  {
+    if (f.is_syntactic_stutter_invariant()
+        || pos->prop_stutter_invariant().is_true())
+      return std::vector<bool>(pos->num_states(), true);
+    auto neg = translator(pos->get_dict()).run(formula::Not(f));
+    return stutter_invariant_states(pos, neg, local);
+  }
+
+  // Based on an idea by Joachim Klein.
+  std::vector<bool>
+  stutter_invariant_states(const const_twa_graph_ptr& pos,
+                           const_twa_graph_ptr neg,
+                           bool local)
+  {
+    std::vector<bool> res(pos->num_states(), true);
+    if (pos->prop_stutter_invariant().is_true())
+      return res;
+
+    if (neg == nullptr)
+      {
+        spot::postprocessor p;
+        p.set_type(spot::postprocessor::Generic);
+        p.set_pref(spot::postprocessor::Deterministic);
+        p.set_level(spot::postprocessor::Low);
+        neg = dualize(p.run(std::const_pointer_cast<twa_graph>(pos)));
+      }
+
+    auto product_states = [](const const_twa_graph_ptr& a)
+      {
+        return (a->get_named_prop<std::vector<std::pair<unsigned, unsigned>>>
+                ("product-states"));
+      };
+
+    // Get the set of states (x,y) that appear in the product P1=pos*neg.
+    std::set<std::pair<unsigned, unsigned>> pairs = [&]()
+      {
+        twa_graph_ptr prod = spot::product(pos, neg);
+        auto goodstates = product_states(prod);
+        std::set<std::pair<unsigned, unsigned>> pairs(goodstates->begin(),
+                                                      goodstates->end());
+        return pairs;
+      }();
+
+    // Compute P2=cl(pos)*cl(neg).  A state x of pos is stutter-sensitive
+    // if there exists a state (x,y) in both P1 and P2 that as a successor
+    // in the useful part of P2 and that is not in P1.
+    twa_graph_ptr prod = spot::product(closure(pos), closure(neg));
+    auto prod_pairs = product_states(prod);
+    scc_info si(prod, scc_info_options::TRACK_SUCCS
+                | scc_info_options::TRACK_STATES_IF_FIN_USED);
+    si.determine_unknown_acceptance();
+    unsigned n = prod->num_states();
+    bool sinv = true;
+
+    for (unsigned s = 0; s < n; ++s)
+      {
+        if (!si.is_useful_scc(si.scc_of(s)))
+          continue;
+        if (pairs.find((*prod_pairs)[s]) == pairs.end())
+          continue;
+        for (auto& e: prod->out(s))
+          if (si.is_useful_scc(si.scc_of(e.dst)))
+            if (!local || pairs.find((*prod_pairs)[e.dst]) == pairs.end())
+              res[(*prod_pairs)[s].first] = sinv = false;
+      }
+    std::const_pointer_cast<twa_graph>(pos)->prop_stutter_invariant(sinv);
+    std::const_pointer_cast<twa_graph>(neg)->prop_stutter_invariant(sinv);
+    return res;
+  }
+
+  namespace
+  {
+    static
+    void highlight_vector(const twa_graph_ptr& aut,
+                          const std::vector<bool>& v,
+                          unsigned color)
+    {
+      // Create the highlight-states property only if it does not
+      // exist already.
+      auto hs =
+        aut->get_named_prop<std::map<unsigned, unsigned>>("highlight-states");
+      if (!hs)
+        {
+          hs = new std::map<unsigned, unsigned>;
+          aut->set_named_prop("highlight-states", hs);
+        }
+
+      unsigned n = v.size();
+      for (unsigned i = 0; i < n; ++i)
+        if (v[i])
+          hs->emplace(i, color);
+    }
+  }
+
+  void
+  highlight_stutter_invariant_states(const twa_graph_ptr& pos,
+                                     formula f, unsigned color,
+                                     bool local)
+  {
+    highlight_vector(pos, stutter_invariant_states(pos, f, local), color);
+  }
+
+  void
+  highlight_stutter_invariant_states(const twa_graph_ptr& pos,
+                                     const_twa_graph_ptr neg,
+                                     unsigned color, bool local)
+  {
+    highlight_vector(pos, stutter_invariant_states(pos, neg, local), color);
   }
 }

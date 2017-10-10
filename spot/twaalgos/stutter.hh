@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche
+// Copyright (C) 2014-2017 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -73,4 +73,44 @@ namespace spot
   check_stutter_invariance(const twa_graph_ptr& aut,
                            formula f = nullptr,
                            bool do_not_determinize = false);
+
+
+  ///@{
+  /// \brief Determinate the states that are stutter-invariant in \a pos.
+  ///
+  /// The algorithm needs to compute the complement of \a pos. You can
+  /// avoid that costly operation by either supplying the complement
+  /// automaton, or supplying a formula for the (positive) automaton.
+  SPOT_API std::vector<bool>
+  stutter_invariant_states(const const_twa_graph_ptr& pos,
+                           const_twa_graph_ptr neg = nullptr,
+                           bool local = false);
+
+  SPOT_API std::vector<bool>
+  stutter_invariant_states(const const_twa_graph_ptr& pos, formula f_pos,
+                           bool local = false);
+  ///@}
+
+  ///@{
+  /// \brief Highlight the states of \a pos that are stutter-invariant.
+  ///
+  /// The algorithm needs to compute the complement of \a pos. You can
+  /// avoid that costly operation by either supplying the complement
+  /// automaton, or supplying a formula for the (positive) automaton.
+  ///
+  /// The \a color argument is an index in a predefined set of colors.
+  ///
+  /// This function simply works by calling
+  /// stutter_invariant_states(), and using the resulting vector to
+  /// setup the "highlight-states" property of the automaton.
+  SPOT_API void
+  highlight_stutter_invariant_states(const twa_graph_ptr& pos,
+                                     formula f_pos, unsigned color = 0,
+                                     bool local = false);
+  SPOT_API void
+  highlight_stutter_invariant_states(const twa_graph_ptr& pos,
+                                     const_twa_graph_ptr neg = nullptr,
+                                     unsigned color = 0,
+                                     bool local = false);
+  ///@}
 }
