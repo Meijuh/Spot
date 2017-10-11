@@ -5,6 +5,9 @@ New in spot 2.4.1.dev (not yet released)
   - Automata produced by "genaut --ks-nca=N" were incorrectly marked
     as not complete.
 
+  - Fix some cases for which the highest setting of formulas
+    simplification would produce worse results than lower settings.
+
 New in spot 2.4.1 (2017-10-05)
 
   Bugs fixed:

@@ -30,6 +30,7 @@
 #include <spot/tl/contain.hh>
 #include <spot/tl/print.hh>
 #include <spot/tl/snf.hh>
+#include <spot/tl/length.hh>
 #include <spot/twa/formula2bdd.hh>
 #include <cassert>
 #include <memory>
@@ -1756,10 +1757,17 @@ namespace spot
 
               case op::U:
                 // if a => b, then a U b = b
+                if (c_->implication(a, b))
+                  {
+                    // but if also b => a, pick the smallest one.
+                    if ((length_boolone(a) < length_boolone(b))
+                        && c_->implication(b, a))
+                      return a;
+                    return b;
+                  }
                 // if (a U b) => b, then a U b = b (for stronger containment)
-                if (c_->implication(a, b)
-                    || (opt_.containment_checks_stronger
-                        && c_->contained(bo, b)))
+                if (opt_.containment_checks_stronger
+                    && c_->contained(bo, b))
                   return b;
                 // if !a => b, then a U b = Fb
                 // if a eventual && b => a, then a U b = Fb
@@ -1795,7 +1803,13 @@ namespace spot
               case op::R:
                 // if b => a, then a R b = b
                 if (c_->implication(b, a))
-                  return b;
+                  {
+                    // but if also a => b, pick the smallest one.
+                    if ((length_boolone(a) < length_boolone(b))
+                        && c_->implication(a, b))
+                      return a;
+                    return b;
+                  }
                 // if b => !a, then a R b = Gb
                 // if a universal && a => b, then a R b = Gb
                 if (c_->implication_neg(b, a, true)
@@ -1825,15 +1839,23 @@ namespace spot
                 break;
 
               case op::W:
-                // if a => b, then a W b = b
-                // if a W b => b, then a W b = b (for stronger containment)
-                if (c_->implication(a, b)
-                    || (opt_.containment_checks_stronger
-                        && c_->contained(bo, b)))
-                  return b;
                 // if !a => b then a W b = 1
                 if (c_->implication_neg(a, b, false))
                   return formula::tt();
+                // if a => b, then a W b = b
+                if (c_->implication(a, b))
+                  {
+                    // but if also b => a, pick the smallest one.
+                    if ((length_boolone(a) < length_boolone(b))
+                        && c_->implication(b, a))
+                      return a;
+                    return b;
+                  }
+
+                // if a W b => b, then a W b = b (for stronger containment)
+                if (opt_.containment_checks_stronger
+                    && c_->contained(bo, b))
+                  return b;
                 // if a => b, then a W (b W c) = b W c
                 // (Beware: even if a => b we do not have a W (b U c) = b U c)
                 if (b.is(op::W) && c_->implication(a, b[0]))
@@ -1853,12 +1875,18 @@ namespace spot
                 break;
 
               case op::M:
-                // if b => a, then a M b = b
-                if (c_->implication(b, a))
-                  return b;
                 // if b => !a, then a M b = 0
                 if (c_->implication_neg(b, a, true))
                   return formula::ff();
+                // if b => a, then a M b = b
+                if (c_->implication(b, a))
+                  {
+                    // but if also a => b, pick the smallest one.
+                    if ((length_boolone(a) < length_boolone(b))
+                        && c_->implication(a, b))
+                      return a;
+                    return b;
+                  }
                 // if b => a, then a M (b M c) = b M c
                 if (b.is(op::M) && c_->implication(b[0], a))
                   return b;
@@ -2003,24 +2031,49 @@ namespace spot
 
         if ((opt_.synt_impl | opt_.containment_checks)
             && mo.is(op::Or, op::And))
-          for (unsigned i = 0; i < mos; ++i)
-            {
-              formula fi = mo[i];
-              formula fo = mo.all_but(i);
-              // if fi => fo, then fi | fo = fo
-              // if fo => fi, then fi & fo = fo
-              if ((mo.is(op::Or) && c_->implication(fi, fo))
-                  || (mo.is(op::And) && c_->implication(fo, fi)))
-                return recurse(fo);
-              // if fi => !fo, then fi & fo = false
-              // if fo => !fi, then fi & fo = false
-              // if !fi => fo, then fi | fo = true
-              // if !fo => fi, then fi | fo = true
-              bool is_and = mo.is(op::And);
-              if (c_->implication_neg(fi, fo, is_and)
-                  || c_->implication_neg(fo, fi, is_and))
-                return recurse(is_and ? formula::ff() : formula::tt());
-            }
+          {
+            // Do not merge these two loops, as rewritings from the
+            // second loop could prevent rewritings from the first one
+            // to trigger.
+            for (unsigned i = 0; i < mos; ++i)
+              {
+                formula fi = mo[i];
+                formula fo = mo.all_but(i);
+                // if fi => !fo, then fi & fo = false
+                // if fo => !fi, then fi & fo = false
+                // if !fi => fo, then fi | fo = true
+                // if !fo => fi, then fi | fo = true
+                bool is_and = mo.is(op::And);
+                if (c_->implication_neg(fi, fo, is_and)
+                    || c_->implication_neg(fo, fi, is_and))
+                  return recurse(is_and ? formula::ff() : formula::tt());
+              }
+            for (unsigned i = 0; i < mos; ++i)
+              {
+                formula fi = mo[i];
+                formula fo = mo.all_but(i);
+                // if fi => fo, then fi | fo = fo
+                // if fo => fi, then fi & fo = fo
+                if ((mo.is(op::Or) && c_->implication(fi, fo))
+                    || (mo.is(op::And) && c_->implication(fo, fi)))
+                  {
+                    // We are about to pick fo, but hold on!
+                    // Maybe we actually have fi <=> fo, in
+                    // which case we could decide to work on fi or fo.
+                    //
+                    // As a heuristic, let's return the smallest
+                    // subformula.  So we only need to check this
+                    // other implication if fi is smaller than fo,
+                    // otherwise we don't care.
+                    if ((length_boolone(fi) < length_boolone(fo))
+                        && ((mo.is(op::Or) && c_->implication(fo, fi))
+                            || (mo.is(op::And) && c_->implication(fi, fo))))
+                      return recurse(fi);
+                    else
+                      return recurse(fo);
+                  }
+              }
+          }
 
         vec res;
         res.reserve(mos);

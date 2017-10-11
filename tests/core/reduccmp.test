@@ -114,6 +114,15 @@ GFa R Fa, GFa
 FGa R Fa, GFa
 FGa R a, FGa R a
 Ga R a, Ga
+
+# issue 293
+F(G!p1 | p1) W Fp1, 1
+F(p1 | G!p1) W Fp1, 1
+F(Fp1 -> p1) W Fp1, 1
+G(Fp0 | (p0 M (Fp0 W p0))), GFp0
+G((p0 M (Fp0 W p0)) | Fp0), GFp0
+G((Fp0) W ((p0 M (Fp0 W p0)))), GFp0
+!G((Fp0) W ((p0 M (Fp0 W p0)))), FG!p0
 EOF
 
 cp common.txt nottau.txt
