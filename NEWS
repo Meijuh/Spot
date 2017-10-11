@@ -1,6 +1,9 @@
 New in spot 2.4.1.dev (not yet released)
 
-  Nothing yet.
+  Bugs fixed:
+
+  - Automata produced by "genaut --ks-nca=N" were incorrectly marked
+    as not complete.
 
 New in spot 2.4.1 (2017-10-05)
 
