@@ -87,7 +87,7 @@ namespace spot
         aut->merge_edges();
         aut->prop_state_acc(true);
         aut->prop_universal(false);
-        aut->prop_complete(false);
+        aut->prop_complete(true);
         aut->prop_inherently_weak(false);
         aut->prop_stutter_invariant(false);
         aut->prop_semi_deterministic(false);

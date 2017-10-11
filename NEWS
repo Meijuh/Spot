@@ -122,6 +122,11 @@ New in spot 2.4.1.dev (not yet released)
     spot::scc_info::marks(), spot::scc_info::marks_of() and
     spot::scc_info::acc_sets_of() respectively.
 
+  Bugs fixed:
+
+  - Automata produced by "genaut --ks-nca=N" were incorrectly marked
+    as not complete.
+
 New in spot 2.4.1 (2017-10-05)
 
   Bugs fixed:

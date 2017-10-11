@@ -43,6 +43,8 @@ cat >expected <<EOF
 EOF
 diff out expected
 
+genaut --ks-nca=1 | grep complete
+
 genaut --ks-nca=0 2>err && exit 1
 grep positive err
 genaut --l-nba=0 2>err && exit 1
