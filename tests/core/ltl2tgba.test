@@ -270,3 +270,11 @@ test 3 = `ltl2tgba -f 'G(Fa & Fb) U a' --stats=%s`
 # report inconsistent "universal" property.
 ltl2tgba --low 'X(((1) U (p1)) | (((p1) | (F(p0))) U ((0) R ((p2) M (p1)))))'>o
 grep deterministic o
+
+# test tls-impl=N
+f='(Fp0 W p0) & G((Gp0 W Xp0) M !Gp1)'
+ltl2tgba -f "$f" --low -x tls-impl=4 --stats=%s && exit 1
+test 4 = `ltl2tgba -f "$f" --low -x tls-impl=0 --stats=%s`
+test 3 = `ltl2tgba -f "$f" --low -x tls-impl=1 --stats=%s`
+test 2 = `ltl2tgba -f "$f" --low -x tls-impl=2 --stats=%s`
+test 2 = `ltl2tgba -f "$f" --low -x tls-impl=3 --stats=%s`

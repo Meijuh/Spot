@@ -36,6 +36,10 @@ New in spot 2.4.1.dev (not yet released)
 
   - ltldo learned to limit the number of automata it outputs using -n.
 
+  - The new -x tls-impl=N option allows to fine-tune the
+    implication-based simplification rules of ltl2tgba.  See the
+    spot-x man-page for details.
+
   Library:
 
   - Rename three methods of spot::scc_info. New names are clearer. The

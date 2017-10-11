@@ -30,7 +30,7 @@ namespace spot
   void translator::setup_opt(const option_map* opt)
   {
     comp_susp_ = early_susp_ = skel_wdba_ = skel_simul_ = 0;
-    relabel_bool_ = -1;
+    relabel_bool_ = tls_impl_ = -1;
 
     if (!opt)
       return;
@@ -43,6 +43,7 @@ namespace spot
         skel_wdba_ = opt->get("skel-wdba", -1);
         skel_simul_ = opt->get("skel-simul", 1);
       }
+    tls_impl_ = opt->get("tls-impl", -1);
   }
 
   void translator::build_simplifier(const bdd_dict_ptr& dict)
@@ -61,6 +62,34 @@ namespace spot
         options.reduce_basics = true;
         options.event_univ = true;
       }
+    // User-supplied fine-tuning?
+    if (tls_impl_ >= 0)
+      switch (tls_impl_)
+        {
+        case 0:
+          options.synt_impl = false;
+          options.containment_checks = false;
+          options.containment_checks_stronger = false;
+          break;
+        case 1:
+          options.synt_impl = true;
+          options.containment_checks = false;
+          options.containment_checks_stronger = false;
+          break;
+        case 2:
+          options.synt_impl = true;
+          options.containment_checks = true;
+          options.containment_checks_stronger = false;
+          break;
+        case 3:
+          options.synt_impl = true;
+          options.containment_checks = true;
+          options.containment_checks_stronger = true;
+          break;
+        default:
+          throw std::runtime_error
+            ("tls-impl should take a value between 0 and 3");
+        }
     simpl_owned_ = simpl_ = new tl_simplifier(options, dict);
   }
 

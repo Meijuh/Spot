@@ -74,15 +74,15 @@ namespace spot
     translator(const bdd_dict_ptr& dict, const option_map* opt = nullptr)
       : postprocessor(opt)
     {
-      build_simplifier(dict);
       setup_opt(opt);
+      build_simplifier(dict);
     }
 
     translator(const option_map* opt = nullptr)
       : postprocessor(opt)
     {
-      build_simplifier(make_bdd_dict());
       setup_opt(opt);
+      build_simplifier(make_bdd_dict());
     }
 
     ~translator()
@@ -147,6 +147,7 @@ namespace spot
     int skel_wdba_;
     int skel_simul_;
     int relabel_bool_;
+    int tls_impl_;
   };
   /// @}
 }

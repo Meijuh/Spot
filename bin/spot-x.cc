@@ -37,6 +37,13 @@ value) is a shorthand for KEY=1, while !KEY is a shorthand for KEY=0.";
 
 static const argp_option options[] =
   {
+    { nullptr, 0, nullptr, 0, "Temporal logic simplification options:", 0 },
+    { DOC("tls-impl",
+          "Control usage of implication-based rewriting. \
+(0) disables it, (1) enables rules based on syntactic implications, \
+(2) additionally allows automata-based implication checks, (3) enables \
+more rules based on automata-based implication checks.  The default value \
+depends on the --low/--medium/--high settings.") },
     { nullptr, 0, nullptr, 0, "Translation options:", 0 },
     { DOC("comp-susp", "Set to 1 to enable compositional suspension, \
 as described in our SPIN'13 paper (see Bibliography below).  Set to 2, \
