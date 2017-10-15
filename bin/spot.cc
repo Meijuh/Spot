@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -39,6 +39,7 @@ static const argp_option options[] =
           "reproduce a bug.") },
     { nullptr, 0, nullptr, 0, "Tools that output automata:", 0 },
     { DOC("randaut", "Generate random ω-automata.") },
+    { DOC("genaut", "Generate ω from scalable patterns.") },
     { DOC("ltl2tgba", "Convert LTL or PSL into variants of Transition-based "
           "Generalized Büchi Automata.") },
     { DOC("ltl2tgta", "Convert LTL or PSL into variants of Transition-based "
@@ -47,6 +48,8 @@ static const argp_option options[] =
     { DOC("dstar2tgba", "Convert ω-automata into variants of "
           "Transition-based Büchi automata.") },
     { nullptr, 0, nullptr, 0, "Tools that run other tools:", 0 },
+    { DOC("autcross", "Cross-compare tools processing ω-automata,"
+          " watch for bugs, and generate statistics.") },
     { DOC("ltlcross", "Cross-compare translators of LTL or PSL formulas "
           "into ω-automata, watch for bugs, and generate statistics.") },
     { DOC("ltldo", "Wrap any tool that inputs LTL or PSL formulas and possibly "
