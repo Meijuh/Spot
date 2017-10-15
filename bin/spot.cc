@@ -37,9 +37,9 @@ static const argp_option options[] =
     { DOC("ltlgrind", "Mutate LTL or PSL formulas to generate similar but "
           "simpler ones.  Use this when looking for shorter formula to "
           "reproduce a bug.") },
-    { nullptr, 0, nullptr, 0, "Tools that output automata:", 0 },
+    { nullptr, 0, nullptr, 0, "Tools that output automata or circuits:", 0 },
     { DOC("randaut", "Generate random ω-automata.") },
-    { DOC("genaut", "Generate ω from scalable patterns.") },
+    { DOC("genaut", "Generate ω-automata from scalable patterns.") },
     { DOC("ltl2tgba", "Convert LTL or PSL into variants of Transition-based "
           "Generalized Büchi Automata.") },
     { DOC("ltl2tgta", "Convert LTL or PSL into variants of Transition-based "
@@ -47,6 +47,8 @@ static const argp_option options[] =
     { DOC("autfilt", "Filter, convert, and transform ω-automata.") },
     { DOC("dstar2tgba", "Convert ω-automata into variants of "
           "Transition-based Büchi automata.") },
+    { DOC("ltlsynt",
+          "Synthesize AIGER circuits from LTL/PSL specifications.") },
     { nullptr, 0, nullptr, 0, "Tools that run other tools:", 0 },
     { DOC("autcross", "Cross-compare tools processing ω-automata,"
           " watch for bugs, and generate statistics.") },

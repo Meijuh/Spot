@@ -55,6 +55,26 @@ do
         fi
     fi
 
+    case $binary in
+        spot);;
+        *)
+            if ! grep -q "BR $binary " $top_srcdir/bin/man/spot.x; then
+                echo "bin/$binary is not listed in bin/man/spot.x"
+                exit_status=2
+            fi
+            ;;
+    esac
+    case $binary in
+        spot);;
+        spot-x);;
+        *)
+            if ! grep -q "\"$binary\"" $top_srcdir/bin/spot.cc; then
+                echo "bin/$binary is not listed in bin/spot.cc"
+                exit_status=2
+            fi
+            ;;
+    esac
+
     # All man pages
     case $manpage in
         *.1)
@@ -92,5 +112,13 @@ do
     rm -f help-$binary.tmp help-err
 
 done
+
+grep '^.BR [a-z0-9-]* ([0-9])' "$top_srcdir"/bin/man/spot.x |
+    while read br tool num; do
+        if ! test -f $top_builddir/bin/$tool; then
+            echo "bin/man/spot.x mentions unexisting tool $tool"
+            exit_status=2
+        fi
+    done
 
 exit $exit_status
