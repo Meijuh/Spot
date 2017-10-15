@@ -59,7 +59,7 @@ Call several tools that process automata and cross-compare their output \
 to detect bugs, or to gather statistics.  The list of automata to use \
 should be supplied on standard input, or using the -F option.\v\
 Exit status:\n\
-  0  everything went fine (timeouts are OK too)\n\
+  0  everything went fine (without --fail-on-timeout, timeouts are OK)\n\
   1  some tools failed to output something we understand, or failed\n\
      sanity checks (statistics were output nonetheless)\n\
   2  autcross aborted on error\n\
@@ -69,6 +69,7 @@ enum {
   OPT_BOGUS = 256,
   OPT_CSV,
   OPT_HIGH,
+  OPT_FAIL_ON_TIMEOUT,
   OPT_IGNORE_EXEC_FAIL,
   OPT_LANG,
   OPT_LOW,
@@ -92,6 +93,8 @@ static const argp_option options[] =
     { "ignore-execution-failures", OPT_IGNORE_EXEC_FAIL, nullptr, 0,
       "ignore automata from translators that return with a non-zero exit code,"
       " but do not flag this as an error", 0 },
+    { "fail-on-timeout", OPT_FAIL_ON_TIMEOUT, nullptr, 0,
+      "consider timeouts as errors", 0 },
     { "language-preserved", OPT_LANG, nullptr, 0,
       "expect that each tool preserves the input language", 0 },
     { "no-checks", OPT_NOCHECKS, nullptr, 0,
@@ -137,6 +140,7 @@ const struct argp_child children[] =
 static bool verbose = false;
 static bool ignore_exec_fail = false;
 static unsigned ignored_exec_fail = 0;
+static bool fail_on_timeout = false;
 static bool stop_on_error = false;
 static bool no_checks = false;
 static bool opt_language_preserved = false;
@@ -162,6 +166,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       }
     case OPT_CSV:
       csv_output = arg ? arg : "-";
+      break;
+    case OPT_FAIL_ON_TIMEOUT:
+      fail_on_timeout = true;
       break;
     case OPT_HIGH:
       level = spot::postprocessor::High;
@@ -392,11 +399,18 @@ namespace
       spot::twa_graph_ptr res = nullptr;
       if (timed_out)
         {
-          // This is not considered to be a global error.
-          std::cerr << "warning: timeout during execution of command\n";
-          ++timeout_count;
+          if (fail_on_timeout)
+            {
+              global_error() << "error: timeout during execution of command\n";
+              end_error();
+            }
+          else
+            {
+              std::cerr << "warning: timeout during execution of command\n";
+              ++timeout_count;
+            }
           status_str = "timeout";
-          problem = false;        // A timeout is not a sign of a bug
+          problem = fail_on_timeout;
           es = -1;
         }
       else if (WIFSIGNALED(es))

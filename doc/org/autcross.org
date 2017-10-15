@@ -319,7 +319,7 @@ Incoherence between the output of several tools (even with
 The =--stop-on-error= option will cause =autcross= to abort on the
 first detected error.  This include failure to start some tool,
 read its output, or failure to passe the sanity checks.  Timeouts are
-allowed.
+allowed unless =--fail-on-timeout= is also given.
 
 One use for this option is when =autcross= is used in combination with
 =randaut= to check tools on an infinite stream of formulas.
@@ -329,8 +329,8 @@ One use for this option is when =autcross= is used in combination with
 The =--save-bogus=FILENAME= will save any automaton for which an error
 was detected (either some tool failed, or some problem was
 detected using the resulting automata) in =FILENAME=.  Again, timeouts
-are not considered to be errors, and therefore not reported in this
-file.
+are not considered to be errors and therefore not reported in this
+file, unless =--fail-on-timeout= is given.
 
 The main use for this feature is in conjunction with =randaut='s
 generation of random formulas.  For instance the following command

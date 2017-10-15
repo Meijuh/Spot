@@ -124,6 +124,20 @@ test `grep 'warning:.*timeout' stderr | wc -l` -eq 2
 test `wc -l < out.csv` -eq 1
 check_csv out.csv
 
+run 1 ltlcross 'sleep 5; false %f >%N' --fail-on-timeout \
+                  --timeout 2 -f a --csv=out.csv 2>stderr
+test `grep 'error:.*timeout' stderr | wc -l` -eq 2
+test `wc -l < out.csv` -eq 3
+check_csv out.csv
+
+run 1 ltlcross 'sleep 5; false %f >%N' --fail-on-timeout \
+    --stop-on-error --timeout 2 -f a -f b --csv=out.csv \
+    --save-bogus=bogous 2>stderr
+test `grep 'error:.*timeout' stderr | wc -l` -eq 2
+test `wc -l < out.csv` -eq 3
+test `wc -l < bogous` -eq 1
+check_csv out.csv
+
 # Check with --products=5 --automata
 run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
       -f a --csv=out.csv --products=5 --automata 2>stderr

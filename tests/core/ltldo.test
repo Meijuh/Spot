@@ -42,12 +42,26 @@ EOF
 diff output expected
 
 
-# Test timeouts.  This test should take 2*2 seconds.
+# Test timeouts.  Each of these runs should take 2*2 seconds.
 $genltl --or-g=1..2 |
 run 0 $ltldo -t 'sleep 10; echo %f' -T1 -t 'sleep 10; echo %f' \
 	     >output 2>stderr
 test -z "`cat output`"
 test 4 = `grep -c warning: stderr`
+
+genltl --or-g=1..2 |
+run 0 ltldo -t 'sleep 10; echo %f' -T1 -t 'sleep 10; echo %f' \
+	     --fail-on-timeout --error=warn >output 2>stderr
+test -z "`cat output`"
+test 4 = `grep -c error: stderr`
+grep -q 'aborting here' stderr && exit 1
+
+genltl --or-g=1..2 |
+run 2 ltldo -t 'sleep 10; echo %f' -T1 -t 'sleep 10; echo %f' \
+	     --fail-on-timeout >output 2>stderr
+test -z "`cat output`"
+test 1 = `grep -c error: stderr`
+grep -q 'aborting here' stderr
 
 test "`echo 1,a,3,4 | ltldo -F-/2 ltl2tgba --stats='%<,%s,%>'`" = '1,2,3,4'
 

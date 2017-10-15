@@ -733,7 +733,7 @@ automaton as well.
 The =--stop-on-error= option will cause =ltlcross= to abort on the
 first detected error.  This include failure to start some translator,
 read its output, or failure to passe the sanity checks.  Timeouts are
-allowed.
+allowed unless =--fail-on-time= is also given.
 
 One use for this option is when =ltlcross= is used in combination with
 =randltl= to check translators on an infinite stream of formulas.
@@ -752,8 +752,8 @@ randltl -n -1 --tree-size 10..25 a b c | ltlcross --stop-on-error 'ltl2tgba --lb
 The =--save-bogus=FILENAME= will save any formula for which an error
 was detected (either some translation failed, or some problem was
 detected using the resulting automata) in =FILENAME=.  Again, timeouts
-are not considered to be errors, and therefore not reported in this
-file.
+are not considered to be errors and therefore not reported in this
+file, unless =--fail-on-timeout= is given.
 
 The main use for this feature is in conjunction with =randltl='s
 generation of random formulas.  For instance the following command

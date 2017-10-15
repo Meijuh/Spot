@@ -626,7 +626,9 @@ When a timeout occurs a warning is printed on stderr, and no automaton
 (or statistic) is output by =ltdo= for this specific pair of
 command/formula.  The processing then continue with other formulas and
 tools.  Timeouts are not considered as errors, so they have no effect
-on the exit status of =ltldo=.
+on the exit status of =ltldo=.  This behavior can be changed with
+option =--fail-on-timeout=, in which case timeouts are considered
+as errors.
 
 For each command (that does not terminate with a timeout) the runtime
 can be printed using the =%r= escape sequence.  This makes =ltldo= an

@@ -53,6 +53,7 @@ enum {
   OPT_ERRORS = 256,
   OPT_SMALLEST,
   OPT_GREATEST,
+  OPT_FAIL_ON_TIMEOUT,
 };
 
 static const argp_option options[] =
@@ -62,6 +63,8 @@ static const argp_option options[] =
     { "errors", OPT_ERRORS, "abort|warn|ignore", 0,
       "how to deal with tools returning with non-zero exit codes or "
       "automata that ltldo cannot parse (default: abort)", 0 },
+    { "fail-on-timeout", OPT_FAIL_ON_TIMEOUT, nullptr, 0,
+      "consider timeouts as errors", 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Output selection:", 5 },
     { "smallest", OPT_SMALLEST, "FORMAT", OPTION_ARG_OPTIONAL,
@@ -122,7 +125,7 @@ build_percent_list()
 
 enum errors_type { errors_abort, errors_warn, errors_ignore };
 static errors_type errors_opt;
-
+static bool fail_on_timeout = false;
 static int best_type = 0;       // -1 smallest, 1 greatest, 0 no selection
 static const char* best_format = "%s,%e";
 static int opt_max_count = -1;
@@ -161,6 +164,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     {
     case OPT_ERRORS:
       errors_opt = XARGMATCH("--errors", arg, errors_args, errors_types);
+      break;
+    case OPT_FAIL_ON_TIMEOUT:
+      fail_on_timeout = true;
       break;
     case OPT_GREATEST:
       best_type = 1;
@@ -218,9 +224,18 @@ namespace
       if (timed_out)
         {
           // A timeout is considered benign
-          std::cerr << "warning: timeout during execution of command \""
+          if (fail_on_timeout)
+            {
+              std::cerr << "error:";
+              problem = true;
+            }
+          else
+            {
+              std::cerr << "warning:";
+              ++timeout_count;
+            }
+          std::cerr << " timeout during execution of command \""
                     << cmd << "\"\n";
-          ++timeout_count;
         }
       else if (WIFSIGNALED(es))
         {
