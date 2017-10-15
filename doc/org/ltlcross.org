@@ -983,21 +983,21 @@ ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --determinize --verbose
 #+END_SRC
 
 #+BEGIN_SRC sh :results verbatim :exports results
-ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --determinize --verbose 2>&1
+SPOT_HOA_TOLERANT=1 ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --determinize --verbose 2>&1
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
 F(G(a))
-Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-Ak0bYx'
-Running [P1]: ltl3ba -H1 -f '<>([](a))'>'lcr-o1-5U1MyT'
-Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-sX2kaf'
-Running [N1]: ltl3ba -H1 -f '!(<>([](a)))'>'lcr-o1-4siKPA'
+Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-opbyhq'
+Running [P1]: ltl3ba -H1 -f '<>([](a))'>'lcr-o1-aP47sS'
+Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-UV1eFk'
+Running [N1]: ltl3ba -H1 -f '!(<>([](a)))'>'lcr-o1-bFSrTM'
 info: collected automata:
 info:   P0	(2 st.,3 ed.,1 sets)
 info:   N0	(1 st.,2 ed.,1 sets) deterministic complete
 info:   P1	(2 st.,3 ed.,1 sets)
-info:   N1	(3 st.,5 ed.,1 sets) univ-edges deterministic complete
+info:   N1	(3 st.,5 ed.,1 sets) univ-edges complete
 Performing sanity checks and gathering statistics...
 info: getting rid of universal edges...
 info:   N1	(3 st.,5 ed.,1 sets) -> (2 st.,4 ed.,1 sets)
@@ -1005,10 +1005,10 @@ info: complementing non-deterministic automata via determinization...
 info:   P0	(2 st.,3 ed.,1 sets) -> (2 st.,4 ed.,2 sets)	Comp(P0)
 info:   P1	(2 st.,3 ed.,1 sets) -> (2 st.,4 ed.,2 sets)	Comp(P1)
 info: getting rid of any Fin acceptance...
-info:	Comp(P0)	(2 st.,4 ed.,2 sets) -> (3 st.,7 ed.,2 sets)
+info:	Comp(P0)	(2 st.,4 ed.,2 sets) -> (2 st.,4 ed.,1 sets)
 info:	Comp(N0)	(1 st.,2 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
 info:	     P1 	(2 st.,3 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
-info:	Comp(P1)	(2 st.,4 ed.,2 sets) -> (4 st.,9 ed.,2 sets)
+info:	Comp(P1)	(2 st.,4 ed.,2 sets) -> (2 st.,4 ed.,1 sets)
 info:	Comp(N1)	(2 st.,4 ed.,1 sets) -> (3 st.,6 ed.,1 sets)
 info: check_empty P0*N0
 info: check_empty Comp(N0)*Comp(P0)
@@ -1065,21 +1065,21 @@ ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --verbose
 #+END_SRC
 
 #+BEGIN_SRC sh :results verbatim :exports results
-ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --verbose 2>&1
+SPOT_HOA_TOLERANT=1 ltlcross -f 'FGa' ltl2tgba 'ltl3ba -H1' --verbose 2>&1
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
 F(G(a))
-Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-jD32mW'
-Running [P1]: ltl3ba -H1 -f '<>([](a))'>'lcr-o1-w6IJYI'
-Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-dac1Av'
-Running [N1]: ltl3ba -H1 -f '!(<>([](a)))'>'lcr-o1-OZL7fi'
+Running [P0]: ltl2tgba -H 'F(G(a))'>'lcr-o0-cq9s5c'
+Running [P1]: ltl3ba -H1 -f '<>([](a))'>'lcr-o1-Fb0iii'
+Running [N0]: ltl2tgba -H '!(F(G(a)))'>'lcr-o0-X5dGvn'
+Running [N1]: ltl3ba -H1 -f '!(<>([](a)))'>'lcr-o1-tLO5Ks'
 info: collected automata:
 info:   P0	(2 st.,3 ed.,1 sets)
 info:   N0	(1 st.,2 ed.,1 sets) deterministic complete
 info:   P1	(2 st.,3 ed.,1 sets)
-info:   N1	(3 st.,5 ed.,1 sets) univ-edges deterministic complete
+info:   N1	(3 st.,5 ed.,1 sets) univ-edges complete
 Performing sanity checks and gathering statistics...
 info: getting rid of universal edges...
 info:   N1	(3 st.,5 ed.,1 sets) -> (2 st.,4 ed.,1 sets)
