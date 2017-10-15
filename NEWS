@@ -38,6 +38,13 @@ New in spot 2.4.1.dev (not yet released)
 
   - autcross, ltlcross, and ltldo learned --fail-on-timeout.
 
+  - ltlcross learned --reference=COMMANDFMT to specify a translator
+    that should be trusted.  Doing so makes it possible to reduce the
+    number of tests to be performed, as all other translators will be
+    compared to the reference's output when available.  Multiple
+    reference can be given; in that case other tools are compared
+    against the smallest reference automaton.
+
   - The new -x tls-impl=N option allows to fine-tune the
     implication-based simplification rules of ltl2tgba.  See the
     spot-x man-page for details.

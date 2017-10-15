@@ -81,8 +81,9 @@ static void show_shorthands(shorthands_t* begin, shorthands_t* end)
 }
 
 
-tool_spec::tool_spec(const char* spec, shorthands_t* begin, shorthands_t* end)
-  : spec(spec), cmd(spec), name(spec)
+tool_spec::tool_spec(const char* spec, shorthands_t* begin, shorthands_t* end,
+                     bool is_ref)
+  : spec(spec), cmd(spec), name(spec), reference(is_ref)
 {
   if (*cmd == '{')
     {
@@ -144,7 +145,8 @@ tool_spec::tool_spec(const char* spec, shorthands_t* begin, shorthands_t* end)
 }
 
 tool_spec::tool_spec(const tool_spec& other)
-  : spec(other.spec), cmd(other.cmd), name(other.name)
+  : spec(other.spec), cmd(other.cmd), name(other.name),
+    reference(other.reference)
 {
   if (cmd != spec)
     cmd = strdup(cmd);
@@ -174,18 +176,20 @@ tool_spec::~tool_spec()
 
 std::vector<tool_spec> tools;
 
-void tools_push_trans(const char* trans)
+void tools_push_trans(const char* trans, bool is_ref)
 {
   tools.emplace_back(trans,
                      std::begin(shorthands_ltl),
-                     std::end(shorthands_ltl));
+                     std::end(shorthands_ltl),
+                     is_ref);
 }
 
-void tools_push_autproc(const char* proc)
+void tools_push_autproc(const char* proc, bool is_ref)
 {
   tools.emplace_back(proc,
                      std::begin(shorthands_autproc),
-                     std::end(shorthands_autproc));
+                     std::end(shorthands_autproc),
+                     is_ref);
 }
 
 void

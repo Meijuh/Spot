@@ -47,8 +47,11 @@ struct tool_spec
   const char* cmd;
   // name of the translator (or spec)
   const char* name;
+  // Whether the tool is a reference.
+  bool reference;
 
-  tool_spec(const char* spec, shorthands_t* begin, shorthands_t* end);
+  tool_spec(const char* spec, shorthands_t* begin, shorthands_t* end,
+            bool is_ref);
   tool_spec(const tool_spec& other);
   tool_spec& operator=(const tool_spec& other);
   ~tool_spec();
@@ -56,8 +59,8 @@ struct tool_spec
 
 extern std::vector<tool_spec> tools;
 
-void tools_push_trans(const char* trans);
-void tools_push_autproc(const char* proc);
+void tools_push_trans(const char* trans, bool is_ref = false);
+void tools_push_autproc(const char* proc, bool is_ref = false);
 
 struct quoted_string final: public spot::printable_value<std::string>
 {

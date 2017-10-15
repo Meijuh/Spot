@@ -53,6 +53,8 @@ and no =-f= or =-F= options are given.
 
 * Configuring translators
 
+** Translator specifications
+
 Each translator should be specified as a string that use some of the
 following character sequences:
 
@@ -65,8 +67,8 @@ following character sequences:
 :                              LBT, or Wring's syntax
 :   %F,%S,%L,%W                the formula as a file in Spot, Spin, LBT, or
 :                              Wring's syntax
-:   %O                         the automaton is output in HOA, never claim, LBTT,
-:                              or ltl2dstar's format
+:   %O                         the automaton output in HOA, never claim, LBTT, or
+:                              ltl2dstar's format
 
 For instance here is how we could cross-compare the never claims
 output by =spin= and =ltl2tgba= for the formulas =GFa= and =X(a U b)=.
@@ -206,6 +208,26 @@ the same as running =ltlcross 'ltl2ba -f %s>%O' 'ltl3ba -f %s>%O' ...=
 Because only the prefix of the actual command is checked, you can
 still specify some options.  For instance =ltlcross 'ltl2tgba -D' ...=
 is short for =ltlcross 'ltl2tgba -D -H %F>%O' ...=
+
+** Trusted and untrusted translators
+
+By default, all translators specified are not trusted.  This means
+that =ltlcross= will cross-compare the output of all translators,
+possibly yielding a quadratic number of tests.
+
+It is possible to declare that certain translators should be trusted
+by specifying them with the =--reference=COMMANDFMT= option.  This has
+a few implications:
+  - the automata output by reference translators are not tested
+  - a pair of positive and negative reference automata are selected
+    from the reference translators (the smallest automata, in case
+    multiple references are available), and all other translators will
+    only be compared to these reference automata.
+
+Consequently, the number of test performed is now linear in the number
+of untrusted references.  The easiest way to observe the effect of
+=--reference= is to run the =ltlcross= with the [[#verbose][=--verbose= option]],
+with and without some =--reference= translators.
 
 * Getting statistics
 
@@ -969,6 +991,9 @@ be used to gather statistics about a specific set of formulas.
 #  LocalWords:  cvs LaTeX datacols len ith otimes ltlcheck eval setq
 #  LocalWords:  setenv concat getenv
 ** =--verbose=
+   :PROPERTIES:
+   :CUSTOM_ID: verbose
+   :END:
 
 The verbose option can be useful to troubleshoot problems or simply
 follow the list of transformations and tests performed by =ltlcross=.
@@ -1055,8 +1080,6 @@ that the automaton =N0= is really the complement of =P0=.  Similarly
 =P1=.  Finally =P0*N1= and =P1*N0= ensure that =P1= is equivalent to
 =P0= and =N1= is equivalent to =N0=.
 
-
-
 Note that if we had not used the =--determinize= option, the procedure
 would look slightly more complex:
 
@@ -1128,3 +1151,60 @@ it with the four automata, and then performs additional checks
 and =P1= are equivalent, they can catch some problems, and would
 easily catch the case of an automaton with an empty language by
 mistake.
+
+Here is the same example, if we declare that =ltl3ba= is a reference
+implementation that should not be checked, and we just want to check
+the output of =ltl2tgba= against this reference.  See how the number
+of tests performed has been reduced.
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltlcross -f 'FGa' ltl2tgba --reference 'ltl3ba -H1' --verbose
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim :exports results
+SPOT_HOA_TOLERANT=1 ltlcross -f 'FGa' ltl2tgba --reference 'ltl3ba -H1' --verbose 2>&1
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+F(G(a))
+Running [P0]: ltl3ba -H1 -f '<>([](a))'>'lcr-o0-UanRv9'
+Running [P1]: ltl2tgba -H 'F(G(a))'>'lcr-o1-43jbVn'
+Running [N0]: ltl3ba -H1 -f '!(<>([](a)))'>'lcr-o0-TUeymC'
+Running [N1]: ltl2tgba -H '!(F(G(a)))'>'lcr-o1-5PYsOQ'
+info: collected automata:
+info:   P0	(2 st.,3 ed.,1 sets)
+info:   N0	(3 st.,5 ed.,1 sets) univ-edges complete
+info:   P1	(2 st.,3 ed.,1 sets)
+info:   N1	(1 st.,2 ed.,1 sets) deterministic complete
+Performing sanity checks and gathering statistics...
+info: getting rid of universal edges...
+info:   N0	(3 st.,5 ed.,1 sets) -> (2 st.,4 ed.,1 sets)
+info: getting rid of any Fin acceptance...
+info:	     P0 	(2 st.,3 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
+info:	Comp(N1)	(1 st.,2 ed.,1 sets) -> (2 st.,3 ed.,1 sets)
+info: P0 and N0 assumed correct and used as references
+info: check_empty P0*N1
+info: check_empty P1*N0
+info: check_empty Comp(N1)*N0
+info: check_empty P1*N1
+info: building state-space #0/1 of 200 states with seed 0
+info: state-space has 4136 edges
+info: building product between state-space and P0 (2 st., 3 ed.)
+info:   product has 400 st., 8298 ed.
+info:               2 SCCs
+info: building product between state-space and P1 (2 st., 3 ed.)
+info:   product has 400 st., 8298 ed.
+info:               2 SCCs
+info: building product between state-space and N0 (2 st., 4 ed.)
+info:   product has 400 st., 8272 ed.
+info:               1 SCCs
+info: building product between state-space and N1 (1 st., 2 ed.)
+info:   product has 200 st., 4136 ed.
+info:               1 SCCs
+info: cross_check {P0,P1}, state-space #0/1
+info: cross_check {N0,N1}, state-space #0/1
+info: consistency_check (P1,N1), state-space #0/1
+
+No problem detected.
+#+end_example

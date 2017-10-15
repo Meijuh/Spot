@@ -36,10 +36,90 @@ ltl2tgba=ltl2tgba
 # Make sure ltlcross quotes formulas correctly
 cat >formula <<\EOF
 G"a'-'>'b"
+FGa
 EOF
 run 0 ltlcross -F formula --csv=out.csv \
                          "$ltl2tgba -s %f >%N" \
-                         "$ltl2tgba --lenient -s %s >%N"
+                         "$ltl2tgba --lenient -s %s >%N" \
+                         --verbose 2> error
+cat >ceplan <<EOF
+info: check_empty P0*N0
+info: check_empty Comp(N0)*Comp(P0)
+info: check_empty P0*N1
+info: check_empty P1*N0
+info: check_empty P1*N1
+info: check_empty Comp(N1)*Comp(P1)
+info: check_empty P0*N0
+info: check_empty P0*N1
+info: check_empty Comp(N0)*N1
+info: check_empty P1*N0
+info: check_empty Comp(N1)*N0
+info: check_empty P1*N1
+EOF
+grep 'info: check_empty' error > ce
+diff -u ce ceplan
+
+ltlcross -F formula --csv=out.csv \
+                   --ref "$ltl2tgba -s %f >%N" \
+                   "$ltl2tgba --lenient -s %s >%N" \
+                   --verbose 2> error
+cat >ceplan <<EOF
+info: check_empty P0*N1
+info: check_empty P1*N0
+info: check_empty P1*N1
+info: check_empty Comp(N1)*Comp(P1)
+info: check_empty P0*N1
+info: check_empty P1*N0
+info: check_empty Comp(N1)*N0
+info: check_empty P1*N1
+EOF
+grep 'info: check_empty' error > ce
+diff -u ce ceplan
+
+ltlcross -F formula --csv=out.csv \
+                   -D "$ltl2tgba -s %f >%N" \
+                   "$ltl2tgba --lenient -s %s >%N" \
+                   --verbose 2> error
+cat >ceplan <<EOF
+info: check_empty P0*N0
+info: check_empty Comp(N0)*Comp(P0)
+info: check_empty P0*N1
+info: check_empty P1*N0
+info: check_empty P1*N1
+info: check_empty Comp(N1)*Comp(P1)
+info: check_empty P0*N0
+info: check_empty Comp(N0)*Comp(P0)
+info: check_empty P0*N1
+info: check_empty P1*N0
+info: check_empty P1*N1
+info: check_empty Comp(N1)*Comp(P1)
+EOF
+grep 'info: check_empty' error > ce
+diff -u ce ceplan
+
+ltlcross -F formula --csv=out.csv \
+                   -D --ref "$ltl2tgba -s %f >%N" \
+                   "$ltl2tgba --lenient -s %s >%N" \
+                   --verbose 2> error
+
+cat >ceplan <<EOF
+info: check_empty P0*N1
+info: check_empty P1*N0
+info: check_empty P1*N1
+info: check_empty Comp(N1)*Comp(P1)
+info: check_empty P0*N1
+info: check_empty P1*N0
+info: check_empty P1*N1
+info: check_empty Comp(N1)*Comp(P1)
+EOF
+grep 'info: check_empty' error > ce
+diff -u ce ceplan
+
+ltlcross -F formula --csv=out.csv \
+                    --ref "$ltl2tgba -s %f >%N" \
+                    --ref "$ltl2tgba --lenient -s %s >%N" \
+                    --verbose 2> error
+grep 'info: check_empty' error && exit 1
 
 run 2 ltlcross "$ltl2tgba -s %f >%N" 'foo bar' 2>stderr -f a
 grep 'ltlcross.*no input.*in.*foo bar' stderr

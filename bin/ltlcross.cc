@@ -95,6 +95,7 @@ enum {
   OPT_NOCOMP,
   OPT_OMIT,
   OPT_PRODUCTS,
+  OPT_REFERENCE,
   OPT_SEED,
   OPT_STATES,
   OPT_STOP_ERR,
@@ -104,6 +105,9 @@ enum {
 
 static const argp_option options[] =
   {
+    { "reference", OPT_REFERENCE, "COMMANDFMT", 0,
+      "register one translator and assume it is correct (do not"
+      "check it for error, but use it to check other translators)", 2 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "ltlcross behavior:", 5 },
     { "allow-dups", OPT_DUPS, nullptr, 0,
@@ -481,6 +485,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_OMIT:
       opt_omit = true;
+      break;
+    case OPT_REFERENCE:
+      tools_push_trans(arg, true);
       break;
     case OPT_SEED:
       seed = to_pos_int(arg);
@@ -1092,6 +1099,39 @@ namespace
           std::cerr << "Performing sanity checks and gathering statistics..."
                     << std::endl;
 
+          // If we have reference tools, pick the smallest of their
+          // automata for positive and negative references.
+          auto smallest_ref = [&](std::vector<spot::twa_graph_ptr>& from)
+            {
+              typedef std::tuple<bool, unsigned, unsigned, unsigned> aut_size;
+              int smallest_ref = -1;
+              aut_size smallest_size(true, -1U, -1U, -1U);
+              for (unsigned i = 0; i < m; ++i)
+                if (tools[i].reference && from[i])
+                  {
+                    aut_size pisize(!is_deterministic(from[i]),
+                                    from[i]->num_states(),
+                                    from[i]->num_edges(),
+                                    from[i]->num_sets());
+                    if (pisize < smallest_size)
+                      {
+                        smallest_ref = i;
+                        smallest_size = pisize;
+                      }
+                  }
+              return smallest_ref;
+            };
+
+          // This are not our definitive choice for reference
+          // automata, because the sizes might change after we remove
+          // alternation and Fin acceptance.  But we need to know now
+          // if we will have a pair of reference automata in order to
+          // skip some of the constructions.
+          int smallest_pos_ref = smallest_ref(pos);
+          int smallest_neg_ref = smallest_ref(neg);
+          if (smallest_pos_ref < 0 || smallest_neg_ref < 0)
+            smallest_pos_ref = smallest_neg_ref = -1;
+
           bool print_first = verbose;
           auto unalt = [&](std::vector<spot::twa_graph_ptr>& x,
                            unsigned i, char prefix)
@@ -1126,11 +1166,15 @@ namespace
                 comp[i] = dualize(x[i]);
             };
 
-          for (unsigned i = 0; i < m; ++i)
+          for (size_t i = 0; i < m; ++i)
             {
               unalt(pos, i, 'P');
-              complement(pos, comp_pos, i);
               unalt(neg, i, 'N');
+              // Do not complement reference automata if we have a
+              // reference pair.
+              if (smallest_pos_ref >= 0 && tools[i].reference)
+                continue;
+              complement(pos, comp_pos, i);
               complement(neg, comp_neg, i);
             }
 
@@ -1138,11 +1182,15 @@ namespace
             {
               print_first = verbose;
               auto tmp = [&](std::vector<spot::twa_graph_ptr>& from,
-                             std::vector<spot::twa_graph_ptr>& to, unsigned i,
+                             std::vector<spot::twa_graph_ptr>& to, int i,
                              char prefix)
                 {
                   if (from[i] && !to[i])
                     {
+                      // Do not complement reference automata if we have a
+                      // reference pair.
+                      if (smallest_pos_ref >= 0 && tools[i].reference)
+                        return;
                       if (print_first)
                         {
                           std::cerr << "info: complementing non-deterministic "
@@ -1207,12 +1255,26 @@ namespace
                   cleanup_acceptance_here(x[i]);
                 }
             };
-          for (unsigned i = 0; i < m; ++i)
+          for (size_t i = 0; i < m; ++i)
             {
               tmp(pos, i, "     P", " ");
               tmp(neg, i, "     N", " ");
               tmp(comp_pos, i, "Comp(P", ")");
               tmp(comp_neg, i, "Comp(N", ")");
+            }
+
+          if (smallest_pos_ref >= 0)
+            {
+              // Recompute the smallest references now, because removing
+              // alternation and Fin acceptance might have changed the
+              // sizes.
+              smallest_pos_ref = smallest_ref(pos);
+              smallest_neg_ref = smallest_ref(neg);
+
+              if (verbose)
+                std::cerr << "info: P" << smallest_pos_ref
+                          << " and N" << smallest_neg_ref << " assumed "
+                          << "correct and used as references\n";
             }
 
           // intersection test
@@ -1221,8 +1283,20 @@ namespace
               for (size_t j = 0; j < m; ++j)
                 if (neg[j])
                   {
-                    problems +=
-                      check_empty_prod(pos[i], neg[j], i, j, false, false);
+                    // Do not compare reference translators.
+                    if (tools[i].reference && tools[j].reference)
+                      continue;
+                    // If we have a reference pair, only compare
+                    // against that pair when i != j.
+                    if (i == j ||
+                        !((!tools[i].reference &&
+                           smallest_neg_ref >= 0 &&
+                           (size_t)smallest_neg_ref != j)
+                          || (!tools[j].reference &&
+                              smallest_pos_ref >= 0 &&
+                              (size_t)smallest_pos_ref != i)))
+                      problems +=
+                        check_empty_prod(pos[i], neg[j], i, j, false, false);
 
                     // Deal with the extra complemented automata if we
                     // have some.
@@ -1240,13 +1314,15 @@ namespace
                     // translation was not deterministic.
 
                     if (i != j && comp_pos[j] && !comp_neg[j])
-                      problems +=
-                        check_empty_prod(pos[i], comp_pos[j],
-                                         i, j, false, true);
+                      if (smallest_pos_ref < 0 || i == (size_t)smallest_pos_ref)
+                        problems +=
+                          check_empty_prod(pos[i], comp_pos[j],
+                                           i, j, false, true);
                     if (i != j && comp_neg[i] && !comp_pos[i])
-                      problems +=
-                        check_empty_prod(comp_neg[i], neg[j],
-                                         i, j, true, false);
+                      if (smallest_neg_ref < 0 || j == (size_t)smallest_neg_ref)
+                        problems +=
+                          check_empty_prod(comp_neg[i], neg[j],
+                                           i, j, true, false);
                     if (comp_pos[i] && comp_neg[j] &&
                         (i == j || (!comp_neg[i] && !comp_pos[j])))
                       problems +=
@@ -1370,7 +1446,7 @@ namespace
 
               // consistency check
               for (size_t i = 0; i < m; ++i)
-                if (pos_map[i] && neg_map[i])
+                if (pos_map[i] && neg_map[i] && !tools[i].reference)
                   {
                     if (verbose)
                       std::cerr << "info: consistency_check (P" << i
