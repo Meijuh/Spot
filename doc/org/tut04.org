@@ -4,7 +4,8 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
 
-This page shows how to test whether two LTL/PSL formulas are equal.
+This page shows how to test whether two LTL/PSL formulas are
+equivalent, i.e., if they denote the same languages.
 
 * Shell
 
