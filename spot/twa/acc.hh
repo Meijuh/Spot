@@ -219,7 +219,7 @@ namespace spot
 
       bool subset(mark_t m) const
       {
-        return this->strip(m) == 0U;
+        return (*this) - m == 0U;
       }
 
       bool proper_subset(mark_t m) const
