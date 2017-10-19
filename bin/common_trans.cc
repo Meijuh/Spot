@@ -54,6 +54,8 @@ static shorthands_t shorthands_ltl[] = {
     { "ltl3ba", " -f %s>%O" },
     { "ltl3dra", " -f %s>%O" },
     { "ltl3hoa", " -f %f>%O" },
+    // ltl3tela is the new name of ltl3hoa
+    { "ltl3tela", " -f %f>%O" },
     { "modella", " %[MWei^]L %O" },
     { "spin", " -f %s>%O" },
   };
