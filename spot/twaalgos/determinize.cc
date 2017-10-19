@@ -41,6 +41,7 @@ namespace spot
   {
     // forward declaration
     struct safra_build;
+    class compute_succs;
   }
 
   class safra_state final
@@ -90,26 +91,23 @@ namespace spot
 
     // Print the number of states in each brace
     // default constructor
-    safra_state(): safra_state(0) {}
+    safra_state();
     safra_state(state_t state_number, bool acceptance_scc = false);
-    safra_state(safra_build&& s, unsigned c);
+    safra_state(const safra_build& s, const compute_succs& cs, unsigned& color);
     // Compute successor for transition ap
     safra_state
-    compute_succ(const const_twa_graph_ptr& aut,
-                 const bdd& ap,
-                 const scc_info& scc,
-                 const std::vector<bdd>& implications,
-                 const std::vector<char>& is_connected,
-                 bool use_scc,
-                 bool use_simulation) const;
+    compute_succ(const compute_succs& cs, const bdd& ap, unsigned& color) const;
+    void
+    merge_redundant_states(const std::vector<std::vector<char>>& implies);
+    unsigned
+    finalize_construction(const std::vector<int>& buildbraces,
+                          const compute_succs& cs);
 
     // each brace points to its parent.
     // braces_[i] is the parent of i
     // Note that braces_[i] < i, -1 stands for "no parent" (top-level)
     std::vector<int> braces_;
     std::vector<std::pair<state_t, int>> nodes_;
-    // FIXME this does not belong to the safra_state
-    unsigned color_;
   };
 
   namespace
@@ -140,52 +138,165 @@ namespace spot
     nodes_to_string(const const_twa_graph_ptr& aut,
                     const safra_state& states);
 
+    // Returns true if lhs has a smaller nesting pattern than rhs
+    // If lhs and rhs are the same, return false.
+    // NB the nesting patterns are backwards.
+    bool nesting_cmp(const std::vector<int>& lhs,
+                     const std::vector<int>& rhs)
+    {
+      unsigned m = std::min(lhs.size(), rhs.size());
+      auto lit = lhs.rbegin();
+      auto rit = rhs.rbegin();
+      for (unsigned i = 0; i != m; ++i)
+        {
+          if (*lit != *rit)
+            return *lit < *rit;
+        }
+      return lhs.size() > rhs.size();
+    }
+
+    // a helper class for building the successor of a safra_state
+    struct safra_build final
+    {
+      std::vector<int> braces_;
+      std::map<unsigned, int> nodes_;
+
+      bool
+      compare_braces(int a, int b)
+      {
+        std::vector<int> a_pattern;
+        std::vector<int> b_pattern;
+        a_pattern.reserve(a+1);
+        b_pattern.reserve(b+1);
+        while (a != b)
+          {
+            if (a > b)
+              {
+                a_pattern.emplace_back(a);
+                a = braces_[a];
+              }
+            else
+              {
+                b_pattern.emplace_back(b);
+                b = braces_[b];
+              }
+          }
+        return nesting_cmp(a_pattern, b_pattern);
+      }
+
+      // Used when creating the list of successors
+      // A new intermediate node is created with src's braces and with dst as id
+      // A merge is done if dst already existed in *this
+      void
+      update_succ(int brace, unsigned dst, const acc_cond::mark_t& acc)
+      {
+        int newb = brace;
+        if (acc.count())
+          {
+            assert(acc.has(0) && acc.count() == 1 && "Only TBA are accepted");
+            // Accepting edges generate new braces: step A1
+            newb = braces_.size();
+            braces_.emplace_back(brace);
+          }
+        auto i = nodes_.emplace(dst, newb);
+        if (!i.second) // dst already exists
+          {
+            // Step A2: Only keep the smallest nesting pattern.
+            // Use nesting_cmp to compare nesting patterns.
+            if (compare_braces(newb, i.first->second))
+              {
+                i.first->second = newb;
+              }
+            else
+              {
+                if (newb != brace) // new brace was created but is not needed
+                  braces_.pop_back();
+              }
+          }
+      }
+
+      // Same as above, specialized for brace == -1
+      // Acceptance parameter is passed as a template parameter to improve
+      // performance.
+      // If a node for dst already existed, the newly inserted node has smaller
+      // nesting pattern iff is_acc == true AND nodes_[dst] == -1
+      template<bool is_acc>
+      void
+      update_succ_toplevel(unsigned dst)
+      {
+        if (is_acc)
+          {
+            // Accepting edges generate new braces: step A1
+            int newb = braces_.size();
+            auto i = nodes_.emplace(dst, newb);
+            if (i.second || i.first->second == -1)
+              {
+                braces_.emplace_back(-1);
+                i.first->second = newb;
+              }
+          }
+        else
+          {
+            nodes_.emplace(dst, -1);
+          }
+      }
+
+    };
+
     // Given a certain transition_label, compute all the successors of a
     // safra_state under that label, and return the new nodes in res.
     class compute_succs final
     {
-      const safra_state& src;
+      friend class spot::safra_state;
+
+      const safra_state* src;
+      const std::vector<bdd>* all_bdds;
       const const_twa_graph_ptr& aut;
       const power_set& seen;
       const scc_info& scc;
-      const std::vector<bdd>& implications;
-      const std::vector<char>& is_connected;
-      const std::vector<bdd>& all_bdds;
+      const std::vector<std::vector<char>>& implies;
       bool use_scc;
       bool use_simulation;
       bool use_stutter;
 
-      // to iterate on successors
-      std::vector<bdd>::const_iterator bddit;
-      safra_state ss;
+      // work vectors for safra_state::finalize_construction()
+      mutable std::vector<char> empty_green;
+      mutable std::vector<int> highest_green_ancestor;
+      mutable std::vector<unsigned> decr_by;
+      mutable safra_build ss;
+
     public:
-      compute_succs(const safra_state& src,
-                    const const_twa_graph_ptr& aut,
+      compute_succs(const const_twa_graph_ptr& aut,
                     const power_set& seen,
                     const scc_info& scc,
-                    const std::vector<bdd>& implications,
-                    const std::vector<char>& is_connected,
-                    const std::vector<bdd>& all_bdds,
+                    const std::vector<std::vector<char>>& implies,
                     bool use_scc,
                     bool use_simulation,
                     bool use_stutter)
-      : src(src)
+      : src(nullptr)
+      , all_bdds(nullptr)
       , aut(aut)
       , seen(seen)
       , scc(scc)
-      , implications(implications)
-      , is_connected(is_connected)
-      , all_bdds(all_bdds)
+      , implies(implies)
       , use_scc(use_scc)
       , use_simulation(use_simulation)
       , use_stutter(use_stutter)
       {}
+
+      void
+      set(const safra_state& s, const std::vector<bdd>& v)
+      {
+        src = &s;
+        all_bdds = &v;
+      }
 
       struct iterator
       {
         const compute_succs& cs_;
         std::vector<bdd>::const_iterator bddit;
         safra_state ss;
+        unsigned color_;
 
         iterator(const compute_succs& c, std::vector<bdd>::const_iterator it)
         : cs_(c)
@@ -209,7 +320,7 @@ namespace spot
         }
         // no need to implement postfix increment
 
-        bdd
+        const bdd&
         cond() const
         {
           return *bddit;
@@ -230,14 +341,14 @@ namespace spot
         void
         compute_()
         {
-          if (bddit == cs_.all_bdds.end())
+          if (bddit == cs_.all_bdds->end())
             return;
 
           const bdd& ap = *bddit;
-          ss = cs_.src;
 
           if (cs_.use_stutter && cs_.aut->prop_stutter_invariant())
             {
+              ss = *cs_.src;
               bool stop = false;
               std::deque<safra_state> path;
               std::unordered_set<
@@ -250,11 +361,8 @@ namespace spot
                   path.emplace_back(std::move(ss));
                   auto i = states.insert(path.back());
                   assert(i.second);
-                  ss = path.back().compute_succ(cs_.aut, ap, cs_.scc,
-                                                cs_.implications,
-                                                cs_.is_connected, cs_.use_scc,
-                                                cs_.use_simulation);
-                  mincolor = std::min(ss.color_, mincolor);
+                  ss = path.back().compute_succ(cs_, ap, color_);
+                  mincolor = std::min(color_, mincolor);
                   stop = states.find(ss) != states.end();
                 }
 
@@ -292,24 +400,24 @@ namespace spot
               states.clear();
               // move is safe, no dangling references
               ss = std::move(path[tokeep]);
-              ss.color_ = mincolor;
+              color_ = mincolor;
             }
           else
-            ss = cs_.src.compute_succ(cs_.aut, ap, cs_.scc, cs_.implications,
-                                      cs_.is_connected, cs_.use_scc,
-                                      cs_.use_simulation);
+            {
+              ss = cs_.src->compute_succ(cs_, ap, color_);
+            }
         }
       };
 
       iterator
       begin() const
       {
-        return iterator(*this, all_bdds.begin());
+        return iterator(*this, all_bdds->begin());
       }
       iterator
       end() const
       {
-        return iterator(*this, all_bdds.end());
+        return iterator(*this, all_bdds->end());
       }
     };
 
@@ -339,23 +447,6 @@ namespace spot
       return res;
     }
 
-    // Returns true if lhs has a smaller nesting pattern than rhs
-    // If lhs and rhs are the same, return false.
-    // NB the nesting patterns are backwards.
-    bool nesting_cmp(const std::vector<int>& lhs,
-                     const std::vector<int>& rhs)
-    {
-      unsigned m = std::min(lhs.size(), rhs.size());
-      auto lit = lhs.rbegin();
-      auto rit = rhs.rbegin();
-      for (unsigned i = 0; i != m; ++i)
-        {
-          if (*lit != *rit)
-            return *lit < *rit;
-        }
-      return lhs.size() > rhs.size();
-    }
-
     // Used to remove all acceptance whose value is above or equal to max_acc
     void remove_dead_acc(twa_graph_ptr& aut, unsigned max_acc)
     {
@@ -369,7 +460,7 @@ namespace spot
     {
       bool
       operator() (const safra_state::safra_node_t& lhs,
-                  const safra_state::safra_node_t& rhs)
+                  const safra_state::safra_node_t& rhs) const
       {
         return lhs.second < rhs.second;
       }
@@ -458,190 +549,9 @@ namespace spot
       return res;
     }
 
-    // a helper class for building the successor of a safra_state
-    struct safra_build final
-    {
-      std::vector<int> braces_;
-      std::map<unsigned, int> nodes_;
-
-      safra_build(const std::vector<int>& b)
-      : braces_(b)
-      {}
-
-      bool
-      compare_braces(int a, int b)
-      {
-        std::vector<int> a_pattern;
-        std::vector<int> b_pattern;
-        a_pattern.reserve(a+1);
-        b_pattern.reserve(b+1);
-        while (a != b)
-          {
-            if (a > b)
-              {
-                a_pattern.emplace_back(a);
-                a = braces_[a];
-              }
-            else
-              {
-                b_pattern.emplace_back(b);
-                b = braces_[b];
-              }
-          }
-        return nesting_cmp(a_pattern, b_pattern);
-      }
-
-      // Used when creating the list of successors
-      // A new intermediate node is created with src's braces and with dst as id
-      // A merge is done if dst already existed in *this
-      void
-      update_succ(int brace, unsigned dst, const acc_cond::mark_t acc)
-      {
-        int newb = brace;
-        if (acc.count())
-          {
-            assert(acc.has(0) && acc.count() == 1 && "Only TBA are accepted");
-            // Accepting edges generate new braces: step A1
-            newb = braces_.size();
-            braces_.emplace_back(brace);
-          }
-        auto i = nodes_.emplace(dst, newb);
-        if (!i.second) // dst already exists
-          {
-            // Step A2: Only keep the smallest nesting pattern.
-            // Use nesting_cmp to compare nesting patterns.
-            if (compare_braces(newb, i.first->second))
-              {
-                i.first->second = newb;
-              }
-            else
-              {
-                if (newb != brace) // new brace was created but is not needed
-                  braces_.pop_back();
-              }
-          }
-      }
-
-      // When a node a implies a node b, remove the node a.
-      void
-      merge_redundant_states(const std::vector<bdd>& implications,
-                             const scc_info& scc,
-                             const std::vector<char>& is_connected)
-      {
-        std::vector<unsigned> to_remove;
-        for (const auto& n1: nodes_)
-          for (const auto& n2: nodes_)
-            {
-              if (n1 == n2)
-                continue;
-              // index to see if there is a path from scc2 -> scc1
-              unsigned idx = scc.scc_count() * scc.scc_of(n2.first) +
-                scc.scc_of(n1.first);
-              if (!is_connected[idx] && bdd_implies(implications.at(n1.first),
-                                                    implications.at(n2.first)))
-                to_remove.emplace_back(n1.first);
-            }
-        for (unsigned n: to_remove)
-          nodes_.erase(n);
-      }
-
-      // Return the emitted color, red or green
-      unsigned
-      finalize_construction()
-      {
-        unsigned red = -1U;
-        unsigned green = -1U;
-        // use std::vector<char> to avoid std::vector<bool>
-        // a char encodes several bools:
-        //  * first bit says whether the brace is empty and red
-        //  * second bit says whether the brace is green
-        // brackets removed from green pairs can be safely be marked as red,
-        // because their enclosing green has a lower number
-        // beware of pairs marked both as red and green: they are actually empty
-        constexpr char is_empty = 1;
-        constexpr char is_green = 2;
-        std::vector<char> empty_green(braces_.size(), 3);
-
-        for (const auto& n : nodes_)
-          if (n.second >= 0)
-            {
-              int brace = n.second;
-              // Step A4: For a brace to be green it must not contain states
-              // on its own.
-              empty_green[brace] &= ~is_green;
-              while (brace >= 0 && (empty_green[brace] & is_empty))
-                {
-                  empty_green[brace] &= ~is_empty;
-                  brace = braces_[brace];
-                }
-            }
-        // Step A4 Remove brackets within green pairs
-        // for each bracket, find its highest green ancestor
-        // 0 cannot be in a green pair, its highest green ancestor is itself
-        std::vector<unsigned> highest_green_ancestor(braces_.size(), 0);
-        for (unsigned b = 0; b != braces_.size(); ++b)
-          {
-            highest_green_ancestor[b] = b;
-            int ancestor = braces_[b];
-            // Note that ancestor strictly decreases
-            // FIXME is there a smarter way to do that?
-            while (ancestor >= 0)
-              {
-                if (empty_green[ancestor] & is_green)
-                  highest_green_ancestor[b] = ancestor;
-                ancestor = braces_[ancestor];
-              }
-            if (highest_green_ancestor[b] != b)
-              empty_green[b] |= is_empty; // mark brace for removal
-          }
-        for (auto& n : nodes_)
-          if (n.second >= 0)
-            n.second = highest_green_ancestor[n.second];
-
-        // find red and green signals to emit
-        // also compute the number of braces to remove for renumbering
-        std::vector<unsigned> decr_by(braces_.size());
-        unsigned decr = 0;
-        for (unsigned i = 0; i != braces_.size(); ++i)
-          {
-            if (empty_green[i] & is_empty)
-              {
-                // Step A5 renumber braces
-                ++decr;
-
-                // Step A3 emit red
-                red = std::min(red, 2*i);
-              }
-            else if (empty_green[i] & is_green)
-              {
-                // Step A4 emit green
-                green = std::min(green, 2*i+1);
-              }
-
-            decr_by[i] = decr;
-          }
-
-        std::vector<int> new_braces(braces_.size() - decr);
-        for (auto& n : nodes_)
-          {
-            if (n.second >= 0)
-              {
-                unsigned i = n.second;
-                int j = braces_[i] >=0 ? braces_[i] - decr_by[braces_[i]] : -1;
-                new_braces[i - decr_by[i]] = j;
-                n.second = i - decr_by[i];
-              }
-          }
-        std::swap(braces_, new_braces);
-
-        return std::min(red, green);
-      }
-
-    };
-
     // Compute a vector of letters from a given support
     std::vector<bdd>
-    letters(bdd allap)
+    letters(const bdd& allap)
     {
       std::vector<bdd> res;
       bdd all = bddtrue;
@@ -668,10 +578,10 @@ namespace spot
         bdd supp = bddtrue;
         for (const auto& n : s.nodes_)
           supp &= state_supports[n.first];
-        auto it = cache.find(supp);
-        if (it == cache.end())
-          it = cache.emplace(supp, letters(supp)).first;
-        return it->second;
+        auto i = cache.emplace(supp, std::vector<bdd>());
+        if (i.second) // insertion took place
+          i.first->second = letters(supp);
+        return i.first->second;
       }
     };
   }
@@ -679,63 +589,172 @@ namespace spot
   std::vector<char> find_scc_paths(const scc_info& scc);
 
   safra_state
-  safra_state::compute_succ(const const_twa_graph_ptr& aut,
-                            const bdd& ap,
-                            const scc_info& scc,
-                            const std::vector<bdd>& implications,
-                            const std::vector<char>& is_connected,
-                            bool use_scc,
-                            bool use_simulation) const
+  safra_state::compute_succ(const compute_succs& cs,
+                            const bdd& ap, unsigned& color) const
   {
-    // FIXME: we manipulate one safra_build at a time: how can we optimize/avoid
-    // allocation/deallocation?
-    safra_build ss(braces_);
+    safra_build& ss = cs.ss;
+    ss.braces_ = braces_; // copy
+    ss.nodes_.clear();
     for (const auto& node: nodes_)
       {
-        for (const auto& t: aut->out(node.first))
+        for (const auto& t: cs.aut->out(node.first))
           {
             if (!bdd_implies(ap, t.cond))
               continue;
             // Check if we are leaving the SCC, if so we delete all the
             // braces as no cycles can be found with that node
-            if (use_scc && scc.scc_of(node.first) != scc.scc_of(t.dst))
-              if (scc.is_accepting_scc(scc.scc_of(t.dst)))
+            if (cs.use_scc && cs.scc.scc_of(node.first) != cs.scc.scc_of(t.dst))
+              if (cs.scc.is_accepting_scc(cs.scc.scc_of(t.dst)))
                 // Entering accepting SCC so add brace
-                ss.update_succ(-1, t.dst, { 0 });
+                ss.update_succ_toplevel<true>(t.dst);
               else
                 // When entering non accepting SCC don't create any braces
-                ss.update_succ(-1, t.dst, { /* empty */ });
+                ss.update_succ_toplevel<false>(t.dst);
             else
               ss.update_succ(node.second, t.dst, t.acc);
           }
       }
-    if (use_simulation)
-      ss.merge_redundant_states(implications, scc, is_connected);
-    unsigned color = ss.finalize_construction();
-    return safra_state(std::move(ss), color);
+    return safra_state(ss, cs, color);
   }
+
+  // When a node a implies a node b, remove the node a.
+  void
+  safra_state::merge_redundant_states(
+      const std::vector<std::vector<char>>& implies)
+  {
+    auto it1 = nodes_.begin();
+    while (it1 != nodes_.end())
+      {
+        const auto& imp1 = implies[it1->first];
+        bool erased = false;
+        for (auto it2 = nodes_.begin(); it2 != nodes_.end(); ++it2)
+          {
+            if (it1 == it2)
+              continue;
+            if (imp1[it2->first])
+              {
+                erased = true;
+                it1 = nodes_.erase(it1);
+                break;
+              }
+          }
+        if (!erased)
+          ++it1;
+      }
+  }
+
+  // Return the emitted color, red or green
+  unsigned
+  safra_state::finalize_construction(const std::vector<int>& buildbraces,
+                                     const compute_succs& cs)
+  {
+    unsigned red = -1U;
+    unsigned green = -1U;
+    // use std::vector<char> to avoid std::vector<bool>
+    // a char encodes several bools:
+    //  * first bit says whether the brace is empty and red
+    //  * second bit says whether the brace is green
+    // brackets removed from green pairs can be safely be marked as red,
+    // because their enclosing green has a lower number
+    // beware of pairs marked both as red and green: they are actually empty
+    constexpr char is_empty = 1;
+    constexpr char is_green = 2;
+    cs.empty_green.assign(buildbraces.size(), is_empty | is_green);
+
+    for (const auto& n : nodes_)
+      if (n.second >= 0)
+        {
+          int brace = n.second;
+          // Step A4: For a brace to be green it must not contain states
+          // on its own.
+          cs.empty_green[brace] &= ~is_green;
+          while (brace >= 0 && (cs.empty_green[brace] & is_empty))
+            {
+              cs.empty_green[brace] &= ~is_empty;
+              brace = buildbraces[brace];
+            }
+        }
+
+    // Step A4 Remove brackets within green pairs
+    // for each bracket, find its highest green ancestor
+    // 0 cannot be in a green pair, its highest green ancestor is itself
+    // Also find red and green signals to emit
+    // And compute the number of braces to remove for renumbering
+    cs.highest_green_ancestor.assign(buildbraces.size(), 0);
+    cs.decr_by.assign(buildbraces.size(), 0);
+    unsigned decr = 0;
+    for (unsigned b = 0; b != buildbraces.size(); ++b)
+      {
+        cs.highest_green_ancestor[b] = b;
+        const int& ancestor = buildbraces[b];
+        // Note that ancestor < b
+        if (ancestor >= 0
+            && (cs.highest_green_ancestor[ancestor] != ancestor
+                || (cs.empty_green[ancestor] & is_green)))
+          {
+            cs.highest_green_ancestor[b] = cs.highest_green_ancestor[ancestor];
+            cs.empty_green[b] |= is_empty; // mark brace for removal
+          }
+
+        if (cs.empty_green[b] & is_empty)
+          {
+            // Step A5 renumber braces
+            ++decr;
+
+            // Step A3 emit red
+            red = std::min(red, 2*b);
+          }
+        else if (cs.empty_green[b] & is_green)
+          {
+            // Step A4 emit green
+            green = std::min(green, 2*b+1);
+          }
+
+        cs.decr_by[b] = decr;
+      }
+
+    // Update nodes with new braces numbers
+    braces_ = std::vector<int>(buildbraces.size() - decr, -1);
+    for (auto& n : nodes_)
+      {
+        if (n.second >= 0)
+          {
+            unsigned i = cs.highest_green_ancestor[n.second];
+            int j = buildbraces[i] >=0
+                      ? buildbraces[i] - cs.decr_by[buildbraces[i]]
+                      : -1;
+            n.second = i - cs.decr_by[i];
+            braces_[n.second] = j;
+          }
+      }
+
+    return std::min(red, green);
+  }
+
+  safra_state::safra_state()
+  : nodes_{std::make_pair(0, -1)}
+  {}
 
   // Called only to initialize first state
   safra_state::safra_state(state_t val, bool accepting_scc)
+  : nodes_{std::make_pair(val, -1)}
   {
-    if (!accepting_scc)
-      {
-        // -1 means "no braces"
-        nodes_.emplace_back(val, -1);
-      }
-    else
+    if (accepting_scc)
       {
         braces_.emplace_back(-1);
-        nodes_.emplace_back(val, 0);
+        nodes_.back().second = 0;
       }
   }
 
-  safra_state::safra_state(safra_build&& s, unsigned c)
-  : braces_(std::move(s.braces_))
-  , nodes_(std::make_move_iterator(s.nodes_.begin()),
-           std::make_move_iterator(s.nodes_.end()))
-  , color_(c)
-  {}
+  safra_state::safra_state(const safra_build& s,
+                           const compute_succs& cs,
+                           unsigned& color)
+  : nodes_(s.nodes_.begin(), s.nodes_.end())
+  {
+    if (cs.use_simulation)
+      merge_redundant_states(cs.implies);
+    color = finalize_construction(s.braces_, cs);
+  }
 
   bool
   safra_state::operator<(const safra_state& other) const
@@ -825,7 +844,36 @@ namespace spot
     if (use_stutter && aut->prop_stutter_invariant())
       scc_opt = scc_info_options::TRACK_SUCCS | scc_info_options::TRACK_STATES;
     scc_info scc = scc_info(aut, scc_opt);
-    std::vector<char> is_connected = find_scc_paths(scc);
+
+    // If use_simulation is false, implications is empty, so nothing is built
+    std::vector<std::vector<char>> implies(
+        implications.size(),
+        std::vector<char>(implications.size(), 0));
+    {
+      std::vector<char> is_connected = find_scc_paths(scc);
+      for (unsigned i = 0; i != implications.size(); ++i)
+        {
+          // NB spot::simulation() does not remove unreachable states, as it
+          // would invalidate the contents of 'implications'.
+          // so we need to explicitely test for unreachable states
+          // FIXME based on the scc_info, we could remove the unreachable
+          // states, both in the input automaton and in 'implications'
+          // to reduce the size of 'implies'.
+          if (!scc.reachable_state(i))
+            continue;
+          for (unsigned j = 0; j != implications.size(); ++j)
+            {
+              if (!scc.reachable_state(j))
+                continue;
+
+              // index to see if there is a path from scc2 -> scc1
+              unsigned idx = scc.scc_count() * scc.scc_of(j) + scc.scc_of(i);
+              implies[i][j] =     !is_connected[idx]
+                              &&  bdd_implies(implications[i], implications[j]);
+            }
+        }
+    }
+
 
     // Compute the support of each state
     std::vector<bdd> support(aut->num_states());
@@ -874,18 +922,14 @@ namespace spot
     std::deque<std::reference_wrapper<power_set::value_type>> todo;
     auto get_state = [&res, &seen, &todo](const safra_state& s) -> unsigned
       {
-        auto i = seen.emplace(std::make_pair(s, 0));
-        unsigned dst_num;
-        if (i.second) // insertion did take place
+        auto it = seen.find(s);
+        if (it == seen.end())
           {
-            dst_num = res->new_state();
-            i.first->second = dst_num;
-            todo.emplace_back(*i.first);
+            unsigned dst_num = res->new_state();
+            it = seen.emplace(s, dst_num).first;
+            todo.emplace_back(*it);
           }
-        else // element was already in seen
-          dst_num = i.first->second;
-
-        return dst_num;
+        return it->second;
       };
 
     {
@@ -897,26 +941,28 @@ namespace spot
       res->set_init_state(num);
     }
     unsigned sets = 0;
+
+    compute_succs succs(aut, seen, scc, implies, use_scc, use_simulation,
+                        use_stutter);
+    // The main loop
     while (!todo.empty())
       {
         const safra_state& curr = todo.front().get().first;
         unsigned src_num = todo.front().get().second;
         todo.pop_front();
-        compute_succs succs(curr, aut, seen, scc, implications, is_connected,
-                            safra2letters.get(curr), use_scc, use_simulation,
-                            use_stutter);
+        succs.set(curr, safra2letters.get(curr));
         for (auto s = succs.begin(); s != succs.end(); ++s)
           {
             // Don't construct sink state as complete does a better job at this
             if (s->nodes_.empty())
               continue;
             unsigned dst_num = get_state(*s);
-            if (s->color_ != -1U)
+            if (s.color_ != -1U)
               {
-                res->new_edge(src_num, dst_num, s.cond(), {s->color_});
+                res->new_edge(src_num, dst_num, s.cond(), {s.color_});
                 // We only care about green acc which are odd
-                if (s->color_ % 2 == 1)
-                  sets = std::max(s->color_ + 1, sets);
+                if (s.color_ % 2 == 1)
+                  sets = std::max(s.color_ + 1, sets);
               }
             else
               res->new_edge(src_num, dst_num, s.cond());
