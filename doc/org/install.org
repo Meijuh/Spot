@@ -61,6 +61,7 @@ for Sid (a.k.a. Debian unstable).
 Here is how to install the stable packages:
 
 #+BEGIN_SRC sh
+wget -q -O - https://www.lrde.epita.fr/repo/debian.gpg | apt-key add -
 echo 'deb http://www.lrde.epita.fr/repo/debian/ stable/' >> /etc/apt/sources.list
 apt-get update
 apt-get install spot libspot-dev spot-doc python3-spot # Or a subset of those
@@ -69,10 +70,16 @@ apt-get install spot libspot-dev spot-doc python3-spot # Or a subset of those
 Here is how to install the unstable packages:
 
 #+BEGIN_SRC sh
+wget -q -O - https://www.lrde.epita.fr/repo/debian.gpg | apt-key add -
 echo 'deb http://www.lrde.epita.fr/repo/debian/ unstable/' >> /etc/apt/sources.list
 apt-get update
 apt-get install spot libspot-dev spot-doc python3-spot # Or a subset of those
 #+END_SRC
+
+Note that our Debian repository is signed since that is the new Debian
+policy, and both of the above command blocks start with a download of
+our [[https://www.lrde.epita.fr/repo/debian.gpg][GPG key]].  Its fingerprint is =209B 7362 CFD6 FECF B41D 717F 03D9
+9E74 44F2 A84A=, if you want to verify it.
 
 The package =spot= contains the [[file:tools.org][command-line tools]]. =libspot-dev=
 contains the header files if you plan to use Spot in a C++14
@@ -82,8 +89,6 @@ documentation. Finally =python3-spot= contains some Python bindings
 examples).  The packages containing the libraries (=libspot0=,
 =libbddx0=, =libspotltsmin0=) are automatically installed as
 dependencies of the previous packages.
-
-#+END_SRC
 
 * Installing from git
 
