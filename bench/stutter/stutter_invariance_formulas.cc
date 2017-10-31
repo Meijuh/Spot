@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -66,9 +66,8 @@ namespace
       spot::twa_graph_ptr a = trans.run(f);
       spot::twa_graph_ptr na = trans.run(spot::formula::Not(f));
       spot::atomic_prop_set* ap = spot::atomic_prop_collect(f);
-      bdd apdict = spot::atomic_prop_collect_as_bdd(f, a);
-
       std::cout << formula << ',' << ap->size() << ',';
+      delete ap;
       stats.print(a);
       stats.print(na);
 
@@ -82,9 +81,9 @@ namespace
           sw.start();
           bool res = spot::is_stutter_invariant(std::move(dup_a),
 						std::move(dup_na),
-						apdict, algo);
+						algo);
           auto time = sw.stop();
-	  std::cout<< time << ',';
+	  std::cout << time << ',';
 
           if (algo > 1 && prev != res)
 	    {
@@ -96,7 +95,6 @@ namespace
           prev = res;
         }
       std::cout << prev << '\n';
-      delete ap;
       return 0;
     }
   };

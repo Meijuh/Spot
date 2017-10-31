@@ -1687,6 +1687,9 @@ namespace spot
   /// \addtogroup twa_io Input/Output of TωA
   /// \ingroup twa_algorithms
 
+  /// \addtogroup stutter_inv Stutter-invariance checks
+  /// \ingroup twa_algorithms
+
   /// \addtogroup twa_ltl Translating LTL formulas into TωA
   /// \ingroup twa_algorithms
 

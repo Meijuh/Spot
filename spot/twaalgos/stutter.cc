@@ -210,12 +210,11 @@ namespace spot
     class tgbasl final : public twa
     {
     public:
-      tgbasl(const const_twa_ptr& a, bdd atomic_propositions)
-        : twa(a->get_dict()), a_(a), aps_(atomic_propositions)
+      tgbasl(const_twa_ptr a)
+        : twa(a->get_dict()), a_(a)
       {
-        get_dict()->register_all_propositions_of(&a_, this);
-        assert(num_sets() == 0);
-        set_generalized_buchi(a_->num_sets());
+        copy_ap_of(a);
+        copy_acceptance_of(a_);
       }
 
       virtual const state* get_init_state() const override
@@ -227,7 +226,7 @@ namespace spot
       {
         const state_tgbasl* s = down_cast<const state_tgbasl*>(state);
         return new twasl_succ_iterator(a_->succ_iter(s->real_state()), s,
-                                        a_->get_dict(), aps_);
+                                       a_->get_dict(), ap_vars());
       }
 
       virtual std::string format_state(const state* state) const override
@@ -240,14 +239,13 @@ namespace spot
 
     private:
       const_twa_ptr a_;
-      bdd aps_;
     };
 
     typedef std::shared_ptr<tgbasl> tgbasl_ptr;
 
-    inline tgbasl_ptr make_tgbasl(const const_twa_ptr& aut, bdd ap)
+    inline tgbasl_ptr make_tgbasl(const const_twa_ptr& aut)
     {
-      return std::make_shared<tgbasl>(aut, ap);
+      return std::make_shared<tgbasl>(aut);
     }
 
 
@@ -272,22 +270,11 @@ namespace spot
   }
 
   twa_graph_ptr
-  sl(const twa_graph_ptr& a)
-  {
-    return sl(a, a->ap_vars());
-  }
-
-  twa_graph_ptr
-  sl2(const twa_graph_ptr& a)
-  {
-    return sl2(a, a->ap_vars());
-  }
-
-  twa_graph_ptr
-  sl(const const_twa_graph_ptr& a, bdd atomic_propositions)
+  sl(const_twa_graph_ptr a)
   {
     // The result automaton uses numbered states.
     twa_graph_ptr res = make_twa_graph(a->get_dict());
+    bdd atomic_propositions = a->ap_vars();
     // We use the same BDD variables as the input.
     res->copy_ap_of(a);
     res->copy_acceptance_of(a);
@@ -348,10 +335,9 @@ namespace spot
   }
 
   twa_graph_ptr
-  sl2(twa_graph_ptr&& a, bdd atomic_propositions)
+  sl2_inplace(twa_graph_ptr a)
   {
-    if (atomic_propositions == bddfalse)
-      atomic_propositions = a->ap_vars();
+    bdd atomic_propositions = a->ap_vars();
     unsigned num_states = a->num_states();
     unsigned num_edges = a->num_edges();
     std::vector<bdd> selfloops(num_states, bddfalse);
@@ -415,15 +401,13 @@ namespace spot
   }
 
   twa_graph_ptr
-  sl2(const const_twa_graph_ptr& a, bdd atomic_propositions)
+  sl2(const_twa_graph_ptr a)
   {
-    return sl2(make_twa_graph(a, twa::prop_set::all()),
-               atomic_propositions);
+    return sl2_inplace(make_twa_graph(a, twa::prop_set::all()));
   }
 
-
   twa_graph_ptr
-  closure(twa_graph_ptr&& a)
+  closure_inplace(twa_graph_ptr a)
   {
     a->prop_keep({false,        // state_based
                   false,        // inherently_weak
@@ -506,33 +490,145 @@ namespace spot
   }
 
   twa_graph_ptr
-  closure(const const_twa_graph_ptr& a)
+  closure(const_twa_graph_ptr a)
   {
-    return closure(make_twa_graph(a, twa::prop_set::all()));
+    return closure_inplace(make_twa_graph(a, twa::prop_set::all()));
   }
 
-  // The stutter check algorithm to use can be overridden via an
-  // environment variable.
-  static int default_stutter_check_algorithm()
+  namespace
   {
-    static const char* stutter_check = getenv("SPOT_STUTTER_CHECK");
-    if (stutter_check)
-      {
-        char* endptr;
-        long res = strtol(stutter_check, &endptr, 10);
-        if (*endptr || res < 0 || res > 9)
-          throw
-            std::runtime_error("invalid value for SPOT_STUTTER_CHECK.");
-        return res;
-      }
-    else
-      {
-        return 8;     // The best variant, according to our benchmarks.
-      }
+    // The stutter check algorithm to use can be overridden via an
+    // environment variable.
+    static int default_stutter_check_algorithm()
+    {
+      static const char* stutter_check = getenv("SPOT_STUTTER_CHECK");
+      if (stutter_check)
+        {
+          char* endptr;
+          long res = strtol(stutter_check, &endptr, 10);
+          if (*endptr || res < 0 || res > 9)
+            throw
+              std::runtime_error("invalid value for SPOT_STUTTER_CHECK.");
+          return res;
+        }
+      else
+        {
+          return 8;     // The best variant, according to our benchmarks.
+        }
+    }
+  }
+
+  namespace
+  {
+    // The own_f and own_nf tell us whether we can modify the aut_f
+    // and aut_nf automata inplace.
+    static bool do_si_check(const_twa_graph_ptr aut_f, bool own_f,
+                            const_twa_graph_ptr aut_nf, bool own_nf,
+                            int algo)
+    {
+      auto cl = [](const_twa_graph_ptr a, bool own) {
+        if (own)
+          return closure_inplace(std::const_pointer_cast<twa_graph>
+                                 (std::move(a)));
+        return closure(std::move(a));
+      };
+      auto sl_2 = [](const_twa_graph_ptr a, bool own) {
+        if (own)
+          return sl2_inplace(std::const_pointer_cast<twa_graph>(std::move(a)));
+        return sl2(std::move(a));
+      };
+
+      switch (algo)
+        {
+        case 1: // sl(aut_f) x sl(aut_nf)
+          return product(sl(std::move(aut_f)),
+                         sl(std::move(aut_nf)))->is_empty();
+        case 2: // sl(cl(aut_f)) x aut_nf
+          return product(sl(cl(std::move(aut_f), own_f)),
+                         std::move(aut_nf))->is_empty();
+        case 3: // (cl(sl(aut_f)) x aut_nf
+          return product(closure_inplace(sl(std::move(aut_f))),
+                         std::move(aut_nf))->is_empty();
+        case 4: // sl2(aut_f) x sl2(aut_nf)
+          return product(sl_2(std::move(aut_f), own_f),
+                         sl_2(std::move(aut_nf), own_nf))
+            ->is_empty();
+        case 5: // sl2(cl(aut_f)) x aut_nf
+          return product(sl2_inplace(cl(std::move(aut_f), own_f)),
+                         std::move(aut_nf))->is_empty();
+        case 6: // (cl(sl2(aut_f)) x aut_nf
+          return product(closure_inplace(sl_2(std::move(aut_f), own_f)),
+                         std::move(aut_nf))->is_empty();
+        case 7: // on-the-fly sl(aut_f) x sl(aut_nf)
+          return otf_product(make_tgbasl(std::move(aut_f)),
+                             make_tgbasl(std::move(aut_nf)))->is_empty();
+        case 8: // cl(aut_f) x cl(aut_nf)
+          return product(cl(std::move(aut_f), own_f),
+                         cl(std::move(aut_nf), own_nf))->is_empty();
+        default:
+          throw std::runtime_error("is_stutter_invariant(): "
+                                   "invalid algorithm number");
+          SPOT_UNREACHABLE();
+        }
+    }
+
+    bool
+    is_stutter_invariant_aux(twa_graph_ptr aut_f,
+                             bool own_f,
+                             const_twa_graph_ptr aut_nf = nullptr,
+                             int algo = 0)
+    {
+      trival si = aut_f->prop_stutter_invariant();
+      if (si.is_known())
+        return si.is_true();
+      if (aut_nf)
+        {
+          trival si_n = aut_nf->prop_stutter_invariant();
+          if (si_n.is_known())
+            {
+              bool res = si_n.is_true();
+              aut_f->prop_stutter_invariant(res);
+              return res;
+            }
+        }
+
+      if (algo == 0)
+        algo = default_stutter_check_algorithm();
+
+      bool own_nf = false;
+      if (!aut_nf)
+        {
+          twa_graph_ptr tmp = aut_f;
+          if (!is_deterministic(aut_f))
+            {
+              spot::postprocessor p;
+              p.set_type(spot::postprocessor::Generic);
+              p.set_pref(spot::postprocessor::Deterministic);
+              p.set_level(spot::postprocessor::Low);
+              tmp = p.run(aut_f);
+            }
+          aut_nf = dualize(std::move(tmp));
+          own_nf = true;
+        }
+      bool res = do_si_check(aut_f, own_f,
+                             std::move(aut_nf), own_nf,
+                             algo);
+      aut_f->prop_stutter_invariant(res);
+      return res;
+    }
+
   }
 
   bool
-  is_stutter_invariant(formula f)
+  is_stutter_invariant(twa_graph_ptr aut_f,
+                       const_twa_graph_ptr aut_nf,
+                       int algo)
+  {
+    return is_stutter_invariant_aux(aut_f, false, aut_nf, algo);
+  }
+
+  bool
+  is_stutter_invariant(formula f, twa_graph_ptr aut_f)
   {
     if (f.is_ltl_formula() && f.is_syntactic_stutter_invariant())
       return true;
@@ -562,55 +658,18 @@ namespace spot
       }
 
     // Prepare for an automata-based check.
-    translator trans;
-    auto aut_f = trans.run(f);
-    auto aut_nf = trans.run(formula::Not(f));
-    bdd aps = atomic_prop_collect_as_bdd(f, aut_f);
-    return is_stutter_invariant(std::move(aut_f), std::move(aut_nf), aps, algo);
-  }
-
-  bool
-  is_stutter_invariant(twa_graph_ptr&& aut_f,
-                       twa_graph_ptr&& aut_nf, bdd aps, int algo)
-  {
-    if (algo == 0)
-      algo = default_stutter_check_algorithm();
-
-    switch (algo)
+    translator trans(aut_f ? aut_f->get_dict() : make_bdd_dict());
+    bool own_f = false;
+    if (!aut_f)
       {
-      case 1: // sl(aut_f) x sl(aut_nf)
-        return product(sl(std::move(aut_f), aps),
-                       sl(std::move(aut_nf), aps))->is_empty();
-      case 2: // sl(cl(aut_f)) x aut_nf
-        return product(sl(closure(std::move(aut_f)), aps),
-                       std::move(aut_nf))->is_empty();
-      case 3: // (cl(sl(aut_f)) x aut_nf
-        return product(closure(sl(std::move(aut_f), aps)),
-                       std::move(aut_nf))->is_empty();
-      case 4: // sl2(aut_f) x sl2(aut_nf)
-        return product(sl2(std::move(aut_f), aps),
-                       sl2(std::move(aut_nf), aps))->is_empty();
-      case 5: // sl2(cl(aut_f)) x aut_nf
-        return product(sl2(closure(std::move(aut_f)), aps),
-                       std::move(aut_nf))->is_empty();
-      case 6: // (cl(sl2(aut_f)) x aut_nf
-        return product(closure(sl2(std::move(aut_f), aps)),
-                       std::move(aut_nf))->is_empty();
-      case 7: // on-the-fly sl(aut_f) x sl(aut_nf)
-        return otf_product(make_tgbasl(aut_f, aps),
-                           make_tgbasl(aut_nf, aps))->is_empty();
-      case 8: // cl(aut_f) x cl(aut_nf)
-        return product(closure(std::move(aut_f)),
-                       closure(std::move(aut_nf)))->is_empty();
-      default:
-        throw std::runtime_error("invalid algorithm number for "
-                                 "is_stutter_invariant()");
-        SPOT_UNREACHABLE();
+        aut_f = trans.run(f);
+        own_f = true;
       }
+    return is_stutter_invariant_aux(aut_f, own_f, trans.run(formula::Not(f)));
   }
 
   trival
-  check_stutter_invariance(const twa_graph_ptr& aut, formula f,
+  check_stutter_invariance(twa_graph_ptr aut, formula f,
                            bool do_not_determinize)
   {
     trival is_stut = aut->prop_stutter_invariant();
@@ -619,33 +678,15 @@ namespace spot
 
     twa_graph_ptr neg = nullptr;
     if (f)
-      {
-        neg = translator(aut->get_dict()).run(formula::Not(f));
-      }
-    else
-      {
-        twa_graph_ptr tmp = aut;
-        if (!is_deterministic(aut))
-          {
-            if (do_not_determinize)
-              return trival::maybe();
-            spot::postprocessor p;
-            p.set_type(spot::postprocessor::Generic);
-            p.set_pref(spot::postprocessor::Deterministic);
-            p.set_level(spot::postprocessor::Low);
-            tmp = p.run(aut);
-          }
-        neg = dualize(tmp);
-      }
+      neg = translator(aut->get_dict()).run(formula::Not(f));
+    else if (!is_deterministic(aut) && do_not_determinize)
+      return trival::maybe();
 
-    is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),
-                                   std::move(neg), aut->ap_vars());
-    aut->prop_stutter_invariant(is_stut);
-    return is_stut;
+    return is_stutter_invariant(aut, std::move(neg));
   }
 
   std::vector<bool>
-  stutter_invariant_states(const const_twa_graph_ptr& pos, formula f,
+  stutter_invariant_states(const_twa_graph_ptr pos, formula f,
                            bool local)
   {
     if (f.is_syntactic_stutter_invariant()
@@ -657,7 +698,7 @@ namespace spot
 
   // Based on an idea by Joachim Klein.
   std::vector<bool>
-  stutter_invariant_states(const const_twa_graph_ptr& pos,
+  stutter_invariant_states(const_twa_graph_ptr pos,
                            const_twa_graph_ptr neg,
                            bool local)
   {
@@ -720,7 +761,7 @@ namespace spot
   namespace
   {
     static
-    void highlight_vector(const twa_graph_ptr& aut,
+    void highlight_vector(twa_graph_ptr aut,
                           const std::vector<bool>& v,
                           unsigned color)
     {
@@ -742,7 +783,7 @@ namespace spot
   }
 
   void
-  highlight_stutter_invariant_states(const twa_graph_ptr& pos,
+  highlight_stutter_invariant_states(twa_graph_ptr pos,
                                      formula f, unsigned color,
                                      bool local)
   {
@@ -750,7 +791,7 @@ namespace spot
   }
 
   void
-  highlight_stutter_invariant_states(const twa_graph_ptr& pos,
+  highlight_stutter_invariant_states(twa_graph_ptr pos,
                                      const_twa_graph_ptr neg,
                                      unsigned color, bool local)
   {

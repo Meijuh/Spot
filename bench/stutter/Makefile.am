@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+## Copyright (C) 2014, 2015, 2017 Laboratoire de Recherche et Développement
 ## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -24,7 +24,8 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD =						\
   $(top_builddir)/bin/libcommon.a		\
   $(top_builddir)/lib/libgnu.la			\
-  $(top_builddir)/spot/libspot.la
+  $(top_builddir)/spot/libspot.la               \
+  $(top_builddir)/buddy/src/libbddx.la
 
 bin_PROGRAMS = stutter_invariance_randomgraph \
 	       stutter_invariance_formulas

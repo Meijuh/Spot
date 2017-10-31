@@ -21,78 +21,219 @@
 
 #include <spot/twa/twagraph.hh>
 
+/// \defgroup stutter_inv Stutter-invariance checks and related functions
+
 namespace spot
 {
+  /// \ingroup stutter_inv
+  /// \brief Close the automaton by allowing letters to be duplicated.
+  ///
+  /// Any letter that enters a state will spawn a copy of this state
+  /// with a self-loop using the same letter.  For more details
+  /// about this function, see
+  /** \verbatim
+      @InProceedings{   michaud.15.spin,
+        author        = {Thibaud Michaud and Alexandre Duret-Lutz},
+        title         = {Practical Stutter-Invariance Checks for
+                        {$\omega$}-Regular Languages},
+        booktitle     = {Proceedings of the 22th International SPIN
+                        Symposium on Model Checking of Software (SPIN'15)},
+        year          = 2015,
+        pages         = {84--101},
+        series        = {Lecture Notes in Computer Science},
+        volume        = 9232,
+        publisher     = {Springer},
+        month         = aug
+      }
+      \endverbatim */
   SPOT_API twa_graph_ptr
-  sl(const twa_graph_ptr&);
+  sl(const_twa_graph_ptr aut);
+
+  /// @{
+  /// \ingroup stutter_inv
+  /// \brief Close the automaton by allowing letters to be duplicated.
+  ///
+  /// For any transition (s,d) labeled by a letter ℓ, we add a state x
+  /// and three transitions (s,x), (x,x), (x,d) all labeled by ℓ.
+  /// For more details about this function, see
+  /** \verbatim
+      @InProceedings{   michaud.15.spin,
+        author        = {Thibaud Michaud and Alexandre Duret-Lutz},
+        title         = {Practical Stutter-Invariance Checks for
+                        {$\omega$}-Regular Languages},
+        booktitle     = {Proceedings of the 22th International SPIN
+                        Symposium on Model Checking of Software (SPIN'15)},
+        year          = 2015,
+        pages         = {84--101},
+        series        = {Lecture Notes in Computer Science},
+        volume        = 9232,
+        publisher     = {Springer},
+        month         = aug
+      }
+      \endverbatim */
+  ///
+  /// The inplace version of the function modifies the input
+  /// automaton.
+  SPOT_API twa_graph_ptr
+  sl2_inplace(twa_graph_ptr aut);
 
   SPOT_API twa_graph_ptr
-  sl(const const_twa_graph_ptr&, bdd);
+  sl2(const_twa_graph_ptr aut);
+  /// @}
+
+  /// @{
+  /// \ingroup stutter_inv
+  /// \brief Close the automaton by allowing duplicate letter removal.
+  ///
+  /// This is done by adding shortcuts into the automaton.  If (x,y) is
+  /// a transition labeled by B, and (y,z) is a transition labeled by C,
+  /// we add a transition (x,z) labeled by B∧C.
+  ///
+  /// For more details about this function, see
+  /** \verbatim
+      @InProceedings{   michaud.15.spin,
+        author        = {Thibaud Michaud and Alexandre Duret-Lutz},
+        title         = {Practical Stutter-Invariance Checks for
+                        {$\omega$}-Regular Languages},
+        booktitle     = {Proceedings of the 22th International SPIN
+                        Symposium on Model Checking of Software (SPIN'15)},
+        year          = 2015,
+        pages         = {84--101},
+        series        = {Lecture Notes in Computer Science},
+        volume        = 9232,
+        publisher     = {Springer},
+        month         = aug
+      }
+      \endverbatim */
+  ///
+  ///
+  /// The inplace version of the function modifies the input
+  /// automaton.
+  SPOT_API twa_graph_ptr
+  closure_inplace(twa_graph_ptr aut);
 
   SPOT_API twa_graph_ptr
-  sl2(const twa_graph_ptr&);
+  closure(const_twa_graph_ptr aut);
+  /// @}
 
-  SPOT_API twa_graph_ptr
-  sl2(const const_twa_graph_ptr&, bdd);
-
-#ifndef SWIG
-  SPOT_API twa_graph_ptr
-  sl2(twa_graph_ptr&&, bdd = bddfalse);
-#endif
-
-  SPOT_API twa_graph_ptr
-  closure(const const_twa_graph_ptr&);
-
-#ifndef SWIG
-  SPOT_API twa_graph_ptr
-  closure(twa_graph_ptr&&);
-#endif
-
-  /// \ingroup ltl_misc
-  /// \brief Check if a formula has the stutter invariance property.
+  /// \ingroup stutter_inv
+  /// \brief Check if a formula is stutter invariant.
+  ///
+  /// It first calls spot::formula::is_syntactic_stutter_invariant()
+  /// to test for the absence of X, but if some X is found, is an
+  /// automaton-based check is performed to detect reliably (and
+  /// rather efficiently) whether the language is actually
+  /// stutter-invariant.
+  ///
+  /// If you already have an automaton for f, passing it at a second
+  /// argument will save some time.  If you also have an automaton for
+  /// the negation of f, it is better to use the overload of
+  /// is_stutter_invariant() that takes two automata.
+  ///
+  /// The prop_stutter_invariant() property of \a aut_f is set as a
+  /// side-effect.
+  ///
+  /// For more details about this function, see
+  /** \verbatim
+      @InProceedings{   michaud.15.spin,
+        author        = {Thibaud Michaud and Alexandre Duret-Lutz},
+        title         = {Practical Stutter-Invariance Checks for
+                        {$\omega$}-Regular Languages},
+        booktitle     = {Proceedings of the 22th International SPIN
+                        Symposium on Model Checking of Software (SPIN'15)},
+        year          = 2015,
+        pages         = {84--101},
+        series        = {Lecture Notes in Computer Science},
+        volume        = 9232,
+        publisher     = {Springer},
+        month         = aug
+      }
+      \endverbatim */
   SPOT_API bool
-  is_stutter_invariant(formula f);
+  is_stutter_invariant(formula f, twa_graph_ptr aut_f = nullptr);
 
+  /// \ingroup stutter_inv
+  /// \brief Check if an automaton has the stutter invariance
+  /// property.
+  ///
+  /// The automaton-based check requires the complement automaton to
+  /// be built.  If you have one, passing it as the second argument
+  /// will avoid a costly determinization in case \a aut_f is
+  /// non-deterministic.
+  ///
+  /// The prop_stutter_invariant() property of \a aut_f is set as a
+  /// side-effect.
+  ///
+  /// For more details about this function, see
+  /** \verbatim
+      @InProceedings{   michaud.15.spin,
+        author        = {Thibaud Michaud and Alexandre Duret-Lutz},
+        title         = {Practical Stutter-Invariance Checks for
+                        {$\omega$}-Regular Languages},
+        booktitle     = {Proceedings of the 22th International SPIN
+                        Symposium on Model Checking of Software (SPIN'15)},
+        year          = 2015,
+        pages         = {84--101},
+        series        = {Lecture Notes in Computer Science},
+        volume        = 9232,
+        publisher     = {Springer},
+        month         = aug
+      }
+      \endverbatim */
   SPOT_API bool
-  is_stutter_invariant(twa_graph_ptr&& aut_f,
-                       twa_graph_ptr&& aut_nf, bdd aps,
+  is_stutter_invariant(twa_graph_ptr aut_f,
+                       const_twa_graph_ptr aut_nf = nullptr,
                        int algo = 0);
 
+  /// \ingroup stutter_inv
   /// \brief Check whether \a aut is stutter-invariant
   ///
-  /// This procedure requires the negation of \a aut to
-  /// be computed.  This is easily done of \a aut is deterministic
-  /// or if a formula represented by \a aut is known.  Otherwise
-  /// \a aut will be complemented by determinization, which can
+  /// This procedure requires the negation of \a aut_f to
+  /// be computed.  This is easily done of \a aut_f is deterministic
+  /// or if a formula represented by \a aut_f is known.  Otherwise
+  /// \a aut_f will be complemented by determinization, which can
   /// be expansive.   The determinization can be forbidden using
   /// the \a do_not_determinize flag.
   ///
   /// If no complemented automaton could be constructed, the
   /// the result will be returned as trival::maybe().
+  ///
+  /// This variant of is_stutter_invariant() is used for the
+  /// --check=stutter option of command-line tools.
   SPOT_API trival
-  check_stutter_invariance(const twa_graph_ptr& aut,
+  check_stutter_invariance(twa_graph_ptr aut_f,
                            formula f = nullptr,
                            bool do_not_determinize = false);
 
 
   ///@{
+  /// \ingroup stutter_inv
   /// \brief Determinate the states that are stutter-invariant in \a pos.
+  ///
+  /// A state is stutter-invariant if the language recognized from
+  /// this state is stutter-invariant, or if the state can only be
+  /// reached by passing though a stutter-invariant state.
   ///
   /// The algorithm needs to compute the complement of \a pos. You can
   /// avoid that costly operation by either supplying the complement
   /// automaton, or supplying a formula for the (positive) automaton.
   SPOT_API std::vector<bool>
-  stutter_invariant_states(const const_twa_graph_ptr& pos,
+  stutter_invariant_states(const_twa_graph_ptr pos,
                            const_twa_graph_ptr neg = nullptr,
                            bool local = false);
 
   SPOT_API std::vector<bool>
-  stutter_invariant_states(const const_twa_graph_ptr& pos, formula f_pos,
+  stutter_invariant_states(const_twa_graph_ptr pos, formula f_pos,
                            bool local = false);
   ///@}
 
   ///@{
+  /// \ingroup stutter_inv
   /// \brief Highlight the states of \a pos that are stutter-invariant.
+  ///
+  /// A state is stutter-invariant if the language recognized from
+  /// this state is stutter-invariant, or if the state can only be
+  /// reached by passing though a stutter-invariant state.
   ///
   /// The algorithm needs to compute the complement of \a pos. You can
   /// avoid that costly operation by either supplying the complement
@@ -104,11 +245,11 @@ namespace spot
   /// stutter_invariant_states(), and using the resulting vector to
   /// setup the "highlight-states" property of the automaton.
   SPOT_API void
-  highlight_stutter_invariant_states(const twa_graph_ptr& pos,
+  highlight_stutter_invariant_states(twa_graph_ptr pos,
                                      formula f_pos, unsigned color = 0,
                                      bool local = false);
   SPOT_API void
-  highlight_stutter_invariant_states(const twa_graph_ptr& pos,
+  highlight_stutter_invariant_states(twa_graph_ptr pos,
                                      const_twa_graph_ptr neg = nullptr,
                                      unsigned color = 0,
                                      bool local = false);

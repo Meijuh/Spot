@@ -1160,11 +1160,11 @@ namespace
         aut = opt->excl_ap.constrain(aut, false);
 
       if (opt_destut)
-        aut = spot::closure(std::move(aut));
+        aut = spot::closure_inplace(std::move(aut));
       if (opt_instut == 1)
         aut = spot::sl(std::move(aut));
       else if (opt_instut == 2)
-        aut = spot::sl2(std::move(aut));
+        aut = spot::sl2_inplace(std::move(aut));
 
       if (!opt_keep_states.empty())
         aut = mask_keep_accessible_states(aut, opt_keep_states,

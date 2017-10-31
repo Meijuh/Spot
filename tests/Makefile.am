@@ -333,7 +333,7 @@ TESTS_ipython = \
   python/product.ipynb \
   python/randaut.ipynb \
   python/randltl.ipynb \
-  python/stutter-inv-states.ipynb \
+  python/stutter-inv.ipynb \
   python/testingaut.ipynb \
   python/word.ipynb
 

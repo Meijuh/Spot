@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -77,8 +77,7 @@ main(int argc, char** argv)
 	  do
 	    {
 	      spot::srand(++seed);
-	      a = spot::random_graph(states_n, d, &ap, dict, 2, 0.1, 0.5,
-					  true);
+	      a = spot::random_graph(states_n, d, &ap, dict, 2, 0.1, 0.5, true);
 	    }
 	  while (a->is_empty());
 	  auto na = spot::remove_fin(spot::dualize(a));
@@ -102,7 +101,7 @@ main(int argc, char** argv)
 	      sw.start();
 	      bool res = spot::is_stutter_invariant(std::move(dup_a),
 						    std::move(dup_na),
-						    apdict, algo);
+						    algo);
 	      auto time = sw.stop();
 	      std::cout << time;
 	      if (algo > 1 && res != prev)

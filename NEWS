@@ -126,6 +126,10 @@ New in spot 2.4.1.dev (not yet released)
     can be passed to disable this behavior (or use -x degen-remscc=0
     from the command-line).
 
+  - The functions for detecting stutter-invariant formulas or automata
+    have been overhauled.  Their interface changed slightly.  They are
+    now fully documented.
+
   - In addition to detecting stutter-invariant formulas/automata, some
     can now study a stutter-sensitive automaton and detect the subset
     of states that are stutter-invariant.  See
@@ -145,6 +149,14 @@ New in spot 2.4.1.dev (not yet released)
     spot::scc_info::acc() are deprecated. They have been renamed
     spot::scc_info::marks(), spot::scc_info::marks_of() and
     spot::scc_info::acc_sets_of() respectively.
+
+  Backward incompatible changes:
+
+  - The spot::closure(), spot::sl2(), spot::is_stutter_invariant()
+    functions no longuer takes && arguments.  The former two have
+    spot::closure_inplace() and spot::sl2_inplace() variant.  These
+    function also do not take to list of atomic propositions as an
+    argument anymore.
 
   Bugs fixed:
 
