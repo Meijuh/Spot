@@ -1961,6 +1961,7 @@ Start: 0
 AP: 0
 Acceptance: 0 t
 properties: !inherently-weak !weak terminal
+properties: stutter-invariant stutter-sensitive
 --BODY--
 State: 0 0
 --END--
@@ -1968,8 +1969,8 @@ HOA: v1
 States: 1
 Start: 0
 AP: 0
-Acceptance: 0 t
-properties: !inherently-weak weak
+Acceptance: 1 Fin(!0)
+properties: !inherently-weak weak very-weak
 --BODY--
 State: 0 0
 --END--
@@ -1978,7 +1979,7 @@ States: 2
 Start: 0
 AP: 0
 Acceptance: 0 t
-properties: complete
+properties: complete !weak very-weak
 --BODY--
 State: 0 0
 --END--
@@ -1989,14 +1990,19 @@ input:3.1-8: initial state 0 has no definition
 input:13.9: state 2 has no definition
 input:17.7: state 5 has no definition
 input:14.9: state 8 has no definition
+input:37.31-47: automaton cannot be both stutter-invariantand stutter-sensitive
 input:36.36-43: 'properties: terminal' contradicts...
 input:36.13-28: ... 'properties: !inherently-weak' given here
 input:36.36-43: 'properties: terminal' contradicts...
 input:36.30-34: ... 'properties: !weak' given here
-input:45.30-33: 'properties: weak' contradicts...
-input:45.13-28: ... 'properties: !inherently-weak' given here
-input:50.1-9: state 1 has no definition...
-input:54.13-20: ... despite 'properties: complete'
+input:46.13-28: 'properties: !inherently-weak' contradicts...
+input:46.35-43: ... 'properties: very-weak' given here
+input:46.30-33: 'properties: weak' contradicts...
+input:46.13-28: ... 'properties: !inherently-weak' given here
+input:55.22-26: 'properties: !weak' contradicts...
+input:55.28-36: ... 'properties: very-weak' given here
+input:51.1-9: state 1 has no definition...
+input:55.13-20: ... despite 'properties: complete'
 EOF
 
 
