@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2016 Laboratoire de Recherche et Développement
+// Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -24,9 +24,12 @@
 
 namespace spot
 {
-  /// \addtogroup parity_algorithms Parity algorithms
+  /// \addtogroup parity_algorithms Algorithms for parity acceptance
   /// \ingroup twa_algorithms
+
+  /// \ingroup parity_algorithms
   /// @{
+
   /// \brief Parity kind type
   enum parity_kind
   {

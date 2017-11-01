@@ -23,8 +23,7 @@
 
 namespace spot
 {
-  /// \addtogroup twa_misc
-  ///
+  /// \ingroup parity_algorithms
   /// \brief Return true iff \a aut is colored
   ///
   /// An automaton is colored iff all the transitions belong to exactly one
