@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -31,45 +31,6 @@
 
 namespace spot
 {
-  std::vector<int>
-  satsolver_get_solution(const char* filename)
-  {
-    std::vector<int> sol;
-    std::istream* in;
-    if (filename[0] == '-' && filename[1] == 0)
-      in = &std::cin;
-    else
-      in = new std::ifstream(filename);
-
-    int c;
-    while ((c = in->get()) != EOF)
-      {
-        // If a line does not start with 'v ', ignore it.
-        if (c != 'v' || in->get() != ' ')
-          {
-            in->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            continue;
-          }
-        // Otherwise, read integers one by one.
-        int i;
-        while (*in >> i)
-          {
-            if (i == 0)
-              goto stop;
-            sol.emplace_back(i);
-          }
-        if (!in->eof())
-          // If we haven't reached end-of-file, then we just attempted
-          // to extract something that wasn't an integer.  Clear the
-          // fail bit so that will loop over.
-          in->clear();
-      }
-  stop:
-    if (in != &std::cin)
-      delete in;
-    return sol;
-  }
-
   // In other functions, command_given() won't be called anymore as it is more
   // easy to check if psat_ was initialized or not.
   satsolver::satsolver()
@@ -379,11 +340,11 @@ namespace spot
 
     prime(satsolver);
     if (!has('I'))
-      throw std::runtime_error(": SPOT_SATSOLVER should contain %I to "
-          "indicate how to use the input filename.");
+      throw std::runtime_error("SPOT_SATSOLVER should use %I as "
+          "input filename.");
     if (!has('O'))
-      throw std::runtime_error(": SPOT_SATSOLVER should contain %O to "
-          "indicate how to use the output filename.");
+      throw std::runtime_error("SPOT_SATSOLVER should use %O as "
+          "output filename.");
   }
 
   bool

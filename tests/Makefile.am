@@ -84,7 +84,6 @@ check_PROGRAMS = \
   core/ngraph \
   core/parity \
   core/randtgba \
-  core/readsat \
   core/reduc \
   core/reduccmp \
   core/reduceu \
@@ -112,7 +111,6 @@ core_intvcmp2_SOURCES = core/intvcmp2.cc
 core_kripkecat_SOURCES = core/kripkecat.cc
 core_ngraph_SOURCES = core/ngraph.cc
 core_randtgba_SOURCES = core/randtgba.cc
-core_readsat_SOURCES = core/readsat.cc
 core_taatgba_SOURCES = core/taatgba.cc
 core_tgbagraph_SOURCES = core/twagraph.cc
 core_consterm_SOURCES = core/consterm.cc
@@ -294,6 +292,7 @@ TESTS_twa = \
   core/basimul.test \
   core/satmin.test \
   core/satmin2.test \
+  core/satmin3.test \
   core/spotlbtt.test \
   core/ltlcross.test \
   core/spotlbtt2.test \

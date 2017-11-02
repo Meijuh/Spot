@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2017 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -173,13 +173,6 @@ namespace spot
     std::string path_;
   };
 
-  /// \brief Extract the solution of a SAT solver output.
-  SPOT_API std::vector<int>
-  satsolver_get_solution(const char* filename);
-}
-
-namespace spot
-{
   template<typename T>
   void
   satsolver::comment_rec(T single)
