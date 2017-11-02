@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -66,13 +66,6 @@ namespace spot
   /// Statistics, 1974, vol 23, pp 96-97.
   SPOT_API double nrand();
 
-  /// \brief Compute a pseudo-random double value
-  /// following a standard normal distribution.  (Box-Muller)
-  ///
-  /// This uses the polar form of the Box-Muller transform
-  /// to generate random values.
-  SPOT_API double bmrand();
-
   /// \brief Compute pseudo-random integer value between 0
   /// and \a n included, following a binomial distribution
   /// with probability \a p.
@@ -112,12 +105,6 @@ namespace spot
     const double m_;
     const double s_;
   };
-
-  /// \brief Return a pseudo-random positive integer value
-  /// following a Poisson distribution with parameter \a p.
-  ///
-  /// \pre <code>p > 0</code>
-  SPOT_API int prand(double p);
 
   /// \brief Shuffle the container using mrand function above.
   /// This allows to get rid off shuffle or random_shuffle that use

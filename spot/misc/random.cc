@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2011-2015, 2017 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -86,47 +86,5 @@ namespace spot
       return (p / q) - t;
     else
       return t - (p / q);
-  }
-
-  double
-  bmrand()
-  {
-    static double next;
-    static bool has_next = false;
-
-    if (has_next)
-      {
-        has_next = false;
-        return next;
-      }
-
-    double x;
-    double y;
-    double r;
-    do
-      {
-        x = 2.0 * drand() - 1.0;
-        y = 2.0 * drand() - 1.0;
-        r = x * x + y * y;
-      }
-    while (r >= 1.0 || r == 0.0);
-    r = sqrt(-2 * log(r) / r);
-    next = y * r;
-    has_next = true;
-    return x * r;
-  }
-
-  int
-  prand(double p)
-  {
-    double s = 0.0;
-    long x = 0;
-
-    while (s < p)
-      {
-        s -= log(1.0 - drand());
-        ++x;
-      }
-    return x - 1;
   }
 }

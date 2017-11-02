@@ -158,6 +158,10 @@ New in spot 2.4.1.dev (not yet released)
     function also do not take to list of atomic propositions as an
     argument anymore.
 
+  - The spot::bmrand() and spot::prand() functions have been removed.
+    They were not used at all in Spot, and it's not Spot's objective
+    to provide such random functions.
+
   Bugs fixed:
 
   - Automata produced by "genaut --ks-nca=N" were incorrectly marked
