@@ -196,6 +196,7 @@ TESTS_kripke = \
   core/kripke.test
 
 TESTS_misc = \
+  core/bdd.test \
   core/bitvect.test \
   core/intvcomp.test \
   core/minusx.test \
