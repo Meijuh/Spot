@@ -133,8 +133,7 @@ New in spot 2.4.1.dev (not yet released)
   - In addition to detecting stutter-invariant formulas/automata, some
     can now study a stutter-sensitive automaton and detect the subset
     of states that are stutter-invariant.  See
-    https://spot.lrde.epita.fr/ipynb/stutter-inv-states.html for
-    examples.
+    https://spot.lrde.epita.fr/ipynb/stutter-inv.html for examples.
 
   - Determinization has been heavily rewritten and optimized. The algorithm has
     (almost) not changed, but it runs muuuch faster now. It also features an

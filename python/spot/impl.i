@@ -431,6 +431,7 @@ namespace std {
   %template(vectorformula) vector<spot::formula>;
   %template(vectorunsigned) vector<unsigned>;
   %template(vectorbool) vector<bool>;
+  %template(vectorbdd) vector<bdd>;
   %template(vectorstring) vector<string>;
   %template(atomic_prop_set) set<spot::formula>;
   %template(relabeling_map) map<spot::formula, spot::formula>;

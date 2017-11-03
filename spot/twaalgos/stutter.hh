@@ -219,12 +219,10 @@ namespace spot
   /// automaton, or supplying a formula for the (positive) automaton.
   SPOT_API std::vector<bool>
   stutter_invariant_states(const_twa_graph_ptr pos,
-                           const_twa_graph_ptr neg = nullptr,
-                           bool local = false);
+                           const_twa_graph_ptr neg = nullptr);
 
   SPOT_API std::vector<bool>
-  stutter_invariant_states(const_twa_graph_ptr pos, formula f_pos,
-                           bool local = false);
+  stutter_invariant_states(const_twa_graph_ptr pos, formula f_pos);
   ///@}
 
   ///@{
@@ -246,12 +244,30 @@ namespace spot
   /// setup the "highlight-states" property of the automaton.
   SPOT_API void
   highlight_stutter_invariant_states(twa_graph_ptr pos,
-                                     formula f_pos, unsigned color = 0,
-                                     bool local = false);
+                                     formula f_pos, unsigned color = 0);
   SPOT_API void
   highlight_stutter_invariant_states(twa_graph_ptr pos,
                                      const_twa_graph_ptr neg = nullptr,
-                                     unsigned color = 0,
-                                     bool local = false);
+                                     unsigned color = 0);
   ///@}
+
+  ///@{
+  /// \ingroup stutter_inv
+  /// \brief Determinate the letters with which each state is
+  /// stutter-invariant.
+  ///
+  /// A state q is stutter-invariant for ℓ iff the membership to L(q)
+  /// of any word starting with ℓ is unchanged by duplicating any
+  /// letter, or removing a duplicate letter.
+  ///
+  /// The algorithm needs to compute the complement of \a pos. You can
+  /// avoid that costly operation by either supplying the complement
+  /// automaton, or supplying a formula for the (positive) automaton.
+  SPOT_API std::vector<bdd>
+  stutter_invariant_letters(const_twa_graph_ptr pos,
+                            const_twa_graph_ptr neg = nullptr);
+
+  SPOT_API std::vector<bdd>
+  stutter_invariant_letters(const_twa_graph_ptr pos, formula f_pos);
+  /// @}
 }

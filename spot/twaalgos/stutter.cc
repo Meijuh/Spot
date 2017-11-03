@@ -686,21 +686,19 @@ namespace spot
   }
 
   std::vector<bool>
-  stutter_invariant_states(const_twa_graph_ptr pos, formula f,
-                           bool local)
+  stutter_invariant_states(const_twa_graph_ptr pos, formula f)
   {
     if (f.is_syntactic_stutter_invariant()
         || pos->prop_stutter_invariant().is_true())
       return std::vector<bool>(pos->num_states(), true);
     auto neg = translator(pos->get_dict()).run(formula::Not(f));
-    return stutter_invariant_states(pos, neg, local);
+    return stutter_invariant_states(pos, neg);
   }
 
   // Based on an idea by Joachim Klein.
   std::vector<bool>
   stutter_invariant_states(const_twa_graph_ptr pos,
-                           const_twa_graph_ptr neg,
-                           bool local)
+                           const_twa_graph_ptr neg)
   {
     std::vector<bool> res(pos->num_states(), true);
     if (pos->prop_stutter_invariant().is_true())
@@ -750,8 +748,83 @@ namespace spot
           continue;
         for (auto& e: prod->out(s))
           if (si.is_useful_scc(si.scc_of(e.dst)))
-            if (!local || pairs.find((*prod_pairs)[e.dst]) == pairs.end())
-              res[(*prod_pairs)[s].first] = sinv = false;
+            res[(*prod_pairs)[s].first] = sinv = false;
+      }
+    std::const_pointer_cast<twa_graph>(pos)->prop_stutter_invariant(sinv);
+    std::const_pointer_cast<twa_graph>(neg)->prop_stutter_invariant(sinv);
+    return res;
+  }
+
+  std::vector<bdd>
+  stutter_invariant_letters(const_twa_graph_ptr pos, formula f)
+  {
+    if (f.is_syntactic_stutter_invariant()
+        || pos->prop_stutter_invariant().is_true())
+      {
+        std::const_pointer_cast<twa_graph>(pos)->prop_stutter_invariant(true);
+        return stutter_invariant_letters(pos);
+      }
+    auto neg = translator(pos->get_dict()).run(formula::Not(f));
+    return stutter_invariant_letters(pos, neg);
+  }
+
+  std::vector<bdd>
+  stutter_invariant_letters(const_twa_graph_ptr pos,
+                            const_twa_graph_ptr neg)
+  {
+    unsigned ns = pos->num_states();
+    std::vector<bdd> res(ns, bddtrue);
+    if (pos->prop_stutter_invariant().is_true())
+      return res;
+
+    if (neg == nullptr)
+      {
+        spot::postprocessor p;
+        p.set_type(spot::postprocessor::Generic);
+        p.set_pref(spot::postprocessor::Deterministic);
+        p.set_level(spot::postprocessor::Low);
+        neg = dualize(p.run(std::const_pointer_cast<twa_graph>(pos)));
+      }
+
+    auto product_states = [](const const_twa_graph_ptr& a)
+      {
+        return (a->get_named_prop<std::vector<std::pair<unsigned, unsigned>>>
+                ("product-states"));
+      };
+
+    // Get the set of states (x,y) that appear in the product P1=pos*neg.
+    std::set<std::pair<unsigned, unsigned>> pairs = [&]()
+      {
+        twa_graph_ptr prod = spot::product(pos, neg);
+        auto goodstates = product_states(prod);
+        std::set<std::pair<unsigned, unsigned>> pairs(goodstates->begin(),
+                                                      goodstates->end());
+        return pairs;
+      }();
+
+    // Compute P2=cl(pos)*cl(neg).  A state x of pos is stutter-sensitive
+    // if there exists a state (x,y) in both P1 and P2 that as a successor
+    // in the useful part of P2 and that is not in P1.
+    twa_graph_ptr prod = spot::product(closure(pos), closure(neg));
+    auto prod_pairs = product_states(prod);
+    scc_info si(prod, scc_info_options::TRACK_SUCCS
+                | scc_info_options::TRACK_STATES_IF_FIN_USED);
+    si.determine_unknown_acceptance();
+    unsigned n = prod->num_states();
+    bool sinv = true;
+
+    for (unsigned s = 0; s < n; ++s)
+      {
+        if (!si.is_useful_scc(si.scc_of(s)))
+          continue;
+        if (pairs.find((*prod_pairs)[s]) == pairs.end())
+          continue;
+        for (auto& e: prod->out(s))
+          if (si.is_useful_scc(si.scc_of(e.dst)))
+            {
+              sinv = false;
+              res[(*prod_pairs)[s].first] -= e.cond;
+            }
       }
     std::const_pointer_cast<twa_graph>(pos)->prop_stutter_invariant(sinv);
     std::const_pointer_cast<twa_graph>(neg)->prop_stutter_invariant(sinv);
@@ -784,17 +857,16 @@ namespace spot
 
   void
   highlight_stutter_invariant_states(twa_graph_ptr pos,
-                                     formula f, unsigned color,
-                                     bool local)
+                                     formula f, unsigned color)
   {
-    highlight_vector(pos, stutter_invariant_states(pos, f, local), color);
+    highlight_vector(pos, stutter_invariant_states(pos, f), color);
   }
 
   void
   highlight_stutter_invariant_states(twa_graph_ptr pos,
                                      const_twa_graph_ptr neg,
-                                     unsigned color, bool local)
+                                     unsigned color)
   {
-    highlight_vector(pos, stutter_invariant_states(pos, neg, local), color);
+    highlight_vector(pos, stutter_invariant_states(pos, neg), color);
   }
 }
