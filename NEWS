@@ -140,6 +140,10 @@ New in spot 2.4.1.dev (not yet released)
     optimization for stutter-invariant automata that may produce slightly
     smaller automata.
 
+  - acc_cond::name(fmt) is a new method that name well-known acceptance
+    conditions.   The fmt parameter specify the format to use for that
+    name (e.g. to the style used in HOA, or that used by print_dot()).
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)

@@ -1498,6 +1498,164 @@ namespace spot
   }
 
 
+  /// Return the name of this acceptance condition, in the
+  /// specified format.
+  std::string acc_cond::name(const char* fmt) const
+  {
+    bool accentuated = false;
+    bool no_extra_param = false;
+    bool no_main_param = false;
+    bool no_parity_param = false;
+    bool abbreviate = false;
+    bool like_names = false;
+    bool other = false;
+
+    if (fmt)
+      while (*fmt)
+        switch (char c = *fmt++)
+          {
+          case '0':               // no param style
+            no_extra_param = no_main_param = no_parity_param = true;
+            break;
+          case 'a':
+            accentuated = true;
+            break;
+          case 'b':
+            abbreviate = true;
+            break;
+          case 'd':               // print_dot() style
+            accentuated = no_extra_param = abbreviate = like_names = true;
+            break;
+          case 'g':
+            no_extra_param = true;
+            break;
+          case 'l':
+            like_names = true;
+            break;
+          case 'm':
+            no_main_param = true;
+            break;
+          case 'p':
+            no_parity_param = true;
+            break;
+          case 'o':
+            other = true;
+            break;
+          case 's':
+            other = no_extra_param = no_main_param = no_parity_param =
+              like_names = true;
+            break;
+          default:
+            throw std::runtime_error
+              (std::string("unknown option for acc_cond::name(): ") + c);
+          }
+
+    std::ostringstream os;
+
+    auto gen = [abbreviate]()
+      {
+        return abbreviate ? "gen. " : "generalized-";
+      };
+    auto sets = [no_main_param, this]() -> std::string
+      {
+        return no_main_param ? "" : " " + std::to_string(num_sets());
+      };
+
+    if (is_generalized_buchi())
+      {
+        if (is_all())
+          os << "all";
+        else if (is_buchi())
+          os << (accentuated ? "Büchi" : "Buchi");
+        else
+          os << gen() << (accentuated ? "Büchi" : "Buchi") << sets();
+      }
+    else if (is_generalized_co_buchi())
+      {
+        if (is_none())
+          os << "none";
+        else if (is_co_buchi())
+          os << (accentuated ? "co-Büchi" : "co-Buchi");
+        else
+          os << gen() << (accentuated ? "co-Büchi" : "co-Buchi") << sets();
+      }
+    else
+      {
+        int r = is_rabin();
+        assert(r != 0);
+        if (r > 0)
+          {
+            os << "Rabin";
+            if (!no_main_param)
+              os << ' ' << r;
+          }
+        else
+          {
+            r = is_streett();
+            assert(r != 0);
+            if (r > 0)
+              {
+                os << "Streett";
+                if (!no_main_param)
+                  os << ' ' << r;
+              }
+            else
+              {
+                std::vector<unsigned> pairs;
+                if (is_generalized_rabin(pairs))
+                  {
+                    os << gen() << "Rabin";
+                    if (!no_main_param)
+                      {
+                        os << ' ' << pairs.size();
+                        if (!no_extra_param)
+                          for (auto p: pairs)
+                            os << ' ' << p;
+                      }
+                  }
+                else
+                  {
+                    bool max = false;
+                    bool odd = false;
+                    if (is_parity(max, odd))
+                      {
+                        os << "parity";
+                        if (!no_parity_param)
+                          os << (max ? " max" : " min")
+                             << (odd ? " odd" : " even");
+                        os << sets();
+                      }
+                    else if (like_names)
+                      {
+                        std::vector<acc_cond::rs_pair> r_pairs;
+                        bool r_like = is_rabin_like(r_pairs);
+                        unsigned rsz = r_pairs.size();
+                        std::vector<acc_cond::rs_pair> s_pairs;
+                        bool s_like = is_streett_like(s_pairs);
+                        unsigned ssz = s_pairs.size();
+                        if (r_like && (!s_like || (rsz <= ssz)))
+                          {
+                            os << "Rabin-like";
+                            if (!no_main_param)
+                              os << ' ' << rsz;
+                          }
+                        else if (s_like && (!r_like || (ssz < rsz)))
+                          {
+                            os << "Streett-like";
+                            if (!no_main_param)
+                              os << ' ' << ssz;
+                          }
+                      }
+                  }
+              }
+          }
+      }
+    std::string res = os.str();
+    if (other && res.empty())
+      res = "other" + sets();
+    return res;
+  }
+
 
   namespace
   {

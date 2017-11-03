@@ -455,85 +455,9 @@ namespace spot
           }
       }
 
-      std::string get_acceptance_for_human()
-      {
-        std::ostringstream os;
-
-        if (aut_->acc().is_generalized_buchi())
-          {
-            if (aut_->acc().is_all())
-              os << "all";
-            else if (aut_->acc().is_buchi())
-              os << "Büchi";
-            else
-              os << "gen. Büchi " << aut_->num_sets();
-          }
-        else if (aut_->acc().is_generalized_co_buchi())
-          {
-            if (aut_->acc().is_none())
-              os << "none";
-            else if (aut_->acc().is_co_buchi())
-              os << "co-Büchi";
-            else
-              os << "gen. co-Büchi " << aut_->num_sets();
-          }
-        else
-          {
-            int r = aut_->acc().is_rabin();
-            assert(r != 0);
-            if (r > 0)
-              {
-                os << "Rabin " << r;
-              }
-            else
-              {
-                r = aut_->acc().is_streett();
-                assert(r != 0);
-                if (r > 0)
-                  {
-                    os << "Streett " << r;
-                  }
-                else
-                  {
-                    std::vector<unsigned> pairs;
-                    if (aut_->acc().is_generalized_rabin(pairs))
-                      {
-                        os << "gen. Rabin " << pairs.size();
-                      }
-                    else
-                      {
-                        bool max = false;
-                        bool odd = false;
-                        if (aut_->acc().is_parity(max, odd))
-                          {
-                            os << "parity "
-                               << (max ? "max " : "min ")
-                               << (odd ? "odd " : "even ")
-                               << aut_->num_sets();
-                          }
-                        else
-                          {
-                            std::vector<acc_cond::rs_pair> r_pairs;
-                            bool r_like = aut_->acc().is_rabin_like(r_pairs);
-                            unsigned rsz = r_pairs.size();
-                            std::vector<acc_cond::rs_pair> s_pairs;
-                            bool s_like = aut_->acc().is_streett_like(s_pairs);
-                            unsigned ssz = s_pairs.size();
-                            if (r_like && (!s_like || (rsz <= ssz)))
-                              os << "Rabin-like " << rsz;
-                           else if (s_like && (!r_like || (ssz < rsz)))
-                              os << "Streett-like " << ssz;
-                          }
-                      }
-                  }
-              }
-          }
-        return os.str();
-      }
-
       void print_acceptance_for_human()
       {
-        std::string accstr = get_acceptance_for_human();
+        std::string accstr = aut_->acc().name("d");
         if (accstr.empty())
           return;
         os_ << nl_ << '[' << accstr << ']';

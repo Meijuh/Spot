@@ -33,6 +33,7 @@ namespace spot
   {
     class mark_container;
   }
+
   class SPOT_API acc_cond
   {
   public:
@@ -899,7 +900,6 @@ namespace spot
                std::function<void(std::ostream&, int)>
                set_printer = nullptr) const;
 
-
       /// \brief Construct an acc_code from a string.
       ///
       /// The string can follow the following grammar:
@@ -1312,6 +1312,19 @@ namespace spot
     {
       return {num_sets(), code_.remove(all_sets() - rem, true)};
     }
+
+    /// \brief Return the name of this acceptance condition, in the
+    /// specified format.
+    ///
+    /// The empty string is returned if no name is known.
+    ///
+    /// \a fmt should be a combination of the following letters.  (0)
+    /// no parameters, (a) accentuated, (b) abbreviated, (d) style
+    /// used in dot output, (g) no generalized parameter, (l)
+    /// recognize Street-like and Rabin-like, (m) no main parameter,
+    /// (p) no parity parameter, (o) name unknown acceptance as
+    /// 'other', (s) shorthand for 'lo0'.
+    std::string name(const char* fmt = "alo") const;
 
   protected:
     mark_t::value_t all_sets_() const
