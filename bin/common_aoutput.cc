@@ -159,6 +159,21 @@ const struct argp aoutput_argp = { options, parse_opt_aoutput, nullptr, nullptr,
 char F_doc[32] = "name of the input file";
 char L_doc[32] = "location in the input file";
 
+#define doc_g                                                           \
+      "acceptance condition (in HOA syntax); add brackets to print "    \
+      "an acceptance name instead and LETTERS to tweak the format: "    \
+      "(0) no parameters, "                                             \
+      "(a) accentuated, "                                               \
+      "(b) abbreviated, "                                               \
+      "(d) style used in dot output, "                                  \
+      "(g) no generalized parameter, "                                  \
+      "(l) recognize Street-like and Rabin-like, "                      \
+      "(m) no main parameter, "                                         \
+      "(p) no parity parameter, "                                       \
+      "(o) name unknown acceptance as 'other', "                        \
+      "(s) shorthand for 'lo0'."
+
+
 static const argp_option io_options[] =
   {
     /**************************************************/
@@ -180,8 +195,8 @@ static const argp_option io_options[] =
       "number of reachable transitions", 0 },
     { "%A, %a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of acceptance sets", 0 },
-    { "%G, %g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "acceptance condition (in HOA syntax)", 0 },
+    { "%G, %g, %[LETTERS]G, %[LETTERS]g", 0, nullptr,
+      OPTION_DOC | OPTION_NO_USAGE, doc_g, 0 },
     { "%C, %c, %[LETTERS]C, %[LETTERS]c", 0, nullptr,
       OPTION_DOC | OPTION_NO_USAGE,
       "number of SCCs; you may filter the SCCs to count "
@@ -241,8 +256,8 @@ static const argp_option o_options[] =
       "number of reachable transitions", 0 },
     { "%a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of acceptance sets", 0 },
-    { "%g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
-      "acceptance condition (in HOA syntax)", 0 },
+    { "%g, %[LETTERS]g", 0, nullptr,
+      OPTION_DOC | OPTION_NO_USAGE, doc_g, 0 },
     { "%c, %[LETTERS]c", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of SCCs; you may filter the SCCs to count "
       "using the following LETTERS, possibly concatenated: (a) accepting, "
@@ -464,13 +479,9 @@ hoa_stat_printer::print(const spot::const_parsed_aut_ptr& haut,
 
       if (has('P'))
         haut_complete_ = is_complete(haut->aut);
-
       if (has('G'))
-        {
-          std::ostringstream os;
-          os << haut->aut->get_acceptance();
-          haut_gen_acc_ = os.str();
-        }
+        haut_gen_acc_ = haut->aut->acc();
+
       if (has('W'))
         {
           if (auto word = haut->aut->accepting_word())

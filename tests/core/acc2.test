@@ -25,10 +25,22 @@ set -e
 
 ltl2tgba -H 'GFa & GFb' > in
 grep 'Acceptance:' in > expected
+grep 'acc-name:' in > expected-b
 ltl2tgba -H 'GFa & GFb' --stats='Acceptance: %a %g' > out1
+ltl2tgba -H 'GFa & GFb' --stats='acc-name: %[]g' > out1b
 autfilt -H in --format='Acceptance: %A %G' > out2
+autfilt -H in --format='acc-name: %[]G' > out2b
 diff out1 expected
 diff out2 expected
+diff out1b expected-b
+diff out2b expected-b
+
+autfilt -H in --format='%[d]G, %[0lo]g, %[0abdglmpos]g' > out3
+echo 'gen. Büchi 2, generalized-Buchi, gen. Büchi' >exp3
+diff out3 exp3
+
+autfilt -H in --format='%[bug]g' 2>err && exit 1
+grep '%\[bug\]g.*: u' err
 
 cat >header <<EOF
 HOA: v1

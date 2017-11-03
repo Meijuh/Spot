@@ -331,6 +331,31 @@ namespace spot
     os << count;
   }
 
+  void printable_acc_cond::print(std::ostream& os, const char* pos) const
+  {
+    if (*pos != '[')
+      {
+        os << val_.get_acceptance();
+        return;
+      }
+    const char* beg = pos;
+    ++pos;
+    const char* end = strchr(pos, ']');
+    try
+      {
+        os << val_.name(std::string(pos, end).c_str());
+      }
+    catch (const std::runtime_error& e)
+      {
+        std::ostringstream tmp;
+        tmp << "while processing %"
+            << std::string(beg, end + 2) << ", ";
+        tmp << e.what();
+        throw std::runtime_error(tmp.str());
+
+      }
+  }
+
 
   stat_printer::stat_printer(std::ostream& os, const char* format)
     : format_(format)
@@ -397,11 +422,7 @@ namespace spot
       }
 
     if (has('g'))
-      {
-        std::ostringstream os;
-        os << aut->get_acceptance();
-        gen_acc_ = os.str();
-      }
+      gen_acc_ = aut->acc();
 
     auto& os = format(format_);
     // Make sure we do not hold a pointer to the automaton or the

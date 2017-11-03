@@ -156,7 +156,7 @@ private:
   spot::printable_value<std::string> aut_name_;
   spot::printable_value<std::string> aut_word_;
   spot::printable_value<std::string> haut_word_;
-  spot::printable_value<std::string> haut_gen_acc_;
+  spot::printable_acc_cond haut_gen_acc_;
   spot::printable_value<unsigned> haut_states_;
   spot::printable_value<unsigned> haut_edges_;
   spot::printable_value<unsigned> haut_trans_;

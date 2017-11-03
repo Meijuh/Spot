@@ -49,6 +49,17 @@ New in spot 2.4.1.dev (not yet released)
     implication-based simplification rules of ltl2tgba.  See the
     spot-x man-page for details.
 
+  - The --format=%g option of tools that output automata used to
+    print the acceptance condition as a *formula* in the HOA format.
+    This %g can now take optional arguments to print the acceptance
+    *name* in different formats.  For instance
+
+       ... | autfilt -o '%[s]g.hoa'
+
+    will separate a stream of automata into different files named
+    by their acceptance name (Buchi, co-Buchi, Streett, etc.) or
+    "other" if no name is known for the acceptance condition.
+
   Library:
 
   - Rename three methods of spot::scc_info. New names are clearer. The

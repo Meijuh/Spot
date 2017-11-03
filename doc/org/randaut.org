@@ -163,7 +163,6 @@ $txt
 #+RESULTS:
 [[file:randaut3.png]]
 
-
 * Acceptance condition
 
 The generation of the acceptance sets abn is controlled with the following four parameters:
@@ -470,6 +469,30 @@ states.
 The output format can be controlled using [[file:oaut.org][the common output options]]
 like =--hoaf=, =--dot==, =--lbtt=, and =--spin=.  Note that =--spin=
 automatically implies =--ba=.
+
+Automata are send to standard output by default, by you can use =-o=
+to give a filename, or even a pattern for filenames.  For instance the
+following generates 20 automatas, but store them in different files
+according to the acceptance condition.  The format =%g= represent the
+formula for the acceptance condition and would not make a nice
+filename, but =%[s]g= is a short name for that acceptance condition
+(its is replaced by "other" if Spot does not know better).
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randaut -n20 -Q10 -A 'random 3' 2 -o 'randaut-%[s]g.hoa'
+wc -l randaut-*.hoa
+#+END_SRC
+
+#+RESULTS:
+:   222 randaut-Rabin-like.hoa
+:   380 randaut-Streett-like.hoa
+:   100 randaut-generalized-Buchi.hoa
+:   249 randaut-other.hoa
+:   951 total
+
+#+BEGIN_SRC sh :results silent :exports results
+rm -f rautaut-*.hoa
+#+END_SRC
 
 * Generating a stream of automata
 

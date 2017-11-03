@@ -70,6 +70,20 @@ namespace spot
     print(std::ostream& os, const char*) const override;
   };
 
+  class SPOT_API printable_acc_cond final: public spot::printable
+  {
+    acc_cond val_;
+  public:
+    printable_acc_cond&
+    operator=(const acc_cond& new_val)
+    {
+      val_ = new_val;
+      return *this;
+    }
+
+    void print(std::ostream& os, const char* pos) const override;
+  };
+
   class SPOT_API printable_scc_info final:
     public spot::printable
   {
@@ -117,7 +131,7 @@ namespace spot
     printable_value<unsigned> nondetstates_;
     printable_value<unsigned> deterministic_;
     printable_value<unsigned> complete_;
-    printable_value<std::string> gen_acc_;
+    printable_acc_cond gen_acc_;
   };
 
   /// @}
