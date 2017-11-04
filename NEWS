@@ -22,6 +22,11 @@ New in spot 2.4.1.dev (not yet released)
     deterministic co-Büchi automaton using the new functions
     [nsa-dnf]_to_dca() described below.
 
+  - autfilt learned --acceptance-is=ACC to filter automata by
+    acceptance condition.  ACC can be the name of some acceptance
+    class (e.g. Büchi, Fin-less, Streett-like) or a precise acceptance
+    formula in the HOA syntax.
+
   - ltlfilt learned to measure wall-time using --format=%r.
 
   - ltlfilt learned to measure cpu-time (as opposed to wall-time) using

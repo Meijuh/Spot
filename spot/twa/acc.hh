@@ -985,6 +985,16 @@ namespace spot
       return code_;
     }
 
+    bool operator==(const acc_cond& other) const
+    {
+      return other.num_sets() == num_ && other.get_acceptance() == code_;
+    }
+
+    bool operator!=(const acc_cond& other) const
+    {
+      return !(*this == other);
+    }
+
     bool uses_fin_acceptance() const
     {
       return uses_fin_acceptance_;
@@ -1123,6 +1133,9 @@ namespace spot
 
     // Return the number of Inf in each pair.
     bool is_generalized_rabin(std::vector<unsigned>& pairs) const;
+
+    // Return the number of Inf in each pair.
+    bool is_generalized_streett(std::vector<unsigned>& pairs) const;
 
     // If EQUIV is false, this return true iff the acceptance
     // condition is a parity condition written in the canonical way

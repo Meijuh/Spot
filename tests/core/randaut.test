@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015, 2016 Laboratoire de Recherche et
+# Copyright (C) 2014, 2015, 2016, 2017 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -84,7 +84,7 @@ grep 'autfilt: options --output and --count are incompatible' stderr
     randaut -A 'random 4' -n 2 -Q5 -H 2
     randaut -A 'parity rand rand 2..4' -n3 -Q5 -H 2
     randaut -A 'generalized-Rabin 3 1..2 2..3 0' -n3 -Q5 -H 2
-) | grep -E '(acc-name:|Acceptance:)' > output
+) | tee input | grep -E '(acc-name:|Acceptance:)' > output
 cat output
 
 a=Acceptance
@@ -109,6 +109,63 @@ acc-name: generalized-Rabin 3 2 3 0
 $a: 8 (Fin(0) & (Inf(1)&Inf(2))) | (Fin(3) & (Inf(4)&Inf(5)&Inf(6))) | Fin(7)
 EOF
 diff output expected
+
+autfilt --acceptance-is=generalized-Buchi --stats='%g,%[s]g' >stdout <input
+cat >expected <<EOF
+Inf(0)&Inf(1)&Inf(2)&Inf(3),generalized-Buchi
+Inf(0)&Inf(1)&Inf(2)&Inf(3),generalized-Buchi
+EOF
+diff stdout expected
+autfilt --acceptance-is=Fin-less --stats='%g,%[s]g' >stdout <input
+diff stdout expected
+
+autfilt --acceptance-is=generalized-Rabin --stats='%[sb]g' >stdout <input
+cat >expected <<EOF
+gen. Rabin
+gen. Rabin
+gen. Rabin
+EOF
+diff stdout expected
+
+autfilt --acceptance-is=parity --stats='%g,%[sb]g' >stdout <input
+cat >expected <<EOF
+Inf(0) | (Fin(1) & (Inf(2) | Fin(3))),parity
+Fin(1) & Inf(0),parity
+Inf(3) | (Fin(2) & (Inf(1) | Fin(0))),parity
+EOF
+diff stdout expected
+
+autfilt --acceptance-is=parity-odd --stats='%g,%[m]g' >stdout <input
+cat >expected <<EOF
+Inf(3) | (Fin(2) & (Inf(1) | Fin(0))),parity max odd
+EOF
+diff stdout expected
+
+autfilt --acceptance-is=parity-min --stats='%g,%[m]g' >stdout <input
+cat >expected <<EOF
+Inf(0) | (Fin(1) & (Inf(2) | Fin(3))),parity min even
+EOF
+diff stdout expected
+
+autfilt --acceptance-is=parity-max-even --stats='%g,%[m]g' >stdout <input
+cat >expected <<EOF
+Fin(1) & Inf(0),parity max even
+EOF
+diff stdout expected
+
+autfilt --acceptance-is=Streett <input && exit 1
+
+autfilt --acceptance-is='Fin(1)|Fin(2)&Fin(3)&Fin(0)' --stats='%g,%[s]g' \
+        >stdout <input
+cat >expected <<EOF
+Fin(1) | (Fin(2) & Fin(3) & Fin(0)),other
+EOF
+diff stdout expected
+
+autfilt --acceptance-is='Fin(1)|' <input 2>err && exit 1
+grep acceptance-is err
+grep 'syntax error at end of acceptance' err
+grep " - 'generalized-Streett'" err
 
 randaut --spin -A 'random 2' 2 2>stderr && exit 1
 grep 'randaut: --spin.*--acceptance' stderr

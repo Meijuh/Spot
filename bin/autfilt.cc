@@ -83,6 +83,7 @@ enum {
   OPT_ACC_SCCS = 256,
   OPT_ACC_SETS,
   OPT_ACCEPT_WORD,
+  OPT_ACCEPTANCE_IS,
   OPT_AP_N,
   OPT_ARE_ISOMORPHIC,
   OPT_CLEAN_ACC,
@@ -174,6 +175,8 @@ static const argp_option options[] =
     { "unused-ap", OPT_UNUSED_AP_N, "RANGE", 0,
       "match automata with a number of declared, but unused atomic "
       "propositions in RANGE", 0 },
+    { "acceptance-is", OPT_ACCEPTANCE_IS, "NAME|FORMULA", 0,
+      "match automata with given accetance condition", 0 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
     { "isomorphic", 0, nullptr, OPTION_ALIAS | OPTION_HIDDEN, nullptr, 0 },
@@ -425,6 +428,99 @@ static gra_type const gra_types[] =
 };
 ARGMATCH_VERIFY(gra_args, gra_types);
 
+enum acc_type {
+  ACC_Any = 0,
+  ACC_Given,
+  ACC_tt,
+  ACC_ff,
+  ACC_Buchi,
+  ACC_GenBuchi,
+  ACC_CoBuchi,
+  ACC_GenCoBuchi,
+  ACC_Rabin,
+  ACC_Streett,
+  ACC_GenRabin,
+  ACC_GenStreett,
+  ACC_RabinLike,
+  ACC_StreettLike,
+  ACC_Parity,
+  ACC_ParityMin,
+  ACC_ParityMax,
+  ACC_ParityOdd,
+  ACC_ParityEven,
+  ACC_ParityMinOdd,
+  ACC_ParityMaxOdd,
+  ACC_ParityMinEven,
+  ACC_ParityMaxEven,
+  ACC_FinLess,
+};
+static acc_type opt_acceptance_is = ACC_Any;
+spot::acc_cond opt_acceptance_is_given;
+static char const *const acc_is_args[] =
+  {
+    "any",
+    "t", "all",
+    "f", "none",
+    "Buchi", "Büchi",
+    "generalized-Buchi", "generalized-Büchi",
+    "genBuchi", "genBüchi", "gen-Buchi", "gen-Büchi",
+    "coBuchi", "coBüchi", "co-Buchi", "co-Büchi",
+    "generalized-coBuchi", "generalized-coBüchi",
+    "generalized-co-Buchi", "generalized-co-Büchi",
+    "gen-coBuchi", "gen-coBüchi",
+    "gen-co-Buchi", "gen-co-Büchi",
+    "gencoBuchi", "gencoBüchi",
+    "Rabin",
+    "Streett",
+    "generalized-Rabin", "gen-Rabin", "genRabin",
+    "generalized-Streett", "gen-Streett", "genStreett",
+    "Streett-like",
+    "Rabin-like",
+    "parity",
+    "parity min", "parity-min",
+    "parity max", "parity-max",
+    "parity odd", "parity-odd",
+    "parity even", "parity-even",
+    "parity min even", "parity-min-even",
+    "parity min odd", "parity-min-odd",
+    "parity max even", "parity-max-even",
+    "parity max odd", "parity-max-odd",
+    "Fin-less", "Finless",
+    nullptr,
+  };
+static acc_type const acc_is_types[] =
+  {
+    ACC_Any,
+    ACC_tt, ACC_tt,
+    ACC_ff, ACC_ff,
+    ACC_Buchi, ACC_Buchi,
+    ACC_GenBuchi, ACC_GenBuchi,
+    ACC_GenBuchi, ACC_GenBuchi, ACC_GenBuchi, ACC_GenBuchi,
+    ACC_CoBuchi, ACC_CoBuchi, ACC_CoBuchi, ACC_CoBuchi,
+    ACC_GenCoBuchi, ACC_GenCoBuchi,
+    ACC_GenCoBuchi, ACC_GenCoBuchi,
+    ACC_GenCoBuchi, ACC_GenCoBuchi,
+    ACC_GenCoBuchi, ACC_GenCoBuchi,
+    ACC_GenCoBuchi, ACC_GenCoBuchi,
+    ACC_Rabin,
+    ACC_Streett,
+    ACC_GenRabin, ACC_GenRabin, ACC_GenRabin,
+    ACC_GenStreett, ACC_GenStreett, ACC_GenStreett,
+    ACC_StreettLike,
+    ACC_RabinLike,
+    ACC_Parity,
+    ACC_ParityMin, ACC_ParityMin,
+    ACC_ParityMax, ACC_ParityMax,
+    ACC_ParityOdd, ACC_ParityOdd,
+    ACC_ParityEven, ACC_ParityEven,
+    ACC_ParityMinEven, ACC_ParityMinEven,
+    ACC_ParityMinOdd, ACC_ParityMinOdd,
+    ACC_ParityMaxEven, ACC_ParityMaxEven,
+    ACC_ParityMaxOdd, ACC_ParityMaxOdd,
+    ACC_FinLess, ACC_FinLess,
+  };
+ARGMATCH_VERIFY(acc_is_args, acc_is_types);
+
 enum gsa_type { GSA_NO = 0, GSA_SHARE_FIN = 1, GSA_UNIQUE_FIN = 2 };
 static gsa_type opt_gsa = GSA_NO;
 static char const *const gsa_args[] =
@@ -588,6 +684,45 @@ parse_opt(int key, char* arg, struct argp_state*)
           error(2, 0, "failed to parse the argument of --accept-word:\n%s",
                 e.what());
         }
+      break;
+    case OPT_ACCEPTANCE_IS:
+      {
+        auto res = argmatch(arg, acc_is_args,
+                            (char const*) acc_is_types, sizeof(acc_type));
+        if (res >= 0)
+          opt_acceptance_is = acc_is_types[res];
+        else
+          {
+            try
+              {
+                opt_acceptance_is_given =
+                  spot::acc_cond(spot::acc_cond::acc_code(arg));
+                opt_acceptance_is = ACC_Given;
+              }
+            catch (const spot::parse_error& err)
+              {
+                std::cerr << program_name << ": failed to parse '" << arg
+                          << ("' as an acceptance formula for "
+                              "--acceptance-is\n\t")
+                          << err.what()
+                          << ("\nIf you do not want to supply a formula, the "
+                              "following names are recognized:");
+                acc_type last_val = ACC_Any;
+                for (int i = 0; acc_is_args[i]; i++)
+                  if ((i == 0) || last_val != acc_is_types[i])
+                    {
+                      std::cerr << "\n  - '" << acc_is_args[i] << '\'';
+                      last_val = acc_is_types[i];
+                    }
+                  else
+                    {
+                      std::cerr << ", '" << acc_is_args[i] << '"';
+                    }
+                std::cerr << std::flush;
+                exit(2);
+              }
+          }
+      }
       break;
     case OPT_ARE_ISOMORPHIC:
       opt->are_isomorphic = read_automaton(arg, opt->dict);
@@ -976,6 +1111,97 @@ static int unused_ap(const spot::const_twa_graph_ptr& aut)
 
 namespace
 {
+  static
+  bool match_acceptance(spot::twa_graph_ptr aut)
+  {
+    auto& acc = aut->acc();
+    switch (opt_acceptance_is)
+      {
+      case ACC_Any:
+        return true;
+      case ACC_Given:
+        return acc == opt_acceptance_is_given;
+      case ACC_tt:
+        return acc.is_t();
+      case ACC_ff:
+        return acc.is_f();
+      case ACC_Buchi:
+        return acc.is_buchi();
+      case ACC_GenBuchi:
+        return acc.is_generalized_buchi();
+      case ACC_CoBuchi:
+        return acc.is_co_buchi();
+      case ACC_GenCoBuchi:
+        return acc.is_generalized_co_buchi();
+      case ACC_Rabin:
+        return acc.is_rabin() >= 0;
+      case ACC_Streett:
+        return acc.is_streett() >= 0;
+      case ACC_GenRabin:
+        {
+          std::vector<unsigned> p;
+          return acc.is_generalized_rabin(p);
+        }
+      case ACC_GenStreett:
+        {
+          std::vector<unsigned> p;
+          return acc.is_generalized_streett(p);
+        }
+      case ACC_RabinLike:
+        {
+          std::vector<spot::acc_cond::rs_pair> p;
+          return acc.is_rabin_like(p);
+        }
+      case ACC_StreettLike:
+        {
+          std::vector<spot::acc_cond::rs_pair> p;
+          return acc.is_streett_like(p);
+        }
+      case ACC_Parity:
+      case ACC_ParityMin:
+      case ACC_ParityMax:
+      case ACC_ParityOdd:
+      case ACC_ParityEven:
+      case ACC_ParityMinOdd:
+      case ACC_ParityMaxOdd:
+      case ACC_ParityMinEven:
+      case ACC_ParityMaxEven:
+        {
+          bool max;
+          bool odd;
+          bool is_p = acc.is_parity(max, odd, true);
+          if (!is_p)
+            return false;
+          switch (opt_acceptance_is)
+            {
+            case ACC_Parity:
+              return true;
+            case ACC_ParityMin:
+              return !max;
+            case ACC_ParityMax:
+              return max;
+            case ACC_ParityOdd:
+              return odd;
+            case ACC_ParityEven:
+              return !odd;
+            case ACC_ParityMinOdd:
+              return !max && odd;
+            case ACC_ParityMaxOdd:
+              return max && odd;
+            case ACC_ParityMinEven:
+              return !max && !odd;
+            case ACC_ParityMaxEven:
+              return max && !odd;
+            default:
+              SPOT_UNREACHABLE();
+            }
+        }
+      case ACC_FinLess:
+        return !acc.uses_fin_acceptance();
+      }
+    SPOT_UNREACHABLE();
+  }
+
 
   struct autfilt_processor: hoa_processor
   {
@@ -1045,6 +1271,10 @@ namespace
         matched &= !aut->is_existential();
       if (matched && opt_is_complete)
         matched &= is_complete(aut);
+
+      if (matched && opt_acceptance_is)
+        matched = match_acceptance(aut);
+
       if (matched && (opt_sccs_set | opt_art_sccs_set))
         {
           spot::scc_info si(aut);

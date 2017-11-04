@@ -649,6 +649,7 @@ namespace spot
     return is_rs_like(code_, acc_op::Or, acc_op::And, acc_op::Inf, pairs);
   }
 
+
   // PAIRS contains the number of Inf in each pair.
   bool acc_cond::is_generalized_rabin(std::vector<unsigned>& pairs) const
   {
@@ -727,6 +728,86 @@ namespace spot
       pairs.emplace_back(i.second);
     return (!(seen_fin & seen_inf)
             && (seen_fin | seen_inf) == all_sets());
+  }
+
+  // PAIRS contains the number of Inf in each pair.
+  bool acc_cond::is_generalized_streett(std::vector<unsigned>& pairs) const
+  {
+    pairs.clear();
+    if (is_generalized_buchi())
+      {
+        pairs.resize(num_);
+        return true;
+      }
+    if (code_.is_f()
+        || code_.back().sub.op != acc_op::And)
+      return false;
+
+    auto s = code_.back().sub.size;
+    acc_cond::mark_t seen_fin = 0U;
+    acc_cond::mark_t seen_inf = 0U;
+    // Each pairs is the position of a Inf followed
+    // by the number of Fin.
+    std::map<unsigned, unsigned> p;
+    while (s)
+      {
+        --s;
+        if (code_[s].sub.op == acc_op::Or)
+          {
+            auto o1 = code_[--s].sub.op;
+            auto m1 = code_[--s].mark;
+            auto o2 = code_[--s].sub.op;
+            auto m2 = code_[--s].mark;
+
+            // We assume
+            //   Inf(n) | Fin({n+1,n+2,...,n+i})
+            //   o1 (m1)       o2 (m2)
+            // swap if it is the converse
+            if (o2 == acc_cond::acc_op::Inf)
+              {
+                std::swap(o1, o2);
+                std::swap(m1, m2);
+              }
+
+            if (o1 != acc_cond::acc_op::Inf
+                || o2 != acc_cond::acc_op::Fin
+                || m1.count() != 1)
+              return false;
+
+            unsigned i = m2.count();
+            // If we have seen this pair already, it must have the
+            // same size.
+            if (p.emplace(m1.max_set(), i).first->second != i)
+              return false;
+            assert(i > 0);
+            unsigned j = m1.max_set(); // == n+1
+            do
+              if (!m2.has(j++))
+                return false;
+            while (--i);
+
+            seen_inf |= m1;
+            seen_fin |= m2;
+          }
+        else if (code_[s].sub.op == acc_op::Inf)
+          {
+            auto m1 = code_[--s].mark;
+            for (auto s: m1.sets())
+              // If we have seen this pair already, it must have the
+              // same size.
+              if (p.emplace(s, 0U).first->second != 0U)
+                return false;
+            seen_inf |= m1;
+          }
+        else
+          {
+            return false;
+          }
+      }
+    for (auto i: p)
+      pairs.emplace_back(i.second);
+    return (!(seen_inf & seen_fin)
+            && (seen_inf | seen_fin) == all_sets());
   }
 
   acc_cond::acc_code
