@@ -1627,23 +1627,30 @@ namespace spot
                       }
                     else if (like_names)
                       {
-                        std::vector<acc_cond::rs_pair> r_pairs;
-                        bool r_like = is_rabin_like(r_pairs);
-                        unsigned rsz = r_pairs.size();
-                        std::vector<acc_cond::rs_pair> s_pairs;
-                        bool s_like = is_streett_like(s_pairs);
-                        unsigned ssz = s_pairs.size();
-                        if (r_like && (!s_like || (rsz <= ssz)))
+                        if (!uses_fin_acceptance())
                           {
-                            os << "Rabin-like";
-                            if (!no_main_param)
-                              os << ' ' << rsz;
+                            os << "Fin-less" << sets();
                           }
-                        else if (s_like && (!r_like || (ssz < rsz)))
+                        else
                           {
-                            os << "Streett-like";
-                            if (!no_main_param)
-                              os << ' ' << ssz;
+                            std::vector<acc_cond::rs_pair> r_pairs;
+                            bool r_like = is_rabin_like(r_pairs);
+                            unsigned rsz = r_pairs.size();
+                            std::vector<acc_cond::rs_pair> s_pairs;
+                            bool s_like = is_streett_like(s_pairs);
+                            unsigned ssz = s_pairs.size();
+                            if (r_like && (!s_like || (rsz <= ssz)))
+                              {
+                                os << "Rabin-like";
+                                if (!no_main_param)
+                                  os << ' ' << rsz;
+                              }
+                            else if (s_like && (!r_like || (ssz < rsz)))
+                              {
+                                os << "Streett-like";
+                                if (!no_main_param)
+                                  os << ' ' << ssz;
+                              }
                           }
                       }
                   }
