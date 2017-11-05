@@ -1694,6 +1694,17 @@ namespace spot
                             os << ' ' << p;
                       }
                   }
+                else if (is_generalized_streett(pairs))
+                  {
+                    os << gen() << "Streett";
+                    if (!no_main_param)
+                      {
+                        os << ' ' << pairs.size();
+                        if (!no_extra_param)
+                          for (auto p: pairs)
+                            os << ' ' << p;
+                      }
+                  }
                 else
                   {
                     bool max = false;
