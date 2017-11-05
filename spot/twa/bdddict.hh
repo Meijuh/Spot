@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2011-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -196,39 +196,6 @@ namespace spot
                                    std::shared_ptr<U> for_me)
     {
       register_all_variables_of(from_other.get(), for_me.get());
-    }
-    /// @}
-
-    /// \brief Register the same propositions as another object.
-    ///
-    /// This tells this dictionary that the \a for_me object will be
-    /// using the same BDD variable used for atomic propositions by
-    /// the \a from_other object.  This ensures that the variables
-    /// won't be freed when \a from_other is deleted if \a from_other
-    /// is still alive.
-    /// @{
-    void register_all_propositions_of(const void* from_other,
-                                      const void* for_me);
-
-    template <typename T>
-    void register_all_propositions_of(const void* from_other,
-                                      std::shared_ptr<T> for_me)
-    {
-      register_all_propositions_of(from_other, for_me.get());
-    }
-
-    template <typename T>
-    void register_all_propositions_of(std::shared_ptr<T> from_other,
-                                      const void* for_me)
-    {
-      register_all_propositions_of(from_other.get(), for_me);
-    }
-
-    template <typename T, typename U>
-    void register_all_propositions_of(std::shared_ptr<T> from_other,
-                                      std::shared_ptr<U> for_me)
-    {
-      register_all_propositions_of(from_other.get(), for_me.get());
     }
     /// @}
 

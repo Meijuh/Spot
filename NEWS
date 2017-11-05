@@ -173,13 +173,17 @@ New in spot 2.4.1.dev (not yet released)
 
   - The spot::closure(), spot::sl2(), spot::is_stutter_invariant()
     functions no longuer takes && arguments.  The former two have
-    spot::closure_inplace() and spot::sl2_inplace() variant.  These
-    function also do not take to list of atomic propositions as an
+    spot::closure_inplace() and spot::sl2_inplace() variants.  These
+    functions also do not take a list of atomic propositions as an
     argument anymore.
 
   - The spot::bmrand() and spot::prand() functions have been removed.
     They were not used at all in Spot, and it's not Spot's objective
     to provide such random functions.
+
+  - The spot::bdd_dict::register_all_propositions_of() function has
+    been removed.  It's a low-level function was not used anywhere in
+    Spot anymore, since it's better to use spot::twa::copy_ap_of().
 
   Bugs fixed:
 
