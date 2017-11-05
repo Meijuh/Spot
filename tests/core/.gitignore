@@ -1,5 +1,6 @@
 acc
 apcollect
+bdddict
 bddprod
 bitvect
 blue_counter
@@ -45,6 +46,7 @@ nenoform
 ngraph
 output1
 output2
+parity
 parse_print
 powerset
 *.ps

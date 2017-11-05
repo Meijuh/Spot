@@ -62,6 +62,7 @@ core/defs: $(top_builddir)/config.status $(srcdir)/core/defs.in
 # Keep this sorted alphabetically.
 check_PROGRAMS = \
   core/acc \
+  core/bdddict \
   core/bitvect \
   core/checkpsl \
   core/checkta \
@@ -100,6 +101,7 @@ check_PROGRAMS = \
 
 # Keep this sorted alphabetically.
 core_acc_SOURCES = core/acc.cc
+core_bdddict_SOURCES  = core/bdddict.cc
 core_bitvect_SOURCES  = core/bitvect.cc
 core_checkpsl_SOURCES = core/checkpsl.cc
 core_checkta_SOURCES = core/checkta.cc
@@ -204,6 +206,7 @@ TESTS_misc = \
 TESTS_twa = \
   core/acc.test \
   core/acc2.test \
+  core/bdddict.test \
   core/alternating.test \
   core/ltlcross3.test \
   core/taatgba.test \
