@@ -23,7 +23,13 @@
 
 namespace spot
 {
+  /// \ingroup twa_algorithms
   /// \brief Remove useless acceptance sets
+  ///
+  /// This removes from the automaton the acceptance marks that are
+  /// not used in the acceptance condition.  This also removes from
+  /// the acceptance conditions the terms that corresponds to empty
+  /// or full sets.
   ///
   /// If \a strip is true (the default), the remaining acceptance set
   /// numbers will be shifted down to reduce maximal number of
@@ -31,20 +37,34 @@ namespace spot
   SPOT_API twa_graph_ptr
   cleanup_acceptance_here(twa_graph_ptr aut, bool strip = true);
 
+  /// \ingroup twa_algorithms
   /// \brief Remove useless acceptance sets
+  ///
+  /// This removes from the automaton the acceptance marks that are
+  /// not used in the acceptance condition.  This also removes from
+  /// the acceptance conditions the terms that corresponds to empty
+  /// or full sets.
+  ///
   SPOT_API twa_graph_ptr
   cleanup_acceptance(const_twa_graph_ptr aut);
 
+  /// @{
+  /// \ingroup twa_algorithms
   /// \brief Simplify an acceptance condition
   ///
-  /// Remove useless acceptance sets.
-  /// Merge identical sets.
-  /// If some sets are complement to each other, might result in the
-  /// simplification of some clause in the acceptance condition.
+  /// Does evereything cleanup_acceptance() does, but additionally:
+  /// merge identical sets, detect whether to sets i and j are
+  /// complementary to apply the following reductions:
+  ///   - `Fin(i) & Inf(j) = Fin(i)`
+  ///   - `Fin(i) & Fin(j) = f`
+  ///   - `Fin(i) & Inf(i) = f`
+  ///   - `Fin(i) | Inf(j) = Inf(j)`
+  ///   - `Inf(i) | Inf(j) = t`
+  ///   - `Fin(i) | Inf(i) = t`
   SPOT_API twa_graph_ptr
   simplify_acceptance_here(twa_graph_ptr aut);
 
-  /// \brief Simplify an acceptance condition
   SPOT_API twa_graph_ptr
   simplify_acceptance(const_twa_graph_ptr aut);
+  /// @}
 }

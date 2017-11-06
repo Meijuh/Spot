@@ -174,15 +174,18 @@ namespace spot
                 {
                   auto tmp = remove_compl_rec(pos, complement);
 
-                  if (tmp.back().sub.op == acc_cond::acc_op::Fin
-                      && tmp.front().mark.count() == 1)
-                    seen_fin |= tmp.front().mark;
-
-                  if (tmp.back().sub.op == acc_cond::acc_op::Inf)
+                  if (!tmp.empty())
                     {
-                      inf &= std::move(tmp);
-                      pos -= pos->sub.size + 1;
-                      continue;
+                      if (tmp.back().sub.op == acc_cond::acc_op::Fin
+                          && tmp.front().mark.count() == 1)
+                        seen_fin |= tmp.front().mark;
+
+                      if (tmp.back().sub.op == acc_cond::acc_op::Inf)
+                        {
+                          inf &= std::move(tmp);
+                          pos -= pos->sub.size + 1;
+                          continue;
+                        }
                     }
                   tmp &= std::move(res);
                   std::swap(tmp, res);
@@ -190,8 +193,18 @@ namespace spot
                 }
               while (pos > start);
 
+              // Fin(i) & Inf(i) = f;
+              if (inf.front().mark & seen_fin)
+                return acc_cond::acc_code::f();
               for (auto m: seen_fin.sets())
-                inf.front().mark -= complement[m];
+                {
+                  acc_cond::mark_t cm = complement[m];
+                  // Fin(i) & Fin(!i) = f;
+                  if (cm & seen_fin)
+                    return acc_cond::acc_code::f();
+                  // Inf({!i}) & Fin({i}) = Fin({i})
+                  inf.front().mark -= complement[m];
+                }
 
               return inf & res;
             }
@@ -205,15 +218,18 @@ namespace spot
                 {
                   auto tmp = remove_compl_rec(pos, complement);
 
-                  if (tmp.back().sub.op == acc_cond::acc_op::Inf
-                      && tmp.front().mark.count() == 1)
-                    seen_inf |= tmp.front().mark;
-
-                  if (tmp.back().sub.op == acc_cond::acc_op::Fin)
+                  if (!tmp.empty())
                     {
-                      fin |= std::move(tmp);
-                      pos -= pos->sub.size + 1;
-                      continue;
+                      if (tmp.back().sub.op == acc_cond::acc_op::Inf
+                          && tmp.front().mark.count() == 1)
+                        seen_inf |= tmp.front().mark;
+
+                      if (tmp.back().sub.op == acc_cond::acc_op::Fin)
+                        {
+                          fin |= std::move(tmp);
+                          pos -= pos->sub.size + 1;
+                          continue;
+                        }
                     }
                   tmp |= std::move(res);
                   std::swap(tmp, res);
@@ -221,9 +237,18 @@ namespace spot
                 }
               while (pos > start);
 
+              // Fin(i) | Inf(i) = t;
+              if (fin.front().mark & seen_inf)
+                return acc_cond::acc_code::t();
               for (auto m: seen_inf.sets())
-                fin.front().mark -= complement[m];
-
+                {
+                  acc_cond::mark_t cm = complement[m];
+                  // Inf({i}) | Inf({!i}) = t;
+                  if (cm & seen_inf)
+                    return acc_cond::acc_code::t();
+                  // Fin({!i}) | Inf({i}) = Inf({i})
+                  fin.front().mark -= complement[m];
+                }
               return res | fin;
             }
           case acc_cond::acc_op::Fin:

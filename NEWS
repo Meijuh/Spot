@@ -160,6 +160,16 @@ New in spot 2.4.1.dev (not yet released)
     conditions.   The fmt parameter specify the format to use for that
     name (e.g. to the style used in HOA, or that used by print_dot()).
 
+  - spot::simplify_acceptance() was already merging identical acceptance
+    sets, and detecting complementary sets i and j to perform the following
+    simplifications
+      Fin(i) & Inf(j) = Fin(i)
+      Fin(i) | Inf(j) = Inf(i)
+    It now additionally applies the following rules (again assuming i
+    and j are complementary):
+      Fin(i) & Fin(j) = f          Inf(i) | Inf(j) = t
+      Fin(i) & Inf(i) = f          Fin(i) | Inf(i) = t
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)

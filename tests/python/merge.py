@@ -113,16 +113,88 @@ assert hoa == """HOA: v1
 States: 3
 Start: 0
 AP: 2 "a" "b"
-Acceptance: 2 (Fin(0) & Inf(0)) | (Fin(1) & Inf(1))
+acc-name: none
+Acceptance: 0 f
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[0] 1
+State: 1
+[0] 1
+[1] 2
+State: 2
+[1] 0
+--END--"""
+
+aut = spot.automaton("""
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 (Inf(0) | Fin(1)) & (Inf(2) | Fin(3))
 properties: trans-labels explicit-labels trans-acc
 --BODY--
 State: 0
-[0] 1 {0}
+[0] 1 {0 1}
 State: 1
-[0] 1 {1}
-[1] 2 {0 1}
+[0] 1 {2 3}
+[1] 2 {0 1 3}
 State: 2
-[1] 0 {1}
+[1] 0 {2 3}
+--END--""")
+spot.simplify_acceptance_here(aut)
+hoa = aut.to_str('hoa')
+
+assert hoa == """HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 2 Fin(1) | Inf(0)
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0] 1
+State: 1
+[0] 1 {0 1}
+[1] 2 {1}
+State: 2
+[1] 0 {0 1}
+--END--"""
+
+aut = spot.automaton("""
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 (Inf(0) | Fin(1)) & (Inf(2) | Fin(3))
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0] 1 {0 1}
+State: 1
+[0] 1 {2 3}
+[1] 2 {0 1 2 3}
+State: 2
+[1] 0 {2 3}
+--END--""")
+spot.simplify_acceptance_here(aut)
+hoa = aut.to_str('hoa')
+
+assert hoa == """HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[0] 1
+State: 1
+[0] 1
+[1] 2
+State: 2
+[1] 0
 --END--"""
 
 aut = spot.automaton("""HOA: v1
@@ -644,4 +716,70 @@ State: 0
 State: 1
 [0] 1
 [!0] 0
+--END--"""
+
+aut = spot.automaton("""HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Fin(0) & Fin(1) & Inf(2)
+--BODY--
+State: 0
+[0] 1 {0}
+State: 1
+[0] 1 {1 2}
+[1] 2 {0 2}
+State: 2
+[1] 0 {1}
+--END--""")
+spot.simplify_acceptance_here(aut)
+hoa = aut.to_str('hoa')
+assert hoa == """HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: none
+Acceptance: 0 f
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[0] 1
+State: 1
+[0] 1
+[1] 2
+State: 2
+[1] 0
+--END--"""
+
+aut = spot.automaton("""HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Inf(0) | Inf(1) | Inf(2)
+--BODY--
+State: 0
+[0] 1 {0}
+State: 1
+[0] 1 {1 2}
+[1] 2 {0 2}
+State: 2
+[1] 0 {1}
+--END--""")
+spot.simplify_acceptance_here(aut)
+hoa = aut.to_str('hoa')
+assert hoa == """HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[0] 1
+State: 1
+[0] 1
+[1] 2
+State: 2
+[1] 0
 --END--"""
