@@ -1,4 +1,4 @@
-New in spot 2.4.1.dev (not yet released)
+New in spot 2.4.2.dev (not yet released)
 
   Tools:
 
@@ -194,6 +194,12 @@ New in spot 2.4.1.dev (not yet released)
   - The spot::bdd_dict::register_all_propositions_of() function has
     been removed.  It's a low-level function was not used anywhere in
     Spot anymore, since it's better to use spot::twa::copy_ap_of().
+
+New in spot 2.4.2 (2017-11-07)
+
+  Tools:
+
+  - ltlcross and ltldo support ltl3tela, the new name of ltl3hoa.
 
   Bugs fixed:
 
