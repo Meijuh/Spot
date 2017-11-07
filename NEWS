@@ -1,4 +1,8 @@
-New in spot 2.4.1.dev (not yet released)
+New in spot 2.4.2 (2017-11-07)
+
+  Tools:
+
+  - ltlcross and ltldo support ltl3tela, the new name of ltl3hoa.
 
   Bugs fixed:
 
