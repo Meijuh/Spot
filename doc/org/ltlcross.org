@@ -168,7 +168,7 @@ tools:
   - '~java -jar rabinizer3.1.jar -in=formula -silent -out=std -format=hoa -auto=tr %[MWRei^]f >%O~'
     (rabinizer 3.1 can output automata in the HOA format)
   - '=ltl3dra -f %s >%O=' (The HOA format is the default for =ltl3dra=.)
-  - '=ltl3hoa -f %s >%O=' (The HOA format is the default for =ltl3hoa=.)
+  - '=ltl3tela -f %s >%O=' (The HOA format is the default for =ltl3tela=.)
 
 To simplify the use of some of the above tools, a set of predefined
 shorthands are available.  Those can be listed with the
