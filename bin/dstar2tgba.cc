@@ -124,8 +124,7 @@ namespace
     {
       spot::process_timer timer;
       timer.start();
-      auto nba = spot::to_generalized_buchi(haut->aut);
-      auto aut = post.run(nba, nullptr);
+      auto aut = post.run(haut->aut, nullptr);
       timer.stop();
       printer.print(aut, timer, nullptr, haut->filename.c_str(), -1, haut);
       flush_cout();
