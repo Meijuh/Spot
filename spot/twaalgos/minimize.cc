@@ -473,7 +473,11 @@ namespace spot
 
     {
       power_map pm;
-      det_a = tgba_powerset(a, pm);
+      bool input_is_det = is_deterministic(a);
+      if (input_is_det)
+        det_a = std::const_pointer_cast<twa_graph>(a);
+      else
+        det_a = tgba_powerset(a, pm);
 
       // For each SCC of the deterministic automaton, determine if it
       // is accepting or not.
@@ -487,6 +491,8 @@ namespace spot
       // (i.e., it is not the start of any accepting word).
 
       scc_info sm(det_a);
+      if (input_is_det)
+        sm.determine_unknown_acceptance();
 
       unsigned scc_count = sm.scc_count();
       // SCC that have been marked as useless.
@@ -529,8 +535,12 @@ namespace spot
             {
               // Regular SCCs are accepting if any of their loop
               // corresponds to an accepted word in the original
-              // automaton.
-              if (wdba_scc_is_accepting(det_a, m, a, sm, pm))
+              // automaton.  If the automaton is the same as det_a, we
+              // can simply ask that to sm.
+              bool acc_scc = input_is_det
+                ? sm.is_accepting_scc(m)
+                : wdba_scc_is_accepting(det_a, m, a, sm, pm);
+              if (acc_scc)
                 {
                   is_useless = false;
                   d[m] = l & ~1; // largest even number inferior or equal
@@ -637,15 +647,20 @@ namespace spot
 
     bool ok = false;
 
+    // Make sure the minimized WDBA does not accept more words than
+    // the input.
     if (product(min_aut_f, aut_neg_f)->is_empty())
       {
-        // Complement the minimized WDBA.
         assert((bool)min_aut_f->prop_weak());
-        auto neg_min_aut_f = remove_fin(dualize(min_aut_f));
-        if (product(aut_f, neg_min_aut_f)->is_empty())
-          // Finally, we are now sure that it was safe
-          // to minimize the automaton.
-          ok = true;
+        // If the input was deterministic, then by construction
+        // min_aut_f accepts at least all the words of aut_f, so we do
+        // not need the reverse check.  Otherwise, complement the
+        // minimized WDBA to test the reverse inclusion.
+        // (remove_fin() has a special handling of weak automata, and
+        // dualize also has a special handling of deterministic
+        // automata, so all these steps are quite efficient.)
+        ok = is_deterministic(aut_f)
+          || product(aut_f, remove_fin(dualize(min_aut_f)))->is_empty();
       }
 
     if (ok)
