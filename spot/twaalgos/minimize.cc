@@ -619,19 +619,19 @@ namespace spot
     // Build negation automaton if not supplied.
     if (!aut_neg_f)
       {
-        if (f)
+        if (is_deterministic(aut_f))
+          {
+            // If the automaton is deterministic, complementing is
+            // easy.
+            aut_neg_f = remove_fin(dualize(aut_f));
+          }
+        else if (f)
           {
             // If we know the formula, simply build the automaton for
             // its negation.
             aut_neg_f = ltl_to_tgba_fm(formula::Not(f), aut_f->get_dict());
             // Remove useless SCCs.
             aut_neg_f = scc_filter(aut_neg_f, true);
-          }
-        else if (is_deterministic(aut_f))
-          {
-            // If the automaton is deterministic, complementing is
-            // easy.
-            aut_neg_f = remove_fin(dualize(aut_f));
           }
         else
           {
