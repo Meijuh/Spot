@@ -613,14 +613,14 @@ namespace spot
         }
 
         // Handy cast operators.
-        // Note that a pointer can be cast to a Boolean as usual.
         operator bool() const
         {
           if (tag == BOOL)
             return res;
           else
-            return ecr;
+            return !!ecr;
         }
+
         operator emptiness_check_result_ptr() const
         {
           if (tag == PTR)
