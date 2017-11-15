@@ -603,7 +603,7 @@ namespace spot
 
     // If the input automaton was already weak and deterministic, the
     // output is necessary correct.
-    if (aut_f->prop_weak() && aut_f->prop_universal())
+    if (aut_f->prop_weak() && is_deterministic(aut_f))
       return min_aut_f;
 
     // if f is a syntactic obligation formula, the WDBA minimization
@@ -615,6 +615,17 @@ namespace spot
     // correct.
     if (is_terminal_automaton(aut_f))
       return min_aut_f;
+
+    // If the input was deterministic, then by construction
+    // min_aut_f accepts at least all the words of aut_f, so we do
+    // not need the reverse check.  Otherwise, complement the
+    // minimized WDBA to test the reverse inclusion.
+    // (remove_fin() has a special handling of weak automata, and
+    // dualize also has a special handling of deterministic
+    // automata, so all these steps are quite efficient.)
+    if (!is_deterministic(aut_f)
+        && !product(aut_f, remove_fin(dualize(min_aut_f)))->is_empty())
+      return std::const_pointer_cast<twa_graph>(aut_f);
 
     // Build negation automaton if not supplied.
     if (!aut_neg_f)
@@ -645,26 +656,16 @@ namespace spot
     if (is_terminal_automaton(aut_neg_f))
       return min_aut_f;
 
-    bool ok = false;
-
     // Make sure the minimized WDBA does not accept more words than
     // the input.
     if (product(min_aut_f, aut_neg_f)->is_empty())
       {
         assert((bool)min_aut_f->prop_weak());
-        // If the input was deterministic, then by construction
-        // min_aut_f accepts at least all the words of aut_f, so we do
-        // not need the reverse check.  Otherwise, complement the
-        // minimized WDBA to test the reverse inclusion.
-        // (remove_fin() has a special handling of weak automata, and
-        // dualize also has a special handling of deterministic
-        // automata, so all these steps are quite efficient.)
-        ok = is_deterministic(aut_f)
-          || product(aut_f, remove_fin(dualize(min_aut_f)))->is_empty();
+        return min_aut_f;
       }
-
-    if (ok)
-      return min_aut_f;
-    return std::const_pointer_cast<twa_graph>(aut_f);
+    else
+      {
+        return std::const_pointer_cast<twa_graph>(aut_f);
+      }
   }
 }
