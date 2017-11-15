@@ -35,7 +35,7 @@ namespace spot
   {
     static bool
     cobuchi_realizable(spot::formula f,
-                                 const const_twa_graph_ptr& aut)
+                       const const_twa_graph_ptr& aut)
     {
       twa_graph_ptr cobuchi = nullptr;
       std::vector<acc_cond::rs_pair> pairs;
@@ -135,18 +135,18 @@ namespace spot
       return true;
 
     switch (algo_to_perform(true, aut != nullptr, algo))
-    {
+      {
       case prcheck::PR_via_CoBuchi:
-        return cobuchi_realizable(f,
-            aut ? aut : ltl_to_tgba_fm(f, make_bdd_dict(), true));
+        return cobuchi_realizable(f, aut ? aut :
+                                  ltl_to_tgba_fm(f, make_bdd_dict(), true));
 
       case prcheck::PR_via_Rabin:
-        return detbuchi_realizable(
-            ltl_to_tgba_fm(formula::Not(f), make_bdd_dict(), true));
+        return detbuchi_realizable(ltl_to_tgba_fm(formula::Not(f),
+                                                  make_bdd_dict(), true));
 
       case prcheck::PR_Auto:
         SPOT_UNREACHABLE();
-    }
+      }
 
     SPOT_UNREACHABLE();
   }
@@ -158,21 +158,80 @@ namespace spot
       return true;
 
     switch (algo_to_perform(false, aut != nullptr, algo))
-    {
+      {
       case prcheck::PR_via_CoBuchi:
         return cobuchi_realizable(formula::Not(f),
-            ltl_to_tgba_fm(formula::Not(f), make_bdd_dict(), true));
+                                  ltl_to_tgba_fm(formula::Not(f),
+                                                 make_bdd_dict(), true));
 
       case prcheck::PR_via_Rabin:
-        return detbuchi_realizable(
-            aut ? aut : ltl_to_tgba_fm(f, make_bdd_dict(), true));
+        return detbuchi_realizable(aut ? aut :
+                                   ltl_to_tgba_fm(f, make_bdd_dict(), true));
 
       case prcheck::PR_Auto:
         SPOT_UNREACHABLE();
-    }
+      }
 
     SPOT_UNREACHABLE();
   }
+
+
+  [[noreturn]] static void invalid_spot_o_check()
+  {
+    throw std::runtime_error("invalid value for SPOT_O_CHECK "
+                             "(should be 1, 2, or 3)");
+  }
+
+  // This private function is defined in minimize.cc for technical
+  // reasons.
+  SPOT_LOCAL bool is_wdba_realizable(formula f, twa_graph_ptr aut = nullptr);
+
+  bool
+  is_obligation(formula f, twa_graph_ptr aut, ocheck algo)
+  {
+    if (algo == ocheck::Auto)
+      {
+        static ocheck env_algo = []()
+          {
+            int val;
+            try
+              {
+                auto s = getenv("SPOT_O_CHECK");
+                val = s ? std::stoi(s) : 0;
+              }
+            catch (const std::exception& e)
+              {
+                invalid_spot_o_check();
+              }
+            if (val == 0)
+              return ocheck::via_WDBA;
+            else if (val == 1)
+              return ocheck::via_CoBuchi;
+            else if (val == 2)
+              return ocheck::via_Rabin;
+            else if (val == 3)
+              return ocheck::via_WDBA;
+            else
+              invalid_spot_o_check();
+          }();
+        algo = env_algo;
+      }
+    switch (algo)
+      {
+      case ocheck::via_WDBA:
+        return is_wdba_realizable(f, aut);
+      case ocheck::via_CoBuchi:
+        return (is_persistence(f, aut, prcheck::PR_via_CoBuchi)
+                && is_recurrence(f, aut, prcheck::PR_via_CoBuchi));
+      case ocheck::via_Rabin:
+        return (is_persistence(f, aut, prcheck::PR_via_Rabin)
+                && is_recurrence(f, aut, prcheck::PR_via_Rabin));
+      case ocheck::Auto:
+        SPOT_UNREACHABLE();
+      }
+    SPOT_UNREACHABLE();
+  }
+
 
   char mp_class(formula f)
   {

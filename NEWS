@@ -112,6 +112,11 @@ New in spot 2.4.2.dev (not yet released)
     will work either on f or its negation.
     (see https://spot.lrde.epita.fr/hierarchy.html for details).
 
+  - A new function spot::is_obligation() can be used to test whether a
+    formula is an obligation.  This is used by ltlfilt --obligation,
+    and the algorithm used can be controled by the SPOT_O_CHECK
+    environment variable (see the spot-x(7) man page for details).
+
   - The new function spot::is_colored() checks if an automaton is colored
     (i.e., every transition belongs to exactly one acceptance set)
 

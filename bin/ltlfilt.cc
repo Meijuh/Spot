@@ -732,7 +732,7 @@ namespace
               // Because this is costly, we compute it later, so that we don't
               // have to compute it on formulas that have been discarded for
               // other reasons.
-              if (obligation)
+              if (obligation && (safety || guarantee))
                 {
                   if (!aut)
                     aut = ltl_to_tgba_fm(f, simpl.get_dict(), true);
@@ -752,10 +752,10 @@ namespace
                       matched &= !safety || is_safety_automaton(min, &si);
                     }
                 }
-
+              else if (obligation) // just obligation, not safety or guarantee
+                  matched &= is_obligation(f, aut);
               else if (persistence)
                 matched &= spot::is_persistence(f);
-
               else if (recurrence)
                 matched &= spot::is_recurrence(f, aut);
             }

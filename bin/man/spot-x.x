@@ -100,6 +100,23 @@ the automaton with property "univ-branch" when no universal branching
 is actually used)
 
 .TP
+\fBSPOT_O_CHECK\fR
+Specifies the default algorithm that should be used
+by the \f(CWis_obligation()\fR function.  The value should
+be one of the following:
+.RS
+.IP 1
+Make sure that the formula and its negation are
+realizable by non-deterministic co-Büchi automata.
+.IP 2
+Make sure that the formula and its negation are
+realizable by deterministic Büchi automata.
+.IP 3
+Make sure that the formula is realizable
+by a weak and deterministic Büchi automata.
+.RE
+
+.TP
 \fBSPOT_OOM_ABORT\fR
 If this variable is set, Out-Of-Memory errors will \f(CWabort()\fR the
 program (potentially generating a coredump) instead of raising an

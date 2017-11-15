@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010, 2011, 2014, 2015 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2010, 2011, 2014, 2015, 2017 Laboratoire de Recherche
+# et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -116,5 +116,24 @@ while read exp f; do
       *) echo "Incompatible results: $resx,$resy"; exit 1;;
   esac
 done < formulas.txt
+
+set -x
+
+cut -c 4- formulas.txt | ltlfilt --obligation > o0
+for i in 1 2 3; do
+  cut -c 4- formulas.txt | SPOT_O_CHECK=$i ltlfilt --obligation > o$i
+done
+# make sure SPOT_O_CHECK is actually read
+cut -c 4- formulas.txt | SPOT_O_CHECK=x ltlfilt --obligation 2>err && exit 1
+cut -c 4- formulas.txt | SPOT_O_CHECK=9 ltlfilt --obligation 2>err && exit 1
+grep SPOT_O_CHECK err
+diff o0 o2
+diff o1 o2
+diff o2 o3
+cut -c 4- formulas.txt | ltlfilt -o %h.ltl
+cat O.ltl G.ltl S.ltl B.ltl | sort > ogsb.ltl
+sort o3 > o4
+diff o4 ogsb.ltl
+
 
 exit 0

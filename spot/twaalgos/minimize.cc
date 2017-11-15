@@ -46,6 +46,7 @@
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/dualize.hh>
 #include <spot/twaalgos/remfin.hh>
+#include <spot/tl/hierarchy.hh>
 
 namespace spot
 {
@@ -581,6 +582,54 @@ namespace spot
     return res;
   }
 
+  // Declared in tl/hierarchy.cc, but defined here because it relies on
+  // other internal functions from this file.
+  SPOT_LOCAL bool is_wdba_realizable(formula f, twa_graph_ptr aut = nullptr);
+
+  bool is_wdba_realizable(formula f, twa_graph_ptr aut)
+  {
+    if (f.is_syntactic_obligation())
+      return true;
+
+    if (aut == nullptr)
+      aut = ltl_to_tgba_fm(f, make_bdd_dict(), true);
+
+    if (!aut->is_existential())
+      throw std::runtime_error
+        ("is_wdba_realizable() does not support alternation");
+
+    if ((f.is_syntactic_persistence() || aut->prop_weak())
+        && (f.is_syntactic_recurrence() || is_deterministic(aut)))
+      return true;
+
+    if (is_terminal_automaton(aut))
+      return true;
+
+    // FIXME: we do not need to minimize the wdba to test realizability.
+    auto min_aut = minimize_wdba(aut);
+
+    if (!is_deterministic(aut)
+        && !product(aut, remove_fin(dualize(min_aut)))->is_empty())
+      return false;
+
+    twa_graph_ptr aut_neg;
+    if (is_deterministic(aut))
+      {
+        aut_neg = remove_fin(dualize(aut));
+      }
+    else
+      {
+        aut_neg = ltl_to_tgba_fm(formula::Not(f), aut->get_dict());
+        aut_neg = scc_filter(aut_neg, true);
+      }
+
+    if (is_terminal_automaton(aut_neg))
+      return true;
+
+    return product(min_aut, aut_neg)->is_empty();
+  }
+
+
   twa_graph_ptr
   minimize_obligation(const const_twa_graph_ptr& aut_f,
                       formula f,
@@ -591,6 +640,9 @@ namespace spot
       throw std::runtime_error
         ("minimize_obligation() does not support alternation");
 
+    // FIXME: We should build scc_info once, pass it to minimize_wdba
+    // and reuse it for is_terminal_automaton(), and
+    // is_weak_automaton().
     auto min_aut_f = minimize_wdba(aut_f);
 
     if (reject_bigger)
@@ -601,14 +653,14 @@ namespace spot
           return std::const_pointer_cast<twa_graph>(aut_f);
       }
 
-    // If the input automaton was already weak and deterministic, the
-    // output is necessary correct.
-    if (aut_f->prop_weak() && is_deterministic(aut_f))
-      return min_aut_f;
-
     // if f is a syntactic obligation formula, the WDBA minimization
     // must be correct.
     if (f && f.is_syntactic_obligation())
+      return min_aut_f;
+
+    // If the input automaton was already weak and deterministic, the
+    // output is necessary correct.
+    if (aut_f->prop_weak() && is_deterministic(aut_f))
       return min_aut_f;
 
     // If aut_f is a guarantee automaton, the WDBA minimization must be

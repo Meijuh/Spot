@@ -24,9 +24,9 @@
 
 namespace spot
 {
-  /// Enum used to change the behaviour of is_persistence() or is_recurrence().
+  /// Enum used to change the behavior of is_persistence() or is_recurrence().
   ///
-  /// If PR_Auto, both methodes will first check the environment variable
+  /// If PR_Auto, both methods will first check the environment variable
   /// <code>SPOT_PR_CHECK</code> to see if one algorithm or the other is wanted
   /// to be forced. Otherwise, it will make the most appropriate decision.
   ///
@@ -42,12 +42,12 @@ namespace spot
   /// if !f is cobuchi_realizable.
   enum class prcheck
   {
-    PR_Auto,
-    PR_via_CoBuchi,
-    PR_via_Rabin
+    PR_Auto,             // FIXME: Remove the useless PR_ prefix since
+    PR_via_CoBuchi,      // we already have a prcheck:: prefix.
+    PR_via_Rabin,
   };
 
-  /// \brief Return true if \a f has the persistence property.
+  /// \brief Return true if \a f represents a persistence property.
   ///
   /// \param f the formula to check.
   /// \param aut the corresponding automaton (not required).
@@ -57,7 +57,7 @@ namespace spot
                  twa_graph_ptr aut = nullptr,
                  prcheck algo = prcheck::PR_Auto);
 
-  /// \brief Return true if \a f has the recurrence property.
+  /// \brief Return true if \a f represents a recurrence property.
   ///
   /// Actually, it calls is_persistence() with the negation of \a f.
   ///
@@ -68,6 +68,39 @@ namespace spot
   is_recurrence(formula f,
                 twa_graph_ptr aut = nullptr,
                 prcheck algo = prcheck::PR_Auto);
+
+  /// Enum used to change the behavior of is_obligation().
+  enum class ocheck
+  {
+    Auto,
+    via_CoBuchi,
+    via_Rabin,
+    via_WDBA,
+  };
+
+  /// \brief Return true if \a f has the recurrence property.
+  ///
+  /// Actually, it calls is_persistence() with the negation of \a f.
+  ///
+  /// \param f the formula to check.
+  /// \param aut the corresponding automaton (not required).
+  /// \param algo the algorithm to use.
+  ///
+  /// \a aut is constructed from f if not supplied.
+  ///
+  /// If \a algo is ocheck::via_WDBA, aut is converted into a WDBA
+  /// which is then checked for equivalence with aut.  If \a algo is
+  /// ocheck::via_CoBuchi, we test that both f and !f are co-Büchi
+  /// realizable.  If \a algo is ocheck::via_Rabin, we test that both
+  /// f and !f are DBA-realizable.
+  ///
+  /// Auto currently defaults to via_WDBA, unless the
+  /// <code>SPOT_O_CHECK</code> environment variable specifies
+  /// otherwise.
+  SPOT_API bool
+  is_obligation(formula f,
+                twa_graph_ptr aut = nullptr,
+                ocheck algo = ocheck::Auto);
 
   /// \brief Return the class of \a f in the temporal hierarchy of Manna
   /// and Pnueli (PODC'90).
