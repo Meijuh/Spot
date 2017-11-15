@@ -79,6 +79,14 @@ static void setup_sig_handler()
 # define setup_sig_handler() while (0);
 #endif
 
+
+static void bad_alloc_handler()
+{
+  std::set_new_handler(nullptr);
+  std::cerr << "not enough memory\n";
+  abort();
+}
+
 void
 setup(char** argv)
 {
@@ -90,6 +98,9 @@ setup(char** argv)
   argp_program_version_hook = display_version;
 
   argp_err_exit_status = 2;
+
+  if (getenv("SPOT_OOM_ABORT"))
+    std::set_new_handler(bad_alloc_handler);
 
   std::ios_base::sync_with_stdio(false);
   // Do not flush std::cout every time we read from std::cin, unless

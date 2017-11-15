@@ -65,6 +65,10 @@ New in spot 2.4.2.dev (not yet released)
     by their acceptance name (Buchi, co-Buchi, Streett, etc.) or
     "other" if no name is known for the acceptance condition.
 
+  - All tools learned to check the SPOT_OOM_ABORT environment
+    variable.  This is only useful for debuging out-of-memory
+    conditions; see the spot-x(7) man page for detail.
+
   Library:
 
   - Rename three methods of spot::scc_info. New names are clearer. The

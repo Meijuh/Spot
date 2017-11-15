@@ -100,6 +100,19 @@ the automaton with property "univ-branch" when no universal branching
 is actually used)
 
 .TP
+\fBSPOT_OOM_ABORT\fR
+If this variable is set, Out-Of-Memory errors will \f(CWabort()\fR the
+program (potentially generating a coredump) instead of raising an
+exception.  This is useful to debug a program and to obtain a stack
+trace pointing to the function doing the allocation.  When this
+variable is unset (the default), \f(CWstd::bad_alloc\fR are thrown on
+memory allocation failures, and the stack is usually unwinded up to
+top-level, losing the original context of the error.  Note that at
+least \f(CWltlcross\fR has some custom handling of
+\f(CWstd::bad_alloc\fR to recover from products that are too large (by
+ignoring them), and setting this variable will interfer with that.
+
+.TP
 \fBSPOT_PR_CHECK\fR
 Select the default algorithm that must be used to check the persistence
 or recurrence property of a formula f. The values it can take are 1
