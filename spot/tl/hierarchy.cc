@@ -119,7 +119,10 @@ namespace spot
               SPOT_UNREACHABLE();
           }
         else
-          SPOT_UNREACHABLE();
+          {
+            throw std::runtime_error("invalid value for SPOT_PR_CHECK "
+                                     "(should be 1 or 2)");
+          }
       }
     else
       return algo;
