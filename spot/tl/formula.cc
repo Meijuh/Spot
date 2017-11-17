@@ -124,7 +124,7 @@ namespace spot
     }
   }
 
-  const fnode* fnode::unique(const fnode* f)
+  const fnode* fnode::unique(fnode* f)
   {
     auto ires = m.uniq.emplace(f);
     if (!ires.second)
@@ -132,7 +132,8 @@ namespace spot
         //(*ires.first)->dump(std::cerr << "UNI: ") << '\n';
         for (auto c: *f)
           c->destroy();
-        delete f;
+        f->~fnode();
+        ::operator delete(f);
         return (*ires.first)->clone();
       }
     //f->dump(std::cerr << "INS: ") << '\n';
@@ -158,7 +159,8 @@ namespace spot
         for (auto c: *this)
           c->destroy();
       }
-    delete this;
+    this->~fnode();
+    ::operator delete(const_cast<fnode*>(this));
   }
 
   void
@@ -615,9 +617,8 @@ namespace spot
         v.insert(v.begin(), tt());
       }
 
-
-    auto mem = operator new(sizeof(fnode)
-                            + (v.size() - 1)*sizeof(*children));
+    auto mem = ::operator new(sizeof(fnode)
+                              + (v.size() - 1)*sizeof(*children));
     return unique(new(mem) fnode(o, v.begin(), v.end()));
   }
 
@@ -1029,7 +1030,7 @@ namespace spot
         SPOT_UNREACHABLE();
       }
 
-    auto mem = operator new(sizeof(fnode) + sizeof(*children));
+    auto mem = ::operator new(sizeof(fnode) + sizeof(*children));
     return unique(new(mem) fnode(o, {first, second}));
   }
 
