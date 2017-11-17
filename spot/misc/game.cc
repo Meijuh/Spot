@@ -103,7 +103,8 @@ parity_game::attractor(const region_t& subgame, region_t& set,
                 }
               ++i;
             }
-          if ((owner_[s] == odd && any) || (owner_[s] != odd && all))
+          if ((((owner_[s] && odd) || (!owner_[s] && !odd)) && any) ||
+              (((!owner_[s] && odd) || (owner_[s] && !odd)) && all))
             {
               set.insert(s);
               delta.insert(s);
