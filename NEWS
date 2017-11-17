@@ -1,6 +1,9 @@
 New in spot 2.4.2.dev (not yet released)
 
-  Nothing yet.
+  Bug fixes:
+
+  - couvreur99_new() leaked memory when processing TωA that allocate
+    states.
 
 New in spot 2.4.2 (2017-11-07)
 

@@ -94,7 +94,7 @@ namespace spot
       using state_t = const state*;
       using iterator_t = twa_succ_iterator*;
       template<class val>
-      using state_map = state_map<val>;
+      using state_map = spot::state_map<val>;
 
       template<class val>
       static
@@ -290,6 +290,11 @@ namespace spot
         init<is_explicit>();
       }
 
+      ~couvreur99_new_status()
+      {
+        uninit<is_explicit>();
+      }
+
       automaton_ptr<is_explicit> aut;
       std::stack<scc> root;
       typename T::template state_map<int> h;
@@ -305,9 +310,25 @@ namespace spot
       }
 
       template<bool U>
+      typename std::enable_if<U>::type
+      uninit()
+      {
+      }
+
+      template<bool U>
       typename std::enable_if<!U>::type
       init()
-      {}
+      {
+      }
+
+      template<bool U>
+      typename std::enable_if<!U>::type
+      uninit()
+      {
+        auto i = h.begin();
+        while (i != h.end())
+          i++->first->destroy();
+      }
     };
 
     template<bool is_explicit>
@@ -723,7 +744,6 @@ namespace spot
             // We have a successor to look at.
             inc_transitions();
             // Fetch the values we are interested in...
-            state_t dest = succ->dst();
             auto acc = succ->acc();
             if (!need_accepting_run)
               if (strength == TERMINAL && ecs_->aut->acc().accepting(acc))
@@ -739,6 +759,7 @@ namespace spot
                   // We do not need an accepting run.
                   return true;
                 }
+            state_t dest = succ->dst();
             // ... and point the iterator to the next successor, for
             // the next iteration.
             todo.top().second->next();
