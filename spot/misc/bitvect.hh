@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2013-2017 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -75,6 +75,12 @@ namespace spot
     }
 
     bitvect* clone() const;
+
+    void operator delete(void *ptr)
+    {
+      // This object was allocated using a placement new.
+      ::operator delete(ptr);
+    }
 
     void make_empty()
     {
@@ -396,6 +402,12 @@ namespace spot
     {
       for (size_t i = 0; i < size_; ++i)
         at(i).~bitvect();
+    }
+
+    void operator delete(void *ptr)
+    {
+      // This object was allocated using a placement new.
+      ::operator delete(ptr);
     }
 
     /// The number of bitvect in the array.

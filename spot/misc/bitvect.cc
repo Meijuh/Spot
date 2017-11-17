@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2017 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -108,8 +108,8 @@ namespace spot
     // Allocate some memory for the bitvect.  The instance
     // already contains one int of local_storage_, but
     // we allocate n-1 more so that we store the table.
-    void* mem = operator new(sizeof(bitvect)
-                             + (n - 1) * sizeof(bitvect::block_t));
+    void* mem = ::operator new(sizeof(bitvect)
+                               + (n - 1) * sizeof(bitvect::block_t));
     bitvect* res = new(mem) bitvect(size_, n, true);
     memcpy(res->storage_, storage_, res->block_count_ * sizeof(block_t));
     return res;
@@ -143,8 +143,8 @@ namespace spot
     // Allocate some memory for the bitvect.  The instance
     // already contains one int of local_storage_, but
     // we allocate n-1 more so that we store the table.
-    void* mem = operator new(sizeof(bitvect)
-                             + (n - 1) * sizeof(bitvect::block_t));
+    void* mem = ::operator new(sizeof(bitvect)
+                               + (n - 1) * sizeof(bitvect::block_t));
     return new(mem) bitvect(bitcount, n);
   }
 
@@ -156,7 +156,7 @@ namespace spot
      size_t bvsize = sizeof(bitvect) + (n - 1) * sizeof(bitvect::block_t);
      // Allocate the bitvect_array with enough space at the end
      // to store all bitvect instances.
-     void* mem = operator new(sizeof(bitvect_array) + bvsize * vectcount);
+     void* mem = ::operator new(sizeof(bitvect_array) + bvsize * vectcount);
      bitvect_array* bva = new(mem) bitvect_array(vectcount, bvsize);
      // Initialize all the bitvect instances.
      for (size_t i = 0; i < vectcount; ++i)

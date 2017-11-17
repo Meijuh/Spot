@@ -209,6 +209,8 @@ New in spot 2.4.2.dev (not yet released)
   - couvreur99_new() leaked memory when processing TωA that allocate
     states.
 
+  - Some mismatched placement-new/delete reported by ASAN were fixed.
+
 New in spot 2.4.2 (2017-11-07)
 
   Tools:
