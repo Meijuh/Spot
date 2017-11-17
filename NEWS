@@ -204,6 +204,11 @@ New in spot 2.4.2.dev (not yet released)
     been removed.  It's a low-level function was not used anywhere in
     Spot anymore, since it's better to use spot::twa::copy_ap_of().
 
+  Bug fixes:
+
+  - couvreur99_new() leaked memory when processing TωA that allocate
+    states.
+
 New in spot 2.4.2 (2017-11-07)
 
   Tools:
