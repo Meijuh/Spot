@@ -86,7 +86,7 @@ namespace spot
     public std::unary_function<const bdd&, size_t>
   {
     size_t
-    operator()(const bdd& b) const
+    operator()(const bdd& b) const noexcept
     {
       return b.id();
     }
