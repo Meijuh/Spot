@@ -96,12 +96,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file dotex.png :cmdline -Tpng :var txt=dotex :exports results
+#+BEGIN_SRC dot :file dotex.svg :var txt=dotex :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:dotex.png]]
+[[file:dotex.svg]]
 
 Characters like ⓿, ❶, etc. denotes the acceptance sets a transition
 belongs to.  In this case, there is only one acceptance set, called
@@ -139,11 +139,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file dotex2.png :cmdline -Tpng :var txt=dotex2 :exports results
+#+BEGIN_SRC dot :file dotex2.svg :var txt=dotex2 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:dotex2.png]]
+[[file:dotex2.svg]]
 
 The above TGBA has two acceptance sets: ⓿ and ❶.  The position of
 these acceptance sets ensures that atomic propositions =a= and =b= must
@@ -181,11 +181,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file dotex2ba.png :cmdline -Tpng :var txt=dotex2ba :exports results
+#+BEGIN_SRC dot :file dotex2ba.svg :var txt=dotex2ba :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:dotex2ba.png]]
+[[file:dotex2ba.svg]]
 
 Although accepting states in the Büchi automaton are (traditionally)
 pictured with double-lines, internally this automaton is still handled
@@ -228,11 +228,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file dotex2ba-t.png :cmdline -Tpng :var txt=dotex2ba-t :exports results
+#+BEGIN_SRC dot :file dotex2ba-t.svg :var txt=dotex2ba-t :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:dotex2ba-t.png]]
+[[file:dotex2ba-t.svg]]
 
 Using option =-S= instead of option =-B= you can obtain generalized
 Büchi automata with state-based acceptance.  Here is the same formula
@@ -277,11 +277,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file dotex2gba.png :cmdline -Tpng :var txt=dotex2gba :exports results
+#+BEGIN_SRC dot :file dotex2gba.svg :var txt=dotex2gba :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:dotex2gba.png]]
+[[file:dotex2gba.svg]]
 
 Note that =ltl2tgba= is not very good at generating state-based
 generalized Büchi automata (GBA): all it does is generating a
@@ -368,11 +368,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file dotex2ba8.png :cmdline -Tpng :var txt=dotex2ba8 :exports results
+#+BEGIN_SRC dot :file dotex2ba8.svg :var txt=dotex2ba8 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:dotex2ba8.png]]
+[[file:dotex2ba8.svg]]
 
 * Spin output
 
@@ -498,11 +498,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file gagbgc1.png :cmdline -Tpng :var txt=gagbgc1 :exports results
+#+BEGIN_SRC dot :file gagbgc1.svg :var txt=gagbgc1 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:gagbgc1.png]]
+[[file:gagbgc1.svg]]
 
 #+NAME: gagbgc2
 #+BEGIN_SRC sh :results verbatim :exports code
@@ -548,11 +548,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file gagbgc2.png :cmdline -Tpng :var txt=gagbgc2 :exports results
+#+BEGIN_SRC dot :file gagbgc2.svg :var txt=gagbgc2 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:gagbgc2.png]]
+[[file:gagbgc2.svg]]
 
 You can augment the number of terms in the disjunction to magnify the
 difference.  For N terms, the =--small= automaton has N+1 states,
@@ -602,11 +602,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file ambig1.png :cmdline -Tpng :var txt=ambig1 :exports results
+#+BEGIN_SRC dot :file ambig1.svg :var txt=ambig1 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:ambig1.png]]
+[[file:ambig1.svg]]
 
 Here is an unambiguous automaton for the same formula, in which there
 is only one run that recognizes this example word:
@@ -650,12 +650,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file ambig2.png :cmdline -Tpng :var txt=ambig2 :exports results
+#+BEGIN_SRC dot :file ambig2.svg :var txt=ambig2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:ambig2.png]]
+[[file:ambig2.svg]]
 
 
 Unlike =--small= and =--deterministic= that express preferences,
@@ -734,12 +734,12 @@ expectations.
 ltl2tgba "FGa" -D -d.a
 #+END_SRC
 
-#+BEGIN_SRC dot :file ltl2tgba-fga.png :cmdline -Tpng :var txt=ltl2tgba-fga :exports results
+#+BEGIN_SRC dot :file ltl2tgba-fga.svg :var txt=ltl2tgba-fga :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:ltl2tgba-fga.png]]
+[[file:ltl2tgba-fga.svg]]
 
    But with =--generic=, =ltl2tgba= will output the following Rabin automaton:
 
@@ -748,12 +748,12 @@ ltl2tgba "FGa" -D -d.a
 ltl2tgba "FGa" -G -D -d.a
 #+END_SRC
 
-#+BEGIN_SRC dot :file ltl2tgba-fga-D.png :cmdline -Tpng :var txt=ltl2tgba-fga-D :exports results
+#+BEGIN_SRC dot :file ltl2tgba-fga-D.svg :var txt=ltl2tgba-fga-D :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:ltl2tgba-fga-D.png]]
+[[file:ltl2tgba-fga-D.svg]]
 
 Note that determinization algorithm implemented actually outputs
 parity acceptance, but =Fin(0)&Inf(1)= can be interpreted either as
@@ -772,12 +772,12 @@ For instance the following deterministic automaton
 ltl2tgba "F(a W FGb)" -G -D -d.a
 #+END_SRC
 
-#+BEGIN_SRC dot :file ltl2tgba-det1.png :cmdline -Tpng :var txt=ltl2tgba-det1 :exports results
+#+BEGIN_SRC dot :file ltl2tgba-det1.svg :var txt=ltl2tgba-det1 :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:ltl2tgba-det1.png]]
+[[file:ltl2tgba-det1.svg]]
 
 would be larger if SCC-based optimizations were disabled:
 
@@ -786,12 +786,12 @@ would be larger if SCC-based optimizations were disabled:
 ltl2tgba "F(a W FGb)" -x '!det-scc' -G -D -d.a
 #+END_SRC
 
-#+BEGIN_SRC dot :file ltl2tgba-det2.png :cmdline -Tpng :var txt=ltl2tgba-det2 :exports results
+#+BEGIN_SRC dot :file ltl2tgba-det2.svg :var txt=ltl2tgba-det2 :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:ltl2tgba-det2.png]]
+[[file:ltl2tgba-det2.svg]]
 
 * Translating multiple formulas for statistics
 
@@ -912,24 +912,24 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file monitor1.png :cmdline -Tpng :var txt=monitor1 :exports results
+#+BEGIN_SRC dot :file monitor1.svg :var txt=monitor1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:monitor1.png]]
+[[file:monitor1.svg]]
 
 #+NAME: monitor2
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -MD '(Xa & Fb) | Gc' -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file monitor2.png :cmdline -Tpng :var txt=monitor2 :exports results
+#+BEGIN_SRC dot :file monitor2.svg :var txt=monitor2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:monitor2.png]]
+[[file:monitor2.svg]]
 
 Because they accept all finite executions that could be extended to
 match the formula, monitor cannot be used to check for eventualities
@@ -951,12 +951,12 @@ if) a sink state had to be added.  For instance, here is the
 ltl2tgba -C -M -D '(Xa & Fb) | Gc' -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file monitor3.png :cmdline -Tpng :var txt=monitor3 :exports results
+#+BEGIN_SRC dot :file monitor3.svg :var txt=monitor3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:monitor3.png]]
+[[file:monitor3.svg]]
 
 
 

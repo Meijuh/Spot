@@ -18,7 +18,7 @@ the /recurrence/ class includes the /obligation/ class which also
 includes the /safety/ and /guarantee/ classes, as well as the unnamed
 intersection of /safety/ and /guarantee/ (=B= in the picture).
 
-[[file:hierarchy.png]]
+[[file:hierarchy.svg]]
 
 Forget about the LTL properties and about the red letters displayed in
 this picture for a moment.
@@ -307,12 +307,12 @@ non-determinism occurs):
 ltl2tgba 'Fa R b' | autfilt --highlight-nondet -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file hier-oblig-1.png :cmdline -Tpng :var txt=hier-oblig-1 :exports results
+#+BEGIN_SRC dot :file hier-oblig-1.svg :var txt=hier-oblig-1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-oblig-1.png]]
+[[file:hier-oblig-1.svg]]
 
 Note that the above automaton uses transition-based acceptance, but
 since it is an obligation, using transition-based acceptance will not
@@ -324,12 +324,12 @@ improve anything, so we might as well require a Büchi automaton with
 ltl2tgba -B 'Fa R b' | autfilt --highlight-nondet -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file hier-oblig-1b.png :cmdline -Tpng :var txt=hier-oblig-1b :exports results
+#+BEGIN_SRC dot :file hier-oblig-1b.svg :var txt=hier-oblig-1b :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-oblig-1b.png]]
+[[file:hier-oblig-1b.svg]]
 
 
 With =ltl2tgba -D= we get a (minimal) deterministic weak Büchi
@@ -340,12 +340,12 @@ automaton instead.
   ltl2tgba -D 'Fa R b' -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file hier-oblig-2.png :cmdline -Tpng :var txt=hier-oblig-2 :exports results
+#+BEGIN_SRC dot :file hier-oblig-2.svg :var txt=hier-oblig-2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-oblig-2.png]]
+[[file:hier-oblig-2.svg]]
 
 
 When we called =ltl2tgba=, without the option =-D=, the two automata
@@ -364,12 +364,12 @@ for the obligation property =a <-> GXa=:
 #+BEGIN_SRC sh :results verbatim :exports code
 ltldo 'ltl2dstar --automata=streett' -f 'a <-> GXa' -d.a
 #+END_SRC
-#+BEGIN_SRC dot :file hier-oblig-3.png :cmdline -Tpng :var txt=hier-oblig-3 :exports results
+#+BEGIN_SRC dot :file hier-oblig-3.svg :var txt=hier-oblig-3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-oblig-3.png]]
+[[file:hier-oblig-3.svg]]
 
 We can now minimize this automaton with:
 
@@ -377,11 +377,11 @@ We can now minimize this automaton with:
 #+BEGIN_SRC sh :results verbatim :exports code
 ltldo 'ltl2dstar --automata=streett' -f 'a <-> GXa' | autfilt -D -C -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-oblig-4.png :cmdline -Tpng :var txt=hier-oblig-4 :exports results
+#+BEGIN_SRC dot :file hier-oblig-4.svg :var txt=hier-oblig-4 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:hier-oblig-4.png]]
+[[file:hier-oblig-4.svg]]
 
 Here we have used option =-C= to keep the automaton complete, so that
 the comparison with =ltl2dstar= is fair, since =ltl2dstar= always
@@ -411,23 +411,23 @@ ltlfilt -f 'a U Xb' --format='%[v]h'
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba 'a U Xb' | autfilt --highlight-nondet -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-guarantee-1.png :cmdline -Tpng :var txt=hier-guarantee-1 :exports results
+#+BEGIN_SRC dot :file hier-guarantee-1.svg :var txt=hier-guarantee-1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-guarantee-1.png]]
+[[file:hier-guarantee-1.svg]]
 
 #+NAME: hier-guarantee-2
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -D 'a U Xb' -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-guarantee-2.png :cmdline -Tpng :var txt=hier-guarantee-2 :exports results
+#+BEGIN_SRC dot :file hier-guarantee-2.svg :var txt=hier-guarantee-2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-guarantee-2.png]]
+[[file:hier-guarantee-2.svg]]
 
 ** Safety
    :PROPERTIES:
@@ -461,12 +461,12 @@ ltlfilt -f '(a W Gb) M b' --format='%[v]h'
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba '(a W Gb) M b' | autfilt --highlight-nondet -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-safety-1.png :cmdline -Tpng :var txt=hier-safety-1 :exports results
+#+BEGIN_SRC dot :file hier-safety-1.svg :var txt=hier-safety-1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-safety-1.png]]
+[[file:hier-safety-1.svg]]
 
 Actually, marking all states of this automaton as accepting would not
 be wrong, the translator simply does not know it.
@@ -478,12 +478,12 @@ that is guaranteed to be minimal, and where all runs are accepting.
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -D '(a W Gb) M b' -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-safety-2.png :cmdline -Tpng :var txt=hier-safety-2 :exports results
+#+BEGIN_SRC dot :file hier-safety-2.svg :var txt=hier-safety-2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-safety-2.png]]
+[[file:hier-safety-2.svg]]
 
 
 If you are working with safety formula, and know you want to work with
@@ -497,23 +497,23 @@ extended into valid ω-words).
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -M '(a W Gb) M b' | autfilt --highlight-nondet -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-safety-1m.png :cmdline -Tpng :var txt=hier-safety-1m :exports results
+#+BEGIN_SRC dot :file hier-safety-1m.svg :var txt=hier-safety-1m :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-safety-1m.png]]
+[[file:hier-safety-1m.svg]]
 
 #+NAME: hier-safety-2m
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -M -D '(a W Gb) M b' -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-safety-2m.png :cmdline -Tpng :var txt=hier-safety-2m :exports results
+#+BEGIN_SRC dot :file hier-safety-2m.svg :var txt=hier-safety-2m :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-safety-2m.png]]
+[[file:hier-safety-2m.svg]]
 
 
 Note that the =-M= option can be used with formulas that are not
@@ -550,12 +550,12 @@ ltlfilt -f 'GFa' --format='%[v]h'
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba 'GFa' -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-recurrence-1.png :cmdline -Tpng :var txt=hier-recurrence-1 :exports results
+#+BEGIN_SRC dot :file hier-recurrence-1.svg :var txt=hier-recurrence-1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-recurrence-1.png]]
+[[file:hier-recurrence-1.svg]]
 
 Using state-based acceptance, at least two states are required.  For instance:
 
@@ -563,12 +563,12 @@ Using state-based acceptance, at least two states are required.  For instance:
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -S 'GFa' -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-recurrence-2.png :cmdline -Tpng :var txt=hier-recurrence-2 :exports results
+#+BEGIN_SRC dot :file hier-recurrence-2.svg :var txt=hier-recurrence-2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-recurrence-2.png]]
+[[file:hier-recurrence-2.svg]]
 
 
 Here is an example of a formula for which =ltl2tgba= does not produce a
@@ -585,12 +585,12 @@ ltlfilt -f 'G(Gb | Fa)' --format='%[v]h'
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -D 'G(Gb | Fa)' | autfilt --highlight-nondet -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-recurrence-3.png :cmdline -Tpng :var txt=hier-recurrence-3 :exports results
+#+BEGIN_SRC dot :file hier-recurrence-3.svg :var txt=hier-recurrence-3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-recurrence-3.png]]
+[[file:hier-recurrence-3.svg]]
 
 One way to obtain a deterministic Büchi automaton (it has to exist, since this is
 a /recurrence/ property), is to chain a few algorithms implemented in Spot:
@@ -604,11 +604,11 @@ a /recurrence/ property), is to chain a few algorithms implemented in Spot:
     #+BEGIN_SRC sh :results verbatim :exports code
     ltl2tgba -G -D 'G(Gb | Fa)' -d.a
     #+END_SRC
-    #+BEGIN_SRC dot :file hier-recurrence-4.png :cmdline -Tpng :var txt=hier-recurrence-4 :exports results
+    #+BEGIN_SRC dot :file hier-recurrence-4.svg :var txt=hier-recurrence-4 :exports results
     $txt
     #+END_SRC
     #+RESULTS:
-    [[file:hier-recurrence-4.png]]
+    [[file:hier-recurrence-4.svg]]
 
  2. Transform the parity acceptance into Rabin acceptance: this is
     done with =autfilt --generalized-rabin=.  Because of the type of
@@ -620,12 +620,12 @@ a /recurrence/ property), is to chain a few algorithms implemented in Spot:
     ltl2tgba -G -D 'G(Gb | Fa)' |
       autfilt --generalized-rabin -d.a
     #+END_SRC
-    #+BEGIN_SRC dot :file hier-recurrence-5.png :cmdline -Tpng :var txt=hier-recurrence-5 :exports results
+    #+BEGIN_SRC dot :file hier-recurrence-5.svg :var txt=hier-recurrence-5 :exports results
     $txt
     #+END_SRC
 
     #+RESULTS:
-    [[file:hier-recurrence-5.png]]
+    [[file:hier-recurrence-5.svg]]
 
     (The only change here is in the acceptance condition.)
 
@@ -640,12 +640,12 @@ a /recurrence/ property), is to chain a few algorithms implemented in Spot:
       autfilt -S --generalized-rabin -d.a
     #+END_SRC
 
-    #+BEGIN_SRC dot :file hier-recurrence-6.png :cmdline -Tpng :var txt=hier-recurrence-6 :exports results
+    #+BEGIN_SRC dot :file hier-recurrence-6.svg :var txt=hier-recurrence-6 :exports results
     $txt
     #+END_SRC
 
     #+RESULTS:
-    [[file:hier-recurrence-6.png]]
+    [[file:hier-recurrence-6.svg]]
 
  4. Finally, convert the resulting automaton to BA, using =autfilt
     -B=.  Spot can convert automata with any acceptance condition to
@@ -664,12 +664,12 @@ a /recurrence/ property), is to chain a few algorithms implemented in Spot:
       autfilt -B -D -d.a
     #+END_SRC
 
-    #+BEGIN_SRC dot :file hier-recurrence-7.png :cmdline -Tpng :var txt=hier-recurrence-7 :exports results
+    #+BEGIN_SRC dot :file hier-recurrence-7.svg :var txt=hier-recurrence-7 :exports results
     $txt
     #+END_SRC
 
     #+RESULTS:
-    [[file:hier-recurrence-7.png]]
+    [[file:hier-recurrence-7.svg]]
 
 Here we are lucky that the deterministic Büchi automaton is even
 smaller than the original non-deterministic version.  As said earlier,
@@ -683,12 +683,12 @@ ltl2tgba -G -D 'G(Gb | Fa)' |
   autfilt -B -D -d.a
 #+END_SRC
 
-#+BEGIN_SRC dot :file hier-recurrence-8.png :cmdline -Tpng :var txt=hier-recurrence-8 :exports results
+#+BEGIN_SRC dot :file hier-recurrence-8.svg :var txt=hier-recurrence-8 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-recurrence-8.png]]
+[[file:hier-recurrence-8.svg]]
 
 It is likely that =ltl2tgba= will implement all this processing chain
 in the future.
@@ -703,12 +703,12 @@ persistence formula is =FGa=, and using =-D= on this is hopeless.
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -D FGa -d.a
 #+END_SRC
-#+BEGIN_SRC dot :file hier-persistence-1.png :cmdline -Tpng :var txt=hier-persistence-1 :exports results
+#+BEGIN_SRC dot :file hier-persistence-1.svg :var txt=hier-persistence-1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-persistence-1.png]]
+[[file:hier-persistence-1.svg]]
 
 
 However since the *negation* of =FGa= is a /recurrence/, this negation
@@ -723,12 +723,12 @@ ltlfilt --negate -f FGa |
   ltl2tgba -D |
   autfilt --complement -d.a
 #+END_SRC
-#+BEGIN_SRC dot :file hier-persistence-2.png :cmdline -Tpng :var txt=hier-persistence-2 :exports results
+#+BEGIN_SRC dot :file hier-persistence-2.svg :var txt=hier-persistence-2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-persistence-2.png]]
+[[file:hier-persistence-2.svg]]
 
 Note that in this example, we know that =GFa= is trivial enough that
 =ltl2tgba -D GFa= will generate a deterministic automaton.  In the
@@ -765,12 +765,12 @@ Unfortunately the default output of the translation is not weak:
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba 'F(G!a | G(b U a))' -d
 #+END_SRC
-#+BEGIN_SRC dot :file hier-persistence-3.png :cmdline -Tpng :var txt=hier-persistence-3 :exports results
+#+BEGIN_SRC dot :file hier-persistence-3.svg :var txt=hier-persistence-3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-persistence-3.png]]
+[[file:hier-persistence-3.svg]]
 
 Furthermore it appears that =ltl2tgba= does generate a deterministic
 Büchi automaton for the complement, instead we get a non-deterministic
@@ -782,12 +782,12 @@ ltlfilt --negate -f 'F(G!a | G(b U a))' |
   ltl2tgba -D |
   autfilt --highlight-nondet=5 -d.a
 #+END_SRC
-#+BEGIN_SRC dot :file hier-persistence-4.png :cmdline -Tpng :var txt=hier-persistence-4 :exports results
+#+BEGIN_SRC dot :file hier-persistence-4.svg :var txt=hier-persistence-4 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-persistence-4.png]]
+[[file:hier-persistence-4.svg]]
 
 So let us use the same tricks as in the previous section,
 determinizing this automaton into a Rabin automaton, and then back to
@@ -800,12 +800,12 @@ ltlfilt --negate -f 'F(G!a | G(b U a))' |
   autfilt --generalized-rabin |
   autfilt --tgba -D -d.a
 #+END_SRC
-#+BEGIN_SRC dot :file hier-persistence-5.png :cmdline -Tpng :var txt=hier-persistence-5 :exports results
+#+BEGIN_SRC dot :file hier-persistence-5.svg :var txt=hier-persistence-5 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-persistence-5.png]]
+[[file:hier-persistence-5.svg]]
 
 This is a deterministic Büchi automaton for the negation of our formula.
 Now we can complement it to obtain a deterministic co-Büchi automaton for =F(G!a | G(b U a))=:
@@ -818,12 +818,12 @@ ltlfilt --negate -f 'F(G!a | G(b U a))' |
   autfilt --tgba -D |
   autfilt --complement -d.ab
 #+END_SRC
-#+BEGIN_SRC dot :file hier-persistence-6.png :cmdline -Tpng :var txt=hier-persistence-6 :exports results
+#+BEGIN_SRC dot :file hier-persistence-6.svg :var txt=hier-persistence-6 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hier-persistence-6.png]]
+[[file:hier-persistence-6.svg]]
 
 And finally we convert the result back to Büchi:
 
@@ -836,10 +836,10 @@ ltlfilt --negate -f 'F(G!a | G(b U a))' |
   autfilt --complement -B -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file hier-persistence-7.png :cmdline -Tpng :var txt=hier-persistence-7 :exports results
+#+BEGIN_SRC dot :file hier-persistence-7.svg :var txt=hier-persistence-7 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:hier-persistence-7.png]]
+[[file:hier-persistence-7.svg]]
 
 That is indeed, a weak automaton.

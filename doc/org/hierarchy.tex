@@ -1,4 +1,4 @@
-\documentclass[convert={size=360}]{standalone}
+\documentclass{standalone}
 \usepackage{tikz}
 \usetikzlibrary{shadows}
 \def\F{\mathsf{F}} % in future
@@ -8,6 +8,7 @@
 
 \def\mycyan{cyan!30}
 \def\mypink{magenta!30}
+\scalebox{1.2}{
  \begin{tikzpicture}[scale=.9]
     \draw[drop shadow,fill=white] (0,0) rectangle (6,7);
 
@@ -36,7 +37,7 @@
     \node[above,red] at (saf.north) {\tt S};
     \node[above,red] at (gua.north) {\tt G};
     \node[above,red] at (3,0.3) {\tt B};
-  \end{tikzpicture}
+  \end{tikzpicture}}
 \end{document}
 %%% Local Variables:
 %%% mode: latex

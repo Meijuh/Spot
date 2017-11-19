@@ -70,11 +70,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file randaut1.png :cmdline -Tpng :var txt=randaut1 :exports results
+#+BEGIN_SRC dot :file randaut1.svg :var txt=randaut1 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:randaut1.png]]
+[[file:randaut1.svg]]
 
 As for [[file:randltl.org][=randltl=]], you can supply a number of atomic propositions
 instead of giving a list of atomic propositions.
@@ -119,11 +119,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file randaut2.png :cmdline -Tpng :var txt=randaut2 :exports results
+#+BEGIN_SRC dot :file randaut2.svg :var txt=randaut2 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:randaut2.png]]
+[[file:randaut2.svg]]
 
 #+NAME: randaut3
 #+BEGIN_SRC sh :results verbatim :exports code
@@ -156,12 +156,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file randaut3.png :cmdline -Tpng :var txt=randaut3 :exports results
+#+BEGIN_SRC dot :file randaut3.svg :var txt=randaut3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:randaut3.png]]
+[[file:randaut3.svg]]
 
 * Acceptance condition
 
@@ -249,11 +249,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file randaut4.png :cmdline -Tpng :var txt=randaut4 :exports results
+#+BEGIN_SRC dot :file randaut4.svg :var txt=randaut4 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:randaut4.png]]
+[[file:randaut4.svg]]
 
 
 #+NAME: randaut5
@@ -285,11 +285,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file randaut5.png :cmdline -Tpng :var txt=randaut5 :exports results
+#+BEGIN_SRC dot :file randaut5.svg :var txt=randaut5 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:randaut5.png]]
+[[file:randaut5.svg]]
 
 #+NAME: randaut5b
 #+BEGIN_SRC sh :results verbatim :exports code
@@ -332,11 +332,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file randaut5b.png :cmdline -Tpng :var txt=randaut5b :exports results
+#+BEGIN_SRC dot :file randaut5b.svg :var txt=randaut5b :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:randaut5b.png]]
+[[file:randaut5b.svg]]
 
 For generating random parity automata you should use the option
 =--colored= to make sure each transition (or state in the following
@@ -400,11 +400,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file randaut5c.png :cmdline -Tpng :var txt=randaut5c :exports results
+#+BEGIN_SRC dot :file randaut5c.svg :var txt=randaut5c :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:randaut5c.png]]
+[[file:randaut5c.svg]]
 
 * Determinism
 
@@ -449,11 +449,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file randaut6.png :cmdline -Tpng :var txt=randaut6 :exports results
+#+BEGIN_SRC dot :file randaut6.svg :var txt=randaut6 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:randaut6.png]]
+[[file:randaut6.svg]]
 
 
 Note that in a deterministic automaton with $a$ atomic propositions,
@@ -521,12 +521,12 @@ autfilt --sccs=5 --trivial-sccs=1 --rejecting-sccs=1 \
         --inherently-weak-sccs=2 --weak-sccs=1 -n 1 --dot=.as
 #+END_SRC
 
-#+BEGIN_SRC dot :file randaut7.png :cmdline -Tpng :var txt=randaut7 :exports results
+#+BEGIN_SRC dot :file randaut7.svg :var txt=randaut7 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:randaut7.png]]
+[[file:randaut7.svg]]
 
 You should be able to find each of the expected type of SCCs in the above picture.
 The green rectangles mark the three SCCs that contain some accepting cycles.

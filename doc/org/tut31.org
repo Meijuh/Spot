@@ -37,12 +37,12 @@ EOF
 autfilt --dot=.a tut31.hoa
 #+END_SRC
 
-#+BEGIN_SRC dot :file tut31in.png :cmdline -Tpng :var txt=tut31dot :exports results
+#+BEGIN_SRC dot :file tut31in.svg :var txt=tut31dot :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:tut31in.png]]
+[[file:tut31in.svg]]
 
 Our goal is to transform this alternating automaton into a
 non-alternating automaton.
@@ -86,12 +86,12 @@ State: 1
 autfilt --tgba -d tut31.hoa
 #+END_SRC
 
-#+BEGIN_SRC dot :file tut31out.png :cmdline -Tpng :var txt=tut31out :exports results
+#+BEGIN_SRC dot :file tut31out.svg :var txt=tut31out :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:tut31out.png]]
+[[file:tut31out.svg]]
 
 * Python
 

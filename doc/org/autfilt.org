@@ -493,12 +493,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-ex1.png :cmdline -Tpng :var txt=autfilt-ex1 :exports results
-$txt
+#+BEGIN_SRC dot :file autfilt-ex1.svg :var txt=autfilt-ex1 :exports results
+  $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-ex1.png]]
+[[file:autfilt-ex1.svgz]]
 
 Using =-S= will "push" the acceptance membership of the transitions to the states:
 
@@ -555,12 +555,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-ex2.png :cmdline -Tpng :var txt=autfilt-ex2 :exports results
+#+BEGIN_SRC dot :file autfilt-ex2.svg :var txt=autfilt-ex2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-ex2.png]]
+[[file:autfilt-ex2.svg]]
 
 Using =--cnf-acceptance= simply rewrites the acceptance condition in Conjunctive Normal Form:
 
@@ -596,12 +596,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-ex3.png :cmdline -Tpng :var txt=autfilt-ex3 :exports results
+#+BEGIN_SRC dot :file autfilt-ex3.svg :var txt=autfilt-ex3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-ex3.png]]
+[[file:autfilt-ex3.svg]]
 
 
 Using =--remove-fin= transforms the automaton to remove all traces
@@ -643,12 +643,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-ex4.png :cmdline -Tpng :var txt=autfilt-ex4 :exports results
+#+BEGIN_SRC dot :file autfilt-ex4.svg :var txt=autfilt-ex4 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-ex4.png]]
+[[file:autfilt-ex4.svg]]
 
 Use =--mask-acc=NUM= to remove some acceptances sets and all
 transitions they contain.  The acceptance condition will be updated to
@@ -684,12 +684,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-ex5.png :cmdline -Tpng :var txt=autfilt-ex5 :exports results
+#+BEGIN_SRC dot :file autfilt-ex5.svg :var txt=autfilt-ex5 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-ex5.png]]
+[[file:autfilt-ex5.svg]]
 
 ** Atomic proposition removal
 
@@ -733,12 +733,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-ex6a.png :cmdline -Tpng :var txt=autfilt-ex6a :exports results
+#+BEGIN_SRC dot :file autfilt-ex6a.svg :var txt=autfilt-ex6a :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-ex6a.png]]
+[[file:autfilt-ex6a.svg]]
 
 #+NAME: autfilt-ex6b
 #+BEGIN_SRC sh :results verbatim :exports code
@@ -766,12 +766,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-ex6b.png :cmdline -Tpng :var txt=autfilt-ex6b :exports results
+#+BEGIN_SRC dot :file autfilt-ex6b.svg :var txt=autfilt-ex6b :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-ex6b.png]]
+[[file:autfilt-ex6b.svg]]
 
 #+NAME: autfilt-ex6c
 #+BEGIN_SRC sh :results verbatim :exports code
@@ -780,12 +780,12 @@ autfilt --remove-ap=a=1 aut-ex1.hoa --dot=.a
 
 #+RESULTS: autfilt-ex6c
 
-#+BEGIN_SRC dot :file autfilt-ex6c.png :cmdline -Tpng :var txt=autfilt-ex6c :exports results
+#+BEGIN_SRC dot :file autfilt-ex6c.svg :var txt=autfilt-ex6c :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-ex6c.png]]
+[[file:autfilt-ex6c.svg]]
 
 ** Testing word acceptance
 
@@ -886,12 +886,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-hlword.png :cmdline -Tpng :var txt=highlight-word :exports results
+#+BEGIN_SRC dot :file autfilt-hlword.svg :var txt=highlight-word :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-hlword.png]]
+[[file:autfilt-hlword.svg]]
 
 
 We can change the color by prefixing the word with a number and a
@@ -930,12 +930,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-hlword2.png :cmdline -Tpng :var txt=highlight-word2 :exports results
+#+BEGIN_SRC dot :file autfilt-hlword2.svg :var txt=highlight-word2 :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-hlword2.png]]
+[[file:autfilt-hlword2.svg]]
 
 
 
@@ -978,12 +978,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfilt-hlnondet.png :cmdline -Tpng :var txt=highlight-nondet :exports results
+#+BEGIN_SRC dot :file autfilt-hlnondet.svg :var txt=highlight-nondet :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfilt-hlnondet.png]]
+[[file:autfilt-hlnondet.svg]]
 
 
 #+BEGIN_SRC sh :results silent :exports results

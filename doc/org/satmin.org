@@ -153,11 +153,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file gfaexxb3.png :cmdline -Tpng :var txt=gfaexxb3 :exports results
+#+BEGIN_SRC dot :file gfaexxb3.svg :var txt=gfaexxb3 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:gfaexxb3.png]]
+[[file:gfaexxb3.svg]]
 
 Clearly this automaton benefits from the transition-based
 acceptance.  If we want a traditional Büchi automaton, with
@@ -207,11 +207,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file gfaexxb4.png :cmdline -Tpng :var txt=gfaexxb4 :exports results
+#+BEGIN_SRC dot :file gfaexxb4.svg :var txt=gfaexxb4 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:gfaexxb4.png]]
+[[file:gfaexxb4.svg]]
 
 
 There are cases where =ltl2tgba='s =tba-det= algorithm fails to produce a deterministic automaton.
@@ -319,7 +319,7 @@ minimal DBA/DTBA/DTGBA.  The blue area at the top describes =ltl2tgba
 -D -x sat-minimize=, while the purple area at the bottom corresponds
 to =dstar2tgba -D -x stat-minimize=.
 
-[[file:satmin.png]]
+[[file:satmin.svg]]
 
 The picture is slightly inaccurate in the sense that both =ltl2tgba=
 and =dstar2tgba= are actually using the same post-processing chain:
@@ -454,11 +454,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfiltsm1.png :cmdline -Tpng :var txt=autfiltsm1 :exports results
+#+BEGIN_SRC dot :file autfiltsm1.svg :var txt=autfiltsm1 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:autfiltsm1.png]]
+[[file:autfiltsm1.svg]]
 
 So this is a state-based Rabin automaton with two pairs.  If we call
 =autfilt= with the =--sat-minimize= option, we can get the following
@@ -490,11 +490,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfiltsm2.png :cmdline -Tpng :var txt=autfiltsm2 :exports results
+#+BEGIN_SRC dot :file autfiltsm2.svg :var txt=autfiltsm2 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:autfiltsm2.png]]
+[[file:autfiltsm2.svg]]
 
 We can also attempt to build a state-based version with
 
@@ -525,11 +525,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfiltsm3.png :cmdline -Tpng :var txt=autfiltsm3 :exports results
+#+BEGIN_SRC dot :file autfiltsm3.svg :var txt=autfiltsm3 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:autfiltsm3.png]]
+[[file:autfiltsm3.svg]]
 
 This is clearly smaller than the input automaton.  In this example the
 acceptance condition did not change.  The SAT-based minimization only
@@ -568,12 +568,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfiltsm4.png :cmdline -Tpng :var txt=autfiltsm4 :exports results
+#+BEGIN_SRC dot :file autfiltsm4.svg :var txt=autfiltsm4 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfiltsm4.png]]
+[[file:autfiltsm4.svg]]
 
 
 Note that instead of naming the acceptance condition, you can actually
@@ -586,12 +586,12 @@ autfilt -S --sat-minimize='acc="Fin(0)"' output.hoa --dot=.a
 #+END_SRC
 #+RESULTS: autfiltsm5
 
-#+BEGIN_SRC dot :file autfiltsm5.png :cmdline -Tpng :var txt=autfiltsm5 :exports results
+#+BEGIN_SRC dot :file autfiltsm5.svg :var txt=autfiltsm5 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfiltsm5.png]]
+[[file:autfiltsm5.svg]]
 
 
 When forcing an acceptance condition, you should keep in mind that the
@@ -639,12 +639,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfiltsm6.png :cmdline -Tpng :var txt=autfiltsm6 :exports results
+#+BEGIN_SRC dot :file autfiltsm6.svg :var txt=autfiltsm6 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfiltsm6.png]]
+[[file:autfiltsm6.svg]]
 
 
 If we attempt to minimize it into a transition-based Büchi automaton,
@@ -689,12 +689,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfiltsm8.png :cmdline -Tpng :var txt=autfiltsm8 :exports results
+#+BEGIN_SRC dot :file autfiltsm8.svg :var txt=autfiltsm8 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfiltsm8.png]]
+[[file:autfiltsm8.svg]]
 
 
 By default, the SAT-based minimization tries to find a smaller automaton by
@@ -785,12 +785,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfiltsm9.png :cmdline -Tpng :var txt=autfiltsm9 :exports results
+#+BEGIN_SRC dot :file autfiltsm9.svg :var txt=autfiltsm9 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfiltsm9.png]]
+[[file:autfiltsm9.svg]]
 
 ... to the following, where the automaton is colored, i.e., each state
 belong to exactly one acceptance set:
@@ -823,12 +823,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file autfiltsm10.png :cmdline -Tpng :var txt=autfiltsm10 :exports results
+#+BEGIN_SRC dot :file autfiltsm10.svg :var txt=autfiltsm10 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:autfiltsm10.png]]
+[[file:autfiltsm10.svg]]
 
 * Logging statistics
 

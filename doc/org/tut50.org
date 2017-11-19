@@ -29,7 +29,7 @@ Spot.
 
 The picture below gives a partial view of the classes involved:
 
-#+BEGIN_SRC plantuml :file uml-explicit-classes.png
+#+BEGIN_SRC plantuml :file uml-explicit-classes.svg
   package stl {
     class "Forward Iterator" <<Concept>>
     hide "Forward Iterator" members
@@ -119,7 +119,7 @@ The picture below gives a partial view of the classes involved:
 #+END_SRC
 
 #+RESULTS:
-[[file:uml-explicit-classes.png]]
+[[file:uml-explicit-classes.svg]]
 
 
 An ω-automaton can be defined as a labeled directed graph, plus an
@@ -452,7 +452,7 @@ previous one: =twa= and =twa_graph=, but this time the focus is on the
 abstract interface defined in =twa=, not in the explicit interface
 defined in =twa_graph=.
 
-#+BEGIN_SRC plantuml :file uml-otf-classes.png
+#+BEGIN_SRC plantuml :file uml-otf-classes.svg
 package spot {
   package internal {
     class succ_iterable {
@@ -532,7 +532,7 @@ package spot {
 #+END_SRC
 
 #+RESULTS:
-[[file:uml-otf-classes.png]]
+[[file:uml-otf-classes.svg]]
 
 
 To explore a =twa=, one would first call =twa::get_init_state()=,

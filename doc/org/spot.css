@@ -1,7 +1,8 @@
+@font-face{font-family:Lato;src:local("Lato"),local("Lato-Regular"),url("https://spot.lrde.epita.fr/Lato-Regular.ttf");}
 a{color:inherit;background-color:inherit;font:inherit;text-decoration:inherit}
 a:hover{text-decoration:underline}
 /* http://paletton.com/#uid=33i0X0kz3BrkeHdpSD1C7r1FAlb */
-body{font-family:Arial, sans-serif;font-weight:normal;max-width:62em;margin:auto;padding:0 .5em;background-image:url(/img/spot64.png);background-repeat:no-repeat;background-position:.5em .5em}
+body{font-family:Lato, sans-serif;font-size:12pt;font-weight:normal;max-width:62em;margin:auto;padding:0 .5em;background-image:url(/img/spot64.png);background-repeat:no-repeat;background-position:.5em .5em}
 body.man{padding:0 .5em 3em .5em}
 body #content{padding-top:45px}
 body pre{background:#fbfbfb;border:none;font-family:monospace, courier}
@@ -23,6 +24,7 @@ pre.src-python:before{content:'Python'}
 pre.src-C\+\+:before{content:'C++'}
 pre.src-hoa:before{content:'HOA';border-color:#d70079}
 img{max-width:100%}
+svg.org-svg{width:auto;max-width:100%}
 @media screen{
 #table-of-contents{position:fixed;right:0em;top:0em;max-width:50%;max-height:80%;overflow:auto;z-index:10}
 #table-of-contents #text-table-of-contents{display:none}

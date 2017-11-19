@@ -23,7 +23,7 @@
 			      (concat "@abs_top_builddir@/python/.libs:@abs_top_builddir@/spot/.libs:@abs_top_builddir@/buddy/src/.libs:"
 				      (getenv "DYLD_LIBRARY_PATH")))
 		      (setenv "SPOT_DOTDEFAULT" "Brf(Lato)C(#ffffa0)")
-		      (setenv "SPOT_DOTEXTRA" "edge[arrowhead=vee, arrowsize=.7]")
+		      (setenv "SPOT_DOTEXTRA" "node[fontsize=12] fontsize=12 stylesheet=\"spot.css\" edge[arrowhead=vee, arrowsize=.7, fontsize=12]")
                       (setq org-babel-temporary-directory "@abs_top_builddir@/doc/org/tmp")
                       (make-directory org-babel-temporary-directory t)
 		      (org-babel-do-load-languages 'org-babel-load-languages
@@ -62,7 +62,7 @@
 		   :auto-preamble t)
 		  ("spot-static"
 		   :base-directory "."
-		   :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf"
+		   :base-extension "css\\|js\\|png\\|svg\\|jpg\\|gif\\|pdf"
 		   :publishing-directory "../userdoc/"
 		   :recursive t
 		   :publishing-function org-publish-attachment)

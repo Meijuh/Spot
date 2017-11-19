@@ -1,4 +1,4 @@
-\documentclass[convert={size=640}]{standalone}
+\documentclass{standalone}
 \usepackage{tikz}
 \usetikzlibrary{arrows}
 \usetikzlibrary{arrows.meta}
@@ -9,6 +9,7 @@
 
 \begin{document}
 
+\scalebox{1.2}{
 \begin{tikzpicture}
   \tikzset{node distance=2mm,
            basicbox/.style={minimum width=#1,minimum height=8mm},
@@ -81,7 +82,7 @@
 ($(libspot.south east)+(1mm,-1mm)$) --
 ($(libspot.south west)+(-1mm,-1mm)$) -- cycle;
 \end{pgfonlayer}
-\end{tikzpicture}
+\end{tikzpicture}}
 \end{document}
 %%% Local Variables:
 %%% mode: latex

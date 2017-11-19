@@ -17,12 +17,12 @@ immediately after *red*.
 ltl2tgba -D -M '!F(red & Xyellow)' -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file tut11a.png :cmdline -Tpng :var txt=tut11a :exports results
+#+BEGIN_SRC dot :file tut11a.svg :var txt=tut11a :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:tut11a.png]]
+[[file:tut11a.svg]]
 
 This monitor stays in the initial state until *red* becomes true, it
 can then wait in the second state while *red* holds and *yellow* does
@@ -191,12 +191,12 @@ Nonetheless, we can still build a monitor for it:
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba -D -M 'G(press -> red U green)' -d
 #+END_SRC
-#+BEGIN_SRC dot :file tut11b.png :cmdline -Tpng :var txt=tut11b :exports results
+#+BEGIN_SRC dot :file tut11b.svg :var txt=tut11b :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:tut11b.png]]
+[[file:tut11b.svg]]
 
 
 This monitor will report violations if both *red* and *green* are off

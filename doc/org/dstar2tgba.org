@@ -114,12 +114,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file fagfb.png :cmdline -Tpng :var txt=fagfb :exports results
+#+BEGIN_SRC dot :file fagfb.svg :var txt=fagfb :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:fagfb.png]]
+[[file:fagfb.svg]]
 
 We used =--dot=a= to display Spot's representation of the acceptance
 condition (which uses the same convention as in the [[file:hoa.org][HOA format]]).  The
@@ -158,11 +158,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file fagfb2ba.png :cmdline -Tpng :var txt=fagfb2ba :exports results
+#+BEGIN_SRC dot :file fagfb2ba.svg :var txt=fagfb2ba :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:fagfb2ba.png]]
+[[file:fagfb2ba.svg]]
 
 
 Note that by default the output is not complete.  Use =-C= if you want
@@ -243,12 +243,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file gfafgb.png :cmdline -Tpng :var txt=gfafgb :exports results
+#+BEGIN_SRC dot :file gfafgb.svg :var txt=gfafgb :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:gfafgb.png]]
+[[file:gfafgb.svg]]
 
 
 
@@ -294,11 +294,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file gfagfb2ba.png :cmdline -Tpng :var txt=gfagfb2ba :exports results
+#+BEGIN_SRC dot :file gfagfb2ba.svg :var txt=gfagfb2ba :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:gfagfb2ba.png]]
+[[file:gfagfb2ba.svg]]
 
 Obviously the resulting automaton could be simplified further, as the
 minimal TGBA for this formula has a single state.  (Patches

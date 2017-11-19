@@ -77,7 +77,7 @@ ORG_FILES = \
   org/init.el.in \
   org/spot.css \
   org/arch.tex \
-  $(srcdir)/org/arch.png \
+  $(srcdir)/org/arch.svg \
   org/autcross.org \
   org/autfilt.org \
   org/csv.org \
@@ -90,7 +90,7 @@ ORG_FILES = \
   org/hoa.org \
   org/hierarchy.org \
   org/hierarchy.tex \
-  $(srcdir)/org/hierarchy.png \
+  $(srcdir)/org/hierarchy.svg \
   org/index.org \
   org/install.org \
   org/ioltl.org \
@@ -125,21 +125,24 @@ ORG_FILES = \
   org/satmin.org \
   org/satmin.tex \
   org/setup.org \
-  $(srcdir)/org/satmin.png
+  $(srcdir)/org/satmin.svg
 
-$(srcdir)/org/satmin.png: org/satmin.tex
+$(srcdir)/org/satmin.svg: org/satmin.tex
 	cd $(srcdir)/org && \
-	pdflatex -shell-escape satmin.tex && \
+	pdflatex satmin.tex && \
+	pdf2svg satmin.pdf satmin.svg && \
 	rm -f satmin.pdf satmin.aux satmin.log
 
-$(srcdir)/org/arch.png: org/arch.tex
+$(srcdir)/org/arch.svg: org/arch.tex
 	cd $(srcdir)/org && \
-	pdflatex -shell-escape arch.tex && \
+	pdflatex arch.tex && \
+	pdf2svg arch.pdf arch.svg && \
 	rm -f arch.pdf arch.aux arch.log
 
-$(srcdir)/org/hierarchy.png: org/hierarchy.tex
+$(srcdir)/org/hierarchy.svg: org/hierarchy.tex
 	cd $(srcdir)/org && \
-	pdflatex -shell-escape hierarchy.tex && \
+	pdflatex hierarchy.tex && \
+	pdf2svg hierarchy.pdf hierarchy.svg && \
 	rm -f hierarchy.pdf hierarchy.aux hierarchy.log
 
 $(srcdir)/org-stamp: $(ORG_FILES) $(configure_ac)

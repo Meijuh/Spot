@@ -1014,12 +1014,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file decorate.png :cmdline -Tpng :var txt=decorate :exports results
+#+BEGIN_SRC dot :file decorate.svg :var txt=decorate :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:decorate.png]]
+[[file:decorate.svg]]
 
 
 On the above example, we call =autfilt= with option =-d#= to display

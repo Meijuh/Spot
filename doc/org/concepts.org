@@ -132,12 +132,12 @@ which $a$ is always true, and $b$ is true infinitely often.
 ltl2tgba 'G(a) & GF(b)' -B -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file concept-buchi1.png :cmdline -Tpng :var txt=buchi-example1 :exports results
+#+BEGIN_SRC dot :file concept-buchi1.svg :var txt=buchi-example1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-buchi1.png]]
+[[file:concept-buchi1.svg]]
 
 
 The above automaton would accept the [[#word][ω-word we used previously as an
@@ -153,12 +153,12 @@ the [[#ltl][LTL formula]] =G(door_open -> light_on)= that specifies that
 ltl2tgba 'G(door_open -> light_on)' -d -C
 #+END_SRC
 
-#+BEGIN_SRC dot :file concept-buchi2.png :cmdline -Tpng :var txt=buchi-example2 :exports results
+#+BEGIN_SRC dot :file concept-buchi2.svg :var txt=buchi-example2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-buchi.png]]
+[[file:concept-buchi.svg]]
 
 The =1= displayed on the edge that loops on state =1= should be
 read as /true/, i.e., the Boolean formula that accepts
@@ -186,12 +186,12 @@ instant.
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba 'G(a <-> Xb)' -B -d
 #+END_SRC
-#+BEGIN_SRC dot :file concept-buchi3.png :cmdline -Tpng :var txt=buchi-example3 :exports results
+#+BEGIN_SRC dot :file concept-buchi3.svg :var txt=buchi-example3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-buchi3.png]]
+[[file:concept-buchi3.svg]]
 
 * Transitions vs. Edges
    :PROPERTIES:
@@ -224,12 +224,12 @@ State: 1 1 0 0 0
 EOF
 autfilt --merge concept-te.hoa -d
 #+END_SRC
-#+BEGIN_SRC dot :file concept-te1.png :cmdline -Tpng :var txt=te1 :exports results
+#+BEGIN_SRC dot :file concept-te1.svg :var txt=te1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-te1.png]]
+[[file:concept-te1.svg]]
 
 #+NAME: size
 #+BEGIN_SRC sh :exports none
@@ -246,12 +246,12 @@ following transition structure:
 #+BEGIN_SRC sh :results verbatim :exports none
 autfilt concept-te.hoa -d
 #+END_SRC
-#+BEGIN_SRC dot :file concept-te2.png :cmdline -Tpng :var txt=te2 :exports results
+#+BEGIN_SRC dot :file concept-te2.svg :var txt=te2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-te2.png]]
+[[file:concept-te2.svg]]
 
 The above is actually a different automaton from the point of view of
 Spot: it is an automaton with call_size(arg="%t")[:results raw] edges
@@ -300,12 +300,12 @@ contains a single state.
 ltl2tgba 'GFa & GFb' | autfilt -S --sat-minimize -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file concept-gba1.png :cmdline -Tpng :var txt=gen-buchi-example1 :exports results
+#+BEGIN_SRC dot :file concept-gba1.svg :var txt=gen-buchi-example1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-gba1.png]]
+[[file:concept-gba1.svg]]
 
 The accepting runs are only those that visit infinitely often both
 states, so that means this automaton accepts all words in which $a$
@@ -321,12 +321,12 @@ its more complex look).
 ltl2tgba 'GFa & GFb' -S -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file concept-gba2.png :cmdline -Tpng :var txt=gen-buchi-example2 :exports results
+#+BEGIN_SRC dot :file concept-gba2.svg :var txt=gen-buchi-example2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-gba2.png]]
+[[file:concept-gba2.svg]]
 
 
 Speaking of size... Let us note that using a generalized Büchi
@@ -341,12 +341,12 @@ equivalent Büchi automaton has three state:
 ltl2tgba 'GFa & GFb' -B -d
 #+END_SRC
 
-#+BEGIN_SRC dot :file concept-gba-vs-ba.png :cmdline -Tpng :var txt=gen-buchi-example-ba :exports results
+#+BEGIN_SRC dot :file concept-gba-vs-ba.svg :var txt=gen-buchi-example-ba :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-gba-vs-ba.png]]
+[[file:concept-gba-vs-ba.svg]]
 
 Finally, let us point the obvious fact that a Büchi automaton is a
 particular case of generalized-Büchi acceptance with a single
@@ -360,12 +360,12 @@ both.
 ltl2tgba 'GFa & GFb' -B -d.b
 #+END_SRC
 
-#+BEGIN_SRC dot :file concept-gba-vs-ba2.png :cmdline -Tpng :var txt=gen-buchi-example-ba2 :exports results
+#+BEGIN_SRC dot :file concept-gba-vs-ba2.svg :var txt=gen-buchi-example-ba2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-gba-vs-ba2.png]]
+[[file:concept-gba-vs-ba2.svg]]
 
 * Transition-based, vs. State-based acceptance
    :PROPERTIES:
@@ -387,12 +387,12 @@ Here is an example of Transition-based Generalized Büchi Automaton
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba 'GF(a & X(a U b))' -d
 #+END_SRC
-#+BEGIN_SRC dot :file concept-tgba1.png :cmdline -Tpng :var txt=tgba-example1 :exports results
+#+BEGIN_SRC dot :file concept-tgba1.svg :var txt=tgba-example1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-tgba1.png]]
+[[file:concept-tgba1.svg]]
 
 This automaton accept all ω-words that infinitely often match the
 pattern $a^+;b$ (that is: a positive number of letters where $a$ is
@@ -406,12 +406,12 @@ automaton:
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba 'GFa' -d
 #+END_SRC
-#+BEGIN_SRC dot :file concept-tgba2.png :cmdline -Tpng :var txt=tgba-example2 :exports results
+#+BEGIN_SRC dot :file concept-tgba2.svg :var txt=tgba-example2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-tgba2.png]]
+[[file:concept-tgba2.svg]]
 
 While the same property require a 2-state Büchi automaton using
 state-based acceptance:
@@ -420,12 +420,12 @@ state-based acceptance:
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba 'GFa' -B -d
 #+END_SRC
-#+BEGIN_SRC dot :file concept-tba-vs-ba.png :cmdline -Tpng :var txt=tgba-example3 :exports results
+#+BEGIN_SRC dot :file concept-tba-vs-ba.svg :var txt=tgba-example3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-tba-vs-ba.png]]
+[[file:concept-tba-vs-ba.svg]]
 
 
 #+BEGIN_implem
@@ -547,12 +547,12 @@ by Spot:
 #+BEGIN_SRC sh :results verbatim :exports none
 ltlfilt -l -f 'GFa | FGb' | ltl2dstar --output-format=hoa - - | autfilt --merge -d.a
 #+END_SRC
-#+BEGIN_SRC dot :file concept-twa1.png :cmdline -Tpng :var txt=twa-example1 :exports results
+#+BEGIN_SRC dot :file concept-twa1.svg :var txt=twa-example1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-twa1.png]]
+[[file:concept-twa1.svg]]
 
 * Alternating ω-automata
 
@@ -600,12 +600,12 @@ State: 4 "t"
 EOF
 #+END_SRC
 
-#+BEGIN_SRC dot :file concepts-alt.png :cmdline -Tpng :var txt=concepts-alt :exports results
+#+BEGIN_SRC dot :file concepts-alt.svg :var txt=concepts-alt :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concepts-alt.png]]
+[[file:concepts-alt.svg]]
 
 In this picture, the universal edges appear as arrows with a white
 tip going to a small dot, from which additional arrows connect to the
@@ -668,12 +668,12 @@ accept_all:				accept_all:
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba -Bd 'p0 | GFp1'
 #+END_SRC
-#+BEGIN_SRC dot :file concept-never1.png :cmdline -Tpng :var txt=never-ex1 :exports results
+#+BEGIN_SRC dot :file concept-never1.svg :var txt=never-ex1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-never1.png]]
+[[file:concept-never1.svg]]
 
 The two different types of never claims differ only in a few syntactic
 elements: =do..od= instead of =if..fi=, =assert= instead of =goto
@@ -721,7 +721,7 @@ ltl2tgba --ba --lbtt 'p0 | GFp1'
 -1
 #+end_example
 
-[[file:concept-never1.png]]
+[[file:concept-never1.svg]]
 
 The format has been extended in two ways.  First, LBTT extended it to
 support transition-based acceptance.  This is indicated by a =t= on
@@ -751,12 +751,12 @@ ltl2tgba --lbtt 'p0 | GFp1'
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba -d 'p0 | GFp1'
 #+END_SRC
-#+BEGIN_SRC dot :file concept-lbtt2.png :cmdline -Tpng :var txt=lbtt-ex2 :exports results
+#+BEGIN_SRC dot :file concept-lbtt2.svg :var txt=lbtt-ex2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-lbtt2.png]]
+[[file:concept-lbtt2.svg]]
 
 We call this format the LBTT format because of this extension.
 
@@ -824,12 +824,12 @@ Acc-Sig: +0 +1
 #+BEGIN_SRC sh :results verbatim :exports none
 echo '| F G p0 G F p1' | ltl2dstar --output-format=native - - | autfilt -d.a
 #+END_SRC
-#+BEGIN_SRC dot :file concept-dstar.png :cmdline -Tpng :var txt=dstar-example1 :exports results
+#+BEGIN_SRC dot :file concept-dstar.svg :var txt=dstar-example1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-dstar.png]]
+[[file:concept-dstar.svg]]
 
 * Hanoi Omega-Automaton format (HOA)
    :PROPERTIES:
@@ -883,12 +883,12 @@ State: 3 {1 3}
 #+BEGIN_SRC sh :results verbatim :exports none
 ltldo ltl2dstar -f 'FGp0 | GFp1' -d.a
 #+END_SRC
-#+BEGIN_SRC dot :file concept-hoa.png :cmdline -Tpng :var txt=hoa1 :exports results
+#+BEGIN_SRC dot :file concept-hoa.svg :var txt=hoa1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-hoa.png]]
+[[file:concept-hoa.svg]]
 
 
 Since this file format is the only one able to represent the range of
@@ -997,12 +997,12 @@ Here is for instance a translation of ={(1;1)[*]}[]->a= discussed [[#psl][above]
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba '{(1;1)[*]}[]->a' -d
 #+END_SRC
-#+BEGIN_SRC dot :file concept-ltl2tgba.png :cmdline -Tpng :var txt=ltl2tgba1 :exports results
+#+BEGIN_SRC dot :file concept-ltl2tgba.svg :var txt=ltl2tgba1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:concept-ltl2tgba.png]]
+[[file:concept-ltl2tgba.svg]]
 
 
 [[file:tut10.org][Another page shows how to translate an LTL formula into a never claim]]
@@ -1013,7 +1013,7 @@ from the command-line, Python, or C++.
    :CUSTOM_ID: architecture
    :END:
 
-[[file:arch.png]]
+[[file:arch.svg]]
 
 The Spot project can be broken down into several parts, as shown
 above.  Orange boxes are C/C++ libraries.  Red boxes are command-line

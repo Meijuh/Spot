@@ -51,11 +51,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file augb-ta.png :cmdline -Tpng :var txt=augb-ta :exports results
+#+BEGIN_SRC dot :file augb-ta.svg :var txt=augb-ta :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:augb-ta.png]]
+[[file:augb-ta.svg]]
 
 As always, the labels of the states have no influence on the language
 recognized by the automaton.  This automaton has three possible
@@ -104,11 +104,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file augb-ta2.png :cmdline -Tpng :var txt=augb-ta2 :exports results
+#+BEGIN_SRC dot :file augb-ta2.svg :var txt=augb-ta2 :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:augb-ta2.png]]
+[[file:augb-ta2.svg]]
 
 The =--gba= option can be used to request a Generalized Testing
 Automaton, i.e., a Testing Automaton with Generalized Büchi
@@ -149,11 +149,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file gfagfb-gta.png :cmdline -Tpng :var txt=gfagfb-gta :exports results
+#+BEGIN_SRC dot :file gfagfb-gta.svg :var txt=gfagfb-gta :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:gfagfb-gta.png]]
+[[file:gfagfb-gta.svg]]
 
 The interpretation is similar to that of the TA.  Execution that
 stutter in a livelock-accepting (square) state are accepting as well
@@ -203,11 +203,11 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file gfagfb-tgta.png :cmdline -Tpng :var txt=gfagfb-tgta :exports results
+#+BEGIN_SRC dot :file gfagfb-tgta.svg :var txt=gfagfb-tgta :exports results
 $txt
 #+END_SRC
 #+RESULTS:
-[[file:gfagfb-tgta.png]]
+[[file:gfagfb-tgta.svg]]
 
 
 [fn:topnoc]: This new class of automaton, as well as the

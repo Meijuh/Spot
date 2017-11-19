@@ -476,7 +476,7 @@ number of transitions (7 versus 8), because the initial self-loop is
 more constrained in the first automaton.  A smaller number of
 transition is therefore an indication of a more constrained automaton.
 
-#+BEGIN_SRC dot :file edges.png :cmdline -Tpng :exports results
+#+BEGIN_SRC dot :file edges.svg :exports results
 digraph G {
   0 [label="", style=invis, height=0]
   0 -> 1
@@ -497,7 +497,7 @@ digraph G {
 #+END_SRC
 
 #+RESULTS:
-[[file:edges.png]]
+[[file:edges.svg]]
 
 
 =scc= counts the number of strongly-connected components in the automaton.

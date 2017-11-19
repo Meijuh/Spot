@@ -14,12 +14,12 @@ $txt
 EOF
 #+END_SRC
 
-#+BEGIN_SRC dot :file tut23-aut.png :cmdline -Tpng :var txt=tut23-dot :exports results
+#+BEGIN_SRC dot :file tut23-aut.svg :var txt=tut23-dot :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:tut23-aut.png]]
+[[file:tut23-aut.svg]]
 
 
 Note that the code is very similar to the [[file:tut22.org][previous example]]: in Spot an

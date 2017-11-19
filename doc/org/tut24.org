@@ -40,12 +40,12 @@ EOF
 autfilt --dot=.a tut24.hoa
 #+END_SRC
 
-#+BEGIN_SRC dot :file tut24in.png :cmdline -Tpng :var txt=tut24dot :exports results
+#+BEGIN_SRC dot :file tut24in.svg :var txt=tut24dot :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:tut24in.png]]
+[[file:tut24in.svg]]
 
 * C++
 

@@ -57,7 +57,7 @@
 	(concat "@abs_top_builddir@/python/.libs:@abs_top_builddir@/spot/.libs:@abs_top_builddir@/buddy/src/.libs:"
 		(getenv "DYLD_LIBRARY_PATH")))
 (setenv "SPOT_DOTDEFAULT" "Brf(Lato)C(#ffffa0)")
-(setenv "SPOT_DOTEXTRA" "edge[arrowhead=vee, arrowsize=.7]")
+(setenv "SPOT_DOTEXTRA" "node[fontsize=12] fontsize=12 stylesheet=\"spot.css\" edge[arrowhead=vee, arrowsize=.7, fontsize=12]")
 
 (setq org-export-html-home/up-format
 "<div id=\"org-div-home-and-up\" style=\"text-align:center;white-space:nowrap;\">
@@ -85,7 +85,7 @@
 	:auto-preamble t)
        ("spot-static"
 	:base-directory "@abs_top_srcdir@/doc/org/"
-	:base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf"
+	:base-extension "css\\|js\\|png\\|svg\\|jpg\\|gif\\|pdf"
 	:publishing-directory "@abs_top_srcdir@/doc/userdoc/"
 	:recursive t
 	:publishing-function org-publish-attachment)

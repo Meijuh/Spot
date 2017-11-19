@@ -34,12 +34,12 @@ For instance:
 genaut --ks-nca=2 --dot
 #+END_SRC
 
-#+BEGIN_SRC dot :file kscobuchi2.png :cmdline -Tpng :var txt=kscobuchi2 :exports results
+#+BEGIN_SRC dot :file kscobuchi2.svg :var txt=kscobuchi2 :exports results
   $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:kscobuchi2.png]]
+[[file:kscobuchi2.svg]]
 
 The patterns can be specified using a range of the form =N= (a single
 value), =N..M= (all values between N and M included), or =..M= (all

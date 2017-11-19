@@ -54,12 +54,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file tut30in.png :cmdline -Tpng :var txt=tut30in :exports results
+#+BEGIN_SRC dot :file tut30in.svg :var txt=tut30in :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:tut30in.png]]
+[[file:tut30in.svg]]
 
 Our goal is to generate an equivalent Büchi automaton, preserving
 determinism if possible.  However nothing of what we will write is
@@ -138,12 +138,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file tut30out.png :cmdline -Tpng :var txt=tut30out :exports results
+#+BEGIN_SRC dot :file tut30out.svg :var txt=tut30out :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:tut30out.png]]
+[[file:tut30out.svg]]
 
 In the general case transforming an automaton with a complex
 acceptance condition into a Büchi automaton can make the output

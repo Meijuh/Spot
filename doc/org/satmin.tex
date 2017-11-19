@@ -1,4 +1,4 @@
-\documentclass[convert={size=640}]{standalone}
+\documentclass{standalone}
 \usepackage{tikz}
 \usetikzlibrary{arrows}
 \usetikzlibrary{shadows}
@@ -21,6 +21,7 @@
 \tikzstyle{outstep}=[iostep,fill=green!20]
 \tikzstyle{errstep}=[iostep,fill=red!20]
 
+\scalebox{1.2}{
 \begin{tikzpicture}[shorten >=1pt,>=stealth',semithick,node distance=5.5mm]
 %\tikzset{callout/.style={ellipse callout, callout pointer arc=30,
 %  callout absolute pointer={#1},fill=blue!30,draw}}
@@ -93,7 +94,7 @@
 
 %\node[fill=yellow,draw,ellipse callout,thin,inner sep=0.5pt,callout pointer arc=30,,yshift=6mm,callout absolute pointer={(c1)}] at (c1) {\footnotesize 1};
 
-\end{tikzpicture}
+\end{tikzpicture}}
 \end{document}
 %%% Local Variables:
 %%% mode: latex

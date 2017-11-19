@@ -53,7 +53,7 @@ us with a handful of methods to implement.
 The following class diagram is a simplified picture of the reality,
 but good enough for show what we have to implement.
 
-#+BEGIN_SRC plantuml :file uml-kripke.png
+#+BEGIN_SRC plantuml :file uml-kripke.svg
   package spot {
     together {
       abstract class twa {
@@ -132,7 +132,7 @@ kripke <|-- demo_kripke
 #+END_SRC
 
 #+RESULTS:
-[[file:uml-kripke.png]]
+[[file:uml-kripke.svg]]
 
 
 ** Implementing the =state= subclass
@@ -388,12 +388,12 @@ this reason.
  }
  #+END_SRC
 
- #+BEGIN_SRC dot :file kripke-1.png :cmdline -Tpng :cmd circo :var txt=demo-1 :exportss results
+ #+BEGIN_SRC dot :file kripke-1.svg :cmd circo :var txt=demo-1 :exports results
  $txt
  #+END_SRC
 
  #+RESULTS:
- [[file:kripke-1.png]]
+ q[[file:kripke-1.svg]]
 
 * Checking a property on this state space
 
@@ -520,12 +520,12 @@ passing the option "~k~" to =print_dot()= will fix that.
   }
 #+END_SRC
 
-#+BEGIN_SRC dot :file kripke-3.png :cmdline -Tpng :cmd circo :var txt=demo-3 :exportss results
+#+BEGIN_SRC dot :file kripke-3.svg :cmd circo :var txt=demo-3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:kripke-3.png]]
+[[file:kripke-3.svg]]
 
 * Possible improvements
 

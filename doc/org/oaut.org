@@ -300,12 +300,12 @@ digraph root {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file hoafex.png :cmdline -Tpng :var txt=hoafex :exports results
+#+BEGIN_SRC dot :file hoafex.svg :var txt=hoafex :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:hoafex.png]]
+[[file:hoafex.svg]]
 
 The [[http://adl.github.io/hoaf/][HOA format]] supports both state and transition-based acceptance.
 Although Spot works only with transition-based acceptance, its output
@@ -582,14 +582,15 @@ digraph G {
 ** Converting dot output to images or pdf
 
 This output should be processed with =dot= to be converted into a
-picture.  For instance use =dot -Tpng= or =dot -Tpdf=.
+picture.  For instance use =dot -Tpng= or =dot -Tpdf=.  The pictures
+on this page are produced with =dot -Tsvg=.
 
-#+BEGIN_SRC dot :file oaut-dot1.png :cmdline -Tpng :var txt=oaut-dot1 :exports results
+#+BEGIN_SRC dot :file oaut-dot1.svg :var txt=oaut-dot1 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:oaut-dot1.png]]
+[[file:oaut-dot1.svg]]
 
 ** Customizing the dot output
 
@@ -705,12 +706,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file oaut-dot2.png :cmdline -Tpng :var txt=oaut-dot2 :exports results
+#+BEGIN_SRC dot :file oaut-dot2.svg :var txt=oaut-dot2 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:oaut-dot2.png]]
+[[file:oaut-dot2.svg]]
 
 The acceptance condition is displayed in the same way as in the [[http://adl.github.io/hoaf/][HOA
 format]]. Here =Inf(0)= means that runs are accepting if and only if
@@ -838,12 +839,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file oaut-dot3.png :cmdline -Tpng :var txt=oaut-dot3 :exports results
+#+BEGIN_SRC dot :file oaut-dot3.svg :var txt=oaut-dot3 :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:oaut-dot3.png]]
+[[file:oaut-dot3.svg]]
 
 <<default-dot>>
 
@@ -898,12 +899,14 @@ following figure:
 
 #+BEGIN_SRC sh :results silent :exports results
   ltl2tgba 'p0 U p1' --dot=x | dot2tex --autosize --nominsize > dot2tex.tex
+  sed -e 's/{article}/{standalone}/' -e '/^\\enlarge/d' dot2tex.tex >dot2tex.tmp
+  mv dot2tex.tmp dot2tex.tex
   latexmk --pdf dot2tex.tex
-  convert -density 300 -scale '50%' -trim dot2tex.pdf dot2tex.png
+  pdf2svg dot2tex.pdf dot2tex.svg
   latexmk -C dot2tex.tex
   rm -f dot2tex.tex
 #+END_SRC
-[[file:dot2tex.png]]
+[[file:dot2tex.svg]]
 
 Here an example with bullets denoting acceptance sets, and SCCs:
 
@@ -913,12 +916,15 @@ ltl2tgba -G -D '!a & FGa' --dot=sbarx | dot2tex --autosize --nominsize > out.tex
 
 #+BEGIN_SRC sh :results silent :exports results
   ltl2tgba -G -D '!a & FGa' --dot=sbarx | dot2tex --autosize --nominsize > dot2tex2.tex
+  sed -e 's/{article}/{standalone}/' -e '/^\\enlarge/d' dot2tex2.tex >dot2tex2.tmp
+  mv dot2tex2.tmp dot2tex2.tex
   latexmk --pdf dot2tex2.tex
-  convert -density 300 -scale '50%' -trim dot2tex2.pdf dot2tex2.png
+  pdf2svg dot2tex2.pdf dot2tex2.svg
   latexmk -C dot2tex2.tex
   rm -f dot2tex2.tex
 #+END_SRC
-[[file:dot2tex2.png]]
+
+[[file:dot2tex2.svg]]
 
 Caveats:
 - =dot2tex= should be called with option =--autosize= in order to
@@ -1121,12 +1127,12 @@ digraph G {
 }
 #+end_example
 
-#+BEGIN_SRC dot :file oaut-name.png :cmdline -Tpng :var txt=oaut-name :exports results
+#+BEGIN_SRC dot :file oaut-name.svg :var txt=oaut-name :exports results
 $txt
 #+END_SRC
 
 #+RESULTS:
-[[file:oaut-name.png]]
+[[file:oaut-name.svg]]
 
 If you have an automaton saved in the HOA format, you can extract its
 name using =autfilt --stats=%M input.hoa=. The =%M= escape sequence is
