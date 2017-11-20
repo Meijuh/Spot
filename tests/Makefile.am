@@ -309,7 +309,8 @@ TESTS_twa = \
   core/acc_word.test \
   core/dca.test \
   core/dnfstreett.test \
-  core/parity.test
+  core/parity.test \
+  core/ltlsynt.test
 
 ############################## PYTHON ##############################
 

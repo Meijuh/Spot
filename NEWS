@@ -44,8 +44,8 @@ New in spot 2.4.2.dev (not yet released)
     also be used to detect unreliable measurements. See
       https://spot.lrde.epita.fr/oaut.html#timing
 
-  - ltlsynt is a new tool for synthesizing AIGER circuits from LTL/PSL
-    formulas.
+  - ltlsynt is a new tool for synthesizing a controller from LTL/PSL
+    specifications.
 
   - ltldo learned to limit the number of automata it outputs using -n.
 
@@ -189,6 +189,15 @@ New in spot 2.4.2.dev (not yet released)
 
   - The new spot::formula::is_leaf() method can be used to detect
     formulas without children (atomic propositions, or constants).
+
+  - The new function spot::print_aiger() encodes an automaton as an
+    AIGER circuit and prints it. This is only possible for automata
+    whose acceptance condition is trivial. It relies on a new named
+    property "synthesis outputs" that describes which atomic
+    propositions are to be encoded as outputs of the circuits.
+    This function is used by ltlsynt to output the synthesized
+    controllers in the format required by the synthesis tools
+    competition SYNTCOMP.
 
   Deprecation notices:
 

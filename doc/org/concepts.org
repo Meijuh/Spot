@@ -1130,7 +1130,7 @@ Here is a list of named properties currently used inside Spot:
 | ~incomplete-states~ | ~std::set<unsigned>~           | set of states numbers that should be displayed as incomplete  (used internally by ~print_dot()~ when truncating large automata) |
 | ~degen-levels~      | ~std::vector<unsigned>~        | level associated to each state by the degeneralization algorithm                                                                |
 | ~simulated-states~  | ~std::vector<unsigned>~        | map states of the original automaton to states if the current automaton in the result of simulation-based reductions            |
-
+| ~synthesis-outputs~ | ~bdd~                          | conjunction of controllable atomic propositions (used by ~print_aiger()~ to determine which propositions should be encoded as outputs of the circuit)
 Objects referenced via named properties are automatically destroyed
 when the automaton is destroyed, but this can be altered by passing a
 custom destructor as a third parameter to =twa::set_named_prop()=.
