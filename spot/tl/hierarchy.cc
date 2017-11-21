@@ -81,51 +81,50 @@ namespace spot
     }
   }
 
-  static prcheck
-  algo_to_perform(bool is_persistence, bool aut_given, prcheck algo)
+  [[noreturn]] static void invalid_spot_pr_check()
   {
-    if (algo == prcheck::PR_Auto)
-      {
-        // Check environment variable.
-        static int val_s = []()
-          {
-            try
-              {
-                auto s = getenv("SPOT_PR_CHECK");
-                return s ? std::stoi(s) : 0;
-              }
-            catch (const std::exception& e)
-              {
-                throw std::runtime_error("invalid value for SPOT_PR_CHECK "
-                                         "(should be 1 or 2)");
-              }
-          }();
+    throw std::runtime_error("invalid value for SPOT_PR_CHECK "
+                             "(should be 1 or 2)");
+  }
 
-        if (val_s == 1)
+  static prcheck
+  algo_to_perform(bool is_persistence, bool aut_given)
+  {
+    static prcheck env_algo = [&]()
+      {
+        int val;
+        try
           {
-            return prcheck::PR_via_CoBuchi;
+            auto s = getenv("SPOT_PR_CHECK");
+            val = s ? std::stoi(s) : 0;
           }
-        else if (val_s == 2)
+        catch (const std::exception& e)
           {
-            return prcheck::PR_via_Rabin;
+            invalid_spot_pr_check();
           }
-        else if (!val_s)
+        if (val == 0)
           {
             if (aut_given && !is_persistence)
-              return prcheck::PR_via_Rabin;
+              return prcheck::via_Rabin;
             else if ((aut_given && is_persistence) || !aut_given)
-              return prcheck::PR_via_CoBuchi;
+              return prcheck::via_CoBuchi;
             else
               SPOT_UNREACHABLE();
           }
+        else if (val == 1)
+          {
+            return prcheck::via_CoBuchi;
+          }
+        else if (val == 2)
+          {
+            return prcheck::via_Rabin;
+          }
         else
           {
-            throw std::runtime_error("invalid value for SPOT_PR_CHECK "
-                                     "(should be 1 or 2)");
+            invalid_spot_pr_check();
           }
-      }
-    else
-      return algo;
+      }();
+    return env_algo;
   }
 
   bool
@@ -134,17 +133,20 @@ namespace spot
     if (f.is_syntactic_persistence())
       return true;
 
-    switch (algo_to_perform(true, aut != nullptr, algo))
+    if (algo == prcheck::Auto)
+      algo = algo_to_perform(true, aut != nullptr);
+
+    switch (algo)
       {
-      case prcheck::PR_via_CoBuchi:
+      case prcheck::via_CoBuchi:
         return cobuchi_realizable(f, aut ? aut :
                                   ltl_to_tgba_fm(f, make_bdd_dict(), true));
 
-      case prcheck::PR_via_Rabin:
+      case prcheck::via_Rabin:
         return detbuchi_realizable(ltl_to_tgba_fm(formula::Not(f),
                                                   make_bdd_dict(), true));
 
-      case prcheck::PR_Auto:
+      case prcheck::Auto:
         SPOT_UNREACHABLE();
       }
 
@@ -157,18 +159,21 @@ namespace spot
     if (f.is_syntactic_recurrence())
       return true;
 
-    switch (algo_to_perform(false, aut != nullptr, algo))
+    if (algo == prcheck::Auto)
+      algo = algo_to_perform(true, aut != nullptr);
+
+    switch (algo)
       {
-      case prcheck::PR_via_CoBuchi:
+      case prcheck::via_CoBuchi:
         return cobuchi_realizable(formula::Not(f),
                                   ltl_to_tgba_fm(formula::Not(f),
                                                  make_bdd_dict(), true));
 
-      case prcheck::PR_via_Rabin:
+      case prcheck::via_Rabin:
         return detbuchi_realizable(aut ? aut :
                                    ltl_to_tgba_fm(f, make_bdd_dict(), true));
 
-      case prcheck::PR_Auto:
+      case prcheck::Auto:
         SPOT_UNREACHABLE();
       }
 
@@ -221,11 +226,11 @@ namespace spot
       case ocheck::via_WDBA:
         return is_wdba_realizable(f, aut);
       case ocheck::via_CoBuchi:
-        return (is_persistence(f, aut, prcheck::PR_via_CoBuchi)
-                && is_recurrence(f, aut, prcheck::PR_via_CoBuchi));
+        return (is_persistence(f, aut, prcheck::via_CoBuchi)
+                && is_recurrence(f, aut, prcheck::via_CoBuchi));
       case ocheck::via_Rabin:
-        return (is_persistence(f, aut, prcheck::PR_via_Rabin)
-                && is_recurrence(f, aut, prcheck::PR_via_Rabin));
+        return (is_persistence(f, aut, prcheck::via_Rabin)
+                && is_recurrence(f, aut, prcheck::via_Rabin));
       case ocheck::Auto:
         SPOT_UNREACHABLE();
       }

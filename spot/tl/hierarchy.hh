@@ -42,9 +42,9 @@ namespace spot
   /// if !f is cobuchi_realizable.
   enum class prcheck
   {
-    PR_Auto,             // FIXME: Remove the useless PR_ prefix since
-    PR_via_CoBuchi,      // we already have a prcheck:: prefix.
-    PR_via_Rabin,
+    Auto,
+    via_CoBuchi,
+    via_Rabin,
   };
 
   /// \brief Return true if \a f represents a persistence property.
@@ -55,7 +55,7 @@ namespace spot
   SPOT_API bool
   is_persistence(formula f,
                  twa_graph_ptr aut = nullptr,
-                 prcheck algo = prcheck::PR_Auto);
+                 prcheck algo = prcheck::Auto);
 
   /// \brief Return true if \a f represents a recurrence property.
   ///
@@ -67,7 +67,7 @@ namespace spot
   SPOT_API bool
   is_recurrence(formula f,
                 twa_graph_ptr aut = nullptr,
-                prcheck algo = prcheck::PR_Auto);
+                prcheck algo = prcheck::Auto);
 
   /// Enum used to change the behavior of is_obligation().
   enum class ocheck
