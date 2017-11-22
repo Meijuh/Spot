@@ -1,5 +1,13 @@
 New in spot 2.4.2.dev (not yet released)
 
+  Build:
+
+  - We no longuer distribute the doxygen-generated documentation in
+    the tarball of Spot to save space.  This documentation is still
+    available online at https://spot.lrde.epita.fr/doxygen/.  If you
+    want to build a local copy you can configure Spot with
+    --enable-doxygen, or simply run "cd doc && make doc".
+
   Tools:
 
   - genltl learned to generate a new family of formulas, taken from

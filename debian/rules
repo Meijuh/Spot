@@ -65,7 +65,8 @@ override_dh_auto_configure:
 	make clean
 	dh_auto_configure -- $(PRO2SETUP) $(LTOSETUP)	\
 	  --disable-devel --enable-optimizations	\
-	  --disable-static PYTHON=/usr/bin/$(PYDEFAULT)
+	  --disable-static --enable-doxygen \
+          PYTHON=/usr/bin/$(PYDEFAULT)
 	$(FLTOWORKAROUND)
 override_dh_auto_install: fix-js
 	dh_auto_install --destdir=$(CURDIR)/debian/tmp

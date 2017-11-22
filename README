@@ -115,6 +115,13 @@ flags specific to Spot:
     do not have a working Python 3.2+ installation or if you are
     attempting some cross-compilation.
 
+  --enable-doxygen
+    Generate the Doxygen documentation for the code as part of the
+    build.  This requires Doxygen to be installed.  Even if
+    --enable-doxygen has not been given, you can force the
+    documentation to be built by running "make doc" inside the doc/
+    directory.
+
   --enable-devel
     Enable debugging symbols, turn off aggressive optimizations, and
     turn on assertions.  This option is effective by default in
@@ -201,8 +208,8 @@ tests/            Test suite.
 doc/              Documentation for Spot.
    org/           Source of userdoc/ as org-mode files.
    tl/            Documentation of the Temporal Logic operators.
-   userdoc/       HTML documentation about the command-line tools.
-   spot.html/     HTML reference manual for the library.
+   userdoc/       HTML documentation about command-line tools, and examples.
+   spot.html/     HTML doc for C++ API (not distributed, use --enable-doxygen).
 bench/            Benchmarks for ...
    dtgbasat/      ... SAT-based minimization of DTGBA,
    emptchk/       ... emptiness-check algorithms,

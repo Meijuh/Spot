@@ -20,39 +20,29 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-DOXYGEN = doxygen
-
 SUBDIRS = tl
 
-.PHONY: doc fast-doc
+DOXYGEN = doxygen
+if ENABLE_DOXYGEN
+  DOXY_STAMP = stamp
+endif
 
-all-local: $(srcdir)/stamp $(srcdir)/org-stamp
+all-local: $(DOXY_STAMP) $(srcdir)/org-stamp
 
+.PHONY: doc
 doc:
-	-rm -f $(srcdir)/stamp
-	$(MAKE) $(srcdir)/stamp
+	-rm -f stamp
+	$(MAKE) stamp
 
-fast-doc:
+stamp: $(srcdir)/Doxyfile.in $(top_srcdir)/configure.ac
 	$(MAKE) Doxyfile
-## Doxygen 1.8.x will easily segfault during the parallel runs of dot.
-## 1.8.11 is supposed to be fixed, but until this version reaches all
-## our build hosts, let's try to run doxygen a second time when the
-## first attempt fails.
-## https://bugzilla.gnome.org/show_bug.cgi?id=756241
-	$(DOXYGEN) || $(DOXYGEN)
-	touch $(srcdir)/stamp
-
-$(srcdir)/stamp: $(srcdir)/Doxyfile.in $(top_srcdir)/configure.ac
-	$(MAKE) Doxyfile dot
 	-rm -rf spot.html spot.latex
 	$(DOXYGEN)
 	touch $@
 
-$(srcdir)/spot.html $(srcdir)/spot.tag: $(srcdir)/stamp
+spot.html spot.tag: stamp
 
-# spot.tag is useful to third-party packages that must link to the
-# Spot documentation.
-dist_pkgdata_DATA = $(srcdir)/spot.tag
+DISTCLEANFILES = spot.tag spot.html stamp
 
 .PHONY: org org-man
 org:
@@ -153,11 +143,10 @@ $(srcdir)/userdoc: $(srcdir)/org-stamp
 EXTRA_DIST = \
   footer.html \
   mainpage.dox \
-  $(srcdir)/stamp \
-  $(srcdir)/spot.html \
   $(ORG_FILES) \
   $(srcdir)/org-stamp \
   $(srcdir)/userdoc
+
 
 dist-hook: optipng
 .PHONY: optipng

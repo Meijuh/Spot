@@ -80,25 +80,6 @@ and then go on with the usual
 Tricks
 ======
 
-Avoiding Doxygen runs
----------------------
-
-When there is no documentation built (e.g., after a fresh checkout
-of the GIT tree), when the configure.ac file has changed, or when
-the Doxygen configuration has changed, the doc will be rebuilt.
-
-This can take quite some time, even though recent version of Doxygen
-have started to parallelize things.  If you have no interest
-in generating the documentation, just use the "magic touch":
-
-  touch doc/stamp
-
-Do that right before running make.  The timestamp of doc/stamp
-is compared to configure.ac and Doxygen.in to decide if the
-documentation is out-of-date.  The above command pretends the
-documentation has just been built.
-
-
 Avoiding org-mode runs
 ----------------------
 

@@ -53,6 +53,12 @@ AC_ARG_ENABLE([c++17],
                               [Compile in C++17 mode.])],
               [enable_17=yes], [enable_17=no])
 
+AC_ARG_ENABLE([doxygen],
+              [AC_HELP_STRING([--enable-doxygen]),
+  [enable generation of Doxygen documentation (requires Doxygen)])]
+  [enable_doxygen=yes], [enable_doxygen=no])
+AM_CONDITIONAL([ENABLE_DOXYGEN], [test "x${enable_doxygen:-no}" = xyes])
+
 # Activate C11 for gnulib tests
 AX_CHECK_COMPILE_FLAG([-std=c11], [CFLAGS="$CFLAGS -std=c11"])
 
@@ -164,9 +170,7 @@ if test x$enable_warnings = xyes; then
 fi
 
 AM_CONDITIONAL([NEVER], [false])
-# We need the absolute path for dot in the "doc/dot" script. Other places
-# only require a relative path.
-AC_PATH_PROG([DOT], [dot])
+AC_CHECK_PROG([DOT], [dot])
 AC_CHECK_PROG([LBT], [lbt], [lbt])
 AC_CHECK_PROG([LTL2BA], [ltl2ba], [ltl2ba])
 AC_CHECK_PROG([LTL3BA], [ltl3ba], [ltl3ba])
@@ -237,7 +241,6 @@ AC_CONFIG_FILES([
   tools/x-to-1
 ])
 AC_CONFIG_FILES([doc/org/g++wrap], [chmod +x doc/org/g++wrap])
-AC_CONFIG_FILES([doc/dot], [chmod +x doc/dot])
 AC_CONFIG_FILES([tests/run], [chmod +x tests/run])
 AC_OUTPUT
 
