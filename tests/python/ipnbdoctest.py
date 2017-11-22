@@ -22,7 +22,7 @@ except ImportError:
     print('Python 3.x is needed to run this script.')
     sys.exit(77)
 
-import importlib
+import importlib.util
 try:
     importlib.util.find_spec('IPython')
 except:
