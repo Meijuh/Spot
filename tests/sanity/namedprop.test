@@ -47,7 +47,7 @@ while read prop; do
    fi
 done
 if test -f namedprop.log; then
-  echo "The following named properties are not documented in $ORG:"
+  echo "The following named properties are not documented in $DOC:"
   cat namedprop.log
   exit 1
 fi
