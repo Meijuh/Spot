@@ -147,10 +147,4 @@ EXTRA_DIST = \
   $(srcdir)/org-stamp \
   $(srcdir)/userdoc
 
-
-dist-hook: optipng
-.PHONY: optipng
-optipng:
-	-(optipng -v >/dev/null) && optipng -o5 $(distdir)/userdoc/*.png
-
 DISTCLEANFILES = org/plantuml.jar

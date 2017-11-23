@@ -46,8 +46,6 @@ only for certain operations (like releases):
 
   pandoc    used during Debian packaging for the conversion of
             IPython notebooks to html
-  optipng   used during "make dist" if present, to optimize
-            distributed png images
   R         used by some example in the documentation (the
             documentation will still compile without R, but that
             example will appear broken)
