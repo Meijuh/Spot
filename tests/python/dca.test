@@ -51,10 +51,11 @@ X(!(!b | (a M b)) -> XXa)
 F(XF!a & (Fb U !a))
 EOF
 while read ba_f; do
-  ../run "$srcdir/dca.py" "$ba_f" > ba
+  ../run "$srcdir/dca.py" "$ba_f" > $DIR/ba
   while read dsa_f; do
     ltldo -f "$dsa_f" "ltl2dstar --automata=streett\
-      --ltl2nba=spin:ltl2tgba@-Ds" -H | autfilt --product=ba > $DIR/input.hoa
+      --ltl2nba=spin:ltl2tgba@-Ds" -H |
+        autfilt --product=$DIR/ba > $DIR/input.hoa
     autfilt --dca $DIR/input.hoa > $DIR/res.hoa
     autfilt $DIR/input.hoa --equivalent-to $DIR/res.hoa
   done <$DIR/dsa_formulas
