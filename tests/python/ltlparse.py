@@ -25,9 +25,13 @@ import spot
 
 e = spot.default_environment.instance()
 
-l = ['GFa', 'a U (((b)) xor c)', '!(FFx <=> Fx)', 'a \\/ a \\/ b \\/ a \\/ a']
+l = [('GFa', False),
+     ('a U (((b)) xor c)', False),
+     ('!(FFx <=> Fx)', True),
+     ('a \\/ a \\/ b \\/ a \\/ a', False)]
 
-for str1 in l:
+
+for str1, isl in l:
     pf = spot.parse_infix_psl(str1, e, False)
     if pf.format_errors(spot.get_cout()):
         sys.exit(1)
@@ -37,7 +41,11 @@ for str1 in l:
     pf = spot.parse_infix_psl(str2, e)
     if pf.format_errors(spot.get_cout()):
         sys.exit(1)
+    assert isl == pf.f.is_leaf()
     del pf
+
+assert spot.formula('a').is_leaf();
+assert spot.formula('0').is_leaf();
 
 for str1 in ['a * b', 'a xor b', 'a <-> b']:
     pf = spot.parse_infix_boolean(str1, e, False)

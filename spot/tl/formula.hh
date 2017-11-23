@@ -231,6 +231,12 @@ namespace spot
         return size_;
       }
 
+      /// \see formula::is_leaf
+      bool is_leaf() const
+      {
+        return size_ == 0;
+      }
+
       /// \see formula::id
       size_t id() const
       {
@@ -1275,6 +1281,15 @@ namespace spot
     unsigned size() const
     {
       return ptr_->size();
+    }
+
+    /// \brief Whether the formula is a leaf.
+    ///
+    /// Leaves are formulas without children.  They are either
+    /// constants (true, false, empty word) or atomic propositions.
+    bool is_leaf() const
+    {
+      return ptr_->is_leaf();
     }
 
     /// \brief Return the id of a formula.
