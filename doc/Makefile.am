@@ -147,4 +147,4 @@ EXTRA_DIST = \
   $(srcdir)/org-stamp \
   $(srcdir)/userdoc
 
-DISTCLEANFILES = org/plantuml.jar
+DISTCLEANFILES += org/plantuml.jar
