@@ -1602,8 +1602,10 @@ namespace spot
 #undef SPOT_DEF_PROP
 
     /// \brief Clone this node after applying \a trans to its children.
-    template<typename Trans>
-      formula map(Trans trans)
+    ///
+    /// Any additional argument is passed to trans.
+    template<typename Trans, typename... Args>
+      formula map(Trans trans, Args&&... args)
       {
         switch (op o = kind())
         {
@@ -1619,7 +1621,7 @@ namespace spot
           case op::Closure:
           case op::NegClosure:
           case op::NegClosureMarked:
-            return unop(o, trans((*this)[0]));
+            return unop(o, trans((*this)[0], std::forward<Args>(args)...));
           case op::Xor:
           case op::Implies:
           case op::Equiv:
@@ -1631,8 +1633,9 @@ namespace spot
           case op::EConcatMarked:
           case op::UConcat:
             {
-              formula tmp = trans((*this)[0]);
-              return binop(o, tmp, trans((*this)[1]));
+              formula tmp = trans((*this)[0], std::forward<Args>(args)...);
+              return binop(o, tmp,
+                           trans((*this)[1], std::forward<Args>(args)...));
             }
           case op::Or:
           case op::OrRat:
@@ -1645,12 +1648,13 @@ namespace spot
               std::vector<formula> tmp;
               tmp.reserve(size());
               for (auto f: *this)
-                tmp.emplace_back(trans(f));
+                tmp.emplace_back(trans(f, std::forward<Args>(args)...));
               return multop(o, std::move(tmp));
             }
           case op::Star:
           case op::FStar:
-            return bunop(o, trans((*this)[0]), min(), max());
+            return bunop(o, trans((*this)[0], std::forward<Args>(args)...),
+                         min(), max());
         }
         SPOT_UNREACHABLE();
       }
@@ -1660,13 +1664,16 @@ namespace spot
     /// This does a simple DFS without checking for duplicate
     /// subformulas.  If \a func returns true, the children of the
     /// current node are skipped.
-    template<typename Func>
-      void traverse(Func func)
+    ///
+    /// Any additional argument is passed to \a func when it is
+    /// invoked.
+    template<typename Func, typename... Args>
+      void traverse(Func func, Args&&... args)
       {
-        if (func(*this))
+        if (func(*this, std::forward<Args>(args)...))
           return;
         for (auto f: *this)
-          f.traverse(func);
+          f.traverse(func, std::forward<Args>(args)...);
       }
 
   private:

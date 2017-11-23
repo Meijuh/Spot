@@ -282,27 +282,28 @@ class formula:
 
         return s.__format__(spec)
 
-    def traverse(self, func):
-        if func(self):
+    def traverse(self, func, *args):
+        if func(self, *args):
             return
         for f in self:
-            f.traverse(func)
+            f.traverse(func, *args)
 
-    def map(self, func):
+    def map(self, func, *args):
         k = self.kind()
         if k in (op_ff, op_tt, op_eword, op_ap):
             return self
         if k in (op_Not, op_X, op_F, op_G, op_Closure,
                  op_NegClosure, op_NegClosureMarked):
-            return formula.unop(k, func(self[0]))
+            return formula.unop(k, func(self[0], *args))
         if k in (op_Xor, op_Implies, op_Equiv, op_U, op_R, op_W,
                  op_M, op_EConcat, op_EConcatMarked, op_UConcat):
-            return formula.binop(k, func(self[0]), func(self[1]))
+            return formula.binop(k, func(self[0], *args), func(self[1], *args))
         if k in (op_Or, op_OrRat, op_And, op_AndRat, op_AndNLM,
                  op_Concat, op_Fusion):
-            return formula.multop(k, [func(x) for x in self])
+            return formula.multop(k, [func(x, *args) for x in self])
         if k in (op_Star, op_FStar):
-            return formula.bunop(k, func(self[0]), self.min(), self.max())
+            return formula.bunop(k, func(self[0], *args),
+                                 self.min(), self.max())
         raise ValueError("unknown type of formula")
 
 

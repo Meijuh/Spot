@@ -198,7 +198,7 @@ sugar (the =is_sugar_free_ltl()= method is a constant-time operation
 that tells whether a formula contains a =F= or =G= operator) to save
 time time by not exploring further.
 
-
+#+NAME: gcount_cpp
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>
   #include <spot/tl/formula.hh>
@@ -222,7 +222,7 @@ time time by not exploring further.
   }
 #+END_SRC
 
-#+RESULTS:
+#+RESULTS: gcount_cpp
 #+begin_example
 FGa -> (GFb & GF(b & c & d))
 FGa
@@ -238,7 +238,6 @@ b & c & d
 === 3 G seen ===
 #+end_example
 
-
 The other useful operation is =map=.  This also takes a functional
 argument, but that function should input a formula and output a
 replacement formula.  =f.map(fun)= applies =fun= to all children of
@@ -247,6 +246,7 @@ replacement formula.  =f.map(fun)= applies =fun= to all children of
 Here is a demonstration of how to exchange all =F= and =G= operators
 in a formula:
 
+#+NAME: xchg_fg_cpp
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>
   #include <spot/tl/formula.hh>
@@ -278,6 +278,136 @@ in a formula:
 #+RESULTS:
 : before: FGa -> (GFb & GF(b & c & d))
 : after:  GFa -> (FGb & FG(b & c & d))
+
+
+*** Additional tricks about =map= and =traverse= in C++
+
+As seen above, the first argument of =map()= and =traverse()= is a
+function =fun()= (or actually any object that as an =operator()=) that
+will be applied to subformulas.  If additional arguments are passed to
+=map()= or =traverse()=, those will be passed on to =fun()= after the
+formula.
+
+For instance instead of having a lambda capturing the [[gcount_cpp][=gcount=
+variable in the first example]], we could pass a reference to this
+variable:
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <iostream>
+  #include <spot/tl/formula.hh>
+  #include <spot/tl/print.hh>
+  #include <spot/tl/parse.hh>
+
+  int main()
+  {
+    spot::formula f = spot::parse_formula("FGa -> (GFb & GF(c & b & d))");
+
+    int gcount = 0;
+    f.traverse([](spot::formula f, int& count)
+               {
+                 if (f.is(spot::op::G))
+                   ++count;
+                 return f.is_sugar_free_ltl();
+               }, gcount);
+    std::cout << "=== " << gcount << " G seen ===\n";
+    return 0;
+  }
+#+END_SRC
+
+#+RESULTS:
+: === 3 G seen ===
+
+(Here we have removed the print statement inside the lambda to focus
+more on how =gcount= get passed as the =&count= reference.  Here there
+is no real advantage to passing such reference by argument instead of
+capturing them in the lambda.
+
+The possibility to pass additional arguments is however more useful in
+the case of =map=.  Let's write a variant of our [[xchg_fg_cpp][=xchg_fg()= example]]
+that counts the number of exchanges performed.  First, we do it
+without lambda:
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <iostream>
+  #include <spot/tl/formula.hh>
+  #include <spot/tl/print.hh>
+  #include <spot/tl/parse.hh>
+
+  spot::formula xchg_fg(spot::formula in, int& count)
+  {
+     if (in.is(spot::op::F, spot::op::G))
+       ++count;
+     if (in.is(spot::op::F))
+       return spot::formula::G(xchg_fg(in[0], count));
+     if (in.is(spot::op::G))
+       return spot::formula::F(xchg_fg(in[0], count));
+     // No need to transform subformulas without F or G
+     if (in.is_sugar_free_ltl())
+       return in;
+     // Apply xchg_fg recursively on any other operator's children
+     return in.map(xchg_fg, count);
+  }
+
+  int main()
+  {
+    spot::formula f = spot::parse_formula("FGa -> (GFb & GF(c & b & d))");
+    std::cout << "before: " << f << '\n';
+    int count = 0;
+    std::cout << "after:  " << xchg_fg(f, count) << '\n';
+    std::cout << "exchanges:  " << count << '\n';
+    return 0;
+  }
+#+END_SRC
+
+#+RESULTS:
+: before: FGa -> (GFb & GF(b & c & d))
+: after:  GFa -> (FGb & FG(b & c & d))
+: exchanges:  6
+
+Now let's pretend that we want to define =xchg_fg= as a lambda, and
+=count= to by captured by reference.  In order to call pass the lambda
+recursively to =map=, the lambda needs to know its address.
+Unfortunately, if the lambda is stored with type =auto=, it cannot
+capture itself.  A solution is to use =std::function= but that has a
+large penalty cost.  We can work around that by assuming that that
+address will be passed as an argument (=self=) to the lambda:
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <iostream>
+  #include <spot/tl/formula.hh>
+  #include <spot/tl/print.hh>
+  #include <spot/tl/parse.hh>
+
+  int main()
+  {
+    spot::formula f = spot::parse_formula("FGa -> (GFb & GF(c & b & d))");
+    std::cout << "before: " << f << '\n';
+
+    int count = 0;
+    auto xchg_fg = [&count](spot::formula in, auto&& self) -> spot::formula
+    {
+      if (in.is(spot::op::F, spot::op::G))
+        ++count;
+      if (in.is(spot::op::F))
+        return spot::formula::G(self(in[0], self));
+      if (in.is(spot::op::G))
+        return spot::formula::F(self(in[0], self));
+      // No need to transform subformulas without F or G
+      if (in.is_sugar_free_ltl())
+        return in;
+      // Apply xchg_fg recursively on any other operator's children
+      return in.map(self, self);
+    };
+    std::cout << "after:  " << xchg_fg(f, xchg_fg) << '\n';
+    std::cout << "exchanges:  " << count << '\n';
+    return 0;
+  }
+#+END_SRC
+
+#+RESULTS:
+: before: FGa -> (GFb & GF(b & c & d))
+: after:  GFa -> (FGb & FG(b & c & d))
+: exchanges:  6
 
 
 ** Python
@@ -342,3 +472,6 @@ Here is the =F= and =G= exchange:
 #+RESULTS:
 : before: FGa -> (GFb & GF(b & c & d))
 : after:  GFa -> (FGb & FG(b & c & d))
+
+Like in C++, extra arguments to =map= and =traverse= are passed as
+additional to the function given in the first argument.

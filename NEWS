@@ -190,6 +190,10 @@ New in spot 2.4.2.dev (not yet released)
   - The new spot::formula::is_leaf() method can be used to detect
     formulas without children (atomic propositions, or constants).
 
+  - spot::formula::map(fun) and spot::formula::traverse(fun) will
+    accept additionnal arguments and pass them to fun().  See
+    https://spot.lrde.epita.fr/tut03.html for some examples.
+
   - The new function spot::print_aiger() encodes an automaton as an
     AIGER circuit and prints it. This is only possible for automata
     whose acceptance condition is trivial. It relies on a new named
