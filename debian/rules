@@ -65,8 +65,7 @@ override_dh_auto_configure:
 	make clean
 	dh_auto_configure -- $(PRO2SETUP) $(LTOSETUP)	\
 	  --disable-devel --enable-optimizations	\
-	  --disable-static --enable-doxygen \
-          PYTHON=/usr/bin/$(PYDEFAULT)
+	  --disable-static PYTHON=/usr/bin/$(PYDEFAULT)
 	$(FLTOWORKAROUND)
 override_dh_auto_install: fix-js
 	dh_auto_install --destdir=$(CURDIR)/debian/tmp
@@ -84,9 +83,12 @@ override_dh_auto_install: fix-js
 # alongside dynamic libraries, otherwise they will be stuffed with
 # LTO stuff that is just two big to distribute.  And we cannot use
 # the profile generated with LTO on, so we simply build without it.
+#
+# Since this is a last rebuild, we also construct the Doxygen doc.
 	dh_auto_configure --  \
 	  --disable-devel --enable-optimizations \
-	  --disable-shared --enable-static --disable-python
+	  --disable-shared --enable-static --disable-python \
+	  --enable-doxygen
 	dh_auto_build -- clean
 	dh_auto_build -- all
 	dh_auto_install -- -C buddy

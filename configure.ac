@@ -55,7 +55,7 @@ AC_ARG_ENABLE([c++17],
 
 AC_ARG_ENABLE([doxygen],
               [AC_HELP_STRING([--enable-doxygen]),
-  [enable generation of Doxygen documentation (requires Doxygen)])]
+  [enable generation of Doxygen documentation (requires Doxygen)])],
   [enable_doxygen=yes], [enable_doxygen=no])
 AM_CONDITIONAL([ENABLE_DOXYGEN], [test "x${enable_doxygen:-no}" = xyes])
 
