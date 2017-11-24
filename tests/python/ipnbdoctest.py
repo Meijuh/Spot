@@ -35,8 +35,12 @@ except ImportError:
     try:
         from IPython.kernel import KernelManager
     except ImportError:
-        from IPython.zmq.blockingkernelmanager \
-          import BlockingKernelManager as KernelManager
+        try:
+            from IPython.zmq.blockingkernelmanager \
+              import BlockingKernelManager as KernelManager
+        except:
+            print('IPython is needed to run this script.')
+            sys.exit(77)
 
 # Until Debian Stable ships IPython >3.0, we stick to the v3 format.
 try:
