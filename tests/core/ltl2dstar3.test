@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Laboratoire de Recherche et
+# Copyright (C) 2015, 2017 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -26,23 +26,16 @@ set -e
 # Skip this test if ltl2dstar is not installed.
 (ltl2dstar --version) || exit 77
 
-ltlfilt=ltlfilt
-ltl2tgba=ltl2tgba
-ltlcross=ltlcross
-randltl=randltl
-ltlfilt=ltlfilt
-dstar2tgba=dstar2tgba
-
 RAB='--automata=rabin --output-format=hoa'
 STR='--automata=streett --output-format=hoa'
 
 # Run ltlcross without product, because this requires too much memory.
-$randltl -n 25 a b | $ltlfilt --remove-wm |
-$ltlcross -F- -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
+randltl -n 25 a b | ltlfilt --remove-wm |
+ltlcross -F- -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
 --timeout=30 --verbose --csv=out.csv --products=0 \
-"$ltl2tgba -s %f >%N" \
-"ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L %H" \
-"ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L %H"
+"ltl2tgba -s %f >%N" \
+"ltl2dstar $RAB --ltl2nba=spin:ltl2tgba@-s %L %H" \
+"ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L %H"
 
 grep '"in_type"' out.csv && exit 1
 exit 0

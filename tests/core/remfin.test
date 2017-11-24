@@ -24,8 +24,6 @@
 
 set -e
 
-autfilt=autfilt
-
 cat >test1 <<EOF
 /*
 ** This was a TGBA for GFa & GFb, but
@@ -1412,11 +1410,11 @@ State: 3
 --END--
 EOF
 
-run 0 $autfilt -H --remove-fin test1 > output
+run 0 autfilt -H --remove-fin test1 > output
 cat output
 diff -u output expected
 
-run 0 $autfilt -H --tgba test1 > output
+run 0 autfilt -H --tgba test1 > output
 cat output
 diff -u output expected-tgba
 

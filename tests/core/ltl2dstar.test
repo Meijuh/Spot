@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2013-2017 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -28,16 +28,9 @@ set -e
 # Skip this test if ltl2dstar is not installed.
 (ltl2dstar --version) || exit 77
 
-ltlfilt=ltlfilt
-ltl2tgba=ltl2tgba
-ltlcross=ltlcross
-randltl=randltl
-ltlfilt=ltlfilt
-dstar2tgba=dstar2tgba
-
-$ltlfilt -f 'a U b' -l |
-ltl2dstar --ltl2nba=spin:$ltl2tgba@-s - - |
-$dstar2tgba --stats '%s %e %t %a %d' |
+ltlfilt -f 'a U b' -l |
+ltl2dstar --ltl2nba=spin:ltl2tgba@-s - - |
+dstar2tgba --stats '%s %e %t %a %d' |
 tee out
 
 test "`cat out`" = '2 3 7 1 1'
@@ -45,33 +38,33 @@ test "`cat out`" = '2 3 7 1 1'
 RAB=--automata=rabin
 STR=--automata=streett
 
-$randltl -n 15 a b | $ltlfilt --nnf --remove-wm |
-$ltlcross -F - -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
+randltl -n 15 a b | ltlfilt --nnf --remove-wm |
+ltlcross -F - -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
 --timeout=30 \
-"$ltl2tgba -s %f >%N" \
-"ltl2dstar $RAB --output=nba --ltl2nba=spin:$ltl2tgba@-s %L %T" \
-"ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L %D" \
-"ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L - | $dstar2tgba --low -s >%N" \
-"ltl2dstar $STR --output=nba --ltl2nba=spin:$ltl2tgba@-s %L %T" \
-"ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L %D" \
-"ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L - | $dstar2tgba --low -s >%N" \
+"ltl2tgba -s %f >%N" \
+"ltl2dstar $RAB --output=nba --ltl2nba=spin:ltl2tgba@-s %L %T" \
+"ltl2dstar $RAB --ltl2nba=spin:ltl2tgba@-s %L %D" \
+"ltl2dstar $RAB --ltl2nba=spin:ltl2tgba@-s %L - | dstar2tgba --low -s >%N" \
+"ltl2dstar $STR --output=nba --ltl2nba=spin:ltl2tgba@-s %L %T" \
+"ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L %D" \
+"ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L - | dstar2tgba --low -s >%N" \
 --csv=out.csv
 
 # A bug in ltlcross <=1.2.5 caused it to not use the complement of the
 # negative automaton.
-$ltlcross -f 'GFa' --verbose \
-"ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L %D" \
-"ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L %D" 2>err
+ltlcross -f 'GFa' --verbose \
+"ltl2dstar $RAB --ltl2nba=spin:ltl2tgba@-s %L %D" \
+"ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L %D" 2>err
 test `grep -c 'info: check_empty.*Comp' err` = 2
-$ltlcross -f 'FGa' --verbose \
-"ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L %D" \
-"ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L %D" 2>err
+ltlcross -f 'FGa' --verbose \
+"ltl2dstar $RAB --ltl2nba=spin:ltl2tgba@-s %L %D" \
+"ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L %D" 2>err
 test `grep -c 'info: check_empty.*Comp' err` = 2
 
 
 # Make sure ltldo preserve the Rabin acceptance by default
 ltldo \
-    "ltl2dstar --ltl2nba=spin:$ltl2tgba@-s --output-format=hoa %L %O" \
+    "ltl2dstar --ltl2nba=spin:ltl2tgba@-s --output-format=hoa %L %O" \
     -f 'GFa -> GFb' -Hi > out.hoa
 cat >expected <<EOF
 HOA: v1

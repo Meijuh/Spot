@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013 Laboratoire de Recherche et Développement
+# Copyright (C) 2013, 2017 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -20,9 +20,6 @@
 
 . ./defs
 set -e
-
-ltl2tgba=ltl2tgba
-ltlcross=ltlcross
 
 # The formulas below have been removed from the list to reduce the time
 # required to complete the test. In the future, we would like to respond
@@ -94,25 +91,25 @@ EOF
 
 # The following tests are named from 1 to 11 in order to reduce the length of
 # each line. If a test fails during the diff, it is easily identifiable.
-$ltlcross -F formulas \
+ltlcross -F formulas \
   --timeout=60 \
-  "{1} $ltl2tgba --det --lbtt %f >%T" \
-  "{2} $ltl2tgba --det --lbtt -x tba-det %f >%T" \
-  "{3} $ltl2tgba --det --lbtt -x sat-acc=1  %f >%T" \
-  "{4} $ltl2tgba --det --lbtt -x sat-acc=3 %f >%T" \
-  "{5} $ltl2tgba --det --lbtt -x sat-states=3 %f >%T" \
-  "{6} $ltl2tgba --det --lbtt -x sat-minimize %f >%T" \
-  "{7} $ltl2tgba --det --lbtt -x 'sat-minimize, sat-langmap' %f >%T" \
-  "{8} $ltl2tgba --det --lbtt -x 'sat-minimize=2, sat-incr-steps=0' %f >%T" \
-  "{9} $ltl2tgba --det --lbtt -x 'sat-minimize=2, sat-incr-steps=1' %f >%T" \
-  "{10} $ltl2tgba --det --lbtt -x 'sat-minimize=2, sat-incr-steps=2' %f >%T" \
-  "{11} $ltl2tgba --det --lbtt -x 'sat-minimize=2, sat-incr-steps=50' %f >%T" \
-  "{12} $ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=-1' %f >%T" \
-  "{13} $ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=0' %f >%T" \
-  "{14} $ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=1' %f >%T" \
-  "{15} $ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=2' %f >%T" \
-  "{16} $ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=50' %f >%T" \
-  "{17} $ltl2tgba --det --lbtt -x sat-minimize=4 %f >%T" \
+  "{1} ltl2tgba --det --lbtt %f >%T" \
+  "{2} ltl2tgba --det --lbtt -x tba-det %f >%T" \
+  "{3} ltl2tgba --det --lbtt -x sat-acc=1  %f >%T" \
+  "{4} ltl2tgba --det --lbtt -x sat-acc=3 %f >%T" \
+  "{5} ltl2tgba --det --lbtt -x sat-states=3 %f >%T" \
+  "{6} ltl2tgba --det --lbtt -x sat-minimize %f >%T" \
+  "{7} ltl2tgba --det --lbtt -x 'sat-minimize, sat-langmap' %f >%T" \
+  "{8} ltl2tgba --det --lbtt -x 'sat-minimize=2, sat-incr-steps=0' %f >%T" \
+  "{9} ltl2tgba --det --lbtt -x 'sat-minimize=2, sat-incr-steps=1' %f >%T" \
+  "{10} ltl2tgba --det --lbtt -x 'sat-minimize=2, sat-incr-steps=2' %f >%T" \
+  "{11} ltl2tgba --det --lbtt -x 'sat-minimize=2, sat-incr-steps=50' %f >%T" \
+  "{12} ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=-1' %f >%T" \
+  "{13} ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=0' %f >%T" \
+  "{14} ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=1' %f >%T" \
+  "{15} ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=2' %f >%T" \
+  "{16} ltl2tgba --det --lbtt -x 'sat-minimize=3, sat-incr-steps=50' %f >%T" \
+  "{17} ltl2tgba --det --lbtt -x sat-minimize=4 %f >%T" \
   --csv=det.csv
 
 grep -v ',\"5\",' det.csv | cut -d ',' -f '1,2,6' > output

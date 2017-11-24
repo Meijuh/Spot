@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2014, 2015, 2017 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -21,9 +21,7 @@
 . ./defs
 set -e
 
-randltl=randltl
-
-run 0 $randltl -S -n 20 a b c --tree-size=10 \
+run 0 randltl -S -n 20 a b c --tree-size=10 \
     --sere-priorities=and=0,andNLM=0 \
     --boolean-priorities=equiv=0,implies=0,xor=0,and=0,not=0 \
     --dump-priorities > stdout
@@ -58,7 +56,7 @@ diff stdout expected
 sere='eword=0,and=0,andNLM=0,fusion=0,star=0,star_b=0'
 sere="$sere,or=0,concat=0,fstar=0,fstar_b=0"
 
-run 0 $randltl -S -n 10000 a b c --tree-size=10..20 \
+run 0 randltl -S -n 10000 a b c --tree-size=10..20 \
    --sere-p=$sere \
    --boolean-p=equiv=0,implies=0,xor=0,and=0,not=0,false=0,true=0,or=0 \
    --dump-pr > stdout
@@ -92,7 +90,7 @@ diff stdout expected
 
 
 # Disabling all operators will prevent more formulas to be generated.
-$randltl -S -n 10000 a b c --tree-size=10..20 \
+randltl -S -n 10000 a b c --tree-size=10..20 \
  --sere-p=$sere \
  --boolean-p=equiv=0,implies=0,xor=0,and=0,not=0,false=0,true=0,or=0 > out &&
   exit 1
@@ -107,7 +105,7 @@ diff expected out2
 
 
 # atomic proposition can be implicitly specified using a number
-$randltl -n 1000 3 --tree-size=10..20 > out
+randltl -n 1000 3 --tree-size=10..20 > out
 grep -q p0 out
 grep -q p1 out
 grep -q p2 out
@@ -116,7 +114,7 @@ grep p3 out && exit 1
 
 # We should be able to generate exactly two formulas with 0 atomic
 # propositions.
-run 0 $randltl -n2 0 | sort > out
+run 0 randltl -n2 0 | sort > out
 cat >expected <<EOF
 0
 1
@@ -124,19 +122,19 @@ EOF
 diff out expected
 
 # requesting more formulas should fail
-run 2 $randltl -n3 0
+run 2 randltl -n3 0
 
 # If more numbers are given, there are interpreted as atomic propositions
-run 0 $randltl -n1000 0 1 > out
+run 0 randltl -n1000 0 1 > out
 grep -q '"0"' out
 grep -q '"1"' out
 
 
-run 0 $randltl -n5 2 -o test-all.ltl
-run 0 $randltl -n5 2 -o test-%L.ltl
+run 0 randltl -n5 2 -o test-all.ltl
+run 0 randltl -n5 2 -o test-%L.ltl
 cat test-1.ltl test-2.ltl test-3.ltl test-4.ltl test-5.ltl > test-cmp.ltl
 diff test-cmp.ltl test-all.ltl
 
 
-$randltl 2 --ltl-prio=X 2>stderr && exit 1
+randltl 2 --ltl-prio=X 2>stderr && exit 1
 grep 'failed to parse LTL priorities near X' stderr

@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
-# l'Epita (LRDE).
+# Copyright (C) 2013, 2014, 2017 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -21,9 +21,6 @@
 . ./defs
 
 set -e
-
-ltl2tgba=ltl2tgba
-
 
 # This bug was found while working on the state-based acceptance
 # output for the LBTT format.  Using ba-simul=2 causes reverse
@@ -60,15 +57,15 @@ ltlcross --seed=0 --products=5 --json=out.json \
     -f '!p2 & (Fp5 R (((p0 U p1) & (p5 | p1)) | (!p5 & (!p0 R !p1))))' \
     -f '! ((p0 /\ p4) <-> ! ((! p0 U (p0 W p4)) /\ (X p5 -> ([] p3 /\ p5))))' \
     -f '(X <> (<> X p0 /\ X (p5 <-> p0)) W (p3 W p0))' \
-    "$ltl2tgba --ba --high --lbtt=t -x ba-simul=0 %f >%T" \
-    "$ltl2tgba --ba --high --lbtt=t -x ba-simul=1 %f >%T" \
-    "$ltl2tgba --ba --high --lbtt=t -x ba-simul=2 %f >%T" \
-    "$ltl2tgba --ba --high --lbtt=t -x ba-simul=3 %f >%T" \
-    "$ltl2tgba --ba --high --lbtt -x ba-simul=0 %f >%T" \
-    "$ltl2tgba --ba --high --lbtt -x ba-simul=1 %f >%T" \
-    "$ltl2tgba --ba --high --lbtt -x ba-simul=2 %f >%T" \
-    "$ltl2tgba --ba --high --lbtt -x ba-simul=3 %f >%T" \
-    "$ltl2tgba --ba --high --spin -x ba-simul=0 %f >%N" \
-    "$ltl2tgba --ba --high --spin -x ba-simul=1 %f >%N" \
-    "$ltl2tgba --ba --high --spin -x ba-simul=2 %f >%N" \
-    "$ltl2tgba --ba --high --spin -x ba-simul=3 %f >%N"
+    "ltl2tgba --ba --high --lbtt=t -x ba-simul=0 %f >%T" \
+    "ltl2tgba --ba --high --lbtt=t -x ba-simul=1 %f >%T" \
+    "ltl2tgba --ba --high --lbtt=t -x ba-simul=2 %f >%T" \
+    "ltl2tgba --ba --high --lbtt=t -x ba-simul=3 %f >%T" \
+    "ltl2tgba --ba --high --lbtt -x ba-simul=0 %f >%T" \
+    "ltl2tgba --ba --high --lbtt -x ba-simul=1 %f >%T" \
+    "ltl2tgba --ba --high --lbtt -x ba-simul=2 %f >%T" \
+    "ltl2tgba --ba --high --lbtt -x ba-simul=3 %f >%T" \
+    "ltl2tgba --ba --high --spin -x ba-simul=0 %f >%N" \
+    "ltl2tgba --ba --high --spin -x ba-simul=1 %f >%N" \
+    "ltl2tgba --ba --high --spin -x ba-simul=2 %f >%N" \
+    "ltl2tgba --ba --high --spin -x ba-simul=3 %f >%N"

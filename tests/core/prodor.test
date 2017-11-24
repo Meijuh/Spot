@@ -21,9 +21,6 @@
 . ./defs
 set -e
 
-ltl2tgba=ltl2tgba
-autfilt=autfilt
-
 # Two empty automata
 cat >a1.hoa <<EOF
 HOA: v1
@@ -48,11 +45,11 @@ State: 0
 EOF
 
 # the OR product of two empty automata should be empty
-$autfilt --product-or a1.hoa a2.hoa -H | $autfilt --is-empty
+autfilt --product-or a1.hoa a2.hoa -H | autfilt --is-empty
 
-$ltl2tgba -DH 'GFa' > gfa.hoa
-$ltl2tgba -DH 'FGb' > fgb.hoa
-$autfilt --product-or gfa.hoa fgb.hoa -H > por.hoa
+ltl2tgba -DH 'GFa' > gfa.hoa
+ltl2tgba -DH 'FGb' > fgb.hoa
+autfilt --product-or gfa.hoa fgb.hoa -H > por.hoa
 cat por.hoa
 
 cat >exp <<EOF
@@ -81,9 +78,9 @@ State: 2
 EOF
 diff por.hoa exp
 
-test 2 = `$autfilt -c --intersect por.hoa gfa.hoa fgb.hoa`
+test 2 = `autfilt -c --intersect por.hoa gfa.hoa fgb.hoa`
 
-$autfilt --product-and gfa.hoa fgb.hoa -H > pand.hoa
+autfilt --product-and gfa.hoa fgb.hoa -H > pand.hoa
 cat pand.hoa
 
 cat >exp <<EOF
@@ -107,11 +104,11 @@ State: 1
 EOF
 diff pand.hoa exp
 
-test 2 = `$autfilt -c --intersect pand.hoa gfa.hoa fgb.hoa`
+test 2 = `autfilt -c --intersect pand.hoa gfa.hoa fgb.hoa`
 
-$ltl2tgba -BDH 'GFa' > gfa.hoa
-$ltl2tgba -BDH 'Xb' > xb.hoa
-$autfilt --product-or gfa.hoa xb.hoa -H > por.hoa
+ltl2tgba -BDH 'GFa' > gfa.hoa
+ltl2tgba -BDH 'Xb' > xb.hoa
+autfilt --product-or gfa.hoa xb.hoa -H > por.hoa
 cat por.hoa
 
 cat >exp <<EOF
@@ -152,9 +149,9 @@ State: 6
 EOF
 diff por.hoa exp
 
-$ltl2tgba -BDH 'GFa' > gfa.hoa
-$ltl2tgba -x '!wdba-minimize' -DH 'Xb' > xb.hoa
-$autfilt --product-or gfa.hoa xb.hoa -H > por.hoa
+ltl2tgba -BDH 'GFa' > gfa.hoa
+ltl2tgba -x '!wdba-minimize' -DH 'Xb' > xb.hoa
+autfilt --product-or gfa.hoa xb.hoa -H > por.hoa
 cat por.hoa
 
 cat >exp <<EOF

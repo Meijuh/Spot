@@ -31,16 +31,14 @@ check_csv()
   done)
 }
 
-ltl2tgba=ltl2tgba
-
 # Make sure ltlcross quotes formulas correctly
 cat >formula <<\EOF
 G"a'-'>'b"
 FGa
 EOF
 run 0 ltlcross -F formula --csv=out.csv \
-                         "$ltl2tgba -s %f >%N" \
-                         "$ltl2tgba --lenient -s %s >%N" \
+                         "ltl2tgba -s %f >%N" \
+                         "ltl2tgba --lenient -s %s >%N" \
                          --verbose 2> error
 cat >ceplan <<EOF
 info: check_empty P0*N0
@@ -60,8 +58,8 @@ grep 'info: check_empty' error > ce
 diff -u ce ceplan
 
 ltlcross -F formula --csv=out.csv \
-                   --ref "$ltl2tgba -s %f >%N" \
-                   "$ltl2tgba --lenient -s %s >%N" \
+                   --ref "ltl2tgba -s %f >%N" \
+                   "ltl2tgba --lenient -s %s >%N" \
                    --verbose 2> error
 cat >ceplan <<EOF
 info: check_empty P0*N1
@@ -77,8 +75,8 @@ grep 'info: check_empty' error > ce
 diff -u ce ceplan
 
 ltlcross -F formula --csv=out.csv \
-                   -D "$ltl2tgba -s %f >%N" \
-                   "$ltl2tgba --lenient -s %s >%N" \
+                   -D "ltl2tgba -s %f >%N" \
+                   "ltl2tgba --lenient -s %s >%N" \
                    --verbose 2> error
 cat >ceplan <<EOF
 info: check_empty P0*N0
@@ -98,8 +96,8 @@ grep 'info: check_empty' error > ce
 diff -u ce ceplan
 
 ltlcross -F formula --csv=out.csv \
-                   -D --ref "$ltl2tgba -s %f >%N" \
-                   "$ltl2tgba --lenient -s %s >%N" \
+                   -D --ref "ltl2tgba -s %f >%N" \
+                   "ltl2tgba --lenient -s %s >%N" \
                    --verbose 2> error
 
 cat >ceplan <<EOF
@@ -116,16 +114,16 @@ grep 'info: check_empty' error > ce
 diff -u ce ceplan
 
 ltlcross -F formula --csv=out.csv \
-                    --ref "$ltl2tgba -s %f >%N" \
-                    --ref "$ltl2tgba --lenient -s %s >%N" \
+                    --ref "ltl2tgba -s %f >%N" \
+                    --ref "ltl2tgba --lenient -s %s >%N" \
                     --verbose 2> error
 grep 'info: check_empty' error && exit 1
 
-run 2 ltlcross "$ltl2tgba -s %f >%N" 'foo bar' 2>stderr -f a
+run 2 ltlcross "ltl2tgba -s %f >%N" 'foo bar' 2>stderr -f a
 grep 'ltlcross.*no input.*in.*foo bar' stderr
 
 # Make sure non-zero exit codes are reported...
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%N' \
                          -f a --csv=out.csv 2>stderr
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
@@ -134,7 +132,7 @@ test `grep '"exit code",1' out.csv | wc -l` -eq 2
 check_csv out.csv
 
 # ... unless --omit-missing is supplied.
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%N' \
                          -f a --csv=out.csv --omit-missing 2>stderr
 grep '"exit_status"' out.csv && exit 1
 grep '"exit_code"' out.csv && exit 1
@@ -143,7 +141,7 @@ test `grep '"exit code",1' out.csv | wc -l` -eq 0
 check_csv out.csv
 
 # Additional columns should not be an issue
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%N' \
                -f a --csv=out.csv --strength 2>stderr
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
@@ -154,7 +152,7 @@ test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
 test `grep '"exit code",1' out.csv | wc -l` -eq 2
 check_csv out.csv
 
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%N' \
                -f a --csv=out.csv --ambiguous 2>stderr
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
@@ -164,7 +162,7 @@ test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
 test `grep '"exit code",1' out.csv | wc -l` -eq 2
 check_csv out.csv
 
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%N' \
                -f a --csv=out.csv --ambiguous --strength 2>stderr
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
@@ -219,7 +217,7 @@ test `wc -l < bogous` -eq 1
 check_csv out.csv
 
 # Check with --products=5 --automata
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%N' \
       -f a --csv=out.csv --products=5 --automata 2>stderr
 p=`sed 's/[^,]//g;q' out.csv | wc -c`
 grep '"exit_status"' out.csv
@@ -230,7 +228,7 @@ test `grep '"HOA:.*--BODY--.*--END--"' out.csv | wc -l` -eq 2
 check_csv out.csv
 
 # ... unless --omit-missing is supplied.
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%N' \
       -f a --csv=out.csv --omit-missing --products=5  2>stderr
 grep '"exit_status"' out.csv && exit 1
 grep '"exit_code"' out.csv && exit 1
@@ -240,7 +238,7 @@ check_csv out.csv
 
 
 # Check with --products=+5
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%N' \
       -f a --csv=out.csv --products=+5 --automata 2>stderr
 q=`sed 's/[^,]//g;q' out.csv | wc -c`
 grep '"exit_status"' out.csv
@@ -251,7 +249,7 @@ test `grep '"HOA:.*--BODY--.*--END--"' out.csv | wc -l` -eq 2
 check_csv out.csv
 
 # ... unless --omit-missing is supplied.
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%N' \
       -f a --csv=out.csv --omit-missing --products=+5  2>stderr
 grep '"exit_status"' out.csv && exit 1
 grep '"exit_code"' out.csv && exit 1
@@ -265,7 +263,7 @@ test $q -eq `expr $p + 12`
 # Check with Rabin/Streett output
 first="should not be erased"
 echo "$first" > bug.txt
-run 1 ltlcross "$ltl2tgba -s %f >%N" 'false %f >%D' \
+run 1 ltlcross "ltl2tgba -s %f >%N" 'false %f >%D' \
       -f 'X  a' --csv=out.csv --save-bogus='>>bug.txt' 2>stderr
 q=`sed 's/[^,]//g;q' out.csv | wc -c`
 test $q -eq `expr $p - 1`

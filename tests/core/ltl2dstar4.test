@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+# Copyright (C) 2013, 2014, 2015, 2017 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -28,42 +28,34 @@ set -e
 # Skip this test if ltl2dstar is not installed.
 (ltl2dstar --version) || exit 77
 
-ltlfilt=ltlfilt
-ltl2tgba=ltl2tgba
-ltlcross=ltlcross
-randltl=randltl
-autfilt=autfilt
-ltldo=ltldo
-
 STR='--automata=streett --output-format=hoa'
 
-$ltlfilt -f '(GFa -> GFb) & (GFc -> GFd)' -l |
-ltl2dstar --ltl2nba=spin:$ltl2tgba@-s $STR - - |
-$autfilt --tgba --stats '%S %E %A %s %e %t %a %d' |
+ltlfilt -f '(GFa -> GFb) & (GFc -> GFd)' -l |
+ltl2dstar --ltl2nba=spin:ltl2tgba@-s $STR - - |
+autfilt --tgba --stats '%S %E %A %s %e %t %a %d' |
 tee out
 test "`cat out`" = '9 144 4 25 149 416 2 0'
 
-$ltlfilt -f '(GFa -> GFb) & (GFc -> GFd)' -l |
-ltl2dstar --ltl2nba=spin:$ltl2tgba@-s $STR - - |
-SPOT_STREETT_CONV_MIN=1 $autfilt --tgba --stats '%S %E %A %s %e %t %a %d' |
+ltlfilt -f '(GFa -> GFb) & (GFc -> GFd)' -l |
+ltl2dstar --ltl2nba=spin:ltl2tgba@-s $STR - - |
+SPOT_STREETT_CONV_MIN=1 autfilt --tgba --stats '%S %E %A %s %e %t %a %d' |
 tee out
 test "`cat out`" = '9 144 4 25 218 482 2 0'
 
-
-LTL2DSTAR="ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L"
+LTL2DSTAR="ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L"
 
 # Generate 50 formulas for which the streett automaton has at least 3
 # acceptance sets.
-$randltl --ltl-priorities=W=0,M=0 -n 1000 3 |
-$ltldo "$LTL2DSTAR ->%O" -F- --name=%f -H | tee streett |
-$autfilt --acc-set=3.. --stats=%M | head -n 50 > formulas
+randltl --ltl-priorities=W=0,M=0 -n 1000 3 |
+ltldo "$LTL2DSTAR ->%O" -F- --name=%f -H | tee streett |
+autfilt --acc-set=3.. --stats=%M | head -n 50 > formulas
 
 # Add 50 formulas that use less acceptance sets
-$autfilt streett --acc-set=0..2 --stats=%M | head -n 50 >> formulas
+autfilt streett --acc-set=0..2 --stats=%M | head -n 50 >> formulas
 
-$ltlcross -F formulas --timeout=30 \
-"$ltl2tgba -H %f >%O" \
+ltlcross -F formulas --timeout=30 \
+"ltl2tgba -H %f >%O" \
 "$LTL2DSTAR %O" \
-"$LTL2DSTAR - | SPOT_STREETT_CONV_MIN=0 $autfilt --tgba -H >%O" \
-"$LTL2DSTAR - | SPOT_STREETT_CONV_MIN=1 $autfilt --tgba -H >%O" \
+"$LTL2DSTAR - | SPOT_STREETT_CONV_MIN=0 autfilt --tgba -H >%O" \
+"$LTL2DSTAR - | SPOT_STREETT_CONV_MIN=1 autfilt --tgba -H >%O" \
 --csv=out.csv

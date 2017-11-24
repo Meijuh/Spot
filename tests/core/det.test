@@ -21,8 +21,6 @@
 . ./defs
 set -e
 
-ltl2tgba=ltl2tgba
-
 cat >formulas <<'EOF'
 1,13,X((a M F((!b & !c) | (b & c))) W (G!c U b))
 1,5,X(((a & b) R (!a U !c)) R b)
@@ -56,7 +54,7 @@ cat >formulas <<'EOF'
 1,4,G(G!a | F!c | G!b)
 EOF
 
-$ltl2tgba -x tba-det --det --stats '%d,%s,%f' -F formulas/3 > out
+ltl2tgba -x tba-det --det --stats '%d,%s,%f' -F formulas/3 > out
 diff formulas out
 
 cat >in.hoa <<'EOF'

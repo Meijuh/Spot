@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2015, 2016 Laboratoire de Recherche et
+# Copyright (C) 2013, 2015-2017 Laboratoire de Recherche et
 # Developpement de l'Epita
 #
 # This file is part of Spot, a model checking library.
@@ -22,9 +22,6 @@
 
 set -e
 
-ltl2tgba=ltl2tgba
-autfilt=autfilt
-
 for f in 'Ga' \
          'Ga | Gb' \
          'Ga | GFb' \
@@ -34,18 +31,18 @@ for f in 'Ga' \
 	 'F(a & !b & (!c W b))' \
          'G({{1;1}*}<>->a)'
 do
-  $ltl2tgba -UH "$f" | $autfilt -q --is-unambiguous
-  $ltl2tgba -UH "!($f)" | $autfilt -q --is-unambiguous
-  $ltl2tgba -UH "$f" | $autfilt --check |
+  ltl2tgba -UH "$f" | autfilt -q --is-unambiguous
+  ltl2tgba -UH "!($f)" | autfilt -q --is-unambiguous
+  ltl2tgba -UH "$f" | autfilt --check |
       grep -E 'properties:.* (unambiguous|deterministic)'
-  $ltl2tgba -UH "!($f)" | $autfilt --check |
+  ltl2tgba -UH "!($f)" | autfilt --check |
       grep -E 'properties:.* (unambiguous|deterministic)'
 done
 
 for f in FGa '{[*1..4]}<>-> (p1 & (p1 U p0))'
 do
-  $ltl2tgba -H "$f" | $autfilt -qv --is-unambiguous
-  $ltl2tgba -UH "$f" | $autfilt -q --is-unambiguous
+  ltl2tgba -H "$f" | autfilt -qv --is-unambiguous
+  ltl2tgba -UH "$f" | autfilt -q --is-unambiguous
 done
 
 # All these should be detected as ambiguous automata
@@ -147,13 +144,13 @@ State: 2
 --END--
 EOF
 
-run 1 $autfilt -q --is-unambiguous input
-run 0 $autfilt --check input > output
+run 1 autfilt -q --is-unambiguous input
+run 0 autfilt --check input > output
 test `grep -c unambiguous output` = 0
 
 # Check 1000 random PSL formulas
-randltl --psl -n 1000 3 | $ltl2tgba -U -H |
-  $autfilt -v --is-unamb --stats=%M && exit 1
+randltl --psl -n 1000 3 | ltl2tgba -U -H |
+  autfilt -v --is-unamb --stats=%M && exit 1
 
 cat >input <<EOF
 HOA: v1
@@ -194,7 +191,7 @@ ltl2tgba --lbt-input -B -U -x wdba-minimize=0 "U p0 & p1 X ! p0" |
 
 
 # Make sure we preserve the "unambiguous" property if it is given.
-run 0 $autfilt -H --is-unambiguous input >output
+run 0 autfilt -H --is-unambiguous input >output
 
 cat >expected <<EOF
 HOA: v1

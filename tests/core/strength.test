@@ -22,8 +22,6 @@
 
 set -e
 
-autfilt=autfilt
-
 cat >in <<EOF
 HOA: v1
 name: "a U b"
@@ -113,7 +111,7 @@ State: 4
 --END--
 EOF
 
-run 0 $autfilt -H --check=strength in | tee out
+run 0 autfilt -H --check=strength in | tee out
 
 cat >expected <<EOF
 HOA: v1
@@ -221,12 +219,12 @@ EOF
 diff out expected
 
 
-run 0 $autfilt -H --decompose-strength=t in | tee out.t
-run 0 $autfilt -H --decompose-strength=w in | tee out.w
-run 0 $autfilt -H --decompose-strength=s in | tee out.s
-run 0 $autfilt -H --decompose-strength=tw in | tee out.tw
-run 0 $autfilt -H --decompose-strength=ws in | tee out.ws
-run 0 $autfilt -H --decompose-strength=tws in | tee out.tws
+run 0 autfilt -H --decompose-strength=t in | tee out.t
+run 0 autfilt -H --decompose-strength=w in | tee out.w
+run 0 autfilt -H --decompose-strength=s in | tee out.s
+run 0 autfilt -H --decompose-strength=tw in | tee out.tw
+run 0 autfilt -H --decompose-strength=ws in | tee out.ws
+run 0 autfilt -H --decompose-strength=tws in | tee out.tws
 echo '/******************************/' > sep
 cat out.t sep out.w sep out.s sep out.tw sep out.ws sep out.tws > out
 

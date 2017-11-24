@@ -23,17 +23,15 @@ set -e
 
 test -z "$PYTHON" && exit 77
 
-ltl2tgba=ltl2tgba
-
 cat >formulas.txt <<EOF
 GFa & GFb
 GFa -> GFb
 EOF
 
 ltlcross -F formulas.txt \
-  "{ltl2tgba any} $ltl2tgba --lbtt --any %f > %T" \
-  "{ltl2tgba det} $ltl2tgba --lbtt --deterministic %f > %T" \
-  "{ltl2tgba sma} $ltl2tgba --lbtt --small %f > %T" \
+  "{ltl2tgba any} ltl2tgba --lbtt --any %f > %T" \
+  "{ltl2tgba det} ltl2tgba --lbtt --deterministic %f > %T" \
+  "{ltl2tgba sma} ltl2tgba --lbtt --small %f > %T" \
   --csv=output.csv
 
 cat >test.py <<EOF

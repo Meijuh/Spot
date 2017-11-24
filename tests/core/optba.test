@@ -24,8 +24,6 @@ set -x
 # This is a case where autfilt is used to optimize BA, but used to
 # produce a larger one.   See issue #79.
 
-autfilt=autfilt
-
 # ltldo -s -f '!(((p1 W c1) U Gp2) || (GXc2 <-> F!F!c1))' 'ltl3ba -M0'
 cat >input <<EOF
 never {
@@ -158,7 +156,7 @@ T0_S18:
 EOF
 
 # 18 states is fine for transition-based acceptance
-test `$autfilt --exclusive-ap=c1,c2 --high --small --stats=%s input` = 18
+test `autfilt --exclusive-ap=c1,c2 --high --small --stats=%s input` = 18
 
 # But we should have 19 with Büchi acceptance, not 20.
-test `$autfilt --exclusive-ap=c1,c2 --high --small -B --stats=%s input` = 19
+test `autfilt --exclusive-ap=c1,c2 --high --small -B --stats=%s input` = 19

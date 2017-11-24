@@ -1,7 +1,7 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014, 2015, 2016 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2013-2017 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -25,12 +25,10 @@
 
 set -e
 
-ltlfilt=ltlfilt
-
 checkopt()
 {
   cat >exp
-  run 0 $ltlfilt "$@" formulas > out
+  run 0 ltlfilt "$@" formulas > out
   diff exp out
 }
 
@@ -226,7 +224,7 @@ p0 | Gp1 | FG(p2 | Xp3)
 p0 | Gp1
 EOF
 
-run 0 $ltlfilt -u --nnf --relabel-bool=pnn in >out
+run 0 ltlfilt -u --nnf --relabel-bool=pnn in >out
 diff exp out
 
 cat >exp <<EOF
@@ -250,7 +248,7 @@ p0 || []p1 || <>[](p2 || Xp3)
 p0 || []p1
 EOF
 
-run 0 $ltlfilt -s -u --nnf --relabel-bool=pnn --define in >out
+run 0 ltlfilt -s -u --nnf --relabel-bool=pnn --define in >out
 diff exp out
 
 cat >exp <<EOF
@@ -290,7 +288,7 @@ p0 && []<>(p1 || p2) && ![]<>!(p1 || p2)
 <>(p0 <-> p1) -> !(p2 <-> p3)
 EOF
 
-run 0 $ltlfilt -s -u --relabel=pnn --define in >out
+run 0 ltlfilt -s -u --relabel=pnn --define in >out
 diff exp out
 
 toolong='((p2=0) * (p3=1))' # work around the 80-col check
@@ -326,10 +324,10 @@ cat >exp <<EOF
 #define p3 (b=1)
 ((p0=1) * (p1=0)) + ((p0=0) * (p1=1)) + (G(((p2=1) * (p3=0)) + $toolong))
 EOF
-run 0 $ltlfilt -p --wring -u --nnf --relabel=pnn --define in >out
+run 0 ltlfilt -p --wring -u --nnf --relabel=pnn --define in >out
 diff exp out
 
-run 0 $ltlfilt -0 in > out
+run 0 ltlfilt -0 in > out
 perl -i -pe 's/\0/@\n/g' out
 cat >exp <<EOF
 a & c & Xb@
@@ -343,38 +341,38 @@ EOF
 diff exp out
 
 SPOT_STUTTER_CHECK=0 \
-$ltlfilt --stutter-invariant -f '!{a:b*:c}' 2> stderr && exit 1
+ltlfilt --stutter-invariant -f '!{a:b*:c}' 2> stderr && exit 1
 test $? = 2
 grep 'non-LTL' stderr
 
 SPOT_STUTTER_CHECK=555 \
-$ltlfilt --stutter-invariant -f '!{a:b*:c}' 2> stderr && exit 1
+ltlfilt --stutter-invariant -f '!{a:b*:c}' 2> stderr && exit 1
 test $? = 2
 grep 'invalid' stderr
 
 SPOT_STUTTER_CHECK=5 \
-$ltlfilt --stutter-invariant -f '!{a:b*:c}'
+ltlfilt --stutter-invariant -f '!{a:b*:c}'
 
 # This one was incorrectly diagnosed as stutter invariant because of a
 # bug in the bitvectors.
-$ltlfilt --stutter-invariant -f 'F(a & XXXXXX!a)' && exit 1
+ltlfilt --stutter-invariant -f 'F(a & XXXXXX!a)' && exit 1
 
 
-$ltlfilt -c -o 'foo' -f a 2>stderr && exit 1
+ltlfilt -c -o 'foo' -f a 2>stderr && exit 1
 grep 'ltlfilt: options --output and --count are incompatible' stderr
 
-out=`$ltlfilt -f 'G(a xor b) -> F(c <-> Xd)' --unabbreviate='^iF'`
+out=`ltlfilt -f 'G(a xor b) -> F(c <-> Xd)' --unabbreviate='^iF'`
 exp='(1 U (c <-> Xd)) | !G!(a <-> b)'
 test "$out" = "$exp"
 
-$ltlfilt -f 'GF"a\"\\b"' > out
+ltlfilt -f 'GF"a\"\\b"' > out
 test "`cat out`" = 'GF"a\"\\b"'
 
-$ltlfilt --lbt-input -f 'G F "a\"\\b"' -l > out
+ltlfilt --lbt-input -f 'G F "a\"\\b"' -l > out
 test "`cat out`" = 'G F "a\"\\b"'
 
 
-$ltlfilt --size=foo=2..3  2>stderr && exit 1
+ltlfilt --size=foo=2..3  2>stderr && exit 1
 grep 'invalid range.*should start with' stderr
 
 

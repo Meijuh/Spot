@@ -1,7 +1,7 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -22,10 +22,7 @@
 
 set -e
 
-ltl2tgba=ltl2tgba
-autfilt=autfilt
-
-$ltl2tgba 'GFa & GFb' -H | run 0 $autfilt --sbacc -H > out.hoa
+ltl2tgba 'GFa & GFb' -H | run 0 autfilt --sbacc -H > out.hoa
 
 cat >expected<<EOF
 HOA: v1
@@ -94,7 +91,7 @@ State: 1
 
 EOF
 
-run 0 $autfilt --state-based-acceptance in.hoa -H > out.hoa
+run 0 autfilt --state-based-acceptance in.hoa -H > out.hoa
 
 cat >expected <<EOF
 HOA: v1
@@ -130,10 +127,10 @@ EOF
 
 diff out.hoa expected
 
-$autfilt --sba -H expected > out.hoa
+autfilt --sba -H expected > out.hoa
 diff out.hoa expected
 
-$autfilt --strip-acc -H expected -n1 > out.hoa
+autfilt --strip-acc -H expected -n1 > out.hoa
 cat >expected <<EOF
 HOA: v1
 States: 3
@@ -154,9 +151,9 @@ EOF
 diff out.hoa expected
 
 randltl --weak-fairness -n 20 2 |
-    ltlcross "$ltl2tgba -DH %f >%O" \
-             "$ltl2tgba -S %f >%O" \
-             "$ltl2tgba -H %f | $autfilt -H >%O"
+    ltlcross "ltl2tgba -DH %f >%O" \
+             "ltl2tgba -S %f >%O" \
+             "ltl2tgba -H %f | autfilt -H >%O"
 
 test 4 = `ltl2tgba -S 'F(a & X(!a &Xb))' --any --stats=%s`
 

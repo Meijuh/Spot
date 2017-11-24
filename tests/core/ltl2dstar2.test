@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2015, 2016 Laboratoire de Recherche et
+# Copyright (C) 2013, 2015-2017 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -28,33 +28,27 @@ set -e
 # Skip this test if ltl2dstar is not installed.
 (ltl2dstar --version) || exit 77
 
-ltlfilt=ltlfilt
-ltl2tgba=ltl2tgba
-dstar2tgba=dstar2tgba
-randltl=randltl
-
-
 # Make sure all recurrence formulas are translated into deterministic
 # Büchi automata by the DRA->TGBA converter.
 # (Note that ltl2tgba is not called with -D when want to make
 # sure we get a deterministic output even if the automaton generated
 # by Spot initially was non-deterministic)
 
-$randltl -n -1 a b --tree-size=5..15 |
-$ltlfilt --syntactic-recurrence --remove-wm -r -u \
+randltl -n -1 a b --tree-size=5..15 |
+ltlfilt --syntactic-recurrence --remove-wm -r -u \
          --size-min=4 --size-max=15 --relabel=abc |
 head -n 20 > formulas
 
-$randltl -n -1 a b --tree-size=5..15 |
-$ltlfilt -v --obligation |
-$ltlfilt --syntactic-recurrence --remove-wm -r -u --size=4..15 --relabel=abc |
+randltl -n -1 a b --tree-size=5..15 |
+ltlfilt -v --obligation |
+ltlfilt --syntactic-recurrence --remove-wm -r -u --size=4..15 --relabel=abc |
 head -n 20 >> formulas
 
 while read f; do
-  $ltlfilt -f "$f" -l |
-  ltl2dstar --ltl2nba=spin:$ltl2tgba@-s - foo
+  ltlfilt -f "$f" -l |
+  ltl2dstar --ltl2nba=spin:ltl2tgba@-s - foo
   echo "$f"
-  det=`$dstar2tgba foo --stats '%d'`
+  det=`dstar2tgba foo --stats '%d'`
   test $det -eq 1;
 done < formulas
 
@@ -62,16 +56,16 @@ echo ==========================
 
 # For obligation formulas, the output of dstar2tgba should
 # have the same size as the input when option -D is used.
-$randltl -n -1 a b --tree-size=5..15 |
-$ltlfilt --obligation --size=4..15 --relabel=abc --remove-wm -r -u |
+randltl -n -1 a b --tree-size=5..15 |
+ltlfilt --obligation --size=4..15 --relabel=abc --remove-wm -r -u |
 head -n 20 > formulas
 
 while read f; do
-  expected=`$ltl2tgba "$f" -BD --stats '%s %e 1 %d'`
-  $ltlfilt -f "$f" -l |
-  ltl2dstar --ltl2nba=spin:$ltl2tgba@-Ds - foo
+  expected=`ltl2tgba "$f" -BD --stats '%s %e 1 %d'`
+  ltlfilt -f "$f" -l |
+  ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - foo
   echo "$f"
-  output=`$dstar2tgba foo -BD --stats '%s %e %d 1'`
+  output=`dstar2tgba foo -BD --stats '%s %e %d 1'`
   # the '1 %d' matching '%d 1' makes sure input and output are deterministic.
   test "$output" = "$expected";
 done < formulas
@@ -90,9 +84,9 @@ FGa & FGb
 EOF
 
 while read f; do
-  $ltlfilt -f "$f" -l |
-  ltl2dstar --ltl2nba=spin:$ltl2tgba@-s - foo
+  ltlfilt -f "$f" -l |
+  ltl2dstar --ltl2nba=spin:ltl2tgba@-s - foo
   echo "$f"
-  det=`$dstar2tgba foo --stats '%d'`
+  det=`dstar2tgba foo --stats '%d'`
   test $det -eq 0;
 done < formulas
