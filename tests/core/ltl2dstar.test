@@ -39,8 +39,7 @@ RAB=--automata=rabin
 STR=--automata=streett
 
 randltl -n 15 a b | ltlfilt --nnf --remove-wm |
-ltlcross -F - -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
---timeout=30 \
+ltlcross -F - -f 'GFa & GFb & GFc' --timeout=30 \
 "ltl2tgba -s %f >%N" \
 "ltl2dstar $RAB --output=nba --ltl2nba=spin:ltl2tgba@-s %L %T" \
 "ltl2dstar $RAB --ltl2nba=spin:ltl2tgba@-s %L %D" \
@@ -49,6 +48,19 @@ ltlcross -F - -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
 "ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L %D" \
 "ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L - | dstar2tgba --low -s >%N" \
 --csv=out.csv
+
+# We used to include the following formula in the above test, but the
+# --output=nba option of ltl2dstar is too memory-hungry on this
+# formula, and this is causing issues in our builds.  We also reduce
+# the size of the products, as they would be too huge.
+ltlcross -f '(GFa -> GFb) & (GFc -> GFd)' --verbose --states=100 --timeout=30 \
+"ltl2tgba -s %f >%N" \
+"ltl2dstar $RAB --output=nba --ltl2nba=spin:ltl2tgba@-s %L %T" \
+"ltl2dstar $RAB --ltl2nba=spin:ltl2tgba@-s %L %D" \
+"ltl2dstar $RAB --ltl2nba=spin:ltl2tgba@-s %L - | dstar2tgba --low -s >%N" \
+"ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L %D" \
+"ltl2dstar $STR --ltl2nba=spin:ltl2tgba@-s %L - | dstar2tgba --low -s >%N" \
+--csv='>>out.csv'
 
 # A bug in ltlcross <=1.2.5 caused it to not use the complement of the
 # negative automaton.
