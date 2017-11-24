@@ -181,11 +181,11 @@ namespace
     }
   };
 
-  class printable_formula final:
+  class printable_formula_with_location final:
     public spot::printable_value<const formula_with_location*>
   {
   public:
-    printable_formula&
+    printable_formula_with_location&
     operator=(const formula_with_location* new_val)
     {
       val_ = new_val;
@@ -256,7 +256,7 @@ namespace
 
   private:
     const char* format_;
-    printable_formula fl_;
+    printable_formula_with_location fl_;
     printable_timer timer_;
     spot::printable_value<const char*> filename_;
     spot::printable_value<int> line_;
