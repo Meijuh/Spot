@@ -32,7 +32,8 @@ if USE_PYTHON
   PYTHON_SUBDIR = python
 endif
 
-SUBDIRS = picosat buddy lib ltdl spot bin tests $(PYTHON_SUBDIR) doc \
+DOC_SUBDIR = doc
+SUBDIRS = picosat buddy lib ltdl spot bin tests $(PYTHON_SUBDIR) $(DOC_SUBDIR) \
 					$(NEVER_SUBDIRS)
 
 UTF8 = utf8/README.md utf8/utf8.h	\
@@ -49,7 +50,7 @@ DEBIAN =					\
   debian/libbddx-dev.install			\
   debian/libspot0.install			\
   debian/libspotltsmin0.install			\
-	debian/libspotgen0.install \
+  debian/libspotgen0.install \
   debian/libspot-dev.install			\
   debian/python3-spot.examples			\
   debian/python3-spot.install			\
