@@ -28,8 +28,6 @@
 #include <sys/wait.h>
 #include <spot/misc/tmpfile.hh>
 
-const char* argp_program_bug_address = "<" PACKAGE_BUGREPORT ">";
-
 static void
 display_version(FILE *stream, struct argp_state*)
 {
@@ -90,9 +88,12 @@ static void bad_alloc_handler()
 void
 setup(char** argv)
 {
+  argp_program_bug_address = "<" PACKAGE_BUGREPORT ">";
+
   // Simplify the program name, because argp() uses it to report
   // errors and display help text.
   set_program_name(argv[0]);
+
   argv[0] = const_cast<char*>(program_name);
 
   argp_program_version_hook = display_version;
