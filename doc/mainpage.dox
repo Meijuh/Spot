@@ -22,11 +22,12 @@
 /// \li spot::formula         Base class for an LTL or PSL formula.
 /// \li spot::parse_infix_psl() Parsing a text string into a
 ///                           spot::formula.
+/// \li \ref tl
 /// \li spot::twa             Base class for Transition-based
 ///                           ω-Automata.
-/// \li spot::twa_algorithms  Algorithms on ω-Automata.
 /// \li spot::translator      Convert a spot::formula into a
 ///                           spot::twa.
+/// \li \ref twa_algorithms
 /// \li spot::kripke          Base class for Kripke structures.
 /// \li spot::twa_product     On-the-fly product of two spot::twa.
 /// \li spot::emptiness_check Base class for all emptiness-check algorithms

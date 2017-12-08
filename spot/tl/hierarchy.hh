@@ -24,7 +24,9 @@
 
 namespace spot
 {
-  /// Enum used to change the behavior of is_persistence() or is_recurrence().
+  /// \ingroup tl_hier
+  /// \brief Enum used to change the behavior of is_persistence() or
+  /// is_recurrence().
   ///
   /// If PR_Auto, both methods will first check the environment variable
   /// <code>SPOT_PR_CHECK</code> to see if one algorithm or the other is wanted
@@ -47,6 +49,7 @@ namespace spot
     via_Rabin,
   };
 
+  /// \ingroup tl_hier
   /// \brief Return true if \a f represents a persistence property.
   ///
   /// \param f the formula to check.
@@ -57,6 +60,7 @@ namespace spot
                  twa_graph_ptr aut = nullptr,
                  prcheck algo = prcheck::Auto);
 
+  /// \ingroup tl_hier
   /// \brief Return true if \a f represents a recurrence property.
   ///
   /// Actually, it calls is_persistence() with the negation of \a f.
@@ -78,6 +82,7 @@ namespace spot
     via_WDBA,
   };
 
+  /// \ingroup tl_hier
   /// \brief Return true if \a f has the recurrence property.
   ///
   /// Actually, it calls is_persistence() with the negation of \a f.
@@ -102,6 +107,7 @@ namespace spot
                 twa_graph_ptr aut = nullptr,
                 ocheck algo = ocheck::Auto);
 
+  /// \ingroup tl_hier
   /// \brief Return the class of \a f in the temporal hierarchy of Manna
   /// and Pnueli (PODC'90).
   ///
@@ -118,6 +124,7 @@ namespace spot
   SPOT_API char mp_class(formula f);
 
 
+  /// \ingroup tl_hier
   /// \brief Return the class of \a f in the temporal hierarchy of Manna
   /// and Pnueli (PODC'90).
   ///
@@ -132,6 +139,7 @@ namespace spot
   /// Any ']' ends the processing of the options.
   SPOT_API std::string mp_class(formula f, const char* opt);
 
+  /// \ingroup tl_hier
   /// \brief Expand a class in the temporal hierarchy of Manna
   /// and Pnueli (PODC'90).
   ///

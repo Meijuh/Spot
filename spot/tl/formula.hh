@@ -37,6 +37,9 @@
 /// \addtogroup tl_rewriting Rewriting Algorithms for Formulas
 /// \ingroup tl
 
+/// \addtogroup tl_hier Algorithms related to the temporal hierarchy
+/// \ingroup tl
+
 /// \addtogroup tl_misc Miscellaneous Algorithms for Formulas
 /// \ingroup tl
 
