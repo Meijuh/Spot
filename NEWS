@@ -73,6 +73,9 @@ New in spot 2.4.2.dev (not yet released)
     by their acceptance name (Buchi, co-Buchi, Streett, etc.) or
     "other" if no name is known for the acceptance condition.
 
+  - Tools that produce formulas now support --format=%[OP]n to
+    display the nesting depth of operator OP.
+
   - All tools learned to check the SPOT_OOM_ABORT environment
     variable.  This is only useful for debuging out-of-memory
     conditions; see the spot-x(7) man page for detail.
@@ -193,6 +196,9 @@ New in spot 2.4.2.dev (not yet released)
   - spot::formula::map(fun) and spot::formula::traverse(fun) will
     accept additionnal arguments and pass them to fun().  See
     https://spot.lrde.epita.fr/tut03.html for some examples.
+
+  - A the new function spot::nesting_depth() computes the nesting
+    depth of any LTL operator.
 
   - The new function spot::print_aiger() encodes an automaton as an
     AIGER circuit and prints it. This is only possible for automata

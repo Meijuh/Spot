@@ -58,6 +58,12 @@ extern bool escape_csv;
         "the class of the formula is the Manna-Pnueli hierarchy "       \
         "([v] replaces abbreviations by class names, [w] for all "      \
         "compatible classes)", 0 },                                     \
+    { "%[OP]n", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,               \
+        "the nesting depth of operator OP.  OP should be a single "     \
+        "letter denoting the operator to count, or multiple letters "   \
+        "to fuse several operators during depth evaluation.  Add '~' "  \
+        "to rewrite the formula in negative normal form before "        \
+        "counting.", 0 },                                               \
     { "%x, %[LETTERS]X, %[LETTERS]x", 0, nullptr,                       \
         OPTION_DOC | OPTION_NO_USAGE,                                   \
         COMMON_X_OUTPUT_SPECS(used in the formula), 0 }

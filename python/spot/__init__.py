@@ -851,7 +851,8 @@ for fun in dir(formula):
         _addfilter(fun)
 
 for fun in ['remove_x', 'relabel', 'relabel_bse',
-            'simplify', 'unabbreviate']:
+            'simplify', 'unabbreviate', 'negative_normal_form',
+            'mp_class', 'nesting_depth']:
     _addmap(fun)
 
 

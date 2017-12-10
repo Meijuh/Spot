@@ -154,4 +154,34 @@ namespace spot
   /// of each class.  Space and commas are ignored.  Any ']' ends the
   /// processing of the options.
   SPOT_API std::string mp_class(char mpc, const char* opt);
+
+
+  /// \brief Compute the nesting depth of an operator.
+  ///
+  /// Return the maximum number of occurrence of \a oper among all
+  /// branches of the AST of \a f.
+  SPOT_API unsigned nesting_depth(formula f, op oper);
+
+#ifndef SWIG
+  /// \brief Compute the nesting depth of a set of operators.
+  ///
+  /// Return the maximum number of occurrence of any operator between
+  /// \a begin and \a end among all branches of the AST of \a f.
+  SPOT_API unsigned nesting_depth(formula f, const op* begin, const op* end);
+#endif
+
+  /// \brief Compute the nesting depth of a set of operators.
+  ///
+  /// Return the maximum number of occurrence of any operator listed
+  /// \a opers, among all branches of the AST of \a f.
+  ///
+  /// Operators to count should be supplied in \a opers as a string of
+  /// letters among 'X', 'F', 'G', 'U', 'R', 'M', 'W', '&', '|', '!',
+  /// 'i' (implication), 'e' (equivalence).
+  ///
+  /// Add letter '~' to force \a into negative normal form before
+  /// processing it.
+  ///
+  /// The string should be terminated by '\0' or ']'.
+  SPOT_API unsigned nesting_depth(formula f, const char* opers);
 }

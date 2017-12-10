@@ -19,6 +19,7 @@
 
 #include <sstream>
 #include <spot/tl/hierarchy.hh>
+#include <spot/tl/nenoform.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/ltl2tgba_fm.hh>
 #include <spot/twaalgos/minimize.hh>
@@ -368,4 +369,80 @@ namespace spot
     return os.str();
   }
 
+  unsigned nesting_depth(formula f, op oper)
+  {
+    unsigned max_depth = 0;
+    for (formula child: f)
+      max_depth = std::max(max_depth, nesting_depth(child, oper));
+    return max_depth + f.is(oper);
+  }
+
+  unsigned nesting_depth(formula f, const op* begin, const op* end)
+  {
+    unsigned max_depth = 0;
+    for (formula child: f)
+      max_depth = std::max(max_depth, nesting_depth(child, begin, end));
+    bool matched = std::find(begin, end, f.kind()) != end;
+    return max_depth + matched;
+  }
+
+  unsigned nesting_depth(formula f, const char* opers)
+  {
+    bool want_nnf = false;
+    std::vector<op> v;
+    for (;;)
+      switch (char c = *opers++)
+        {
+        case '~':
+          want_nnf = true;
+          break;
+        case '!':
+          v.push_back(op::Not);
+          break;
+        case '&':
+          v.push_back(op::And);
+          break;
+        case '|':
+          v.push_back(op::Or);
+          break;
+        case 'e':
+          v.push_back(op::Equiv);
+          break;
+        case 'F':
+          v.push_back(op::F);
+          break;
+        case 'G':
+          v.push_back(op::G);
+          break;
+        case 'i':
+          v.push_back(op::Implies);
+          break;
+        case 'M':
+          v.push_back(op::M);
+          break;
+        case 'R':
+          v.push_back(op::R);
+          break;
+        case 'U':
+          v.push_back(op::U);
+          break;
+        case 'W':
+          v.push_back(op::W);
+          break;
+        case 'X':
+          v.push_back(op::X);
+          break;
+        case '\0':
+        case ']':
+          goto break2;
+        default:
+          throw std::runtime_error
+            (std::string("nesting_depth(): unknown operator '") + c + '\'');
+        }
+  break2:
+    if (want_nnf)
+      f = negative_normal_form(f);
+    const op* vd = v.data();
+    return nesting_depth(f, vd, vd + v.size());
+  }
 }

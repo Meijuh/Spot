@@ -23,20 +23,30 @@
 
 set -e
 
-genltl --dac=1..10 --stats='%s,%b,%x,%f' > output
+genltl --dac=1..10 --stats='%s,%b,%x,%f,%[G]n,%[FUM]n,%[~GUM]n' > output
 cat >expected <<EOF
-3,2,1,G!p0
-7,6,2,Fp0 -> (!p1 U p0)
-6,5,2,G(p0 -> G!p1)
-13,9,3,G((p0 & !p1 & Fp1) -> (!p2 U p1))
-10,6,3,G((p0 & !p1) -> (!p2 W p1))
-2,2,1,Fp0
-7,3,2,!p0 W (!p0 & p1)
-9,8,2,G!p0 | F(p0 & Fp1)
-13,6,3,G((p0 & !p1) -> (!p1 W (!p1 & p2)))
-13,6,3,G((p0 & !p1) -> (!p1 U (!p1 & p2)))
+3,2,1,G!p0,1,0,1
+7,6,2,Fp0 -> (!p1 U p0),0,1,1
+6,5,2,G(p0 -> G!p1),2,0,2
+13,9,3,G((p0 & !p1 & Fp1) -> (!p2 U p1)),1,1,2
+10,6,3,G((p0 & !p1) -> (!p2 W p1)),1,0,1
+2,2,1,Fp0,0,1,0
+7,3,2,!p0 W (!p0 & p1),0,0,0
+9,8,2,G!p0 | F(p0 & Fp1),1,2,1
+13,6,3,G((p0 & !p1) -> (!p1 W (!p1 & p2))),1,0,1
+13,6,3,G((p0 & !p1) -> (!p1 U (!p1 & p2))),1,1,2
 EOF
 diff output expected
+
+genltl --dac --stats='%n' 2> stderr && exit 1
+cat stderr
+grep -F "genltl: %n expects arguments" stderr
+ltlfilt -f a --stats='%[]n' 2> stderr && exit 1
+cat stderr
+grep -F "ltlfilt: %n expects arguments" stderr
+randltl 2 --stats='%[;]n' 2> stderr && exit 1
+cat stderr
+grep "randltl: .*unknown.*;" stderr
 
 genltl --dac | ltlfilt --output='ap-%x.ltl'
 test 4 = `wc -l<ap-1.ltl`

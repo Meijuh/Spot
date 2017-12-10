@@ -181,6 +181,27 @@ namespace
     }
   };
 
+  class printable_formula_nesting final:
+    public spot::printable_value<spot::formula>
+  {
+  public:
+    printable_formula_nesting&
+    operator=(spot::formula new_val)
+    {
+      val_ = new_val;
+      return *this;
+    }
+
+    virtual void
+    print(std::ostream& os, const char* opt) const override
+    {
+      if (*opt == '[' && opt[1] != ']')
+        os << spot::nesting_depth(val_, opt + 1);
+      else
+        throw std::runtime_error("%n expects arguments, e.g. %[X]n");
+    }
+  };
+
   class printable_formula_with_location final:
     public spot::printable_value<const formula_with_location*>
   {
@@ -214,6 +235,7 @@ namespace
       declare('L', &line_);
       declare('s', &size_);
       declare('h', &class_);
+      declare('n', &nesting_);
       declare('x', &ap_);
       declare('<', &prefix_);
       declare('>', &suffix_);
@@ -245,11 +267,13 @@ namespace
         size_ = spot::length(f);
       if (has('h'))
         class_ = spot::mp_class(f);
+      nesting_ = f;
       auto& res = format(format_);
       // Make sure we do not store the formula until the next one is
       // printed, as the order in which APs are registered may
       // influence the automata output.
       fl_ = nullptr;
+      nesting_ = nullptr;
       ap_.clear();
       return res;
     }
@@ -264,6 +288,7 @@ namespace
     spot::printable_value<const char*> suffix_;
     spot::printable_value<int> size_;
     printable_formula_class class_;
+    printable_formula_nesting nesting_;
     spot::printable_value<int> bool_size_;
     printable_varset ap_;
   };
