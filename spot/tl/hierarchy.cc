@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <sstream>
+#include <spot/tl/formula.hh>
 #include <spot/tl/hierarchy.hh>
 #include <spot/tl/nenoform.hh>
 #include <spot/twaalgos/isdet.hh>
@@ -25,6 +26,7 @@
 #include <spot/twaalgos/minimize.hh>
 #include <spot/twaalgos/postproc.hh>
 #include <spot/twaalgos/remfin.hh>
+#include <spot/twaalgos/sccfilter.hh>
 #include <spot/twaalgos/strength.hh>
 #include <spot/twaalgos/totgba.hh>
 #include <spot/twaalgos/cobuchi.hh>
@@ -38,20 +40,27 @@ namespace spot
     cobuchi_realizable(spot::formula f,
                        const const_twa_graph_ptr& aut)
     {
-      twa_graph_ptr cobuchi = nullptr;
+      // Find which algorithm must be performed between nsa_to_nca() and
+      // dnf_to_nca(). Throw an exception if none of them can be performed.
       std::vector<acc_cond::rs_pair> pairs;
-      if (aut->acc().is_streett_like(pairs) || aut->acc().is_parity())
-        cobuchi = nsa_to_nca(aut, false);
-      else if (aut->get_acceptance().is_dnf())
-        cobuchi = dnf_to_nca(aut, false);
-      else
+      bool street_or_parity = aut->acc().is_streett_like(pairs)
+                              || aut->acc().is_parity();
+      if (!street_or_parity && !aut->get_acceptance().is_dnf())
         throw std::runtime_error("cobuchi_realizable() only works with "
                                  "Streett-like, Parity or any "
                                  "acceptance condition in DNF");
 
-      return !cobuchi->intersects(ltl_to_tgba_fm(formula::Not(f),
-                                                 cobuchi->get_dict(),
-                                                 true));
+      // If !f is a DBA, it belongs to the recurrence class, which means
+      // f belongs to the persistence class (is cobuchi_realizable).
+      twa_graph_ptr not_aut = ltl_to_tgba_fm(formula::Not(f), aut->get_dict());
+      not_aut = scc_filter(not_aut);
+      if (is_universal(not_aut))
+        return true;
+
+      // Checks if f is cobuchi_realizable.
+      twa_graph_ptr cobuchi = street_or_parity ? nsa_to_nca(aut)
+                                               : dnf_to_nca(aut);
+      return !cobuchi->intersects(not_aut);
     }
 
     static bool
@@ -133,6 +142,13 @@ namespace spot
     if (f.is_syntactic_persistence())
       return true;
 
+    // Perform a quick simplification of the formula taking into account the
+    // following simplification's parameters: basics, synt_impl, event_univ.
+    spot::tl_simplifier simpl(spot::tl_simplifier_options(true, true, true));
+    f = simpl.simplify(f);
+    if (f.is_syntactic_persistence())
+      return true;
+
     if (algo == prcheck::Auto)
       algo = algo_to_perform(true, aut != nullptr);
 
@@ -156,6 +172,13 @@ namespace spot
   bool
   is_recurrence(formula f, twa_graph_ptr aut, prcheck algo)
   {
+    if (f.is_syntactic_recurrence())
+      return true;
+
+    // Perform a quick simplification of the formula taking into account the
+    // following simplification's parameters: basics, synt_impl, event_univ.
+    spot::tl_simplifier simpl(spot::tl_simplifier_options(true, true, true));
+    f = simpl.simplify(f);
     if (f.is_syntactic_recurrence())
       return true;
 
