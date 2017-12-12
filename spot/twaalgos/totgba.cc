@@ -309,7 +309,8 @@ namespace spot
       dnf_to_streett_converter(const const_twa_graph_ptr& in,
                                const acc_cond::acc_code& code)
         : in_(in),
-          si_(scc_info(in, scc_info_options::TRACK_STATES)),
+          si_(scc_info(in, scc_info_options::TRACK_STATES
+                           | scc_info_options::TRACK_SUCCS)),
           nb_scc_(si_.scc_count()),
           max_set_in_(code.used_sets().max_set()),
           state_based_(in->prop_state_acc() == true),
@@ -336,6 +337,9 @@ namespace spot
 
         for (unsigned scc = 0; scc < nb_scc_; ++scc)
           {
+            if (!si_.is_useful_scc(scc))
+              continue;
+
             bool rej_scc = acc_clauses_[scc].empty();
             for (auto st : si_.states_of(scc))
               {
@@ -345,8 +349,11 @@ namespace spot
                     debug << "working_on_edge(" << st << ',' << e.dst << ')'
                       << std::endl;
 
+                    unsigned dst_scc = si_.scc_of(e.dst);
+                    if (!si_.is_useful_scc(dst_scc))
+                        continue;
                     add_state(e.dst);
-                    bool same_scc = scc == si_.scc_of(e.dst);
+                    bool same_scc = scc == dst_scc;
 
                     if (st == init_st_in_)
                       {
@@ -398,8 +405,12 @@ namespace spot
             res_->set_named_prop("original-states", orig_states);
             unsigned orig_num_states = in_->num_states();
             for (unsigned orig = 0; orig < orig_num_states; ++orig)
-              for (const auto& p : st_repr_[orig])
-                (*orig_states)[p.second] = orig;
+              {
+                if (!si_.is_useful_scc(si_.scc_of(orig)))
+                    continue;
+                for (const auto& p : st_repr_[orig])
+                  (*orig_states)[p.second] = orig;
+              }
 #if DEBUG
             for (unsigned i = 1; i < orig_states->size(); ++i)
               assert((int)(*orig_states)[i] >= 0);
