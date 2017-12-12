@@ -584,7 +584,7 @@ namespace spot
               for (unsigned i = 0; i < orig_sts->size(); ++i)
                 (*orig_sts)[i] = old[(*orig_sts)[i]];
 
-              scc_info si_tmp(aut);
+              scc_info si_tmp(aut, scc_info_options::TRACK_STATES);
               unsigned scccount_tmp = si_tmp.scc_count();
               for (unsigned scc_tmp = 0; scc_tmp < scccount_tmp; ++scc_tmp)
                 si_tmp.states_on_acc_cycle_of_rec(scc_tmp, all_fin, all_inf,
