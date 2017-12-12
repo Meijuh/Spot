@@ -219,7 +219,8 @@ namespace spot
             named_states_(named_states),
             res_(aug_subset_cons(ref_prod, ref_power, named_states_, pmap_)),
             res_map_(res_->get_named_prop<product_states>("product-states")),
-            si_(scc_info(res_, scc_info_options::TRACK_STATES)),
+            si_(scc_info(res_, scc_info_options::TRACK_STATES
+                               | scc_info_options::TRACK_SUCCS)),
             nb_states_(res_->num_states()),
             was_rabin_(was_rabin),
             orig_num_st_(orig_num_st)

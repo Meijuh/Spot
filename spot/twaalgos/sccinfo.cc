@@ -559,7 +559,7 @@ namespace spot
                                        std::vector<unsigned>& res,
                                        std::vector<unsigned>& old) const
   {
-    if (!is_rejecting_scc(scc))
+    if (is_useful_scc(scc) && !is_rejecting_scc(scc))
       {
         acc_cond::mark_t all_acc = acc_sets_of(scc);
         acc_cond::mark_t fin = all_fin & all_acc;
@@ -584,7 +584,8 @@ namespace spot
               for (unsigned i = 0; i < orig_sts->size(); ++i)
                 (*orig_sts)[i] = old[(*orig_sts)[i]];
 
-              scc_info si_tmp(aut, scc_info_options::TRACK_STATES);
+              scc_info si_tmp(aut, scc_info_options::TRACK_STATES
+                                   | scc_info_options::TRACK_SUCCS);
               unsigned scccount_tmp = si_tmp.scc_count();
               for (unsigned scc_tmp = 0; scc_tmp < scccount_tmp; ++scc_tmp)
                 si_tmp.states_on_acc_cycle_of_rec(scc_tmp, all_fin, all_inf,
@@ -608,7 +609,7 @@ namespace spot
     unsigned nb_pairs = pairs.size();
 
     std::vector<unsigned> res;
-    if (!is_rejecting_scc(scc))
+    if (is_useful_scc(scc) && !is_rejecting_scc(scc))
       {
         std::vector<unsigned> old;
         unsigned nb_states = aut_->num_states();
