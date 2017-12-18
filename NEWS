@@ -209,6 +209,9 @@ New in spot 2.4.2.dev (not yet released)
     controllers in the format required by the synthesis tools
     competition SYNTCOMP.
 
+  - The new function spot::check_determinism() sets both
+    prop_semi_deterministic() and prop_universal() appropriately.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)

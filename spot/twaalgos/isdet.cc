@@ -162,46 +162,90 @@ namespace spot
     return res;
   }
 
+  namespace
+  {
+    static bool
+    check_semi_determism(const const_twa_graph_ptr& aut, bool and_determinism)
+    {
+      trival sd = aut->prop_semi_deterministic();
+      if (sd.is_known() &&
+          (!and_determinism || aut->prop_universal().is_known()))
+        return sd.is_true();
+      scc_info si(aut);
+      si.determine_unknown_acceptance();
+      unsigned nscc = si.scc_count();
+      assert(nscc);
+      std::vector<bool> reachable_from_acc(nscc);
+      bool semi_det = true;
+      do // iterator of SCCs in reverse topological order
+        {
+          --nscc;
+          if (si.is_accepting_scc(nscc) || reachable_from_acc[nscc])
+            {
+              for (unsigned succ: si.succ(nscc))
+                reachable_from_acc[succ] = true;
+              for (unsigned src: si.states_of(nscc))
+                {
+                  bdd available = bddtrue;
+                  for (auto& t: aut->out(src))
+                    if (!bdd_implies(t.cond, available))
+                      {
+                        semi_det = false;
+                        goto done;
+                      }
+                    else
+                      {
+                        available -= t.cond;
+                      }
+                }
+            }
+        }
+      while (nscc);
+    done:
+      std::const_pointer_cast<twa_graph>(aut)
+        ->prop_semi_deterministic(semi_det);
+      if (semi_det && and_determinism)
+        {
+          bool det = true;
+          nscc = si.scc_count();
+          do // iterator of SCCs in reverse topological order
+            {
+              --nscc;
+              if (!si.is_accepting_scc(nscc) && !reachable_from_acc[nscc])
+                {
+                  for (unsigned src: si.states_of(nscc))
+                    {
+                      bdd available = bddtrue;
+                      for (auto& t: aut->out(src))
+                        if (!bdd_implies(t.cond, available))
+                          {
+                            det = false;
+                            goto done2;
+                          }
+                        else
+                          {
+                            available -= t.cond;
+                          }
+                    }
+                }
+            }
+          while (nscc);
+        done2:
+          std::const_pointer_cast<twa_graph>(aut)->prop_universal(det);
+        }
+      return semi_det;
+    }
+  }
+
   bool
   is_semi_deterministic(const const_twa_graph_ptr& aut)
   {
-    trival sd = aut->prop_semi_deterministic();
-    if (sd.is_known())
-      return sd.is_true();
-    scc_info si(aut);
-    si.determine_unknown_acceptance();
-    unsigned nscc = si.scc_count();
-    assert(nscc);
-    std::vector<bool> reachable_from_acc(nscc);
-    bool semi_det = true;
-    do // iterator of SCCs in reverse topological order
-      {
-        --nscc;
-        if (si.is_accepting_scc(nscc) || reachable_from_acc[nscc])
-          {
-            for (unsigned succ: si.succ(nscc))
-              reachable_from_acc[succ] = true;
-            for (unsigned src: si.states_of(nscc))
-              {
-                bdd available = bddtrue;
-                for (auto& t: aut->out(src))
-                  if (!bdd_implies(t.cond, available))
-                    {
-                      semi_det = false;
-                      goto done;
-                    }
-                  else
-                    {
-                      available -= t.cond;
-                    }
-              }
-          }
-      }
-    while (nscc);
-  done:
-    std::const_pointer_cast<twa_graph>(aut)
-      ->prop_semi_deterministic(semi_det);
-    return semi_det;
+    return check_semi_determism(aut, false);
+  }
+
+  void check_determinism(twa_graph_ptr aut)
+  {
+    check_semi_determism(aut, true);
   }
 
 }

@@ -91,5 +91,7 @@ namespace spot
   SPOT_API bool
   is_semi_deterministic(const const_twa_graph_ptr& aut);
 
-
+  /// \brief Set the deterministic and semi-deterministic properties
+  /// appropriately.
+  SPOT_API void check_determinism(twa_graph_ptr aut);
 }
