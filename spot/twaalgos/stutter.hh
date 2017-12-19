@@ -270,4 +270,43 @@ namespace spot
   SPOT_API std::vector<bdd>
   stutter_invariant_letters(const_twa_graph_ptr pos, formula f_pos);
   /// @}
+
+
+  /// \ingroup stutter_inv
+  /// \brief Test if the set of stutter-invariant states is
+  /// forward-closed.
+  ///
+  /// Test if the set of states returned by
+  /// spot::stutter_invariant_states() is closed by the successor
+  /// relation.  I.e., the successor of an SI-state is an SI-state.
+  ///
+  /// This function returns -1 is \a sistates is forward closed, or it
+  /// will return the number of a state that is not an SI-state but
+  /// has a predecessor that is an SI-state.
+  ///
+  /// The \a sistate vector should be a vector computed for \a aut
+  /// using spot::stutter_invariant_states().
+  SPOT_API int
+  is_stutter_invariant_forward_closed(twa_graph_ptr aut,
+                                      const std::vector<bool>& sistates);
+
+  /// \ingroup stutter_inv
+  /// \brief Change the automaton so its set of stutter-invariant
+  /// state is forward-closed.
+  ///
+  /// \see spot::is_stutter_invariant_forward_closed()
+  ///
+  /// The \a sistate vector should be a vector computed for \a aut
+  /// using spot::stutter_invariant_states().  The automaton \a aut
+  /// will be fixed in place by duplicating problematic states, and an
+  /// updated copy of the \a sistates vector will be returned.
+  ///
+  /// This function will detect the cases where not change to \a aut
+  /// is necessary at a cost that is very close to
+  /// spot::is_stutter_invariant_forward_closed(), so calling this last
+  /// function first is useless.
+  SPOT_API std::vector<bool>
+  make_stutter_invariant_forward_closed_inplace
+  (twa_graph_ptr aut, const std::vector<bool>& sistates);
+
 }

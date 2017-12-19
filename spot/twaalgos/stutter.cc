@@ -869,4 +869,123 @@ namespace spot
   {
     highlight_vector(pos, stutter_invariant_states(pos, neg), color);
   }
+
+
+  namespace
+  {
+    [[noreturn]] static void sistates_has_wrong_size(const char* fun)
+    {
+      throw std::runtime_error(std::string(fun) +
+                               "(): vector size should match "
+                               "the number of states");
+    }
+  }
+
+  int
+  is_stutter_invariant_forward_closed(twa_graph_ptr aut,
+                                      const std::vector<bool>& sistates)
+  {
+    unsigned ns = aut->num_states();
+    if (SPOT_UNLIKELY(sistates.size() != ns))
+      sistates_has_wrong_size("is_stutter_invariant_forward_closed");
+    for (unsigned s = 0; s < ns; ++s)
+      {
+        if (!sistates[s])
+          continue;
+        for (auto& e : aut->out(s))
+          {
+            if (!sistates[e.dst])
+              return e.dst;
+          }
+      }
+    return -1;
+  }
+
+  std::vector<bool>
+  make_stutter_invariant_forward_closed_inplace
+  (twa_graph_ptr aut, const std::vector<bool>& sistates)
+  {
+    unsigned ns = aut->num_states();
+    if (SPOT_UNLIKELY(sistates.size() != ns))
+      sistates_has_wrong_size("make_stutter_invariant_forward_closed_inplace");
+    // Find the set of SI states that can jump into non-SI states.
+    std::vector<unsigned> seed_states;
+    bool pb = false;
+    for (unsigned s = 0; s < ns; ++s)
+      {
+        if (!sistates[s])
+          continue;
+        for (auto& e : aut->out(s))
+          if (!sistates[e.dst])
+            {
+              seed_states.push_back(s);
+              pb = true;
+              break;
+            }
+      }
+    if (!pb)                    // Nothing to change
+      return sistates;
+
+    // Find the set of non-SI states that are reachable from a seed
+    // state, and give each of them a new number.
+    std::vector<unsigned> new_number(ns, 0);
+    std::vector<unsigned> prob_states;
+    prob_states.reserve(ns);
+    unsigned base = ns;
+    std::vector<unsigned> dfs;
+    dfs.reserve(ns);
+    for (unsigned pb: seed_states)
+      {
+        dfs.push_back(pb);
+        while (!dfs.empty())
+          {
+            unsigned src = dfs.back();
+            dfs.pop_back();
+            for (auto& e: aut->out(src))
+              {
+                unsigned dst = e.dst;
+                if (sistates[dst] || new_number[dst])
+                  continue;
+                new_number[dst] = base++;
+                dfs.push_back(dst);
+                prob_states.push_back(dst);
+              }
+          }
+      }
+
+    // Actually duplicate the problematic states
+    assert(base > ns);
+    aut->new_states(base - ns);
+    assert(aut->num_states() == base);
+    for (unsigned ds: prob_states)
+      {
+        unsigned new_src = new_number[ds];
+        assert(new_src > 0);
+        for (auto& e: aut->out(ds))
+          {
+            unsigned dst = new_number[e.dst];
+            if (!dst)
+              dst = e.dst;
+            aut->new_edge(new_src, dst, e.cond, e.acc);
+          }
+      }
+
+    // Redirect the transition coming out of the seed states
+    // to the duplicate state.
+    for (unsigned pb: seed_states)
+      for (auto& e: aut->out(pb))
+        {
+          unsigned ndst = new_number[e.dst];
+          if (ndst)
+            e.dst = ndst;
+        }
+
+    // Create a new SI-state vector.
+    std::vector<bool> new_sistates;
+    new_sistates.reserve(base);
+    new_sistates.insert(new_sistates.end(), sistates.begin(), sistates.end());
+    new_sistates.insert(new_sistates.end(), base - ns, true);
+    return new_sistates;
+  }
+
 }
