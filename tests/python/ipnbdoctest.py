@@ -109,6 +109,9 @@ def sanitize(s):
     s = re.sub(r' fill="black"', '', s)
     s = re.sub(r' stroke="transparent"', ' stroke="none"', s)
     s = re.sub(r'><title>', '>\n<title>', s)
+    # Different Pandas versions produce different CSS styles.
+    s = re.sub(r'<style[ a-z]*>.*</style>',
+               '<style>...</style>', s, flags=re.DOTALL)
 
     # CalledProcessError message has a final dot in Python 3.6
     s = re.sub(r"(' returned non-zero exit status \d+)\.", r'\1', s)
