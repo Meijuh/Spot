@@ -1,11 +1,18 @@
-New in spot 2.4.2.dev (not yet released)
+New in spot 2.4.3 (2017-12-19)
 
-  Bug fixes:
+  Bugs fixed:
 
   - couvreur99_new() leaked memory when processing TωA that allocate
     states.
 
   - Some mismatched placement-new/delete reported by ASAN were fixed.
+
+  - Static compilation was broken on MinGW.
+
+  - Execution of Jupyter notebooks from the testsuite failed with
+    recent versions of Python.
+
+  - Fix some warnings triggered by the development version of g++.
 
 New in spot 2.4.2 (2017-11-07)
 
