@@ -1,4 +1,4 @@
-New in spot 2.4.2.dev (not yet released)
+New in spot 2.4.3.dev (not yet released)
 
   Build:
 
@@ -237,12 +237,21 @@ New in spot 2.4.2.dev (not yet released)
     been removed.  It's a low-level function was not used anywhere in
     Spot anymore, since it's better to use spot::twa::copy_ap_of().
 
-  Bug fixes:
+New in spot 2.4.3 (2017-12-19)
+
+  Bugs fixed:
 
   - couvreur99_new() leaked memory when processing TωA that allocate
     states.
 
   - Some mismatched placement-new/delete reported by ASAN were fixed.
+
+  - Static compilation was broken on MinGW.
+
+  - Execution of Jupyter notebooks from the testsuite failed with
+    recent versions of Python.
+
+  - Fix some warnings triggered by the development version of g++.
 
 New in spot 2.4.2 (2017-11-07)
 
