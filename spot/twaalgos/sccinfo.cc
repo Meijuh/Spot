@@ -75,6 +75,11 @@ namespace spot
       options_(options)
   {
     unsigned n = aut->num_states();
+
+    if (initial_state != -1U && n <= initial_state)
+      throw std::runtime_error
+        ("scc_info: supplied initial state does not exist");
+
     sccof_.resize(n, -1U);
 
     if (!!(options & scc_info_options::TRACK_STATES_IF_FIN_USED)

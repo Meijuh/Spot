@@ -22,6 +22,12 @@ import spot
 
 a = spot.translate('(Ga -> Gb) W c')
 
+try:
+    si = spot.scc_info(a, 10)
+    exit(2)
+except RuntimeError as e:
+    assert "initial state does not exist" in str(e)
+
 si = spot.scc_info(a)
 n = si.scc_count()
 assert n == 4
