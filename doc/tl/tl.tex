@@ -1481,8 +1481,8 @@ operator's arguments.  For instance $\F\G(a)\AND \G(b) \AND \F\G(c) \AND
 The following more complicated rules are generalizations of $f\AND
 \X\G f\equiv \G f$ and $f\OR \X\F f\equiv \F f$:
 \begin{align*}
-  f\AND \X(\G(f\AND g\ldots)\AND h\ldots) &\equiv \G(f) \AND \X(\G(g\ldots)\AND h\ldots) \\
-  f\OR \X(\F(f)\OR h\ldots) &\equiv \F(f) \OR \X(h\ldots)
+  f\AND \X(\G(f\AND g\AND \ldots)\AND h\AND \ldots) &\equiv \G(f) \AND \X(\G(g\AND \ldots)\AND h\AND \ldots) \\
+  f\OR \X(\F(f)\OR h\OR \ldots) &\equiv \F(f) \OR \X(h\OR \ldots)
 \end{align*}
 The latter rule for $f\OR \X(\F(f)\OR h\ldots)$ is only applied if all
 $\F$-formulas can be removed from the argument of $\X$ with the
@@ -1685,9 +1685,9 @@ $q,\,q_i$           & a pure eventuality that is also purely universal \\
 
 \begin{align*}
   \G(f_1\AND\ldots\AND f_n \AND \X e_1 \AND \ldots \AND \X e_p)&\equiv \G(f_1\AND\ldots\AND f_n \AND e_1 \AND \ldots \AND e_p) \\
-  \G(f_1\AND\ldots\AND f_n \AND \F (g_1 \AND \ldots \AND g_p \AND \X e_1 \AND \X e_m))&\equiv \G(f_1\AND\ldots\AND f_n \AND \F(g_1 \AND \ldots \AND g_p) \AND e_1 \AND \ldots \AND e_m) \\
-  \F(f_1\OR\ldots\OR f_n \OR \X u_1 \OR \ldots \OR \X u_p)&\equiv \F(f_1\OR\ldots\OR f_n \OR u_1 \OR \ldots \AND u_p) \\
-  \F(f_1\OR\ldots\OR f_n \OR \G (g_1 \OR \ldots \OR g_p \OR \X u_1 \OR \X u_m))&\equiv \F(f_1\OR\ldots\AND f_n \OR \G(g_1 \OR \ldots \OR g_p) \OR u_1 \OR \ldots \OR u_m) \\
+  \G(f_1\AND\ldots\AND f_n \AND \F (g_1 \AND \ldots \AND g_p \AND \X e_1 \AND \ldots \AND \X e_m))&\equiv \G(f_1\AND\ldots\AND f_n \AND \F(g_1 \AND \ldots \AND g_p) \AND e_1 \AND \ldots \AND e_m) \\
+  \F(f_1\OR\ldots\OR f_n \OR \X u_1 \OR \ldots \OR \X u_p)&\equiv \F(f_1\OR\ldots\OR f_n \OR u_1 \OR \ldots \OR u_p) \\
+  \F(f_1\OR\ldots\OR f_n \OR \G (g_1 \OR \ldots \OR g_p \OR \X u_1 \OR \ldots \OR \X u_m))&\equiv \F(f_1\OR\ldots\AND f_n \OR \G(g_1 \OR \ldots \OR g_p) \OR u_1 \OR \ldots \OR u_m) \\
   \G(f_1\OR\ldots\OR f_n \OR q_1 \OR \ldots \OR q_p)&\equiv \G(f_1\OR\ldots\OR f_n)\OR q_1 \OR \ldots \OR q_p \\
   \F(f_1\AND\ldots\AND f_n \AND q_1 \AND \ldots \AND q_p)&\equivEU \F(f_1\AND\ldots\AND f_n)\AND q_1 \AND \ldots \AND q_p \\
   \G(f_1\AND\ldots\AND f_n \AND q_1 \AND \ldots \AND q_p)&\equivEU \G(f_1\AND\ldots\AND f_n)\AND q_1 \AND \ldots \AND q_p \\
