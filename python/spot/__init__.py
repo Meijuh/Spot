@@ -166,7 +166,10 @@ class twa:
 class formula:
     def __init__(self, str):
         """Parse the given string to create a formula."""
-        self.this = parse_formula(str)
+        if type(str) == formula:
+            self.this = str
+        else:
+            self.this = parse_formula(str)
 
     def show_ast(self):
         """Display the syntax tree of the formula."""
