@@ -212,6 +212,11 @@ New in spot 2.4.3.dev (not yet released)
   - The new function spot::check_determinism() sets both
     prop_semi_deterministic() and prop_universal() appropriately.
 
+  Python:
+
+  - The "product-states" property of automata is now accessible via
+    spot.twa.get_product_states() and spot.set.get_product_states().
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)

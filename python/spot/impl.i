@@ -428,8 +428,10 @@ namespace swig
 
 namespace std {
   %template(liststr) list<std::string>;
+  %template(pairunsigned) pair<unsigned, unsigned>;
   %template(vectorformula) vector<spot::formula>;
   %template(vectorunsigned) vector<unsigned>;
+  %template(vectorpairunsigned) vector<pair<unsigned, unsigned>>;
   %template(vectorbool) vector<bool>;
   %template(vectorbdd) vector<bdd>;
   %template(vectorstring) vector<string>;
@@ -463,6 +465,19 @@ namespace std {
   from warnings import warn
   warn("use prop_universal() instead of prop_deterministic()",
        DeprecationWarning)
+%}
+
+// Must occur before the twa declaration
+%typemap(out) SWIGTYPE* spot::twa::get_product_states %{
+  if (!$1)
+    $result = SWIG_Py_Void();
+  else
+    {
+      unsigned sz = $1->size();
+      $result = PyList_New(sz);
+      for (unsigned i = 0; i < sz; ++i)
+        PyList_SetItem($result, i, swig::from((*$1)[i]));
+    }
 %}
 
 %include <spot/twa/twa.hh>
@@ -768,6 +783,21 @@ def state_is_accepting(self, src) -> "bool":
   {
     return self->get_named_prop<std::vector<std::string>>("state-names");
   }
+
+
+  void set_product_states(std::vector<std::pair<unsigned, unsigned>> pairs)
+  {
+    self->set_named_prop("product-states", new
+                         std::vector<std::pair<unsigned,
+                                               unsigned>>(std::move(pairs)));
+  }
+
+  std::vector<std::pair<unsigned, unsigned>>* get_product_states()
+  {
+    return self->get_named_prop
+      <std::vector<std::pair<unsigned, unsigned>>>("product-states");
+  }
+
 
   twa* highlight_state(unsigned state, unsigned color)
   {
