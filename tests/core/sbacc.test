@@ -262,3 +262,17 @@ EOF
 
 autfilt --sbacc alt.hoa > out.hoa
 diff out.hoa expect.hoa
+
+# Issue #312
+autfilt -S <<EOF | autfilt --is-complete
+HOA: v1
+States: 2
+Start: 0
+AP: 0
+Acceptance: 1 Inf(0)
+properties: !complete
+--BODY--
+State: 0 [t] 0 {0}
+State: 1
+--END--
+EOF

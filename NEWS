@@ -248,6 +248,10 @@ New in spot 2.4.3.dev (not yet released)
     Fin-less & CNF version of the acceptance condition had several
     unit clauses.
 
+  - If the automaton passed to sbacc() was incomplete because of some
+    unreachable states, then it was possible that the output would
+    marked incomplete while it was in fact complete.
+
 New in spot 2.4.3 (2017-12-19)
 
   Bugs fixed:
