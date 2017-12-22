@@ -242,6 +242,12 @@ New in spot 2.4.3.dev (not yet released)
     been removed.  It's a low-level function was not used anywhere in
     Spot anymore, since it's better to use spot::twa::copy_ap_of().
 
+  Bugs fixed:
+
+  - The generic to_generalized_buchi() function would fail if the
+    Fin-less & CNF version of the acceptance condition had several
+    unit clauses.
+
 New in spot 2.4.3 (2017-12-19)
 
   Bugs fixed:

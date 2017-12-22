@@ -478,7 +478,8 @@ namespace spot
       while (pos >= end)
         {
           auto term_end = pos - 1 - pos->sub.size;
-          if (pos->sub.op == acc_cond::acc_op::Or)
+          bool inor = pos->sub.op == acc_cond::acc_op::Or;
+          if (inor)
             --pos;
           acc_cond::mark_t m = 0U;
           while (pos > term_end)
@@ -487,7 +488,11 @@ namespace spot
               m |= pos[-1].mark;
               pos -= 2;
             }
-          res.emplace_back(m);
+          if (inor)
+            res.emplace_back(m);
+          else
+            for (unsigned i: m.sets())
+              res.emplace_back(acc_cond::mark_t({i}));
         }
       return res;
     }
