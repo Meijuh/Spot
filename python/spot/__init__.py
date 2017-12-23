@@ -122,13 +122,25 @@ class twa:
         return SVG(self._repr_svg_(opt))
 
     def highlight_states(self, states, color):
-        for state in states:
-            self.highlight_state(state, color)
+        """Highlight a list of states.  This can be a list of
+        state numbers, or a list of Booleans."""
+        for idx, val in enumerate(states):
+            if type(val) is bool:
+                if val:
+                    self.highlight_state(idx, color)
+            else:
+                self.highlight_state(val, color)
         return self
 
     def highlight_edges(self, edges, color):
-        for edge in edges:
-            self.highlight_edge(edge, color)
+        """Highlight a list of edges.  This can be a list of
+        edge numbers, or a list of Booleans."""
+        for idx, val in enumerate(edges):
+            if type(val) is bool:
+                if val:
+                    self.highlight_edge(idx, color)
+            else:
+                self.highlight_edge(val, color)
         return self
 
 @_extend(twa)
