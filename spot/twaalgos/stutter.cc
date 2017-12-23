@@ -851,7 +851,7 @@ namespace spot
       unsigned n = v.size();
       for (unsigned i = 0; i < n; ++i)
         if (v[i])
-          hs->emplace(i, color);
+          (*hs)[i] = color;
     }
   }
 
