@@ -169,14 +169,17 @@ namespace spot
       }
     res->merge_edges();
 
-    // If the automaton was marked as not complete, and we have
-    // ignored some unreachable state, then it is possible that the
-    // result becomes complete.
-    if (res->prop_complete().is_false())
+    // If the automaton was marked as not complete or not universal,
+    // and we have ignored some unreachable state, then it is possible
+    // that the result becomes complete or universal.
+    if (res->prop_complete().is_false() || res->prop_universal().is_false())
       for (unsigned i = 0; i < ns; ++i)
         if (!si.reachable_state(i))
           {
-            res->prop_complete(trival::maybe());
+            if (res->prop_complete().is_false())
+              res->prop_complete(trival::maybe());
+            if (res->prop_universal().is_false())
+              res->prop_universal(trival::maybe());
             break;
           }
     return res;
