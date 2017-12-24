@@ -279,3 +279,16 @@ State: 0 [t] 0 {0}
 State: 1
 --END--
 EOF
+
+autfilt -S <<EOF | autfilt --is-deterministic
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+Acceptance: 1 Inf(0)
+properties: !complete !deterministic
+--BODY--
+State: 0 [0] 0 {0}
+State: 1 [0] 1 [0] 0
+--END--
+EOF
