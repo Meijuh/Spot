@@ -151,13 +151,7 @@ translated automaton.  Column \fBedges\fR counts the number of edges
 \fBtransitions\fR counts the number of assignment-labeled transitions
 that might have been merged into a formula-labeled edge.  For instance
 an edge labeled by \f(CWtrue\fR will be counted as 2^3=8 transitions if
-the automaton mention 3 atomic propositions.
-.PP
-If the translator produced a Streett or Rabin automaton, these columns
-contains the size of a TGBA (or BA) produced by ltlcross from that
-Streett or Rabin automaton.  Check \fBin_states\fR, \fBin_edges\fR,
-\fBin_transitions\fR, and \fBin_acc\fR for statistics about the actual
-input automaton.
+the automaton uses 3 atomic propositions.
 .TP
 \fBscc\fR, \fBnonacc_scc\fR, \fBterminal_scc\fR, \fBweak_scc\fR, \fBstrong_scc\fR
 The number of strongly connected components in the automaton.  The
