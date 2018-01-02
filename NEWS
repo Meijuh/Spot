@@ -47,6 +47,11 @@ New in spot 2.4.4.dev (net yet released)
   - ltlsynt is a new tool for synthesizing a controller from LTL/PSL
     specifications.
 
+  - ltl2tgba, autfilt, and dstar2tgba have a new '--parity' option to
+    force parity acceptance on the output.  Different styles can be
+    requested using for instance --parity='min odd' or --parity='max
+    even'.
+
   - ltldo learned to limit the number of automata it outputs using -n.
 
   - autcross, ltlcross, and ltldo learned --fail-on-timeout.
@@ -175,6 +180,11 @@ New in spot 2.4.4.dev (net yet released)
     (almost) not changed, but it runs muuuch faster now. It also features an
     optimization for stutter-invariant automata that may produce slightly
     smaller automata.
+
+  - spot::postprocessor::set_type() can now request different forms of
+    parity acceptance as output.  However currently the conversions
+    are not very smart: if the input does not already have parity
+    acceptance, it will simply be degeneralized or determinized.
 
   - acc_cond::name(fmt) is a new method that name well-known acceptance
     conditions.   The fmt parameter specify the format to use for that

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2012-2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -72,7 +72,20 @@ namespace spot
     /// options used for debugging or benchmarking.
     postprocessor(const option_map* opt = nullptr);
 
-    enum output_type { TGBA, BA, Monitor, Generic };
+    enum output_type { TGBA = 0,
+                       BA = 1,
+                       Monitor = 2,
+                       Generic = 3,
+                       Parity = 4,
+                       ParityMin = Parity | 8,
+                       ParityMax = Parity | 16,
+                       ParityOdd = Parity | 32,
+                       ParityEven = Parity | 64,
+                       ParityMinOdd = ParityMin | ParityOdd,
+                       ParityMaxOdd = ParityMax | ParityOdd,
+                       ParityMinEven = ParityMin | ParityEven,
+                       ParityMaxEven = ParityMax | ParityEven,
+    };
 
     /// \brief Select the desired output type.
     ///
@@ -96,11 +109,17 @@ namespace spot
     /// SystemC" (Deian Tabakov and Moshe Y. Vardi, Proceedings of
     /// RV’10, LNCS 6418).
     ///
-    /// Finally \c Generic remove all constraints about the acceptance
-    /// condition.  Using \c Generic can be needed to force the
-    /// determinization of some automata (e.g., not all TGBA can be
-    /// degeneralized, using \c Generic will allow parity acceptance
-    /// to be used instead).
+    /// \c Generic removes all constraints about the acceptance
+    /// condition.  Using \c Generic (or \c Parity below) can be
+    /// needed to force the determinization of some automata (e.g.,
+    /// not all TGBA can be degeneralized, using \c Generic will allow
+    /// parity acceptance to be used instead).
+    ///
+    /// \a Parity and its variants request the acceptance condition to
+    /// be of some parity type.  Note that the determinization
+    /// algorithm used by Spot produces "parity min odd" acceptance,
+    /// but other parity types can be obtained from there by minor
+    /// adjustments.
     ///
     /// If set_type() is not called, the default \c output_type is \c TGBA.
     void
@@ -195,6 +214,7 @@ namespace spot
     twa_graph_ptr do_simul(const twa_graph_ptr& input, int opt);
     twa_graph_ptr do_sba_simul(const twa_graph_ptr& input, int opt);
     twa_graph_ptr do_degen(const twa_graph_ptr& input);
+    twa_graph_ptr do_degen_tba(const twa_graph_ptr& input);
     twa_graph_ptr do_scc_filter(const twa_graph_ptr& a, bool arg);
     twa_graph_ptr do_scc_filter(const twa_graph_ptr& a);
 

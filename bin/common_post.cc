@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2016, 2018 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,6 +21,7 @@
 #include "common_r.hh"
 #include "common_aoutput.hh"
 #include "error.h"
+#include "argmatch.h"
 
 spot::postprocessor::output_type type = spot::postprocessor::TGBA;
 spot::postprocessor::output_pref pref = spot::postprocessor::Small;
@@ -55,6 +56,10 @@ static constexpr const argp_option options[] =
     { "state-based-acceptance", 'S', nullptr, 0,
       "define the acceptance using states", 0 },
     { "sbacc", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
+    { "parity", 'P',
+      "any|min|max|odd|even|min odd|min even|max odd|max even",
+      OPTION_ARG_OPTIONAL,
+      "automaton with parity acceptance", 0, },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
     { "small", OPT_SMALL, nullptr, 0, "prefer small automata (default)", 0 },
@@ -105,6 +110,10 @@ static const argp_option options_disabled[] =
     { "state-based-acceptance", 'S', nullptr, 0,
       "define the acceptance using states", 0 },
     { "sbacc", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
+    { "parity", 'P',
+      "[any|min|max|odd|even|min odd|min even|max odd|max even]",
+      OPTION_ARG_OPTIONAL,
+      "automaton with parity acceptance", 0, },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
     { "small", OPT_SMALL, nullptr, 0, "prefer small automata", 0 },
@@ -123,7 +132,7 @@ static const argp_option options_disabled[] =
   };
 
 static int
-parse_opt_post(int key, char*, struct argp_state*)
+parse_opt_post(int key, char* arg, struct argp_state*)
 {
   // This switch is alphabetically-ordered.
   switch (key)
@@ -147,6 +156,40 @@ parse_opt_post(int key, char*, struct argp_state*)
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
+      break;
+    case 'P':
+      {
+        static char const *const parity_args[] =
+          {
+            "any", "min", "max", "odd", "even",
+            "min odd", "odd min",
+            "min even", "even min",
+            "max odd", "odd max",
+            "max even", "even max",
+            nullptr
+          };
+        static spot::postprocessor::output_type const parity_types[] =
+          {
+            spot::postprocessor::Parity,
+            spot::postprocessor::ParityMin,
+            spot::postprocessor::ParityMax,
+            spot::postprocessor::ParityOdd,
+            spot::postprocessor::ParityEven,
+            spot::postprocessor::ParityMinOdd,
+            spot::postprocessor::ParityMinOdd,
+            spot::postprocessor::ParityMinEven,
+            spot::postprocessor::ParityMinEven,
+            spot::postprocessor::ParityMaxOdd,
+            spot::postprocessor::ParityMaxOdd,
+            spot::postprocessor::ParityMaxEven,
+            spot::postprocessor::ParityMaxEven,
+          };
+        ARGMATCH_VERIFY(parity_args, parity_types);
+        if (arg)
+          type = XARGMATCH("--parity", arg, parity_args, parity_types);
+        else
+          type = spot::postprocessor::Parity;
+      }
       break;
     case 'S':
       sbacc = spot::postprocessor::SBAcc;

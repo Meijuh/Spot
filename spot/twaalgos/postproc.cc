@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012-2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2012-2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -35,6 +35,7 @@
 #include <spot/twaalgos/sepsets.hh>
 #include <spot/twaalgos/determinize.hh>
 #include <spot/twaalgos/alternation.hh>
+#include <spot/twaalgos/parity.hh>
 
 namespace spot
 {
@@ -148,6 +149,15 @@ namespace spot
   }
 
   twa_graph_ptr
+  postprocessor::do_degen_tba(const twa_graph_ptr& a)
+  {
+    return degeneralize_tba(a,
+                            degen_reset_, degen_order_,
+                            degen_cache_, degen_lskip_,
+                            degen_lowinit_, degen_remscc_);
+  }
+
+  twa_graph_ptr
   postprocessor::do_scc_filter(const twa_graph_ptr& a, bool arg)
   {
     if (scc_filter_ == 0)
@@ -183,6 +193,33 @@ namespace spot
     if (type_ == BA || SBACC_)
       state_based_ = true;
 
+    bool want_parity = (type_ & Parity) == Parity;
+
+    auto finalize = [&](twa_graph_ptr tmp)
+      {
+        if (COMP_)
+          tmp = complete(tmp);
+        if (want_parity && tmp->acc().is_generalized_buchi())
+          tmp = SBACC_ ? do_degen(tmp) : do_degen_tba(tmp);
+        if (SBACC_)
+          tmp = sbacc(tmp);
+        if (want_parity)
+          {
+            parity_kind kind = parity_kind_any;
+            parity_style style = parity_style_any;
+            if ((type_ & ParityMin) == ParityMin)
+              kind = parity_kind_min;
+            else if ((type_ & ParityMax) == ParityMax)
+              kind = parity_kind_max;
+            if ((type_ & ParityOdd) == ParityOdd)
+              style = parity_style_odd;
+            else if ((type_ & ParityEven) == ParityEven)
+              style = parity_style_even;
+            change_parity_here(tmp, kind, style);
+          }
+        return tmp;
+      };
+
     if (!a->is_existential() &&
         // We will probably have to revisit this condition later.
         // Currently, the intent is that postprocessor should never
@@ -191,7 +228,8 @@ namespace spot
         !(type_ == Generic && PREF_ == Any && level_ == Low))
       a = remove_alternation(a);
 
-    if (type_ != Generic && !a->acc().is_generalized_buchi())
+    if ((type_ != Generic && !a->acc().is_generalized_buchi())
+        || (want_parity && !a->acc().is_parity()))
       {
         a = to_generalized_buchi(a);
         if (PREF_ == Any && level_ == Low)
@@ -202,14 +240,9 @@ namespace spot
         && (type_ == Generic
             || type_ == TGBA
             || (type_ == BA && a->is_sba())
-            || (type_ == Monitor && a->num_sets() == 0)))
-      {
-        if (COMP_)
-          a = complete(a);
-        if (SBACC_)
-          a = sbacc(a);
-        return a;
-      }
+            || (type_ == Monitor && a->num_sets() == 0)
+            || (want_parity && a->acc().is_parity())))
+      return finalize(a);
 
     int original_acc = a->num_sets();
 
@@ -244,20 +277,14 @@ namespace spot
               }
             a->remove_unused_ap();
           }
-        if (COMP_)
-          a = complete(a);
-        return a;
+        return finalize(a);
       }
 
     if (PREF_ == Any)
       {
         if (type_ == BA)
           a = do_degen(a);
-        if (COMP_)
-          a = complete(a);
-        if (SBACC_)
-          a = sbacc(a);
-        return a;
+        return finalize(a);
       }
 
     bool dba_is_wdba = false;
@@ -305,6 +332,8 @@ namespace spot
             // No need to do that if tba_determinisation_ will be used.
             if (type_ == BA && !tba_determinisation_)
               sim = do_degen(sim);
+            else if (want_parity && !sim->acc().is_parity())
+              sim = do_degen_tba(sim);
             else if (SBACC_ && !tba_determinisation_)
               sim = sbacc(sim);
           }
@@ -382,7 +411,7 @@ namespace spot
           }
       }
 
-    if (PREF_ == Deterministic && type_ == Generic && !dba)
+    if ((PREF_ == Deterministic && (type_ == Generic || want_parity)) && !dba)
       {
         dba = tgba_determinize(to_generalized_buchi(sim),
                                false, det_scc_, det_simul_, det_stutter_);
@@ -517,12 +546,6 @@ namespace spot
     sim = dba ? dba : sim;
 
     sim->remove_unused_ap();
-
-    if (COMP_)
-      sim = complete(sim);
-    if (SBACC_)
-      sim = sbacc(sim);
-
-    return sim;
+    return finalize(sim);
   }
 }
