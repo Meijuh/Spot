@@ -372,6 +372,7 @@ TESTS_python = \
   python/origstate.py \
   python/otfcrash.py \
   python/parsetgba.py \
+  python/parity.py \
   python/prodexpt.py \
   python/randgen.py \
   python/relabel.py \

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014, 2015, 2016, 2017  Laboratoire de
+# Copyright (C) 2014-2018  Laboratoire de
 # Recherche et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -502,6 +502,24 @@ def _postproc_translate_options(obj, default_type, *args):
             type_ = postprocessor.TGBA
         elif val == 'ba':
             type_ = postprocessor.BA
+        elif val == 'parity min odd':
+            type_ = postprocessor.ParityMinOdd
+        elif val == 'parity min even':
+            type_ = postprocessor.ParityMinEven
+        elif val == 'parity max odd':
+            type_ = postprocessor.ParityMaxOdd
+        elif val == 'parity max even':
+            type_ = postprocessor.ParityMaxEven
+        elif val == 'parity min':
+            type_ = postprocessor.ParityMin
+        elif val == 'parity max':
+            type_ = postprocessor.ParityMax
+        elif val == 'parity odd':
+            type_ = postprocessor.ParityOdd
+        elif val == 'parity even':
+            type_ = postprocessor.ParityEven
+        elif val == 'parity':
+            type_ = postprocessor.Parity
         else:
             assert(val == 'monitor')
             type_ = postprocessor.Monitor
@@ -543,20 +561,29 @@ def _postproc_translate_options(obj, default_type, *args):
             unam_ = postprocessor.Unambiguous
 
     options = {
-        'tgba': type_set,
-        'ba': type_set,
-        'monitor': type_set,
-        'generic': type_set,
-        'small': pref_set,
-        'deterministic': pref_set,
         'any': pref_set,
-        'high': optm_set,
-        'medium': optm_set,
-        'low': optm_set,
+        'ba': type_set,
         'complete': misc_set,
-        'unambiguous': misc_set,
-        'statebasedacceptance': misc_set,
+        'deterministic': pref_set,
+        'generic': type_set,
+        'high': optm_set,
+        'low': optm_set,
+        'medium': optm_set,
+        'monitor': type_set,
+        'parity even': type_set,
+        'parity max even': type_set,
+        'parity max odd': type_set,
+        'parity max': type_set,
+        'parity min even': type_set,
+        'parity min odd': type_set,
+        'parity min': type_set,
+        'parity odd': type_set,
+        'parity': type_set,
         'sbacc': misc_set,
+        'small': pref_set,
+        'statebasedacceptance': misc_set,
+        'tgba': type_set,
+        'unambiguous': misc_set,
     }
 
     for arg in args:
@@ -601,8 +628,10 @@ def translate(formula, *args, dict=_bdd_dict):
     may not be satisfied.
 
     The optional arguments should be strings among the following:
-    - at most one in 'TGBA', 'BA', or 'Monitor', 'generic'
-      (type of automaton to build)
+    - at most one in 'TGBA', 'BA', or 'Monitor', 'generic',
+      'parity', 'parity min odd', 'parity min even',
+      'parity max odd', 'parity max even' (type of automaton to
+      build)
     - at most one in 'Small', 'Deterministic', 'Any'
       (preferred characteristics of the produced automaton)
     - at most one in 'Low', 'Medium', 'High'
@@ -631,8 +660,10 @@ def postprocess(automaton, *args, formula=None):
     not already 'Deterministic'.
 
     The optional arguments should be strings among the following:
-    - at most one in 'Generic', 'TGBA', 'BA', or 'Monitor'
-      (type of automaton to build)
+    - at most one in 'Generic', 'TGBA', 'BA', or 'Monitor',
+      'parity', 'parity min odd', 'parity min even',
+      'parity max odd', 'parity max even' (type of automaton to
+      build)
     - at most one in 'Small', 'Deterministic', 'Any'
       (preferred characteristics of the produced automaton)
     - at most one in 'Low', 'Medium', 'High'
