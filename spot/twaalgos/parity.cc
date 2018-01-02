@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2016 Laboratoire de Recherche et Développement
+// Copyright (C) 2016, 2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -62,6 +62,14 @@ namespace spot
             e.acc.set(0);
           }
     }
+
+     [[noreturn]] static void
+     input_is_not_parity(const char* fun)
+     {
+       throw std::runtime_error(std::string(fun) +
+                                "(): input should have "
+                                "parity acceptance");
+     }
   }
 
   twa_graph_ptr
@@ -78,8 +86,7 @@ namespace spot
     bool current_max;
     bool current_odd;
     if (!aut->acc().is_parity(current_max, current_odd, true))
-      throw new std::invalid_argument("change_parity: input must have a parity "
-                                      "acceptance.");
+      input_is_not_parity("change_parity");
     auto old_num_sets = aut->num_sets();
 
     bool output_max = true;
@@ -160,8 +167,7 @@ namespace spot
     bool current_max;
     bool current_odd;
     if (!aut->acc().is_parity(current_max, current_odd, true))
-      throw new std::invalid_argument("cleanup_parity: input "
-                                      "must have a parity acceptance.");
+      input_is_not_parity("cleanup_parity");
     auto num_sets = aut->num_sets();
     if (num_sets == 0)
       return aut;
@@ -247,8 +253,7 @@ namespace spot
     bool current_max;
     bool current_odd;
     if (!aut->acc().is_parity(current_max, current_odd, true))
-      throw new std::invalid_argument("colorize_parity: input "
-                                      "must have a parity acceptance.");
+      input_is_not_parity("colorize_parity");
 
     bool has_empty = false;
     for (const auto& e: aut->edges())

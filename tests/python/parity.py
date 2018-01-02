@@ -29,3 +29,10 @@ for f in ('FGa', 'GFa & GFb & FGc', 'XXX(a U b)'):
     a3 = spot.translate(f, 'det').postprocess('parity')
     assert a3.acc().is_parity()
 
+a = spot.translate('GFa & GFb')
+try:
+    spot.change_parity_here(a, spot.parity_kind_same, spot.parity_style_even)
+except RuntimeError as e:
+    assert 'input should have parity acceptance' in str(e)
+else:
+    exit(2)
