@@ -1010,3 +1010,92 @@ def show_mp_hierarchy(cl):
     return SVG(mp_hierarchy_svg(cl))
 
 formula.show_mp_hierarchy = show_mp_hierarchy
+
+@_extend(twa_word)
+class twa_word:
+    def as_svg(self):
+        """
+        Build an SVG picture representing the word as a collection of
+        signals for each atomic proposition.
+        """
+        # Get the list of atomic proposition used
+        sup = buddy.bddtrue
+        for cond in list(self.prefix) + list(self.cycle):
+            sup = sup & buddy.bdd_support(cond)
+        ap = []
+        while sup != buddy.bddtrue:
+            a = buddy.bdd_var(sup)
+            ap.append(a)
+            sup = buddy.bdd_high(sup)
+
+        # Prepare canvas
+        psize = len(self.prefix)
+        csize = len(self.cycle)
+        d = {
+            'endprefix': 50 * psize,
+            'endcycle': 50 * (psize + csize),
+            'w': 50 * (psize + csize * 2),
+            'height': 50 * len(ap),
+            'height2': 50 * len(ap) + 10,
+            'h3': 50 * len(ap) + 12,
+            'bgcolor': '#f4f4f4',
+            'bgl': 'stroke="white" stroke-width="4"',
+            'bgt': 'stroke="white" stroke-width="1"',
+            'txt': 'text-anchor="start" font-size="20"',
+            'red': 'stroke="#ff0000" stroke-width="2"',
+            'sml': 'text-anchor="start" font-size="10"'
+            }
+        txt = '''
+<svg height="{h3}" width="{w}" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<rect x="0" y="0" width="{w}" height="{height}" fill="{bgcolor}"/>
+<line x1="{endprefix}" y1="0" x2="{endprefix}" y2="{height}"
+      stroke="white" stroke-width="4"/>
+<line x1="{endcycle}" y1="0" x2="{endcycle}" y2="{height}"
+      stroke="white" stroke-width="4"/>
+'''.format(**d)
+
+        # Iterate over all used atomic propositions, and fill each line
+        l = list(self.prefix) + list(self.cycle) + list(self.cycle)
+        bd = self.get_dict()
+        for ypos, a in enumerate(ap):
+            pa = buddy.bdd_ithvar(a)
+            na = buddy.bdd_nithvar(a)
+            name = bdd_format_formula(bd, pa)
+            # Whether the last state was down (-1), up (1), or unknown (0)
+            last = 0
+            txt += ('<line x1="0" y1="{y}" x2="{w}" y2="{y}" {bgl}/>'
+                    .format(y=ypos*50, **d))
+            txt += ('<text x="{x}" y="{y}" {txt}>{name}</text>'
+                    .format(x=3, y=ypos*50+30, name=name, **d))
+            for xpos, step in enumerate(l):
+                if buddy.bdd_implies(step, pa):
+                    cur = 1
+                elif buddy.bdd_implies(step, na):
+                    cur = -1
+                else:
+                    cur = 0
+                txt += ('<line x1="{x}" y1="{y1}" x2="{x}" y2="{y2}" {bgt}/>'
+                        .format(x=(xpos+1)*50, y1=ypos*50, y2=ypos*50+50, **d))
+                if cur != 0:
+                    if last == -cur:
+                        txt += \
+                        ('<line x1="{x}" y1="{y1}" x2="{x}" y2="{y2}" {red}/>'
+                             .format(x=xpos*50, y1=ypos*50+5,
+                                     y2=ypos*50+45, **d))
+                    txt += \
+                    ('<line x1="{x1}" y1="{y}" x2="{x2}" y2="{y}" {red}/>'
+                         .format(x1=xpos*50, x2=(xpos+1)*50,
+                                 y=ypos*50+25-20*cur, **d))
+                last = cur
+        if psize > 0:
+            txt += '<text x="0" y="{height2}" {sml}>prefix</text>'.format(**d)
+        txt += '''<text x="{endprefix}" y="{height2}" {sml}>cycle</text>
+<text x="{endcycle}" y="{height2}" {sml}>cycle</text>'''.format(**d)
+        return txt + '</svg>'
+
+    def show(self):
+        """
+        Display the word as an SVG picture of signals.
+        """
+        from IPython.display import SVG
+        return SVG(self.as_svg())

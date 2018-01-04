@@ -227,6 +227,10 @@ New in spot 2.4.4.dev (net yet released)
   - The "product-states" property of automata is now accessible via
     spot.twa.get_product_states() and spot.set.get_product_states().
 
+  - twa_word instances can be displayed as SVG pictures, with one
+    signal per atomic proposition.  For some examples, see the use of
+    the show() method in https://spot.lrde.epita.fr/ipynb/word.html
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
