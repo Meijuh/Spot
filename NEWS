@@ -186,6 +186,9 @@ New in spot 2.4.4.dev (net yet released)
     are not very smart: if the input does not already have parity
     acceptance, it will simply be degeneralized or determinized.
 
+  - spot::remove_fin() will now call simplify_acceptance(), introduced
+    in 2.4, before attempting its different Fin-removal strategies.
+
   - acc_cond::name(fmt) is a new method that name well-known acceptance
     conditions.   The fmt parameter specify the format to use for that
     name (e.g. to the style used in HOA, or that used by print_dot()).
@@ -258,10 +261,10 @@ New in spot 2.4.4.dev (net yet released)
 
   Bugs fixed:
 
-  - spot::simplify_acceptance() could produce incorrect output
-    if the first edge of the automaton was the only one with no
-    acceptance set.  In spot 2.4.x this function was only used
-    by autfilt --simplify-acceptance.
+  - spot::simplify_acceptance() could produce incorrect output if the
+    first edge of the automaton was the only one with no acceptance
+    set.  In spot 2.4.x this function was only used by autfilt
+    --simplify-acceptance; in 2.5 it is now used in remove_fin().
 
 New in spot 2.4.4 (2017-12-25)
 

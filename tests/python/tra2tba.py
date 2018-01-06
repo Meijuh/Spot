@@ -94,8 +94,8 @@ exp = """HOA: v1
 States: 2
 Start: 0
 AP: 2 "a" "b"
-acc-name: Buchi
-Acceptance: 1 Inf(0)
+acc-name: none
+Acceptance: 0 f
 properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0
@@ -383,11 +383,11 @@ Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0 {0}
-[!1&!2] 0
 [1&!2] 1
+[!1&!2] 0
 State: 1
-[!1&!2] 0
 [1&!2] 1
+[!1&!2] 0
 --END--"""
 
 res = spot.remove_fin(aut)

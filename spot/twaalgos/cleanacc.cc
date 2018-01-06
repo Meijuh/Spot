@@ -325,7 +325,8 @@ namespace spot
   {
     cleanup_acceptance_here(aut, false);
     merge_identical_marks_here(aut);
-    simplify_complementary_marks_here(aut);
+    if (!aut->acc().is_generalized_buchi())
+      simplify_complementary_marks_here(aut);
     cleanup_acceptance_here(aut, true);
 
     return aut;

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015-2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2015-2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -256,11 +256,8 @@ namespace spot
     // TBA-typeness of the SCC, but the resulting automaton should
     // be correct nonetheless.
     twa_graph_ptr
-    tra_to_tba(const const_twa_graph_ptr& inaut)
+    tra_to_tba(const const_twa_graph_ptr& aut)
     {
-      // cleanup acceptance for easy detection of alone fins and infs
-      auto aut = cleanup_acceptance(inaut);
-
       std::vector<acc_cond::rs_pair> pairs;
       if (!aut->acc().is_rabin_like(pairs))
         return nullptr;
@@ -501,20 +498,6 @@ namespace spot
 
     twa_graph_ptr default_strategy(const const_twa_graph_ptr& aut)
     {
-      {
-        // We want a clean acceptance condition, i.e., one where all
-        // sets are useful.  If that is not the case, clean it first.
-        acc_cond::mark_t unused = aut->acc().all_sets();
-        for (auto& t: aut->edges())
-          {
-            unused -= t.acc;
-            if (!unused)
-              break;
-          }
-        if (unused)
-          return remove_fin(cleanup_acceptance(aut));
-      }
-
       std::vector<acc_cond::acc_code> code;
       std::vector<acc_cond::mark_t> rem;
       std::vector<acc_cond::mark_t> keep;
@@ -525,10 +508,21 @@ namespace spot
       {
         auto acccode = aut->get_acceptance();
         if (!acccode.is_dnf())
-          acccode = acccode.to_dnf();
+          {
+            acccode = acccode.to_dnf();
+
+            if (acccode.is_f())
+              {
+                // The original acceptance was equivalent to
+                // "f". Simply return an empty automaton.
+                auto res = make_twa_graph(aut->get_dict());
+                res->set_acceptance(0, acccode);
+                res->set_init_state(res->new_state());
+                return res;
+              }
+          }
 
         auto split = split_dnf_acc_by_fin(acccode);
-
         auto sz = split.size();
         assert(sz > 0);
 
@@ -759,9 +753,11 @@ namespace spot
     twa_graph_ptr remove_fin_impl(const const_twa_graph_ptr& aut,
                                   const strategy_t skip = {})
     {
+      auto simp = simplify_acceptance(aut);
+
       auto handle = [&](strategy stra, strategy_t type) -> twa_graph_ptr
       {
-        return (type & skip) ? nullptr : stra(aut);
+        return (type & skip) ? nullptr : stra(simp);
       };
 
       if (auto maybe = handle(trivial_strategy, strategy_t::trivial))
@@ -785,7 +781,7 @@ namespace spot
         return maybe;
       if (auto maybe = handle(streett_strategy, strategy_t::streett))
         return maybe;
-      return default_strategy(aut);
+      return default_strategy(simp);
     }
   }
 
