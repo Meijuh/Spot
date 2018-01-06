@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2017, 2018 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -273,26 +273,45 @@ namespace spot
       if (!used_in_cond)
         return aut;
 
+      // complement[i] holds sets that appear when set #i does not.
       unsigned num_sets = acc.num_sets();
       std::vector<acc_cond::mark_t> complement(num_sets);
-
 
       for (unsigned i = 0; i < num_sets; ++i)
         if (used_in_cond.has(i))
           complement[i] = used_in_cond - acc_cond::mark_t({i});
 
-      acc_cond::mark_t previous_a = 0U;
-      for (auto& t: aut->edges())
+      // Let's visit all edges to update complement[i].  To skip some
+      // duplicated work, prev_acc remember the "acc" sets of the
+      // previous edge, so we can skip consecutive edges with
+      // identical "acc" sets.  Note that there is no value of
+      // prev_acc that would allow us to fail the comparison on the
+      // first edge (this was issue #315), so we have to deal with
+      // that first edge specifically.
+      acc_cond::mark_t prev_acc = 0U;
+      const auto& edges = aut->edges();
+      auto b = edges.begin();
+      auto e = edges.end();
+      auto update = [&](acc_cond::mark_t tacc)
         {
-          if (t.acc == previous_a)
-            continue;
-          previous_a = t.acc;
+          prev_acc = tacc;
           for (unsigned m: used_in_cond.sets())
             {
-              if (t.acc.has(m))
-                complement[m] -= t.acc;
+              if (tacc.has(m))
+                complement[m] -= tacc;
               else
-                complement[m] &= t.acc;
+                complement[m] &= tacc;
+            }
+        };
+      if (b != e)
+        {
+          update(b->acc);
+          ++b;
+          while (b != e)
+            {
+              if (b->acc != prev_acc)
+                update(b->acc);
+              ++b;
             }
         }
       aut->set_acceptance(num_sets,

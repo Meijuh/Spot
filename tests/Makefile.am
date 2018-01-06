@@ -242,6 +242,7 @@ TESTS_twa = \
   core/explpro4.test \
   core/explsum.test \
   core/dualize.test \
+  core/accsimpl.test \
   core/tripprod.test \
   core/dupexp.test \
   core/exclusive-tgba.test \
