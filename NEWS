@@ -266,6 +266,9 @@ New in spot 2.4.4.dev (net yet released)
     set.  In spot 2.4.x this function was only used by autfilt
     --simplify-acceptance; in 2.5 it is now used in remove_fin().
 
+  - ltlcross could crash when calling remove_fin() on an automaton
+    with 32 acceptance sets would need an additional set.
+
 New in spot 2.4.4 (2017-12-25)
 
   Bugs fixed:

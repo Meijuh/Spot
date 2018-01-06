@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2018 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1240,9 +1240,21 @@ namespace
                       printsize(x[i]);
                       std::cerr << ") ->";
                     }
-                  cleanup_acceptance_here(x[i]);
-                  x[i] = remove_fin(x[i]);
-                  if (verbose)
+                  try
+                    {
+                      x[i] = remove_fin(x[i]);
+                    }
+                  catch (const std::runtime_error& err)
+                    {
+                      if (verbose)
+                        std::cerr << " failed (" << err.what() << ")\n";
+                      else
+                        std::cerr << "info: preprocessing "
+                                  << prefix << i << suffix
+                                  << " failed (" << err.what() << ")\n";
+                      x[i] = nullptr;
+                    }
+                  if (verbose && x[i])
                     {
                       std::cerr << " (";
                       printsize(x[i]);
@@ -1371,52 +1383,19 @@ namespace
           std::vector<spot::scc_info*> pos_map(m);
           std::vector<spot::scc_info*> neg_map(m);
           for (size_t i = 0; i < m; ++i)
-            if (pos[i])
-              {
-                if (verbose)
-                  std::cerr << ("info: building product between state-space and"
-                                " P") << i
-                            << " (" << pos[i]->num_states() << " st., "
-                            << pos[i]->num_edges() << " ed.)\n";
-
-                spot::scc_info* sm = nullptr;
-                try
-                  {
-                    auto p = spot::product(pos[i], statespace);
-                    if (verbose)
-                      std::cerr << "info:   product has " << p->num_states()
-                                << " st., " << p->num_edges()
-                                << " ed.\n";
-                    sm = new
-                      spot::scc_info(p, spot::scc_info_options::TRACK_STATES);
-                  }
-                catch (std::bad_alloc&)
-                  {
-                    std::cerr << ("warning: not enough memory to build "
-                                  "product of P") << i << " with state-space";
-                    if (products > 1)
-                      std::cerr << " #" << p << '/' << products << '\n';
-                    std::cerr << '\n';
-                    ++oom_count;
-                  }
-                pos_map[i] = sm;
-                product_stats(pstats, i, sm);
-              }
-
-          if (!no_checks)
-            for (size_t i = 0; i < m; ++i)
-              if (neg[i])
+            {
+              spot::scc_info* sm = nullptr;
+              if (pos[i])
                 {
                   if (verbose)
                     std::cerr << ("info: building product between state-space"
-                                  " and N") << i
-                              << " (" << neg[i]->num_states() << " st., "
-                              << neg[i]->num_edges() << " ed.)\n";
+                                  " and P") << i
+                              << " (" << pos[i]->num_states() << " st., "
+                              << pos[i]->num_edges() << " ed.)\n";
 
-                  spot::scc_info* sm = nullptr;
                   try
                     {
-                      auto p = spot::product(neg[i], statespace);
+                      auto p = spot::product(pos[i], statespace);
                       if (verbose)
                         std::cerr << "info:   product has " << p->num_states()
                                   << " st., " << p->num_edges()
@@ -1427,16 +1406,54 @@ namespace
                   catch (std::bad_alloc&)
                     {
                       std::cerr << ("warning: not enough memory to build "
-                                    "product of N") << i << " with state-space";
+                                    "product of P") << i << " with state-space";
                       if (products > 1)
                         std::cerr << " #" << p << '/' << products << '\n';
                       std::cerr << '\n';
                       ++oom_count;
                     }
-
-                  neg_map[i] = sm;
-                  product_stats(nstats, i, sm);
+                  pos_map[i] = sm;
                 }
+              product_stats(pstats, i, sm);
+            }
+
+          if (!no_checks)
+            for (size_t i = 0; i < m; ++i)
+              {
+                spot::scc_info* sm = nullptr;
+                if (neg[i])
+                  {
+                    if (verbose)
+                      std::cerr << ("info: building product between state-space"
+                                    " and N") << i
+                                << " (" << neg[i]->num_states() << " st., "
+                                << neg[i]->num_edges() << " ed.)\n";
+
+                    try
+                      {
+                        auto p = spot::product(neg[i], statespace);
+                        if (verbose)
+                          std::cerr << "info:   product has " << p->num_states()
+                                    << " st., " << p->num_edges()
+                                    << " ed.\n";
+                        sm = new
+                          spot::scc_info(p,
+                                         spot::scc_info_options::TRACK_STATES);
+                      }
+                    catch (std::bad_alloc&)
+                      {
+                        std::cerr << ("warning: not enough memory to build "
+                                      "product of N")
+                                  << i << " with state-space";
+                        if (products > 1)
+                          std::cerr << " #" << p << '/' << products << '\n';
+                        std::cerr << '\n';
+                        ++oom_count;
+                      }
+                    neg_map[i] = sm;
+                  }
+                product_stats(nstats, i, sm);
+              }
 
           if (!no_checks)
             {
