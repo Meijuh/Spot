@@ -334,7 +334,6 @@ TESTS_ipython = \
   python/highlighting.ipynb \
   python/ltsmin-dve.ipynb \
   python/ltsmin-pml.ipynb \
-  python/piperead.ipynb \
   python/parity.ipynb \
   python/product.ipynb \
   python/randaut.ipynb \
@@ -348,7 +347,9 @@ TESTS_ipython = \
 # with a _.
 TESTS_python = \
   python/_altscc.ipynb \
+  python/_autparserr.ipynb \
   python/_aux.ipynb \
+  python/_word.ipynb \
   python/accparse2.py \
   python/alarm.py \
   python/alternating.py \

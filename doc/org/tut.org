@@ -58,8 +58,6 @@ real notebooks instead.
 - [[https://spot.lrde.epita.fr/ipynb/automata.html][=automata.ipynb=]] covers translation from formulas to automata,
   automata printing, and some lights transformations
 - [[https://spot.lrde.epita.fr/ipynb/automata-io.html][=automata-io.ipynb=]] shows how to save and read automata from files
-- [[https://spot.lrde.epita.fr/ipynb/piperead.html][=piperead.ipynb=]] shows how to save and read automata output from other
-  commands, using pipes
 - [[https://spot.lrde.epita.fr/ipynb/randaut.html][=randaut.ipynb=]] shows a simple case where the [[file:randaut.org][=randaut=]] commands
   generated random automata, which are displayed in a table before and
   after acceptance simplification
