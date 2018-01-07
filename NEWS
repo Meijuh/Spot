@@ -234,6 +234,8 @@ New in spot 2.4.4.dev (net yet released)
     signal per atomic proposition.  For some examples, see the use of
     the show() method in https://spot.lrde.epita.fr/ipynb/word.html
 
+  - The test suite is now using v4 of the Jupyter Notebook format.
+
   Deprecation notices:
 
   (These functions still work but compilers emit warnings.)
