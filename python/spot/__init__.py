@@ -490,6 +490,7 @@ def _postproc_translate_options(obj, default_type, *args):
     comp_ = 0
     unam_ = 0
     sbac_ = 0
+    colo_ = 0
 
     def type_set(val):
         nonlocal type_
@@ -551,8 +552,10 @@ def _postproc_translate_options(obj, default_type, *args):
             optm_ = postprocessor.Low
 
     def misc_set(val):
-        nonlocal comp_, unam_, sbac_
-        if val == 'complete':
+        nonlocal comp_, unam_, sbac_, colo_
+        if val == 'colored':
+            colo_ = postprocessor.Colored
+        elif val == 'complete':
             comp_ = postprocessor.Complete
         elif val == 'sbacc' or val == 'state-based-acceptance':
             sbac_ = postprocessor.SBAcc
@@ -564,6 +567,7 @@ def _postproc_translate_options(obj, default_type, *args):
         'any': pref_set,
         'ba': type_set,
         'complete': misc_set,
+        'colored': misc_set,
         'deterministic': pref_set,
         'generic': type_set,
         'high': optm_set,
@@ -617,7 +621,7 @@ def _postproc_translate_options(obj, default_type, *args):
         optm_ = postprocessor.High
 
     obj.set_type(type_)
-    obj.set_pref(pref_ | comp_ | unam_ | sbac_)
+    obj.set_pref(pref_ | comp_ | unam_ | sbac_ | colo_)
     obj.set_level(optm_)
 
 
@@ -636,8 +640,9 @@ def translate(formula, *args, dict=_bdd_dict):
       (preferred characteristics of the produced automaton)
     - at most one in 'Low', 'Medium', 'High'
       (optimization level)
-    - any combination of 'Complete', 'Unambiguous', and
-      'StateBasedAcceptance' (or 'SBAcc' for short)
+    - any combination of 'Complete', 'Unambiguous',
+      'StateBasedAcceptance' (or 'SBAcc' for short), and
+      'Colored' (only for parity acceptance)
 
     The default corresponds to 'tgba', 'small' and 'high'.
     """
@@ -668,8 +673,9 @@ def postprocess(automaton, *args, formula=None):
       (preferred characteristics of the produced automaton)
     - at most one in 'Low', 'Medium', 'High'
       (optimization level)
-    - any combination of 'Complete' and 'StateBasedAcceptance'
-      (or 'SBAcc' for short)
+    - any combination of 'Complete', 'StateBasedAcceptance'
+      (or 'SBAcc' for short), and 'Colored (only for parity
+      acceptance)
 
     The default corresponds to 'generic', 'small' and 'high'.
 

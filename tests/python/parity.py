@@ -26,8 +26,9 @@ for f in ('FGa', 'GFa & GFb & FGc', 'XXX(a U b)'):
     assert a1.acc().is_parity()
     a2 = spot.translate(f).postprocess('parity')
     assert a2.acc().is_parity()
-    a3 = spot.translate(f, 'det').postprocess('parity')
+    a3 = spot.translate(f, 'det').postprocess('parity', 'colored')
     assert a3.acc().is_parity()
+    assert spot.is_colored(a3)
 
 a = spot.translate('GFa & GFb')
 try:
