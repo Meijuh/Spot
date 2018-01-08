@@ -180,6 +180,7 @@ namespace spot
 #define PREF_ (pref_ & (Small | Deterministic))
 #define COMP_ (pref_ & Complete)
 #define SBACC_ (pref_ & SBAcc)
+#define COLORED_ (pref_ & Colored)
 
   twa_graph_ptr
   postprocessor::run(twa_graph_ptr a, formula f)
@@ -194,6 +195,9 @@ namespace spot
       state_based_ = true;
 
     bool want_parity = (type_ & Parity) == Parity;
+    if (COLORED_ && !want_parity)
+      throw std::runtime_error("postprocessor: the Colored setting only works "
+                               "for parity acceptance");
 
     auto finalize = [&](twa_graph_ptr tmp)
       {
@@ -205,6 +209,8 @@ namespace spot
           tmp = sbacc(tmp);
         if (want_parity)
           {
+            if (COLORED_)
+              colorize_parity_here(tmp);
             parity_kind kind = parity_kind_any;
             parity_style style = parity_style_any;
             if ((type_ & ParityMin) == ParityMin)

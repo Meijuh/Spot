@@ -136,6 +136,7 @@ namespace spot
       Complete = 4,
       SBAcc = 8,                // State-based acceptance.
       Unambiguous = 16,
+      Colored = 32,             // Colored parity; requires parity acceptance
     };
     typedef int output_pref;
 
@@ -163,7 +164,9 @@ namespace spot
     ///
     /// The above options can be combined with \c Complete and \c
     /// SBAcc, to request a complete automaton, and an automaton with
-    /// state-based acceptance.
+    /// state-based acceptance.  Automata with parity acceptance may
+    /// also be required to be \c Colored, ensuring that each
+    /// transition (or state) belong to exactly one acceptance set.
     ///
     /// Note 1: the \c Unambiguous option is not actually supported by
     /// spot::postprocessor; it is only honored by spot::translator.

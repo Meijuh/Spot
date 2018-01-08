@@ -47,10 +47,10 @@ New in spot 2.4.4.dev (net yet released)
   - ltlsynt is a new tool for synthesizing a controller from LTL/PSL
     specifications.
 
-  - ltl2tgba, autfilt, and dstar2tgba have a new '--parity' option to
-    force parity acceptance on the output.  Different styles can be
-    requested using for instance --parity='min odd' or --parity='max
-    even'.
+  - ltl2tgba, autfilt, and dstar2tgba have some new '--parity' and
+    '--colored-parity' options to force parity acceptance on the
+    output.  Different styles can be requested using for instance
+    --parity='min odd' or --parity='max even'.
 
   - ltldo learned to limit the number of automata it outputs using -n.
 

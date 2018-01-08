@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016, 2017 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2015-2018 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -466,7 +466,7 @@ main(int argc, char** argv)
   setup_sig_handler();
 
   spot::postprocessor post;
-  post.set_pref(pref | comp | sbacc);
+  post.set_pref(pref | comp | sbacc | colored);
   post.set_type(type);
   post.set_level(level);
 

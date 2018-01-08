@@ -23,7 +23,7 @@ set -e
 
 rm -rf res res2
 
-for x in P 'Pmin odd' 'Pmax even'; do
+for x in P 'Pmin odd' 'Pmax even' p 'pmin odd' 'pmax even'; do
   ltl2tgba "-$x" FGa 'GFa & GFb' >>res
   ltl2tgba FGa 'GFa & GFb' | autfilt --name=%M --high "-$x" >>res2
   ltl2tgba -D "-$x" FGa 'GFa & GFb' >>res3
@@ -132,6 +132,108 @@ State: 0
 State: 1
 [0] 0 {0}
 [!0] 1
+--END--
+HOA: v1
+name: "FGa"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: Streett 1
+Acceptance: 2 Fin(0) | Inf(1)
+properties: trans-labels explicit-labels state-acc colored
+properties: stutter-invariant inherently-weak
+--BODY--
+State: 0 {0}
+[t] 0
+[0] 1
+State: 1 {1}
+[0] 1
+--END--
+HOA: v1
+name: "G(Fa & Fb)"
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: Streett 1
+Acceptance: 2 Fin(0) | Inf(1)
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[0&1] 0 {1}
+[!1] 0 {0}
+[!0&1] 1 {0}
+State: 1
+[0] 0 {1}
+[!0] 1 {0}
+--END--
+HOA: v1
+name: "FGa"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: parity min odd 3
+Acceptance: 3 Fin(0) & (Inf(1) | Fin(2))
+properties: trans-labels explicit-labels state-acc colored
+properties: stutter-invariant inherently-weak
+--BODY--
+State: 0 {2}
+[t] 0
+[0] 1
+State: 1 {1}
+[0] 1
+--END--
+HOA: v1
+name: "G(Fa & Fb)"
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: parity min odd 3
+Acceptance: 3 Fin(0) & (Inf(1) | Fin(2))
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[0&1] 0 {1}
+[!1] 0 {2}
+[!0&1] 1 {2}
+State: 1
+[0] 0 {1}
+[!0] 1 {2}
+--END--
+HOA: v1
+name: "FGa"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: parity max even 3
+Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))
+properties: trans-labels explicit-labels state-acc colored
+properties: stutter-invariant inherently-weak
+--BODY--
+State: 0 {1}
+[t] 0
+[0] 1
+State: 1 {2}
+[0] 1
+--END--
+HOA: v1
+name: "G(Fa & Fb)"
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: parity max even 3
+Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[0&1] 0 {2}
+[!1] 0 {1}
+[!0&1] 1 {1}
+State: 1
+[0] 0 {2}
+[!0] 1 {1}
 --END--
 EOF
 
@@ -244,9 +346,115 @@ State: 1
 [0] 0 {0}
 [!0] 1
 --END--
+HOA: v1
+name: "FGa"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: parity min odd 3
+Acceptance: 3 Fin(0) & (Inf(1) | Fin(2))
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[!0] 0 {2}
+[0] 1 {1}
+State: 1
+[!0] 0 {0}
+[0] 1 {1}
+--END--
+HOA: v1
+name: "G(Fa & Fb)"
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: Streett 1
+Acceptance: 2 Fin(0) | Inf(1)
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[0&1] 0 {1}
+[!1] 0 {0}
+[!0&1] 1 {0}
+State: 1
+[0] 0 {1}
+[!0] 1 {0}
+--END--
+HOA: v1
+name: "FGa"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: parity min odd 3
+Acceptance: 3 Fin(0) & (Inf(1) | Fin(2))
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[!0] 0 {2}
+[0] 1 {1}
+State: 1
+[!0] 0 {0}
+[0] 1 {1}
+--END--
+HOA: v1
+name: "G(Fa & Fb)"
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: parity min odd 3
+Acceptance: 3 Fin(0) & (Inf(1) | Fin(2))
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[0&1] 0 {1}
+[!1] 0 {2}
+[!0&1] 1 {2}
+State: 1
+[0] 0 {1}
+[!0] 1 {2}
+--END--
+HOA: v1
+name: "FGa"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: parity max even 4
+Acceptance: 4 Fin(3) & (Inf(2) | (Fin(1) & Inf(0)))
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[!0] 0 {1}
+[0] 1 {2}
+State: 1
+[!0] 0 {3}
+[0] 1 {2}
+--END--
+HOA: v1
+name: "G(Fa & Fb)"
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: parity max even 3
+Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))
+properties: trans-labels explicit-labels trans-acc colored complete
+properties: deterministic stutter-invariant
+--BODY--
+State: 0
+[0&1] 0 {2}
+[!1] 0 {1}
+[!0&1] 1 {1}
+State: 1
+[0] 0 {2}
+[!0] 1 {1}
+--END--
 EOF
 diff expected2 res3
 diff expected2 res4
 
 ltlcross 'ltl2tgba -P' 'ltl2tgba -P"odd max"' 'ltl2tgba -P"even min"' \
+         'ltl2tgba -p' 'ltl2tgba -p"odd max"' 'ltl2tgba -p"even min"' \
          -f FGa -f 'GFa&GFb' -f 'GF(a <-> XXXb)'

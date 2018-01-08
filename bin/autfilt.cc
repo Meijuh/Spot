@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2015, 2016, 2017 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2013-2018 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1540,8 +1540,8 @@ main(int argc, char** argv)
       spot::srand(opt_seed);
 
       spot::postprocessor post(&extra_options);
-      post.set_pref(pref | comp | sbacc);
       post.set_type(type);
+      post.set_pref(pref | comp | sbacc | colored);
       post.set_level(level);
 
       autfilt_processor processor(post, o.dict);

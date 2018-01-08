@@ -16,10 +16,12 @@ a quick summary:
 - =--tgba= (the default) outputs Transition-based Generalized Büchi
   Automata
 - =--ba= (or =-B=) outputs state-based Büchi automata
-- =--monitor= (or =-M=) outputs Monitors
-- =--generic --deterministic= (or =-GD=) will do whatever it takes to
+- =--monitor= (or =-M=) outputs monitors
+- =--generic --deterministic= (or =-DG=) will do whatever it takes to
   produce a deterministic automaton, and may output generalized Büchi,
   or parity acceptance.
+- =--parity --deterministic= (or =-DP=) will produce a deterministic
+  automaton with parity acceptance.
 
 * TGBA and BA
 
@@ -716,7 +718,7 @@ to experiment with the different settings on a small version of the
 pattern, and select the lowest setting that satisfies your
 expectations.
 
-* Deterministic automata with =--generic=
+* Deterministic automata with =--generic --deterministic=
    :PROPERTIES:
    :CUSTOM_ID: generic
    :END:
@@ -792,6 +794,127 @@ ltl2tgba "F(a W FGb)" -x '!det-scc' -G -D -d.a
 
 #+RESULTS:
 [[file:ltl2tgba-det2.svg]]
+
+While the =--generic= option currently only builds automata with
+generalized-Büchi or parity acceptance, this is very likely to change
+in the future.
+
+* Deterministic automata with =--parity --deterministic=
+
+Using the =--parity= (or upper-case =-P=) option will force the
+acceptance condition to be of a parity type.  This has to be
+understood in the sense of the HOA format, where:
+- multiple parity types are defined (=min odd n=, =min even n=, =max
+  odd n=, and =max even n= where =n= is the number of acceptance
+  sets), and
+- the parity acceptance is only a type of acceptance condition, i.e.,
+  a formula expressed in terms of acceptance sets, and does not have
+  additional constraints on these sets.  In particular it is not
+  necessary the case that each transition or state belongs to exactly
+  one acceptance set (this is the "colored" property, see below).
+
+Under these assumptions, Büchi acceptance is just one kind of parity
+(in HOA =Buchi= is equivalent to =parity max even 1= or =parity min
+even 1=), Rabin with one pair is also a parity acceptance (=Rabin 1=
+is equivalent to =parity min odd 2=), and Streett with one pair as
+well (=Streett 1= is equivalent to =parity max odd 2=).
+
+In the current implementation, using =ltl2tgba --parity= (without
+=--deterministic=) will always produce a Büchi automaton, and when
+=--deterministic= (or =-D=) is added, it will produce an deterministic
+automaton with Büchi acceptance (=parity min even 1=) or with =parity
+min odd n= acceptance, because the latter is the type of parity
+acceptance that our determinization procedure outputs.
+
+For instance, =FGa= gets translated into an automaton with =Rabin 1=
+acceptance (another name for =parity min odd 2=):
+
+#+NAME: ltl2tgba-dp1
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "FGa" -D -P -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-dp1.svg :var txt=ltl2tgba-dp1 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-dp1.svg]]
+
+And =GFa & GFb= gets translated into a =Büchi= automaton (another name
+for =parity min even 1=):
+
+#+NAME: ltl2tgba-dp2
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "GFa & GFb" -D -P -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-dp2.svg :var txt=ltl2tgba-dp2 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-dp2.svg]]
+
+If we really want to use the same style of parity acceptance for all outputs,
+we can specify it as an argument to the =--parity= option.  For instance
+
+#+NAME: ltl2tgba-dp3
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "GFa & GFb" -D -P'min odd' -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-dp3.svg :var txt=ltl2tgba-dp3 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-dp3.svg]]
+
+
+The =--colored-parity= (or lower-case =-p=) option works similarly to
+=--parity=, but additionally requests that the automaton be colored.
+I.e., each transition (or state if state-based acceptance is
+requested) should belong to exactly one acceptance set.
+
+#+NAME: ltl2tgba-dp4
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "GFa & GFb" -D -p -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-dp4.svg :var txt=ltl2tgba-dp4 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-dp4.svg]]
+
+#+NAME: ltl2tgba-dp5
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "GFa & GFb" -D -p'min odd' -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-dp5.svg :var txt=ltl2tgba-dp5 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-dp5.svg]]
+
+Note that all these options can be combined with state-based
+acceptance if needed:
+
+#+NAME: ltl2tgba-dp6
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "GFa & GFb" -D -S -p'max even' -d.a
+#+END_SRC
+
+#+BEGIN_SRC dot :file ltl2tgba-dp6.svg :var txt=ltl2tgba-dp6 :exports results
+  $txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ltl2tgba-dp6.svg]]
 
 * Translating multiple formulas for statistics
 

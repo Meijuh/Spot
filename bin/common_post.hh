@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015, 2016 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2012-2018 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -31,6 +31,7 @@ extern spot::postprocessor::output_type type;
 extern spot::postprocessor::output_pref pref;
 extern spot::postprocessor::output_pref comp;
 extern spot::postprocessor::output_pref sbacc;
+extern spot::postprocessor::output_pref colored;
 extern spot::postprocessor::optimization_level level;
 // True if --low, --medium, or --high has been given
 extern bool level_set;

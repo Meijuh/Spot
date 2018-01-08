@@ -27,6 +27,7 @@ spot::postprocessor::output_type type = spot::postprocessor::TGBA;
 spot::postprocessor::output_pref pref = spot::postprocessor::Small;
 spot::postprocessor::output_pref comp = spot::postprocessor::Any;
 spot::postprocessor::output_pref sbacc = spot::postprocessor::Any;
+spot::postprocessor::output_pref colored = spot::postprocessor::Any;
 spot::postprocessor::optimization_level level = spot::postprocessor::High;
 
 bool level_set = false;
@@ -60,6 +61,10 @@ static constexpr const argp_option options[] =
       "any|min|max|odd|even|min odd|min even|max odd|max even",
       OPTION_ARG_OPTIONAL,
       "automaton with parity acceptance", 0, },
+    { "colored-parity", 'p',
+      "any|min|max|odd|even|min odd|min even|max odd|max even",
+      OPTION_ARG_OPTIONAL,
+      "colored automaton with parity acceptance", 0, },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
     { "small", OPT_SMALL, nullptr, 0, "prefer small automata (default)", 0 },
@@ -111,9 +116,13 @@ static const argp_option options_disabled[] =
       "define the acceptance using states", 0 },
     { "sbacc", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     { "parity", 'P',
-      "[any|min|max|odd|even|min odd|min even|max odd|max even]",
+      "any|min|max|odd|even|min odd|min even|max odd|max even",
       OPTION_ARG_OPTIONAL,
       "automaton with parity acceptance", 0, },
+    { "colored-parity", 'p',
+      "any|min|max|odd|even|min odd|min even|max odd|max even",
+      OPTION_ARG_OPTIONAL,
+      "colored automaton with parity acceptance", 0, },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
     { "small", OPT_SMALL, nullptr, 0, "prefer small automata", 0 },
@@ -143,6 +152,7 @@ parse_opt_post(int key, char* arg, struct argp_state*)
       break;
     case 'B':
       type = spot::postprocessor::BA;
+      colored = spot::postprocessor::Any;
       break;
     case 'C':
       comp = spot::postprocessor::Complete;
@@ -153,11 +163,14 @@ parse_opt_post(int key, char* arg, struct argp_state*)
       break;
     case 'G':
       type = spot::postprocessor::Generic;
+      colored = spot::postprocessor::Any;
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
+      colored = spot::postprocessor::Any;
       break;
     case 'P':
+    case 'p':
       {
         static char const *const parity_args[] =
           {
@@ -186,9 +199,12 @@ parse_opt_post(int key, char* arg, struct argp_state*)
           };
         ARGMATCH_VERIFY(parity_args, parity_types);
         if (arg)
-          type = XARGMATCH("--parity", arg, parity_args, parity_types);
+          type = XARGMATCH(key == 'P' ? "--parity" : "--colored-parity",
+                           arg, parity_args, parity_types);
         else
           type = spot::postprocessor::Parity;
+        if (key == 'p')
+          colored = spot::postprocessor::Colored;
       }
       break;
     case 'S':
@@ -217,6 +233,7 @@ parse_opt_post(int key, char* arg, struct argp_state*)
       if (automaton_format == Spin)
         error(2, 0, "--spin and --tgba are incompatible");
       type = spot::postprocessor::TGBA;
+      colored = spot::postprocessor::Any;
       break;
     default:
       return ARGP_ERR_UNKNOWN;

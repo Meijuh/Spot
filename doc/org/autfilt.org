@@ -11,7 +11,7 @@ The tool operates a loop over 5 phases:
 - optionally preprocess the automaton
 - optionally filter the automaton (i.e., decide whether to ignore the
   automaton or continue with it)
-- optionally postprocess the automaton
+- optionally postprocess the automaton (to simply it or change its acceptance)
 - output the automaton
 
 The simplest way to use the tool is simply to use it for input and
@@ -242,14 +242,20 @@ This set of options controls the desired type of output automaton:
 autfilt --help | sed -n '/Output automaton type:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
-:   -B, --ba                   Büchi Automaton (with state-based acceptance)
-:   -C, --complete             output a complete automaton
-:   -G, --generic              any acceptance is allowed (default)
-:   -M, --monitor              Monitor (accepts all finite prefixes of the given
-:                              property)
-:   -S, --state-based-acceptance, --sbacc
-:                              define the acceptance using states
-:       --tgba                 Transition-based Generalized Büchi Automaton
+#+begin_example
+  -B, --ba                   Büchi Automaton (with state-based acceptance)
+  -C, --complete             output a complete automaton
+  -G, --generic              any acceptance is allowed (default)
+  -M, --monitor              Monitor (accepts all finite prefixes of the given
+                             property)
+  -p, --colored-parity[=any|min|max|odd|even|min odd|min even|max odd|max
+      even]                  colored automaton with parity acceptance
+  -P, --parity[=any|min|max|odd|even|min odd|min even|max odd|max even]
+                             automaton with parity acceptance
+  -S, --state-based-acceptance, --sbacc
+                             define the acceptance using states
+      --tgba                 Transition-based Generalized Büchi Automaton
+#+end_example
 
 These options specify any simplification goal:
 
@@ -286,10 +292,11 @@ if you want to try to make (or keep) it deterministic use
 Note that the =--deterministic= flag has two possible behaviors
 depending on the constraints on the acceptance conditions:
 - When =autfilt= is configured to work with generic acceptance (the
-  =--generic= option, which is the default), then the
-  =--deterministic= flag will do whatever it takes to output a
-  deterministic automaton, and this includes changing the acceptance
-  condition if needed (see below).
+  =--generic= option, which is the default) or parity acceptance
+  (using =--parity= or =--colored-parity=), then the =--deterministic=
+  flag will do whatever it takes to output a deterministic automaton,
+  and this includes changing the acceptance condition if needed (see
+  below).
 - If options =--tgba= or =--ba= are used, the =--deterministic= option
   is taken as a /preference/: =autfilt= will try to favor determinism
   in the output, but it may not always succeed and may output
@@ -319,10 +326,15 @@ attempted on any supplied automaton.  (It's even attempted for
 deterministic automata, because that might reduce them.)
 
 If that first procedure failed, and the input automaton is not
-deterministic and =--generic= (the default for =autfilt=) is used,
-then the second procedure is used.  In this case, automata will be
-first converted to transition-based Büchi automata if their condition
-is more complex.
+deterministic and =--generic= (the default for =autfilt=), =--parity=
+or =--colorized-parity= is used, then the second procedure is used.
+In this case, automata will be first converted to transition-based
+Büchi automata if their acceptance condition is more complex.
+
+The difference between =--parity= and =--colored-parity= parity is
+that the latter requests all transitions (or all states when
+state-based acceptance is used) to belong to exactly one acceptance
+set.
 
 * Transformations
 
