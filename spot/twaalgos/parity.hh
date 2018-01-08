@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2016-2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -115,7 +115,7 @@ namespace spot
   /// \brief Colorize an automaton with parity acceptance
   ///
   /// An automaton is said colored iff all the transitions belong to exactly one
-  /// acceptance set. The algorithm achieves thiat by removing superfluous
+  /// acceptance set. The algorithm achieves that by removing superfluous
   /// acceptance marks. It may introduce a new set to mark the transitions with
   /// no acceptance sets and a second set may be introduced to keep the style.
   /// The input must be an automaton with a parity acceptance, otherwise an
