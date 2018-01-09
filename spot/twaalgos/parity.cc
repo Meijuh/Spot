@@ -427,7 +427,7 @@ namespace spot
     struct state_history_hash
     {
       size_t
-      operator()(const state_history& mat) const
+      operator()(const state_history& mat) const noexcept
       {
         unsigned result = 0;
         for (unsigned i = 0; i < mat.get_left_num_sets(); ++i)
@@ -493,7 +493,7 @@ namespace spot
       struct sh_succ_hash
       {
         size_t
-        operator()(std::tuple<sh_label_t, value_t, value_t> x) const
+        operator()(std::tuple<sh_label_t, value_t, value_t> x) const noexcept
         {
           return wang32_hash(std::get<0>(x) ^ wang32_hash(std::get<1>(x)
                              ^ wang32_hash(std::get<2>(x))));
@@ -510,7 +510,7 @@ namespace spot
     struct product_state_hash
     {
       size_t
-      operator()(product_state_t s) const
+      operator()(product_state_t s) const noexcept
       {
         return wang32_hash(std::get<0>(s) ^ wang32_hash(std::get<1>(s)
                            ^ wang32_hash(std::get<2>(s))));

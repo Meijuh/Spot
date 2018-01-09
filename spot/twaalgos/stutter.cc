@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement de
+// Copyright (C) 2014-2018 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -255,7 +255,7 @@ namespace spot
     struct stutter_state_hash
     {
       size_t
-      operator()(const stutter_state& s) const
+      operator()(const stutter_state& s) const noexcept
       {
         return wang32_hash(s.first) ^ wang32_hash(s.second.id());
       }

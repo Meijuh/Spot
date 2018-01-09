@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014, 2017 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2017, 2018 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -115,7 +115,7 @@ namespace spot
     return res;
   }
 
-  size_t bitvect::hash() const
+  size_t bitvect::hash() const noexcept
   {
 
     block_t res = fnv<sizeof(block_t)>::init();

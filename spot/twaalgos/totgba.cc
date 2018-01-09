@@ -446,7 +446,7 @@ namespace spot
     struct st2gba_state_hash
     {
       size_t
-      operator()(const st2gba_state& s) const
+      operator()(const st2gba_state& s) const noexcept
       {
         std::hash<acc_cond::mark_t> h;
         return s.s ^ h(s.pend);

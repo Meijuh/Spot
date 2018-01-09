@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013-2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2013-2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -156,7 +156,7 @@ namespace spot
       return 8 * block_count_ * sizeof(block_t);
     }
 
-    size_t hash() const;
+    size_t hash() const noexcept;
 
     bool get(size_t pos) const
     {

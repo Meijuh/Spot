@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2017, 2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -292,7 +292,8 @@ namespace spot
   {
     struct mp_hash
     {
-      size_t operator()(std::pair<unsigned, const bitvect_array*> bv) const
+      size_t
+      operator()(std::pair<unsigned, const bitvect_array*> bv) const noexcept
       {
         size_t res = 0;
         size_t size = bv.second->size();

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2011, 2014, 2015 Laboratoire de Recherche et
+// Copyright (C) 2008, 2011, 2014, 2015, 2018 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -46,7 +46,7 @@ namespace spot
     {
     }
 
-    size_t operator()(const T* p) const
+    size_t operator()(const T* p) const noexcept
     {
       return knuth32_hash(reinterpret_cast<const char*>(p)
                           - static_cast<const char*>(nullptr));
@@ -63,13 +63,13 @@ namespace spot
   struct identity_hash:
     public std::unary_function<const T&, size_t>
   {
-    // A default constructor is needed if the string_hash object is
+    // A default constructor is needed if the identity_hash object is
     // stored in a const member.
     identity_hash()
     {
     }
 
-    size_t operator()(const T& s) const
+    size_t operator()(const T& s) const noexcept
     {
       return s;
     }
@@ -79,7 +79,7 @@ namespace spot
   struct pair_hash
   {
     template<typename T, typename U>
-    std::size_t operator()(const std::pair<T, U> &p) const
+    std::size_t operator()(const std::pair<T, U> &p) const noexcept
     {
       std::hash<T> th;
       std::hash<U> uh;

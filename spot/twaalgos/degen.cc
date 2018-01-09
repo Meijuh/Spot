@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012-2017 Laboratoire de Recherche
+// Copyright (C) 2012-2018 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -44,7 +44,7 @@ namespace spot
     struct degen_state_hash
     {
       size_t
-      operator()(const degen_state& s) const
+      operator()(const degen_state& s) const noexcept
       {
         return wang32_hash(s.first ^ wang32_hash(s.second));
       }
