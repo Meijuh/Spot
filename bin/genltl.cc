@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2015-2017 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2015-2018 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -88,6 +88,8 @@ static const argp_option options[] =
       "F(p0 | XG(p1 | XG(p2 | ... XG(pn))))", 0},
     { "gf-equiv", gen::LTL_GF_EQUIV, "RANGE", 0,
       "(GFa1 & GFa2 & ... & GFan) <-> GFz", 0},
+    { "gf-implies", gen::LTL_GF_IMPLIES, "RANGE", 0,
+      "(GFa1 & GFa2 & ... & GFan) -> GFz", 0},
     { "gh-q", gen::LTL_GH_Q, "RANGE", 0,
       "(F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))", 0 },
     { "gh-r", gen::LTL_GH_R, "RANGE", 0,

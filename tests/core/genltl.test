@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016, 2017 Laboratoire de Recherche et Développement
+# Copyright (C) 2016-2018 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -136,7 +136,7 @@ test $(genltl --kr-nlogn=4 | ltl2tgba --low --stats=%s) -ge 16
 test $(genltl --kr-n=4 | ltl2tgba --low --stats=%s) -ge 16
 
 genltl --ms-example=0..4 --ms-phi-r=0..2 --ms-phi-s=0..2 --ms-phi-h=0..4 \
-       --gf-equiv=0..5 --format=%F=%L,%f |
+       --gf-equiv=0..5 --gf-implies=0..5 --format=%F=%L,%f |
     ltl2tgba -G -D -F-/2 --stats='%<,%s' > out
 cat >exp<<EOF
 ms-example=0,1
@@ -161,11 +161,17 @@ gf-equiv=2,8
 gf-equiv=3,21
 gf-equiv=4,81
 gf-equiv=5,431
+gf-implies=0,1
+gf-implies=1,5
+gf-implies=2,12
+gf-implies=3,41
+gf-implies=4,186
+gf-implies=5,1047
 EOF
 diff out exp
 
 # Running ltl2tgba on one formula at a time should give the same results
 genltl --ms-example=0..4 --ms-phi-r=0..2 --ms-phi-s=0..2 --ms-phi-h=0..4 \
-       --gf-equiv=0..5 --format=%F=%L,%f |
+       --gf-equiv=0..5 --gf-implies=0..5 --format=%F=%L,%f |
     ltldo -F-/2 'ltl2tgba -G -D' --stats='%<,%s' > out
 diff out exp

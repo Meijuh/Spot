@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012-2017 Laboratoire de Recherche et Developpement
+// Copyright (C) 2012-2018 Laboratoire de Recherche et Developpement
 // de l'EPITA (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -41,18 +41,6 @@ namespace spot
   {
     namespace
     {
-      static formula
-      LTL_GF_equiv(int n, const std::string& a, const std::string& z)
-      {
-        std::vector<formula> gfs;
-        for (int i = 0; i < n; ++i)
-          gfs.emplace_back(formula::G(formula::F(
-                  formula::ap(a + std::to_string(i+1)))));
-
-        return formula::Equiv(formula::And(gfs),
-                              formula::G(formula::F(formula::ap(z))));
-      }
-
       static formula
       ms_example(const char* a, const char* b, int n)
       {
@@ -270,6 +258,18 @@ namespace spot
               result = f;
           }
         return result;
+      }
+
+      static formula
+      LTL_GF_equiv_implies(int n, const std::string& a, const std::string& z,
+                           bool equiv)
+      {
+        formula left = GF_n(a, n);
+        formula right = formula::G(formula::F(formula::ap(z)));
+        if (equiv)
+          return formula::Equiv(left, right);
+        else
+          return formula::Implies(left, right);
       }
 
       //  (((p1 OP p2) OP p3)...OP pn)   if right_assoc == false
@@ -1172,7 +1172,9 @@ namespace spot
         case LTL_FXG_OR:
           return FXG_or_n("p", n);
         case LTL_GF_EQUIV:
-          return LTL_GF_equiv(n, "a", "z");
+          return LTL_GF_equiv_implies(n, "a", "z", true);
+        case LTL_GF_IMPLIES:
+          return LTL_GF_equiv_implies(n, "a", "z", false);
         case LTL_GH_Q:
           return Q_n("p", n);
         case LTL_GH_R:
@@ -1254,6 +1256,7 @@ namespace spot
           "eh-patterns",
           "fxg-or",
           "gf-equiv",
+          "gf-implies",
           "gh-q",
           "gh-r",
           "go-theta",
@@ -1312,6 +1315,7 @@ namespace spot
           return 12;
         case LTL_FXG_OR:
         case LTL_GF_EQUIV:
+        case LTL_GF_IMPLIES:
         case LTL_GH_Q:
         case LTL_GH_R:
         case LTL_GO_THETA:

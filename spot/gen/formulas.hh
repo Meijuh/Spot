@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2017 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2017, 2018 Laboratoire de Recherche et Developpement de
 // l'EPITA (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -191,6 +191,7 @@ namespace spot
       LTL_EH_PATTERNS,
       LTL_FXG_OR,
       LTL_GF_EQUIV,
+      LTL_GF_IMPLIES,
       LTL_GH_Q,
       LTL_GH_R,
       LTL_GO_THETA,
