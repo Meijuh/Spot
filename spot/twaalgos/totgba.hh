@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2016 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2016, 2018 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -74,7 +74,7 @@ namespace spot
   /// This function is an optimized version of the construction described
   /// by Lemma 4 and 5 of the paper below.
   /** \verbatim
-      @Article{boker.2009.lcs,
+      @Article{boker.2011.fossacs,
         author    = {Udi Boker and Orna Kupferman},
         title     = {Co-Büching Them All},
         booktitle = {Foundations of Software Science and Computational

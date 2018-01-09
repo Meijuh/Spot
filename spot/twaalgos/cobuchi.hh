@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2017, 2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -60,7 +60,7 @@ namespace spot
   /// This function works in top of the augmented subset construction algorithm
   /// and is described in section 3.1 of:
   /** \verbatim
-      @Article{boker.2009.lcs,
+      @Article{boker.2011.fossacs,
         author    = {Udi Boker and Orna Kupferman},
         title     = {Co-Büching Them All},
         booktitle = {Foundations of Software Science and Computational
@@ -88,7 +88,7 @@ namespace spot
   /// automaton and then calls nsa_to_nca() on it. It is described in section
   /// 3.2 of:
   /** \verbatim
-      @Article{boker.2009.lcs,
+      @Article{boker.2011.fossacs,
         author    = {Udi Boker and Orna Kupferman},
         title     = {Co-Büching Them All},
         booktitle = {Foundations of Software Science and Computational
@@ -113,7 +113,7 @@ namespace spot
   /// information and then runs a breakpoint construction. The algorithm is
   /// described in section 4 of:
   /** \verbatim
-      @Article{boker.2009.lcs,
+      @Article{boker.2011.fossacs,
         author    = {Udi Boker and Orna Kupferman},
         title     = {Co-Büching Them All},
         booktitle = {Foundations of Software Science and Computational
@@ -135,7 +135,7 @@ namespace spot
   /// information and then runs a breakpoint construction. The algorithm is
   /// described in section 4 of:
   /** \verbatim
-      @Article{boker.2009.lcs,
+      @Article{boker.2011.fossacs,
         author    = {Udi Boker and Orna Kupferman},
         title     = {Co-Büching Them All},
         booktitle = {Foundations of Software Science and Computational
