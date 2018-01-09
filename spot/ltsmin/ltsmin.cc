@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017 Laboratoire de
+// Copyright (C) 2011, 2012, 2014-2018 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -1034,64 +1034,45 @@ namespace spot
     d->handle = h;
 
 
-    auto sym = [&](const char* name)
+    auto sym = [&](auto* dst, const char* name)
       {
         // Work around -Wpendantic complaining that pointer-to-objects
         // should not be converted to pointer-to-functions (we have to
         // assume they can for POSIX).
-        void (*res)(void*);
-        *reinterpret_cast<void**>(&res) = lt_dlsym(h, name);
-        if (res == nullptr)
+        *reinterpret_cast<void**>(dst) = lt_dlsym(h, name);
+        if (dst == nullptr)
           throw std::runtime_error(std::string("Failed to resolve symbol '")
                                    + name + "' in '" + file + "'.");
-        return res;
       };
 
     // SpinS interface.
     if (ext == ".spins")
       {
-        d->get_initial_state = (void (*)(void*))
-          sym("spins_get_initial_state");
+        sym(&d->get_initial_state, "spins_get_initial_state");
         d->have_property = nullptr;
-        d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
-          sym("spins_get_successor_all");
-        d->get_state_size = (int (*)()) sym("spins_get_state_size");
-        d->get_state_variable_name = (const char* (*)(int))
-          sym("spins_get_state_variable_name");
-        d->get_state_variable_type = (int (*)(int))
-          sym("spins_get_state_variable_type");
-        d->get_type_count = (int (*)())
-          sym("spins_get_type_count");
-        d->get_type_name = (const char* (*)(int))
-          sym("spins_get_type_name");
-        d->get_type_value_count = (int (*)(int))
-          sym("spins_get_type_value_count");
-        d->get_type_value_name = (const char* (*)(int, int))
-          sym("spins_get_type_value_name");
+        sym(&d->get_successors, "spins_get_successor_all");
+        sym(&d->get_state_size, "spins_get_state_size");
+        sym(&d->get_state_variable_name, "spins_get_state_variable_name");
+        sym(&d->get_state_variable_type, "spins_get_state_variable_type");
+        sym(&d->get_type_count, "spins_get_type_count");
+        sym(&d->get_type_name, "spins_get_type_name");
+        sym(&d->get_type_value_count, "spins_get_type_value_count");
+        sym(&d->get_type_value_name, "spins_get_type_value_name");
       }
     // dve2 and gal2C interfaces.
     else
       {
-        d->get_initial_state = (void (*)(void*))
-          sym("get_initial_state");
+        sym(&d->get_initial_state, "get_initial_state");
         *reinterpret_cast<void**>(&d->have_property) =
           lt_dlsym(h, "have_property");
-        d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
-          sym("get_successors");
-        d->get_state_size = (int (*)())
-          sym("get_state_variable_count");
-        d->get_state_variable_name = (const char* (*)(int))
-          sym("get_state_variable_name");
-        d->get_state_variable_type = (int (*)(int))
-          sym("get_state_variable_type");
-        d->get_type_count = (int (*)())
-          sym("get_state_variable_type_count");
-        d->get_type_name = (const char* (*)(int))
-          sym("get_state_variable_type_name");
-        d->get_type_value_count = (int (*)(int))
-          sym("get_state_variable_type_value_count");
-        d->get_type_value_name = (const char* (*)(int, int))
-          sym("get_state_variable_type_value");
+        sym(&d->get_successors, "get_successors");
+        sym(&d->get_state_size, "get_state_variable_count");
+        sym(&d->get_state_variable_name, "get_state_variable_name");
+        sym(&d->get_state_variable_type, "get_state_variable_type");
+        sym(&d->get_type_count, "get_state_variable_type_count");
+        sym(&d->get_type_name, "get_state_variable_type_name");
+        sym(&d->get_type_value_count, "get_state_variable_type_value_count");
+        sym(&d->get_type_value_name, "get_state_variable_type_value");
       }
 
     if (d->have_property && d->have_property())
