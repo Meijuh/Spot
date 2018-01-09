@@ -8,54 +8,13 @@ New in spot 2.4.4.dev (net yet released)
     want to build a local copy you can configure Spot with
     --enable-doxygen, or simply run "cd doc && make doc".
 
+  - All the images that illustrate the documentation have been
+    converted to SVG, to save space and improve quality.
+
   Tools:
-
-  - genltl learned to generate two new family of formulas, taken from
-    the SYNTCOMP competition on reactive synthesis:
-    --gf-equiv=RANGE       (GFa1 & GFa2 & ... & GFan) <-> GFz
-    --gf-implies=RANGE     (GFa1 & GFa2 & ... & GFan) -> GFz
-
-  - genltl learned to generate 4 new families of formulas, taken
-    from Müller & Sickert's GandALF'17 paper:
-    --ms-example=RANGE     GF(a1&X(a2&X(a3&...)))&F(b1&F(b2&F(b3&...)))
-    --ms-phi-h=RANGE       FG(a|b)|FG(!a|Xb)|FG(a|XXb)|FG(!a|XXXb)|...
-    --ms-phi-r=RANGE       (FGa{n}&GFb{n})|((FGa{n-1}|GFb{n-1})&(...))
-    --ms-phi-s=RANGE       (FGa{n}|GFb{n})&((FGa{n-1}&GFb{n-1})|(...))
-
-  - autfilt learned --streett-like to convert an automaton in order to
-    have a Streett-like acceptance condition. It only works with
-    ω-automata having an acceptance in disjunctive normal form.
-
-  - autfilt learned --dca to convert a Streett-like automaton or an
-    automaton with an acceptance in disjunctive normal form to a
-    deterministic co-Büchi automaton using the new functions
-    [nsa-dnf]_to_dca() described below.
-
-  - autfilt learned --acceptance-is=ACC to filter automata by
-    acceptance condition.  ACC can be the name of some acceptance
-    class (e.g. Büchi, Fin-less, Streett-like) or a precise acceptance
-    formula in the HOA syntax.
-
-  - ltlfilt learned to measure wall-time using --format=%r.
-
-  - ltlfilt learned to measure cpu-time (as opposed to wall-time) using
-    --format=%R. User or system time, for children or parent, can be
-    measured separately by adding additional %[LETTER]R options.
-    The difference between %r (wall-clock time) and %R (CPU time) can
-    also be used to detect unreliable measurements. See
-      https://spot.lrde.epita.fr/oaut.html#timing
 
   - ltlsynt is a new tool for synthesizing a controller from LTL/PSL
     specifications.
-
-  - ltl2tgba, autfilt, and dstar2tgba have some new '--parity' and
-    '--colored-parity' options to force parity acceptance on the
-    output.  Different styles can be requested using for instance
-    --parity='min odd' or --parity='max even'.
-
-  - ltldo learned to limit the number of automata it outputs using -n.
-
-  - autcross, ltlcross, and ltldo learned --fail-on-timeout.
 
   - ltlcross learned --reference=COMMANDFMT to specify a translator
     that should be trusted.  Doing so makes it possible to reduce the
@@ -64,13 +23,42 @@ New in spot 2.4.4.dev (net yet released)
     reference can be given; in that case other tools are compared
     against the smallest reference automaton.
 
-  - The new -x tls-impl=N option allows to fine-tune the
-    implication-based simplification rules of ltl2tgba.  See the
-    spot-x man-page for details.
+  - autcross, ltlcross, and ltldo learned --fail-on-timeout.
+
+  - ltl2tgba, autfilt, and dstar2tgba have some new '--parity' and
+    '--colored-parity' options to force parity acceptance on the
+    output.  Different styles can be requested using for instance
+    --parity='min odd' or --parity='max even'.
+
+  - genltl learned to generate six new families of formulas, taken from
+    the SYNTCOMP competition on reactive synthesis, and from from
+    Müller & Sickert's GandALF'17 paper:
+    --gf-equiv=RANGE       (GFa1 & GFa2 & ... & GFan) <-> GFz
+    --gf-implies=RANGE     (GFa1 & GFa2 & ... & GFan) -> GFz
+    --ms-example=RANGE     GF(a1&X(a2&X(a3&...)))&F(b1&F(b2&F(b3&...)))
+    --ms-phi-h=RANGE       FG(a|b)|FG(!a|Xb)|FG(a|XXb)|FG(!a|XXXb)|...
+    --ms-phi-r=RANGE       (FGa{n}&GFb{n})|((FGa{n-1}|GFb{n-1})&(...))
+    --ms-phi-s=RANGE       (FGa{n}|GFb{n})&((FGa{n-1}&GFb{n-1})|(...))
+
+  - autfilt learned a couple of acceptance transformations:
+      --streett-like converts automata with DNF acceptance
+                     into automata with Streett-like acceptance.
+      --dca          converts automata with DNF or Streett-like
+                     acceptance into deterministic co-Büchi.
+
+  - autfilt learned --acceptance-is=ACC to filter automata by
+    acceptance condition.  ACC can be the name of some acceptance
+    class (e.g. Büchi, Fin-less, Streett-like) or a precise acceptance
+    formula in the HOA syntax.
+
+  - ltldo learned to limit the number of automata it outputs using -n.
+
+  - ltlfilt learned to measure wall-time using --format=%r, and
+    cpu-time with --format=%R.
 
   - The --format=%g option of tools that output automata used to
     print the acceptance condition as a *formula* in the HOA format.
-    This %g can now take optional arguments to print the acceptance
+    This %g may now take optional arguments to print the acceptance
     *name* in different formats.  For instance
 
        ... | autfilt -o '%[s]g.hoa'
@@ -82,121 +70,125 @@ New in spot 2.4.4.dev (net yet released)
   - Tools that produce formulas now support --format=%[OP]n to
     display the nesting depth of operator OP.
 
+  - The new -x tls-impl=N option allows to fine-tune the
+    implication-based simplification rules of ltl2tgba.  See the
+    spot-x man-page for details.
+
   - All tools learned to check the SPOT_OOM_ABORT environment
     variable.  This is only useful for debuging out-of-memory
     conditions; see the spot-x(7) man page for detail.
 
-  Library:
+  New functions in the library:
 
-  - Rename three methods of spot::scc_info. New names are clearer. The
-    old names have been deprecated.
+  - spot::print_aiger() encodes an automaton as an AIGER circuit, as
+    required by the SYNTCOMP competition.  It relies on a new named
+    property "synthesis outputs" that describes which atomic
+    propositions are to be encoded as outputs of the circuits.
 
-  - scc_info now takes an optional argument to disable some feature
-    that are expansive and not always necessary.  By default scc_info
-    tracks the list of all states that belong to an SCC (you may now
-    ask it not to), tracks the successor SCCs of each SCC (that can
-    but turned off), and explores all SCCs of the automaton (you may
-    request to stop on the first SCC that is found accepting).
+  - spot::dnf_to_streett() converts any automaton with a DNF
+    acceptance condition into a Streett-like automaton.
 
-  - The new function scc_info::states_on_acc_cycle_of() is able to
-    return all states visited by any accepting cycles of the
-    specified SCC. It must only be called on automata with a
-    Streett-like acceptance condition.
+  - spot::nsa_to_nca(), spot::dfn_to_nca(), spot::dfn_to_dca(), and
+    spot::nsa_to_dca(), convert automata with DNF or Streett-like
+    acceptance into deterministic or non-deterministic co-Büchi
+    automata.  spot::to_dca() dispatches between the last two
+    functions.  The language of produced automata include the original
+    language, but may be larger if the original automaton is not
+    co-Büchi realizable.  Based on Boker & Kupferman FOSSACS'11 paper.
 
-  - The new function dnf_to_streett() is able to convert any automaton
-    with an acceptance condition in Disjunctive Normal Form to a
-    Streett-like automaton. This is used by the new option
-    '--streett-like' of autfilt.
+  - spot::scc_info::states_on_acc_cycle_of() return all states
+    visited by any accepting cycle of the specified SCC.  It only
+    works on automata with Streett-like acceptance.
 
-  - The new functions spot::nsa_to_[nca-dca]()
-    (or spot::dnf_to_[nca-dca]()) are able to convert when possible a
-    Streett-like automaton (or any automaton with an acceptance in DNF)
-    to an equivalent 'nca' (nondeterministic co-Büchi automaton) or
-    'dca' (deterministic co-Büchi automaton).  Actually the resulting
-    automaton will always recognize at least the same language.  It can
-    recognize more if the original language can not be expressed with
-    a co-Büchi acceptance condition.
+  - spot::is_recurrence(), spot::is_persistence(), and
+    spot::is_obligation() test if a formula is a recurrence,
+    persistance or obligation.  The SPOT_PR_CHECK and SPOT_O_CHECK
+    environment variables can be used to select between multiple
+    implementations of these functions (see the spot-x(7) man page).
 
-  - The new functions spot::is_recurrence() and spot::is_persistence()
-    check respectively if a formula f belongs to the recurrence or
-    persistence class. Two algorithms are available, one that
-    checks if a formula is cobuchi_realizable (then it belongs to the
-    persistence class) and the other that checks if it is
-    detbuchi_realizable (then it belongs to the recurrence class).
-    Force one method or the other by setting the environment variable
-    SPOT_PR_CHECK to 1 or 2.
-    Note that thanks to the duality of both classes, both algorithms
-    will work either on f or its negation.
-    (see https://spot.lrde.epita.fr/hierarchy.html for details).
-
-  - A new function spot::is_obligation() can be used to test whether a
-    formula is an obligation.  This is used by ltlfilt --obligation,
-    and the algorithm used can be controled by the SPOT_O_CHECK
-    environment variable (see the spot-x(7) man page for details).
-
-  - The new function spot::is_colored() checks if an automaton is colored
+  - spot::is_colored() checks if an automaton is colored
     (i.e., every transition belongs to exactly one acceptance set)
 
-  - The new function spot::change_parity() can convert an automaton with parity
-    acceptance condition to an equivalent automaton with another type of parity
-    acceptance condition. The type of a parity acceptance condition states
-    whether it is an odd or even parity acceptance condition, and whether it is
-    a min or max parity acceptance condition.
+  - spot::change_parity() convert between different parity acceptance
+    conditions.
 
-  - The new function spot::colorize_parity() can colorize an automaton with
-    a parity acceptance condition. The resulting automaton is a parity automaton
-    and every transition belongs to exactly one acceptance set.
+  - spot::colorize_parity() transform an automaton with parity
+    acceptance into a colored automaton (which is often what people
+    working with parity automata expect).
 
-  - The new function spot::cleanup_parity_acceptance() can simplify the
-    acceptance condition of an automaton with parity acceptance condition. It
-    removes the unused acceptance sets and merges acceptance sets to keep the
-    parity acceptance condition.
+  - spot::cleanup_parity_acceptance() simplify a parity acceptance
+    condition.
 
-  - The new functions spot::parity_product() and spot::parity_product_or()
-    compute respectively the intersection and the union of two automata with
-    parity acceptance condition and keep the parity acceptance condition.
+  - spot::parity_product() and spot::parity_product_or() are
+    specialized (but expensive) products that preserve parity
+    acceptance.
 
-  - The new function spot::remove_univ_otf() removes universal
-    transitions on the fly from an alternating Büchi automaton
-    using Miyano and Hayashi's breakpoint algorithm.
+  - spot::remove_univ_otf() removes universal transitions on the fly
+    from an alternating Büchi automaton using Miyano and Hayashi's
+    breakpoint algorithm.
+
+  - spot::stutter_invariant_states(),
+    spot::stutter_invariant_letters(),
+    spot::highlight_stutter_invariant_states(), ...  These function
+    help study a stutter-sensitive automaton and detect the subset of
+    states that are stutter-invariant.  See
+    https://spot.lrde.epita.fr/ipynb/stutter-inv.html for examples.
+
+  - spot::acc_cond::name(fmt) is a new method that names well-known
+    acceptance conditions.  The fmt parameter specify the format to
+    use for that name (e.g. to the style used in HOA, or that used by
+    print_dot()).
+
+  - spot::formula::is_leaf() method can be used to detect formulas
+    without children (atomic propositions, or constants).
+
+  - spot::nesting_depth() computes the nesting depth of any LTL
+    operator.
+
+  - spot::check_determinism() sets both prop_semi_deterministic()
+    and prop_universal() appropriately.
+
+  Improvements to existing functions in the library:
+
+  - spot::tgba_determinize() has been heavily rewritten and
+    optimized. The algorithm has (almost) not changed, but it is
+    much faster now. It also features an optimization for
+    stutter-invariant automata that may produce slightly smaller
+    automata.
+
+  - spot::scc_info now takes an optional argument to disable some
+    features that are expensive and not always necessary.  By
+    default scc_info tracks the list of all states that belong to an
+    SCC (you may now ask it not to), tracks the successor SCCs of
+    each SCC (that can but turned off), and explores all SCCs of the
+    automaton (you may request to stop on the first SCC that is
+    found accepting).
 
   - In some cases, spot::degeneralize() would output Büchi automata
     with more SCCs than its input.  This was hard to notice, because
     very often simulation-based simplifications remove those extra
-    SCCs.  This situation is now detected by spot::degeneralized() and
-    fixed before returning the automaton.  A new optionnal argument
-    can be passed to disable this behavior (or use -x degen-remscc=0
-    from the command-line).
+    SCCs.  This situation is now detected by spot::degeneralized()
+    and fixed before returning the automaton.  A new optionnal
+    argument can be passed to disable this behavior (or use -x
+    degen-remscc=0 from the command-line).
 
-  - The functions for detecting stutter-invariant formulas or automata
-    have been overhauled.  Their interface changed slightly.  They are
-    now fully documented.
+  - The functions for detecting stutter-invariant formulas or
+    automata have been overhauled.  Their interface changed
+    slightly.  They are now fully documented.
 
-  - In addition to detecting stutter-invariant formulas/automata, some
-    can now study a stutter-sensitive automaton and detect the subset
-    of states that are stutter-invariant.  See
-    https://spot.lrde.epita.fr/ipynb/stutter-inv.html for examples.
+  - spot::postprocessor::set_type() can now request different forms
+    of parity acceptance as output.  However currently the
+    conversions are not very smart: if the input does not already
+    have parity acceptance, it will simply be degeneralized or
+    determinized.
 
-  - Determinization has been heavily rewritten and optimized. The algorithm has
-    (almost) not changed, but it runs muuuch faster now. It also features an
-    optimization for stutter-invariant automata that may produce slightly
-    smaller automata.
+  - spot::remove_fin() will now call simplify_acceptance(),
+    introduced in 2.4, before attempting its different Fin-removal
+    strategies.
 
-  - spot::postprocessor::set_type() can now request different forms of
-    parity acceptance as output.  However currently the conversions
-    are not very smart: if the input does not already have parity
-    acceptance, it will simply be degeneralized or determinized.
-
-  - spot::remove_fin() will now call simplify_acceptance(), introduced
-    in 2.4, before attempting its different Fin-removal strategies.
-
-  - acc_cond::name(fmt) is a new method that name well-known acceptance
-    conditions.   The fmt parameter specify the format to use for that
-    name (e.g. to the style used in HOA, or that used by print_dot()).
-
-  - spot::simplify_acceptance() was already merging identical acceptance
-    sets, and detecting complementary sets i and j to perform the following
-    simplifications
+  - spot::simplify_acceptance() was already merging identical
+    acceptance sets, and detecting complementary sets i and j to
+    perform the following simplifications
       Fin(i) & Inf(j) = Fin(i)
       Fin(i) | Inf(j) = Inf(i)
     It now additionally applies the following rules (again assuming i
@@ -204,32 +196,14 @@ New in spot 2.4.4.dev (net yet released)
       Fin(i) & Fin(j) = f          Inf(i) | Inf(j) = t
       Fin(i) & Inf(i) = f          Fin(i) | Inf(i) = t
 
-  - The new spot::formula::is_leaf() method can be used to detect
-    formulas without children (atomic propositions, or constants).
-
   - spot::formula::map(fun) and spot::formula::traverse(fun) will
     accept additionnal arguments and pass them to fun().  See
     https://spot.lrde.epita.fr/tut03.html for some examples.
 
-  - A the new function spot::nesting_depth() computes the nesting
-    depth of any LTL operator.
-
-  - The new function spot::print_aiger() encodes an automaton as an
-    AIGER circuit and prints it. This is only possible for automata
-    whose acceptance condition is trivial. It relies on a new named
-    property "synthesis outputs" that describes which atomic
-    propositions are to be encoded as outputs of the circuits.
-    This function is used by ltlsynt to output the synthesized
-    controllers in the format required by the synthesis tools
-    competition SYNTCOMP.
-
-  - The new function spot::check_determinism() sets both
-    prop_semi_deterministic() and prop_universal() appropriately.
-
-  Python:
+  Python-specific changes:
 
   - The "product-states" property of automata is now accessible via
-    spot.twa.get_product_states() and spot.set.get_product_states().
+    spot.twa.get_product_states() and spot.twa.set_product_states().
 
   - twa_word instances can be displayed as SVG pictures, with one
     signal per atomic proposition.  For some examples, see the use of
@@ -242,9 +216,9 @@ New in spot 2.4.4.dev (net yet released)
   (These functions still work but compilers emit warnings.)
 
   - spot::scc_info::used_acc(), spot::scc_info::used_acc_of() and
-    spot::scc_info::acc() are deprecated. They have been renamed
+    spot::scc_info::acc() are deprecated.  They have been renamed
     spot::scc_info::marks(), spot::scc_info::marks_of() and
-    spot::scc_info::acc_sets_of() respectively.
+    spot::scc_info::acc_sets_of() respectively for clarity.
 
   Backward incompatible changes:
 
