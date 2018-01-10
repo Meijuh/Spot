@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2007-2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2007-2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003-2007 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -1155,7 +1155,7 @@ checked_main(int argc, char** argv)
           if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
             {
               tm.start("SCC-filter post-sim");
-              auto aa = down_cast<spot::const_twa_graph_ptr>(a);
+              auto aa = spot::down_cast<spot::const_twa_graph_ptr>(a);
               // Do not filter_all for SBA
               a = spot::scc_filter(aa, assume_sba ?
                                    false : scc_filter_all);

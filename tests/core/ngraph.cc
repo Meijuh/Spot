@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement de
+// Copyright (C) 2014-2018 Laboratoire de Recherche et Développement de
 // l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -347,7 +347,7 @@ public:
 
   int compare(const spot::state* other) const override
   {
-    auto o = down_cast<const my_state*>(other);
+    auto o = spot::down_cast<const my_state*>(other);
 
     // Do not simply return "other - this", it might not fit in an int.
     if (o < this)
