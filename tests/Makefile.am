@@ -309,10 +309,14 @@ TESTS_twa = \
   core/cycles.test \
   core/acc_word.test \
   core/dca.test \
+  core/dca2.test \
   core/dnfstreett.test \
   core/parity.test \
   core/parity2.test \
   core/ltlsynt.test
+
+# Issue #317.
+XFAIL_TESTS = core/dca2.test
 
 ############################## PYTHON ##############################
 
@@ -356,7 +360,6 @@ TESTS_python = \
   python/bdditer.py \
   python/bddnqueen.py \
   python/bugdet.py \
-  python/dca.test \
   python/declenv.py \
   python/decompose_scc.py \
   python/dualize.py \
@@ -410,7 +413,6 @@ nb-html: $(TESTS_ipython:.ipynb=.html)
 EXTRA_DIST = \
   $(TESTS) \
   python/ltl2tgba.py \
-  python/dca.py \
   python/ipnbdoctest.py
 
 

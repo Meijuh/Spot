@@ -29,6 +29,8 @@
 #include <spot/twaalgos/product.hh>
 #include <spot/twaalgos/sccinfo.hh>
 #include <spot/twaalgos/totgba.hh>
+#include <spot/twaalgos/isdet.hh>
+#include <spot/twaalgos/strength.hh>
 
 #include <stack>
 #include <unordered_map>
@@ -196,7 +198,7 @@ namespace spot
                              bool was_rabin = false,
                              unsigned orig_num_st = 0)
           : aut_(ref_prod),
-            state_based_((bool)aut_->prop_state_acc()),
+            state_based_(aut_->prop_state_acc().is_true()),
             pairs_(pairs),
             nb_pairs_(pairs.size()),
             named_states_(named_states),
@@ -241,29 +243,30 @@ namespace spot
 
 
   twa_graph_ptr
-  nsa_to_nca(const const_twa_graph_ptr& ref,
+  nsa_to_nca(const_twa_graph_ptr ref,
              bool named_states,
              vect_nca_info* nca_info)
   {
-    twa_graph_ptr ref_tmp = ref->acc().is_parity() ? to_generalized_streett(ref)
-                                                   : nullptr;
+    if (ref->acc().is_parity())
+      ref = to_generalized_streett(ref);
+
     std::vector<acc_cond::rs_pair> pairs;
-    if (!(ref_tmp ? ref_tmp : ref)->acc().is_streett_like(pairs))
+    if (!ref->acc().is_streett_like(pairs))
       throw std::runtime_error("nsa_to_nca() only works with Streett-like or "
                                "Parity acceptance condition");
 
-    nsa_to_nca_converter nca_converter(ref_tmp ? ref_tmp : ref,
-                                       ref_tmp ? ref_tmp : ref,
-                                       pairs,
-                                       named_states,
-                                       false);
+    // FIXME: At the moment this algorithm does not support
+    // transition-based acceptance.  See issue #317.  Once that is
+    // fixed we may remove the next line.
+    ref = sbacc(std::const_pointer_cast<twa_graph>(ref));
+
+    nsa_to_nca_converter nca_converter(ref, ref, pairs, named_states, false);
     return nca_converter.run(nca_info);
   }
 
 
   twa_graph_ptr
-  dnf_to_nca(const const_twa_graph_ptr& ref,
-             bool named_states,
+  dnf_to_nca(const_twa_graph_ptr ref, bool named_states,
              vect_nca_info* nca_info)
   {
     const acc_cond::acc_code& code = ref->get_acceptance();
@@ -287,6 +290,61 @@ namespace spot
     return nca_converter.run(nca_info);
   }
 
+  namespace
+  {
+    twa_graph_ptr
+    weak_to_cobuchi(const const_twa_graph_ptr& aut)
+    {
+      trival iw = aut->prop_inherently_weak();
+      if (iw.is_false())
+        return nullptr;
+      scc_info si(aut);
+      if (iw.is_maybe() && !is_weak_automaton(aut, &si))
+        return nullptr;
+      auto res = make_twa_graph(aut->get_dict());
+      res->copy_ap_of(aut);
+      res->prop_copy(aut, twa::prop_set::all());
+      res->new_states(aut->num_states());
+      si.determine_unknown_acceptance();
+      unsigned ns = si.scc_count();
+      for (unsigned s = 0; s < ns; ++s)
+        {
+          acc_cond::mark_t m = 0U;
+          if (si.is_rejecting_scc(s))
+            m = acc_cond::mark_t{0};
+          else
+            assert(si.is_accepting_scc(s));
+
+          for (auto& e: si.edges_of(s))
+            res->new_edge(e.src, e.dst, e.cond, m);
+        }
+      res->set_co_buchi();
+      res->set_init_state(aut->get_init_state_number());
+      res->prop_weak(true);
+      res->prop_state_acc(true);
+      return res;
+    }
+  }
+
+  twa_graph_ptr
+  to_nca(const_twa_graph_ptr aut, bool named_states)
+  {
+    if (auto weak = weak_to_cobuchi(aut))
+      return weak;
+
+    const acc_cond::acc_code& code = aut->get_acceptance();
+
+    std::vector<acc_cond::rs_pair> pairs;
+    if (aut->acc().is_streett_like(pairs) || aut->acc().is_parity())
+      return nsa_to_nca(aut, named_states);
+    else if (code.is_dnf())
+      return dnf_to_nca(aut, named_states);
+
+    auto tmp = make_twa_graph(aut, twa::prop_set::all());
+    tmp->set_acceptance(aut->acc().num_sets(),
+                        aut->get_acceptance().to_dnf());
+    return to_nca(tmp, named_states);
+  }
 
   namespace
   {
@@ -543,7 +601,7 @@ namespace spot
 
 
   twa_graph_ptr
-  nsa_to_dca(const const_twa_graph_ptr& aut, bool named_states)
+  nsa_to_dca(const_twa_graph_ptr aut, bool named_states)
   {
     debug << "NSA_to_dca" << std::endl;
     std::vector<acc_cond::rs_pair> pairs;
@@ -568,7 +626,7 @@ namespace spot
 
 
   twa_graph_ptr
-  dnf_to_dca(const const_twa_graph_ptr& aut, bool named_states)
+  dnf_to_dca(const_twa_graph_ptr aut, bool named_states)
   {
     debug << "DNF_to_dca" << std::endl;
     const acc_cond::acc_code& code = aut->get_acceptance();
@@ -599,8 +657,12 @@ namespace spot
 
 
   twa_graph_ptr
-  to_dca(const const_twa_graph_ptr& aut, bool named_states)
+  to_dca(const_twa_graph_ptr aut, bool named_states)
   {
+    if (is_deterministic(aut))
+      if (auto weak = weak_to_cobuchi(aut))
+        return weak;
+
     const acc_cond::acc_code& code = aut->get_acceptance();
 
     std::vector<acc_cond::rs_pair> pairs;
@@ -608,8 +670,10 @@ namespace spot
       return nsa_to_dca(aut, named_states);
     else if (code.is_dnf())
       return dnf_to_dca(aut, named_states);
-    else
-      throw std::runtime_error("to_dca() only works with Streett-like, Parity "
-                               "or any acceptance condition in DNF");
+
+    auto tmp = make_twa_graph(aut, twa::prop_set::all());
+    tmp->set_acceptance(aut->acc().num_sets(),
+                        aut->get_acceptance().to_dnf());
+    return to_nca(tmp, named_states);
   }
 }

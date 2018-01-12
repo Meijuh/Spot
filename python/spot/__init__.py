@@ -503,6 +503,11 @@ def _postproc_translate_options(obj, default_type, *args):
             type_ = postprocessor.TGBA
         elif val == 'ba':
             type_ = postprocessor.BA
+        elif val == 'cobuchi' or val == 'nca':
+            type_ = postprocessor.CoBuchi
+        elif val == 'dca':
+            type_ = postprocessor.CoBuchi
+            pref_ = postprocessor.Deterministic
         elif val == 'parity min odd':
             type_ = postprocessor.ParityMinOdd
         elif val == 'parity min even':
@@ -566,14 +571,17 @@ def _postproc_translate_options(obj, default_type, *args):
     options = {
         'any': pref_set,
         'ba': type_set,
-        'complete': misc_set,
+        'cobuchi': type_set,
         'colored': misc_set,
+        'complete': misc_set,
+        'dca': type_set,
         'deterministic': pref_set,
         'generic': type_set,
         'high': optm_set,
         'low': optm_set,
         'medium': optm_set,
         'monitor': type_set,
+        'nca': type_set,
         'parity even': type_set,
         'parity max even': type_set,
         'parity max odd': type_set,
@@ -635,7 +643,7 @@ def translate(formula, *args, dict=_bdd_dict):
     - at most one in 'TGBA', 'BA', or 'Monitor', 'generic',
       'parity', 'parity min odd', 'parity min even',
       'parity max odd', 'parity max even' (type of automaton to
-      build)
+      build), 'coBuchi'
     - at most one in 'Small', 'Deterministic', 'Any'
       (preferred characteristics of the produced automaton)
     - at most one in 'Low', 'Medium', 'High'
@@ -668,7 +676,7 @@ def postprocess(automaton, *args, formula=None):
     - at most one in 'Generic', 'TGBA', 'BA', or 'Monitor',
       'parity', 'parity min odd', 'parity min even',
       'parity max odd', 'parity max even' (type of automaton to
-      build)
+      build), 'coBuchi'
     - at most one in 'Small', 'Deterministic', 'Any'
       (preferred characteristics of the produced automaton)
     - at most one in 'Low', 'Medium', 'High'

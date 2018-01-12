@@ -78,7 +78,7 @@ namespace spot
   /// \a named_states name each state for easier debugging.
   /// \a nca_info retrieve information about state visited infinitely often.
   SPOT_API twa_graph_ptr
-  nsa_to_nca(const const_twa_graph_ptr& aut,
+  nsa_to_nca(const_twa_graph_ptr aut,
              bool named_states = false,
              vect_nca_info* nca_info = nullptr);
 
@@ -103,9 +103,20 @@ namespace spot
   /// \a named_states name each state for easier debugging.
   /// \a nca_info retrieve information about state visited infinitely often.
   SPOT_API twa_graph_ptr
-  dnf_to_nca(const const_twa_graph_ptr& aut,
+  dnf_to_nca(const_twa_graph_ptr aut,
              bool named_states = false,
              vect_nca_info* nca_info = nullptr);
+
+  /// \brief Converts any ω-automata to non-deterministic co-buchi
+  ///
+  /// The language of the resulting automaton always include the
+  /// original language, and is a superset iff the original language
+  /// can not be expressed using a co-Büchi acceptance condition.
+  ///
+  /// The implementation dispatches between dnf_to_nca, nsa_to_nca,
+  /// and a trivial implementation for weak automata.
+  SPOT_API twa_graph_ptr
+  to_nca(const_twa_graph_ptr aut, bool named_states = false);
 
   /// \brief Converts a nondet Streett-like aut. to a det. co-Büchi aut.
   ///
@@ -127,7 +138,7 @@ namespace spot
   /// \a aut The automaton to convert.
   /// \a named_states name each state for easier debugging.
   SPOT_API twa_graph_ptr
-  nsa_to_dca(const const_twa_graph_ptr& aut, bool named_states = false);
+  nsa_to_dca(const_twa_graph_ptr aut, bool named_states = false);
 
   /// \brief Converts an aut. with acceptance in DNF to a det. co-Büchi aut.
   ///
@@ -149,13 +160,16 @@ namespace spot
   /// \a aut The automaton to convert.
   /// \a named_states name each state for easier debugging.
   SPOT_API twa_graph_ptr
-  dnf_to_dca(const const_twa_graph_ptr& aut, bool named_states = false);
+  dnf_to_dca(const_twa_graph_ptr aut, bool named_states = false);
 
-  /// \brief Converts any ω-automata to det. co-buchi (when possible)
+  /// \brief Converts any ω-automata to deterministic co-buchi
   ///
-  /// The resulting automaton will always recognize at least the same language.
-  /// Actually, it can recognize more if the original language can not be
-  /// expressed using a co-Büchi acceptance condition.
+  /// The language of the resulting automaton always include the
+  /// original language, and is a superset iff the original language
+  /// can not be expressed using a co-Büchi acceptance condition.
+  ///
+  /// The implementation dispatches between dnf_to_dca, nsa_to_dca,
+  /// and a trivial implementation for deterministic weak automata.
   SPOT_API twa_graph_ptr
-  to_dca(const const_twa_graph_ptr& aut, bool named_states = false);
+  to_dca(const_twa_graph_ptr aut, bool named_states = false);
 }

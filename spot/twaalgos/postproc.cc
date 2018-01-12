@@ -36,6 +36,8 @@
 #include <spot/twaalgos/determinize.hh>
 #include <spot/twaalgos/alternation.hh>
 #include <spot/twaalgos/parity.hh>
+#include <spot/twaalgos/cobuchi.hh>
+#include <spot/twaalgos/dot.hh>
 
 namespace spot
 {
@@ -194,6 +196,7 @@ namespace spot
     if (type_ == BA || SBACC_)
       state_based_ = true;
 
+    bool via_gba = (type_ == BA) || (type_ == TGBA) || (type_ == Monitor);
     bool want_parity = (type_ & Parity) == Parity;
     if (COLORED_ && !want_parity)
       throw std::runtime_error("postprocessor: the Colored setting only works "
@@ -234,7 +237,7 @@ namespace spot
         !(type_ == Generic && PREF_ == Any && level_ == Low))
       a = remove_alternation(a);
 
-    if ((type_ != Generic && !a->acc().is_generalized_buchi())
+    if ((via_gba && !a->acc().is_generalized_buchi())
         || (want_parity && !a->acc().is_parity()))
       {
         a = to_generalized_buchi(a);
@@ -247,7 +250,8 @@ namespace spot
             || type_ == TGBA
             || (type_ == BA && a->is_sba())
             || (type_ == Monitor && a->num_sets() == 0)
-            || (want_parity && a->acc().is_parity())))
+            || (want_parity && a->acc().is_parity())
+            || (type_ == CoBuchi && a->acc().is_co_buchi())))
       return finalize(a);
 
     int original_acc = a->num_sets();
@@ -290,6 +294,8 @@ namespace spot
       {
         if (type_ == BA)
           a = do_degen(a);
+        else if (type_ == CoBuchi)
+          a = to_nca(a);
         return finalize(a);
       }
 
@@ -552,6 +558,21 @@ namespace spot
     sim = dba ? dba : sim;
 
     sim->remove_unused_ap();
+
+    if (type_ == CoBuchi)
+      {
+        unsigned ns = sim->num_states();
+        if (PREF_ == Deterministic)
+          sim = to_dca(sim);
+        else
+          sim = to_nca(sim);
+
+        // if the input of to_dca/to_nca was weak, the number of
+        // states has not changed, and running simulation is useless.
+        if (level_ != Low && ns < sim->num_states())
+          sim = do_simul(sim, simul_);
+      }
+
     return finalize(sim);
   }
 }

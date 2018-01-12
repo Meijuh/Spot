@@ -72,8 +72,8 @@ namespace spot
     /// options used for debugging or benchmarking.
     postprocessor(const option_map* opt = nullptr);
 
-    enum output_type { TGBA = 0,
-                       BA = 1,
+    enum output_type { TGBA = 0, // should be renamed GeneralizedBuchi
+                       BA = 1, // should be renamed Buchi and not imply SBAcc
                        Monitor = 2,
                        Generic = 3,
                        Parity = 4,
@@ -85,6 +85,7 @@ namespace spot
                        ParityMaxOdd = ParityMax | ParityOdd,
                        ParityMinEven = ParityMin | ParityEven,
                        ParityMaxEven = ParityMax | ParityEven,
+                       CoBuchi = 128,
     };
 
     /// \brief Select the desired output type.
@@ -120,6 +121,10 @@ namespace spot
     /// algorithm used by Spot produces "parity min odd" acceptance,
     /// but other parity types can be obtained from there by minor
     /// adjustments.
+    ///
+    /// \a CoBuchi requests a Co-Büchi automaton equivalent to
+    /// the input, when possible, or a Co-Büchi automaton that
+    /// recognize a larger language otherwise.
     ///
     /// If set_type() is not called, the default \c output_type is \c TGBA.
     void

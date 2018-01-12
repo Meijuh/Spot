@@ -30,6 +30,11 @@ New in spot 2.4.4.dev (net yet released)
     output.  Different styles can be requested using for instance
     --parity='min odd' or --parity='max even'.
 
+  - ltl2tgba, autfilt, and dstar2tgba have some new '--cobuchi' option
+    to force co-Büchi acceptance on the output.  Beware: if the input
+    language is not co-Büchi realizable the output automaton will
+    recognize a superset of the input.
+
   - genltl learned to generate six new families of formulas, taken from
     the SYNTCOMP competition on reactive synthesis, and from from
     Müller & Sickert's GandALF'17 paper:
@@ -40,11 +45,8 @@ New in spot 2.4.4.dev (net yet released)
     --ms-phi-r=RANGE       (FGa{n}&GFb{n})|((FGa{n-1}|GFb{n-1})&(...))
     --ms-phi-s=RANGE       (FGa{n}|GFb{n})&((FGa{n-1}&GFb{n-1})|(...))
 
-  - autfilt learned a couple of acceptance transformations:
-      --streett-like converts automata with DNF acceptance
-                     into automata with Streett-like acceptance.
-      --dca          converts automata with DNF or Streett-like
-                     acceptance into deterministic co-Büchi.
+  - autfilt learned --streett-like to convert automata with DNF
+    acceptance into automata with Streett-like acceptance.
 
   - autfilt learned --acceptance-is=ACC to filter automata by
     acceptance condition.  ACC can be the name of some acceptance
@@ -91,10 +93,11 @@ New in spot 2.4.4.dev (net yet released)
   - spot::nsa_to_nca(), spot::dfn_to_nca(), spot::dfn_to_dca(), and
     spot::nsa_to_dca(), convert automata with DNF or Streett-like
     acceptance into deterministic or non-deterministic co-Büchi
-    automata.  spot::to_dca() dispatches between the last two
-    functions.  The language of produced automata include the original
-    language, but may be larger if the original automaton is not
-    co-Büchi realizable.  Based on Boker & Kupferman FOSSACS'11 paper.
+    automata.  spot::to_dca() and spot::to_nca() dispatches between
+    these four functions.  The language of produced automata include
+    the original language, but may be larger if the original automaton
+    is not co-Büchi realizable.  Based on Boker & Kupferman FOSSACS'11
+    paper.
 
   - spot::scc_info::states_on_acc_cycle_of() return all states
     visited by any accepting cycle of the specified SCC.  It only
@@ -181,6 +184,10 @@ New in spot 2.4.4.dev (net yet released)
     conversions are not very smart: if the input does not already
     have parity acceptance, it will simply be degeneralized or
     determinized.
+
+  - spot::postprocessor::set_type() can now request co-Büchi
+    acceptance as output.  This calls the aforementioned to_nca() or
+    to_dca() functions.
 
   - spot::remove_fin() will now call simplify_acceptance(),
     introduced in 2.4, before attempting its different Fin-removal

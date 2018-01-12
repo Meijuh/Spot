@@ -34,7 +34,8 @@ bool level_set = false;
 bool pref_set = false;
 
 enum {
-  OPT_HIGH = 1,
+  OPT_COBUCHI = 256,
+  OPT_HIGH,
   OPT_LOW,
   OPT_MEDIUM,
   OPT_SMALL,
@@ -65,6 +66,11 @@ static constexpr const argp_option options[] =
       "any|min|max|odd|even|min odd|min even|max odd|max even",
       OPTION_ARG_OPTIONAL,
       "colored automaton with parity acceptance", 0, },
+    { "cobuchi", OPT_COBUCHI, nullptr, 0,
+      "automaton with co-Büchi acceptance (will recognize"
+      "a superset of the input language if not co-Büchi "
+      "realizable)", 0 },
+    { "coBuchi", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
     { "small", OPT_SMALL, nullptr, 0, "prefer small automata (default)", 0 },
@@ -123,6 +129,11 @@ static const argp_option options_disabled[] =
       "any|min|max|odd|even|min odd|min even|max odd|max even",
       OPTION_ARG_OPTIONAL,
       "colored automaton with parity acceptance", 0, },
+    { "cobuchi", OPT_COBUCHI, nullptr, 0,
+      "automaton with co-Büchi acceptance (will recognize"
+      "a superset of the input language if not co-Büchi "
+      "realizable)", 0 },
+    { "coBuchi", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
     { nullptr, 0, nullptr, 0, "Simplification goal:", 20 },
     { "small", OPT_SMALL, nullptr, 0, "prefer small automata", 0 },
@@ -209,6 +220,9 @@ parse_opt_post(int key, char* arg, struct argp_state*)
       break;
     case 'S':
       sbacc = spot::postprocessor::SBAcc;
+      break;
+    case OPT_COBUCHI:
+      type = spot::postprocessor::CoBuchi;
       break;
     case OPT_HIGH:
       level = spot::postprocessor::High;
