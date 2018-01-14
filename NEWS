@@ -243,6 +243,10 @@ New in spot 2.4.4.dev (net yet released)
     set.  In spot 2.4.x this function was only used by autfilt
     --simplify-acceptance; in 2.5 it is now used in remove_fin().
 
+  - spot::streett_to_generalized_buchi() could generate incorrect
+    automata with empty language if some Fin set did not intersect all
+    accepting SCCs (in other words, the fix from 2.4.1 was incorrect).
+
   - ltlcross could crash when calling remove_fin() on an automaton
     with 32 acceptance sets would need an additional set.
 

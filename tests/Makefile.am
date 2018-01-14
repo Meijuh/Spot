@@ -388,6 +388,7 @@ TESTS_python = \
   python/setxor.py \
   python/simstate.py \
   python/streett_totgba.py \
+  python/streett_totgba2.py \
   python/rs_like.py \
   python/sum.py \
   python/trival.py \

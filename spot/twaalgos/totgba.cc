@@ -556,8 +556,9 @@ namespace spot
         else
           inf_alone |= pair.inf;
 
-        for (unsigned mark: pair.inf.sets())
-          inf_to_finpairs[mark] |= pair.fin;
+        if (pair.inf)
+          for (unsigned mark: pair.inf.sets())
+            inf_to_finpairs[mark] |= pair.fin;
       }
 
     scc_info si(in, scc_info_options::NONE);
@@ -573,13 +574,19 @@ namespace spot
         auto acc_fin = acc & fin;     // {0,  2,  4,6}
         auto acc_inf = acc & inf;     // {  1,  3,    7,9}
         acc_cond::mark_t fin_wo_inf = 0U;
+        // Fin sets that are alone either because the acceptance
+        // condition has not matching Inf, or because the SCC the not
+        // intersect the matching inf.
         for (unsigned mark: acc_fin.sets())
           if (!fin_to_infpairs[mark] || (fin_to_infpairs[mark] - acc_inf))
             fin_wo_inf.set(mark);
 
+        // Inf sets that *do* have a matching Fin in the acceptance
+        // condition but without matching Fin in the SCC: they can be
+        // considered as always present in the SCC.
         acc_cond::mark_t inf_wo_fin = 0U;
-        for (unsigned mark: acc_inf.sets())
-          if (!inf_to_finpairs[mark] || (inf_to_finpairs[mark] - acc_fin))
+        for (unsigned mark: inf.sets())
+          if (inf_to_finpairs[mark] && (inf_to_finpairs[mark] - acc_fin))
             inf_wo_fin.set(mark);
 
         sccfi.emplace_back(fin_wo_inf, inf_wo_fin,
@@ -671,7 +678,7 @@ namespace spot
                 // If the acceptance is (Fin(0) | Inf(1)) & Inf(2)
                 // but we do not see any Fin set in this SCC, a
                 // mark {2} should become {1,2} before striping.
-                acc = (t.acc | (inf - scc_inf_wo_fin)).strip(to_strip);
+                acc = (t.acc | scc_inf_wo_fin).strip(to_strip);
               }
             assert((acc & out->acc().all_sets()) == acc);
 
