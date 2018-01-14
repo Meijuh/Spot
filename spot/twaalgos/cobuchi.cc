@@ -31,6 +31,7 @@
 #include <spot/twaalgos/totgba.hh>
 #include <spot/twaalgos/isdet.hh>
 #include <spot/twaalgos/strength.hh>
+#include <spot/twaalgos/sbacc.hh>  // For issue #317
 
 #include <stack>
 #include <unordered_map>
@@ -273,6 +274,11 @@ namespace spot
     if (!code.is_dnf())
       throw std::runtime_error("dnf_to_nca() only works with DNF acceptance "
                                "condition");
+
+    // FIXME: At the moment this algorithm does not support
+    // transition-based acceptance.  See issue #317.  Once that is
+    // fixed we may remove the next line.
+    ref = sbacc(std::const_pointer_cast<twa_graph>(ref));
 
     auto streett_aut = spot::dnf_to_streett(ref, true);
 
@@ -609,6 +615,11 @@ namespace spot
       throw std::runtime_error("nsa_to_dca() only works with Streett-like or "
                                "Parity acceptance condition");
 
+    // FIXME: At the moment this algorithm does not support
+    // transition-based acceptance.  See issue #317.  Once that is
+    // fixed we may remove the next line.
+    aut = sbacc(std::const_pointer_cast<twa_graph>(aut));
+
     // Get states that must be visited infinitely often in NCA.
     vect_nca_info nca_info;
     nsa_to_nca(aut, named_states, &nca_info);
@@ -634,6 +645,11 @@ namespace spot
     if (!code.is_dnf())
       throw std::runtime_error("dnf_to_dca() only works with DNF (Rabin-like "
                                "included) acceptance condition");
+
+    // FIXME: At the moment this algorithm does not support
+    // transition-based acceptance.  See issue #317.  Once that is
+    // fixed we may remove the next line.
+    aut = sbacc(std::const_pointer_cast<twa_graph>(aut));
 
     // Get states that must be visited infinitely often in NCA.
     vect_nca_info nca_info;

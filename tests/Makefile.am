@@ -315,9 +315,6 @@ TESTS_twa = \
   core/parity2.test \
   core/ltlsynt.test
 
-# Issue #317.
-XFAIL_TESTS = core/dca2.test
-
 ############################## PYTHON ##############################
 
 if USE_PYTHON

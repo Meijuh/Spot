@@ -33,7 +33,8 @@ New in spot 2.4.4.dev (net yet released)
   - ltl2tgba, autfilt, and dstar2tgba have some new '--cobuchi' option
     to force co-Büchi acceptance on the output.  Beware: if the input
     language is not co-Büchi realizable the output automaton will
-    recognize a superset of the input.
+    recognize a superset of the input.  Currently, the output is
+    always state-based.
 
   - genltl learned to generate six new families of formulas, taken from
     the SYNTCOMP competition on reactive synthesis, and from from
@@ -97,7 +98,7 @@ New in spot 2.4.4.dev (net yet released)
     these four functions.  The language of produced automata include
     the original language, but may be larger if the original automaton
     is not co-Büchi realizable.  Based on Boker & Kupferman FOSSACS'11
-    paper.
+    paper.  Currently only supports state-based output.
 
   - spot::scc_info::states_on_acc_cycle_of() return all states
     visited by any accepting cycle of the specified SCC.  It only
