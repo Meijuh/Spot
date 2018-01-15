@@ -26,24 +26,80 @@
 
 namespace spot
 {
-  // The tgba constructed by product() below contain property named
-  // "product-states" with type product_states.
+  /// \brief Automata constructed by product() contain a property
+  /// named "product-states" with this type
   typedef std::vector<std::pair<unsigned, unsigned>> product_states;
 
+  /// \ingroup twa_algorithms
+  /// \brief Intersect two automata using a synchronous product
+  ///
+  /// The resulting automaton will accept the intersection of both
+  /// languages and have an acceptance condition that is the
+  /// conjunction of the acceptance conditions of the two input
+  /// automata.
+  ///
+  /// The algorithm also defines a named property called
+  /// "product-states" with type spot::product_states.  This stores
+  /// the pair of original state numbers associated to each state of
+  /// the product.
   SPOT_API
   twa_graph_ptr product(const const_twa_graph_ptr& left,
                         const const_twa_graph_ptr& right);
 
+  /// \ingroup twa_algorithms
+  /// \brief Intersect two automata using a synchronous product
+  ///
+  /// These variant allow changing the initial state of both automata
+  /// in case you want to start the product at a different place.
+  ///
+  /// The resulting automaton will accept the intersection of the
+  /// languages recognized by each input automaton (with its initial
+  /// state changed) and have an acceptance condition that is the
+  /// conjunction of the acceptance conditions of the two input
+  /// automata.
+  ///
+  /// The algorithm also defines a named property called
+  /// "product-states" with type spot::product_states.  This stores
+  /// the pair of original state numbers associated to each state of
+  /// the product.
   SPOT_API
   twa_graph_ptr product(const const_twa_graph_ptr& left,
                         const const_twa_graph_ptr& right,
                         unsigned left_state,
                         unsigned right_state);
 
+  /// \ingroup twa_algorithms
+  /// \brief Sum two automata using a synchronous product
+  ///
+  /// The resulting automaton will accept the union of both
+  /// languages and have an acceptance condition that is the
+  /// disjunction of the acceptance conditions of the two input
+  /// automata.
+  ///
+  /// The algorithm also defines a named property called
+  /// "product-states" with type spot::product_states.  This stores
+  /// the pair of original state numbers associated to each state of
+  /// the product.
   SPOT_API
   twa_graph_ptr product_or(const const_twa_graph_ptr& left,
                            const const_twa_graph_ptr& right);
 
+  /// \ingroup twa_algorithms
+  /// \brief Sum two automata using a synchronous product
+  ///
+  /// These variant allow changing the initial state of both automata
+  /// in case you want to start the product at a different place.
+  ///
+  /// The resulting automaton will accept the sum of the languages
+  /// recognized by each input automaton (with its initial state
+  /// changed) and have an acceptance condition that is the
+  /// disjunction of the acceptance conditions of the two input
+  /// automata.
+  ///
+  /// The algorithm also defines a named property called
+  /// "product-states" with type spot::product_states.  This stores
+  /// the pair of original state numbers associated to each state of
+  /// the product.
   SPOT_API
   twa_graph_ptr product_or(const const_twa_graph_ptr& left,
                            const const_twa_graph_ptr& right,

@@ -25,22 +25,35 @@
 
 namespace spot
 {
+  /// \ingroup twa_algorithms
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Büchi automaton.
+  ///
+  /// This dispatch between many algorithms.  If the input has Streett
+  /// (or Streett-like) acceptance,
+  /// spot::streett_to_generalized_buchi() is called right away and
+  /// produces a TGBA.  Otherwise, it calls spot::remove_in() which
+  /// returns a TBA.
   SPOT_API twa_graph_ptr
   to_generalized_buchi(const const_twa_graph_ptr& aut);
 
+  /// \ingroup twa_algorithms
   /// \brief Convert Streett acceptance into generalized Büchi
   /// acceptance.
   SPOT_API twa_graph_ptr
   streett_to_generalized_buchi(const const_twa_graph_ptr& in);
 
+  /// \ingroup twa_algorithms
   /// \brief Convert Streett acceptance into generalized Büchi
-  /// only if SPOT_STREET_CONF_MIN is set to a number of pairs
-  /// less than the number of pairs used by IN.
+  ///
+  /// This version only works SPOT_STREET_CONF_MIN is set to a number
+  /// of pairs less than the number of pairs used by \a in.  The
+  /// default is 3.  It returns nullptr of that condition is not met,
+  /// or if the input automaton does not have Streett-like acceptance.
   SPOT_API twa_graph_ptr
   streett_to_generalized_buchi_maybe(const const_twa_graph_ptr& in);
 
+  /// \ingroup twa_algorithms
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Rabin automaton.
   ///
@@ -55,6 +68,7 @@ namespace spot
   to_generalized_rabin(const const_twa_graph_ptr& aut,
                        bool share_inf = false);
 
+  /// \ingroup twa_algorithms
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Streett automaton.
   ///

@@ -23,11 +23,12 @@
 
 namespace spot
 {
-  /// \brief Convert a state-based Rabin automaton to Büchi automaton,
-  /// preserving determinism when possible.
+  /// \ingroup twa_algorithms
+  /// \brief Convert a Rabin automaton to Büchi automaton, preserving
+  /// determinism when possible.
   ///
-  /// Return nullptr if the input is not a Rabin automaton, or is not
-  /// state-based.
+  /// Return nullptr if the input is not a Rabin (or Rabin-like)
+  /// automaton.
   ///
   /// This essentially applies the algorithm from "Deterministic
   /// ω-automata vis-a-vis Deterministic Büchi Automata", S. Krishnan,
@@ -39,7 +40,13 @@ namespace spot
   SPOT_API twa_graph_ptr
   rabin_to_buchi_maybe(const const_twa_graph_ptr& aut);
 
+  /// \ingroup twa_algorithms
   /// \brief Rewrite an automaton without Fin acceptance.
+  ///
+  /// This algorithm dispatches between many strategies.  It has
+  /// dedicated algorithms for weak automata, automata with Rabin-like
+  /// acceptance, automata with Streett-like acceptance, and some
+  /// generic code that will work on any kind of acceptance condition.
   SPOT_API twa_graph_ptr
   remove_fin(const const_twa_graph_ptr& aut);
 }

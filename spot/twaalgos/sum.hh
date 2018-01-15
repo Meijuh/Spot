@@ -24,6 +24,7 @@
 
 namespace spot
 {
+  /// \ingroup twa_algorithms
   /// \brief Sum two twa into a new twa, performing the union of the two input
   /// automata.
   ///
@@ -34,6 +35,7 @@ namespace spot
   twa_graph_ptr sum(const const_twa_graph_ptr& left,
                     const const_twa_graph_ptr& right);
 
+  /// \ingroup twa_algorithms
   /// \brief Sum two twa into a new twa, performing the union of the two input
   /// automata.
   ///
@@ -48,6 +50,7 @@ namespace spot
                     unsigned left_state,
                     unsigned right_state);
 
+  /// \ingroup twa_algorithms
   /// \brief Sum two twa into a new twa, using a universal initial transition,
   /// performing the intersection of the two languages of the input automata.
   ///
@@ -58,6 +61,7 @@ namespace spot
   twa_graph_ptr sum_and(const const_twa_graph_ptr& left,
                         const const_twa_graph_ptr& right);
 
+  /// \ingroup twa_algorithms
   /// \brief Sum two twa into a new twa, using a universal initial transition,
   /// performing the intersection of the two languages of the input automata.
   ///
