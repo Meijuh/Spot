@@ -2,7 +2,7 @@ New in spot 2.4.4.dev (net yet released)
 
   Build:
 
-  - We no longuer distribute the doxygen-generated documentation in
+  - We no longer distribute the doxygen-generated documentation in
     the tarball of Spot to save space.  This documentation is still
     available online at https://spot.lrde.epita.fr/doxygen/.  If you
     want to build a local copy you can configure Spot with
@@ -75,11 +75,11 @@ New in spot 2.4.4.dev (net yet released)
 
   - The new -x tls-impl=N option allows to fine-tune the
     implication-based simplification rules of ltl2tgba.  See the
-    spot-x man-page for details.
+    spot-x(7) man page for details.
 
   - All tools learned to check the SPOT_OOM_ABORT environment
     variable.  This is only useful for debuging out-of-memory
-    conditions; see the spot-x(7) man page for detail.
+    conditions. See the spot-x(7) man page for details.
 
   New functions in the library:
 
@@ -94,13 +94,13 @@ New in spot 2.4.4.dev (net yet released)
   - spot::nsa_to_nca(), spot::dfn_to_nca(), spot::dfn_to_dca(), and
     spot::nsa_to_dca(), convert automata with DNF or Streett-like
     acceptance into deterministic or non-deterministic co-Büchi
-    automata.  spot::to_dca() and spot::to_nca() dispatches between
-    these four functions.  The language of produced automata include
+    automata.  spot::to_dca() and spot::to_nca() dispatch between
+    these four functions.  The language of produced automaton includes
     the original language, but may be larger if the original automaton
     is not co-Büchi realizable.  Based on Boker & Kupferman FOSSACS'11
     paper.  Currently only supports state-based output.
 
-  - spot::scc_info::states_on_acc_cycle_of() return all states
+  - spot::scc_info::states_on_acc_cycle_of() returns all states
     visited by any accepting cycle of the specified SCC.  It only
     works on automata with Streett-like acceptance.
 
@@ -111,16 +111,16 @@ New in spot 2.4.4.dev (net yet released)
     implementations of these functions (see the spot-x(7) man page).
 
   - spot::is_colored() checks if an automaton is colored
-    (i.e., every transition belongs to exactly one acceptance set)
+    (i.e., every transition belongs to exactly one acceptance set).
 
-  - spot::change_parity() convert between different parity acceptance
+  - spot::change_parity() converts between different parity acceptance
     conditions.
 
-  - spot::colorize_parity() transform an automaton with parity
+  - spot::colorize_parity() transforms an automaton with parity
     acceptance into a colored automaton (which is often what people
     working with parity automata expect).
 
-  - spot::cleanup_parity_acceptance() simplify a parity acceptance
+  - spot::cleanup_parity_acceptance() simplifies a parity acceptance
     condition.
 
   - spot::parity_product() and spot::parity_product_or() are
@@ -133,13 +133,13 @@ New in spot 2.4.4.dev (net yet released)
 
   - spot::stutter_invariant_states(),
     spot::stutter_invariant_letters(),
-    spot::highlight_stutter_invariant_states(), ...  These function
+    spot::highlight_stutter_invariant_states(), ...  These functions
     help study a stutter-sensitive automaton and detect the subset of
     states that are stutter-invariant.  See
     https://spot.lrde.epita.fr/ipynb/stutter-inv.html for examples.
 
   - spot::acc_cond::name(fmt) is a new method that names well-known
-    acceptance conditions.  The fmt parameter specify the format to
+    acceptance conditions.  The fmt parameter specifies the format to
     use for that name (e.g. to the style used in HOA, or that used by
     print_dot()).
 
@@ -172,7 +172,7 @@ New in spot 2.4.4.dev (net yet released)
     with more SCCs than its input.  This was hard to notice, because
     very often simulation-based simplifications remove those extra
     SCCs.  This situation is now detected by spot::degeneralized()
-    and fixed before returning the automaton.  A new optionnal
+    and fixed before returning the automaton.  A new optional
     argument can be passed to disable this behavior (or use -x
     degen-remscc=0 from the command-line).
 
@@ -231,17 +231,17 @@ New in spot 2.4.4.dev (net yet released)
   Backward incompatible changes:
 
   - The spot::closure(), spot::sl2(), spot::is_stutter_invariant()
-    functions no longuer takes && arguments.  The former two have
+    functions no longer take && arguments.  The former two have
     spot::closure_inplace() and spot::sl2_inplace() variants.  These
     functions also do not take a list of atomic propositions as an
     argument anymore.
 
   - The spot::bmrand() and spot::prand() functions have been removed.
-    They were not used at all in Spot, and it's not Spot's objective
+    They were not used at all in Spot, and it is not Spot's objective
     to provide such random functions.
 
   - The spot::bdd_dict::register_all_propositions_of() function has
-    been removed.  It's a low-level function was not used anywhere in
+    been removed.  This low-level function was not used anywhere in
     Spot anymore, since it's better to use spot::twa::copy_ap_of().
 
   Bugs fixed:
@@ -256,7 +256,7 @@ New in spot 2.4.4.dev (net yet released)
     accepting SCCs (in other words, the fix from 2.4.1 was incorrect).
 
   - ltlcross could crash when calling remove_fin() on an automaton
-    with 32 acceptance sets would need an additional set.
+    with 32 acceptance sets that would need an additional set.
 
   - the down_cast() helper function used in severaly headers of Spot
     was not in the spot namespace, and caused issues with some

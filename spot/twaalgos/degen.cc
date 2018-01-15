@@ -246,7 +246,7 @@ namespace spot
     {
       if (!a->acc().is_generalized_buchi())
         throw std::runtime_error
-          ("degeneralize() can only works with generalized Büchi acceptance");
+          ("degeneralize() only works with generalized Büchi acceptance");
       if (!a->is_existential())
         throw std::runtime_error
           ("degeneralize() does not support alternation");
