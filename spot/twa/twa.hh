@@ -1690,6 +1690,9 @@ namespace spot
   /// \addtogroup stutter_inv Stutter-invariance checks
   /// \ingroup twa_algorithms
 
+  /// \addtogroup twa_acc_transform Conversion between acceptance conditions
+  /// \ingroup twa_algorithms
+
   /// \addtogroup twa_ltl Translating LTL formulas into TωA
   /// \ingroup twa_algorithms
 

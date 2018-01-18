@@ -25,7 +25,7 @@
 
 namespace spot
 {
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Büchi automaton.
   ///
@@ -37,13 +37,13 @@ namespace spot
   SPOT_API twa_graph_ptr
   to_generalized_buchi(const const_twa_graph_ptr& aut);
 
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Convert Streett acceptance into generalized Büchi
   /// acceptance.
   SPOT_API twa_graph_ptr
   streett_to_generalized_buchi(const const_twa_graph_ptr& in);
 
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Convert Streett acceptance into generalized Büchi
   ///
   /// This version only works SPOT_STREET_CONF_MIN is set to a number
@@ -53,7 +53,7 @@ namespace spot
   SPOT_API twa_graph_ptr
   streett_to_generalized_buchi_maybe(const const_twa_graph_ptr& in);
 
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Rabin automaton.
   ///
@@ -68,7 +68,7 @@ namespace spot
   to_generalized_rabin(const const_twa_graph_ptr& aut,
                        bool share_inf = false);
 
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Streett automaton.
   ///
@@ -83,6 +83,7 @@ namespace spot
   to_generalized_streett(const const_twa_graph_ptr& aut,
                          bool share_fin = false);
 
+  /// \ingroup twa_acc_transform
   /// \brief Converts any DNF acceptance condition into Streett-like.
   ///
   /// This function is an optimized version of the construction described

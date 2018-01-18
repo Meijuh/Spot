@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2015, 2017, 2018 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Convert a Rabin automaton to Büchi automaton, preserving
   /// determinism when possible.
   ///
@@ -40,7 +40,7 @@ namespace spot
   SPOT_API twa_graph_ptr
   rabin_to_buchi_maybe(const const_twa_graph_ptr& aut);
 
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Rewrite an automaton without Fin acceptance.
   ///
   /// This algorithm dispatches between many strategies.  It has

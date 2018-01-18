@@ -25,7 +25,7 @@
 namespace spot
 {
   /// \addtogroup parity_algorithms Algorithms for parity acceptance
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
 
   /// \ingroup parity_algorithms
   /// @{

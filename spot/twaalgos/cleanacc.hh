@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015, 2017 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2015, 2017, 2018 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Remove useless acceptance sets
   ///
   /// This removes from the automaton the acceptance marks that are
@@ -37,7 +37,7 @@ namespace spot
   SPOT_API twa_graph_ptr
   cleanup_acceptance_here(twa_graph_ptr aut, bool strip = true);
 
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Remove useless acceptance sets
   ///
   /// This removes from the automaton the acceptance marks that are
@@ -49,7 +49,7 @@ namespace spot
   cleanup_acceptance(const_twa_graph_ptr aut);
 
   /// @{
-  /// \ingroup twa_algorithms
+  /// \ingroup twa_acc_transform
   /// \brief Simplify an acceptance condition
   ///
   /// Does evereything cleanup_acceptance() does, but additionally:

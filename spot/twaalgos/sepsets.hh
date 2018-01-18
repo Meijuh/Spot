@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2015 Laboratoire de Recherche et Développement
+// Copyright (C) 2015, 2018 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -23,10 +23,12 @@
 
 namespace spot
 {
+  /// \ingroup twa_acc_transform
   /// \brief Whether the Inf and Fin numbers are disjoints
   SPOT_API bool
   has_separate_sets(const const_twa_graph_ptr& aut);
 
+  /// \ingroup twa_acc_transform
   /// \brief Separate the Fin and Inf sets used by an automaton
   ///
   /// This makes sure that the numbers used a Fin and Inf are

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement de l'Epita.
+// Copyright (C) 2014-2018 Laboratoire de Recherche et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,6 +29,12 @@
 namespace spot
 {
 
+  /// \ingroup twa_representation
+  /// \brief Graph-based representation of a TωA
+  ///
+  /// In a twa_graph, states are usually denoted by their number.  However
+  /// if the on-the-fly interface is used, it returns pointer to instances
+  /// of the twa_graph_state class.
   struct SPOT_API twa_graph_state: public spot::state
   {
   public:
@@ -69,6 +75,13 @@ namespace spot
     }
   };
 
+  /// \ingroup twa_representation
+  /// \brief Data attached to edges of a twa_graph
+  ///
+  /// Each edge of the graph has to additional data that are \a cond
+  /// (a BDD representing the Boolean formula labeling the edge), and
+  /// \a acc a set of acceptance marks representing the membership of
+  /// the each to each acceptance set.
   struct SPOT_API twa_graph_edge_data
   {
     bdd cond;
@@ -101,6 +114,11 @@ namespace spot
   };
 
 
+
+  /// \ingroup twa_representation
+  /// \brief Iterator used by the on-the-fly interface of twa_graph.
+  ///
+  /// Instances of this class are returned by twa_graph::succ_iter().
   template<class Graph>
   class SPOT_API twa_graph_succ_iterator final:
     public twa_succ_iterator
@@ -165,6 +183,8 @@ namespace spot
 
   };
 
+  /// \ingroup twa_representation
+  /// \brief Graph-based representation of a TωA
   class SPOT_API twa_graph final: public twa
   {
   public:
@@ -505,11 +525,25 @@ namespace spot
       SPOT_RETURN(g_.is_dead_edge(t));
 #endif
 
-    /// Iterate over all edges, and merge those with compatible
-    /// extremities and acceptance.
+    /// \brief Merge edges that can be merged.
+    ///
+    /// This makes two passes over the automaton to reduce the number
+    /// of edges with an identical pair of source and destination.
+    ///
+    /// In the first pass, edges that share their source, destination,
+    /// and acceptance marks are merged into a single edge whose condition
+    /// is the conjunction of the conditions of the original edges.
+    ///
+    /// In the second pass, which is performed only on automata with
+    /// Fin-less acceptance, edges with the same source, destination,
+    /// and conditions are merged into a single edge whose set of
+    /// acceptance marks is the intersection of the sets of the edges.
+    ///
+    /// If the automaton uses some universal edges, the method
+    /// merge_univ_dests() is also called.
     void merge_edges();
 
-    /// \brief marge common universal destination
+    /// \brief Merge common universal destinations.
     ///
     /// This is already called by merge_edges().
     void merge_univ_dests();
@@ -559,6 +593,8 @@ namespace spot
     /// assumed.
     void copy_state_names_from(const const_twa_graph_ptr& other);
 
+    /// \brief Return the marks associated to a state if the
+    /// acceptance is state-based.
     acc_cond::mark_t state_acc_sets(unsigned s) const
     {
       if (SPOT_UNLIKELY(!(bool)prop_state_acc()))
@@ -572,6 +608,12 @@ namespace spot
       return 0U;
     }
 
+    /// \brief Tell if a state is acceptince.
+    ///
+    /// This makes only sense for automata using state-based
+    /// acceptance, and a simple acceptance condition like Büchi or
+    /// co-Büchi.
+    ///@{
     bool state_is_accepting(unsigned s) const
     {
       if (SPOT_UNLIKELY(!(bool)prop_state_acc()))
@@ -589,6 +631,7 @@ namespace spot
     {
       return state_is_accepting(state_number(s));
     }
+    ///@}
 
     bool operator==(const twa_graph& aut) const
     {
@@ -608,17 +651,26 @@ namespace spot
                         dests2.begin());
     }
 
+    /// \brief Renumber all states, and drop some.
+    ///
+    /// This semi-internal function is a wrapper around
+    /// digraph::defrag_state() that additionally deals with universal
+    /// branching.
+    ///
+    /// \param newst A vector indicating how each state should be renumbered.
+    /// Use -1U to erase a state.
+    /// \param used_states the number of states used (after renumbering)
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states);
   };
 
-  /// \ingroup twa
+  /// \ingroup twa_representation
   /// \brief Build an explicit automaton from all states of \a aut,
   inline twa_graph_ptr make_twa_graph(const bdd_dict_ptr& dict)
   {
     return std::make_shared<twa_graph>(dict);
   }
 
-  /// \ingroup twa
+  /// \ingroup twa_representation
   /// \brief Build an explicit automaton from all states of \a aut,
   inline twa_graph_ptr make_twa_graph(const twa_graph_ptr& aut,
                                       twa::prop_set p)
@@ -626,7 +678,7 @@ namespace spot
     return std::make_shared<twa_graph>(aut, p);
   }
 
-  /// \ingroup twa
+  /// \ingroup twa_representation
   /// \brief Build an explicit automaton from all states of \a aut,
   inline twa_graph_ptr make_twa_graph(const const_twa_graph_ptr& aut,
                                       twa::prop_set p)
@@ -634,7 +686,7 @@ namespace spot
     return std::make_shared<twa_graph>(aut, p);
   }
 
-  /// \ingroup twa
+  /// \ingroup twa_representation
   /// \brief Build an explicit automaton from all states of \a aut,
   ///
   /// This overload works using the abstract interface for automata.

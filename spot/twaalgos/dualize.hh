@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2017 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2017, 2018 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -24,6 +24,7 @@
 
 namespace spot
 {
+  /// \ingroup twa_misc
   /// \brief Complement an automaton by dualizing it.
   ///
   /// Given an automaton \a aut of any type, produces the dual as output. The

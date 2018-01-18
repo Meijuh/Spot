@@ -22,6 +22,7 @@
 
 namespace spot
 {
+  /// \ingroup twa_acc_transform
   /// \brief Turn a Rabin-like automaton into a parity automaton based on the
   /// index appearence record (IAR)
   ///
@@ -34,12 +35,18 @@ namespace spot
   /// acceptance condition.
   /// Details on the algorithm can be found in:
   ///   https://arxiv.org/pdf/1701.05738.pdf (published at TACAS 2017)
+  ///
+  /// Throws an std::runtime_error if the input is not Rabin-like.
   SPOT_API
   twa_graph_ptr
   iar(const const_twa_graph_ptr& aut);
 
-  /// Return nullptr if the input automaton is not Rabin-like, and calls iar()
-  /// otherwise.
+  /// \ingroup twa_acc_transform
+  /// \brief Turn a Rabin-like automaton into a parity automaton based on the
+  /// index appearence record (IAR)
+  ///
+  /// Return nullptr if the input automaton is not Rabin-like, and
+  /// calls spot::iar() otherwise.
   SPOT_API
   twa_graph_ptr
   iar_maybe(const const_twa_graph_ptr& aut);

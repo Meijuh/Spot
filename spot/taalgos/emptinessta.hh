@@ -1,9 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2012, 2013, 2014, 2016 Laboratoire de Recherche
+// Copyright (C) 2012-2014, 2016, 2018 Laboratoire de Recherche
 // et Dévelopment de l'Epita (LRDE).
-// Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -39,7 +36,8 @@ namespace spot
 
   /// \addtogroup ta_emptiness_check Emptiness-checks
   /// \ingroup ta_algorithms
-  ///
+
+  /// \ingroup ta_emptiness_check
   /// \brief Check whether the language of a product (spot::ta_product) between
   ///  a Kripke structure and a TA  is empty. It works also for the product
   /// using Generalized TA (GTA and SGTA).
@@ -156,6 +154,4 @@ namespace spot
 
   /// @}
 
-    /// \addtogroup ta_emptiness_check_algorithms Emptiness-check algorithms
-    /// \ingroup ta_emptiness_check
 }

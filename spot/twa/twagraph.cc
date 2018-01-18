@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014, 2015, 2016, 2017 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2014-2018 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -494,8 +494,8 @@ namespace spot
         // #3 get rid of the unused universal destinations
         // #4 merge identical universal destinations
         //
-        // graph::degrag_states() actually does only #1. It it could
-        // do #2, but that would prevent use from doing #3 and #4.  It
+        // graph::degrag_states() actually does only #1. It could
+        // do #2, but that would prevent us from doing #3 and #4.  It
         // cannot do #3 and #4 because the graph object does not know
         // what an initial state is, and our initial state might be
         // universal.

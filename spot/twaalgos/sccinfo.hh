@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014-2017 Laboratoire de Recherche et Développement
+// Copyright (C) 2014-2018 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -211,7 +211,8 @@ namespace spot
   }
 
 
-  /// Storage for SCC related information.
+  /// \ingroup twa_misc
+  /// \brief Storage for SCC related information.
   class SPOT_API scc_info_node
   {
   public:
@@ -298,7 +299,8 @@ namespace spot
     }
   };
 
-  /// Options to alter the behavior of scc_info
+  /// \ingroup twa_misc
+  /// \brief Options to alter the behavior of scc_info
   enum class scc_info_options
   {
     /// Stop exploring when an accepting SCC is found, and do not track
@@ -347,6 +349,7 @@ namespace spot
                                          | static_cast<ut>(right));
   }
 
+  /// \ingroup twa_misc
   /// \brief Compute an SCC map and gather assorted information.
   ///
   /// This takes twa_graph as input and compute its SCCs.  This

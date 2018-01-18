@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014, 2018 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -27,7 +27,7 @@
 
 namespace spot
 {
-  /// \ingroup twa_misc
+  /// \ingroup twa_generic
   /// \brief Make a BFS in a spot::tgba to compute a twa_run::steps.
   ///
   /// This class should be used to compute the shortest path

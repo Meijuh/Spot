@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 2015, 2017, Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2012-2015, 2017, 2018 Laboratoire de
+// Recherche et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \ingroup twa_misc
+  /// \ingroup twa_acc_transform
   /// \brief Degeneralize a spot::tgba into an equivalent sba with
   /// only one acceptance condition.
   ///
