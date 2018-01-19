@@ -282,12 +282,8 @@ namespace spot
   twa_graph_ptr
   iar(const const_twa_graph_ptr& aut)
   {
-    auto res = iar_maybe(aut);
-    if (!res)
-      throw std::runtime_error("rabin2parity works only for Rabin-like "
-          "automata");
-
-    return res;
+    if (auto res = iar_maybe(aut))
+      return res;
+    throw std::runtime_error("iar() expects Rabin-like input");
   }
 }
-
