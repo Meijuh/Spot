@@ -115,12 +115,9 @@ def canonicalize(s, type, ignores):
     s = re.sub(r' fill="black"', '', s)
     s = re.sub(r' stroke="transparent"', ' stroke="none"', s)
     s = re.sub(r'><title>', '>\n<title>', s)
-    # Different Pandas versions produce different CSS styles.
-    s = re.sub(r'<style[ a-z]*>.*</style>',
-               '<style>...</style>', s, flags=re.DOTALL)
-
-    # CalledProcessError message has a final dot in Python 3.6
-    s = re.sub(r"(' returned non-zero exit status \d+)\.", r'\1', s)
+    # Different Pandas versions produce different CSS styles (when there is a
+    # style).
+    s = re.sub(r'<style[ a-z]*>.*</style>\n', '', s, flags=re.DOTALL)
 
     for n, p in enumerate(ignores):
         s = re.sub(p, 'IGN{}'.format(n), s)
@@ -144,6 +141,12 @@ def canonical_dict(dict, ignores):
             dict['ename'] == 'SystemExit' and dict['evalue'] == '77'):
         # sys.exit(77) is used to Skip the test.
         sys.exit(77)
+
+    if 'ename' in dict and dict['ename'] == 'CalledProcessError':
+        # CalledProcessError message has a final dot in Python 3.6
+        dict['evalue'] = \
+          re.sub(r"(' returned non-zero exit status \d+)\.", r'\1',
+                 dict['evalue'])
 
     if 'transient' in dict:
         del dict['transient']
