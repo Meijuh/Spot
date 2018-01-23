@@ -23,30 +23,32 @@
 namespace spot
 {
   /// \ingroup twa_acc_transform
-  /// \brief Turn a Rabin-like automaton into a parity automaton based on the
-  /// index appearence record (IAR)
+  /// \brief Turn a Rabin-like or Streett-like automaton into a parity automaton
+  /// based on the index appearence record (IAR)
   ///
   /// If the input automaton has n states and k pairs, the output automaton has
   /// at most k!*n states and 2k+1 colors. If the input automaton is
   /// deterministic, the output automaton is deterministic as well, which is the
   /// intended use case for this function. If the input automaton is
   /// non-deterministic, the result is still correct, but way larger than an
-  /// equivalent Büchi automaton. The output parity automaton has max odd
-  /// acceptance condition.
+  /// equivalent Büchi automaton.
+  /// If the input automaton is Rabin-like (resp. Streett-like), the output
+  /// automaton has max odd (resp. min even) acceptance condition.
   /// Details on the algorithm can be found in:
   ///   https://arxiv.org/pdf/1701.05738.pdf (published at TACAS 2017)
   ///
-  /// Throws an std::runtime_error if the input is not Rabin-like.
+  /// Throws an std::runtime_error if the input is neither Rabin-like nor
+  /// Street-like.
   SPOT_API
   twa_graph_ptr
   iar(const const_twa_graph_ptr& aut);
 
   /// \ingroup twa_acc_transform
-  /// \brief Turn a Rabin-like automaton into a parity automaton based on the
-  /// index appearence record (IAR)
+  /// \brief Turn a Rabin-like or Streett-like automaton into a parity automaton
+  /// based on the index appearence record (IAR)
   ///
-  /// Return nullptr if the input automaton is not Rabin-like, and
-  /// calls spot::iar() otherwise.
+  /// Returns nullptr if the input automaton is neither Rabin-like nor
+  /// Streett-like, and calls spot::iar() otherwise.
   SPOT_API
   twa_graph_ptr
   iar_maybe(const const_twa_graph_ptr& aut);

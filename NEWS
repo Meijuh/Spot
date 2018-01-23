@@ -1,10 +1,16 @@
 New in spot 2.5.0.dev (not yet released)
 
+  Library:
+
+  - iar() and iar_maybe() now also handle Streett-like conditions.
+
   Bugs fixed:
 
   - streett_to_generalized_buchi() could produce incorrect result on
     Streett-like input with acceptance like (Inf(0)|Fin(1))&Fin(1)
     where some Fin(x) is used both with and without a paired Fin(y).
+
+  - iar() and iar_maybe() properly handle Rabin-like conditions.
 
 New in spot 2.5 (2018-01-20)
 
@@ -92,7 +98,7 @@ New in spot 2.5 (2018-01-20)
   New functions in the library:
 
   - spot::iar() and spot::iar_maybe() use index appearance records (IAR)
-    to translate Rabin-like automata into equivalent parity automaton.
+    to translate Rabin-like automata into equivalent parity automata.
     This translation preserves determinism and is especially useful when
     the input automaton is deterministic.
 

@@ -27,7 +27,7 @@ import spot
 try:
     spot.iar(spot.translate('GFa & GFb & GFc'))
 except RuntimeError as e:
-    assert 'iar() expects Rabin-like input' in str(e)
+    assert 'iar() expects Rabin-like or Streett-like input' in str(e)
 
 alt = spot.dualize(spot.translate('FGa | FGb'))
 

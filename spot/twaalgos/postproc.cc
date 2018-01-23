@@ -242,10 +242,12 @@ namespace spot
         || (want_parity && !a->acc().is_parity()))
       {
         twa_graph_ptr b = nullptr;
-        if (want_parity && is_deterministic(a))
+        if (want_parity && is_deterministic(a) &&
+            !a->acc().is_generalized_buchi())
           b = iar_maybe(a);
-        // possible only if a was deterministic and Rabin-like and
-        // we want parity
+        // possible only if a was deterministic and (Rabin-like or Streett-like)
+        // and we want parity and a is not a TGBA
+        // NB: on a TGBA, degeneralization is better than IAR
         if (b)
           a = b;
         else

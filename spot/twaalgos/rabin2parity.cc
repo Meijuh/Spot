@@ -21,7 +21,6 @@
 #include <spot/twaalgos/rabin2parity.hh>
 
 #include <spot/twaalgos/sccinfo.hh>
-#include <spot/twaalgos/isdet.hh>
 
 namespace spot
 {
@@ -41,8 +40,27 @@ namespace spot
       }
     };
 
+    template<bool is_rabin>
     class iar_generator
     {
+      // helper functions: access fin and inf parts of the pairs
+      // these functions negate the Streett condition to see it as a Rabin one
+      const acc_cond::mark_t&
+      fin(unsigned k) const
+      {
+        if (is_rabin)
+          return pairs_[k].fin;
+        else
+          return pairs_[k].inf;
+      }
+      acc_cond::mark_t
+      inf(unsigned k) const
+      {
+        if (is_rabin)
+          return pairs_[k].inf;
+        else
+          return pairs_[k].fin;
+      }
     public:
       explicit iar_generator(const const_twa_graph_ptr& a,
                              const std::vector<acc_cond::rs_pair>& p)
@@ -60,10 +78,14 @@ namespace spot
         build_iar_scc(scc_.initial());
 
         // resulting automaton has acceptance condition: parity max odd
-        // with priorities ranging from 0 to 2*(nb Rabin pairs)
+        // with priorities ranging from 0 to 2*(nb pairs)
         // /!\ priorities are shifted by -1 compared to the original paper
-        res_->set_acceptance(2*pairs_.size() + 1,
-            acc_cond::acc_code::parity(true, true, 2*pairs_.size() + 1));
+        if (is_rabin)
+          res_->set_acceptance(2*pairs_.size() + 1,
+              acc_cond::acc_code::parity(true, true, 2*pairs_.size() + 1));
+        else
+          res_->set_acceptance(2*pairs_.size() + 1,
+              acc_cond::acc_code::parity(true, false, 2*pairs_.size() + 1));
 
         // set initial state
         res_->set_init_state(
@@ -117,11 +139,11 @@ namespace spot
             return;
           }
 
-        // determine the Rabin pairs that appear in the SCC
+        // determine the pairs that appear in the SCC
         auto colors = scc_.acc_sets_of(scc_num);
         std::set<unsigned> scc_pairs;
         for (unsigned k = 0; k != pairs_.size(); ++k)
-          if (colors & (pairs_[k].fin | pairs_[k].inf))
+          if (inf(k) == 0U || (colors & (pairs_[k].fin | pairs_[k].inf)))
             scc_pairs.insert(k);
 
         perm_t p0;
@@ -150,10 +172,9 @@ namespace spot
                     perm_t new_perm = current.perm;
                     // Count pairs whose fin-part is seen on this transition
                     unsigned seen_nb = 0;
-                    std::vector<unsigned> seen;
                     // consider the pairs for this SCC only
                     for (unsigned k : scc_pairs)
-                      if (e.acc & pairs_[k].fin)
+                      if (e.acc & fin(k))
                         {
                           ++seen_nb;
                           auto it = std::find(new_perm.begin(),
@@ -192,7 +213,8 @@ namespace spot
                     for (unsigned k = 0; k != current.perm.size(); ++k)
                       {
                         unsigned pk = current.perm[k];
-                        if (e.acc & (pairs_[pk].fin | pairs_[pk].inf))
+                        if (inf(pk) == 0U ||
+                            (e.acc & (pairs_[pk].fin | pairs_[pk].inf)))
                           // k increases in the loop, so k > maxint necessarily
                           maxint = k;
                       }
@@ -200,7 +222,7 @@ namespace spot
                     acc_cond::mark_t acc = 0U;
                     if (maxint == -1U)
                       acc = {0};
-                    else if (e.acc & pairs_[current.perm[maxint]].fin)
+                    else if (e.acc & fin(current.perm[maxint]))
                       acc = {2*maxint+2};
                     else
                       acc = {2*maxint+1};
@@ -271,12 +293,20 @@ namespace spot
   twa_graph_ptr
   iar_maybe(const const_twa_graph_ptr& aut)
   {
-    std::vector<acc_cond::rs_pair> rabin_pairs;
-    if (!aut->acc().is_rabin_like(rabin_pairs))
-      return nullptr;
-
-    iar_generator gen(aut, rabin_pairs);
-    return gen.run();
+    std::vector<acc_cond::rs_pair> pairs;
+    if (!aut->acc().is_rabin_like(pairs))
+      if (!aut->acc().is_streett_like(pairs))
+        return nullptr;
+      else
+        {
+          iar_generator<false> gen(aut, pairs);
+          return gen.run();
+        }
+    else
+      {
+        iar_generator<true> gen(aut, pairs);
+        return gen.run();
+      }
   }
 
   twa_graph_ptr
@@ -284,6 +314,6 @@ namespace spot
   {
     if (auto res = iar_maybe(aut))
       return res;
-    throw std::runtime_error("iar() expects Rabin-like input");
+    throw std::runtime_error("iar() expects Rabin-like or Streett-like input");
   }
 }
