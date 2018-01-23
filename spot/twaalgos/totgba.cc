@@ -551,6 +551,7 @@ namespace spot
     // At some point we will remove anything that is not used as Inf.
     acc_cond::mark_t to_strip = in->acc().all_sets() - inf;
     acc_cond::mark_t inf_alone = 0U;
+    acc_cond::mark_t fin_alone = 0U;
 
     if (!p)
       return remove_fin(in);
@@ -569,7 +570,14 @@ namespace spot
         if (pair.inf)
           for (unsigned mark: pair.inf.sets())
             inf_to_finpairs[mark] |= pair.fin;
+        else
+          fin_alone |= pair.fin;
       }
+    // If we have something like (Fin(0)|Inf(1))&Fin(0), then 0 is in
+    // fin_alone, but we also have fin_to_infpair[0] = {1}.  This should
+    // really be simplified to Fin(0).
+    for (auto mark: fin_alone.sets())
+      fin_to_infpairs[mark] = 0U;
 
     scc_info si(in, scc_info_options::NONE);
 
@@ -583,10 +591,10 @@ namespace spot
         auto acc = si.acc_sets_of(s); // {0,1,2,3,4,6,7,9}
         auto acc_fin = acc & fin;     // {0,  2,  4,6}
         auto acc_inf = acc & inf;     // {  1,  3,    7,9}
-        acc_cond::mark_t fin_wo_inf = 0U;
         // Fin sets that are alone either because the acceptance
-        // condition has not matching Inf, or because the SCC the not
-        // intersect the matching inf.
+        // condition has no matching Inf, or because the SCC does not
+        // intersect the matching Inf.
+        acc_cond::mark_t fin_wo_inf = 0U;
         for (unsigned mark: acc_fin.sets())
           if (!fin_to_infpairs[mark] || (fin_to_infpairs[mark] - acc_inf))
             fin_wo_inf.set(mark);
