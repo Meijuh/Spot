@@ -1,0 +1,185 @@
+stages:
+  - build
+  - publish
+
+debian-stable-gcc:
+  stage: build
+  except:
+    - /wip/
+  image: gadl/spot-debuild:stable
+  script:
+    - autoreconf -vfi
+    - ./configure
+    - make
+    - make distcheck
+  artifacts:
+    when: always
+    paths:
+      - tests/*/*.log
+      - ./*.log
+      - ./*.tar.gz
+
+debian-unstable-gcc-coverage:
+  stage: build
+  except:
+    - /wip/
+  image: gadl/spot-debuild
+  script:
+    - autoreconf -vfi
+    - ./configure CXX='g++ --coverage' --enable-devel --disable-static --enable-doxygen
+    - make
+    - make check
+    - lcov --capture --directory . --no-external --output spot.info
+    - lcov --remove spot.info '*/spot/parse*/scan*.cc' '*/spot/parse*/parse*.cc' '*/utf8/*' '*/python/*' '*/buddy/*' '*/doc/org/tmp/*' --output spot2.info
+    - lcov --summary spot2.info
+    - genhtml --legend --demangle-cpp --output-directory coverage spot2.info
+  artifacts:
+    when: always
+    paths:
+      - tests/*/*.log
+      - ./*.log
+      - doc/spot.html/
+      - doc/userdoc/
+      - coverage/
+      - ./*.tar.gz
+      - spot2.info
+
+arch-clang:
+  stage: build
+  except:
+    - /wip/
+  image: registry.lrde.epita.fr/spot-arch
+  script:
+    - autoreconf -vfi
+    - ./configure --prefix ~/install_dir CC='clang -Qunused-arguments' CXX='clang++ -Qunused-arguments' --enable-devel --enable-c++17 --enable-doxygen
+    - make
+    - make distcheck
+  artifacts:
+    when: on_failure
+    paths:
+      - tests/*/*.log
+      - ./*.log
+
+arch-gcc-glibcxxdebug:
+  stage: build
+  except:
+    - /wip/
+  image: registry.lrde.epita.fr/spot-arch
+  script:
+    - env
+    - autoreconf -vfi
+    - ./configure --enable-devel --enable-c++17 --enable-glibcxx-debug
+    - make
+    - make distcheck
+  artifacts:
+    when: on_failure
+    paths:
+      - tests/*/*.log
+      - ./*.log
+
+mingw-shared:
+  stage: build
+  except:
+    - /wip/
+  image: gadl/spot-debuild
+  script:
+    - autoreconf -vfi
+    - ./configure CC=i686-w64-mingw32-gcc CXX=i686-w64-mingw32-g++-posix --host i686-w64-mingw32 --disable-python
+    - make
+  artifacts:
+    when: on_failure
+    paths:
+      - tests/*/*.log
+      - ./*.log
+
+mingw-static:
+  stage: build
+  except:
+    - /wip/
+  image: gadl/spot-debuild
+  script:
+    - mkdir install_dir
+    - autoreconf -vfi
+    - ./configure CC=i686-w64-mingw32-gcc CXX=i686-w64-mingw32-g++-posix --host i686-w64-mingw32 --disable-python --disable-shared --enable-optimizations --disable-devel LDFLAGS='-static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -Wl,-lwinpthread -Wl,--no-whole-archive' --prefix=/usr
+    - make
+    - make install-exec DESTDIR=$PWD/install_dir
+    - VERSION=`autoconf --trace='AC_INIT:$2'`
+    - cd install_dir
+    - i686-w64-mingw32-strip usr/bin/*
+    - tar cfvz ../spot-${VERSION}-${CI_COMMIT_REF_SLUG}-bin.tar.gz *
+  artifacts:
+    when: always
+    paths:
+      - tests/*/*.log
+      - ./*.log
+      - ./*.tar.gz
+
+debpkg-stable:
+  stage: build
+  script:
+    - docker pull gadl/spot-debuild:stable
+    - docker pull gadl/spot-debuild-i386:stable
+    - vol=spot-stable-$CI_COMMIT_SHA
+    - docker volume create $vol
+    - exitcode=0
+    - docker run --rm=true -v $vol:/build/result gadl/spot-debuild:stable ./build-spot.sh $CI_COMMIT_REF_NAME -j${NBPROC-1} || exitcode=$?
+    - docker run --rm=true -v $vol:/build/result gadl/spot-debuild-i386:stable ./bin-spot.sh -j${NBPROC-1} || exitcode=$
+    - docker run -v $vol:/build/result --name helper-$vol gadl/spot-debuild:stable true || exitcode=$?
+    - docker cp helper-$vol:/build/result _build_stable || exitcode=$?
+    - docker rm helper-$vol || exitcode=$?
+    - docker volume rm $vol || exitcode=$?
+    - ls -l _build_stable
+    - exit $exitcode
+  artifacts:
+    when: always
+    paths:
+      - _build_stable/
+
+debpkg-unstable:
+  stage: build
+  script:
+    - docker pull gadl/spot-debuild
+    - docker pull gadl/spot-debuild-i386
+    - vol=spot-unstable-$CI_COMMIT_SHA
+    - docker volume create $vol
+    - exitcode=0
+    - docker run --rm=true -v $vol:/build/result gadl/spot-debuild ./build-spot.sh $CI_COMMIT_REF_NAME -j${NBPROC-1} || exitcode=$?
+    - docker run --rm=true -v $vol:/build/result gadl/spot-debuild-i386 ./bin-spot.sh -j${NBPROC-1} || exitcode=$?
+    - docker run -v $vol:/build/result --name helper-$vol gadl/spot-debuild true || exitcode=$?
+    - docker cp helper-$vol:/build/result _build_unstable || exitcode=$?
+    - docker rm helper-$vol || exitcode=$?
+    - docker volume rm $vol || exitcode=$?
+    - ls -l _build_unstable
+    - exit $exitcode
+  artifacts:
+    when: always
+    paths:
+      - _build_unstable/
+
+publish-stable:
+  only:
+    - stable
+  tags:
+    - dput
+  stage: publish
+  dependencies:
+    - debpkg-stable
+  script:
+    - cd _build_stable
+    - ls -l
+    - dput lrde *.changes
+    - tgz=`ls spot-*.tar.* | head -n 1`
+    - case $tgz in *[0-9].tar.*) cp $tgz /lrde/dload/spot/;; esac
+
+publish-unstable:
+  only:
+    - next
+  tags:
+    - dput
+  stage: publish
+  dependencies:
+    - debpkg-unstable
+  script:
+    - cd _build_unstable
+    - ls -l
+    - dput lrde *.changes
