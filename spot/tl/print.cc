@@ -28,6 +28,7 @@
 #include <spot/tl/unabbrev.hh>
 #include <spot/tl/print.hh>
 #include <spot/misc/escape.hh>
+#include <spot/misc/env.hh>
 
 namespace spot
 {

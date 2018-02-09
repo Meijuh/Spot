@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "config.h"
+#include <spot/misc/env.hh>
 #include <spot/misc/tmpfile.hh>
 #include <errno.h>
 #include <cstdlib>

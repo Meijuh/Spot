@@ -22,6 +22,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <spot/misc/env.hh>
 #include <spot/tl/randomltl.hh>
 #include <spot/misc/random.hh>
 #include <iostream>
